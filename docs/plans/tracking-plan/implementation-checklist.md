@@ -612,10 +612,11 @@ Every implementation workpack must update, or explicitly justify not updating:
       including a visible local service-state proof artifact reference, local
       durable settings persistence proof is recorded, and hosted React
       service-data coverage from the parsed tracking read model is rendered and
-      proved, but live parent/child UI beyond that route, actual child-device
-      delivery/runtime execution, physical-device proof, authority, provider
-      delivery, product-ready writable retention execution, and production proof remain
-      pending.
+      proved. Hosted parent portal shell screenshots now cover the overview and
+      devices route context around the tracking surface, but actual
+      child-device delivery/runtime execution, physical-device proof, authority,
+      provider delivery, product-ready writable retention execution, full
+      product parent/child UI, and production proof remain pending.
 - [x] Minimum Serious MVP first-checkpoint audit exists in tracked
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/proof-summary.json`
       and generated
@@ -663,11 +664,12 @@ Every implementation workpack must update, or explicitly justify not updating:
       desktop/mobile screenshots plus hosted evidence drawer, child-safe
       check-in, child-runtime UI, notification parent-surface history, parent
       action readiness, report/policy consumer, and retention settings
-      local service write proof screenshots; hosted artifact inventory proof
-      verifies the stored PNG
-      files, unsupported/manual platform PNG, and full current hosted
-      accessibility assertions; actual child-device runtime execution and full
-      parent/child UI beyond that route remain pending.
+      local service write proof screenshots; it also captures parent overview
+      and devices shell screenshots around the tracking route. Hosted artifact
+      inventory proof verifies the stored PNG files, unsupported/manual
+      platform PNG, and full current hosted accessibility assertions; actual
+      child-device runtime execution and full product parent/child UI remain
+      pending.
 - [ ] Child-device runtime snapshots cover actual delivery/execution,
       disclosure, safe/help responses, and location-share consent. Hosted proof
       covers the copy and delivery-boundary card only.
@@ -686,6 +688,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`;
       the hosted child-runtime UI proof screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`;
+      the hosted parent overview and devices shell screenshots are stored at
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-parent-overview-shell.png`
+      and
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-parent-devices-shell.png`;
       the hosted retention settings local service write screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`;
       the hosted notification parent-surface history screenshot is stored at
@@ -707,8 +713,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       readiness rows, hosted report/policy consumer rows, plus the retention
       settings local service write result card, and hosted
       artifact inventory proof verifies the required hosted assertions and
-      11-card no-overlap layout geometry while actual child-device runtime/full
-      UI accessibility remains pending.
+      11-card no-overlap layout geometry plus the parent shell screenshot
+      inventory while actual child-device runtime/full product UI accessibility
+      remains pending.
 
 ## Evidence Quality Gates
 

@@ -38,6 +38,8 @@ const citationDetailScreenshotPath = path.join(screenshotDir, 'hosted-policy-tra
 const retentionSettingsScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-retention-settings.png');
 const childCheckInScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-check-in.png');
 const childRuntimeUiScreenshotPath = path.join(screenshotDir, 'hosted-policy-tracking-child-runtime-ui.png');
+const parentOverviewShellScreenshotPath = path.join(screenshotDir, 'hosted-parent-overview-shell.png');
+const parentDevicesShellScreenshotPath = path.join(screenshotDir, 'hosted-parent-devices-shell.png');
 const unsupportedManualScreenshotPath = path.join(workpack31Root, '19-unsupported-manual-hosted-ui.png');
 const accessibilitySummaryPath = path.join(
   repoRoot,
@@ -76,7 +78,9 @@ test('hosted policy tracking route renders real-service proof without product cl
 
   await assertHostedPolicyTrackingRoute(page);
   await captureHostedTrackingScreenshots(page);
-  await writeAccessibilitySummary(await collectAccessibilitySummary(page));
+  const accessibilitySummary = await collectAccessibilitySummary(page);
+  const parentPortalShellSummary = await captureParentPortalShellScreenshots(page);
+  await writeAccessibilitySummary(accessibilitySummary, parentPortalShellSummary);
 
   expect(browserFailures).toEqual([]);
 });
@@ -109,13 +113,13 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await assertHostedReportPolicyConsumerProof(trackingProofRegion);
   await assertHostedReportExportProof(trackingProofRegion);
   await assertHostedNotificationParentSurfaceProof(trackingProofRegion);
-  await assertHostedParentActionReadinessProof(trackingProofRegion);
-  await assertHostedMissingDeviceProof(trackingProofRegion);
-  await assertHostedEvidenceDrawerProof(trackingProofRegion);
-  await assertHostedCitationDetailProof(trackingProofRegion);
+  await assertHostedParentActionReadinessProof(page, trackingProofRegion);
+  await assertHostedMissingDeviceProof(page, trackingProofRegion);
+  await assertHostedEvidenceDrawerProof(page, trackingProofRegion);
+  await assertHostedCitationDetailProof(page, trackingProofRegion);
   await assertHostedRetentionSettingsProof(page, trackingProofRegion);
   await assertHostedChildCheckInProof(page, trackingProofRegion);
-  await assertHostedChildRuntimeUiProof(trackingProofRegion);
+  await assertHostedChildRuntimeUiProof(page, trackingProofRegion);
   await assertHostedUnsupportedManualPlatformProof(trackingProofRegion);
 
   const routeText = await trackingProofRegion.textContent();
@@ -124,6 +128,7 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
 }
 
 async function assertHostedChildCheckInProof(page: Page, trackingProofRegion: Locator): Promise<void> {
+  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="child-check-in"]');
   await expect(page.getByRole('heading', { name: 'Child check-in request' })).toBeVisible();
   await expect(trackingProofRegion.getByText('Your parent is asking you to check in. Are you safe?')).toBeVisible();
   await expect(trackingProofRegion.getByText("I'm safe")).toBeVisible();
@@ -186,11 +191,12 @@ async function assertHostedNotificationParentSurfaceProof(trackingProofRegion: L
   await expect(notificationCard.getByText('No product claim')).toBeVisible();
 }
 
-async function assertHostedParentActionReadinessProof(trackingProofRegion: Locator): Promise<void> {
+async function assertHostedParentActionReadinessProof(page: Page, trackingProofRegion: Locator): Promise<void> {
   const parentActionCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="parent-action-readiness-ui"]')
     .first();
   await expect(parentActionCard).toBeVisible();
+  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="parent-action-readiness-ui"]');
   await expect(parentActionCard.getByRole('heading', { name: 'Parent action readiness UI' })).toBeVisible();
   await expect(parentActionCard.getByText('Expected-place parent alert ready')).toBeVisible();
   await expect(parentActionCard.getByText('Expected-place child check-in ready')).toBeVisible();
@@ -207,9 +213,10 @@ async function assertHostedParentActionReadinessProof(trackingProofRegion: Locat
   await expect(parentActionCard.getByText('No product claim')).toBeVisible();
 }
 
-async function assertHostedMissingDeviceProof(trackingProofRegion: Locator): Promise<void> {
+async function assertHostedMissingDeviceProof(page: Page, trackingProofRegion: Locator): Promise<void> {
   const missingDeviceCard = trackingProofRegion.locator('[data-ocentra-tracking-proof="missing-device-ui"]').first();
   await expect(missingDeviceCard).toBeVisible();
+  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="missing-device-ui"]');
   await expect(missingDeviceCard.getByRole('heading', { name: 'Missing-device state UI' })).toBeVisible();
   await expect(missingDeviceCard.getByText('Last-known only state')).toBeVisible();
   await expect(missingDeviceCard.getByText('Powered-off offline state')).toBeVisible();
@@ -226,11 +233,12 @@ async function assertHostedMissingDeviceProof(trackingProofRegion: Locator): Pro
   await expect(missingDeviceCard.getByText('No product claim')).toBeVisible();
 }
 
-async function assertHostedEvidenceDrawerProof(trackingProofRegion: Locator): Promise<void> {
+async function assertHostedEvidenceDrawerProof(page: Page, trackingProofRegion: Locator): Promise<void> {
   const evidenceDrawerCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="service-backed-evidence-drawer"]')
     .first();
   await expect(evidenceDrawerCard).toBeVisible();
+  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="service-backed-evidence-drawer"]');
   await expect(evidenceDrawerCard.getByRole('heading', { name: 'Evidence drawer proof' })).toBeVisible();
   await expect(evidenceDrawerCard.getByText('read-only evidence drawer', { exact: true })).toBeVisible();
   await expect(evidenceDrawerCard.getByText('tracking-hosted-expected-place-event')).toBeVisible();
@@ -241,11 +249,12 @@ async function assertHostedEvidenceDrawerProof(trackingProofRegion: Locator): Pr
   await expect(evidenceDrawerCard.locator('dd').filter({ hasText: /^0$/u }).first()).toBeVisible();
 }
 
-async function assertHostedCitationDetailProof(trackingProofRegion: Locator): Promise<void> {
+async function assertHostedCitationDetailProof(page: Page, trackingProofRegion: Locator): Promise<void> {
   const citationDetailCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="service-backed-citation-detail"]')
     .first();
   await expect(citationDetailCard).toBeVisible();
+  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="service-backed-citation-detail"]');
   await expect(citationDetailCard.locator('h2').first()).toBeVisible();
   await expect(citationDetailCard.getByText('tracking-hosted-expected-place-event').first()).toBeVisible();
   await expect(citationDetailCard.getByText('location-evidence-hosted-1 | location-evidence-hosted-2')).toBeVisible();
@@ -274,6 +283,7 @@ async function assertHostedRetentionSettingsProof(page: Page, trackingProofRegio
     .first();
   const localWrite = retentionSettingsCard.getByRole('button', { name: 'Send retention local write' });
 
+  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="retention-settings-ui"]');
   await expect(trackingProofRegion.getByRole('heading', { name: 'Retention settings read-model UI' })).toBeVisible();
   await expect(trackingProofRegion.getByText('Retention window setting')).toBeVisible();
   await expect(trackingProofRegion.getByText('Delete-after-alert setting')).toBeVisible();
@@ -285,7 +295,7 @@ async function assertHostedRetentionSettingsProof(page: Page, trackingProofRegio
   await expect(trackingProofRegion.getByText('tracking-retention-settings-evidence-remote-ai-disabled')).toBeVisible();
   await expect(retentionSettingsCard.getByText('24-retention-settings-read-model-proof.json')).toBeVisible();
   await expect(retentionSettingsCard.getByText('22-retention-local-service-state-proof.json')).toBeVisible();
-  await expect(localWrite).toBeEnabled();
+  await ensureHostedTrackingCommandEnabled(page, trackingProofRegion, localWrite);
   await localWrite.click();
   await expect(page.getByText('service-write-command-accepted')).toBeVisible();
   await expect(page.getByText('retention-window-setting').first()).toBeVisible();
@@ -301,7 +311,16 @@ async function assertHostedRetentionSettingsProof(page: Page, trackingProofRegio
   ).toBeVisible();
 }
 
-async function assertHostedChildRuntimeUiProof(trackingProofRegion: Locator): Promise<void> {
+async function ensureHostedTrackingCommandEnabled(
+  _page: Page,
+  _trackingProofRegion: Locator,
+  command: Locator
+): Promise<void> {
+  await expect(command).toBeEnabled({ timeout: portalShellReadyTimeoutMs });
+}
+
+async function assertHostedChildRuntimeUiProof(page: Page, trackingProofRegion: Locator): Promise<void> {
+  await scrollTrackingProofCard(page, '[data-ocentra-tracking-proof="child-runtime-ui"]');
   await expect(trackingProofRegion.getByRole('heading', { name: 'Child runtime UI proof' })).toBeVisible();
   await expect(trackingProofRegion.getByText('Tracking request disclosed')).toBeVisible();
   await expect(trackingProofRegion.getByText('Safe response visible')).toBeVisible();
@@ -366,6 +385,57 @@ async function captureHostedTrackingScreenshots(page: Page): Promise<void> {
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole('region', { name: 'Tracking status proof' })).toBeVisible();
   await page.screenshot({ fullPage: true, path: mobileScreenshotPath });
+}
+
+async function captureParentPortalShellScreenshots(page: Page): Promise<{
+  readonly routes: readonly {
+    readonly route: string;
+    readonly screenshot: string;
+    readonly assertions: readonly string[];
+  }[];
+}> {
+  await page.setViewportSize({ width: 1280, height: 960 });
+  await assertAndCaptureParentPortalShellRoute(page, {
+    route: '#/overview',
+    screenshotPath: parentOverviewShellScreenshotPath,
+    expectedSvgText: ['Current device state', 'WHAT PARENTS CONTROL', 'DATA CUSTODY'],
+  });
+  await assertAndCaptureParentPortalShellRoute(page, {
+    route: '#/devices',
+    screenshotPath: parentDevicesShellScreenshotPath,
+    expectedSvgText: ['SELECTED DEVICE CONTEXT', 'SELECTED DEVICE', 'SOURCE', 'CONTROL', 'ROUTE'],
+  });
+  return {
+    routes: [
+      {
+        route: '#/overview',
+        screenshot: path.relative(repoRoot, parentOverviewShellScreenshotPath).replace(/\\/gu, '/'),
+        assertions: ['parent-overview-shell-visible', 'parent-overview-custody-copy-visible'],
+      },
+      {
+        route: '#/devices',
+        screenshot: path.relative(repoRoot, parentDevicesShellScreenshotPath).replace(/\\/gu, '/'),
+        assertions: ['parent-devices-shell-visible', 'parent-devices-context-copy-visible'],
+      },
+    ],
+  };
+}
+
+async function assertAndCaptureParentPortalShellRoute(
+  page: Page,
+  route: {
+    readonly route: string;
+    readonly screenshotPath: string;
+    readonly expectedSvgText: readonly string[];
+  }
+): Promise<void> {
+  await page.goto(route.route);
+  const surface = page.locator('svg.parent-portal-svg-surface');
+  await expect(surface).toBeVisible({ timeout: portalShellReadyTimeoutMs });
+  for (const expectedText of route.expectedSvgText) {
+    await expect(surface.locator('text').filter({ hasText: expectedText }).first()).toBeVisible();
+  }
+  await page.screenshot({ fullPage: true, path: route.screenshotPath });
 }
 
 function locateHostedTrackingProofCards(trackingProofRegion: Locator): HostedTrackingProofCards {
@@ -578,7 +648,8 @@ async function collectAccessibilitySummary(page: Page): Promise<{
 }
 
 async function writeAccessibilitySummary(
-  summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>
+  summary: Awaited<ReturnType<typeof collectAccessibilitySummary>>,
+  parentPortalShellSummary: Awaited<ReturnType<typeof captureParentPortalShellScreenshots>>
 ): Promise<void> {
   assertAccessibilitySummary(summary);
   await mkdir(path.dirname(accessibilitySummaryPath), { recursive: true });
@@ -604,9 +675,12 @@ async function writeAccessibilitySummary(
           retentionSettings: path.relative(repoRoot, retentionSettingsScreenshotPath).replace(/\\/gu, '/'),
           childCheckIn: path.relative(repoRoot, childCheckInScreenshotPath).replace(/\\/gu, '/'),
           childRuntimeUi: path.relative(repoRoot, childRuntimeUiScreenshotPath).replace(/\\/gu, '/'),
+          parentOverviewShell: path.relative(repoRoot, parentOverviewShellScreenshotPath).replace(/\\/gu, '/'),
+          parentDevicesShell: path.relative(repoRoot, parentDevicesShellScreenshotPath).replace(/\\/gu, '/'),
           unsupportedManualPlatform: path.relative(repoRoot, unsupportedManualScreenshotPath).replace(/\\/gu, '/'),
           mobile: path.relative(repoRoot, mobileScreenshotPath).replace(/\\/gu, '/'),
         },
+        parentPortalShellSummary,
       },
       null,
       2
@@ -864,6 +938,8 @@ function hostedTrackingAssertions(): readonly string[] {
     'desktop-screenshot',
     'child-check-in-screenshot',
     'child-runtime-ui-screenshot',
+    'parent-overview-shell-screenshot',
+    'parent-devices-shell-screenshot',
     'mobile-screenshot',
   ];
 }

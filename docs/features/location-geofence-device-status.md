@@ -843,10 +843,11 @@ accessibility beyond the hosted parent route are proved.
       PNGs, including report/export, notification parent-surface, parent action
       readiness, missing-device, and unsupported/manual platform screenshots,
       evidence drawer proof output, unsupported/manual platform proof output,
-      accessibility assertions, and 10-card no-overlap layout geometry without
-      claiming full parent/child UI, child-device runtime, physical-device
-      proof, authority, provider delivery, production proof, or product-ready
-      tracking.
+      parent overview/devices shell screenshots around the tracking route,
+      accessibility assertions, and 11-card no-overlap layout geometry without
+      claiming full product parent/child UI, child-device runtime,
+      physical-device proof, authority, provider delivery, production proof, or
+      product-ready tracking.
 - [x] WP08 Android emulator foreground permission and app-reported current
       `LocationManager` sample metadata plus raw coordinate proof export,
       including foreground permission UX dialog capture. This is local emulator
@@ -868,7 +869,9 @@ accessibility beyond the hosted parent route are proved.
       alert policy-decision refs, and retention before/after proof. This is not
       live device/provider behavior proof.
 - [ ] Full live parent/child UI screenshots and accessibility proof beyond the
-      hosted parent route.
+      hosted parent shell. Hosted parent overview/devices shell screenshots are
+      local/CI proof only; actual child-device delivery/runtime execution and
+      full product parent/child UI remain pending.
 
 ## Next AI Instructions
 
