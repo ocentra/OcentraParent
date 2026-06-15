@@ -24,6 +24,7 @@ Codex must not treat the plan as optional guidance. Required files, exports, rou
 
 ```text
 docs/plans/logging-domain-parity/04-validation-and-enforcement.md
+docs/plans/logging-domain-parity/05-codex-continuation-plan.md
 package.json
 packages/logging-domain/package.json
 packages/logging-domain/src/**
@@ -121,6 +122,7 @@ agent guidance says to use wrappers for validation evidence
 portal dev logger has implemented receiver or bridge path
 agent-service delegates to logging-core after migration
 snapshot endpoint is not documented as primary log store
+missing endpoint behavior is explicit and covered by smoke/negative tests
 ```
 
 `check-logging-exports.mjs` verifies:
@@ -129,6 +131,18 @@ snapshot endpoint is not documented as primary log store
 required logging-domain exports exist
 existing production contract exports remain available
 ```
+
+## Additional negative coverage from continuation note
+
+`05-codex-continuation-plan.md` adds three explicit negative checks. Include them in WP06:
+
+```text
+missing bridge is detected
+missing endpoint is detected
+invalid payload is rejected or reported without corrupting stored logs
+```
+
+These checks must use temporary fixtures or script-internal fixtures, not destructive edits to the real branch.
 
 ## Focused commands
 
