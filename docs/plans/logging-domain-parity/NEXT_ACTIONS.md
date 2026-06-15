@@ -26,19 +26,20 @@
 
 ### 1. WP01 Current State and Reference Audit
 
-Use first when Codex has not yet verified the actual current files against the reference implementation.
+Confirm current parent logging and MCP state before code edits.
 
 Expected result:
 
 ```text
 current state confirmed
 reference files mapped
+existing parent MCP found/reused or absence recorded
 no source code changes unless audit finds a blocking route mismatch
 ```
 
 ### 2. WP02 TypeScript Package Parity
 
-Use first implementation slice.
+First implementation slice.
 
 Expected result:
 
@@ -50,8 +51,6 @@ no generic Cloudflare hardcode
 
 ### 3. WP03 Parent Architecture and Routing Fix
 
-Use after or alongside WP02 when wiring portal/agent/log scopes.
-
 Expected result:
 
 ```text
@@ -61,8 +60,6 @@ package README explains local-dev-observability separately from product safe log
 ```
 
 ### 4. WP04 Rust Logging Core
-
-Use when starting Rust parity.
 
 Expected result:
 
@@ -74,8 +71,6 @@ Rust/TS fixture parity tests exist
 
 ### 5. WP05 Local Validation Evidence
 
-Use after enough logging primitives exist to store local run evidence.
-
 Expected result:
 
 ```text
@@ -86,14 +81,32 @@ local artifacts
 agent_run / diagnostics / artifacts rows
 ```
 
-### 6. WP06 Validation and Enforcement
-
-Use after implementation paths exist.
+### 6. WP07 MCP Query Interface
 
 Expected result:
 
 ```text
-validate:logging and lint checks fail when parity files/routes/wrappers are missing
+MCP logging server or existing parent MCP extension exists
+Codex can query latest failures, run diagnostics, stats, and bounded file slices
+MCP and CLI share query/data-access code
+```
+
+### 7. WP08 Logger Instrumentation and Adoption
+
+Expected result:
+
+```text
+source files use shared logger patterns
+source/context fields are queryable
+checks prevent raw console/ad hoc log writers in touched logging surfaces
+```
+
+### 8. WP06 Validation and Enforcement
+
+Expected result:
+
+```text
+validate:logging and lint checks fail when parity files/routes/wrappers/MCP/instrumentation are missing
 ```
 
 ## PR readiness guard
