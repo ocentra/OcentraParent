@@ -176,10 +176,11 @@ storage/workers, or production readiness.
 This branch refreshes
 `node scripts/test/tracking-hosted-ui-artifact-inventory-proof.mjs` so the
 WP30/WP33 inventory gate verifies the current hosted screenshot PNG inventory,
-the unsupported/manual platform screenshot/proof, all current hosted
-accessibility assertions, and 10-card no-overlap layout geometry while keeping
-full parent/child UI, child-device runtime, physical-device, authority,
-provider delivery, production, and product-ready tracking unclaimed.
+the child-runtime delivery boundary proof, the child-runtime execution readiness
+proof, the unsupported/manual platform screenshot/proof, all current hosted
+accessibility assertions, and no-overlap layout geometry while keeping full
+parent/child UI, child-device runtime, physical-device, authority, provider
+delivery, production, and product-ready tracking unclaimed.
 
 This branch adds `npm run test:tracking-plan-evidence-quality-gate-proof`,
 which validates location UI evidence refs, geofence rule/source refs,
