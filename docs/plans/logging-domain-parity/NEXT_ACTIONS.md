@@ -26,8 +26,6 @@
 
 ### 1. WP01 Current State and Reference Audit
 
-Confirm current parent logging and MCP state before code edits.
-
 Expected result:
 
 ```text
@@ -38,8 +36,6 @@ no source code changes unless audit finds a blocking route mismatch
 ```
 
 ### 2. WP02 TypeScript Package Parity
-
-First implementation slice.
 
 Expected result:
 
@@ -59,7 +55,18 @@ parent scopes are explicit
 package README explains local-dev-observability separately from product safe logging
 ```
 
-### 4. WP04 Rust Logging Core
+### 4. WP09 Log Control, Retention, and Bridge Lifecycle
+
+Expected result:
+
+```text
+log level/source/file/run controls exist
+fresh-run wipe and retention cleanup exist
+bridge health/run-start/stale-run lifecycle exists
+local bridge is default and tunnel is condition-gated
+```
+
+### 5. WP04 Rust Logging Core
 
 Expected result:
 
@@ -69,7 +76,7 @@ agent-service can delegate dev logging to it
 Rust/TS fixture parity tests exist
 ```
 
-### 5. WP05 Local Validation Evidence
+### 6. WP05 Local Validation Evidence
 
 Expected result:
 
@@ -81,7 +88,7 @@ local artifacts
 agent_run / diagnostics / artifacts rows
 ```
 
-### 6. WP07 MCP Query Interface
+### 7. WP07 MCP Query Interface
 
 Expected result:
 
@@ -91,7 +98,7 @@ Codex can query latest failures, run diagnostics, stats, and bounded file slices
 MCP and CLI share query/data-access code
 ```
 
-### 7. WP08 Logger Instrumentation and Adoption
+### 8. WP08 Logger Instrumentation and Adoption
 
 Expected result:
 
@@ -101,12 +108,23 @@ source/context fields are queryable
 checks prevent raw console/ad hoc log writers in touched logging surfaces
 ```
 
-### 8. WP06 Validation and Enforcement
+### 9. WP10 Proof Trace Pipeline
 
 Expected result:
 
 ```text
-validate:logging and lint checks fail when parity files/routes/wrappers/MCP/instrumentation are missing
+proof trace mode can be enabled per test/run
+Playwright or equivalent path writes ordered trace rows
+query service validates matched/missing/out-of-order steps
+proof artifacts are generated from logs, not terminal dumps
+```
+
+### 10. WP06 Validation and Enforcement
+
+Expected result:
+
+```text
+validate:logging and lint checks fail when parity files/routes/wrappers/MCP/instrumentation/proof-trace are missing
 ```
 
 ## PR readiness guard
