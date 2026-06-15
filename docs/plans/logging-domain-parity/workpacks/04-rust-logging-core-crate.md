@@ -29,7 +29,6 @@ package: ocentra-parent-logging-core
 
 ```text
 docs/plans/logging-domain-parity/02-rust-logging-core-crate.md
-docs/plans/logging-domain-parity/05-codex-continuation-plan.md
 crates/agent-service/src/dev_log.rs
 crates/agent-service/src/service_runtime.rs
 crates/agent-protocol/src/logging.rs
@@ -93,18 +92,18 @@ Required artifacts:
 
 ## Checklist rows
 
-- [x] `crates/logging-core` created.
-- [x] Workspace manifest updated.
-- [x] Rust log event types added.
-- [x] NDJSON writer added.
-- [x] Artifact writer added.
-- [x] Redaction helpers added.
-- [x] Agent run/diagnostic structs added.
-- [x] Agent-service delegates dev logging to logging-core.
-- [x] Rust tests added.
-- [x] TS/Rust fixture parity tests added.
-- [x] Focused cargo/npm commands pass.
-- [x] Proof root and workpack completion filled.
+- [ ] `crates/logging-core` created.
+- [ ] Workspace manifest updated.
+- [ ] Rust log event types added.
+- [ ] NDJSON writer added.
+- [ ] Artifact writer added.
+- [ ] Redaction helpers added.
+- [ ] Agent run/diagnostic structs added.
+- [ ] Agent-service delegates dev logging to logging-core.
+- [ ] Rust tests added.
+- [ ] TS/Rust fixture parity tests added.
+- [ ] Focused cargo/npm commands pass.
+- [ ] Proof root and workpack completion filled.
 
 ## Expected source changes
 
@@ -118,25 +117,9 @@ packages/logging-domain/fixtures/**
 packages/logging-domain/tests/**
 ```
 
-## Additional validation from continuation note
-
-`05-codex-continuation-plan.md` adds the missing Rust validation detail: use `cargo check` as well as unit tests.
-
-Required Rust coverage:
-
-```text
-cargo check for the new crate
-unit tests for logging-core
-unit tests or focused tests for direct consumers
-NDJSON writer behavior
-artifact writer behavior
-TS/Rust JSON fixture parity
-```
-
 ## Focused commands
 
 ```bash
-cargo check -p ocentra-parent-logging-core
 cargo test -p ocentra-parent-logging-core
 cargo clippy -p ocentra-parent-logging-core --all-targets -- -D warnings
 cargo test -p ocentra-parent-agent-service dev_log
@@ -168,56 +151,3 @@ Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
 ```
-
-## Completion
-
-Workpack id and branch:
-WP04 on `codex/tracking-plan-full-continuation-a`
-
-Touched files:
-`Cargo.toml`
-`crates/agent-service/Cargo.toml`
-`crates/agent-service/src/dev_log.rs`
-`crates/logging-core/Cargo.toml`
-`crates/logging-core/src/lib.rs`
-`crates/logging-core/src/event.rs`
-`crates/logging-core/src/level.rs`
-`crates/logging-core/src/source.rs`
-`crates/logging-core/src/field.rs`
-`crates/logging-core/src/redaction.rs`
-`crates/logging-core/src/path.rs`
-`crates/logging-core/src/ndjson_writer.rs`
-`crates/logging-core/src/artifact.rs`
-`crates/logging-core/src/dev_log.rs`
-`crates/logging-core/src/agent_run.rs`
-`crates/logging-core/src/diagnostic.rs`
-`crates/logging-core/src/snapshot.rs`
-`crates/logging-core/tests/logging_core.rs`
-`crates/logging-core/tests/fixtures/dev-log-entry.json`
-`packages/logging-domain/fixtures/dev-log-entry.json`
-`packages/logging-domain/tests/unit/dev-log-fixture.test.ts`
-
-Validation commands and results:
-`cargo check -p ocentra-parent-logging-core` passed
-`cargo test -p ocentra-parent-logging-core` passed
-`cargo clippy -p ocentra-parent-logging-core --all-targets -- -D warnings` passed
-`cargo test -p ocentra-parent-agent-service dev_log` passed
-`npm run test --workspace @ocentra-parent/logging-domain -- dev-log-fixture` passed
-`cargo lint-architecture crates/logging-core crates/agent-service/src/dev_log.rs` passed
-`npm run lint:architecture -- --files packages/logging-domain/tests/unit/dev-log-fixture.test.ts` passed
-
-Proof artifacts:
-`output/logging-domain-parity-proof/04-rust-logging-core-crate/00-rust-crate-file-map.json`
-`output/logging-domain-parity-proof/04-rust-logging-core-crate/01-rust-ndjson-writer-proof.json`
-`output/logging-domain-parity-proof/04-rust-logging-core-crate/02-artifact-writer-proof.json`
-`output/logging-domain-parity-proof/04-rust-logging-core-crate/03-ts-rust-fixture-parity.json`
-`output/logging-domain-parity-proof/04-rust-logging-core-crate/16-validation-commands.log`
-
-Product/runtime claims:
-Parent now has a dedicated `ocentra-parent-logging-core` crate that owns Rust log event contracts, local path resolution, NDJSON writing, artifact writing, redaction, agent-run structs, diagnostic structs, and dev-log compatibility behavior.
-`agent-service` no longer owns the dev-log writer implementation; it delegates to logging-core through a narrow compatibility wrapper that preserves the legacy `OCENTRA_PARENT_DEV_LOG_DIR` file layout when that environment variable is set.
-TS/Rust fixture parity now exists in both directions: Rust deserializes the package fixture and the TypeScript logging-domain test parses the Rust fixture through `DevLogEntrySchema`.
-
-Known gaps/manual-required states:
-WP05 still owns higher-level local validation evidence, `agent:run`, and DuckDB/query wrappers.
-WP04 intentionally left `crates/agent-service/src/service_runtime.rs` unchanged because the existing call site already routes through `crate::dev_log::write_agent_info`, and that wrapper now delegates into logging-core.
