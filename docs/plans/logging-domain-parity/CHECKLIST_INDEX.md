@@ -114,3 +114,22 @@ test-results/logging-domain-parity-<proof-mode>/
 - [ ] Focused validation passes.
 - [ ] Proof root written.
 - [ ] Workpack completion section filled.
+
+## WP07 MCP Query Interface
+
+- [ ] Shared query service added for CLI and MCP.
+- [ ] MCP server script added.
+- [ ] `mcp:logging` package/root script added.
+- [ ] Error query tool implemented.
+- [ ] Recent logs query tool implemented.
+- [ ] Source filter query tool implemented.
+- [ ] Context filter query tool implemented.
+- [ ] Flexible query tool implemented.
+- [ ] Stats query tool implemented.
+- [ ] Latest failures query tool implemented.
+- [ ] Run diagnostics query tool implemented.
+- [ ] Bounded local file slice query tool implemented.
+- [ ] MCP and CLI share data access code.
+- [ ] MCP smoke tests pass.
+- [ ] Agent guidance documents MCP-first, CLI-fallback behavior.
+- [ ] Proof root and workpack completion section filled.
