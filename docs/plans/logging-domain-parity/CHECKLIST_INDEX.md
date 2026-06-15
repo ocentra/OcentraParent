@@ -117,21 +117,6 @@ test-results/logging-domain-parity-<proof-mode>/
 - [ ] Smoke test passes.
 - [ ] Proof root and workpack completion filled.
 
-## WP06 Validation and Enforcement
-
-- [ ] `check-logging-domain-parity.mjs` added.
-- [ ] `check-local-evidence-wrapper.mjs` added.
-- [ ] `check-dev-log-routing.mjs` added.
-- [ ] `check-logging-exports.mjs` added.
-- [ ] Root scripts added.
-- [ ] Validation chain updated at safe point.
-- [ ] Logging evidence smoke script added.
-- [ ] Agent guidance references wrapper usage.
-- [ ] Negative/failure checks verified.
-- [ ] Focused validation passes.
-- [ ] Proof root written.
-- [ ] Workpack completion section filled.
-
 ## WP07 MCP Query Interface
 
 - [ ] Existing parent MCP framework audited.
@@ -167,3 +152,34 @@ test-results/logging-domain-parity-<proof-mode>/
 - [ ] Checks prevent ad hoc JSON log writers outside logging-domain/logging-core.
 - [ ] MCP or CLI query proof shows useful source/context values.
 - [ ] Proof root and workpack completion section filled.
+
+## WP10 Proof Trace Pipeline
+
+- [ ] Proof trace mode controls added.
+- [ ] Proof rows include proof_id and correlation_id.
+- [ ] Proof rows include source/context/action/event fields.
+- [ ] Query service can fetch a proof trace by proof_id.
+- [ ] Query service can validate ordered expected steps.
+- [ ] Query service reports missing/out-of-order steps.
+- [ ] One Playwright or equivalent UI-to-result proof trace smoke exists.
+- [ ] Proof trace can be flushed/ingested before assertion.
+- [ ] Proof trace can be queried through CLI.
+- [ ] Proof trace can be queried through MCP or has explicit MCP-followup blocker.
+- [ ] Proof mode is disabled/cleaned after the test.
+- [ ] Retention/wipe prevents stale proof traces from polluting normal evidence.
+- [ ] Proof root and workpack completion section filled.
+
+## WP06 Validation and Enforcement
+
+- [ ] `check-logging-domain-parity.mjs` added.
+- [ ] `check-local-evidence-wrapper.mjs` added.
+- [ ] `check-dev-log-routing.mjs` added.
+- [ ] `check-logging-exports.mjs` added.
+- [ ] Root scripts added.
+- [ ] Validation chain updated at safe point.
+- [ ] Logging evidence smoke script added.
+- [ ] Agent guidance references wrapper usage.
+- [ ] Negative/failure checks verified.
+- [ ] Focused validation passes.
+- [ ] Proof root written.
+- [ ] Workpack completion section filled.
