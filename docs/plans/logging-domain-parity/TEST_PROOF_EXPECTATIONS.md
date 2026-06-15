@@ -17,21 +17,14 @@
 
 Use focused commands first. Broader validation is allowed only after focused commands pass or a precise blocker is recorded.
 
-The continuation note `05-codex-continuation-plan.md` adds four useful validation themes that are now folded into this file:
-
-```text
-TypeScript: transports, app/test-log retention, and log serialization tests.
-Rust: cargo check plus unit tests for the new crate and direct consumers.
-Local smoke: prove logs are written, ingested, and queryable end to end.
-Negative coverage: missing bridge, missing endpoint, and invalid payload handling.
-```
-
 ## WP01 Current State and Reference Audit
 
 Expected commands:
 
 ```bash
 node -e "console.log('audit-only: no source validation required')"
+git grep -ni "mcp\|model context protocol\|modelcontextprotocol" -- .
+find . -iname '*mcp*' -o -iname '*modelcontext*'
 ```
 
 Expected proof:
@@ -41,6 +34,7 @@ reference file map
 parent current state map
 live usage map
 gap summary
+existing MCP audit result
 ```
 
 ## WP02 TypeScript Logging Package Parity
@@ -52,8 +46,6 @@ npm run build --workspace @ocentra-parent/logging-domain
 npm run test --workspace @ocentra-parent/logging-domain
 npm run test:query --workspace @ocentra-parent/logging-domain -- stats --scope=parent-test
 ```
-
-If package scripts are not wired yet, run direct script commands and record the transition.
 
 Expected TypeScript coverage:
 
@@ -67,15 +59,6 @@ query script returns stats/failure/search output from DuckDB
 existing production-safe contract exports still parse existing fixtures/read models
 ```
 
-Expected negative checks:
-
-```text
-missing bridge script fails parity check
-missing export fails export check
-Cloudflare default in generic parent scope fails scope check
-invalid bridge payload is rejected or reported as invalid without corrupting NDJSON
-```
-
 ## WP03 Parent Logging Architecture and Routing
 
 Expected focused commands:
@@ -85,14 +68,6 @@ npm run build --workspace @ocentra-parent/logging-domain
 npm run test --workspace @ocentra-parent/portal
 cargo test -p ocentra-parent-agent-service dev_log
 ```
-
-Allowed blocker:
-
-```text
-portal route receiver cannot be fully tested until WP02 bridge exists
-```
-
-If blocked, record the exact missing dependency and do not claim routing complete.
 
 Expected routing coverage:
 
@@ -126,13 +101,6 @@ artifact writer writes file metadata, sha256, byte length, and line count
 secret-like fields are redacted by default helpers
 ```
 
-Expected parity proof:
-
-```text
-Rust fixture deserializes in TypeScript.
-TypeScript fixture deserializes in Rust.
-```
-
 ## WP05 Local Validation Evidence
 
 Expected focused commands:
@@ -142,19 +110,6 @@ npm run agent:run -- node -e "process.exit(0)"
 npm run agent:run -- node -e "process.exit(2)"
 npm run agent:query -- latest-failures
 npm run codex:evidence -- latest-failures
-```
-
-Expected artifacts:
-
-```text
-stdout.log
-stderr.log
-metadata.json
-agent-run NDJSON
-diagnostics NDJSON
-artifacts NDJSON
-DuckDB rows
-compact evidence packet
 ```
 
 Expected local smoke proof:
@@ -184,12 +139,65 @@ node scripts/check-logging-exports.mjs
 Expected negative checks:
 
 ```text
-remove/rename bridge script in temp copy -> check fails
-remove/rename required export in temp copy -> check fails
-remove agent wrapper script in temp copy -> check fails
-portal dev-log route without receiver -> check fails
-missing bridge endpoint -> smoke test reports clear failure
-invalid bridge payload -> bridge rejects/reports invalid payload without corrupting stored logs
+missing bridge script fails
+missing required export fails
+missing agent wrapper fails
+portal dev-log route without receiver fails
+invalid bridge payload is rejected without corrupting stored logs
 ```
 
-Do not mutate the real branch for negative checks. Use temporary fixtures or script-internal test fixtures.
+Use temporary fixtures or script-internal fixtures. Do not mutate the real branch for negative checks.
+
+## WP07 MCP Query Interface
+
+Expected focused commands depend on the final MCP framework, but must include equivalents of:
+
+```bash
+npm run mcp:logging -- --list-tools
+npm run mcp:logging -- --smoke latest-failures
+npm run mcp:logging -- --smoke run-diagnostics
+npm run mcp:logging -- --smoke artifact-slice
+npm run test --workspace @ocentra-parent/logging-domain -- mcp
+```
+
+Expected MCP coverage:
+
+```text
+existing parent MCP audit completed
+MCP server starts locally
+MCP tools query DuckDB for parent scopes
+latest failures query returns compact rows
+run diagnostics query returns diagnostics without raw log spam
+bounded file slice query returns limited local file lines
+MCP and CLI share query/data-access code
+limits prevent context spam
+```
+
+## WP08 Logger Instrumentation and Adoption
+
+Expected focused commands:
+
+```bash
+npm run build --workspace @ocentra-parent/logging-domain
+npm run test --workspace @ocentra-parent/logging-domain -- logger
+cargo test -p ocentra-parent-logging-core
+cargo test -p ocentra-parent-agent-service dev_log
+npm run validate:logging
+```
+
+If MCP exists:
+
+```bash
+npm run mcp:logging -- --smoke source-context
+```
+
+Expected instrumentation coverage:
+
+```text
+TypeScript logger pattern preserves source/context fields
+Rust logging-core pattern preserves source/context fields
+portal or script path emits queryable structured rows
+agent-service path emits queryable or fixture-proven structured rows
+checks reject new raw console logging in touched logging surfaces
+checks reject ad hoc JSON writers outside logging-domain/logging-core
+```
