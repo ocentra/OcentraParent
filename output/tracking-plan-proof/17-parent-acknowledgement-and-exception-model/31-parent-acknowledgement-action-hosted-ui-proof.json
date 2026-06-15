@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-07T09:43:03.936Z",
-  "commit": "f3e3283dab1afe8ab856b4ef7a2980024e881468",
+  "checkedAt": "2026-06-07T11:34:01.894Z",
+  "commit": "982a0aabc7cc82270d33e8448fe10c105d292017",
   "workpackIds": [
     "30-parent-and-child-ui-ux-surfaces",
     "31-platform-extension-checklists-and-proof-routing",
@@ -95,8 +95,8 @@
       "service-backed-citation-detail-visible",
       "service-backed-citation-detail-screenshot",
       "retention-settings-read-model-visible",
-      "retention-settings-write-preflight-clicked",
-      "retention-settings-write-preflight-result-visible",
+      "retention-settings-local-write-clicked",
+      "retention-settings-local-write-result-visible",
       "retention-settings-screenshot",
       "manual-required-visible",
       "physical-device-required-visible",
@@ -159,7 +159,7 @@
         "Hosted route renders parent notification history, manual action, and provider unavailable rows from existing tracking notification proof refs without claiming provider delivery or receipt runtime.",
         "Hosted route renders expected-place alert policy and parent acknowledgement action readiness rows from existing tracking proof refs without claiming live mutation or delivery runtime.",
         "Hosted route renders last-known, offline, contact-requested, and manual-required missing-device rows from existing WP29 proof without claiming current location or OS lost-mode runtime.",
-        "Hosted route renders existing retention settings read-model rows and can send a local write-preflight command without claiming product-ready mutation.",
+        "Hosted route renders existing retention settings read-model rows and can send a local service write command without claiming product-ready mutation.",
         "Hosted route renders a read-only evidence drawer from the selected service-backed citation without evaluating policy or dispatching actions.",
         "Your parent is asking you to check in. Are you safe?",
         "Child sees a clear tracking request, safe response, help response, and location-share consent copy.",
@@ -985,7 +985,7 @@
         "5",
         "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json",
         "output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json",
-        "Hosted retention settings rendering only; writable product settings, service mutation, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.",
+        "Hosted retention settings rendering proves local service write execution and durable local persistence only; product-ready writable settings, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.",
         "Manual proof required",
         "No product claim",
         "0",
@@ -1010,7 +1010,7 @@
         "Remote AI disabled setting",
         "settings-read-model-ready",
         "tracking-retention-settings-evidence-remote-ai-disabled",
-        "Retention write preflight result",
+        "Retention local service write result",
         "tracking-retention-settings-write-command",
         "retention-window-setting",
         "service-write-command-accepted",
@@ -1025,7 +1025,7 @@
         "0",
         "1",
         "agent-service-local-retention-settings-state",
-        "0",
+        "1",
         "1",
         "1",
         "1",
@@ -1037,7 +1037,7 @@
         "0",
         "0",
         "Not reported",
-        "Portal command/result rendering only; service mutation execution and local state revision are local proof, while durable product persistence, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.",
+        "Portal command/result rendering proves local service mutation execution, local durable settings persistence, and local state revision only; product-ready writable settings, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.",
         "P2 service proof",
         "read-only evidence drawer",
         "tracking-hosted-expected-place-event",
@@ -1217,7 +1217,7 @@
           "disabled": false
         },
         {
-          "text": "Send retention write preflight",
+          "text": "Send retention local write",
           "disabled": false
         }
       ],
@@ -1225,54 +1225,54 @@
         {
           "proofId": "family-dashboard-rollup",
           "left": 21,
-          "top": -16709,
+          "top": -16736,
           "right": 366,
-          "bottom": -15381,
+          "bottom": -15408,
           "width": 345,
           "height": 1328
         },
         {
           "proofId": "missing-device-ui",
           "left": 21,
-          "top": -6894,
+          "top": -6921,
           "right": 366,
-          "bottom": -5049,
+          "bottom": -5076,
           "width": 345,
           "height": 1845
         },
         {
           "proofId": "notification-parent-surface-history-ui",
           "left": 21,
-          "top": -12216,
+          "top": -12243,
           "right": 366,
-          "bottom": -10278,
+          "bottom": -10305,
           "width": 345,
           "height": 1937
         },
         {
           "proofId": "parent-action-readiness-ui",
           "left": 21,
-          "top": -10272,
+          "top": -10299,
           "right": 366,
-          "bottom": -6900,
+          "bottom": -6927,
           "width": 345,
           "height": 3373
         },
         {
           "proofId": "report-policy-consumer-ui",
           "left": 21,
-          "top": -15375,
+          "top": -15402,
           "right": 366,
-          "bottom": -13902,
+          "bottom": -13929,
           "width": 345,
           "height": 1473
         },
         {
           "proofId": "report-export-ui",
           "left": 21,
-          "top": -13896,
+          "top": -13923,
           "right": 366,
-          "bottom": -12222,
+          "bottom": -12249,
           "width": 345,
           "height": 1674
         },
@@ -1297,11 +1297,11 @@
         {
           "proofId": "retention-settings-ui",
           "left": 21,
-          "top": -5043,
+          "top": -5070,
           "right": 366,
           "bottom": -2554,
           "width": 345,
-          "height": 2488
+          "height": 2515
         },
         {
           "proofId": "child-check-in",
@@ -1343,7 +1343,7 @@
   },
   "commands": [
     {
-      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-XcZMDC\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-XcZMDC\\seed-tracking.sql",
+      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-2CVKbv\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-2CVKbv\\seed-tracking.sql",
       "exitCode": 0
     },
     {
@@ -1528,7 +1528,7 @@
       "localServiceStateReadbackClaimedRows": 1,
       "localServiceStateRevision": 1,
       "localServiceStateSnapshotRef": "agent-service-local-retention-settings-state",
-      "durableSettingsPersistedRows": 0,
+      "durableSettingsPersistedRows": 1,
       "appliedRetentionWindowHours": 168,
       "remoteSyncEnabledRows": 0,
       "remoteAiEnabledRows": 0,
@@ -1587,7 +1587,7 @@
     "This proof renders notification parent-surface history/preference rows but does not claim preference mutation, quiet-hours runtime, provider delivery, receipt ingestion, child-device delivery, physical-device proof, authority, production storage, adapter dispatch, or product readiness.",
     "This proof renders parent action readiness rows for expected-place alert policy and parent acknowledgement actions but does not claim live service mutation, alert delivery, provider delivery, receipt ingestion, child-device runtime, physical-device proof, authority, production workers, adapter dispatch, or product readiness.",
     "This proof renders missing-device last-known, offline, contact-requested, and manual-required rows but does not claim current-location runtime, powered-off tracking, remote sync, provider delivery, physical-device proof, OS lost-mode API execution, authority, production workers, or product readiness.",
-    "This proof renders retention settings read-model rows and local service execution proof with a local service state revision but does not claim writable product settings, durable production persistence, or platform runtime execution.",
+    "This proof renders retention settings read-model rows and local service execution proof with a local service state revision and local durable settings persistence but does not claim product-ready writable settings, durable production persistence, or platform runtime execution.",
     "This proof sends and renders a typed retention settings write result with local service mutation execution and local state snapshot ref but does not claim product-ready service behavior, platform runtime execution, child-device delivery, provider delivery, physical-device proof, authority, or production behavior.",
     "This proof renders unsupported/manual platform rows in the hosted portal but does not claim physical-device execution, authority enrollment, provider delivery, or product-ready tracking.",
     "This proof does not claim full child-device UI or authority-enrolled hard-control readiness."

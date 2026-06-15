@@ -107,10 +107,11 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       claiming writable settings, service mutation, platform runtime,
       child-device delivery, provider delivery, authority, physical-device
       execution, or production readiness.
-- [x] Send and render hosted retention settings write-preflight result from the
-      typed service command while proving only local service execution and
-      local service state revision, and render the local service-state proof
-      artifact reference, while keeping durable product settings, platform
+- [x] Send and render hosted retention settings local service write result from
+      the typed service command while proving only local service execution,
+      local service state revision, and local durable settings persistence, and
+      render the local service-state proof artifact reference, while keeping
+      durable production/product-ready settings, platform
       runtime, child-device delivery, provider delivery, authority,
       physical-device execution, and product-ready claims false.
 - [x] Render and screenshot hosted read-only evidence drawer drill-in from the
@@ -218,11 +219,12 @@ The hosted route now also renders a retention settings read-model proof card for
 retention window, delete-after-alert, parent export, remote-sync disabled, and
 remote-AI disabled rows. The repeatable hosted proof captures it at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
-and now also clicks the hosted write-preflight button, renders the typed service
+and now also clicks the hosted local write button, renders the typed service
 accepted result, command id, setting kind, source writer/read-model refs,
 mutation proof refs, applied local retention values, local service state
-revision/snapshot ref, and explicit no-product-claim boundary. It still records
-no durable product settings, product-ready service mutation execution, platform
+revision/snapshot ref, local durable settings persistence, and explicit
+no-product-claim boundary. It still records no durable production/product-ready
+settings, product-ready service mutation execution, platform
 runtime, child-device delivery, provider delivery, authority, physical-device,
 or product readiness claim.
 The hosted route now also renders a read-only evidence drawer card from the
@@ -442,8 +444,9 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
       checklist, WP07, WP30, and WP32 updated; central product capability
       checklist remains hub/primary sequenced.
 - [x] Known gaps/manual-required states: hosted route only proves command/result
-      rendering plus local service execution and local service state revision.
-      Durable product settings, applied product-ready service mutation
+      rendering plus local service execution, local service state revision, and
+      local durable settings persistence. Durable production/product-ready
+      settings, applied product-ready service mutation
       execution, platform runtime, child-device delivery/runtime execution,
       Android/iOS physical proof, authority,
       provider delivery, notification receipts, production workers, and full

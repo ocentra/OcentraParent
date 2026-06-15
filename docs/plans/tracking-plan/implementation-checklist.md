@@ -102,7 +102,7 @@ Every checked item must cite one or more proof artifacts.
       and
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-settings-writer-boundary-proof.json`.
       The service transport now accepts a typed retention settings write command
-      and reports a no-product-claim write preflight result in
+      and reports a no-product-claim local service write result in
       `output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json`
       and
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json`.
@@ -607,7 +607,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       parent action readiness screenshot proof, hosted child-safe check-in
       screenshot proof, and hosted child-runtime
       disclosure/safe-help/location-share consent screenshot proof exist; hosted
-      retention settings write-preflight command/result rendering is proved,
+      retention settings local service write command/result rendering is proved,
       including a visible local service-state proof artifact reference, local
       durable settings persistence proof is recorded, and hosted React
       service-data coverage from the parsed tracking read model is rendered and
@@ -662,7 +662,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       desktop/mobile screenshots plus hosted evidence drawer, child-safe
       check-in, child-runtime UI, notification parent-surface history, parent
       action readiness, report/policy consumer, and retention settings
-      write-preflight proof screenshots; hosted artifact inventory proof
+      local service write proof screenshots; hosted artifact inventory proof
       verifies the stored PNG
       files, unsupported/manual platform PNG, and full current hosted
       accessibility assertions; actual child-device runtime execution and full
@@ -685,7 +685,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`;
       the hosted child-runtime UI proof screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`;
-      the hosted retention settings write-preflight screenshot is stored at
+      the hosted retention settings local service write screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`;
       the hosted notification parent-surface history screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png`;
@@ -704,7 +704,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       drawer, hosted child-safe check-in, and hosted child-runtime UI cards,
       hosted notification parent-surface history rows, hosted parent action
       readiness rows, hosted report/policy consumer rows, plus the retention
-      settings write-preflight result card, and hosted
+      settings local service write result card, and hosted
       artifact inventory proof verifies the required hosted assertions and
       11-card no-overlap layout geometry while actual child-device runtime/full
       UI accessibility remains pending.

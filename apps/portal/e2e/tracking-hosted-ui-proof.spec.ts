@@ -114,6 +114,16 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await assertHostedEvidenceDrawerProof(trackingProofRegion);
   await assertHostedCitationDetailProof(trackingProofRegion);
   await assertHostedRetentionSettingsProof(page, trackingProofRegion);
+  await assertHostedChildCheckInProof(page, trackingProofRegion);
+  await assertHostedChildRuntimeUiProof(trackingProofRegion);
+  await assertHostedUnsupportedManualPlatformProof(trackingProofRegion);
+
+  const routeText = await trackingProofRegion.textContent();
+  expect(routeText ?? '').not.toMatch(/(?:product ready|physical device proved|background geofence proved)/iu);
+  expect(routeText ?? '').not.toMatch(/(?:trouble|lying|bad place|delivered to child device)/iu);
+}
+
+async function assertHostedChildCheckInProof(page: Page, trackingProofRegion: Locator): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Child check-in request' })).toBeVisible();
   await expect(trackingProofRegion.getByText('Your parent is asking you to check in. Are you safe?')).toBeVisible();
   await expect(trackingProofRegion.getByText("I'm safe")).toBeVisible();
@@ -121,12 +131,6 @@ async function assertHostedPolicyTrackingRoute(page: Page): Promise<void> {
   await expect(trackingProofRegion.getByText('Share current location')).toBeVisible();
   await expect(trackingProofRegion.getByText('Call parent', { exact: true })).toBeVisible();
   await expect(trackingProofRegion.getByText('Child-device delivery not proved').first()).toBeVisible();
-  await assertHostedChildRuntimeUiProof(trackingProofRegion);
-  await assertHostedUnsupportedManualPlatformProof(trackingProofRegion);
-
-  const routeText = await trackingProofRegion.textContent();
-  expect(routeText ?? '').not.toMatch(/(?:product ready|physical device proved|background geofence proved)/iu);
-  expect(routeText ?? '').not.toMatch(/(?:trouble|lying|bad place|delivered to child device)/iu);
 }
 
 async function assertHostedReportExportProof(trackingProofRegion: Locator): Promise<void> {
@@ -268,7 +272,7 @@ async function assertHostedRetentionSettingsProof(page: Page, trackingProofRegio
   const retentionSettingsCard = trackingProofRegion
     .locator('[data-ocentra-tracking-proof="retention-settings-ui"]')
     .first();
-  const writePreflight = retentionSettingsCard.getByRole('button', { name: 'Send retention write preflight' });
+  const localWrite = retentionSettingsCard.getByRole('button', { name: 'Send retention local write' });
 
   await expect(trackingProofRegion.getByRole('heading', { name: 'Retention settings read-model UI' })).toBeVisible();
   await expect(trackingProofRegion.getByText('Retention window setting')).toBeVisible();
@@ -281,16 +285,18 @@ async function assertHostedRetentionSettingsProof(page: Page, trackingProofRegio
   await expect(trackingProofRegion.getByText('tracking-retention-settings-evidence-remote-ai-disabled')).toBeVisible();
   await expect(retentionSettingsCard.getByText('24-retention-settings-read-model-proof.json')).toBeVisible();
   await expect(retentionSettingsCard.getByText('22-retention-local-service-state-proof.json')).toBeVisible();
-  await expect(writePreflight).toBeEnabled();
-  await writePreflight.click();
+  await expect(localWrite).toBeEnabled();
+  await localWrite.click();
   await expect(page.getByText('service-write-command-accepted')).toBeVisible();
   await expect(page.getByText('retention-window-setting').first()).toBeVisible();
   await expect(page.getByText('20-retention-settings-mutation-proof.json', { exact: false }).first()).toBeVisible();
   await expect(page.getByText('agent-service-local-retention-settings-state').first()).toBeVisible();
-  await expect(page.getByText('Portal command/result rendering only').first()).toBeVisible();
+  await expect(
+    page.getByText('Portal command/result rendering proves local service mutation execution').first()
+  ).toBeVisible();
   await expect(
     trackingProofRegion.getByText(
-      'Hosted retention settings rendering only; writable product settings, service mutation, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.'
+      'Hosted retention settings rendering proves local service write execution and durable local persistence only; product-ready writable settings, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.'
     )
   ).toBeVisible();
 }
@@ -733,7 +739,7 @@ function assertAccessibilityRetentionAndEvidenceValues(actualValues: readonly st
     'location-evidence-hosted-1 | location-evidence-hosted-2',
     'tracking-retention-settings-evidence-window',
     'tracking-retention-settings-evidence-remote-ai-disabled',
-    'Retention write preflight result',
+    'Retention local service write result',
     'service-write-command-accepted',
     'tracking-retention-settings-write-command',
     'tracking-retention-settings-write-retention-window',
@@ -741,7 +747,7 @@ function assertAccessibilityRetentionAndEvidenceValues(actualValues: readonly st
     'agent-service-local-retention-settings-state',
     'output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json',
     'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
-    'Portal command/result rendering only; service mutation execution and local state revision are local proof, while durable product persistence, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
+    'Portal command/result rendering proves local service mutation execution, local durable settings persistence, and local state revision only; product-ready writable settings, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
     'read-only evidence drawer',
     'Display-only evidence drill-in; policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
     'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json',
@@ -838,8 +844,8 @@ function hostedTrackingAssertions(): readonly string[] {
     'service-backed-citation-detail-visible',
     'service-backed-citation-detail-screenshot',
     'retention-settings-read-model-visible',
-    'retention-settings-write-preflight-clicked',
-    'retention-settings-write-preflight-result-visible',
+    'retention-settings-local-write-clicked',
+    'retention-settings-local-write-result-visible',
     'retention-settings-screenshot',
     'manual-required-visible',
     'physical-device-required-visible',
