@@ -49,6 +49,7 @@ test-results/logging-domain-parity-mcp/
 01-parent-current-state.json
 02-live-usage-map.json
 03-gap-summary.md
+04-existing-mcp-audit.json
 16-validation-commands.log
 ```
 
@@ -106,11 +107,12 @@ test-results/logging-domain-parity-mcp/
 ### WP07
 
 ```text
-00-mcp-tool-list.json
-01-mcp-latest-failures-smoke.json
-02-mcp-run-diagnostics-smoke.json
-03-mcp-file-slice-smoke.json
-04-cli-mcp-query-parity-proof.json
+00-existing-mcp-audit.json
+01-mcp-tool-list.json
+02-mcp-latest-failures-smoke.json
+03-mcp-run-diagnostics-smoke.json
+04-mcp-artifact-slice-smoke.json
+05-cli-mcp-query-parity-proof.json
 16-validation-commands.log
 ```
 
@@ -156,6 +158,7 @@ local bridge smoke passed
 package export parity passed
 Rust NDJSON writer test passed
 agent-run controlled failure recorded
+MCP existing-framework audit completed
 MCP latest-failures smoke passed
 validation script negative check passed
 ```
