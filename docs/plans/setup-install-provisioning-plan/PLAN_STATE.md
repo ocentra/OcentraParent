@@ -2,63 +2,104 @@
 
 > Agent Capsule
 > Plan: `setup-install-provisioning-plan`
-> Doc: PLAN_STATE
-> Kind: current state and gap map.
-> Read when: Immediately after AGENTS.
-> Stop rule: Use this to choose one next action; do not scan historical docs.
-> Proves: current planning state only.
-> Does not prove: product completion or implementation readiness.
+> Doc: `Setup Install Provisioning Plan State`
+> Kind: current state and open gaps.
+> Read when: immediately after AGENTS.md.
+> Stop rule: use this file to choose route state, then continue only to NEXT_ACTIONS.md and WORKPACK_INDEX.md.
+> Proves: current plan state and open-gap accounting only.
+> Does not prove: implementation completion, deployed website, installer readiness, or PR readiness.
+> Proof rule: if state changes, update the assigned workpack, CHECKLIST_INDEX.md, and PROOF_INDEX.md proof path.
 
 <!-- /agent-capsule -->
 
 # Setup Install Provisioning Plan State
 
-Status: execution-grade route and proof inventory are being rewritten for the end-to-end first-run journey.
+## Current status
 
-Research status: incomplete. This plan requires a follow-up pass against existing package scripts, portal routes, LAN pairing state, installer artifacts, family-site deployment options, and current product decisions with Sujan before implementation claims.
+```text
+Plan route: upgraded
+Execution-grade workpacks: in progress
+Implementation: not started by this plan route
+Proof artifacts: none recorded by this plan route yet
+PR-ready: false
+```
 
-## Current Truth
+## Current product direction
 
-- Existing detailed owners remain valid: package mechanics in `parent-client-runtime-distribution-plan`, LAN pairing in `lan-plan`, portal surfaces in `portal-ux-household-surfaces-plan`, account identity in `account-identity-family-plan`.
-- This plan owns the customer path through those systems.
-- `family.ocentra.ca` is a public informational entry surface by default. It may collect registration/contact/auth data only through explicit account flows; it must not collect child activity data on marketing/info pages.
-- A successful setup claim requires observable readiness state, not just installer files or a portal page.
-- Parent install bootstrap and child pairing bootstrap are separate code-gated flows.
+```text
+family.ocentra.ca is a public information/download/account-entry surface by default.
+It must not collect child activity data.
+Registration/login and household authority are account-identity handoffs.
+Parent bootstrap/install and child bootstrap/install are separate flows.
+Installer build/signing/update artifacts are owned by runtime distribution plans.
+Pairing protocol internals are owned by LAN/device-trust plans.
+This plan owns the setup journey/state machine/readiness labels/proof manifest across those handoffs.
+```
 
-## Open Gaps
+## Current repo facts already read
 
-- No dedicated Vite/Cloudflare deployment plan for `family.ocentra.ca`.
-- No single setup state machine tying account, parent device, child device, permissions, pairing, bootstrap codes, and recovery.
-- No platform-specific install UX matrix for parent and child devices.
-- No proof manifest defining screenshots/logs/artifacts for first-run success and failure states.
-- No clear handoff from public website invite/code entry into account/household identity.
-- No explicit separation between parent bootstrap code and child pairing bootstrap code in the state model.
+- `docs/features/family-setup-device-roles.md` says family setup is product foundation and first-run setup is not product-complete.
+- `docs/expectations/family-setup.md` requires household creation/join, child profiles, device roles/status, co-parent/observer removal, recovery, and source-state labels.
+- `docs/expectations/portal.md` says portal sends typed requests to the child-device agent and must show live/stale/degraded/unavailable states honestly.
+- `docs/expectations/platforms.md` says platform claims must match real OS capabilities and scaffold/package preview does not prove production capability.
 
-## Default Next Action
+## External research anchors
 
-Start with `workpacks/01-family-web-info-site.md` or `workpacks/02-registration-login-entry.md` unless the assignment names an installer, child permission, pairing, or rollout proof slice.
+- Cloudflare Pages can host full-stack apps on Cloudflare's network and supports Git/direct upload/C3 deploy modes, Pages Functions, rollbacks, redirects, and custom domains.
+- Cloudflare Workers static assets can serve static application assets behind Workers when a Worker-owned route is preferred.
+- Tauri updater/signing/notarization/package behavior is owned by runtime distribution plans, not by this setup plan.
+- Android package/permission visibility and iOS/macOS distribution/notarization constraints must be handled by platform/package owner plans before production install claims.
 
-## HID Execution Guard (added 2026-06-12)
+## Open gaps
 
-- Scope and completion source:
-  - follow [PLAN_HID_MATRIX.md](../../PLAN_HID_MATRIX.md) execution slice, then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
-  - do not mark this plan complete from checklist deltas alone.
-- Before any checked update, attach:
-  - a real test run log (or explicit known blocker) from the assigned implementation boundary,
-  - a proof manifest under docs/proof/setup-install-provisioning-plan/.
-- Required proof manifest names:
-  - docs/proof/setup-install-provisioning-plan/01-*.md
-  - docs/proof/setup-install-provisioning-plan/02-*.md
-  - docs/proof/setup-install-provisioning-plan/03-*.md
-  - docs/proof/setup-install-provisioning-plan/04-*.md
-  - docs/proof/setup-install-provisioning-plan/05-*.md
-  - docs/proof/setup-install-provisioning-plan/06-*.md
-  - docs/proof/setup-install-provisioning-plan/07-*.md
-  - each proof file must include commands, pass/fail,
-    negative-cases, and manual-required notes.
-- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, rollback/teardown, and bootstrap code proofs are present for the assigned slice.
+```text
+- No final public family-site route/deploy shape proof exists.
+- No single setup state machine ties account, parent app, child agent, permissions, pairing, recovery, custody, and policy baseline.
+- No platform-specific parent/child install journey matrix has been proven.
+- No parent bootstrap code state machine proof exists.
+- No child pairing/bootstrap code state machine proof exists.
+- No first-run setup UI proof exists.
+- No rollout proof manifest exists under output/setup-install-provisioning-plan-proof/.
+- No route-sync proof exists for account identity, runtime distribution, device trust, LAN, portal UX, data custody, policy, or payment handoffs.
+```
 
-## HID execution blueprint
+## No-claim boundaries
 
-Continue execution from: [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md).
-Update this plan only via the blueprint and matching workpack checklist.
+Do not claim:
+
+```text
+public family site deployed
+registration/login implemented
+parent installer ready
+child installer ready
+pairing ready
+first-run setup ready
+platform support ready
+production onboarding ready
+```
+
+until the relevant workpack proof root and checklist rows prove the claim.
+
+## Default execution order
+
+```text
+WP01 family web info site
+WP02 registration login entry
+WP03 parent install journey
+WP04 child install permission journey
+WP05 pairing readiness recovery
+WP07 first-run setup UI and state machine
+WP06 rollout proof and route gate
+```
+
+WP06 is last because it consumes the earlier proof roots.
+
+## Health rules
+
+- Do not implement account identity/session logic here.
+- Do not implement package signing/update/installer generation here.
+- Do not implement LAN protocol internals here.
+- Do not implement device trust/key sealing here.
+- Do not implement data export/delete/custody side effects here.
+- Do not mark setup complete from website/installer/UI-only proof.
+- Do not edit policy/eventing plan files while active lanes own them.
