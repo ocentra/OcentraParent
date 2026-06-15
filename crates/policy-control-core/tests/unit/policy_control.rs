@@ -1,5 +1,5 @@
 use ocentra_eventing::DomainEvent;
-use ocentra_policy_control_core::{
+use ocentra_policy_control_core::policy_authority::{
     evaluate_policy_control, resolve_policy_conflict, resolve_policy_evaluation_request,
     AiResultAuthorityState, EvidenceReferenceState, ParentAuthorityState,
     PolicyActionAuthorizationState, PolicyConflictInput, PolicyConflictResolutionState,

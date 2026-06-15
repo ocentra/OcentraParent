@@ -46,39 +46,39 @@ This audit requires all of these to stay represented:
 
 ## Covered Pasted Scope
 
-- [x] Parent can know where child device was reported.
-- [x] Last-known/live/stale/offline states.
-- [x] Geofence home/school/activity/safe/restricted zones.
-- [x] Expected-place schedule: school/home/activity.
-- [x] Nearby-place intelligence: cinema, mall, hospital, bar, etc.
-- [x] AI analysis over structured evidence.
-- [x] Warning/urgent/critical notification policy.
-- [x] Parent acknowledgement.
-- [x] Holiday/exception state.
-- [x] False-alarm handling.
-- [x] Child check-in.
-- [x] Temporary live tracking.
-- [x] Missing device mode.
-- [x] Battery/connectivity status.
-- [x] Retention/delete/export controls.
-- [x] Android/iOS background permission proof.
-- [x] Desktop hint-only states.
-- [x] Platform extension checklists.
-- [x] Tests, Playwright, manual platform proof.
-- [x] Proof packs and merge gates.
-- [x] Browser-plan style README shape.
-- [x] Source index.
-- [x] Current snapshot.
-- [x] Full-scope plan.
-- [x] AI/safety analysis plan.
-- [x] Platform deep dive.
-- [x] Test blueprint.
-- [x] UI/UX guide.
-- [x] Implementation checklist.
-- [x] Coverage audit.
-- [x] Workpack structure.
-- [x] Progress reconciliation.
-- [x] Codex worker instructions.
+- [ ] Parent can know where child device was reported.
+- [ ] Last-known/live/stale/offline states.
+- [ ] Geofence home/school/activity/safe/restricted zones.
+- [ ] Expected-place schedule: school/home/activity.
+- [ ] Nearby-place intelligence: cinema, mall, hospital, bar, etc.
+- [ ] AI analysis over structured evidence.
+- [ ] Warning/urgent/critical notification policy.
+- [ ] Parent acknowledgement.
+- [ ] Holiday/exception state.
+- [ ] False-alarm handling.
+- [ ] Child check-in.
+- [ ] Temporary live tracking.
+- [ ] Missing device mode.
+- [ ] Battery/connectivity status.
+- [ ] Retention/delete/export controls.
+- [ ] Android/iOS background permission proof.
+- [ ] Desktop hint-only states.
+- [ ] Platform extension checklists.
+- [ ] Tests, Playwright, manual platform proof.
+- [ ] Proof packs and merge gates.
+- [ ] Browser-plan style README shape.
+- [ ] Source index.
+- [ ] Current snapshot.
+- [ ] Full-scope plan.
+- [ ] AI/safety analysis plan.
+- [ ] Platform deep dive.
+- [ ] Test blueprint.
+- [ ] UI/UX guide.
+- [ ] Implementation checklist.
+- [ ] Coverage audit.
+- [ ] Workpack structure.
+- [ ] Progress reconciliation.
+- [ ] Codex worker instructions.
 
 ## Consolidation Decisions
 

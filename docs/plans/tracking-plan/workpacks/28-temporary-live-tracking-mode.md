@@ -41,11 +41,11 @@ Proof root: `output/tracking-plan-proof/28-temporary-live-tracking-mode/`
 
 ## AI Worker Checklist
 
-- [x] Require parent authorization and duration.
-- [x] Model cadence, max duration, and auto-stop reason.
-- [x] Preserve battery/permission degraded states.
-- [x] Audit start/update/degrade/stop.
-- [x] Test expiry and deletion/retention behavior.
+- [ ] Require parent authorization and duration.
+- [ ] Model cadence, max duration, and auto-stop reason.
+- [ ] Preserve battery/permission degraded states.
+- [ ] Audit start/update/degrade/stop.
+- [ ] Test expiry and deletion/retention behavior.
 
 ## Where We Are
 
@@ -85,20 +85,20 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-temporary-live-mode-proof`.
-- [x] Touched files: `packages/parent-domain/src/tracking-temporary-live-mode-proof.ts`,
+- [ ] Touched files: `packages/parent-domain/src/tracking-temporary-live-mode-proof.ts`,
       `packages/parent-domain/tests/tracking-temporary-live-mode-proof.test.ts`,
       `scripts/test/tracking-temporary-live-mode-proof.mjs`, product docs,
       checklist, package README, and this workpack doc.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-temporary-live-mode-proof.mjs` passed.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/28-temporary-live-tracking-mode/` and
       `test-results/tracking-temporary-live-mode-proof/`.
-- [x] Product doc/checklist updates: owning feature doc, capability checklist,
+- [ ] Product doc/checklist updates: owning feature doc, capability checklist,
       implementation checklist, package README, and this workpack doc updated.
-- [x] Known gaps/manual-required states: live/current/background location
+- [ ] Known gaps/manual-required states: live/current/background location
       runtime, parent portal live-map runtime, provider delivery, relay runtime,
       child-device delivery/runtime execution, Android/iOS physical-device
       proof, production temporary-live workers, and production proof remain

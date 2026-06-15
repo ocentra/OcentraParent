@@ -10,7 +10,10 @@ fn app_game_observation_records_evidence_and_requests_policy_not_ai() {
     let policy = ocentra_app_game_core::app_game_policy_evaluation_requested_event(&evidence)
         .expect("app game policy request is expected");
 
-    assert_eq!(observed.event_type, ChildRuntimeDomain::AppGame.observed_event_type());
+    assert_eq!(
+        observed.event_type,
+        ChildRuntimeDomain::AppGame.observed_event_type()
+    );
     assert_eq!(
         evidence.event_type,
         ChildRuntimeDomain::AppGame.evidence_recorded_event_type()

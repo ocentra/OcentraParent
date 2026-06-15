@@ -1,5 +1,20 @@
 # Tracking Plan Implementation Checklist
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `tracking-plan`
+> Doc: `Tracking Plan Implementation Checklist`
+> Kind: full checklist; read exact rows only.
+> Read when: Only for exact rows named by CHECKLIST_INDEX.md, workpack, or PR/DONE proof.
+> Stop rule: Do not scan the whole checklist. Open exact row/section only.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 A checkbox may be marked `[x]` only after the referenced proof pack exists
 under:
 
@@ -37,7 +52,7 @@ Every checked item must cite one or more proof artifacts.
       custody/retention, provider status, LAN/network/browser/app-game evidence
       refs, notification, and AI boundary infrastructure instead of duplicating
       common runtime mechanics.
-- [x] Current tracking state helpers, read-model projection helpers, and local
+- [ ] Current tracking state helpers, read-model projection helpers, and local
       durable retention state live in `crates/agent-core/src/tracking/`, not
       WebSocket transport modules. Broader runtime state machines still need to
       follow this boundary as they are implemented.
@@ -49,7 +64,7 @@ Every checked item must cite one or more proof artifacts.
 - [ ] TypeScript tracking code is limited to portal UI, protocol/read-model
       mirrors, schema-facing contracts, and proof harnesses; it does not own
       runtime decisions.
-- [x] Public agent-core tracking behavior tests are organized under
+- [ ] Public agent-core tracking behavior tests are organized under
       crate-level `tests/` folders. Existing private service transport tests
       remain source-adjacent until the service exposes a public crate boundary.
 - [ ] Rust tracking tests are split by boundary: `crates/agent-protocol/tests`
@@ -146,41 +161,53 @@ Every checked item must cite one or more proof artifacts.
 
 ## Main Execution Gates
 
-- [x] Source index and current gap map are reconciled against the current
+- [ ] Tracking domain/protocol/runtime/UI organization pass is complete enough
+      for PR-ready handoff. Required proof before checking: repo scan and
+      cleanup notes in
+      `docs/architecture/repo-domain-organization-cleanup-plan.md`, canonical
+      TypeScript owners for tracking evidence/policy/protocol/portal ids,
+      Rust boundary ownership across `agent-core`, `agent-protocol`, and
+      `agent-service`, duplicate-shape classification, a movement map before
+      code edits, feature/package/crate-owned test placement, feature-owned
+      proof roots, updated workpack/checklist proof paths when files move, and
+      validation from A's `codex/tracking-plan-full-continuation-a` branch.
+      This is the first slice of the repo-wide organization cleanup and must
+      not become micro-PR churn.
+- [ ] Source index and current gap map are reconciled against the current
       tracking docs and product-readiness closure blockers. Source/gap proof:
       `output/tracking-plan-proof/01-source-index-and-repo-reconciliation/proof.json`;
       `output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/proof.json`;
       `test-results/tracking-source-reconciliation-gap-map-proof/proof.json`.
       This updates source truth and blocker accounting only; product-ready
       tracking remains false until the real-runtime blockers are satisfied.
-- [x] No precise location is inferred from LAN/IP/pairing. Contract proof:
+- [ ] No precise location is inferred from LAN/IP/pairing. Contract proof:
       `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.
-- [x] Every location sample has source, timestamp, accuracy/hint quality,
+- [ ] Every location sample has source, timestamp, accuracy/hint quality,
       freshness, custody, retention, permission state, confidence, and reason
       codes. Contract proof:
       `output/tracking-plan-proof/04-location-evidence-model/`.
-- [x] Geofence transitions cite location evidence and geofence rule refs.
+- [ ] Geofence transitions cite location evidence and geofence rule refs.
       Contract proof:
       `output/tracking-plan-proof/15-geofence-transition-engine/`.
-- [x] Expected-place decisions cite schedule and expected-place rule refs.
+- [ ] Expected-place decisions cite schedule and expected-place rule refs.
       Contract proof:
       `output/tracking-plan-proof/16-expected-place-schedule-engine/`.
-- [x] Nearby-place evidence includes query radius, distance, provider,
+- [ ] Nearby-place evidence includes query radius, distance, provider,
       category, confidence, and ambiguity state. Contract proof:
       `output/tracking-plan-proof/19-nearby-place-provider-abstraction/`.
-- [x] AI location safety result is evidence only and cannot alert/escalate
+- [ ] AI location safety result is evidence only and cannot alert/escalate
       directly. Contract proof:
       `output/tracking-plan-proof/23-ai-location-safety-analysis-contracts/`.
-- [x] Parent policy is the only authority for notification/action/escalation.
+- [ ] Parent policy is the only authority for notification/action/escalation.
       Contract proof:
       `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/`.
-- [x] Parent acknowledgement and exceptions can suppress or modify alerts
+- [ ] Parent acknowledgement and exceptions can suppress or modify alerts
       according to rules. Contract proof:
       `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/`.
-- [x] Critical alerts cannot be suppressed by generic holiday/exception unless
+- [ ] Critical alerts cannot be suppressed by generic holiday/exception unless
       explicitly configured. Contract proof:
       `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/`.
-- [x] Retention/delete/export behavior is implemented and tested at P1
+- [ ] Retention/delete/export behavior is implemented and tested at P1
       fixture tier. Retention delete, parent-owned export, and UI-visible
       deleted-history hiding have proof in
       `output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json`;
@@ -222,10 +249,10 @@ Every checked item must cite one or more proof artifacts.
       blockers over that durable-settings evidence while product-ready writable
       retention execution, platform runtime, and production hardening remain
       pending.
-- [x] Remote sync and remote AI are disabled by default. Contract proof:
+- [ ] Remote sync and remote AI are disabled by default. Contract proof:
       `output/tracking-plan-proof/07-retention-and-custody-model/`,
       `output/tracking-plan-proof/24-ai-provider-routing/`.
-- [x] Android background claims have real device permission/background proof.
+- [ ] Android background claims have real device permission/background proof.
       WP08 emulator foreground permission grant, app-reported current
       `LocationManager` sample metadata, Google Play Services fused foreground
       sample metadata, and raw coordinate proof export now exist under
@@ -289,15 +316,15 @@ Every checked item must cite one or more proof artifacts.
       WP33 physical-device evidence review proof now consumes that gate and
       keeps iOS artifact content `artifact-missing` or `content-review-required`,
       with zero accepted content rows and zero product-ready rows.
-- [x] Desktop LAN/IP/Wi-Fi presence is labelled hint-only unless OS location
+- [ ] Desktop LAN/IP/Wi-Fi presence is labelled hint-only unless OS location
       proof exists. Contract proof:
       `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.
-- [x] Pre-device gap-closure gate reruns tracking P0/P1/P2 proofs, mobile
+- [ ] Pre-device gap-closure gate reruns tracking P0/P1/P2 proofs, mobile
       scaffold proofs, Android debug package artifact proof, and emits Android
       Studio/iOS simulator/WSL/physical-device proof plans before device work.
       Aggregate proof:
       `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`.
-- [x] Android emulator package launch, foreground-service scaffold, foreground
+- [ ] Android emulator package launch, foreground-service scaffold, foreground
       permission UX dialog capture, foreground permission grant, app-reported
       current `LocationManager` sample metadata plus raw coordinate proof
       export, Google Play Services fused foreground sample metadata plus raw
@@ -310,11 +337,11 @@ Every checked item must cite one or more proof artifacts.
       Android system geofencing, dwell transitions, notification delivery,
       physical-device, or authority behavior. Emulator proof:
       `test-results/tracking-plan-android-emulator-proof/proof.json`.
-- [x] Android emulator package/foreground-service/permission and local emulator
+- [ ] Android emulator package/foreground-service/permission and local emulator
       geofence evidence is bridged into child-runtime readiness accounting
       without claiming child-device runtime execution. Artifact:
       `test-results/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json`.
-- [x] Android emulator artifact inventory proof verifies existing adb runtime
+- [ ] Android emulator artifact inventory proof verifies existing adb runtime
       outputs, foreground/background permission UI artifacts, app-reported
       location evidence, local geofence transition and app-owned dwell evidence, device-status
       proof, and validation log as required local emulator artifacts, then
@@ -322,7 +349,7 @@ Every checked item must cite one or more proof artifacts.
       handoff without claiming Android system geofence delivery or
       physical-device readiness. Artifact:
       `test-results/tracking-android-emulator-artifact-inventory-proof/proof.json`.
-- [x] Android physical-device runtime proof verifies a Samsung S9 over Wi-Fi ADB
+- [ ] Android physical-device runtime proof verifies a Samsung S9 over Wi-Fi ADB
       (`192.168.2.45:5555`) with debug APK push plus on-device package-manager
       install, launch attempt, foreground-service `ServiceRecord` with
       `isForeground=true`, device metadata, foreground/background location
@@ -334,11 +361,11 @@ Every checked item must cite one or more proof artifacts.
       remain zero/unclaimed; authority enrollment, production workers, and
       product-ready Android tracking remain unclaimed. Artifact:
       `test-results/tracking-android-physical-device-runtime-proof/proof.json`.
-- [x] WSL/local replay proof records WSL2/Ubuntu, linked-worktree Git mapping,
+- [ ] WSL/local replay proof records WSL2/Ubuntu, linked-worktree Git mapping,
       contract build output, service read-model proof, and Rust core tracking
       read-model tests. Artifact:
       `output/tracking-plan-proof/wsl-local-replay/proof.json`.
-- [x] Local platform proof batch aggregates Android emulator runtime evidence,
+- [ ] Local platform proof batch aggregates Android emulator runtime evidence,
       Samsung S9 Android physical package/service/status evidence, WSL/local
       replay, hosted parent UI accessibility, product parent/child UI local
       artifacts, product-readiness closure, and real-runtime handoff accounting
@@ -347,7 +374,7 @@ Every checked item must cite one or more proof artifacts.
       authority enrollment, provider delivery, production runtime, and
       product-ready tracking remain unclaimed. Artifact:
       `test-results/tracking-local-platform-proof-batch/proof.json`.
-- [x] Local execution strategy proof records the current batch process and
+- [ ] Local execution strategy proof records the current batch process and
       host capability split before PR handoff. It classifies Windows host
       validation, WSL2/Ubuntu replay, Docker CLI availability, Android emulator
       proof routing, Samsung S9 physical status-only routing, macOS/iOS
@@ -359,14 +386,14 @@ Every checked item must cite one or more proof artifacts.
       production runtime, and product-ready tracking remain unclaimed.
       Artifact:
       `test-results/tracking-local-execution-strategy-proof/proof.json`.
-- [x] iOS simulator package proof is routed through the existing macOS
+- [ ] iOS simulator package proof is routed through the existing macOS
       package-preview build/smoke path and tracking proof harness without
       claiming Core Location, background region monitoring, notifications,
       physical-device, or authority behavior. Local proof:
       `test-results/tracking-plan-ios-simulator-proof/proof.json`; macOS CI
       uploads generated tracking artifacts from the iOS simulator
       package-preview job.
-- [x] iOS simulator artifact inventory proof verifies the simulator package
+- [ ] iOS simulator artifact inventory proof verifies the simulator package
       routing artifacts, manual-required Core Location proof rows, privacy
       disclosure release-gate artifacts, platform proof notes, and validation
       logs as required local simulator evidence, then carries those counts into
@@ -451,23 +478,23 @@ product-ready tracking claims false. Items that require real platform runtime
 or manual/device evidence remain proof-gated instead of being checked here as
 local CI work.
 
-- [x] `00-source-snapshot.md` for generated closure/blocker proof roots.
-- [x] `01-contract-proof.log` for focused contract proof roots.
-- [x] `02-platform-permission-proof.md` where platform/manual-required rows exist.
-- [x] `03-runtime-location-evidence.json` for the current fixture/runtime proof tier.
-- [x] `04-device-status-proof.json` for the current fixture/runtime proof tier.
-- [x] `05-geofence-transition-proof.json` for fixture/system-blocker proof tiers.
-- [x] `06-expected-place-proof.json` for fixture proof tiers.
-- [x] `07-nearby-place-proof.json` for provider abstraction/adapter proof tiers.
-- [x] `08-ai-analysis-proof.json` for AI contract/provider-routing proof tiers.
-- [x] `09-policy-alert-proof.json` for policy/alert proof tiers.
-- [x] `10-journal-sqlite-proof.json` for journal/read-model proof tiers.
-- [x] `11-ui-snapshots/` for hosted/current UI proof tiers.
-- [x] `12-playwright-proof.log` for hosted UI proof tiers.
-- [x] `13-security-negative-proof.log` for generated closure/blocker proof roots.
-- [x] `14-retention-delete-proof.json` for retention/delete proof tiers.
-- [x] `15-manual-platform-proof.md` for manual-required platform proof tiers.
-- [x] `16-validation-commands.log` for generated closure/blocker proof roots.
+- [ ] `00-source-snapshot.md` for generated closure/blocker proof roots.
+- [ ] `01-contract-proof.log` for focused contract proof roots.
+- [ ] `02-platform-permission-proof.md` where platform/manual-required rows exist.
+- [ ] `03-runtime-location-evidence.json` for the current fixture/runtime proof tier.
+- [ ] `04-device-status-proof.json` for the current fixture/runtime proof tier.
+- [ ] `05-geofence-transition-proof.json` for fixture/system-blocker proof tiers.
+- [ ] `06-expected-place-proof.json` for fixture proof tiers.
+- [ ] `07-nearby-place-proof.json` for provider abstraction/adapter proof tiers.
+- [ ] `08-ai-analysis-proof.json` for AI contract/provider-routing proof tiers.
+- [ ] `09-policy-alert-proof.json` for policy/alert proof tiers.
+- [ ] `10-journal-sqlite-proof.json` for journal/read-model proof tiers.
+- [ ] `11-ui-snapshots/` for hosted/current UI proof tiers.
+- [ ] `12-playwright-proof.log` for hosted UI proof tiers.
+- [ ] `13-security-negative-proof.log` for generated closure/blocker proof roots.
+- [ ] `14-retention-delete-proof.json` for retention/delete proof tiers.
+- [ ] `15-manual-platform-proof.md` for manual-required platform proof tiers.
+- [ ] `16-validation-commands.log` for generated closure/blocker proof roots.
 
 Focused contract proof roots generated by
 `scripts/test/tracking-plan-contract-proof.mjs` currently include
@@ -793,21 +820,21 @@ Every implementation workpack must update, or explicitly justify not updating:
 
 ## Progress Reconciliation
 
-- [x] Feature doc exists.
-- [x] Expectation doc exists.
-- [x] Capability guide exists.
-- [x] Schema proposal exists.
-- [x] Raw tracking settings inventory exists.
-- [x] Tracking plan folder exists.
-- [x] Location evidence contracts have focused contract proof; runtime and UI
+- [ ] Feature doc exists.
+- [ ] Expectation doc exists.
+- [ ] Capability guide exists.
+- [ ] Schema proposal exists.
+- [ ] Raw tracking settings inventory exists.
+- [ ] Tracking plan folder exists.
+- [ ] Location evidence contracts have focused contract proof; runtime and UI
       remain not product-complete.
-- [x] Geofence transition deterministic runtime proof exists at P1 fixture
+- [ ] Geofence transition deterministic runtime proof exists at P1 fixture
       tier; Android/iOS physical geofence proof remains manual-required.
-- [x] Expected-place schedule engine deterministic runtime proof exists at P1
+- [ ] Expected-place schedule engine deterministic runtime proof exists at P1
       fixture tier; expected-place alert policy UI-readiness rows now exist,
       while rendered UI, delivery/runtime, platform, physical-device,
       authority, production worker, and adapter dispatch proof remain pending.
-- [x] Nearby-place/AI safety analysis contracts have focused contract proof.
+- [ ] Nearby-place/AI safety analysis contracts have focused contract proof.
       WP20 Google Places/POI adapter proof now covers bounded Google Nearby
       Search requests, production field masks, response mapping,
       provider-unavailable degradation, and provider parity readiness rows for
@@ -815,13 +842,13 @@ Every implementation workpack must update, or explicitly justify not updating:
       credentials/auth, provider terms review, exact-place claims,
       physical-device proof, provider UI, and production persistence remain not
       product-complete.
-- [x] Local parent-defined place database has P1 CRUD/import/export/delete
+- [ ] Local parent-defined place database has P1 CRUD/import/export/delete
       store proof with parent-device-local default storage, remote sync
       disabled, parent-owned export, deletion tombstone, and safe/restricted
       policy signals; platform adapters, provider delivery, live UI, hosted
       accessibility, physical-device behavior, and production persistence
       remain unclaimed.
-- [x] Parent acknowledgement/exception fixture proof exists at P1 tier;
+- [ ] Parent acknowledgement/exception fixture proof exists at P1 tier;
       alert delivery and product-ready portal acknowledgement UI remain pending. WP17 parent
       acknowledgement action readiness rows now preserve acknowledgement,
       exception, false-alarm, child check-in request, escalation, expiry,
@@ -831,7 +858,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       authority, production workers, or adapter dispatch. Hosted read-only
       parent action readiness rendering now exists under the hosted
       `policy-tracking` route proof.
-- [x] Child check-in fixture proof exists at P1 tier; child-device UI,
+- [ ] Child check-in fixture proof exists at P1 tier; child-device UI,
       delivery, timeout escalation wiring, and physical child-device runtime
       screenshots remain pending. WP18
       child check-in timeout escalation rows now preserve request, response,
@@ -843,7 +870,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       execution, rendered child UI, provider delivery, notification receipt
       runtime, live location sample runtime, physical-device proof, authority,
       production timeout workers, or adapter dispatch.
-- [x] Android emulator package launch, foreground-service scaffold, foreground
+- [ ] Android emulator package launch, foreground-service scaffold, foreground
       permission-controller UX dialog, runtime permission grant, app-reported
       current `LocationManager` sample metadata plus raw coordinate proof export,
       background location permission grant state, Android app Settings page
@@ -854,30 +881,30 @@ Every implementation workpack must update, or explicitly justify not updating:
       battery/connectivity status proof, and WP10 degraded status-gap bridge exists at P3 local-dev tier;
       physical-device behavior, Android system
       geofence delivery, and dwell behavior are not claimed by it.
-- [x] iOS simulator package proof harness exists and is wired to macOS
+- [ ] iOS simulator package proof harness exists and is wired to macOS
       package-preview artifacts; local non-macOS proof records
       `manual_required` instead of claiming simulator execution. Core Location,
       region monitoring, background behavior, notifications, entitlements,
       TestFlight/App Store, physical-device, and authority behavior remain
       unclaimed.
-- [x] WP11/WP12 iOS parent-domain manual-required proof rows exist for
+- [ ] WP11/WP12 iOS parent-domain manual-required proof rows exist for
       authorization, foreground sample, degraded state, Always/background,
       region, significant-change/visit, and background relaunch gaps through
       `node scripts/test/tracking-ios-location-manual-required-proof.mjs`.
-- [x] WP11/WP12 iOS manual-required rows are mirrored into the WP33 rollout gate
+- [ ] WP11/WP12 iOS manual-required rows are mirrored into the WP33 rollout gate
       by `node scripts/test/tracking-ios-location-wp33-gate-proof.mjs` without
       creating a duplicate iOS tracking contract or changing runtime/device
       non-claims.
-- [x] WP12 iOS App Store/privacy disclosure release gate rows exist through
+- [ ] WP12 iOS App Store/privacy disclosure release gate rows exist through
       `node scripts/test/tracking-ios-privacy-disclosure-release-proof.mjs`;
       release and product-ready iOS tracking claims remain blocked until
       disclosure, Apple review, entitlement, TestFlight/device, and Core
       Location runtime proof exist.
-- [x] WP08/WP09 Android parent-domain manual-required proof rows exist for
+- [ ] WP08/WP09 Android parent-domain manual-required proof rows exist for
       foreground permission, foreground sample, background permission, and
       geofence transition gaps through
       `node scripts/test/tracking-android-permission-background-proof.mjs`.
-- [x] WP10 Android local status proof rows exist for low-power degradation,
+- [ ] WP10 Android local status proof rows exist for low-power degradation,
       killed/restarted auditability, pending-upload count auditability, and
       manual-required platform proof through
       `node scripts/test/tracking-android-status-proof.mjs`.
@@ -894,7 +921,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       rows exist, but real Core Location authorization, region monitoring,
       significant-change/visit, background delivery, terminated/relaunch,
       entitlement, physical-device, and authority proof remain pending.
-- [x] Retention/delete/export P1 checkpoint proof exists. Retention delete has
+- [ ] Retention/delete/export P1 checkpoint proof exists. Retention delete has
       P1 read-model proof, parent-owned export has P1 snapshot proof,
       UI-visible deleted-history hiding has P1 route fixture proof, and P2
       retention settings read-model rows exist, and writer-boundary preflight
@@ -913,7 +940,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       one present local writable execution artifact, and one missing platform
       retention runtime enforcement artifact. Product-ready writable retention
       behavior, platform runtime, and production hardening remain pending.
-- [x] Tracking service read-model command has P2 proof for SQLite tracking rows,
+- [ ] Tracking service read-model command has P2 proof for SQLite tracking rows,
       citation IDs through `trackingReadModel`, retention-delete tombstone
       replay with deleted evidence citation summaries, and narrow parent portal
       summary consumption plus service-data coverage and report/policy
@@ -948,14 +975,14 @@ Every implementation workpack must update, or explicitly justify not updating:
       while recording the local durable settings store ref and keeping writable
       product settings, platform runtime, device delivery, authority,
       production, and product-ready claims false.
-- [x] Tracking retention durable settings proof exists in
+- [ ] Tracking retention durable settings proof exists in
       `output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json`
       and
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/34-retention-durable-settings-proof.json`
       as local durable persistence rows derived from local service state
       readback while keeping writable product settings, platform runtime,
       device delivery, authority, production, and product-ready claims false.
-- [x] Tracking report/policy consumer hosted UI proof renders parent report
+- [ ] Tracking report/policy consumer hosted UI proof renders parent report
       summary, policy evidence drill-in, and retention audit export rows from
       the stored-ref consumer proof on the hosted parent `policy-tracking`
       route. Proof:
@@ -969,7 +996,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       provider delivery, notification receipt ingestion, physical-device proof,
       authority, production, and product-ready report/policy behavior remain
       pending.
-- [x] Tracking report/export read-model packet proof exists for redacted report
+- [ ] Tracking report/export read-model packet proof exists for redacted report
       export, retention audit export, family dashboard summary, and policy
       drill-in export packet rows. Proof:
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json`;
@@ -1007,14 +1034,14 @@ Every implementation workpack must update, or explicitly justify not updating:
       child-device delivery/runtime execution, physical-device proof, authority,
       provider delivery, product-ready writable retention execution, full
       product parent/child UI, and production proof remain pending.
-- [x] Minimum Serious MVP first-checkpoint audit exists in tracked
+- [ ] Minimum Serious MVP first-checkpoint audit exists in tracked
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/proof-summary.json`
       and generated
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/00-run-metadata.json`;
       it explicitly blocks product-complete, PR-ready, and full-scope claims
       until the remaining live UI, platform, hosted, and authority
       proof gaps are closed.
-- [x] Pre-device proof gate exists in
+- [ ] Pre-device proof gate exists in
       `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
       and was generated by
       `node scripts/test/tracking-plan-pre-device-proof.mjs`; it proves the
@@ -1022,14 +1049,14 @@ Every implementation workpack must update, or explicitly justify not updating:
       while preserving Android Studio/emulator, iOS simulator, WSL/local,
       physical-device, authority, full hosted UI accessibility beyond the
       parent route, and production proof as separate gates.
-- [x] WSL/local replay proof exists in
+- [ ] WSL/local replay proof exists in
       `output/tracking-plan-proof/wsl-local-replay/proof.json` and companion
       WP32/WP33 artifacts; it was generated by
       `npm run test:tracking-plan-wsl-local-proof` and proves the local
       WSL-linked read-model proof stack while preserving Android/iOS
       physical-device, authority, full hosted UI accessibility beyond the
       parent route, provider-delivery, and production proof as separate gates.
-- [x] Cross-platform runtime capability proof exists in
+- [ ] Cross-platform runtime capability proof exists in
       `output/tracking-plan-proof/tracking-cross-platform-runtime-capability-proof/proof.json`,
       with WP31/WP33 artifacts generated by
       `node scripts/test/tracking-cross-platform-runtime-capability-proof.mjs`.
@@ -1041,7 +1068,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       Android/iOS behavior, approved desktop precise location, authority,
       provider delivery, production workers, and product-ready tracking remain
       false.
-- [x] Product capability checklist row update is queued through the hub
+- [ ] Product capability checklist row update is queued through the hub
       DOC_DELTA queue instead of this worker branch; the queued row records the
       pre-device proof gate, Android emulator scaffold proof, WSL/local replay
       proof, live service-backed portal citation rows, iOS simulator package
@@ -1061,7 +1088,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       behavior, authority, actual child-device delivery/runtime execution, full
       child/parent UI beyond the hosted parent route, provider-delivery runtime,
       and production gaps.
-- [x] Applied retention settings runtime bridge proof consumes the existing
+- [ ] Applied retention settings runtime bridge proof consumes the existing
       writable execution proof and runtime artifact gate plan, marks
       `tracking-retention/product-settings-writable-execution.json` present,
       keeps
@@ -1079,7 +1106,7 @@ Every implementation workpack must update, or explicitly justify not updating:
 
 ## UI Snapshot Gates
 
-- [x] Parent route fixture covers tracking off, permission-required, stale,
+- [ ] Parent route fixture covers tracking off, permission-required, stale,
       offline, low accuracy, ambiguous nearby place, alert, acknowledgement,
       exception, child check-in, temporary live, missing device, and
       retention-deleted states at P1 with local proof artifact references. The
@@ -1124,7 +1151,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       and
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/50-child-runtime-artifact-gate-proof.json`,
       but actual child-device delivery/execution remains unproved.
-- [x] Hosted screenshots are stored under the assigned proof root. The runtime proof
+- [ ] Hosted screenshots are stored under the assigned proof root. The runtime proof
       command captures the local parent fixture screenshot at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`;
       hosted parent route screenshots are stored at
@@ -1161,7 +1188,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       `test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json`;
       actual child-device runtime and full parent/child screenshots remain
       pending.
-- [x] Accessibility output is stored for the hosted parent route proof in
+- [ ] Accessibility output is stored for the hosted parent route proof in
       `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`;
       it includes the service-backed citation detail, hosted read-only evidence
       drawer, hosted child-safe check-in, and hosted child-runtime UI cards,
@@ -1176,28 +1203,28 @@ Every implementation workpack must update, or explicitly justify not updating:
 
 ## Evidence Quality Gates
 
-- [x] Every location-derived UI or alert cites evidence refs at the current
+- [ ] Every location-derived UI or alert cites evidence refs at the current
       parser/fixture/portal-test tier. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/19-evidence-quality-gate-proof.json`.
-- [x] Every geofence transition cites rule refs and source evidence refs at the
+- [ ] Every geofence transition cites rule refs and source evidence refs at the
       current parser/fixture tier. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/19-evidence-quality-gate-proof.json`.
-- [x] Every nearby-place result carries radius, provider, category, distance,
+- [ ] Every nearby-place result carries radius, provider, category, distance,
       confidence, and ambiguity state at the current parser/fixture tier. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/19-evidence-quality-gate-proof.json`.
-- [x] Every AI result carries source refs and no final action at the current
+- [ ] Every AI result carries source refs and no final action at the current
       parent-domain contract tier. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/19-evidence-quality-gate-proof.json`.
-- [x] Every alert carries policy decision refs at the current parent-domain
+- [ ] Every alert carries policy decision refs at the current parent-domain
       contract tier. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/19-evidence-quality-gate-proof.json`.
-- [x] Every retention/delete/export claim has before/after proof at the current
+- [ ] Every retention/delete/export claim has before/after proof at the current
       retention-helper fixture tier. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/19-evidence-quality-gate-proof.json`.
 
 ## Fixture And Manual Gates
 
-- [x] Fixtures cover fresh, stale, offline, denied, low accuracy, ambiguous,
+- [ ] Fixtures cover fresh, stale, offline, denied, low accuracy, ambiguous,
       exception, acknowledged, check-in, temporary-live-expired,
       missing-device, retention-deleted, remote-sync-disabled, and
       remote-AI-disabled states. Proof:
@@ -1233,7 +1260,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       Each row now also carries generated acceptance criteria, manual
       validation commands, and artifact acceptance notes so the P4/manual
       handoff is explicit while all audited claims remain unapproved.
-- [x] Retention platform enforcement preflight proof now turns the remaining
+- [ ] Retention platform enforcement preflight proof now turns the remaining
       retention platform runtime artifact gap into Android, iOS, and desktop
       manual-required acceptance rows without claiming runtime enforcement or
       product readiness. Proof:
@@ -1243,7 +1270,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       Product-readiness closure and real-runtime handoff now carry the
       preflight row/artifact counts so the missing retention platform runtime
       enforcement layer stays visible in aggregate proof.
-- [x] Physical-device artifact gate proof now verifies the required Android and
+- [ ] Physical-device artifact gate proof now verifies the required Android and
       iOS physical evidence roots and required artifact names before any
       physical-device behavior can be claimed. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json`;
@@ -1255,7 +1282,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       The Android row separately records the Samsung S9 package/service/status
       proof as 20 supporting status artifacts without completing the behavior
       artifact set.
-- [x] Physical-device evidence review proof now consumes the physical artifact
+- [ ] Physical-device evidence review proof now consumes the physical artifact
       gate and proves file presence is not content approval. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/73-physical-device-evidence-review-proof.json`;
       command:
@@ -1266,7 +1293,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       for physical location/geofence behavior. Product-readiness closure and
       real-runtime handoff now carry those review counts before any real-device
       behavior claim can advance.
-- [x] Child-runtime artifact gate proof now verifies the required real
+- [ ] Child-runtime artifact gate proof now verifies the required real
       child-device runtime evidence root and required artifact names before any
       actual child-device delivery/execution, rendered child runtime UI, parent
       receipt runtime, or runtime-observation claim can be made. Proof:
@@ -1280,7 +1307,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       tracking false. The Android emulator readiness bridge and child-runtime
       product-readiness blocker now preserve exact required, present, and
       missing child-runtime artifact refs/counts from this gate.
-- [x] Full product UI runtime artifact gate proof now verifies the exact
+- [ ] Full product UI runtime artifact gate proof now verifies the exact
       required parent/child product UI runtime artifact refs before full product
       tracking UI can be treated as present. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/59-full-product-ui-runtime-artifact-gate-proof.json`;
@@ -1295,7 +1322,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       artifacts while keeping full product UI runtime, child-device delivery
       runtime, physical-device behavior, authority, provider delivery,
       production product UI, and product-ready tracking false.
-- [x] Full product UI runtime preflight proof now turns the four remaining hard
+- [ ] Full product UI runtime preflight proof now turns the four remaining hard
       runtime UI artifact refs from the runtime gate into manual-required rows
       without upgrading local hosted screenshots to product runtime proof. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/71-full-product-ui-runtime-preflight-proof.json`;
@@ -1308,7 +1335,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       missing full-product UI preflight artifacts while full product UI runtime,
       child-device runtime, physical-device, authority, provider delivery,
       production product UI, and product-ready tracking stay false.
-- [x] Production worker runtime artifact gate proof now verifies the exact
+- [ ] Production worker runtime artifact gate proof now verifies the exact
       required `tracking-production/*.json` artifact refs before any tracking
       production worker runtime can be treated as present. Proof:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/58-production-worker-runtime-artifact-gate-proof.json`;
@@ -1320,7 +1347,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       runtime, and product-ready tracking false. The production durable workers
       readiness blocker now preserves exact required, present, and missing
       production worker runtime artifact refs/counts from this gate.
-- [x] Production worker runtime preflight proof now turns those eight missing
+- [ ] Production worker runtime preflight proof now turns those eight missing
       production worker/storage artifact refs into manual-required acceptance
       rows and a generated runbook before any production runtime claim can move.
       Proof:
@@ -1332,21 +1359,21 @@ Every implementation workpack must update, or explicitly justify not updating:
       production worker execution, durable production storage, provider receipt
       runtime, authority runtime, physical-device proof, and product-ready
       tracking false.
-- [x] Authority enrollment manual-required proof records Android device-owner,
+- [ ] Authority enrollment manual-required proof records Android device-owner,
       Android managed-profile, iOS Family Controls entitlement, iOS App Review,
       and desktop managed-policy evidence requirements under WP31/WP33 without
       claiming authority enrollment, hard-control runtime, physical-device
       behavior, provider delivery, production workers, or product-ready
       tracking.
-- [x] Pre-device proof records unsupported or not-yet-proved platform states as
+- [ ] Pre-device proof records unsupported or not-yet-proved platform states as
       `manual_required` or `authority_required` instead of invented capability.
-- [x] Unsupported platforms render manual-required/unavailable state instead of
+- [ ] Unsupported platforms render manual-required/unavailable state instead of
       invented capability at the parent-domain render-state proof tier. Proof:
       `output/tracking-plan-proof/unsupported-platform-manual-proof/proof.json`.
-- [x] Hosted parent route screenshots render unsupported/manual platform states
+- [ ] Hosted parent route screenshots render unsupported/manual platform states
       without invented capability or product-ready claims. Proof:
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui-proof.json`.
-- [x] WP31 platform extension inventory proof ties the existing Android
+- [ ] WP31 platform extension inventory proof ties the existing Android
       emulator/status/manual-required rows, iOS simulator/manual-required rows,
       desktop hint-only row, and hosted unsupported/manual UI row together
       without claiming physical-device, background runtime, authority,
@@ -1354,7 +1381,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/20-platform-extension-inventory-proof.json`;
       command:
       `node scripts/test/tracking-platform-extension-inventory-proof.mjs`.
-- [x] Real-runtime handoff proof aggregates separate Android physical, iOS
+- [ ] Real-runtime handoff proof aggregates separate Android physical, iOS
       physical, child-runtime, full product UI, authority, provider-delivery,
       retention, production worker, escalation, and product-readiness closure
       gates into one later real-device/provider/production validation handoff

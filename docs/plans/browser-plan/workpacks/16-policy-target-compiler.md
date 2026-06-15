@@ -90,22 +90,22 @@ exist on the selected device/source.
 
 Fill this before reporting `DONE` or PR-ready:
 
-- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
-- [x] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
-- [x] Hub lock covers this workpack and exact implementation/docs paths.
-- [x] Existing source layout inspected; no parallel browser truth created; the compiler extends the existing browser-policy contract/protocol/service path.
-- [x] Before-state source snapshot recorded in `output/browser-plan-proof/16-policy-target-compiler/00-source-snapshot.md`.
-- [x] Contracts updated first where this workpack changes behavior: target/proof/action/AI authority vocabulary and effective-rule result fields were added in `parent-domain`.
-- [x] Rust/service parity updated only after contracts exist; no portal visual source changed for WP16.
-- [x] Raw evidence artifacts captured where applicable: policy decisions and action-result states are captured through compiler tests and `05-policy-action-proof.json`; no bridge/CDP/session/journal/SQLite path changed.
-- [x] Tests/proof listed in this workpack are implemented or explicitly marked manual-required with reason.
-- [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
-- [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed and `output/browser-plan-proof/16-policy-target-compiler/06-ui-snapshots/ui-not-applicable.md` records why.
-- [x] Security/no-claim negative proof captured where applicable: no unmanaged exact URL claim, no browser policy writer claim, no adapter execution in observe/dry-run, and no AI direct enforcement.
-- [x] Manual platform proof captured for real browser/OS claims: marked manual-required because WP16 compiles target/action requirements but does not prove platform policy writes or real browser blocking.
-- [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
-- [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
-- [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+- [ ] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
+- [ ] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
+- [ ] Hub lock covers this workpack and exact implementation/docs paths.
+- [ ] Existing source layout inspected; no parallel browser truth created; the compiler extends the existing browser-policy contract/protocol/service path.
+- [ ] Before-state source snapshot recorded in `output/browser-plan-proof/16-policy-target-compiler/00-source-snapshot.md`.
+- [ ] Contracts updated first where this workpack changes behavior: target/proof/action/AI authority vocabulary and effective-rule result fields were added in `parent-domain`.
+- [ ] Rust/service parity updated only after contracts exist; no portal visual source changed for WP16.
+- [ ] Raw evidence artifacts captured where applicable: policy decisions and action-result states are captured through compiler tests and `05-policy-action-proof.json`; no bridge/CDP/session/journal/SQLite path changed.
+- [ ] Tests/proof listed in this workpack are implemented or explicitly marked manual-required with reason.
+- [ ] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
+- [ ] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed and `output/browser-plan-proof/16-policy-target-compiler/06-ui-snapshots/ui-not-applicable.md` records why.
+- [ ] Security/no-claim negative proof captured where applicable: no unmanaged exact URL claim, no browser policy writer claim, no adapter execution in observe/dry-run, and no AI direct enforcement.
+- [ ] Manual platform proof captured for real browser/OS claims: marked manual-required because WP16 compiles target/action requirements but does not prove platform policy writes or real browser blocking.
+- [ ] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
+- [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
+- [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
 ## Manual-Required Gaps
 

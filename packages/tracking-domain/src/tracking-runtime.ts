@@ -1,6 +1,7 @@
 import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
 import type { TrackingLocationEvidence } from './tracking-evidence';
 import {
+  type TrackingExpectedPlaceExceptionState,
   TrackingExpectedPlaceDecisionSchema,
   TrackingGeofenceTransitionSchema,
   type TrackingExpectedPlaceDecision,
@@ -14,6 +15,19 @@ const EarthRadiusMeters = 6_371_008.8;
 const HalfCircleDegrees = 180;
 const RadiansPerDegree = Math.PI / HalfCircleDegrees;
 type TrackingReasonCode = ReturnType<typeof TrackingReasonCodeSchema.parse>;
+const MillisecondsPerSecond = 1_000;
+const ManualReviewCapabilityStatuses = new Set([
+  'stale',
+  'last-known',
+  'offline-last-known-only',
+  'permission-required',
+  'background-permission-required',
+  'approximate-only',
+  'manual-required',
+  'unavailable',
+  'adapter-error',
+  'disabled-by-parent',
+] as const);
 
 export interface TrackingGeofenceEvaluationInput {
   readonly transitionId: TrackingGeofenceTransition['transitionId'];
@@ -76,30 +90,41 @@ export function evaluateTrackingGeofenceTransition(input: TrackingGeofenceEvalua
 export function evaluateTrackingExpectedPlaceDecision(
   input: TrackingExpectedPlaceEvaluationInput
 ): TrackingExpectedPlaceDecision {
-  const activeWindow = input.schedule.windows.some((window) => {
-    const observedAt = Date.parse(input.observedAt);
+  const observedAt = Date.parse(input.observedAt);
+  const activeWindow = input.schedule.windows.find((window) => {
     return observedAt >= Date.parse(window.startsAt) && observedAt <= Date.parse(window.endsAt);
   });
 
   const reasonCodes: TrackingReasonCode[] = [];
   let outcome: TrackingExpectedPlaceDecision['outcome'] = 'unknown';
+  let exceptionState: TrackingExpectedPlaceDecision['exceptionState'] = null;
+  let exceptionAuditRef: TrackingExpectedPlaceDecision['exceptionAuditRef'] = null;
 
   if (!input.schedule.enabled) {
     outcome = 'manual-required';
     reasonCodes.push(reasonCode('expected-place-schedule-disabled'));
-  } else if (
-    input.location.capabilityStatus === 'stale' ||
-    input.location.capabilityStatus === 'offline-last-known-only'
-  ) {
+  } else if (capabilityRequiresManualReview(input.location.capabilityStatus)) {
+    outcome = 'manual-required';
     reasonCodes.push(reasonCode('fresh-location-required'));
-  } else if (!activeWindow) {
+  } else if (input.schedule.activeException !== null) {
+    exceptionState = input.schedule.activeException.state;
+    exceptionAuditRef = input.schedule.activeException.auditRef;
+    reasonCodes.push(reasonCode(reasonCodeForExpectedPlaceException(exceptionState)));
+  } else if (activeWindow === undefined) {
     reasonCodes.push(reasonCode('outside-expected-place-window'));
+  } else if (lateGraceIsActive(input.schedule, activeWindow, observedAt, input.transition.transition)) {
+    reasonCodes.push(reasonCode('expected-place-late-grace-active'));
+  } else if (earlyExitGraceIsActive(input.schedule, activeWindow, observedAt, input.transition.transition)) {
+    reasonCodes.push(reasonCode('expected-place-early-exit-grace-active'));
   } else if (input.transition.transition === 'enter' || input.transition.transition === 'dwell') {
     outcome = 'where-expected';
     reasonCodes.push(reasonCode('inside-expected-place-window'));
   } else if (input.transition.transition === 'exit') {
     outcome = 'left-expected-place';
     reasonCodes.push(reasonCode('exited-expected-place-window'));
+  } else if (input.transition.transition === 'missed-arrival') {
+    outcome = 'late-arrival';
+    reasonCodes.push(reasonCode('missed-expected-place-arrival'));
   } else {
     reasonCodes.push(reasonCode('expected-place-ambiguous'));
   }
@@ -109,8 +134,14 @@ export function evaluateTrackingExpectedPlaceDecision(
     decisionId: input.decisionId,
     observedAt: input.observedAt,
     scheduleId: input.schedule.scheduleId,
+    ruleId: input.schedule.ruleId,
     locationEvidenceId: input.location.evidenceId,
     outcome,
+    distanceToleranceMeters: input.schedule.distanceToleranceMeters,
+    lateGraceSeconds: input.schedule.lateGraceSeconds,
+    earlyExitGraceSeconds: input.schedule.earlyExitGraceSeconds,
+    exceptionState,
+    exceptionAuditRef,
     reasonCodes,
     evidence: input.transition.evidence,
   });
@@ -191,6 +222,46 @@ function distanceMeters(startLatitude: number, startLongitude: number, endLatitu
       Math.sin(deltaLongitude / 2) *
       Math.sin(deltaLongitude / 2);
   return Math.round(EarthRadiusMeters * 2 * Math.atan2(Math.sqrt(arc), Math.sqrt(1 - arc)));
+}
+
+function capabilityRequiresManualReview(capabilityStatus: TrackingLocationEvidence['capabilityStatus']) {
+  return ManualReviewCapabilityStatuses.has(capabilityStatus);
+}
+
+function reasonCodeForExpectedPlaceException(exceptionState: TrackingExpectedPlaceExceptionState) {
+  if (exceptionState === 'holiday-mode') {
+    return 'expected-place-holiday-exception-active';
+  }
+
+  return 'expected-place-trip-exception-active';
+}
+
+function lateGraceIsActive(
+  schedule: TrackingExpectedPlaceSchedule,
+  activeWindow: TrackingExpectedPlaceSchedule['windows'][number],
+  observedAt: number,
+  transition: TrackingGeofenceTransition['transition']
+) {
+  if (transition !== 'missed-arrival' || schedule.lateGraceSeconds === 0) {
+    return false;
+  }
+
+  const startsAt = Date.parse(activeWindow.startsAt);
+  return observedAt >= startsAt && observedAt <= startsAt + schedule.lateGraceSeconds * MillisecondsPerSecond;
+}
+
+function earlyExitGraceIsActive(
+  schedule: TrackingExpectedPlaceSchedule,
+  activeWindow: TrackingExpectedPlaceSchedule['windows'][number],
+  observedAt: number,
+  transition: TrackingGeofenceTransition['transition']
+) {
+  if (transition !== 'exit' || schedule.earlyExitGraceSeconds === 0) {
+    return false;
+  }
+
+  const endsAt = Date.parse(activeWindow.endsAt);
+  return observedAt >= endsAt - schedule.earlyExitGraceSeconds * MillisecondsPerSecond && observedAt < endsAt;
 }
 
 function reasonCode(value: unknown) {

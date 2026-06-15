@@ -34,11 +34,11 @@ expired, cancelled, rollback requested, rollback completed, or recovery-needed.
 
 ## Requirement Checklist
 
-- [x] Journal timer lifecycle events.
-- [x] Recover active timers from durable state on restart.
-- [x] Emit recovery-needed when state cannot be restored safely.
-- [x] Show expiry and next-check state to parent surfaces.
-- [x] Cover rollback success and rollback unavailable.
+- [ ] Journal timer lifecycle events.
+- [ ] Recover active timers from durable state on restart.
+- [ ] Emit recovery-needed when state cannot be restored safely.
+- [ ] Show expiry and next-check state to parent surfaces.
+- [ ] Cover rollback success and rollback unavailable.
 
 ## Acceptance And Proof
 

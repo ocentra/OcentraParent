@@ -31,9 +31,9 @@ platform authority upgrades, or broad app blocking.
 
 ## AI Worker Checklist
 
-- [x] Native app plan read and reconciled with shared app/game plan.
-- [x] No duplicate native-app-only protocol shape was created.
-- [x] Rust protocol parity exists for the shared evidence/identity shapes.
-- [x] App-specific runtime identity merge, storage, portal, policy, and
+- [ ] Native app plan read and reconciled with shared app/game plan.
+- [ ] No duplicate native-app-only protocol shape was created.
+- [ ] Rust protocol parity exists for the shared evidence/identity shapes.
+- [ ] App-specific runtime identity merge, storage, portal, policy, and
       platform gaps remain explicitly documented.
-- [x] Product checklist was not edited; no product status moved.
+- [ ] Product checklist was not edited; no product status moved.

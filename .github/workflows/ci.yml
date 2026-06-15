@@ -313,38 +313,76 @@ jobs:
     if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.detect-targets.outputs.docs_hub_only != 'true' && needs.detect-targets.outputs.ci_only != 'true' && needs.format.result == 'success' && needs.release-version.result == 'success' }}
     uses: ./.github/workflows/ci-preflight.yml
 
-  portal-typescript:
+  architecture-policy:
+    name: Architecture Policy
+    runs-on: ubuntu-latest
     needs: [detect-targets, preflight]
+    if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.source_changed == 'true' }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Resolve architecture policy diff range
+        id: architecture-range
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "base=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "base=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=$(git rev-parse HEAD^)" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Architecture policy diff gate
+        run: >-
+          npm run lint:architecture -- --base "${{ steps.architecture-range.outputs.base }}"
+          --head "${{ steps.architecture-range.outputs.head }}"
+
+      - name: Rust cargo re-export gate
+        run: >-
+          cargo lint-architecture --base "${{ steps.architecture-range.outputs.base }}"
+          --head "${{ steps.architecture-range.outputs.head }}"
+
+  portal-typescript:
+    needs: [detect-targets, preflight, architecture-policy]
     if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.portal_changed == 'true' }}
     uses: ./.github/workflows/ci-portal-typescript.yml
 
   domain-packages:
-    needs: [detect-targets, preflight]
+    needs: [detect-targets, preflight, architecture-policy]
     if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.domain_changed == 'true' }}
     uses: ./.github/workflows/ci-domain-packages.yml
 
   tooling:
-    needs: [detect-targets, preflight]
+    needs: [detect-targets, preflight, architecture-policy]
     if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.tooling_changed == 'true' }}
     uses: ./.github/workflows/ci-tooling.yml
 
   rust-agent-protocol:
-    needs: [detect-targets, preflight]
+    needs: [detect-targets, preflight, architecture-policy]
     if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.rust_protocol_changed == 'true' }}
     uses: ./.github/workflows/ci-rust-agent-protocol.yml
 
   rust-agent-core:
-    needs: [detect-targets, preflight]
+    needs: [detect-targets, preflight, architecture-policy]
     if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.rust_core_changed == 'true' }}
     uses: ./.github/workflows/ci-rust-agent-core.yml
 
   rust-agent-service:
-    needs: [detect-targets, preflight]
+    needs: [detect-targets, preflight, architecture-policy]
     if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.rust_service_changed == 'true' }}
     uses: ./.github/workflows/ci-rust-agent-service.yml
 
   rust-adapters:
-    needs: [detect-targets, preflight]
+    needs: [detect-targets, preflight, architecture-policy]
     if: ${{ always() && needs.detect-targets.outputs.full_ci_required == 'true' && needs.preflight.result == 'success' && needs.detect-targets.outputs.rust_adapter_changed == 'true' }}
     uses: ./.github/workflows/ci-rust-adapters.yml
 
@@ -542,6 +580,7 @@ jobs:
       - format
       - release-version
       - preflight
+      - architecture-policy
       - portal-typescript
       - domain-packages
       - tooling

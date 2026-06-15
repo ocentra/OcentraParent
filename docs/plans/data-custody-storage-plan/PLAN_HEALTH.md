@@ -17,15 +17,16 @@
 ## Route Health
 
 - Plan route files present: yes
-- Workpacks indexed: 7
+- Workpacks indexed: 8
+- Execution-grade architecture docs present: yes
 - Implementation completion claimed: no
 
 ## Agent Route Walkthrough
 
-- Landing decision: root AGENTS.md -> docs/agent/TASK_ROUTER.md -> docs/PLAN_INDEX.md or docs/FEATURE_ROUTE_INDEX.md selects this plan for data custody guarantees, encrypted storage, evidence retention, export, sync, deletion/tombstones, no-stolen-data boundaries, cloud/relay custody, and query/report source truth.
+- Landing decision: root AGENTS.md -> docs/agent/TASK_ROUTER.md -> docs/PLAN_INDEX.md or docs/FEATURE_ROUTE_INDEX.md selects this plan for data custody guarantees, encrypted storage, evidence retention, export, sync, deletion and tombstones, no-stolen-data boundaries, cloud or relay custody, and query or report source truth.
 - Minimum read set: AGENTS.md, PLAN_STATE.md, NEXT_ACTIONS.md, WORKPACK_INDEX.md, one workpack, TEST_PROOF_EXPECTATIONS.md.
 - Stop rule: adjacent plans and source trees stay closed until the selected workpack names an exact handoff.
-- Test/proof decision: use local expected proof inventory first; escalate to global validation matrix only when touched risk is broader.
+- Test and proof decision: use the local expected proof inventory first; escalate to global validation only when touched risk is broader.
 - DONE blocker: this plan cannot claim implementation or product completion without proof artifacts, checklist rows, and feature status sync.
 
 ## High-Information-Density Gate
@@ -37,15 +38,16 @@
 
 ### State
 
-- Current state: route and schema hygiene are present, but implementation/closure proof remains incomplete until checklist and workpack evidence are updated.
-- Current action: keep this file and `data-custody-storage-plan/PLAN_STATE.md` aligned before any DONE/PR_READY claim.
+- Current state: execution-grade docs, UI guidance, and route hygiene are present, but implementation and closure proof remain incomplete until checklist and workpack evidence are updated.
+- Current action: keep this file and `data-custody-storage-plan/PLAN_STATE.md` aligned before any DONE or PR_READY claim.
 
 ### Decision routes and failure controls
 
-- Decision route: follow this plan�s AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
-- Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
+- Decision route: follow this plan's AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
+- Failure controls: do not claim completion when handoff routes are missing, checklist or workpack states diverge, or known risks remain unmitigated with no explicit deferral.
 
 ### Proof mapping
 
-- Required proof before READY: explicit links from workpack checklist rows, proof artifacts named in this file, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
+- Required proof before READY: explicit links from workpack checklist rows, proof artifacts named in this file, and cross-plan handoff notes in AGENTS and NEXT_ACTIONS.
 - At minimum, align the following docs before READY: `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, and the assigned plan workpacks.
+

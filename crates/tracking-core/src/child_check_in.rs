@@ -1,7 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, TrackingCheckInState, TrackingChildCheckInRecordedEvent,
-    TrackingLocationObservedEvent,
-    tracking_check_in_id_from_observation_id, tracking_evidence_ref_from_observation_id,
+    constants, tracking_check_in_id_from_observation_id, tracking_evidence_ref_from_observation_id,
+    TrackingCheckInState, TrackingChildCheckInRecordedEvent, TrackingLocationObservedEvent,
 };
 
 pub fn record_child_check_in(
@@ -17,6 +16,8 @@ pub fn record_child_check_in(
             constants::tracking_runtime::CHECK_IN_STATE_RECEIVED,
         )
         .expect(constants::tracking_runtime::CHECK_IN_STATE_RECEIVED),
-        evidence_refs: vec![tracking_evidence_ref_from_observation_id(&event.observation_id)],
+        evidence_refs: vec![tracking_evidence_ref_from_observation_id(
+            &event.observation_id,
+        )],
     }
 }

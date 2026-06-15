@@ -3,6 +3,7 @@ import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-d
 import type { AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type {
   AgentActivityTrackingEvidenceReferenceIds,
+  AgentActivityTrackingReadModelCount,
   AgentActivityTrackingReadModel,
   AgentActivityTrackingReadModelResult,
   AgentActivityTrackingReadModelRow,
@@ -91,6 +92,7 @@ export type TrackingStatusServiceDataCoverage = {
   readonly rowVisibility: PortalDetailValue;
   readonly lastObserved: PortalDetailValue;
   readonly eventId: PortalDetailValue;
+  readonly deviceCounts: PortalDetailValue;
   readonly capability: PortalDetailValue;
   readonly custody: PortalDetailValue;
   readonly activityKinds: PortalDetailValue;
@@ -332,11 +334,11 @@ export function trackingStatusLiveSummary(input: TrackingStatusLiveProjectionInp
     ...baseSummary,
     loadState: detailFromValue(event.severity),
     rowsReturned: detailFromValue(readModel.returned),
-    lastObserved: detailFromValue(readModel.latestObservedAt),
-    eventId: detailFromValue(readModel.latestEventId),
+    lastObserved: preferredActiveSummaryDetail(readModel.latestActiveObservedAt, readModel.latestObservedAt),
+    eventId: preferredActiveSummaryDetail(readModel.latestActiveEventId, readModel.latestEventId),
     capability: detailFromValue(readModel.capabilityStatus),
     custody: detailFromValue(readModel.custodyLabel),
-    evidenceReferences: readModelEvidenceReferences(readModel),
+    evidenceReferences: activeReadModelEvidenceReferences(readModel),
     parserReason: null,
     citations: readModel.rows.map((readModelRow) => liveCitation(readModelRow)),
   };
@@ -354,6 +356,7 @@ export function trackingStatusServiceDataCoverage(
     rowVisibility: notReported(),
     lastObserved: notReported(),
     eventId: notReported(),
+    deviceCounts: notReported(),
     capability: notReported(),
     custody: notReported(),
     activityKinds: notReported(),
@@ -385,12 +388,11 @@ export function trackingStatusServiceDataCoverage(
     rowVisibility: sequenceDetail([readModel.activeRows, readModel.tombstoneRows]),
     lastObserved: detailFromValue(readModel.latestTombstoneObservedAt ?? readModel.latestObservedAt),
     eventId: detailFromValue(readModel.latestTombstoneEventId ?? readModel.latestEventId),
-    capability: detailFromValue(readModel.capabilityStatus),
+    deviceCounts: readModelDeviceCoverage(readModel),
+    capability: readModelCapabilityCoverage(readModel),
     custody: detailFromValue(readModel.custodyLabel),
-    activityKinds: listDetail(readModel.rows.map((readModelRow) => readModelRow.kind)),
-    evidenceReferences: evidenceReferenceDetail(
-      readModel.rows.flatMap((readModelRow) => readModelRow.evidenceReferenceIds)
-    ),
+    activityKinds: readModelActivityKindCoverage(readModel),
+    evidenceReferences: activeReadModelEvidenceReferences(readModel),
     deletedEvidence: readModelDeletedEvidenceReferences(readModel),
   };
 }
@@ -510,6 +512,10 @@ function notReported(): PortalDetailValue {
   return detailFromValue(resolvePortalDevText(PortalDevTextToken.NotReported));
 }
 
+function preferredActiveSummaryDetail(activeValue: unknown, legacyValue: unknown): PortalDetailValue {
+  return detailFromValue(activeValue ?? legacyValue);
+}
+
 function evidenceReferenceDetail(
   evidenceReferenceIds: readonly AgentActivityTrackingEvidenceReferenceIds[number][] | undefined
 ): PortalDetailValue {
@@ -519,18 +525,16 @@ function evidenceReferenceDetail(
   return detailFromValue(evidenceReferenceIds.join(PortalFormatting.EventDetailSeparator));
 }
 
-function readModelEvidenceReferences(readModel: AgentActivityTrackingReadModel): PortalDetailValue {
+function activeReadModelRows(readModel: AgentActivityTrackingReadModel): readonly AgentActivityTrackingReadModelRow[] {
+  return readModel.rows.filter((rowValue) => rowValue.deletedAt === null);
+}
+
+function activeReadModelEvidenceReferences(readModel: AgentActivityTrackingReadModel): PortalDetailValue {
   const references = new Set<AgentActivityTrackingEvidenceReferenceIds[number]>();
-  for (const rowValue of readModel.rows) {
+  for (const rowValue of activeReadModelRows(readModel)) {
     for (const evidenceReferenceId of rowValue.evidenceReferenceIds) {
       references.add(evidenceReferenceId);
     }
-    for (const evidenceReferenceId of rowValue.deletedEvidenceReferenceIds) {
-      references.add(evidenceReferenceId);
-    }
-  }
-  for (const evidenceReferenceId of readModel.deletedEvidenceReferenceIds) {
-    references.add(evidenceReferenceId);
   }
   return evidenceReferenceDetail([...references]);
 }
@@ -572,6 +576,39 @@ function liveCitation(rowValue: AgentActivityTrackingReadModelRow): TrackingStat
 function listDetail(values: readonly unknown[]): PortalDetailValue {
   const normalizedValues = values.map((value) => String(value)).filter((value) => value.length > 0);
   return evidenceReferenceDetail([...new Set(normalizedValues)]);
+}
+
+function countDetail(values: readonly AgentActivityTrackingReadModelCount[]): PortalDetailValue {
+  if (values.length === 0) {
+    return notReported();
+  }
+  return detailFromValue(
+    values.map((value) => `${value.value} (${String(value.count)})`).join(PortalFormatting.EventDetailSeparator)
+  );
+}
+
+function readModelActivityKindCoverage(readModel: AgentActivityTrackingReadModel): PortalDetailValue {
+  const activeKindCounts = readModel.activeKindCounts ?? [];
+  if (activeKindCounts.length > 0) {
+    return countDetail(activeKindCounts);
+  }
+  return listDetail(activeReadModelRows(readModel).map((rowValue) => rowValue.kind));
+}
+
+function readModelDeviceCoverage(readModel: AgentActivityTrackingReadModel): PortalDetailValue {
+  const activeDeviceCounts = readModel.activeDeviceCounts ?? [];
+  if (activeDeviceCounts.length > 0) {
+    return countDetail(activeDeviceCounts);
+  }
+  return listDetail(activeReadModelRows(readModel).map((rowValue) => rowValue.deviceId));
+}
+
+function readModelCapabilityCoverage(readModel: AgentActivityTrackingReadModel): PortalDetailValue {
+  const activeCapabilityStatusCounts = readModel.activeCapabilityStatusCounts ?? [];
+  if (activeCapabilityStatusCounts.length > 0) {
+    return countDetail(activeCapabilityStatusCounts);
+  }
+  return detailFromValue(readModel.capabilityStatus);
 }
 
 function sequenceDetail(values: readonly unknown[]): PortalDetailValue {

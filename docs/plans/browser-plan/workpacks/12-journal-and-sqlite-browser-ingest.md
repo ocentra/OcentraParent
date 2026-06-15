@@ -65,22 +65,22 @@ SQLite second, and served through read models third.
 
 Fill this before reporting `DONE` or PR-ready:
 
-- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
-- [x] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
-- [x] Hub lock covers this workpack and exact implementation/docs paths.
-- [x] Existing source layout inspected; no parallel browser truth created.
-- [x] Before-state source snapshot recorded in `output/browser-plan-proof/12-journal-and-sqlite-browser-ingest/00-source-snapshot.md`.
-- [x] Contracts were already in place; this workpack changes service capture ordering and replay proof.
-- [x] Rust/service parity updated through the existing service capture and core activity store path.
-- [x] Raw evidence artifacts captured where applicable: encrypted journal, SQLite/read-model rows, duplicate id state, stale timestamp, and restarted store read model.
-- [x] Tests/proof listed in this workpack are implemented or explicitly marked manual-required with reason.
-- [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
-- [x] UI snapshots are not applicable; `06-ui-snapshots/ui-not-applicable.md` records why.
-- [x] Security/no-claim negative proof captured where applicable: journal bytes do not expose browser URL plaintext and duplicate ids do not double count.
-- [x] Manual platform proof is not applicable; `09-manual-platform-proof.md` records why.
-- [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
-- [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
-- [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+- [ ] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
+- [ ] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
+- [ ] Hub lock covers this workpack and exact implementation/docs paths.
+- [ ] Existing source layout inspected; no parallel browser truth created.
+- [ ] Before-state source snapshot recorded in `output/browser-plan-proof/12-journal-and-sqlite-browser-ingest/00-source-snapshot.md`.
+- [ ] Contracts were already in place; this workpack changes service capture ordering and replay proof.
+- [ ] Rust/service parity updated through the existing service capture and core activity store path.
+- [ ] Raw evidence artifacts captured where applicable: encrypted journal, SQLite/read-model rows, duplicate id state, stale timestamp, and restarted store read model.
+- [ ] Tests/proof listed in this workpack are implemented or explicitly marked manual-required with reason.
+- [ ] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
+- [ ] UI snapshots are not applicable; `06-ui-snapshots/ui-not-applicable.md` records why.
+- [ ] Security/no-claim negative proof captured where applicable: journal bytes do not expose browser URL plaintext and duplicate ids do not double count.
+- [ ] Manual platform proof is not applicable; `09-manual-platform-proof.md` records why.
+- [ ] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
+- [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
+- [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
 ## Manual-Required Gaps
 

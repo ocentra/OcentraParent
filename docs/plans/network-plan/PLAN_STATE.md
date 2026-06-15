@@ -35,7 +35,8 @@ This folder is the single working plan location for child-device network evidenc
 
 ## What is already present / proved
 
-- No concise existing/proved bullet section was detected in the current snapshot.
+- `ocentra-network-evidence` already owns real Android VpnService and Apple Network Extension gate planners with crate-owned tests for proof-ready versus manual-required boundary behavior.
+- `agent-protocol`, `agent-service`, `agent-protocol-domain`, `portal-domain`, and `apps/portal` now surface Android VpnService and Apple Network Extension gate-status command/event paths through the existing live-activity and diagnostics seams without claiming live adapter execution.
 
 ## Open gaps / missing product runtime
 

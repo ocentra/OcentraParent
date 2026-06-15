@@ -44,10 +44,10 @@ Proof root: `output/tracking-plan-proof/21-place-category-taxonomy-and-ambiguity
 
 ## AI Worker Checklist
 
-- [x] Add no-accusation copy validator cases.
-- [x] Test low accuracy and multiple-place ambiguity.
-- [x] Keep category as policy input, not action.
-- [x] Let parent-defined safe/restricted zones override only through policy.
+- [ ] Add no-accusation copy validator cases.
+- [ ] Test low accuracy and multiple-place ambiguity.
+- [ ] Keep category as policy input, not action.
+- [ ] Let parent-defined safe/restricted zones override only through policy.
 
 ## Where We Are
 
@@ -90,25 +90,25 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/21-place-category-taxonomy-and-ambiguity-model/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
-- [x] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: WP21 proof source, tests, proof harness, feature doc,
+- [ ] Workpack id and branch: `codex/tracking-plan-full-scope`.
+- [ ] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
+- [ ] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
+- [ ] Proof artifacts under `output/tracking-plan-proof/21-place-category-taxonomy-and-ambiguity-model/`.
+- [ ] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
+- [ ] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [ ] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
+- [ ] Touched files: WP21 proof source, tests, proof harness, feature doc,
       implementation checklist, WP21/WP33 docs, and generated proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-place-category-ambiguity-proof.mjs` passed
       locally.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/21-place-category-taxonomy-and-ambiguity-model/`
       and `test-results/tracking-place-category-ambiguity-proof/`.
-- [x] Product doc/checklist updates: owning tracking feature doc, tracking
+- [ ] Product doc/checklist updates: owning tracking feature doc, tracking
       implementation checklist, WP21, and WP33 updated; central product
       checklist row remains unchanged because this does not upgrade product
       support beyond the existing local proof tier.
-- [x] Known gaps/manual-required states: live provider execution, provider
+- [ ] Known gaps/manual-required states: live provider execution, provider
       delivery, exact-place claims, Android/iOS physical-device proof,
       authority, production, full UI, and automatic action remain unclaimed.

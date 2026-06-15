@@ -34,6 +34,9 @@ export function buildDiagnosticsExport(state: PortalRuntimeState): PortalClipboa
       [PortalDiagnostics.Field.NetworkLinuxNftablesLabStatus]: liveActivity.networkLinuxNftablesLabStatusResult,
       [PortalDiagnostics.Field.NetworkWindowsFirewallLabStatus]: liveActivity.networkWindowsFirewallLabStatusResult,
       [PortalDiagnostics.Field.NetworkWindowsWfpGateStatus]: liveActivity.networkWindowsWfpGateStatusResult,
+      [PortalDiagnostics.Field.NetworkAndroidVpnServiceGateStatus]: liveActivity.networkAndroidVpnServiceGateStatusResult,
+      [PortalDiagnostics.Field.NetworkAppleNetworkExtensionGateStatus]:
+        liveActivity.networkAppleNetworkExtensionGateStatusResult,
     },
     [PortalDiagnostics.Field.Events]: state.events
       .slice(0, PortalDiagnostics.TimelineLimit)

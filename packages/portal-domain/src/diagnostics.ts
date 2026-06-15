@@ -23,6 +23,8 @@ export const PortalDiagnostics = {
     NetworkLinuxNftablesLabStatus: 'networkLinuxNftablesLabStatus',
     NetworkWindowsFirewallLabStatus: 'networkWindowsFirewallLabStatus',
     NetworkWindowsWfpGateStatus: 'networkWindowsWfpGateStatus',
+    NetworkAndroidVpnServiceGateStatus: 'networkAndroidVpnServiceGateStatus',
+    NetworkAppleNetworkExtensionGateStatus: 'networkAppleNetworkExtensionGateStatus',
     NetworkRemoteDeliveryStatus: 'networkRemoteDeliveryStatus',
     NetworkRuntimeEventChainStream: 'networkRuntimeEventChainStream',
     Online: 'online',

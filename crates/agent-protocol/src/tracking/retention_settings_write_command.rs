@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
 use super::{
     TrackingAcceptedAt, TrackingConfigEffectiveState, TrackingConfigUpdateResponseState,
-    TrackingDurableSettingsStoreRef, TrackingLocalServiceStateSnapshotRef, TrackingMutationProofRef,
-    TrackingReadModelProofRef, TrackingRetentionCommandId, TrackingRetentionSettingsKind,
-    TrackingRetentionWriteState, TrackingWriterIntentRef,
+    TrackingDurableSettingsStoreRef, TrackingLocalServiceStateSnapshotRef,
+    TrackingMutationProofRef, TrackingReadModelProofRef, TrackingRetentionCommandId,
+    TrackingRetentionSettingsKind, TrackingRetentionWriteState, TrackingWriterIntentRef,
 };
+use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TrackingDeleteAfterAlertResolutionState {
@@ -181,8 +181,10 @@ pub fn tracking_read_model_proof_ref(value: &'static str) -> TrackingReadModelPr
 }
 
 pub fn tracking_mutation_proof_ref() -> TrackingMutationProofRef {
-    TrackingMutationProofRef::parse(constants::tracking_retention_settings_write::MUTATION_PROOF_REF)
-        .expect(constants::tracking_retention_settings_write::MUTATION_PROOF_REF)
+    TrackingMutationProofRef::parse(
+        constants::tracking_retention_settings_write::MUTATION_PROOF_REF,
+    )
+    .expect(constants::tracking_retention_settings_write::MUTATION_PROOF_REF)
 }
 
 pub fn tracking_local_service_state_snapshot_ref() -> TrackingLocalServiceStateSnapshotRef {

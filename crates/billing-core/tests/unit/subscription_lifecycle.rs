@@ -5,8 +5,8 @@ use ocentra_billing_core::{
     BillingEntitlementTransitionState, BillingEntitlementUpdateRequirement,
     BillingEntitlementWriteState, BillingManualReviewRequirement, BillingProviderDuplicateState,
     BillingProviderEventDecisionState, BillingProviderEventId, BillingProviderEventKind,
-    BillingProviderSignatureState, BillingProviderWebhookEvent, BillingProviderWebhookReceivedEvent,
-    BillingSubscriptionLifecycleState,
+    BillingProviderSignatureState, BillingProviderWebhookEvent,
+    BillingProviderWebhookReceivedEvent, BillingSubscriptionLifecycleState,
 };
 use ocentra_eventing::DomainEvent;
 
@@ -40,10 +40,15 @@ fn verified_active_subscription_requires_entitlement_grant_without_review() {
             BillingProviderSignatureState::Verified,
         )
     });
-    let transition =
-        project_billing_entitlement_transition(decision.clone(), BillingEntitlementScope::Household);
+    let transition = project_billing_entitlement_transition(
+        decision.clone(),
+        BillingEntitlementScope::Household,
+    );
 
-    assert_eq!(decision.decision_state, BillingProviderEventDecisionState::Accepted);
+    assert_eq!(
+        decision.decision_state,
+        BillingProviderEventDecisionState::Accepted
+    );
     assert_eq!(
         decision.entitlement_update_requirement,
         BillingEntitlementUpdateRequirement::Required
@@ -56,7 +61,10 @@ fn verified_active_subscription_requires_entitlement_grant_without_review() {
         transition.transition_state,
         BillingEntitlementTransitionState::GrantFullAccess
     );
-    assert_eq!(transition.write_state, BillingEntitlementWriteState::WriteRequired);
+    assert_eq!(
+        transition.write_state,
+        BillingEntitlementWriteState::WriteRequired
+    );
 }
 
 #[test]
@@ -75,7 +83,10 @@ fn subscription_deleted_projects_household_revocation() {
         transition.transition_state,
         BillingEntitlementTransitionState::RevokeAccess
     );
-    assert_eq!(transition.write_state, BillingEntitlementWriteState::WriteRequired);
+    assert_eq!(
+        transition.write_state,
+        BillingEntitlementWriteState::WriteRequired
+    );
 }
 
 #[test]
@@ -94,7 +105,10 @@ fn grace_lifecycle_projects_household_grace_access() {
         transition.transition_state,
         BillingEntitlementTransitionState::GraceAccess
     );
-    assert_eq!(transition.write_state, BillingEntitlementWriteState::WriteRequired);
+    assert_eq!(
+        transition.write_state,
+        BillingEntitlementWriteState::WriteRequired
+    );
 }
 
 #[test]
@@ -162,7 +176,10 @@ fn supported_webhook_event_classes_follow_the_subscription_lifecycle_projection_
 
         assert_eq!(transition.lifecycle_state, lifecycle_state);
         assert_eq!(transition.transition_state, expected_transition_state);
-        assert_eq!(transition.write_state, BillingEntitlementWriteState::WriteRequired);
+        assert_eq!(
+            transition.write_state,
+            BillingEntitlementWriteState::WriteRequired
+        );
     }
 }
 
@@ -172,16 +189,27 @@ fn invalid_signature_blocks_entitlement_write_and_requires_manual_review() {
         BillingSubscriptionLifecycleState::Active,
         BillingProviderSignatureState::Invalid,
     ));
-    let transition =
-        project_billing_entitlement_transition(decision.clone(), BillingEntitlementScope::Household);
+    let transition = project_billing_entitlement_transition(
+        decision.clone(),
+        BillingEntitlementScope::Household,
+    );
 
-    assert_eq!(decision.decision_state, BillingProviderEventDecisionState::Rejected);
+    assert_eq!(
+        decision.decision_state,
+        BillingProviderEventDecisionState::Rejected
+    );
     assert_eq!(
         decision.manual_review_requirement,
         BillingManualReviewRequirement::Required
     );
-    assert_eq!(transition.transition_state, BillingEntitlementTransitionState::NoWrite);
-    assert_eq!(transition.write_state, BillingEntitlementWriteState::DoNotWrite);
+    assert_eq!(
+        transition.transition_state,
+        BillingEntitlementTransitionState::NoWrite
+    );
+    assert_eq!(
+        transition.write_state,
+        BillingEntitlementWriteState::DoNotWrite
+    );
 }
 
 #[test]
@@ -196,8 +224,10 @@ fn webhook_decision_projects_typed_entitlement_transition_event() {
     };
 
     let decision_event = record_billing_provider_webhook_decision_event(received.clone());
-    let transition_event =
-        project_billing_entitlement_transition_event(decision_event.clone(), BillingEntitlementScope::Household);
+    let transition_event = project_billing_entitlement_transition_event(
+        decision_event.clone(),
+        BillingEntitlementScope::Household,
+    );
 
     assert_eq!(
         received
@@ -224,5 +254,8 @@ fn webhook_decision_projects_typed_entitlement_transition_event() {
         BILLING_TRANSITION_EVENT_TYPE
     );
     assert_eq!(transition_event.aggregate_id, decision_event.aggregate_id);
-    assert_eq!(transition_event.source_decision_id, decision_event.decision_id);
+    assert_eq!(
+        transition_event.source_decision_id,
+        decision_event.decision_id
+    );
 }

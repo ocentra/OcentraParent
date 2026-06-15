@@ -1,21 +1,23 @@
-use ocentra_child_policy_core::TrackingPolicyViolationState;
+use ocentra_child_policy_core::tracking_policy::TrackingPolicyViolationState;
 use ocentra_parent_agent_protocol::{
-    constants, TrackingChildDeviceId, TrackingChildProfileId, TrackingConfidenceBasis,
-    TrackingExpectedPlaceRef, TrackingExpectedPlaceState, TrackingExpectedPlaceStateEvaluatedEvent,
+    constants, tracking_ai_request_id_from_evidence_ref,
+    tracking_evaluation_id_from_observation_id, tracking_evidence_ref_from_observation_id,
+    tracking_violation_id_from_ai_request_and_rule_ref,
+    tracking_violation_id_from_evaluation_and_rule_ref, TrackingChildDeviceId,
+    TrackingChildProfileId, TrackingConfidenceBasis, TrackingExpectedPlaceRef,
+    TrackingExpectedPlaceState, TrackingExpectedPlaceStateEvaluatedEvent,
     TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceClassifiedEvent,
     TrackingNearbyPlaceProviderKind, TrackingObservationId, TrackingParentActionRequirement,
     TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingProviderRef, TrackingReasonCode,
-    TrackingScheduleId, TrackingTimestamp, tracking_ai_request_id_from_evidence_ref,
-    tracking_evaluation_id_from_observation_id, tracking_evidence_ref_from_observation_id,
-    tracking_violation_id_from_ai_request_and_rule_ref,
-    tracking_violation_id_from_evaluation_and_rule_ref,
+    TrackingScheduleId, TrackingTimestamp,
 };
 
 fn tracking_nearby_place_fixture(
     parent_action_requirement: TrackingParentActionRequirement,
 ) -> TrackingNearbyPlaceClassifiedEvent {
-    let observation_id = TrackingObservationId::parse(constants::tracking_runtime::DEFAULT_OBSERVATION_ID)
-        .expect(constants::tracking_runtime::DEFAULT_OBSERVATION_ID);
+    let observation_id =
+        TrackingObservationId::parse(constants::tracking_runtime::DEFAULT_OBSERVATION_ID)
+            .expect(constants::tracking_runtime::DEFAULT_OBSERVATION_ID);
     let evidence_ref = tracking_evidence_ref_from_observation_id(&observation_id);
 
     TrackingNearbyPlaceClassifiedEvent {
@@ -69,8 +71,9 @@ fn tracking_expected_place_fixture(
     expected_place_state: &'static str,
     parent_action_requirement: TrackingParentActionRequirement,
 ) -> TrackingExpectedPlaceStateEvaluatedEvent {
-    let observation_id = TrackingObservationId::parse(constants::tracking_runtime::DEFAULT_OBSERVATION_ID)
-        .expect(constants::tracking_runtime::DEFAULT_OBSERVATION_ID);
+    let observation_id =
+        TrackingObservationId::parse(constants::tracking_runtime::DEFAULT_OBSERVATION_ID)
+            .expect(constants::tracking_runtime::DEFAULT_OBSERVATION_ID);
 
     TrackingExpectedPlaceStateEvaluatedEvent {
         child_device_id: TrackingChildDeviceId::parse(
@@ -97,6 +100,13 @@ fn tracking_expected_place_fixture(
         .expect(constants::tracking_runtime::DEFAULT_OBSERVED_AT),
         expected_place_state: TrackingExpectedPlaceState::parse(expected_place_state)
             .expect(expected_place_state),
+        distance_tolerance_meters: Some(
+            constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_DISTANCE_TOLERANCE_METERS,
+        ),
+        late_grace_seconds: constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_LATE_GRACE_SECONDS,
+        early_exit_grace_seconds:
+            constants::tracking_runtime::DEFAULT_EXPECTED_PLACE_EARLY_EXIT_GRACE_SECONDS,
+        exception_state: None,
         reason_codes: vec![TrackingReasonCode::parse(
             constants::tracking_runtime::REASON_EXPECTED_PLACE_AMBIGUOUS,
         )
@@ -110,14 +120,16 @@ fn tracking_expected_place_fixture(
 fn tracking_policy_emits_review_violation_for_hospital_nearby_place() {
     let classified = tracking_nearby_place_fixture(TrackingParentActionRequirement::Required);
 
-    let decision = ocentra_child_policy_core::evaluate_tracking_nearby_place_policy(&classified);
+    let decision =
+        ocentra_child_policy_core::tracking_policy::evaluate_tracking_nearby_place_policy(
+            &classified,
+        );
     let violation = decision
         .policy_violation_detected
         .expect("hospital tracking policy violation is expected");
-    let policy_rule_ref = TrackingPolicyRuleRef::parse(
-        constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
-    )
-    .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
+    let policy_rule_ref =
+        TrackingPolicyRuleRef::parse(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE)
+            .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
 
     assert_eq!(
         decision.violation_state,
@@ -146,7 +158,10 @@ fn tracking_policy_emits_review_violation_for_hospital_nearby_place() {
 fn tracking_policy_does_not_emit_violation_for_observe_only_mode() {
     let classified = tracking_nearby_place_fixture(TrackingParentActionRequirement::NotRequired);
 
-    let decision = ocentra_child_policy_core::evaluate_tracking_nearby_place_policy(&classified);
+    let decision =
+        ocentra_child_policy_core::tracking_policy::evaluate_tracking_nearby_place_policy(
+            &classified,
+        );
 
     assert_eq!(
         decision.violation_state,
@@ -163,7 +178,10 @@ fn tracking_policy_does_not_emit_violation_for_ambiguous_nearby_place() {
     )
     .expect(constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_MULTIPLE_CANDIDATES);
 
-    let decision = ocentra_child_policy_core::evaluate_tracking_nearby_place_policy(&classified);
+    let decision =
+        ocentra_child_policy_core::tracking_policy::evaluate_tracking_nearby_place_policy(
+            &classified,
+        );
 
     assert_eq!(
         decision.violation_state,
@@ -179,14 +197,16 @@ fn tracking_policy_emits_review_violation_for_left_expected_place() {
         TrackingParentActionRequirement::Required,
     );
 
-    let decision = ocentra_child_policy_core::evaluate_tracking_expected_place_policy(&evaluated);
+    let decision =
+        ocentra_child_policy_core::tracking_policy::evaluate_tracking_expected_place_policy(
+            &evaluated,
+        );
     let violation = decision
         .policy_violation_detected
         .expect("expected-place policy violation is expected");
-    let policy_rule_ref = TrackingPolicyRuleRef::parse(
-        constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE,
-    )
-    .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
+    let policy_rule_ref =
+        TrackingPolicyRuleRef::parse(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE)
+            .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
 
     assert_eq!(
         decision.violation_state,
@@ -214,7 +234,10 @@ fn tracking_policy_does_not_emit_expected_place_violation_when_parent_action_is_
         TrackingParentActionRequirement::NotRequired,
     );
 
-    let decision = ocentra_child_policy_core::evaluate_tracking_expected_place_policy(&evaluated);
+    let decision =
+        ocentra_child_policy_core::tracking_policy::evaluate_tracking_expected_place_policy(
+            &evaluated,
+        );
 
     assert_eq!(
         decision.violation_state,
@@ -230,7 +253,10 @@ fn tracking_policy_does_not_emit_expected_place_violation_when_child_is_where_ex
         TrackingParentActionRequirement::Required,
     );
 
-    let decision = ocentra_child_policy_core::evaluate_tracking_expected_place_policy(&evaluated);
+    let decision =
+        ocentra_child_policy_core::tracking_policy::evaluate_tracking_expected_place_policy(
+            &evaluated,
+        );
 
     assert_eq!(
         decision.violation_state,

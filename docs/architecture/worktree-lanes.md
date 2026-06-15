@@ -129,6 +129,58 @@ or refresh the current thread identity for wake routing. Several chats may be
 active for the same lane at once, and exact-file claims are the write gate that
 prevents collisions.
 
+One thread may opt into manual-only hook behavior:
+
+```powershell
+npm run hub:thread:upgrade
+```
+
+Inspect the current lane/session view without changing anything:
+
+```powershell
+npm run hub:thread-mode
+```
+
+That command may only be run from the thread that most recently received a real
+`UserPromptSubmit` for the lane. It does not accept a target `--session-id`, so
+one thread cannot silently retarget another. Codex hooks currently expose
+`session_id`, so manual-only mode treats that active session as the thread
+identity available to the hook. In manual-only mode, auto hooks such as
+`SessionStart`, `PostToolUse`, and `Stop` do not claim or refresh the lane
+lease for that session; only a real `UserPromptSubmit` in the same thread may
+do that. Restore the default behavior with:
+
+```powershell
+npm run hub:thread:default
+```
+
+`hub:thread-mode` is read-only. It reports the lane's active hook session, the
+most recent real user-prompt session, and any explicit write-grant sessions so
+duplicate-thread confusion stays visible without weakening the upgrade guard.
+
+Explicit user prompts now create writable grants instead of lane takeovers.
+When a real `UserPromptSubmit` arrives from another thread on the same lane,
+the compatibility layer keeps the existing lease owner but records writable
+authority for the prompted session. That means multiple user-directed threads
+may write on the same lane at the same time, while auto hooks still keep
+single-owner lease semantics.
+
+A prompted coordinator thread may also delegate writable access to spawned
+subagent sessions:
+
+```powershell
+npm run hub:delegate:grant -- --session-id 019ec463-0620-7a03-a937-8af8e89dc04a --reason "policy-control test worker"
+npm run hub:delegate:revoke -- --session-id 019ec463-0620-7a03-a937-8af8e89dc04a
+```
+
+Those grant commands may only be run from the thread that most recently
+received a real user prompt for the lane. They do not transfer coordination
+ownership or the active lease; they only authorize additional writable
+sessions. Treat the human user as the super-user: the single-owner rule is for
+AI auto hooks and background Codex behavior, not for explicit user-directed
+threads or coordinator-delegated workers. Manual-only still changes future
+auto-hook behavior for that session only.
+
 Idle liveness should stay outside Codex chat. A watcher or daemon may write
 Ledger heartbeat events, but idle workers should not spend chat turns reporting
 that nothing changed.

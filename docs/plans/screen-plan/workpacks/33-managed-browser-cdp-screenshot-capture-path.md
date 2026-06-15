@@ -24,13 +24,13 @@ This is capture MVP for browser pages, browser games, video, social web, and web
 
 ## Checklist
 
-- [x] Verify current Chrome DevTools Protocol `Page.captureScreenshot` docs.
-- [x] Define page, viewport, and crop capture modes.
-- [x] Keep capture tied to managed browser target ID.
-- [x] Add capture size and crop limits.
-- [x] Queue image through encrypted temporary image queue.
-- [x] Record URL/title/target evidence refs.
-- [x] Exclude live screencast from MVP default.
+- [ ] Verify current Chrome DevTools Protocol `Page.captureScreenshot` docs.
+- [ ] Define page, viewport, and crop capture modes.
+- [ ] Keep capture tied to managed browser target ID.
+- [ ] Add capture size and crop limits.
+- [ ] Queue image through encrypted temporary image queue.
+- [ ] Record URL/title/target evidence refs.
+- [ ] Exclude live screencast from MVP default.
 
 ## Proof
 

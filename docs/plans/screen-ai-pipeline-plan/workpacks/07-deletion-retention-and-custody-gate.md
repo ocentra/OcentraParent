@@ -21,13 +21,13 @@ does not upload raw screenshots remotely.
 
 ## Checklist
 
-- [x] Queue image encrypted.
-- [x] Raw path redacted outside child agent.
-- [x] Delete after success.
-- [x] Delete after TTL.
-- [x] Delete failure visible.
-- [x] Remote/cloud screenshot upload disabled.
-- [x] Retention requires explicit opt-in if used.
+- [ ] Queue image encrypted.
+- [ ] Raw path redacted outside child agent.
+- [ ] Delete after success.
+- [ ] Delete after TTL.
+- [ ] Delete failure visible.
+- [ ] Remote/cloud screenshot upload disabled.
+- [ ] Retention requires explicit opt-in if used.
 
 ## Proof
 

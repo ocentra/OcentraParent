@@ -48,27 +48,27 @@ missing, policy returns manual_required or not-claimed and no adapter runs.
 
 Fill this before reporting `DONE` or PR-ready:
 
-- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-snapshot.md), [full scope plan](../v0-5-native-apps-full-scope-plan.md), [platform deep dive](../v0-5-native-apps-platform-deep-dive.md), [test blueprint](../v0-5-native-apps-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
-- [x] Confirm this is native/installed-app scope, not browser pages, browser games, or game-specific product semantics unless the source docs explicitly route that handoff.
-- [x] Hub lock covers this workpack and exact implementation/docs paths.
-- [x] Existing app/game source layout inspected; no parallel app-control truth created.
-- [x] Before-state source snapshot recorded in `output/app-plan-proof/22-broad-blocking-proof-gates/00-source-snapshot.md`.
-- [x] Contracts updated first where this workpack changes behavior:
+- [ ] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-snapshot.md), [full scope plan](../v0-5-native-apps-full-scope-plan.md), [platform deep dive](../v0-5-native-apps-platform-deep-dive.md), [test blueprint](../v0-5-native-apps-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
+- [ ] Confirm this is native/installed-app scope, not browser pages, browser games, or game-specific product semantics unless the source docs explicitly route that handoff.
+- [ ] Hub lock covers this workpack and exact implementation/docs paths.
+- [ ] Existing app/game source layout inspected; no parallel app-control truth created.
+- [ ] Before-state source snapshot recorded in `output/app-plan-proof/22-broad-blocking-proof-gates/00-source-snapshot.md`.
+- [ ] Contracts updated first where this workpack changes behavior:
       `packages/parent-domain/src/app-game-broad-blocking-proof-gates.ts`,
       `packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts`,
       and `packages/parent-domain/src/app-game-broad-blocking-proof-gate-rules.ts`.
-- [x] Rust/service/portal parity N/A for this slice because no protocol, service, or UI payload changed.
-- [x] Raw evidence artifact captured: `output/app-plan-proof/22-broad-blocking-proof-gates/03-runtime-evidence.json`.
-- [x] Tests/proof listed in this workpack and [test blueprint](../v0-5-native-apps-test-blueprint.md) are implemented as no-claim/manual-required proof.
-- [x] Required fixtures are N/A except manual-required state; manual-required and unavailable gates are covered by the contract matrix.
-- [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
-- [x] UI snapshots N/A; `output/app-plan-proof/22-broad-blocking-proof-gates/06-ui-snapshots/ui-not-applicable.md` records why.
-- [x] Security/no-claim negative proof captured in `output/app-plan-proof/22-broad-blocking-proof-gates/08-security-negative-proof.log`.
-- [x] Manual platform proof N/A for support claims; `09-manual-platform-proof.md` records that no claim stronger than manual-required/unavailable/not-claimed moved up.
-- [x] Platform limitations use manual-required, unavailable, and not-claimed language with exact proof needed to move up.
-- [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
-- [x] Feature/checklist update decision recorded: feature doc and app/app-game checklists updated; product capability checklist unchanged because product status/support did not move and the file is locked by another lane.
-- [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+- [ ] Rust/service/portal parity N/A for this slice because no protocol, service, or UI payload changed.
+- [ ] Raw evidence artifact captured: `output/app-plan-proof/22-broad-blocking-proof-gates/03-runtime-evidence.json`.
+- [ ] Tests/proof listed in this workpack and [test blueprint](../v0-5-native-apps-test-blueprint.md) are implemented as no-claim/manual-required proof.
+- [ ] Required fixtures are N/A except manual-required state; manual-required and unavailable gates are covered by the contract matrix.
+- [ ] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
+- [ ] UI snapshots N/A; `output/app-plan-proof/22-broad-blocking-proof-gates/06-ui-snapshots/ui-not-applicable.md` records why.
+- [ ] Security/no-claim negative proof captured in `output/app-plan-proof/22-broad-blocking-proof-gates/08-security-negative-proof.log`.
+- [ ] Manual platform proof N/A for support claims; `09-manual-platform-proof.md` records that no claim stronger than manual-required/unavailable/not-claimed moved up.
+- [ ] Platform limitations use manual-required, unavailable, and not-claimed language with exact proof needed to move up.
+- [ ] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
+- [ ] Feature/checklist update decision recorded: feature doc and app/app-game checklists updated; product capability checklist unchanged because product status/support did not move and the file is locked by another lane.
+- [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
 ## Manual-Required Gaps
 

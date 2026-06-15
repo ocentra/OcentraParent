@@ -525,6 +525,11 @@ const EXPECTED_PORTAL_COMMAND_BUTTONS = [
   [AgentCommand.NetworkLinuxNftablesLabStatusGet, AgentEvent.NetworkLinuxNftablesLabStatusReported],
   [AgentCommand.NetworkWindowsFirewallLabStatusGet, AgentEvent.NetworkWindowsFirewallLabStatusReported],
   [AgentCommand.NetworkWindowsWfpGateStatusGet, AgentEvent.NetworkWindowsWfpGateStatusReported],
+  [AgentCommand.NetworkAndroidVpnServiceGateStatusGet, AgentEvent.NetworkAndroidVpnServiceGateStatusReported],
+  [
+    AgentCommand.NetworkAppleNetworkExtensionGateStatusGet,
+    AgentEvent.NetworkAppleNetworkExtensionGateStatusReported,
+  ],
   [AgentCommand.ActivityTrackingReadModelGet, AgentEvent.ActivityTrackingReadModelReported],
   [AgentCommand.LocalAiRuntimeStatusGet, AgentEvent.LocalAiRuntimeStatusReported],
   [AgentCommand.PolicyPreviewReadModelGet, AgentEvent.PolicyPreviewReadModelReported],
@@ -561,6 +566,8 @@ const EXPECTED_PORTAL_OVERVIEW_COMMANDS = [
   AgentCommand.NetworkLinuxNftablesLabStatusGet,
   AgentCommand.NetworkWindowsFirewallLabStatusGet,
   AgentCommand.NetworkWindowsWfpGateStatusGet,
+  AgentCommand.NetworkAndroidVpnServiceGateStatusGet,
+  AgentCommand.NetworkAppleNetworkExtensionGateStatusGet,
   AgentCommand.ActivityTrackingReadModelGet,
   AgentCommand.LocalAiRuntimeStatusGet,
   AgentCommand.PolicyPreviewReadModelGet,
@@ -604,6 +611,10 @@ describe('portal shared constants', () => {
     expect(PortalTiming.CopyFeedbackMs).toBeGreaterThan(0);
     expect(PortalDiagnostics.SchemaVersion).toBe(1);
     expect(PortalDiagnostics.Field.AgentUrl).toBe('agentUrl');
+    expect(PortalDiagnostics.Field.NetworkAndroidVpnServiceGateStatus).toBe('networkAndroidVpnServiceGateStatus');
+    expect(PortalDiagnostics.Field.NetworkAppleNetworkExtensionGateStatus).toBe(
+      'networkAppleNetworkExtensionGateStatus'
+    );
     expect(PortalClipboard.CommandCopy).toBe('copy');
     expect(PortalDetails.PrivacyMode).toBe('Privacy mode');
     expect(PortalDetails.AdapterBoundary).toBe('Adapter boundary');

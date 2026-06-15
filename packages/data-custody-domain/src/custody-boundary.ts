@@ -97,3 +97,184 @@ export const DataCustodyRetentionDisposition = {
 export function parseDataCustodyBoundary(input: unknown): DataCustodyBoundary {
   return DataCustodyBoundarySchema.parse(input);
 }
+
+export const SeededDataCustodyClassIds = [
+  'encrypted-journal-segment',
+  'sqlite-query-row',
+  'parent-rule',
+  'approval-decision',
+  'device-registry-entry',
+  'notification-history',
+  'audit-event',
+  'generated-summary',
+] as const;
+
+export const DataCustodyClassIdSchema = withParser(Schema.Literal(...SeededDataCustodyClassIds));
+export type DataCustodyClassId = Infer<typeof DataCustodyClassIdSchema>;
+
+export const DataCustodyClassId = {
+  EncryptedJournalSegment: DataCustodyClassIdSchema.parse('encrypted-journal-segment'),
+  SqliteQueryRow: DataCustodyClassIdSchema.parse('sqlite-query-row'),
+  ParentRule: DataCustodyClassIdSchema.parse('parent-rule'),
+  ApprovalDecision: DataCustodyClassIdSchema.parse('approval-decision'),
+  DeviceRegistryEntry: DataCustodyClassIdSchema.parse('device-registry-entry'),
+  NotificationHistory: DataCustodyClassIdSchema.parse('notification-history'),
+  AuditEvent: DataCustodyClassIdSchema.parse('audit-event'),
+  GeneratedSummary: DataCustodyClassIdSchema.parse('generated-summary'),
+} as const;
+
+const DataCustodySourceOfTruthKinds = ['self', 'derived-from-data-class'] as const;
+
+export const DataCustodySourceOfTruthKindSchema = withParser(
+  Schema.Literal(...DataCustodySourceOfTruthKinds)
+);
+
+const DataCustodySourceOfTruthBaseSchema = Schema.Struct({
+  kind: DataCustodySourceOfTruthKindSchema,
+  sourceClassId: Schema.Union(DataCustodyClassIdSchema, Schema.Null),
+});
+
+type DataCustodySourceOfTruthCandidate = Infer<typeof DataCustodySourceOfTruthBaseSchema>;
+
+export const DataCustodySourceOfTruthSchema = withParser(
+  DataCustodySourceOfTruthBaseSchema.pipe(
+    Schema.filter(
+      (source) =>
+        dataCustodySourceOfTruthIsUnambiguous(source) ||
+        'Expected source-of-truth to be self or derived from exactly one data class'
+    )
+  )
+);
+
+export type DataCustodySourceOfTruthKind = Infer<typeof DataCustodySourceOfTruthKindSchema>;
+export type DataCustodySourceOfTruth = Infer<typeof DataCustodySourceOfTruthSchema>;
+
+export const DataCustodySourceOfTruth = {
+  self(): DataCustodySourceOfTruth {
+    return DataCustodySourceOfTruthSchema.parse({
+      kind: 'self',
+      sourceClassId: null,
+    });
+  },
+  derivedFromDataClass(sourceClassId: DataCustodyClassId): DataCustodySourceOfTruth {
+    return DataCustodySourceOfTruthSchema.parse({
+      kind: 'derived-from-data-class',
+      sourceClassId,
+    });
+  },
+} as const;
+
+const DataCustodyDefaultLocations = [
+  'child-device-encrypted-journal',
+  'child-device-local-query-store',
+  'household-local-rule-store',
+  'household-local-approval-store',
+  'household-local-device-registry',
+  'parent-device-notification-history-cache',
+  'household-local-audit-store',
+  'parent-device-generated-summary-cache',
+] as const;
+
+export const DataCustodyDefaultLocationSchema = withParser(
+  Schema.Literal(...DataCustodyDefaultLocations)
+);
+export type DataCustodyDefaultLocation = Infer<typeof DataCustodyDefaultLocationSchema>;
+
+export const DataCustodyDefaultLocation = {
+  ChildDeviceEncryptedJournal: DataCustodyDefaultLocationSchema.parse(
+    'child-device-encrypted-journal'
+  ),
+  ChildDeviceLocalQueryStore: DataCustodyDefaultLocationSchema.parse(
+    'child-device-local-query-store'
+  ),
+  HouseholdLocalRuleStore: DataCustodyDefaultLocationSchema.parse(
+    'household-local-rule-store'
+  ),
+  HouseholdLocalApprovalStore: DataCustodyDefaultLocationSchema.parse(
+    'household-local-approval-store'
+  ),
+  HouseholdLocalDeviceRegistry: DataCustodyDefaultLocationSchema.parse(
+    'household-local-device-registry'
+  ),
+  ParentDeviceNotificationHistoryCache: DataCustodyDefaultLocationSchema.parse(
+    'parent-device-notification-history-cache'
+  ),
+  HouseholdLocalAuditStore: DataCustodyDefaultLocationSchema.parse(
+    'household-local-audit-store'
+  ),
+  ParentDeviceGeneratedSummaryCache: DataCustodyDefaultLocationSchema.parse(
+    'parent-device-generated-summary-cache'
+  ),
+} as const;
+
+const DataCustodyAuthorities = [
+  'child-device',
+  'household-local-devices',
+  'parent-device',
+] as const;
+
+export const DataCustodyAuthoritySchema = withParser(Schema.Literal(...DataCustodyAuthorities));
+export type DataCustodyAuthority = Infer<typeof DataCustodyAuthoritySchema>;
+
+export const DataCustodyAuthority = {
+  ChildDevice: DataCustodyAuthoritySchema.parse('child-device'),
+  HouseholdLocalDevices: DataCustodyAuthoritySchema.parse('household-local-devices'),
+  ParentDevice: DataCustodyAuthoritySchema.parse('parent-device'),
+} as const;
+
+const DataCustodyOcentraHostingModes = [
+  'forbidden',
+  'minimal-routing-metadata-only',
+  'parent-authorized-stateless-derivation-only',
+] as const;
+
+export const DataCustodyOcentraHostingModeSchema = withParser(
+  Schema.Literal(...DataCustodyOcentraHostingModes)
+);
+export type DataCustodyOcentraHostingMode = Infer<typeof DataCustodyOcentraHostingModeSchema>;
+
+export const DataCustodyOcentraHostingMode = {
+  Forbidden: DataCustodyOcentraHostingModeSchema.parse('forbidden'),
+  MinimalRoutingMetadataOnly: DataCustodyOcentraHostingModeSchema.parse(
+    'minimal-routing-metadata-only'
+  ),
+  ParentAuthorizedStatelessDerivationOnly: DataCustodyOcentraHostingModeSchema.parse(
+    'parent-authorized-stateless-derivation-only'
+  ),
+} as const;
+
+const DataCustodyHostingPolicyBaseSchema = Schema.Struct({
+  ocentraHostingMode: DataCustodyOcentraHostingModeSchema,
+  parentOwnedStorageAllowed: Schema.Boolean,
+  providerMetadataAllowed: Schema.Boolean,
+});
+
+type DataCustodyHostingPolicyCandidate = Infer<typeof DataCustodyHostingPolicyBaseSchema>;
+
+export const DataCustodyHostingPolicySchema = withParser(
+  DataCustodyHostingPolicyBaseSchema.pipe(
+    Schema.filter(
+      (policy) =>
+        dataCustodyHostingPolicyIsCoherent(policy) ||
+        'Expected hosting policy to allow parent-owned storage or declare limited hosted metadata or stateless derivation'
+    )
+  )
+);
+
+export type DataCustodyHostingPolicy = Infer<typeof DataCustodyHostingPolicySchema>;
+
+function dataCustodySourceOfTruthIsUnambiguous(source: DataCustodySourceOfTruthCandidate): boolean {
+  if (source.kind === 'self') {
+    return source.sourceClassId === null;
+  }
+
+  return source.sourceClassId !== null;
+}
+
+function dataCustodyHostingPolicyIsCoherent(policy: DataCustodyHostingPolicyCandidate): boolean {
+  return (
+    policy.parentOwnedStorageAllowed ||
+    policy.providerMetadataAllowed ||
+    policy.ocentraHostingMode !== DataCustodyOcentraHostingMode.Forbidden
+  );
+}

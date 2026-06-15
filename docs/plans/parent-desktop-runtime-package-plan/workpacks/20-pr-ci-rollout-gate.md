@@ -31,9 +31,9 @@ package/proof artifacts, docs/checklist state, known gaps, and CI/PR status.
 
 ## Requirement Checklist
 
-- [x] Run focused checks before PR-ready handoff.
+- [ ] Run focused checks before PR-ready handoff.
 - [ ] Push the branch when ready for review.
-- [x] Include package/runtime scope in PR-ready report.
+- [ ] Include package/runtime scope in PR-ready report.
 - [ ] Watch CI and fix D-owned failures.
 - [ ] After merge, primary pulls main and tells active workers to rebase.
 

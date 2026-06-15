@@ -2,8 +2,7 @@ import {
   type Infer,
   Schema,
   withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { ActivityEvidenceRefSchema } from '@ocentra-parent/evidence-domain/contracts';
 import {
@@ -33,6 +32,7 @@ import {
   ScreenEvidenceQueueJobIdSchema,
   ScreenEvidenceTemplateVersionSchema,
 } from '@ocentra-parent/screen-domain/screen-evidence-primitives';
+import { screenPolicyEvidenceChainFieldsWithDefaults } from '@ocentra-parent/screen-domain/screen-policy-evidence-chain';
 import {
   ScreenCapabilityStatusSchema,
   ScreenCaptureReasonSchema,
@@ -45,7 +45,6 @@ import {
 } from '@ocentra-parent/screen-domain/screen-evidence-states';
 const NonNegativeActivityCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const NonNegativeActivityDuration = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
-const ActivitySurfaceReferenceListSchema = Schema.Array(NonEmptyStringSchema);
 const ActivityScreenRawImageRetainedSchema = Schema.optionalWith(Schema.Literal(false), {
   default: () => false as const,
 });
@@ -282,18 +281,7 @@ export const ActivityScreenReadModelSchema = withParser(
         imageDigest: ScreenEvidenceImageDigestSchema,
         custodyState: ScreenEvidenceCustodyStateSchema,
         evidence: Schema.Array(ActivityEvidenceRefSchema),
-        policyDecisionRef: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
-          default: () => null,
-        }),
-        policyAction: Schema.optionalWith(Schema.Union(NonEmptyStringSchema, Schema.Null), {
-          default: () => null,
-        }),
-        policyReasonCodes: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
-        parentRuleRefs: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
-        localModelRuntimeRefs: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
-        parentExplanationRefs: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
-        explanationReasons: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
-        deletionReasons: Schema.optionalWith(ActivitySurfaceReferenceListSchema, { default: () => [] }),
+        ...screenPolicyEvidenceChainFieldsWithDefaults(),
         ocrTextSnippets: Schema.optionalWith(ActivityScreenOcrSnippetListSchema, { default: () => [] }),
         redactionNotes: Schema.optionalWith(ActivityScreenRedactionNoteListSchema, { default: () => [] }),
       })

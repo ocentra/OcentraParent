@@ -9,6 +9,7 @@ Handoff: `account-identity-family-plan` owns provider choice, token/session life
 Expected shape:
 
 - Register, login, resume setup, invite accept, password/passkey/email-link recovery, and logout routes.
+- Invite-to-account flow, account-to-household flow, and household-to-parent-install-code flow are explicit.
 - Parent-friendly wording for account versus child profile.
 - Explicit cross-family rejection and expired/revoked invite states.
 - No child device enrollment before account/household authority is established.
@@ -47,15 +48,24 @@ Required output:
 
 Expected tests/proof names:
 
-- `registration.entry-route-state`
-- `registration.expired-invite-rejected`
-- `registration.revoked-invite-rejected`
-- `registration.cross-family-rejected`
-- `registration.no-child-data-before-household`
+- `setup.registration.entry-route-state`
+- `setup.registration.expired-invite-rejected`
+- `setup.registration.revoked-invite-rejected`
+- `setup.registration.cross-family-rejected`
+- `setup.registration.no-child-data-before-household`
+- `setup.registration.wrong-role-rejected`
+- `setup.registration.authenticated-no-household-state`
+- `setup.registration.household-create-required-state`
+- `setup.registration.household-child-no-device-state`
+- `setup.registration.invite-accept-state`
+- `setup.registration.session-expired-state`
+- `setup.registration.provider-unavailable-state`
+- `setup.registration.redacted-log-proof`
 
 Proof artifact expectations:
 
-- Route matrix.
-- Screenshot proof for success/error/recovery states when UI exists.
-- Auth provider decision reference.
-- Logs with redacted email/user identifiers.
+- `02-registration-route-state-proof.md`
+- `02-auth-handoff-contract-proof.md`
+- `02-invite-negative-proof.md`
+- `02-no-child-data-before-household-proof.md`
+- `02-registration-ui-state-proof.md`

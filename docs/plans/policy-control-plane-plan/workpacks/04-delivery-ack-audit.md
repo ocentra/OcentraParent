@@ -2,91 +2,72 @@
 
 Goal: define policy delivery, acknowledgement, conflict, retry, and audit lifecycle.
 
-Expected shape:
+Owns: event-driven delivery lifecycle, per-child/device/domain status, offline degradation, retry, rollback, and parent-visible audit evidence.
+
+Handoff: eventing and enforcement plans own runtime mechanics; this workpack defines the policy delivery contract and proof.
+
+## Required lifecycle
+
+```text
+drafted
+previewed
+confirmed
+queued
+delivering
+delivered
+acknowledged
+applied
+rejected
+superseded
+rolledBack
+expiredBeforeDelivery
+offlineQueued
+retryScheduled
+partialDomainApply
+blockedByPermission
+blockedByCapability
+manualRequired
+```
+
+## Required behavior
 
 - Policy updates are idempotent, ordered, replay-safe, and observable.
+- Delivery is per child profile, child device, and domain.
 - Offline children receive pending/degraded state, not fake success.
 - Every applied, rejected, superseded, or rolled-back policy has audit evidence.
+- Active status requires ack or explicit degraded/manualRequired state.
+- Parent UI must show pending, degraded, or manualRequired instead of fake success.
 
-Expected proof:
+## Required proof IDs
 
-- Duplicate/out-of-order/replay tests.
-- Offline/retry/ack proof.
-- Rollback proof.
-- Audit and redacted log proof.
-- Expiry, superseded policy, and stale child state proof.
-- Cross-domain delivery status proof.
-- Parent-visible degraded/manual-required state proof.
-
-Failure: policy marked active before child/device/domain acknowledgement or explicit degraded state.
-
-## Decision Tree
-
-| If delivery touches...                          | Required route                               |
-| ----------------------------------------------- | -------------------------------------------- |
-| Event/queue semantics                           | eventing-plan selected workpack              |
-| App/game/browser/network/tracking/screen target | owning domain plan                           |
-| Enforcement action/rollback                     | v0-8-enforcement-control-plan                |
-| Parent UI status                                | portal-ux-household-surfaces-plan            |
-| Offline/remote device                           | remote/lan/account route proof as applicable |
-
-## Execution Detail
-
-Minimum context:
-
-- `docs/plans/eventing-plan/AGENTS.md`
-- `docs/plans/app-plan/AGENTS.md`
-- `docs/plans/v0-8-enforcement-control-plan/AGENTS.md`
-
-Required lifecycle:
-
-- Drafted.
-- Previewed.
-- Confirmed.
-- Queued.
-- Delivered.
-- Acknowledged.
-- Applied.
-- Rejected.
-- Superseded.
-- Rolled back.
-- Degraded/offline/manual-required.
-- Expired before delivery.
-- Partially applied across domains.
-- Blocked by permission/platform/account state.
-
-Rules:
-
-- Active policy status must distinguish parent intent from device acknowledgement.
-- Offline child devices keep pending/degraded state.
-- Duplicate/out-of-order events are safe.
-- Every transition has audit evidence.
-- Rollback must reference previous known state and failure reason.
-- Parent UI must show pending/degraded/manual-required instead of fake success.
-- Delivery state is per child/device/domain, not only global.
-
-Expected tests/proof names:
-
+- `policy-delivery.state-machine`
 - `policy-delivery.idempotent`
 - `policy-delivery.out-of-order-safe`
+- `policy-delivery.replay-rejected`
 - `policy-delivery.offline-degraded`
+- `policy-delivery.retry-safe`
 - `policy-delivery.ack-required`
-- `policy-delivery.rollback-audited`
-- `policy-delivery.expired-before-delivery`
 - `policy-delivery.partial-domain-apply`
+- `policy-delivery.expired-before-delivery`
+- `policy-delivery.superseded-before-ack`
 - `policy-delivery.permission-loss-blocked`
+- `policy-delivery.rollback-audited`
+- `policy-delivery.redacted-log-proof`
 - `policy-delivery.parent-visible-state`
+- `policy-delivery.per-device-domain-status`
 
-Proof artifact expectations:
+## Negative cases
 
-- Delivery state machine.
-- Audit event examples.
-- Retry/backoff expectations.
-- Per-domain/device status examples.
-- Redacted log samples and denied replay/duplicate cases.
+```text
+duplicate delivery creates duplicate active policy
+out-of-order stale update overwrites newer policy
+offline child shown as active
+policy active globally after one domain ack
+rejected state lacks audit ref
+rollback lacks previous state ref
+raw child or policy data appears in logs
+```
 
-## Failure Conditions
+## Failure
 
-- Do not mark policy active globally when only one domain/device acknowledged.
-- Do not hide offline/manual-required delivery behind success UI.
-- Do not omit audit refs for rejected, superseded, rollback, or expired states.
+Do not mark policy active globally when only one domain or device acknowledged, and do not hide offline/manualRequired delivery behind success UI.

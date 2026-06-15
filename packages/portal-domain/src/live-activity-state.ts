@@ -67,6 +67,14 @@ import {
   type AgentNetworkWindowsWfpGateStatusParseResult,
 } from '@ocentra-parent/agent-protocol-domain/network-windows-wfp-gate-status';
 import {
+  parseAgentNetworkAndroidVpnServiceGateStatusEvent,
+  type AgentNetworkAndroidVpnServiceGateStatusParseResult,
+} from '@ocentra-parent/agent-protocol-domain/network-android-vpnservice-gate-status';
+import {
+  parseAgentNetworkAppleNetworkExtensionGateStatusEvent,
+  type AgentNetworkAppleNetworkExtensionGateStatusParseResult,
+} from '@ocentra-parent/agent-protocol-domain/network-apple-network-extension-gate-status';
+import {
   parseAgentNetworkRemoteDeliveryStatusEvent,
   type AgentNetworkRemoteDeliveryStatusParseResult,
 } from '@ocentra-parent/agent-protocol-domain/network-remote-delivery-status';
@@ -227,6 +235,12 @@ export interface PortalLiveActivityState {
   readonly networkWindowsFirewallLabStatusResult: AgentNetworkWindowsFirewallLabStatusParseResult | null;
   readonly networkWindowsWfpGateStatusEvent: AgentEventEnvelope | null;
   readonly networkWindowsWfpGateStatusResult: AgentNetworkWindowsWfpGateStatusParseResult | null;
+  readonly networkAndroidVpnServiceGateStatusEvent: AgentEventEnvelope | null;
+  readonly networkAndroidVpnServiceGateStatusResult: AgentNetworkAndroidVpnServiceGateStatusParseResult | null;
+  readonly networkAppleNetworkExtensionGateStatusEvent: AgentEventEnvelope | null;
+  readonly networkAppleNetworkExtensionGateStatusResult:
+    | AgentNetworkAppleNetworkExtensionGateStatusParseResult
+    | null;
   readonly activityTrackingReadModelEvent: AgentEventEnvelope | null;
   readonly activityTrackingReadModel: AgentActivityTrackingReadModelResult | null;
   readonly activityTrackingRetentionSettingsWriteEvent: AgentEventEnvelope | null;
@@ -424,6 +438,14 @@ function resolveNetworkState(events: readonly AgentEventEnvelope[]) {
   const networkLinuxNftablesLabStatusEvent = latestEvent(events, AgentEvent.NetworkLinuxNftablesLabStatusReported);
   const networkWindowsFirewallLabStatusEvent = latestEvent(events, AgentEvent.NetworkWindowsFirewallLabStatusReported);
   const networkWindowsWfpGateStatusEvent = latestEvent(events, AgentEvent.NetworkWindowsWfpGateStatusReported);
+  const networkAndroidVpnServiceGateStatusEvent = latestEvent(
+    events,
+    AgentEvent.NetworkAndroidVpnServiceGateStatusReported
+  );
+  const networkAppleNetworkExtensionGateStatusEvent = latestEvent(
+    events,
+    AgentEvent.NetworkAppleNetworkExtensionGateStatusReported
+  );
 
   return {
     browserInterventionEvent,
@@ -458,6 +480,16 @@ function resolveNetworkState(events: readonly AgentEventEnvelope[]) {
       networkWindowsWfpGateStatusEvent === null
         ? null
         : parseAgentNetworkWindowsWfpGateStatusEvent(networkWindowsWfpGateStatusEvent),
+    networkAndroidVpnServiceGateStatusEvent,
+    networkAndroidVpnServiceGateStatusResult:
+      networkAndroidVpnServiceGateStatusEvent === null
+        ? null
+        : parseAgentNetworkAndroidVpnServiceGateStatusEvent(networkAndroidVpnServiceGateStatusEvent),
+    networkAppleNetworkExtensionGateStatusEvent,
+    networkAppleNetworkExtensionGateStatusResult:
+      networkAppleNetworkExtensionGateStatusEvent === null
+        ? null
+        : parseAgentNetworkAppleNetworkExtensionGateStatusEvent(networkAppleNetworkExtensionGateStatusEvent),
   };
 }
 

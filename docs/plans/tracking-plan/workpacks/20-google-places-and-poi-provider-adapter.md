@@ -94,26 +94,26 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: WP20,
+- [ ] Workpack id and branch: WP20,
       `codex/tracking-google-poi-provider-proof`.
-- [x] Touched files: `packages/parent-domain/src/tracking-poi-provider-adapter.ts`,
+- [ ] Touched files: `packages/parent-domain/src/tracking-poi-provider-adapter.ts`,
       `packages/parent-domain/tests/tracking-poi-provider-adapter.test.ts`,
       `scripts/test/tracking-poi-provider-adapter-proof.mjs`, this workpack,
       the location/geofence feature doc, implementation checklist, and proof
       outputs.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-poi-provider-adapter-proof.mjs` passed
       parent-domain build plus Vitest tracking POI provider and tracking policy
       tests.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/`.
-- [x] Provider parity readiness rows preserve Google request-mapped status and
+- [ ] Provider parity readiness rows preserve Google request-mapped status and
       Apple MapKit/OpenStreetMap manual-required status without claiming live
       execution.
-- [x] Product doc/checklist updates: owning feature doc and implementation
+- [ ] Product doc/checklist updates: owning feature doc and implementation
       checklist updated. Product capability checklist update is queued because
       another lane currently owns that file lock.
-- [x] Known gaps/manual-required states: live provider execution, credentials,
+- [ ] Known gaps/manual-required states: live provider execution, credentials,
       provider terms/runtime auth, exact-place claims, physical-device proof,
       UI, production persistence, and Apple/OSM provider parity remain
       unclaimed.

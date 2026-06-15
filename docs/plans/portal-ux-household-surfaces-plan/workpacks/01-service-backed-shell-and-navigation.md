@@ -35,7 +35,7 @@ service/read-model state.
 | Shell layout/navigation            | this workpack and nearest route shell source          | desktop/mobile navigation screenshot proof |
 | Service-backed state               | owning domain plan for the selected read-model        | service/read-model fixture or live proof   |
 | Account/session/household selector | `../../account-identity-family-plan/AGENTS.md`        | auth/session/role boundary proof           |
-| Installer/desktop shell handoff    | `../../parent-desktop-runtime-package-plan/AGENTS.md` | local shell/service state proof            |
+| Parent client shell handoff        | `../../parent-desktop-runtime-package-plan/AGENTS.md` | local shell/service state proof            |
 | Public family site entry           | `../../setup-install-provisioning-plan/AGENTS.md`     | install/login handoff proof                |
 
 ## Required Shell State

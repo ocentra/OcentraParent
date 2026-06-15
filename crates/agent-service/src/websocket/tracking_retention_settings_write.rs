@@ -1,28 +1,27 @@
 use ocentra_child_runtime::TrackingConfigUpdateEventFlowReport;
-use ocentra_parent_runtime_core::{
-    publish_parent_tracking_config_updated_event_flow, ChildAcknowledgementState,
-    ParentRuntimeOriginState,
-};
 use ocentra_parent_agent_protocol::{
-    constants, default_tracking_retention_settings_write_request,
-    default_tracking_runtime_config, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
-    ChildCommandKind, ChildCommandReceivedEvent, LogFieldValue, LogLevel,
+    constants, default_tracking_retention_settings_write_request, default_tracking_runtime_config,
+    parent_tracking_config_updated_event_from_command, tracking_durable_settings_store_ref,
+    tracking_local_service_state_snapshot_ref, tracking_mutation_proof_ref,
+    tracking_retention_accepted_at, tracking_retention_write_state_accepted,
+    tracking_retention_write_state_rejected, AgentCommandEnvelope, AgentEventEnvelope,
+    AgentEventName, ChildCommandKind, ChildCommandReceivedEvent, LogFieldValue, LogLevel,
     ParentActionReceivedEvent, ParentChildCommandForwardRequestedEvent,
     ParentChildCommandTransportBoundary, ParentCommandRejectedEvent, ParentCommandValidatedEvent,
     ParentCommandValidationState, ParentControllerActionKind, ParentControllerSource,
-    ParentTrackingConfigUpdatedEvent, parent_tracking_config_updated_event_from_command,
-    TrackingConfigAckState, TrackingConfigAuditEntryCommittedEvent,
-    TrackingConfigChangeApprovedEvent, TrackingConfigChangeRejectedEvent,
-    TrackingConfigChangeRequestedEvent, TrackingConfigPolicyDecisionCompletedEvent,
-    TrackingConfigPolicyEvaluationRequestedEvent, TrackingConfigPortalReadModelUpdatedEvent,
-    TrackingConfigUpdateRequest,
+    ParentTrackingConfigUpdatedEvent, TrackingConfigAckState,
+    TrackingConfigAuditEntryCommittedEvent, TrackingConfigChangeApprovedEvent,
+    TrackingConfigChangeRejectedEvent, TrackingConfigChangeRequestedEvent,
+    TrackingConfigPolicyDecisionCompletedEvent, TrackingConfigPolicyEvaluationRequestedEvent,
+    TrackingConfigPortalReadModelUpdatedEvent, TrackingConfigUpdateRequest,
     TrackingDurableSettingsPersistenceState, TrackingExecutionClaimState, TrackingRemoteAiState,
-    TrackingRemoteSyncState, TrackingRetentionWriteState,
-    tracking_durable_settings_store_ref, tracking_local_service_state_snapshot_ref,
-    tracking_mutation_proof_ref, tracking_retention_accepted_at, tracking_retention_write_state_accepted,
-    tracking_retention_write_state_rejected, TrackingRetentionSettingsWriteRequest,
-    TrackingRetentionSettingsWriteResult,
+    TrackingRemoteSyncState, TrackingRetentionSettingsWriteRequest,
+    TrackingRetentionSettingsWriteResult, TrackingRetentionWriteState,
     AGENT_PROTOCOL_SCHEMA_VERSION,
+};
+use ocentra_parent_runtime_core::tracking_config_update_flow::publish_parent_tracking_config_updated_event_flow;
+use ocentra_parent_runtime_core::tracking_dispatch::{
+    ChildAcknowledgementState, ParentRuntimeOriginState,
 };
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
@@ -55,8 +54,8 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let (request, parse_state) = parse_write_request(&command);
-    let flow_report = execute_tracking_retention_settings_write_flow(&command, &request, parse_state)
-        .await;
+    let flow_report =
+        execute_tracking_retention_settings_write_flow(&command, &request, parse_state).await;
     let applied_report = flow_report
         .child_runtime_flow
         .as_ref()
@@ -75,8 +74,8 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
         source_read_model_proof_refs: request.source_read_model_proof_refs,
         source_mutation_proof_refs: vec![tracking_mutation_proof_ref()],
         applied_retention_window_hours: request.requested_retention_window_hours,
-        applied_delete_after_alert_resolution_state:
-            request.requested_delete_after_alert_resolution_state,
+        applied_delete_after_alert_resolution_state: request
+            .requested_delete_after_alert_resolution_state,
         parent_export_state: request.requested_parent_export_state,
         remote_sync_state: TrackingRemoteSyncState::Disabled,
         remote_ai_state: TrackingRemoteAiState::Disabled,
@@ -206,24 +205,23 @@ async fn execute_tracking_retention_settings_write_flow(
         ChildAcknowledgementState::Required,
         ParentRuntimeOriginState::TrustedLocalUi,
     )
-        .await
-        .ok();
-    let child_command_forward_requested = parent_runtime_flow
-        .as_ref()
-        .and_then(|report| {
-            report.change_approved_event.as_ref().map(|_| {
-                tracking_parent_child_command_forward_requested_event(
-                    &request.command_id,
-                    &parent_command_validated,
-                    &parent_event,
-                )
-            })
-        });
-    let child_command_received = child_command_forward_requested
-        .as_ref()
-        .map(|forward_requested| {
-            tracking_child_command_received_event(&request.command_id, forward_requested)
-        });
+    .await
+    .ok();
+    let child_command_forward_requested = parent_runtime_flow.as_ref().and_then(|report| {
+        report.change_approved_event.as_ref().map(|_| {
+            tracking_parent_child_command_forward_requested_event(
+                &request.command_id,
+                &parent_command_validated,
+                &parent_event,
+            )
+        })
+    });
+    let child_command_received =
+        child_command_forward_requested
+            .as_ref()
+            .map(|forward_requested| {
+                tracking_child_command_received_event(&request.command_id, forward_requested)
+            });
 
     TrackingRetentionSettingsWriteFlowReport {
         parent_action_received,
@@ -333,7 +331,10 @@ fn tracking_child_command_received_event(
 ) -> ChildCommandReceivedEvent {
     ChildCommandReceivedEvent {
         schema_version: constants::child_agent::EVENT_SCHEMA_VERSION,
-        command_received_event_ref: tracking_service_event_ref(command_id, "child-command-received"),
+        command_received_event_ref: tracking_service_event_ref(
+            command_id,
+            "child-command-received",
+        ),
         child_command_ref: forward_requested_event.child_command_ref.clone(),
         received_at: tracking_retention_accepted_at().to_string(),
         device_ref: forward_requested_event.device_ref.clone(),
@@ -386,7 +387,10 @@ fn tracking_service_event_ref(
     command_id: &ocentra_parent_agent_protocol::TrackingRetentionCommandId,
     suffix: &str,
 ) -> String {
-    format!("event.tracking-retention-settings-write.{}.{}", command_id, suffix)
+    format!(
+        "event.tracking-retention-settings-write.{}.{}",
+        command_id, suffix
+    )
 }
 
 fn tracking_service_idempotency_key(
@@ -410,8 +414,7 @@ mod tests {
         TrackingConfigPolicyDecisionState, TrackingConfigPortalUpdateKind,
         TrackingDurableSettingsPersistenceState, TrackingExecutionClaimState,
         TrackingRemoteAiState, TrackingRemoteSyncState, TrackingRetentionSettingsWriteResult,
-        TrackingRetentionWriteState,
-        AGENT_PROTOCOL_SCHEMA_VERSION,
+        TrackingRetentionWriteState, AGENT_PROTOCOL_SCHEMA_VERSION,
     };
 
     use super::*;
@@ -458,7 +461,10 @@ mod tests {
             write_result.remote_sync_state,
             TrackingRemoteSyncState::Disabled
         );
-        assert_eq!(write_result.remote_ai_state, TrackingRemoteAiState::Disabled);
+        assert_eq!(
+            write_result.remote_ai_state,
+            TrackingRemoteAiState::Disabled
+        );
         assert!(write_result
             .local_service_state_revision
             .is_some_and(|revision| revision > 0));

@@ -79,50 +79,50 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 
 ## AI Worker Checklist
 
-- [x] Add Playwright coverage for all hosted proof-route screens and badges.
-- [x] Add no-overlap/no-overclaim screenshot proof for the hosted proof route.
-- [x] Add first-target parent route tracking state fixture surface.
-- [x] Capture local rendered parent-route fixture screenshot.
-- [x] Keep UI rows at no-product-claim with P1 fixture status.
-- [x] Ensure deleted history disappears from the P1 parent route fixture.
-- [x] Render local proof artifact references for each parent route fixture row.
-- [x] Feed UI proof gaps into the pre-device proof gate before device work.
-- [x] Render live service-backed read-model citation rows with evidence refs
+- [ ] Add Playwright coverage for all hosted proof-route screens and badges.
+- [ ] Add no-overlap/no-overclaim screenshot proof for the hosted proof route.
+- [ ] Add first-target parent route tracking state fixture surface.
+- [ ] Capture local rendered parent-route fixture screenshot.
+- [ ] Keep UI rows at no-product-claim with P1 fixture status.
+- [ ] Ensure deleted history disappears from the P1 parent route fixture.
+- [ ] Render local proof artifact references for each parent route fixture row.
+- [ ] Feed UI proof gaps into the pre-device proof gate before device work.
+- [ ] Render live service-backed read-model citation rows with evidence refs
       and retention tombstone refs.
-- [x] Capture hosted service-backed citation detail screenshot and accessibility
+- [ ] Capture hosted service-backed citation detail screenshot and accessibility
       proof without adding child-device, provider, physical-device, or production
       claims.
-- [x] Capture hosted parent route desktop/mobile screenshot and accessibility
+- [ ] Capture hosted parent route desktop/mobile screenshot and accessibility
       proof against the real Rust service.
-- [x] Render and screenshot hosted child-safe check-in copy/actions with no
+- [ ] Render and screenshot hosted child-safe check-in copy/actions with no
       child-device delivery/runtime claim.
-- [x] Render hosted parent service-data coverage from the parsed
+- [ ] Render hosted parent service-data coverage from the parsed
       `trackingReadModel` payload without physical-device, provider, or
       production claims.
-- [x] Render and screenshot hosted child-runtime disclosure, safe/help response,
+- [ ] Render and screenshot hosted child-runtime disclosure, safe/help response,
       location-share consent, and delivery-boundary copy without claiming
       child-device delivery or runtime execution.
-- [x] Carry the hosted child-safe check-in and hosted child-runtime UI readiness
+- [ ] Carry the hosted child-safe check-in and hosted child-runtime UI readiness
       screenshots into the full-product local artifact capture proof while
       keeping the actual child-device runtime artifact refs missing.
-- [x] Add a child-runtime delivery boundary proof that links hosted child-runtime
+- [ ] Add a child-runtime delivery boundary proof that links hosted child-runtime
       UI proof refs to child check-in timeout rows while recording required
       runtime/device proof refs and keeping actual child-device delivery,
       execution, physical-device, authority, provider delivery, production, and
       product-ready claims false.
-- [x] Add a child-runtime execution readiness proof that consumes the
+- [ ] Add a child-runtime execution readiness proof that consumes the
       delivery-boundary rows and records delivery-envelope, execution-result,
       visible-snapshot, parent-receipt, and runtime-observation requirement refs
       while keeping actual child-device delivery/execution, physical-device,
       authority, provider delivery, production, and product-ready claims false.
-- [x] Add a child-runtime snapshot requirements proof that consumes the
+- [ ] Add a child-runtime snapshot requirements proof that consumes the
       execution-readiness rows and verifies delivery-envelope,
       execution-result, visible-snapshot, parent-receipt, and
       runtime-observation refs for each child check-in state while keeping
       actual child-device delivery/execution, rendered child-device runtime UI,
       physical-device, authority, provider delivery, production, and
       product-ready claims false.
-- [x] Add a child-runtime product-readiness blocker proof that consumes the
+- [ ] Add a child-runtime product-readiness blocker proof that consumes the
       snapshot requirements rows and the Android emulator readiness bridge,
       records package launch, foreground-service, and local emulator geofence
       prerequisite accounting, preserves exact required/present/missing
@@ -131,12 +131,12 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       receipt, runtime observation, physical-device, and authority blockers
       without claiming child-device delivery, runtime execution, provider
       delivery, production, or product-ready behavior.
-- [x] Add a child-runtime artifact gate proof that verifies the required real
+- [ ] Add a child-runtime artifact gate proof that verifies the required real
       child-device delivery/execution artifact names and keeps actual delivery,
       execution, rendered child UI runtime, parent receipt runtime, runtime
       observation, physical-device, authority, provider delivery, production,
       and product-ready claims false until those artifacts exist.
-- [x] Add a full product UI runtime preflight proof that turns the four remaining
+- [ ] Add a full product UI runtime preflight proof that turns the four remaining
       hard product UI runtime artifact refs into manual-required rows: retention
       settings production write-result UI, rendered child-device check-in,
       rendered child-device location consent, and child-device safe/help
@@ -144,55 +144,55 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       physical-device, authority, provider delivery, production product UI, and
       product-ready claims false while closure/handoff carry the four required,
       zero present, four missing artifact counts.
-- [x] Render and screenshot hosted family dashboard rollup rows without claiming
+- [ ] Render and screenshot hosted family dashboard rollup rows without claiming
       full dashboard UI, child-device delivery, authority, provider delivery,
       physical-device execution, or production readiness.
-- [x] Render and screenshot hosted report/export read-model packet rows without
+- [ ] Render and screenshot hosted report/export read-model packet rows without
       claiming raw location payload export, service mutation, platform runtime,
       child-device delivery, provider delivery, notification receipt ingestion,
       physical-device proof, authority, or product readiness.
-- [x] Render and screenshot hosted retention settings read-model rows without
+- [ ] Render and screenshot hosted retention settings read-model rows without
       claiming writable settings, service mutation, platform runtime,
       child-device delivery, provider delivery, authority, physical-device
       execution, or production readiness.
-- [x] Send and render hosted retention settings local service write result from
+- [ ] Send and render hosted retention settings local service write result from
       the typed service command while proving only local service execution,
       local service state revision, and local durable settings persistence, and
       render the local service-state proof artifact reference, while keeping
       durable production/product-ready settings, platform
       runtime, child-device delivery, provider delivery, authority,
       physical-device execution, and product-ready claims false.
-- [x] Render and screenshot hosted read-only evidence drawer drill-in from the
+- [ ] Render and screenshot hosted read-only evidence drawer drill-in from the
       selected service-backed citation without claiming policy evaluation,
       action dispatch, child-device delivery, provider delivery, physical-device
       proof, authority, or product readiness.
-- [x] Render and screenshot hosted notification parent-surface
+- [ ] Render and screenshot hosted notification parent-surface
       history/preference-intent rows without claiming writable preference
       mutation, provider delivery, receipt ingestion, child-device delivery,
       physical-device proof, authority, production storage, or product readiness.
-- [x] Render and screenshot hosted parent action readiness rows for
+- [ ] Render and screenshot hosted parent action readiness rows for
       expected-place alert policy and parent acknowledgement actions without
       claiming live service mutation, alert/provider delivery, receipt
       ingestion, child-device runtime, physical-device proof, authority,
       production workers, adapter dispatch, or product readiness.
-- [x] Render and screenshot hosted missing-device state rows for last-known,
+- [ ] Render and screenshot hosted missing-device state rows for last-known,
       offline/powered-off, contact-requested, and manual-required states without
       claiming current-location runtime, powered-off tracking, remote sync,
       provider delivery, physical-device proof, OS lost-mode API execution,
       authority, production workers, or product readiness.
-- [x] Render and screenshot hosted report/policy consumer rows for parent report
+- [ ] Render and screenshot hosted report/policy consumer rows for parent report
       summary, policy evidence drill-in, and retention audit export without
       claiming AI execution, product policy mutation, platform runtime,
       child-device delivery, provider delivery, notification receipt ingestion,
       physical-device proof, authority, production, or product readiness.
-- [x] Verify all current hosted screenshot PNG artifacts, evidence drawer proof
+- [ ] Verify all current hosted screenshot PNG artifacts, evidence drawer proof
       output, unsupported/manual platform proof output, accessibility
       assertions, and no-overlap layout geometry are present and non-empty
       through a dedicated artifact inventory proof, including the child-runtime
       execution readiness artifact, without claiming full parent/child UI or
       device runtime execution.
-- [x] Ensure child copy avoids accusation.
-- [x] Keep portal as authoring/display surface, not evaluator for the hosted
+- [ ] Ensure child copy avoids accusation.
+- [ ] Keep portal as authoring/display surface, not evaluator for the hosted
       evidence drawer proof; broader UI/product paths remain separately gated.
 
 ## Where We Are
@@ -295,6 +295,12 @@ provider delivery, physical-device proof, authority, and product readiness
 unclaimed.
 The hosted route now also renders read-only notification parent-surface
 history/preference-intent rows derived from the WP26 notification proof stack.
+`packages/portal-domain/src/tracking-notification-parent-surface-hosted-ui-proof.ts`
+now maps those hosted rows from a structured notification-history read-model
+shape instead of a token-only table, and
+`packages/portal-domain/tests/unit/tracking-notification-parent-surface-hosted-ui-proof.test.ts`
+covers the schema-backed portal consumer plus the explicit invalid-input
+fallback.
 The repeatable hosted proof captures it at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png`
 and writes
@@ -396,152 +402,152 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-live-service-citation-proof`.
-- [x] Touched files: portal tracking status renderer/tests, service proof
+- [ ] Touched files: portal tracking status renderer/tests, service proof
       script, tracking feature doc, implementation checklist, WP30, WP32,
       WP33, and generated WP32 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-plan-service-read-model-proof.mjs` passed.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`
       and companion WP32 proof files.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, WP32, and WP33 updated; central capability checklist
       row delta queued through the hub instead of editing
       `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: full parent/child UI, hosted
+- [ ] Known gaps/manual-required states: full parent/child UI, hosted
       Playwright/accessibility output, Android/iOS physical-device proof,
       authority, provider delivery, notifications, and production proof remain
       proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-hosted-ui-accessibility-proof-v2`.
-- [x] Touched files: hosted Playwright proof spec, hosted proof script, root
+- [ ] Touched files: hosted Playwright proof spec, hosted proof script, root
       script wiring, parent route tracking CSS, tracking feature doc,
       implementation checklist, WP30, WP33, and generated hosted proof
       artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `npm run test:tracking-plan-hosted-ui-proof` passed locally.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `test-results/tracking-plan-hosted-ui-proof/`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`, and
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and WP33 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: full service-data UI beyond the hosted
+- [ ] Known gaps/manual-required states: full service-data UI beyond the hosted
       parent route, actual child-device delivery/runtime execution, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-child-check-in-ui-proof`.
-- [x] Touched files: hosted child check-in proof model, portal tracking status
+- [ ] Touched files: hosted child check-in proof model, portal tracking status
       renderer/tests, hosted Playwright proof spec, hosted proof script,
       portal/text domain constants, tracking feature doc, implementation
       checklist, WP30, WP33, and generated hosted proof artifacts.
-- [x] Validation commands and results: `npm run test:tracking-plan-hosted-ui-proof`
+- [ ] Validation commands and results: `npm run test:tracking-plan-hosted-ui-proof`
       passes locally after focused portal/text tests.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`,
       `test-results/tracking-plan-hosted-ui-proof/`, and companion WP30/WP33
       hosted proof JSON files.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and WP33 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: actual child-device delivery/runtime
+- [ ] Known gaps/manual-required states: actual child-device delivery/runtime
       execution, full parent/child UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: full product UI readiness blocker proof/test, focused
+- [ ] Touched files: full product UI readiness blocker proof/test, focused
       proof script, product-readiness closure proof model, closure harness,
       owning tracking feature doc, implementation checklist, WP30, WP33, and
       generated blocker/closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-full-product-ui-readiness-blocker-proof.mjs`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/31-full-product-ui-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/56-full-product-ui-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/tracking-full-product-ui-readiness-blocker-proof/proof.json`,
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       `test-results/tracking-full-product-ui-readiness-blocker-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and WP33 updated. Central product capability checklist
       update will be queued through hub doc-deltas; this branch does not edit
       `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: hosted route evidence is acknowledged,
+- [ ] Known gaps/manual-required states: hosted route evidence is acknowledged,
       but full parent/child product UI beyond the hosted route, rendered
       child-device runtime UI, parent receipt UI, physical-device UI proof,
       authority-gated UI proof, provider-delivery UI proof, production product
       UI, and product-ready tracking UI remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: hosted parent action readiness proof model, portal route
+- [ ] Touched files: hosted parent action readiness proof model, portal route
       renderer/tests, hosted Playwright proof spec, hosted proof script,
       portal/text/domain constants, owning tracking feature doc, implementation
       checklist, WP16, WP17, WP30, WP33, and generated hosted proof artifacts.
-- [x] Validation commands and results: pending final hosted proof refresh after
+- [ ] Validation commands and results: pending final hosted proof refresh after
       focused text-domain, portal-domain, and portal tracking-status tests
       passed.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/23-parent-action-readiness-hosted-ui-proof.json`,
       `test-results/tracking-plan-hosted-ui-proof/`, and companion WP16/WP17/WP33
       hosted proof JSON files.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP16, WP17, WP30, and WP33 updated; central capability row
       delta remains hub-sequenced because E-B owns
       `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: hosted parent action readiness is
+- [ ] Known gaps/manual-required states: hosted parent action readiness is
       read-only rendering proof only; actual child-device delivery/runtime
       execution, full parent/child UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications,
       production workers, adapter dispatch, and product-ready behavior remain
       proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: hosted notification parent-surface proof model, portal
+- [ ] Touched files: hosted notification parent-surface proof model, portal
       tracking status route renderer, portal hosted Playwright proof spec,
       portal tests, hosted proof script, portal/text/domain constants, owning
       tracking feature doc, implementation checklist, WP26/WP30/WP33 docs, and
       generated hosted proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `cmd /c npm run build --workspace @ocentra-parent/text-domain` passed;
       `cmd /c npm run build --workspace @ocentra-parent/portal-domain` passed;
       `cmd /c npm run test --workspace @ocentra-parent/portal --
 tracking-status-panel` passed; `cmd /c npm run lint --workspace
 @ocentra-parent/portal` passed; `cmd /c npm run
 test:tracking-plan-hosted-ui-proof` passed.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/22-notification-parent-surface-hosted-ui-proof.json`,
       `output/tracking-plan-proof/26-alert-severity-and-notification-model/27-notification-parent-surface-hosted-ui-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/35-notification-parent-surface-hosted-ui-proof.json`,
       and `test-results/tracking-plan-hosted-ui-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP26, WP30, and WP33 updated; central capability row delta
       stays hub-sequenced instead of editing
       `docs/product-capability-checklist.md` while E-B owns that lock.
-- [x] Known gaps/manual-required states: hosted notification parent-surface rows
+- [ ] Known gaps/manual-required states: hosted notification parent-surface rows
       are read-only rendering proof only; writable preference mutation,
       provider delivery, receipt ingestion runtime, actual child-device
       delivery/runtime execution, Android/iOS physical-device proof, authority,
       production storage, adapter dispatch, full parent/child UI beyond the
       hosted route, and product-ready notification behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: hosted retention settings UI proof model, React route
+- [ ] Touched files: hosted retention settings UI proof model, React route
       panel, DOM tracking status panel, live activity state, event-result
       routing, hosted Playwright proof, portal tests, text-domain tokens,
       portal-domain artifact marker, hosted UI proof harness, tracking feature
       doc, implementation checklist, WP07, WP30, WP32, and regenerated hosted UI
       proof screenshots/results.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain`
       passed; `cmd /c npm run build --workspace @ocentra-parent/text-domain`
       passed; `cmd /c npm run build --workspace @ocentra-parent/portal-domain`
@@ -549,15 +555,15 @@ test:tracking-plan-hosted-ui-proof` passed.
 tracking-status-panel` passed; `cmd /c npm run build --workspace
 @ocentra-parent/portal` passed; `cmd /c npm run format:check` passed;
       `cmd /c npm run test:tracking-plan-hosted-ui-proof` passed.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/18-hosted-ui-accessibility-proof.json`,
       and `test-results/tracking-plan-hosted-ui-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, WP30, and WP32 updated; central product capability
       checklist remains hub/primary sequenced.
-- [x] Known gaps/manual-required states: hosted route only proves command/result
+- [ ] Known gaps/manual-required states: hosted route only proves command/result
       rendering plus local service execution, local service state revision, and
       local durable settings persistence. Durable production/product-ready
       settings, applied product-ready service mutation
@@ -565,134 +571,134 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
       Android/iOS physical proof, authority,
       provider delivery, notification receipts, production workers, and full
       parent/child UI beyond the hosted route remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-evidence-drawer-hosted-ui-proof`.
-- [x] Touched files: hosted evidence drawer proof model, React and DOM tracking
+- [ ] Touched files: hosted evidence drawer proof model, React and DOM tracking
       status renderers, portal/text/domain constants, hosted Playwright proof
       spec, hosted proof script, owning tracking feature doc, implementation
       checklist, WP30, WP32, and generated hosted proof artifacts.
-- [x] Validation commands and results: pending final focused hosted proof refresh
+- [ ] Validation commands and results: pending final focused hosted proof refresh
       and guard run before PR-ready report.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-evidence-drawer.png`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json`,
       `test-results/tracking-plan-hosted-ui-proof/`, and companion hosted proof
       JSON files.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and WP32 updated; central capability checklist row delta
       stays hub-sequenced instead of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: policy evaluation, action dispatch,
+- [ ] Known gaps/manual-required states: policy evaluation, action dispatch,
       actual child-device delivery/runtime execution, full parent/child UI
       beyond the hosted route, Android/iOS physical-device proof, authority,
       provider delivery, notifications, and production proof remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-family-dashboard-hosted-ui-proof`.
-- [x] Touched files: hosted parent route renderer, tracking status renderer,
+- [ ] Touched files: hosted parent route renderer, tracking status renderer,
       portal/text/domain constants, hosted Playwright proof spec, hosted proof
       script, owning tracking feature doc, implementation checklist, WP30, and
       generated hosted proof artifacts.
-- [x] Validation commands and results: focused portal/text/domain tests and
+- [ ] Validation commands and results: focused portal/text/domain tests and
       `node scripts/test/tracking-plan-hosted-ui-proof.mjs` pass locally after
       proof refresh.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`,
       `test-results/tracking-plan-hosted-ui-proof/`, and companion WP30/WP33
       hosted proof JSON files.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and WP30 updated. Central capability checklist row delta is
       queued/reported through hub because E-C owns
       `docs/product-capability-checklist.md`; portal README was not edited
       because E-D owns `apps/portal/README.md`.
-- [x] Known gaps/manual-required states: actual child-device delivery/runtime
+- [ ] Known gaps/manual-required states: actual child-device delivery/runtime
       execution, full dashboard UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-hosted-citation-detail-proof`.
-- [x] Touched files: hosted parent route renderer, tracking status renderer,
+- [ ] Touched files: hosted parent route renderer, tracking status renderer,
       portal-domain proof marker, hosted Playwright proof spec, owning tracking
       feature doc, implementation checklist, WP30, WP32, portal README, and
       generated hosted proof artifacts.
-- [x] Validation commands and results: pending final local proof refresh and
+- [ ] Validation commands and results: pending final local proof refresh and
       guard run before PR-ready report.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png`,
       `test-results/tracking-plan-hosted-ui-proof/`, and companion hosted proof
       JSON files.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, WP32, and portal README updated; central capability row
       delta stays hub-sequenced instead of editing
       `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: actual child-device delivery/runtime
+- [ ] Known gaps/manual-required states: actual child-device delivery/runtime
       execution, full dashboard UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-family-dashboard-rendered-ui-proof`.
-- [x] Touched files: React portal tracking status route renderer, hosted
+- [ ] Touched files: React portal tracking status route renderer, hosted
       Playwright proof spec, service-data UI proof script, tracking feature doc,
       implementation checklist, WP30, and generated hosted/service-data proof
       artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `cmd /c npm run test --workspace @ocentra-parent/portal -- tracking-status-panel`
       and `cmd /c npm run lint:exec --workspace @ocentra-parent/portal` passed
       before final proof refresh.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
       `test-results/tracking-plan-service-data-ui-proof/proof.json`, and
       `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`
       after final proof refresh.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and WP30 updated; central capability checklist not edited
       because another lane owns that lock.
-- [x] Known gaps/manual-required states: parent-domain family dashboard rollup
+- [ ] Known gaps/manual-required states: parent-domain family dashboard rollup
       rendering needs the existing rollup contract exported before portal can
       consume it without duplicating rows; actual child-device delivery/runtime
       execution, full parent/child UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-service-data-ui-proof`.
-- [x] Touched files: portal tracking status renderer/tests, portal text token
+- [ ] Touched files: portal tracking status renderer/tests, portal text token
       source/tests, service-data UI proof script, root script wiring, tracking
       feature doc, implementation checklist, WP30, WP32, and generated WP30/WP32
       service-data UI proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `npm run test:tracking-plan-service-data-ui-proof` passed locally after
       focused text-domain and portal tracking status panel tests.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json`,
       and `test-results/tracking-plan-service-data-ui-proof/proof.json`.
-- [x] Service-backed citation matrix recorded in the same proof artifacts,
+- [ ] Service-backed citation matrix recorded in the same proof artifacts,
       covering the read-model command/event/payload, live citation fields,
       active evidence refs, tombstone deleted-evidence refs, and no-product
       claim boundaries used by the hosted service-data coverage card.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and WP32 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: full parent/child UI beyond the hosted
+- [ ] Known gaps/manual-required states: full parent/child UI beyond the hosted
       parent route, actual child-device delivery/runtime execution, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-child-runtime-ui-proof`.
-- [x] Touched files: hosted child runtime UI proof model, portal tracking status
+- [ ] Touched files: hosted child runtime UI proof model, portal tracking status
       renderer/tests, hosted Playwright proof spec, hosted proof script,
       portal/text domain constants, tracking feature doc, implementation
       checklist, WP30, portal README, and generated hosted proof artifacts.
-- [x] Validation commands and results: `npm run test:tracking-plan-hosted-ui-proof`
+- [ ] Validation commands and results: `npm run test:tracking-plan-hosted-ui-proof`
       passes locally after focused portal/text/domain tests.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/19-child-runtime-ui-proof.json`,
       `test-results/tracking-plan-hosted-ui-proof/`, and companion WP30/WP33
       hosted proof JSON files.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and portal README updated; central capability row delta
       queued through the hub instead of editing
       `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: actual child-device delivery/runtime
+- [ ] Known gaps/manual-required states: actual child-device delivery/runtime
       execution, full parent/child UI beyond the hosted route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.

@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::ActivityEvidenceRef;
 use super::{
     TrackingEvidenceRef, TrackingReadModelCapabilityStatus, TrackingReadModelCountValue,
     TrackingReadModelCustodyLabel, TrackingReadModelDeletedAt, TrackingReadModelDeviceId,
@@ -9,6 +8,7 @@ use super::{
     TrackingReadModelQueryVisibility, TrackingReadModelSubjectDisplayName,
     TrackingReadModelSubjectId, TrackingReadModelSubjectKind,
 };
+use crate::ActivityEvidenceRef;
 
 pub const TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE: &str = "child-device-query-store";
 pub const TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS: &str = "no-tracking-events";

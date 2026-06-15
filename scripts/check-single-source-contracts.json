@@ -90,13 +90,104 @@
           "path": "crates/agent-protocol/src/constants/tracking_config_update.rs",
           "values": [
             { "name": "parent", "rustConst": "PARENT_EVENT_TYPE" },
-            { "name": "child", "rustConst": "CHILD_EVENT_TYPE" }
+            { "name": "child", "rustConst": "CHILD_EVENT_TYPE" },
+            { "name": "applied", "rustConst": "APPLIED_EVENT_TYPE" },
+            { "name": "changeRequested", "rustConst": "CHANGE_REQUESTED_EVENT_TYPE" },
+            { "name": "changeApproved", "rustConst": "CHANGE_APPROVED_EVENT_TYPE" },
+            { "name": "changeRejected", "rustConst": "CHANGE_REJECTED_EVENT_TYPE" }
           ]
         }
       ],
       "values": [
         { "name": "parent", "sourceObjectPath": "AgentTrackingConfigUpdateEventType.Parent" },
-        { "name": "child", "sourceObjectPath": "AgentTrackingConfigUpdateEventType.Child" }
+        { "name": "child", "sourceObjectPath": "AgentTrackingConfigUpdateEventType.Child" },
+        { "name": "applied", "sourceObjectPath": "AgentTrackingConfigUpdateEventType.Applied" },
+        { "name": "changeRequested", "sourceObjectPath": "AgentTrackingConfigCommandFlowEventType.ChangeRequested" },
+        { "name": "changeApproved", "sourceObjectPath": "AgentTrackingConfigCommandFlowEventType.ChangeApproved" },
+        { "name": "changeRejected", "sourceObjectPath": "AgentTrackingConfigCommandFlowEventType.ChangeRejected" }
+      ]
+    },
+    {
+      "name": "tracking-config-update-literals",
+      "ownerPath": "packages/agent-protocol-domain/src/tracking-retention-settings-write-command.ts",
+      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "mirrors": [
+        {
+          "path": "crates/agent-protocol/src/constants/tracking_config_update.rs",
+          "values": [
+            { "name": "targetScopeFamily", "rustConst": "TARGET_SCOPE_FAMILY" },
+            { "name": "targetScopeChildProfile", "rustConst": "TARGET_SCOPE_CHILD_PROFILE" },
+            { "name": "targetScopeChildDevice", "rustConst": "TARGET_SCOPE_CHILD_DEVICE" },
+            { "name": "targetScopeDeviceGroup", "rustConst": "TARGET_SCOPE_DEVICE_GROUP" },
+            { "name": "responseStateApplied", "rustConst": "RESPONSE_STATE_APPLIED" },
+            { "name": "responseStateRejected", "rustConst": "RESPONSE_STATE_REJECTED" },
+            { "name": "effectiveStateEnabled", "rustConst": "EFFECTIVE_STATE_ENABLED" },
+            { "name": "effectiveStateDisabled", "rustConst": "EFFECTIVE_STATE_DISABLED" },
+            { "name": "effectiveStateDegraded", "rustConst": "EFFECTIVE_STATE_DEGRADED" },
+            { "name": "policyDecisionApproved", "rustConst": "POLICY_DECISION_APPROVED" },
+            { "name": "policyDecisionRejected", "rustConst": "POLICY_DECISION_REJECTED" },
+            { "name": "auditOutcomeCommitted", "rustConst": "AUDIT_OUTCOME_COMMITTED" },
+            { "name": "auditOutcomeFailed", "rustConst": "AUDIT_OUTCOME_FAILED" },
+            {
+              "name": "portalUpdateTrackingConfigState",
+              "rustConst": "READ_MODEL_UPDATE_KIND_TRACKING_CONFIG_STATE"
+            },
+            {
+              "name": "portalUpdateManualRequiredState",
+              "rustConst": "READ_MODEL_UPDATE_KIND_MANUAL_REQUIRED_STATE"
+            }
+          ]
+        }
+      ],
+      "values": [
+        { "name": "targetScopeFamily", "sourceObjectPath": "AgentTrackingConfigUpdateTargetScopeLiteral.Family" },
+        {
+          "name": "targetScopeChildProfile",
+          "sourceObjectPath": "AgentTrackingConfigUpdateTargetScopeLiteral.ChildProfile"
+        },
+        {
+          "name": "targetScopeChildDevice",
+          "sourceObjectPath": "AgentTrackingConfigUpdateTargetScopeLiteral.ChildDevice"
+        },
+        {
+          "name": "targetScopeDeviceGroup",
+          "sourceObjectPath": "AgentTrackingConfigUpdateTargetScopeLiteral.DeviceGroup"
+        },
+        {
+          "name": "responseStateApplied",
+          "sourceObjectPath": "AgentTrackingConfigUpdateResponseStateLiteral.Applied"
+        },
+        {
+          "name": "responseStateRejected",
+          "sourceObjectPath": "AgentTrackingConfigUpdateResponseStateLiteral.Rejected"
+        },
+        { "name": "effectiveStateEnabled", "sourceObjectPath": "AgentTrackingEffectiveStateLiteral.Enabled" },
+        {
+          "name": "effectiveStateDisabled",
+          "sourceObjectPath": "AgentTrackingEffectiveStateLiteral.Disabled"
+        },
+        {
+          "name": "effectiveStateDegraded",
+          "sourceObjectPath": "AgentTrackingEffectiveStateLiteral.Degraded"
+        },
+        {
+          "name": "policyDecisionApproved",
+          "sourceObjectPath": "AgentTrackingConfigPolicyDecisionStateLiteral.Approved"
+        },
+        {
+          "name": "policyDecisionRejected",
+          "sourceObjectPath": "AgentTrackingConfigPolicyDecisionStateLiteral.Rejected"
+        },
+        { "name": "auditOutcomeCommitted", "sourceObjectPath": "AgentTrackingConfigAuditOutcomeLiteral.Committed" },
+        { "name": "auditOutcomeFailed", "sourceObjectPath": "AgentTrackingConfigAuditOutcomeLiteral.Failed" },
+        {
+          "name": "portalUpdateTrackingConfigState",
+          "sourceObjectPath": "AgentTrackingConfigPortalUpdateKindLiteral.TrackingConfigState"
+        },
+        {
+          "name": "portalUpdateManualRequiredState",
+          "sourceObjectPath": "AgentTrackingConfigPortalUpdateKindLiteral.ManualRequiredState"
+        }
       ]
     },
     {

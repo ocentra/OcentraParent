@@ -133,6 +133,7 @@ export const GeofenceTransition = {
 export const ExpectedPlaceSchedule = {
   schemaVersion: 1,
   scheduleId: 'school-night-schedule',
+  ruleId: 'home-arrival-rule',
   placeId: 'home',
   label: 'Home on school nights',
   windows: [
@@ -142,6 +143,7 @@ export const ExpectedPlaceSchedule = {
       timezone: 'America/Toronto',
     },
   ],
+  distanceToleranceMeters: 150,
   lateGraceSeconds: 600,
   earlyExitGraceSeconds: 600,
   enabled: true,
@@ -153,8 +155,12 @@ export const ExpectedPlaceDecision = {
   decisionId: 'expected-place-decision-1',
   observedAt: '2026-06-03T02:01:00.000Z',
   scheduleId: 'school-night-schedule',
+  ruleId: 'home-arrival-rule',
   locationEvidenceId: 'location-evidence-1',
   outcome: 'where-expected',
+  distanceToleranceMeters: 150,
+  lateGraceSeconds: 600,
+  earlyExitGraceSeconds: 600,
   reasonCodes: ['home-window-active'],
   evidence: [EvidenceRef],
 } as const;

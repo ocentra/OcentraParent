@@ -40,10 +40,10 @@ delivery.
 
 ## Validation
 
-- [x] Cross-recorded from shared app/game WP65 proof.
-- [x] Native app rows map preference preflight status into V3 manual-required or
+- [ ] Cross-recorded from shared app/game WP65 proof.
+- [ ] Native app rows map preference preflight status into V3 manual-required or
       disabled/not-sent notification status entries.
-- [x] Parent preference UI, delivery/provider credential/runtime/UI/history/
+- [ ] Parent preference UI, delivery/provider credential/runtime/UI/history/
       child/adapter/platform claims remain false.
-- [x] Product checklist unchanged because this handoff does not move feature
+- [ ] Product checklist unchanged because this handoff does not move feature
       status and provider/runtime/UI/platform gaps remain.

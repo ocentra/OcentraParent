@@ -44,12 +44,12 @@ Proof root: `output/tracking-plan-proof/27-escalation-engine/`
 
 ## AI Worker Checklist
 
-- [x] Test warning acknowledgement/check-in resolution, urgent second
+- [ ] Test warning acknowledgement/check-in resolution, urgent second
       guardian, and critical multi-channel manual readiness.
-- [x] Parent acknowledgement cancels escalation where configured.
-- [x] Child check-in resolves pending state where configured.
-- [x] AI cannot schedule escalation directly.
-- [x] No emergency auto-contact in MVP.
+- [ ] Parent acknowledgement cancels escalation where configured.
+- [ ] Child check-in resolves pending state where configured.
+- [ ] AI cannot schedule escalation directly.
+- [ ] No emergency auto-contact in MVP.
 
 ## Where We Are
 
@@ -94,56 +94,56 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-escalation-readiness-proof`.
-- [x] Touched files: parent-domain escalation readiness proof contract, focused
+- [ ] Workpack id and branch: `codex/tracking-escalation-readiness-proof`.
+- [ ] Touched files: parent-domain escalation readiness proof contract, focused
       test, proof script, feature docs, implementation checklist, workpack doc,
       proof output, and queued capability-checklist doc delta.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-escalation-readiness-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/27-escalation-engine/`
+- [ ] Proof artifacts under `output/tracking-plan-proof/27-escalation-engine/`
       and `test-results/tracking-escalation-readiness-proof/`.
-- [x] Product doc/checklist updates: owning feature docs, implementation
+- [ ] Product doc/checklist updates: owning feature docs, implementation
       checklist, this workpack doc, and capability-checklist delta queued while
       the central checklist remains sequenced through hub locks.
-- [x] Known gaps/manual-required states: provider delivery, receipt ingestion,
+- [ ] Known gaps/manual-required states: provider delivery, receipt ingestion,
       credentials, cloud routing, parent notification UI/history/preferences,
       child-device delivery, physical-device proof, production escalation
       workers, production quiet-hours timers, durable storage, emergency
       auto-contact, Android/iOS physical proof, and full runtime execution
       remain proof-gated.
-- [x] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: escalation runtime blocker proof model/test, focused proof
+- [ ] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
+- [ ] Touched files: escalation runtime blocker proof model/test, focused proof
       script, owning tracking feature doc, implementation checklist, WP27,
       WP33, generated WP27/WP33 proof artifacts, and hub doc delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-escalation-runtime-readiness-blocker-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/27-escalation-engine/10-escalation-runtime-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/53-escalation-runtime-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/tracking-escalation-runtime-readiness-blocker-proof/proof.json`,
       and
       `test-results/tracking-escalation-runtime-readiness-blocker-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP27, and WP33 updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta instead of editing the shared checklist directly.
-- [x] Known gaps/manual-required states: production escalation workers,
+- [ ] Known gaps/manual-required states: production escalation workers,
       production quiet-hours timers, provider delivery/receipt runtime,
       provider credentials, parent notification history runtime,
       child-device delivery, durable escalation storage, physical-device proof,
       authority proof, emergency auto-contact policy, and product-ready
       escalation remain proof-gated until real runtime artifacts exist.
-- [x] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: escalation runtime artifact gate proof/test, focused proof
+- [ ] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
+- [ ] Touched files: escalation runtime artifact gate proof/test, focused proof
       script, product-readiness closure proof model, closure harness, owning
       tracking feature doc, implementation checklist, WP27, WP33, generated
       WP27/WP33 proof artifacts, and hub doc delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-escalation-runtime-artifact-gate-proof.mjs`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/27-escalation-engine/11-escalation-runtime-artifact-gate-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/62-escalation-runtime-artifact-gate-proof.json`,
       `output/tracking-plan-proof/tracking-escalation-runtime-artifact-gate-proof/proof.json`,
@@ -151,11 +151,11 @@ This workpack can be assigned independently, implemented against the owning doma
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       `test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP27, and WP33 updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta instead of editing the shared checklist directly.
-- [x] Known gaps/manual-required states: production escalation workers,
+- [ ] Known gaps/manual-required states: production escalation workers,
       production quiet-hours timers, provider delivery/receipt runtime,
       parent notification history runtime, child-device delivery, durable
       escalation storage, emergency auto-contact policy, physical-device proof,

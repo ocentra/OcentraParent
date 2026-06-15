@@ -21,12 +21,12 @@ analysis through the AI queue/router.
 
 ## Checklist
 
-- [x] Capture ref enters AI context builder.
-- [x] Provider route recorded.
-- [x] OCR runs when text can answer.
-- [x] VLM runs only for guided visual classification.
-- [x] Text model consumes typed context only.
-- [x] Deterministic route skips model when structured evidence is enough.
+- [ ] Capture ref enters AI context builder.
+- [ ] Provider route recorded.
+- [ ] OCR runs when text can answer.
+- [ ] VLM runs only for guided visual classification.
+- [ ] Text model consumes typed context only.
+- [ ] Deterministic route skips model when structured evidence is enough.
 
 ## Proof
 

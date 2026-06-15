@@ -58,13 +58,13 @@ platform support.
 
 ## DONE Checklist
 
-- [x] Hub lock covers the exact implementation, docs, proof, and validation
+- [ ] Hub lock covers the exact implementation, docs, proof, and validation
       paths.
-- [x] App/game child-facing UX, time-budget policy, notification provider, and
+- [ ] App/game child-facing UX, time-budget policy, notification provider, and
       local outbox contract patterns inspected.
-- [x] TypeScript contract/parser rejects wrong reason/copy tokens, missing
+- [ ] TypeScript contract/parser rejects wrong reason/copy tokens, missing
       kind-specific refs, raw detail leakage, provider delivery/receipt claims,
       false local-outbox claims, and adapter action claims.
-- [x] Proof pack records no Rust/service protocol, no UI, no product checklist
+- [ ] Proof pack records no Rust/service protocol, no UI, no product checklist
       change, no policy execution, no provider delivery, no adapter dispatch,
       and no platform support claim.

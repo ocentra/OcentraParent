@@ -5,12 +5,12 @@ Goal: define remote live screen viewing without confusing it with local screensh
 Expected shape:
 
 - Screen-plan provides capture primitives and protected-surface rules.
-- Remote access plan owns relay session, parent viewing authority, unavailable/degraded states, and remote artifact custody boundary.
+- Remote access plan owns relay session, standing paired viewing authority, unavailable/degraded states, and remote artifact custody boundary.
 - Raw frames are not retained unless an explicit screenshot/recording mode is authorized by data custody and screen settings.
 
 Expected proof:
 
-- Permission and protected-surface proof.
+- Paired-view and protected-surface proof.
 - Relay unavailable and reconnect proof.
 - No unintended retention proof.
 - Parent UI and child disclosure handoff proof.
@@ -30,7 +30,7 @@ Required model:
 
 - Capture source.
 - Relay route.
-- Parent viewing session.
+- Standing paired view session.
 - Child-visible state.
 - Retention mode: no raw retention, screenshot opt-in, recording disabled unless separately approved.
 - Protected-surface behavior.
@@ -43,7 +43,8 @@ Agent decision tree:
 
 Expected tests/proof names:
 
-- `live-screen.permission-required`
+- `live-screen.paired-view`
+- `live-screen.view-only`
 - `live-screen.protected-surface-blocked`
 - `live-screen.relay-unavailable-degraded`
 - `live-screen.no-raw-retention-default`
@@ -51,7 +52,7 @@ Expected tests/proof names:
 
 Proof artifact expectations:
 
-- Permission proof.
+- Paired-view proof.
 - Relay reconnect/unavailable proof.
 - Screenshot or UI artifact for active/degraded/stopped.
 - Retention proof note.

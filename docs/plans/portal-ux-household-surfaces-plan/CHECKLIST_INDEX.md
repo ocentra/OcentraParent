@@ -1,21 +1,15 @@
-# Portal UX Household Surfaces Plan Checklist Index
+# Checklist Index
 
-<!-- agent-capsule -->
+Status: reset.
 
-> Agent Capsule
-> Plan: `portal-ux-household-surfaces-plan`
-> Doc: `Portal UX Household Surfaces Plan Checklist Index`
-> Kind: checklist row locator; not the full checklist.
-> Read when: Only when named by the plan route, selected workpack, or index row.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+This checklist tracks execution only. Proof artifacts are collected in the designated local artifact path for the workpack or crate, not in this plan folder.
 
-<!-- /agent-capsule -->
-
-This is a section map for `implementation-checklist.md`. Read only the relevant section/row, not the entire file.
-
-| Section                        | Line | Rows | Boxes | Open |
-| ------------------------------ | ---: | ---: | ----: | ---: |
-| No implementation-checklist.md |    0 |    0 |     0 |    0 |
+- [ ] Read the plan and route docs.
+- [ ] Write or update the code.
+- [ ] Write or update the tests.
+- [ ] Compile and validate the touched code.
+- [ ] Run the tests.
+- [ ] Run full crate or package validation.
+- [ ] Collect proof artifacts in the designated local artifact path.
+- [ ] Record the proof location outside the plan folder.
+- [ ] Prepare PR-ready notes.

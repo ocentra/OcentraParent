@@ -31,6 +31,7 @@ export const TrackingGeofenceTransitionKindSchema = withParser(
 export const TrackingExpectedPlaceOutcomeSchema = withParser(
   Schema.Literal('where-expected', 'left-expected-place', 'late-arrival', 'early-exit', 'unknown', 'manual-required')
 );
+export const TrackingExpectedPlaceExceptionStateSchema = withParser(Schema.Literal('holiday-mode', 'trip-exception'));
 export const TrackingNearbyProviderKindSchema = withParser(
   Schema.Literal('google-places', 'apple-mapkit', 'openstreetmap', 'parent-defined', 'local-cache', 'unavailable')
 );
@@ -119,15 +120,34 @@ export const TrackingGeofenceTransitionSchema = withParser(
   )
 );
 
+export const TrackingExpectedPlaceActiveExceptionSchema = withParser(
+  Schema.Struct({
+    state: TrackingExpectedPlaceExceptionStateSchema,
+    auditRef: TrackingAuditRefSchema,
+  })
+);
+
 export const TrackingExpectedPlaceScheduleSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(TrackingEvidenceSchemaVersion),
     scheduleId: TrackingScheduleIdSchema,
+    ruleId: Schema.optionalWith(Schema.Union(TrackingRuleIdSchema, Schema.Null), {
+      default: () => null,
+    }),
     placeId: TrackingPlaceIdSchema,
     label: TrackingLabelSchema,
     windows: Schema.Array(TrackingTimeWindowSchema),
+    distanceToleranceMeters: Schema.optionalWith(
+      Schema.Union(TrackingNonNegativeNumberSchema, Schema.Null),
+      {
+        default: () => null,
+      }
+    ),
     lateGraceSeconds: TrackingNonNegativeIntegerSchema,
     earlyExitGraceSeconds: TrackingNonNegativeIntegerSchema,
+    activeException: Schema.optionalWith(Schema.Union(TrackingExpectedPlaceActiveExceptionSchema, Schema.Null), {
+      default: () => null,
+    }),
     enabled: Schema.Boolean,
     auditRefs: Schema.Array(TrackingAuditRefSchema),
   })
@@ -139,8 +159,29 @@ export const TrackingExpectedPlaceDecisionSchema = withParser(
     decisionId: ActivityEvidenceIdSchema,
     observedAt: ActivityTimestampSchema,
     scheduleId: TrackingScheduleIdSchema,
+    ruleId: Schema.optionalWith(Schema.Union(TrackingRuleIdSchema, Schema.Null), {
+      default: () => null,
+    }),
     locationEvidenceId: ActivityEvidenceIdSchema,
     outcome: TrackingExpectedPlaceOutcomeSchema,
+    distanceToleranceMeters: Schema.optionalWith(
+      Schema.Union(TrackingNonNegativeNumberSchema, Schema.Null),
+      {
+        default: () => null,
+      }
+    ),
+    lateGraceSeconds: Schema.optionalWith(TrackingNonNegativeIntegerSchema, {
+      default: () => 0,
+    }),
+    earlyExitGraceSeconds: Schema.optionalWith(TrackingNonNegativeIntegerSchema, {
+      default: () => 0,
+    }),
+    exceptionState: Schema.optionalWith(Schema.Union(TrackingExpectedPlaceExceptionStateSchema, Schema.Null), {
+      default: () => null,
+    }),
+    exceptionAuditRef: Schema.optionalWith(Schema.Union(TrackingAuditRefSchema, Schema.Null), {
+      default: () => null,
+    }),
     reasonCodes: Schema.Array(TrackingReasonCodeSchema),
     evidence: Schema.Array(ActivityEvidenceRefSchema),
   })
@@ -181,6 +222,7 @@ export type TrackingGeofencePlaceKind = Infer<typeof TrackingGeofencePlaceKindSc
 export type TrackingGeofenceShapeKind = Infer<typeof TrackingGeofenceShapeKindSchema>;
 export type TrackingGeofenceTransitionKind = Infer<typeof TrackingGeofenceTransitionKindSchema>;
 export type TrackingExpectedPlaceOutcome = Infer<typeof TrackingExpectedPlaceOutcomeSchema>;
+export type TrackingExpectedPlaceExceptionState = Infer<typeof TrackingExpectedPlaceExceptionStateSchema>;
 export type TrackingNearbyProviderKind = Infer<typeof TrackingNearbyProviderKindSchema>;
 export type TrackingPlaceRiskCategory = Infer<typeof TrackingPlaceRiskCategorySchema>;
 export type TrackingAmbiguityState = Infer<typeof TrackingAmbiguityStateSchema>;
@@ -189,6 +231,7 @@ type TrackingGeofenceTransitionBase = Infer<typeof TrackingGeofenceTransitionBas
 export type TrackingGeofenceShape = Infer<typeof TrackingGeofenceShapeSchema>;
 export type TrackingGeofenceRule = Infer<typeof TrackingGeofenceRuleSchema>;
 export type TrackingGeofenceTransition = Infer<typeof TrackingGeofenceTransitionSchema>;
+export type TrackingExpectedPlaceActiveException = Infer<typeof TrackingExpectedPlaceActiveExceptionSchema>;
 export type TrackingExpectedPlaceSchedule = Infer<typeof TrackingExpectedPlaceScheduleSchema>;
 export type TrackingExpectedPlaceDecision = Infer<typeof TrackingExpectedPlaceDecisionSchema>;
 export type TrackingNearbyPlaceEvidence = Infer<typeof TrackingNearbyPlaceEvidenceSchema>;

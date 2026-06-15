@@ -11,7 +11,7 @@ test('ledger hook records a thread without turning duplicate chats read-only', (
   const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-session-test-'));
   const fakeLedger = writeFakeLedger(root);
   const first = runHook(root, fakeLedger, 'session-one', 'SessionStart');
-  const second = runHook(root, fakeLedger, 'session-two', 'UserPromptSubmit');
+  const second = runHook(root, fakeLedger, 'session-two', 'SessionStart');
 
   assert.equal(first.status, 0);
   assert.equal(second.status, 0);
@@ -20,6 +20,260 @@ test('ledger hook records a thread without turning duplicate chats read-only', (
     second.context,
     /Active Codex session lease could not be refreshed, but this thread may still answer questions and inspect status/u
   );
+});
+
+test('explicit user prompts grant writable access without taking lane ownership', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-user-grant-test-'));
+  const fakeLedger = writeFakeLedger(root);
+  const first = runHook(root, fakeLedger, 'session-one', 'SessionStart');
+  const second = runHook(root, fakeLedger, 'session-two', 'UserPromptSubmit');
+  const followUp = runHook(root, fakeLedger, 'session-two', 'PostToolUse');
+
+  assert.equal(first.status, 0);
+  assert.equal(second.status, 0);
+  assert.equal(followUp.status, 0);
+  assert.match(second.context, /USER-OVERRIDE:/u);
+  assert.match(second.context, /without taking the lane lease/u);
+  assert.match(second.context, /session-one/u);
+  assert.doesNotMatch(second.context, /Active Codex session lease is held by this thread/u);
+  assert.match(followUp.context, /USER-OVERRIDE:/u);
+  assert.doesNotMatch(followUp.context, /READ-ONLY:/u);
+
+  const activeSession = JSON.parse(readFileSync(join(root, 'active-session.json'), 'utf8'));
+  assert.equal(activeSession.sessionId, 'session-one');
+});
+
+test('prompted coordinator threads can delegate writable access to subagent sessions', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-delegate-grant-test-'));
+  const fakeLedger = writeFakeLedger(root);
+  const ownerHook = runHook(root, fakeLedger, 'session-one', 'SessionStart');
+  const promptedCoordinatorHook = runHook(root, fakeLedger, 'session-two', 'UserPromptSubmit');
+
+  assert.equal(ownerHook.status, 0);
+  assert.equal(promptedCoordinatorHook.status, 0);
+
+  const grant = spawnSync(process.execPath, [wrapper, 'hub:delegate-grant', '--session-id', 'session-three'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LEDGER_ROOT: root,
+      LEDGER_LANE: 'codex-d',
+      OCENTRA_LEDGER_WRAPPER: fakeLedger,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+
+  assert.equal(grant.status, 0);
+  assert.match(grant.stdout, /delegate-grant-set: lane=codex-d session=session-three delegated-by=session-two/u);
+
+  const delegatedHook = runHook(root, fakeLedger, 'session-three', 'PostToolUse');
+  assert.equal(delegatedHook.status, 0);
+  assert.match(delegatedHook.context, /COORDINATED-DELEGATE-GRANT:/u);
+  assert.match(delegatedHook.context, /session-two/u);
+  assert.doesNotMatch(delegatedHook.context, /READ-ONLY:/u);
+
+  const activeSession = JSON.parse(readFileSync(join(root, 'active-session.json'), 'utf8'));
+  assert.equal(activeSession.sessionId, 'session-one');
+});
+
+test('delegate revoke returns delegated sessions to read-only mode', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-delegate-revoke-test-'));
+  const fakeLedger = writeFakeLedger(root);
+  runHook(root, fakeLedger, 'session-one', 'SessionStart');
+  runHook(root, fakeLedger, 'session-two', 'UserPromptSubmit');
+
+  const grant = spawnSync(process.execPath, [wrapper, 'hub:delegate-grant', '--session-id', 'session-three'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LEDGER_ROOT: root,
+      LEDGER_LANE: 'codex-d',
+      OCENTRA_LEDGER_WRAPPER: fakeLedger,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+  assert.equal(grant.status, 0);
+
+  const revoke = spawnSync(process.execPath, [wrapper, 'hub:delegate-revoke', '--session-id', 'session-three'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LEDGER_ROOT: root,
+      LEDGER_LANE: 'codex-d',
+      OCENTRA_LEDGER_WRAPPER: fakeLedger,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+
+  assert.equal(revoke.status, 0);
+  assert.match(revoke.stdout, /delegate-grant-cleared: lane=codex-d session=session-three/u);
+
+  const delegatedHook = runHook(root, fakeLedger, 'session-three', 'PostToolUse');
+  assert.equal(delegatedHook.status, 0);
+  assert.match(delegatedHook.context, /READ-ONLY:/u);
+});
+
+test('manual-only thread mode limits automatic lane refresh to explicit user prompts', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-manual-only-test-'));
+  const fakeLedger = writeFakeLedger(root);
+  const initialPrompt = runHook(root, fakeLedger, 'session-one', 'UserPromptSubmit');
+
+  assert.equal(initialPrompt.status, 0);
+  assert.match(initialPrompt.context, /Active Codex session lease is held by this thread/u);
+
+  const setMode = spawnSync(process.execPath, [wrapper, 'hub:thread-upgrade'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LEDGER_ROOT: root,
+      LEDGER_LANE: 'codex-d',
+      OCENTRA_LEDGER_WRAPPER: fakeLedger,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+
+  assert.equal(setMode.status, 0);
+  assert.match(setMode.stdout, /thread-mode-set: lane=codex-d session=session-one mode=manual-only/u);
+
+  writeFileSync(join(root, 'active-session.json'), JSON.stringify({ sessionId: 'session-two' }));
+
+  const autoHook = runHook(root, fakeLedger, 'session-one', 'PostToolUse');
+  assert.equal(autoHook.status, 0);
+  assert.match(autoHook.context, /MANUAL-ONLY:/u);
+  assert.match(autoHook.context, /PostToolUse/u);
+  assert.doesNotMatch(autoHook.context, /Active Codex session lease is held by this thread/u);
+  assert.doesNotMatch(autoHook.context, /READ-ONLY: this lane is already owned by another active Codex session/u);
+
+  writeFileSync(join(root, 'active-session.json'), JSON.stringify({ sessionId: 'session-one' }));
+
+  const promptedHook = runHook(root, fakeLedger, 'session-one', 'UserPromptSubmit');
+  assert.equal(promptedHook.status, 0);
+  assert.match(promptedHook.context, /MANUAL-ONLY:/u);
+  assert.match(promptedHook.context, /explicit user prompts/u);
+  assert.match(promptedHook.context, /Active Codex session lease is held by this thread/u);
+
+  const resetMode = spawnSync(process.execPath, [wrapper, 'hub:thread-default'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LEDGER_ROOT: root,
+      LEDGER_LANE: 'codex-d',
+      OCENTRA_LEDGER_WRAPPER: fakeLedger,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+
+  assert.equal(resetMode.status, 0);
+  assert.match(resetMode.stdout, /thread-mode-set: lane=codex-d session=session-one mode=default/u);
+
+  const postResetHook = runHook(root, fakeLedger, 'session-one', 'PostToolUse');
+  assert.equal(postResetHook.status, 0);
+  assert.doesNotMatch(postResetHook.context, /MANUAL-ONLY:/u);
+  assert.match(postResetHook.context, /Active Codex session lease is held by this thread/u);
+});
+
+test('thread upgrade refuses explicit session targeting and other-thread retargets', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-thread-upgrade-guard-test-'));
+  const fakeLedger = writeFakeLedger(root);
+
+  const initialPrompt = runHook(root, fakeLedger, 'session-one', 'UserPromptSubmit');
+  assert.equal(initialPrompt.status, 0);
+
+  const explicitTarget = spawnSync(process.execPath, [wrapper, 'hub:thread-upgrade', '--session-id', 'session-two'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LEDGER_ROOT: root,
+      LEDGER_LANE: 'codex-d',
+      OCENTRA_LEDGER_WRAPPER: fakeLedger,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+
+  assert.equal(explicitTarget.status, 1);
+  assert.match(explicitTarget.stderr, /current thread/u);
+
+  const duplicateSession = runHook(root, fakeLedger, 'session-two', 'SessionStart');
+  assert.equal(duplicateSession.status, 0);
+  assert.match(duplicateSession.context, /READ-ONLY:/u);
+
+  const wrongThread = spawnSync(process.execPath, [wrapper, 'hub:thread-upgrade'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LEDGER_ROOT: root,
+      LEDGER_LANE: 'codex-d',
+      OCENTRA_LEDGER_WRAPPER: fakeLedger,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+
+  assert.equal(wrongThread.status, 1);
+  assert.match(wrongThread.stderr, /current thread after a real user prompt/u);
+  assert.match(wrongThread.stderr, /session-two/u);
+  assert.match(wrongThread.stderr, /session-one/u);
+});
+
+test('thread mode status inspects lane state without requiring a fresh prompt', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-thread-mode-status-test-'));
+  const fakeLedger = writeFakeLedger(root);
+
+  const initialPrompt = runHook(root, fakeLedger, 'session-one', 'UserPromptSubmit');
+  assert.equal(initialPrompt.status, 0);
+
+  const setMode = spawnSync(process.execPath, [wrapper, 'hub:thread-upgrade'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LEDGER_ROOT: root,
+      LEDGER_LANE: 'codex-d',
+      OCENTRA_LEDGER_WRAPPER: fakeLedger,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+
+  assert.equal(setMode.status, 0);
+
+  writeFileSync(join(root, 'active-session.json'), JSON.stringify({ sessionId: 'session-two' }));
+  const duplicateHook = runHook(root, fakeLedger, 'session-two', 'PostToolUse');
+  assert.equal(duplicateHook.status, 0);
+
+  const status = spawnSync(process.execPath, [wrapper, 'hub:thread-mode'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LEDGER_ROOT: root,
+      LEDGER_LANE: 'codex-d',
+      OCENTRA_LEDGER_WRAPPER: fakeLedger,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+
+  assert.equal(status.status, 0);
+  assert.match(status.stdout, /thread-mode: lane=codex-d/u);
+  assert.match(status.stdout, /active-session=session-two/u);
+  assert.match(status.stdout, /active-mode=default/u);
+  assert.match(status.stdout, /latest-user-prompt-session=session-one/u);
+  assert.match(status.stdout, /latest-user-prompt-mode=manual-only/u);
+  assert.match(status.stdout, /write-grants=none/u);
 });
 
 test('worker PR_READY reports also notify the primary inbox', () => {
@@ -150,20 +404,34 @@ import { join } from 'node:path';
 const [, , command, action, lane, sessionId] = process.argv;
 const store = join(process.env.LEDGER_ROOT, 'active-session.json');
 
-if (command !== 'session' || action !== 'claim' || lane !== 'codex-d') {
+if (command !== 'session' || lane !== 'codex-d') {
   console.error('unexpected fake ledger command');
   process.exit(2);
 }
 
 const active = existsSync(store) ? JSON.parse(readFileSync(store, 'utf8')) : undefined;
-if (active === undefined || active.sessionId === sessionId) {
-  writeFileSync(store, JSON.stringify({ sessionId }));
-  console.log(JSON.stringify({ sessionId }));
+
+if (action === 'release') {
+  if (active?.sessionId === sessionId) {
+    writeFileSync(store, JSON.stringify({}));
+  }
+  console.log(JSON.stringify({ ok: true, releasedSessionId: sessionId }));
   process.exit(0);
 }
 
-console.log(JSON.stringify({ activeSession: active }));
-process.exit(1);
+if (action === 'claim') {
+  if (active === undefined || typeof active.sessionId !== 'string' || active.sessionId === sessionId) {
+    writeFileSync(store, JSON.stringify({ sessionId }));
+    console.log(JSON.stringify({ sessionId }));
+    process.exit(0);
+  }
+
+  console.log(JSON.stringify({ activeSession: active }));
+  process.exit(1);
+}
+
+console.error('unexpected fake ledger action');
+process.exit(2);
 `.trimStart()
   );
   return fakeLedger;

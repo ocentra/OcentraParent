@@ -31,11 +31,11 @@ service, platform, signing, store, relay, and support status.
 
 ## Requirement Checklist
 
-- [x] Update `docs/features/production-distribution-support.md` when package
+- [ ] Update `docs/features/production-distribution-support.md` when package
       proof changes.
-- [x] Update `docs/features/child-agent-local-service.md` when service connection
+- [ ] Update `docs/features/child-agent-local-service.md` when service connection
       status changes.
-- [x] Update `docs/features/remote-lan-mobile-platforms.md` when route/platform
+- [ ] Update `docs/features/remote-lan-mobile-platforms.md` when route/platform
       status changes.
 - [ ] Update checklist rows when proof/status changes.
 - [ ] If locked, report exact desired checklist language.

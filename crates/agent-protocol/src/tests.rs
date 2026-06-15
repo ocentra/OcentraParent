@@ -185,6 +185,40 @@ fn network_windows_wfp_gate_status_command_and_event_names_serialize_to_contract
 }
 
 #[test]
+fn network_android_vpn_service_gate_status_command_and_event_names_serialize_to_contract_shape() {
+    let command =
+        serde_json::to_value(AgentCommandName::AgentNetworkAndroidVpnServiceGateStatusGet)
+            .expect("command serializes");
+    let event =
+        serde_json::to_value(AgentEventName::AgentNetworkAndroidVpnServiceGateStatusReported)
+            .expect("event serializes");
+
+    assert_eq!(command, "agent.network.android-vpn-service-gate.status.get");
+    assert_eq!(event, "agent.network.android-vpn-service-gate.status.reported");
+}
+
+#[test]
+fn network_apple_network_extension_gate_status_command_and_event_names_serialize_to_contract_shape(
+) {
+    let command =
+        serde_json::to_value(AgentCommandName::AgentNetworkAppleNetworkExtensionGateStatusGet)
+            .expect("command serializes");
+    let event = serde_json::to_value(
+        AgentEventName::AgentNetworkAppleNetworkExtensionGateStatusReported,
+    )
+    .expect("event serializes");
+
+    assert_eq!(
+        command,
+        "agent.network.apple-network-extension-gate.status.get"
+    );
+    assert_eq!(
+        event,
+        "agent.network.apple-network-extension-gate.status.reported"
+    );
+}
+
+#[test]
 fn browser_inventory_command_and_event_names_serialize_to_contract_shape() {
     let command = serde_json::to_value(AgentCommandName::AgentBrowserInventoryReadModelGet)
         .expect("command serializes");

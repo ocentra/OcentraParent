@@ -25,11 +25,11 @@ real capture job or a real structured-skip proof.
 - [ ] Browser education/video trigger.
 - [ ] Browser social/feed trigger.
 - [ ] Browser game/cloud-game trigger.
-- [x] Native app foreground trigger.
-- [x] Native game/controlled game trigger.
-- [x] Unknown process/app trigger.
-- [x] Timed cadence trigger.
-- [x] Disabled setting prevents new jobs.
+- [ ] Native app foreground trigger.
+- [ ] Native game/controlled game trigger.
+- [ ] Unknown process/app trigger.
+- [ ] Timed cadence trigger.
+- [ ] Disabled setting prevents new jobs.
 
 ## Proof
 

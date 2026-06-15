@@ -1,57 +1,27 @@
-# Workpack 01: Product Pricing Entitlement
+# Workpack 01: Product Pricing and Entitlement
 
-Goal: define parent-product pricing and entitlement without importing game economy assumptions.
+Purpose: define the starter bundle, paid child-device seats, referral credits, and the entitlement math the rest of the route consumes.
 
-Expected shape:
+## Owns
 
-- Household subscription tiers.
-- Optional trial and grace-period semantics.
-- Device-seat or child-profile limits if used.
-- Paid feature gates are explicit and parent-visible.
-- Free/safety-critical boundaries are explicit so payment failure does not create unsafe hidden behavior.
+- `PRODUCT_PRICING_ENTITLEMENT_MODEL.md`
+- `REFERRAL_ENTITLEMENT_MODEL.md`
+- PSP-007 through PSP-010
 
-Expected proof:
+## Must prove
 
-- Product/price fixture matrix.
-- Upgrade/downgrade/cancel/expired trial proof.
-- Entitlement boundary proof.
-- Account/household handoff proof.
+- Starter bundle size is explicit.
+- Paid child-seat pricing is explicit.
+- Effective seat math is explainable from the ledger.
+- Referral credits are separate from household invites.
+- Lost referral behavior reduces entitlement without deleting history.
 
-Failure: treating game credits, marketplace, or tournament payments as the default parent-product model.
+## Proof path
 
-## Execution Detail
+- Use `docs/proof/payment-subscription-plan/wp01/` or the owning crate's local proof directory.
 
-Minimum context:
+## Failure conditions
 
-- `docs/expectations/billing.md`
-- `docs/roadmaps/roadmap-v7-subscription-monetization.md`
-- `docs/plans/account-identity-family-plan/AGENTS.md`
-- `E:\ocentra-games\infra\cloudflare\src\config\products.ts`
-- `E:\ocentra-games\infra\cloudflare\src\config\plan-tiers.ts`
-
-Research required:
-
-- Compare games product catalog concepts to Parent needs.
-- Discuss pricing model with Sujan before locking tiers.
-- Verify whether MVP is free, trial, subscription, family seat, device seat, or paid support.
-
-Required decisions:
-
-- Billing unit: household, parent account, child profile, child device, remote-access add-on, or support tier.
-- Trial/grace period behavior.
-- What features remain available when payment fails for child safety.
-- Entitlement source of truth and sync to offline devices.
-
-Expected tests/proof names:
-
-- `billing-pricing.tier-matrix`
-- `billing-pricing.trial-grace-boundary`
-- `billing-pricing.safety-critical-free-boundary`
-- `billing-pricing.entitlement-source-owner`
-
-Proof artifact expectations:
-
-- Pricing decision record.
-- Feature entitlement matrix.
-- Rejected game-economy assumptions.
-- Sujan decision note for unresolved product pricing.
+- The workpack fails if the effective child-seat count cannot be derived from the ledger alone.
+- The workpack fails if referral and household invites are conflated.
+- The workpack fails if child data appears in pricing or referral payloads.

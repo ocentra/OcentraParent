@@ -11,6 +11,7 @@ pub const TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE: &str =
 pub const TRACKING_ALERT_EVALUATED_EVENT_TYPE: &str = "tracking.alert.evaluated";
 pub const TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE: &str =
     "tracking.parent-acknowledgement.recorded";
+pub const TRACKING_CHILD_CHECK_IN_REQUESTED_EVENT_TYPE: &str = "tracking.child-check-in.requested";
 pub const TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE: &str = "tracking.child-check-in.recorded";
 pub const PARENT_NOTIFICATION_REQUESTED_EVENT_TYPE: &str = "tracking.parent.notification.requested";
 
@@ -82,9 +83,11 @@ pub const NEARBY_PLACE_AMBIGUITY_MULTIPLE_CANDIDATES: &str = "multiple-candidate
 pub const NEARBY_PLACE_AMBIGUITY_LOW_ACCURACY: &str = "low-accuracy";
 pub const NEARBY_PLACE_AMBIGUITY_PROVIDER_UNAVAILABLE: &str = "provider-unavailable";
 pub const NEARBY_PLACE_AMBIGUITY_UNKNOWN: &str = "unknown";
-pub const ALERT_SEVERITY_NONE: &str = "none";
-pub const ALERT_SEVERITY_REVIEW: &str = "review";
+pub const ALERT_SEVERITY_INFO: &str = "info";
+pub const ALERT_SEVERITY_WATCH: &str = "watch";
+pub const ALERT_SEVERITY_WARNING: &str = "warning";
 pub const ALERT_SEVERITY_URGENT: &str = "urgent";
+pub const ALERT_SEVERITY_CRITICAL: &str = "critical";
 pub const TEMPORARY_LIVE_STATE_ACTIVE: &str = "active";
 pub const TEMPORARY_LIVE_STATE_EXPIRED: &str = "expired";
 pub const TEMPORARY_LIVE_STATE_AUTO_STOPPED: &str = "auto-stopped";
@@ -99,7 +102,25 @@ pub const READ_MODEL_DIFFERENTIAL_REJECTED_COUNT_DRIFT: &str = "rejected-count-d
 pub const READ_MODEL_DIFFERENTIAL_REJECTED_TOMBSTONE_DRIFT: &str = "rejected-tombstone-drift";
 pub const POLICY_RULE_EXPECTED_PLACE: &str = "policy.expected-place";
 pub const POLICY_SEVERITY_REVIEW: &str = "review";
+pub const POLICY_SEVERITY_WARNING: &str = "warning";
+pub const POLICY_SEVERITY_URGENT: &str = "urgent";
+pub const POLICY_SEVERITY_CRITICAL: &str = "critical";
+pub const PARENT_NOTIFICATION_STATE_ALLOWED: &str = "allowed";
+pub const PARENT_NOTIFICATION_STATE_SUPPRESSED_DUPLICATE: &str = "suppressed-duplicate";
+pub const PARENT_NOTIFICATION_STATE_SUPPRESSED_MISSING_EVIDENCE: &str =
+    "suppressed-missing-evidence";
 pub const ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED: &str = "acknowledged";
+pub const CHILD_CHECK_IN_REQUEST_STATE_PENDING: &str = "pending";
+pub const CHILD_CHECK_IN_REQUEST_STATE_SENT: &str = "sent";
+pub const CHILD_CHECK_IN_REQUEST_STATE_ANSWERED: &str = "answered";
+pub const CHILD_CHECK_IN_REQUEST_STATE_EXPIRED: &str = "expired";
+pub const CHILD_CHECK_IN_REQUEST_STATE_CANCELLED: &str = "cancelled";
+pub const CHILD_CHECK_IN_REQUEST_STATE_ESCALATED: &str = "escalated";
+pub const CHILD_CHECK_IN_DELIVERY_STATE_QUEUED: &str = "queued";
+pub const CHILD_CHECK_IN_DELIVERY_STATE_REQUESTED: &str = "requested";
+pub const CHILD_CHECK_IN_DELIVERY_STATE_DUPLICATE: &str = "duplicate";
+pub const CHILD_CHECK_IN_DELIVERY_STATE_STALE: &str = "stale";
+pub const CHILD_CHECK_IN_DELIVERY_STATE_UNSUPPORTED_DELIVERY: &str = "unsupported-delivery";
 pub const CHECK_IN_STATE_RECEIVED: &str = "received";
 pub const AI_RESULT_ACCEPTED_AS_EVIDENCE: &str = "accepted-as-evidence";
 pub const AI_RESULT_REJECTED_MISSING_EVIDENCE_REF: &str = "rejected-missing-evidence-ref";
@@ -107,13 +128,17 @@ pub const AI_RESULT_REJECTED_HALLUCINATED_EVIDENCE_REF: &str = "rejected-halluci
 pub const AI_RESULT_REJECTED_WRONG_CHILD_OR_DEVICE_REF: &str = "rejected-wrong-child-or-device-ref";
 pub const AI_RESULT_REJECTED_STALE_CORRELATION: &str = "rejected-stale-correlation";
 pub const NOTIFICATION_CHANNEL_PARENT_PORTAL: &str = "parent-portal";
+pub const TRACKING_CHILD_CHECK_IN_REQUEST_TIMEOUT_MS: u64 = 5000;
 
+pub const SOURCE_COMPONENT_PARENT_RUNTIME: &str = "parent-runtime-core";
 pub const SOURCE_COMPONENT_CHILD_TRACKING_RUNTIME: &str = "child-tracking-runtime";
 pub const SOURCE_COMPONENT_CHILD_AI_RUNTIME: &str = "child-ai-runtime";
 pub const SOURCE_COMPONENT_CHILD_POLICY_RUNTIME: &str = "child-policy-runtime";
 pub const SOURCE_COMPONENT_CHILD_NOTIFICATION_RUNTIME: &str = "child-notification-runtime";
 
 pub const SUBSCRIBER_CHILD_TRACKING_OBSERVER: &str = "subscriber.tracking.location-observer";
+pub const SUBSCRIBER_CHILD_TRACKING_CHECK_IN_REQUESTER: &str =
+    "subscriber.tracking.check-in-requester";
 pub const SUBSCRIBER_CHILD_AI_TRACKING_ANALYZER: &str = "subscriber.child-ai.tracking-analyzer";
 pub const SUBSCRIBER_CHILD_POLICY_TRACKING_ANALYZER: &str =
     "subscriber.child-policy.tracking-analyzer";
@@ -123,6 +148,8 @@ pub const SUBSCRIBER_CHILD_NOTIFICATION_POLICY_BRIDGE: &str =
     "subscriber.child-notification.policy-bridge";
 
 pub const TARGET_HANDLER_CHILD_TRACKING_OBSERVER: &str = "target.tracking.location-observer";
+pub const TARGET_HANDLER_CHILD_TRACKING_CHECK_IN_REQUESTER: &str =
+    "target.tracking.check-in-requester";
 pub const TARGET_HANDLER_CHILD_AI_TRACKING_ANALYZER: &str = "target.child-ai.tracking-analyzer";
 pub const TARGET_HANDLER_CHILD_POLICY_TRACKING_ANALYZER: &str =
     "target.child-policy.tracking-analyzer";
@@ -140,6 +167,9 @@ pub const DEFAULT_GEOFENCE_RULE_REF: &str = "geofence-rule-home";
 pub const DEFAULT_GEOFENCE_TRANSITION_ID: &str = "tracking-geofence-transition-default";
 pub const DEFAULT_EXPECTED_PLACE_EVALUATION_ID: &str = "tracking-expected-place-evaluation-default";
 pub const DEFAULT_EXPECTED_PLACE_SCHEDULE_ID: &str = "tracking-expected-place-schedule-default";
+pub const DEFAULT_EXPECTED_PLACE_DISTANCE_TOLERANCE_METERS: u32 = 150;
+pub const DEFAULT_EXPECTED_PLACE_LATE_GRACE_SECONDS: u32 = 600;
+pub const DEFAULT_EXPECTED_PLACE_EARLY_EXIT_GRACE_SECONDS: u32 = 600;
 pub const DEFAULT_NEARBY_PLACE_REQUEST_ID: &str = "tracking-nearby-place-request-default";
 pub const TRACKING_NEARBY_PLACE_PROVIDER_REQUEST_ID_PREFIX: &str =
     "tracking.nearby-place.provider.request";
@@ -149,8 +179,7 @@ pub const DEFAULT_TEMPORARY_LIVE_SESSION_ID: &str = "tracking-temporary-live-ses
 pub const DEFAULT_MISSING_DEVICE_EVALUATION_ID: &str = "tracking-missing-device-evaluation-default";
 pub const DEFAULT_PARENT_DEFINED_PLACE_ID: &str = "parent-defined-place-home";
 pub const TRACKING_TEMPORARY_LIVE_SESSION_ID_PREFIX: &str = "tracking.temporary-live.session";
-pub const TRACKING_MISSING_DEVICE_EVALUATION_ID_PREFIX: &str =
-    "tracking.missing-device.evaluation";
+pub const TRACKING_MISSING_DEVICE_EVALUATION_ID_PREFIX: &str = "tracking.missing-device.evaluation";
 pub const TRACKING_PARENT_DEFINED_PLACE_ID_PREFIX: &str = "tracking.parent-defined-place";
 pub const DEFAULT_POLICY_VIOLATION_ID: &str = "tracking-policy-violation-default";
 pub const DEFAULT_PARENT_ACKNOWLEDGEMENT_ID: &str = "tracking-parent-acknowledgement-default";
@@ -163,6 +192,7 @@ pub const DEFAULT_NEARBY_DISTANCE_METERS: u32 = 42;
 pub const DEFAULT_NEARBY_PLACE_CONFIDENCE: f64 = 0.91;
 pub const CORRELATION_PREFIX: &str = "tracking-runtime:";
 pub const IDEMPOTENCY_SEPARATOR: &str = ":";
+pub const FIELD_LOCATION_VALIDATION: &str = "tracking.location.validation";
 pub const ERROR_TRACKING_RUNTIME_FLOW_RECORDED: &str = "tracking runtime flow recorded";
 pub const REASON_ADAPTER_ERROR: &str = "adapter-error";
 pub const REASON_BACKGROUND_PERMISSION_REQUIRED: &str = "background-permission-required";
@@ -175,8 +205,12 @@ pub const REASON_DISABLED_BY_PARENT: &str = "disabled-by-parent";
 pub const REASON_EXPECTED_PLACE_AMBIGUOUS: &str = "expected-place-ambiguous";
 pub const REASON_EXPECTED_PLACE_EARLY_EXIT_GRACE_ACTIVE: &str =
     "expected-place-early-exit-grace-active";
+pub const REASON_EXPECTED_PLACE_HOLIDAY_EXCEPTION_ACTIVE: &str =
+    "expected-place-holiday-exception-active";
 pub const REASON_EXPECTED_PLACE_LATE_GRACE_ACTIVE: &str = "expected-place-late-grace-active";
 pub const REASON_EXPECTED_PLACE_SCHEDULE_DISABLED: &str = "expected-place-schedule-disabled";
+pub const REASON_EXPECTED_PLACE_TRIP_EXCEPTION_ACTIVE: &str =
+    "expected-place-trip-exception-active";
 pub const REASON_FOREGROUND_PERMISSION_REQUIRED: &str = "foreground-permission-required";
 pub const REASON_FRESH_LOCATION_REQUIRED: &str = "fresh-location-required";
 pub const REASON_GEOFENCE_GRACE_ACTIVE: &str = "geofence-grace-active";
@@ -205,3 +239,6 @@ pub const REASON_STALE_LOCATION_REJECTED: &str = "stale-location-rejected";
 pub const REASON_TRACKING_HEARTBEAT_STALE: &str = "tracking-heartbeat-stale";
 pub const REASON_TRACKING_RUNTIME_UNAVAILABLE: &str = "tracking-runtime-unavailable";
 pub const REASON_EXITED_EXPECTED_PLACE_WINDOW: &str = "exited-expected-place-window";
+pub const REASON_DUPLICATE_CHECK_IN_REQUEST: &str = "duplicate-check-in-request";
+pub const REASON_STALE_CHECK_IN_REQUEST: &str = "stale-check-in-request";
+pub const REASON_UNSUPPORTED_CHECK_IN_DELIVERY: &str = "unsupported-check-in-delivery";

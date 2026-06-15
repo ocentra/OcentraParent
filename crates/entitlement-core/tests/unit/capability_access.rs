@@ -1,6 +1,6 @@
 use ocentra_entitlement_core::{
-    evaluate_entitlement_capability, record_entitlement_capability_decision, EntitlementAggregateId,
-    EntitlementCapability, EntitlementCapabilityAccessState,
+    evaluate_entitlement_capability, record_entitlement_capability_decision,
+    EntitlementAggregateId, EntitlementCapability, EntitlementCapabilityAccessState,
     EntitlementCapabilityEvaluationRequestedEvent, EntitlementCapabilityInput,
     EntitlementCapabilityScope, EntitlementDecisionId, EntitlementEvaluationId,
     EntitlementManualReviewState, EntitlementPolicyState, FamilySetupState, OfflineGraceState,
@@ -26,21 +26,35 @@ fn entitlement_input(capability_scope: EntitlementCapabilityScope) -> Entitlemen
 
 #[test]
 fn local_child_runtime_capability_is_allowed_for_active_clean_family() {
-    let decision =
-        evaluate_entitlement_capability(entitlement_input(EntitlementCapabilityScope::LocalChildRuntime));
+    let decision = evaluate_entitlement_capability(entitlement_input(
+        EntitlementCapabilityScope::LocalChildRuntime,
+    ));
 
     assert_eq!(decision.capability, EntitlementCapability::Tracking);
-    assert_eq!(decision.access_state, EntitlementCapabilityAccessState::Allowed);
-    assert_eq!(decision.manual_review_state, EntitlementManualReviewState::NotRequired);
+    assert_eq!(
+        decision.access_state,
+        EntitlementCapabilityAccessState::Allowed
+    );
+    assert_eq!(
+        decision.manual_review_state,
+        EntitlementManualReviewState::NotRequired
+    );
 }
 
 #[test]
 fn parent_portal_only_scope_is_blocked_for_child_runtime_capability() {
-    let decision =
-        evaluate_entitlement_capability(entitlement_input(EntitlementCapabilityScope::ParentPortalOnly));
+    let decision = evaluate_entitlement_capability(entitlement_input(
+        EntitlementCapabilityScope::ParentPortalOnly,
+    ));
 
-    assert_eq!(decision.access_state, EntitlementCapabilityAccessState::Blocked);
-    assert_eq!(decision.manual_review_state, EntitlementManualReviewState::Required);
+    assert_eq!(
+        decision.access_state,
+        EntitlementCapabilityAccessState::Blocked
+    );
+    assert_eq!(
+        decision.manual_review_state,
+        EntitlementManualReviewState::Required
+    );
 }
 
 #[test]

@@ -23,9 +23,11 @@ pub(crate) fn tracking_rows(
     let rows = statement.query_map(
         params![
             constants::activity_event_kind::LOCATION_OBSERVED,
+            constants::activity_event_kind::TRACKING_ALERT_EVALUATED,
             constants::activity_event_kind::TRACKING_GEOFENCE_TRANSITION_EVALUATED,
             constants::activity_event_kind::TRACKING_EXPECTED_PLACE_EVALUATED,
             constants::activity_event_kind::TRACKING_CHILD_CHECK_IN_RESPONDED,
+            constants::activity_event_kind::TRACKING_PARENT_NOTIFICATION_REQUESTED,
             constants::activity_event_kind::TRACKING_RETENTION_DELETED,
             limit as i64
         ],

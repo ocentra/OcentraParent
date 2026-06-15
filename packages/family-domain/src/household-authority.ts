@@ -50,6 +50,60 @@ export const DeviceTrustStateLiteral = {
   Disabled: 'disabled',
 } as const;
 
+export const ActorAccountStateLiteral = {
+  Active: 'active',
+  Suspended: 'suspended',
+  Disabled: 'disabled',
+} as const;
+
+export const ChildProfileBindingStateLiteral = {
+  Bound: 'bound',
+  Missing: 'missing',
+  Unassigned: 'unassigned',
+} as const;
+
+export const DeviceOwnershipScopeLiteral = {
+  ChildProfileDevice: 'child-profile-device',
+  ParentControllerDevice: 'parent-controller-device',
+  OtherDevice: 'other-device',
+} as const;
+
+export const SessionFreshnessStateLiteral = {
+  Fresh: 'fresh',
+  Stale: 'stale',
+  Expired: 'expired',
+} as const;
+
+export const HouseholdAuthorizationStateLiteral = {
+  Authorized: 'authorized',
+  Rejected: 'rejected',
+} as const;
+
+export const AuditRequirementStateLiteral = {
+  Required: 'required',
+  NotRequired: 'not-required',
+} as const;
+
+export const ElevatedConfirmationStateLiteral = {
+  Required: 'required',
+  NotRequired: 'not-required',
+} as const;
+
+export const HouseholdAuthorizationFailureReasonLiteral = {
+  ExternalHousehold: 'external-household',
+  MembershipNotActive: 'membership-not-active',
+  AccountNotActive: 'account-not-active',
+  DeviceNotTrusted: 'device-not-trusted',
+  SessionNotFresh: 'session-not-fresh',
+  ChildProfileNotBound: 'child-profile-not-bound',
+  WrongDeviceScope: 'wrong-device-scope',
+  MissingCapabilityGrant: 'missing-capability-grant',
+  ControllerLeaseRequired: 'controller-lease-required',
+  ControllerLeaseExpired: 'controller-lease-expired',
+  ControllerLeaseRevoked: 'controller-lease-revoked',
+  RoleNotAuthorized: 'role-not-authorized',
+} as const;
+
 export const DeviceAuthorityActionLiteral = {
   PairChildDevice: 'pair-child-device',
   RevokeChildDevice: 'revoke-child-device',
@@ -110,6 +164,63 @@ export const DeviceTrustStateSchema = withParser(
     DeviceTrustStateLiteral.Trusted,
     DeviceTrustStateLiteral.Revoked,
     DeviceTrustStateLiteral.Disabled
+  )
+);
+
+export const ActorAccountStateSchema = withParser(
+  Schema.Literal(ActorAccountStateLiteral.Active, ActorAccountStateLiteral.Suspended, ActorAccountStateLiteral.Disabled)
+);
+
+export const ChildProfileBindingStateSchema = withParser(
+  Schema.Literal(
+    ChildProfileBindingStateLiteral.Bound,
+    ChildProfileBindingStateLiteral.Missing,
+    ChildProfileBindingStateLiteral.Unassigned
+  )
+);
+
+export const DeviceOwnershipScopeSchema = withParser(
+  Schema.Literal(
+    DeviceOwnershipScopeLiteral.ChildProfileDevice,
+    DeviceOwnershipScopeLiteral.ParentControllerDevice,
+    DeviceOwnershipScopeLiteral.OtherDevice
+  )
+);
+
+export const SessionFreshnessStateSchema = withParser(
+  Schema.Literal(
+    SessionFreshnessStateLiteral.Fresh,
+    SessionFreshnessStateLiteral.Stale,
+    SessionFreshnessStateLiteral.Expired
+  )
+);
+
+export const HouseholdAuthorizationStateSchema = withParser(
+  Schema.Literal(HouseholdAuthorizationStateLiteral.Authorized, HouseholdAuthorizationStateLiteral.Rejected)
+);
+
+export const AuditRequirementStateSchema = withParser(
+  Schema.Literal(AuditRequirementStateLiteral.Required, AuditRequirementStateLiteral.NotRequired)
+);
+
+export const ElevatedConfirmationStateSchema = withParser(
+  Schema.Literal(ElevatedConfirmationStateLiteral.Required, ElevatedConfirmationStateLiteral.NotRequired)
+);
+
+export const HouseholdAuthorizationFailureReasonSchema = withParser(
+  Schema.Literal(
+    HouseholdAuthorizationFailureReasonLiteral.ExternalHousehold,
+    HouseholdAuthorizationFailureReasonLiteral.MembershipNotActive,
+    HouseholdAuthorizationFailureReasonLiteral.AccountNotActive,
+    HouseholdAuthorizationFailureReasonLiteral.DeviceNotTrusted,
+    HouseholdAuthorizationFailureReasonLiteral.SessionNotFresh,
+    HouseholdAuthorizationFailureReasonLiteral.ChildProfileNotBound,
+    HouseholdAuthorizationFailureReasonLiteral.WrongDeviceScope,
+    HouseholdAuthorizationFailureReasonLiteral.MissingCapabilityGrant,
+    HouseholdAuthorizationFailureReasonLiteral.ControllerLeaseRequired,
+    HouseholdAuthorizationFailureReasonLiteral.ControllerLeaseExpired,
+    HouseholdAuthorizationFailureReasonLiteral.ControllerLeaseRevoked,
+    HouseholdAuthorizationFailureReasonLiteral.RoleNotAuthorized
   )
 );
 
@@ -215,11 +326,44 @@ export const ObserverPermissionSchema = withParser(
   })
 );
 
+export const HouseholdAuthorityInputSchema = withParser(
+  Schema.Struct({
+    actorRole: HouseholdRoleSchema,
+    actorAccountState: ActorAccountStateSchema,
+    sameFamily: Schema.Boolean,
+    membershipState: HouseholdMembershipStateSchema,
+    childProfileBindingState: ChildProfileBindingStateSchema,
+    deviceOwnershipScope: DeviceOwnershipScopeSchema,
+    deviceTrustState: DeviceTrustStateSchema,
+    sessionFreshnessState: SessionFreshnessStateSchema,
+    capabilityGranted: Schema.Boolean,
+    controllerLeaseState: Schema.optional(Schema.Union(ParentControllerLeaseStateSchema, Schema.Null)),
+    action: DeviceAuthorityActionSchema,
+  })
+);
+
+export const HouseholdAuthorityDecisionSchema = withParser(
+  Schema.Struct({
+    authorizationState: HouseholdAuthorizationStateSchema,
+    auditRequirementState: AuditRequirementStateSchema,
+    elevatedConfirmationState: ElevatedConfirmationStateSchema,
+    failureReason: Schema.Union(HouseholdAuthorizationFailureReasonSchema, Schema.Null),
+  })
+);
+
 export type HouseholdRole = Infer<typeof HouseholdRoleSchema>;
 export type HouseholdMembershipState = Infer<typeof HouseholdMembershipStateSchema>;
 export type DeviceRole = Infer<typeof DeviceRoleSchema>;
 export type DeviceTrustState = Infer<typeof DeviceTrustStateSchema>;
+export type ActorAccountState = Infer<typeof ActorAccountStateSchema>;
+export type ChildProfileBindingState = Infer<typeof ChildProfileBindingStateSchema>;
+export type DeviceOwnershipScope = Infer<typeof DeviceOwnershipScopeSchema>;
 export type DeviceAuthorityAction = Infer<typeof DeviceAuthorityActionSchema>;
+export type SessionFreshnessState = Infer<typeof SessionFreshnessStateSchema>;
+export type HouseholdAuthorizationState = Infer<typeof HouseholdAuthorizationStateSchema>;
+export type AuditRequirementState = Infer<typeof AuditRequirementStateSchema>;
+export type ElevatedConfirmationState = Infer<typeof ElevatedConfirmationStateSchema>;
+export type HouseholdAuthorizationFailureReason = Infer<typeof HouseholdAuthorizationFailureReasonSchema>;
 export type ParentControllerLeaseState = Infer<typeof ParentControllerLeaseStateSchema>;
 export type ObserverPermissionScope = Infer<typeof ObserverPermissionScopeSchema>;
 export type ObserverPermissionState = Infer<typeof ObserverPermissionStateSchema>;
@@ -228,6 +372,8 @@ export type ParentMember = Infer<typeof ParentMemberSchema>;
 export type DeviceRegistration = Infer<typeof DeviceRegistrationSchema>;
 export type ParentControllerLease = Infer<typeof ParentControllerLeaseSchema>;
 export type ObserverPermission = Infer<typeof ObserverPermissionSchema>;
+export type HouseholdAuthorityInput = Infer<typeof HouseholdAuthorityInputSchema>;
+export type HouseholdAuthorityDecision = Infer<typeof HouseholdAuthorityDecisionSchema>;
 
 export const HouseholdRole = {
   ParentOwner: HouseholdRoleSchema.parse(HouseholdRoleLiteral.ParentOwner),
@@ -259,6 +405,24 @@ export const DeviceTrustState = {
   Disabled: DeviceTrustStateSchema.parse(DeviceTrustStateLiteral.Disabled),
 } as const;
 
+export const ActorAccountState = {
+  Active: ActorAccountStateSchema.parse(ActorAccountStateLiteral.Active),
+  Suspended: ActorAccountStateSchema.parse(ActorAccountStateLiteral.Suspended),
+  Disabled: ActorAccountStateSchema.parse(ActorAccountStateLiteral.Disabled),
+} as const;
+
+export const ChildProfileBindingState = {
+  Bound: ChildProfileBindingStateSchema.parse(ChildProfileBindingStateLiteral.Bound),
+  Missing: ChildProfileBindingStateSchema.parse(ChildProfileBindingStateLiteral.Missing),
+  Unassigned: ChildProfileBindingStateSchema.parse(ChildProfileBindingStateLiteral.Unassigned),
+} as const;
+
+export const DeviceOwnershipScope = {
+  ChildProfileDevice: DeviceOwnershipScopeSchema.parse(DeviceOwnershipScopeLiteral.ChildProfileDevice),
+  ParentControllerDevice: DeviceOwnershipScopeSchema.parse(DeviceOwnershipScopeLiteral.ParentControllerDevice),
+  OtherDevice: DeviceOwnershipScopeSchema.parse(DeviceOwnershipScopeLiteral.OtherDevice),
+} as const;
+
 export const DeviceAuthorityAction = {
   PairChildDevice: DeviceAuthorityActionSchema.parse(DeviceAuthorityActionLiteral.PairChildDevice),
   RevokeChildDevice: DeviceAuthorityActionSchema.parse(DeviceAuthorityActionLiteral.RevokeChildDevice),
@@ -268,6 +432,66 @@ export const DeviceAuthorityAction = {
   StartRemoteControl: DeviceAuthorityActionSchema.parse(DeviceAuthorityActionLiteral.StartRemoteControl),
   ExportDeleteData: DeviceAuthorityActionSchema.parse(DeviceAuthorityActionLiteral.ExportDeleteData),
   ManageBilling: DeviceAuthorityActionSchema.parse(DeviceAuthorityActionLiteral.ManageBilling),
+} as const;
+
+export const SessionFreshnessState = {
+  Fresh: SessionFreshnessStateSchema.parse(SessionFreshnessStateLiteral.Fresh),
+  Stale: SessionFreshnessStateSchema.parse(SessionFreshnessStateLiteral.Stale),
+  Expired: SessionFreshnessStateSchema.parse(SessionFreshnessStateLiteral.Expired),
+} as const;
+
+export const HouseholdAuthorizationState = {
+  Authorized: HouseholdAuthorizationStateSchema.parse(HouseholdAuthorizationStateLiteral.Authorized),
+  Rejected: HouseholdAuthorizationStateSchema.parse(HouseholdAuthorizationStateLiteral.Rejected),
+} as const;
+
+export const AuditRequirementState = {
+  Required: AuditRequirementStateSchema.parse(AuditRequirementStateLiteral.Required),
+  NotRequired: AuditRequirementStateSchema.parse(AuditRequirementStateLiteral.NotRequired),
+} as const;
+
+export const ElevatedConfirmationState = {
+  Required: ElevatedConfirmationStateSchema.parse(ElevatedConfirmationStateLiteral.Required),
+  NotRequired: ElevatedConfirmationStateSchema.parse(ElevatedConfirmationStateLiteral.NotRequired),
+} as const;
+
+export const HouseholdAuthorizationFailureReason = {
+  ExternalHousehold: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.ExternalHousehold
+  ),
+  MembershipNotActive: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.MembershipNotActive
+  ),
+  AccountNotActive: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.AccountNotActive
+  ),
+  DeviceNotTrusted: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.DeviceNotTrusted
+  ),
+  SessionNotFresh: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.SessionNotFresh
+  ),
+  ChildProfileNotBound: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.ChildProfileNotBound
+  ),
+  WrongDeviceScope: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.WrongDeviceScope
+  ),
+  MissingCapabilityGrant: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.MissingCapabilityGrant
+  ),
+  ControllerLeaseRequired: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.ControllerLeaseRequired
+  ),
+  ControllerLeaseExpired: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.ControllerLeaseExpired
+  ),
+  ControllerLeaseRevoked: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.ControllerLeaseRevoked
+  ),
+  RoleNotAuthorized: HouseholdAuthorizationFailureReasonSchema.parse(
+    HouseholdAuthorizationFailureReasonLiteral.RoleNotAuthorized
+  ),
 } as const;
 
 export const ParentControllerLeaseState = {
@@ -327,4 +551,193 @@ export function canHouseholdRoleAuthorizeAction(role: HouseholdRole, action: Dev
     default:
       return false;
   }
+}
+
+export function canParentMemberAuthorizeDeviceAction(
+  member: ParentMember,
+  targetFamily: Infer<typeof FamilyReferenceSchema>,
+  action: DeviceAuthorityAction,
+  actorAccountState: ActorAccountState
+): boolean {
+  const parsedMember = ParentMemberSchema.parse(member);
+  const parsedFamily = FamilyReferenceSchema.parse(targetFamily);
+  const parsedActorAccountState = ActorAccountStateSchema.parse(actorAccountState);
+
+  if (parsedActorAccountState !== ActorAccountState.Active) {
+    return false;
+  }
+
+  if (parsedMember.family.familyId !== parsedFamily.familyId) {
+    return false;
+  }
+
+  if (parsedMember.membershipState !== HouseholdMembershipState.Active) {
+    return false;
+  }
+
+  if (parsedMember.role === HouseholdRole.SupportAdmin) {
+    return false;
+  }
+
+  return canHouseholdRoleAuthorizeAction(parsedMember.role, action);
+}
+
+export function authorizeHouseholdAction(input: HouseholdAuthorityInput): HouseholdAuthorityDecision {
+  const parsedInput = HouseholdAuthorityInputSchema.parse(input);
+
+  if (!parsedInput.sameFamily) {
+    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.ExternalHousehold, parsedInput.action);
+  }
+
+  if (parsedInput.membershipState !== HouseholdMembershipState.Active) {
+    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.MembershipNotActive, parsedInput.action);
+  }
+
+  if (parsedInput.actorAccountState !== ActorAccountState.Active) {
+    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.AccountNotActive, parsedInput.action);
+  }
+
+  if (parsedInput.deviceTrustState !== DeviceTrustState.Trusted) {
+    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.DeviceNotTrusted, parsedInput.action);
+  }
+
+  if (requiresFreshSession(parsedInput.action) && parsedInput.sessionFreshnessState !== SessionFreshnessState.Fresh) {
+    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.SessionNotFresh, parsedInput.action);
+  }
+
+  if (
+    requiresBoundChildScope(parsedInput.action) &&
+    parsedInput.childProfileBindingState !== ChildProfileBindingState.Bound
+  ) {
+    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.ChildProfileNotBound, parsedInput.action);
+  }
+
+  if (
+    requiresChildProfileDeviceScope(parsedInput.action) &&
+    parsedInput.deviceOwnershipScope !== DeviceOwnershipScope.ChildProfileDevice
+  ) {
+    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.WrongDeviceScope, parsedInput.action);
+  }
+
+  if (requiresCapabilityGrant(parsedInput.action) && !parsedInput.capabilityGranted) {
+    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.MissingCapabilityGrant, parsedInput.action);
+  }
+
+  if (!canHouseholdRoleAuthorizeAction(parsedInput.actorRole, parsedInput.action)) {
+    return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.RoleNotAuthorized, parsedInput.action);
+  }
+
+  const controllerLeaseFailureReason = controllerLeaseFailureReasonForAction(parsedInput);
+  if (controllerLeaseFailureReason !== null) {
+    return rejectedHouseholdAction(controllerLeaseFailureReason, parsedInput.action);
+  }
+
+  return HouseholdAuthorityDecisionSchema.parse({
+    authorizationState: HouseholdAuthorizationState.Authorized,
+    auditRequirementState: auditRequirementState(parsedInput.action),
+    elevatedConfirmationState: elevatedConfirmationState(parsedInput.action),
+    failureReason: null,
+  });
+}
+
+export function isTrustedChildAgentRegistrationForProfile(
+  registration: DeviceRegistration,
+  childProfile: Infer<typeof ChildProfileReferenceSchema>
+): boolean {
+  const parsedRegistration = DeviceRegistrationSchema.parse(registration);
+  const parsedChildProfile = ChildProfileReferenceSchema.parse(childProfile);
+
+  return (
+    parsedRegistration.deviceRole === DeviceRole.ChildAgent &&
+    parsedRegistration.trustState === DeviceTrustState.Trusted &&
+    parsedRegistration.device.childProfileId === parsedChildProfile.childProfileId
+  );
+}
+
+function rejectedHouseholdAction(
+  failureReason: HouseholdAuthorizationFailureReason,
+  action: DeviceAuthorityAction
+): HouseholdAuthorityDecision {
+  return HouseholdAuthorityDecisionSchema.parse({
+    authorizationState: HouseholdAuthorizationState.Rejected,
+    auditRequirementState: AuditRequirementState.Required,
+    elevatedConfirmationState: elevatedConfirmationState(action),
+    failureReason,
+  });
+}
+
+function requiresCapabilityGrant(action: DeviceAuthorityAction): boolean {
+  return action === DeviceAuthorityAction.StartRemoteView || action === DeviceAuthorityAction.StartRemoteControl;
+}
+
+function controllerLeaseFailureReasonForAction(
+  input: HouseholdAuthorityInput
+): HouseholdAuthorizationFailureReason | null {
+  if (!requiresControllerLease(input.action)) {
+    return null;
+  }
+
+  if (input.controllerLeaseState === undefined || input.controllerLeaseState === null) {
+    return HouseholdAuthorizationFailureReason.ControllerLeaseRequired;
+  }
+
+  if (input.controllerLeaseState === ParentControllerLeaseState.Expired) {
+    return HouseholdAuthorizationFailureReason.ControllerLeaseExpired;
+  }
+
+  if (input.controllerLeaseState === ParentControllerLeaseState.Revoked) {
+    return HouseholdAuthorizationFailureReason.ControllerLeaseRevoked;
+  }
+
+  return null;
+}
+
+function requiresFreshSession(action: DeviceAuthorityAction): boolean {
+  return (
+    action === DeviceAuthorityAction.ChangePolicy ||
+    action === DeviceAuthorityAction.StartRemoteView ||
+    action === DeviceAuthorityAction.StartRemoteControl ||
+    action === DeviceAuthorityAction.ExportDeleteData ||
+    action === DeviceAuthorityAction.ManageBilling
+  );
+}
+
+function requiresBoundChildScope(action: DeviceAuthorityAction): boolean {
+  return (
+    action === DeviceAuthorityAction.PairChildDevice ||
+    action === DeviceAuthorityAction.RevokeChildDevice ||
+    action === DeviceAuthorityAction.ViewChildStatus ||
+    action === DeviceAuthorityAction.ChangePolicy ||
+    action === DeviceAuthorityAction.StartRemoteView ||
+    action === DeviceAuthorityAction.StartRemoteControl
+  );
+}
+
+function requiresChildProfileDeviceScope(action: DeviceAuthorityAction): boolean {
+  return requiresBoundChildScope(action);
+}
+
+function requiresControllerLease(action: DeviceAuthorityAction): boolean {
+  return action === DeviceAuthorityAction.StartRemoteView || action === DeviceAuthorityAction.StartRemoteControl;
+}
+
+function auditRequirementState(action: DeviceAuthorityAction): AuditRequirementState {
+  if (action === DeviceAuthorityAction.ViewChildStatus) {
+    return AuditRequirementState.NotRequired;
+  }
+
+  return AuditRequirementState.Required;
+}
+
+function elevatedConfirmationState(action: DeviceAuthorityAction): ElevatedConfirmationState {
+  if (
+    action === DeviceAuthorityAction.RevokeChildDevice ||
+    action === DeviceAuthorityAction.StartRemoteControl ||
+    action === DeviceAuthorityAction.ExportDeleteData ||
+    action === DeviceAuthorityAction.ManageBilling
+  ) {
+    return ElevatedConfirmationState.Required;
+  }
+
+  return ElevatedConfirmationState.NotRequired;
 }

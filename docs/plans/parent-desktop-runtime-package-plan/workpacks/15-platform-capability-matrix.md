@@ -35,11 +35,11 @@ matching feature-doc/checklist update.
 
 ## Requirement Checklist
 
-- [x] Split implemented, scaffold, unavailable, degraded, and manual-required.
-- [x] Include parent desktop/mobile and child-agent rows separately.
-- [x] Include signing/store/relay rows.
-- [x] Generate or test deterministic output.
-- [x] Sync D-owned feature/expectation/workpack docs when rows change; product checklist wording stays tracked in workpack 19 until the codex-a lock clears.
+- [ ] Split implemented, scaffold, unavailable, degraded, and manual-required.
+- [ ] Include parent desktop/mobile and child-agent rows separately.
+- [ ] Include signing/store/relay rows.
+- [ ] Generate or test deterministic output.
+- [ ] Sync D-owned feature/expectation/workpack docs when rows change; product checklist wording stays tracked in workpack 19 until the codex-a lock clears.
 
 ## Acceptance And Proof
 

@@ -31,11 +31,11 @@ revoke, or take controller authority.
 
 ## Requirement Checklist
 
-- [x] Represent observer read-only state.
-- [x] Reject or disable write actions for observer role.
-- [x] Show why an action is unavailable.
-- [x] Include support/status refs where available.
-- [x] Test observer output.
+- [ ] Represent observer read-only state.
+- [ ] Reject or disable write actions for observer role.
+- [ ] Show why an action is unavailable.
+- [ ] Include support/status refs where available.
+- [ ] Test observer output.
 
 ## Acceptance And Proof
 

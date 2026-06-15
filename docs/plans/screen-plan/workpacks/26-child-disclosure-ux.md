@@ -28,12 +28,12 @@ deployment/delivery remains open and unclaimed.
 
 ## Checklist
 
-- [x] Define child-visible status.
-- [x] Define local disclosure copy.
-- [x] Define paused/disabled states.
-- [x] Define capture-active state where platform permits.
-- [x] Avoid hidden capture.
-- [x] Add screenshots/proof.
+- [ ] Define child-visible status.
+- [ ] Define local disclosure copy.
+- [ ] Define paused/disabled states.
+- [ ] Define capture-active state where platform permits.
+- [ ] Avoid hidden capture.
+- [ ] Add screenshots/proof.
 
 ## Proof
 

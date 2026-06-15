@@ -541,12 +541,12 @@ DESKTOP-08 desktop notification proof
 Checked items below mean planning/source artifacts exist. They do not mark the
 feature product-complete.
 
-- [x] Feature doc exists.
-- [x] Expectation doc exists.
-- [x] Capability guide exists.
-- [x] Schema proposal exists.
-- [x] Raw tracking settings inventory exists.
-- [x] First-class tracking plan folder exists.
+- [ ] Feature doc exists.
+- [ ] Expectation doc exists.
+- [ ] Capability guide exists.
+- [ ] Schema proposal exists.
+- [ ] Raw tracking settings inventory exists.
+- [ ] First-class tracking plan folder exists.
 - [ ] Location evidence contracts are not product-complete.
 - [ ] Geofence transition runtime proof is not product-complete.
 - [ ] Expected-place schedule engine is not product-complete.
@@ -554,17 +554,17 @@ feature product-complete.
 - [ ] Parent acknowledgement/exception system is not product-complete.
 - [ ] Android background permission proof is not complete.
 - [ ] iOS background/region proof is not complete.
-- [x] Journal/SQLite/read-model proof has CI/local coverage but is not
+- [ ] Journal/SQLite/read-model proof has CI/local coverage but is not
       product-complete. A P2 service command/read-model proof exists for SQLite
       tracking rows and citation IDs, the parent portal consumes it as a narrow
       live summary, hosted service-data/citation/evidence/report/retention rows
       are screenshot/accessibility proved, and WSL/local replay artifacts exist.
       Platform runtime, child-device delivery, provider delivery, production
       workers, and product-ready claims remain pending.
-- [x] Retention/delete/export P1 checkpoint proof exists: delete/export proof
+- [ ] Retention/delete/export P1 checkpoint proof exists: delete/export proof
       and UI-visible deleted-history hiding are fixture-proved. Product
       live-service retention settings remain pending.
-- [x] Tracking UI/UX has hosted parent-route screenshot/accessibility coverage
+- [ ] Tracking UI/UX has hosted parent-route screenshot/accessibility coverage
       but is not product-complete. The branch now covers the P1 fixture surface,
       P2 service-read-model summary, service-backed citation detail, evidence
       drawer, child-safe check-in, child-runtime disclosure/consent card, family
@@ -574,12 +574,12 @@ feature product-complete.
       shell screenshots, artifact inventory, and accessibility assertions.
       Actual child-device delivery/runtime execution and full product
       parent/child UI remain pending.
-- [x] Pre-device proof gate exists and passed locally on 2026-06-03 through
+- [ ] Pre-device proof gate exists and passed locally on 2026-06-03 through
       `node scripts/test/tracking-plan-pre-device-proof.mjs`; artifact root:
       `output/tracking-plan-proof/pre-device-gap-closure/`. This does not mark
       physical-device, authority, full product parent/child UI, provider
       delivery, or production-pilot proof complete.
-- [x] WSL/local replay proof exists and passed locally on 2026-06-04 through
+- [ ] WSL/local replay proof exists and passed locally on 2026-06-04 through
       `npm run test:tracking-plan-wsl-local-proof`; artifact root:
       `output/tracking-plan-proof/wsl-local-replay/`. This does not mark
       Android/iOS physical-device behavior, enrolled-device authority, provider

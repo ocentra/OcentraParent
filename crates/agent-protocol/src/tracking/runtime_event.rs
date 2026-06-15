@@ -1,18 +1,19 @@
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
+    AggregateKey, DomainEvent, EventContract, EventResponseContract, EventType, EventingError,
+    IdempotencyKey, RequestEvent, RequestId, SchemaVersion,
 };
 use ocentra_evidence::PrivatePayloadState;
 use serde::{Deserialize, Serialize};
 
 use super::{
     TrackingAcknowledgementId, TrackingAcknowledgementState, TrackingAiPurpose,
-    TrackingAiRequestId, TrackingCapabilityStatus, TrackingCheckInId, TrackingCheckInState,
-    TrackingChildDeviceId, TrackingChildProfileId, TrackingConfidenceBasis, TrackingEvaluationId,
-    TrackingEvidenceRef, TrackingExpectedPlaceRef, TrackingExpectedPlaceState,
-    TrackingGeofenceRuleRef, TrackingLocationRelation, TrackingNearbyPlaceAmbiguityState,
-    TrackingNearbyPlaceProviderKind, TrackingNotificationChannel, TrackingNotificationId,
-    TrackingObservationId, TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingPolicySeverity,
+    TrackingAiRequestId, TrackingAlertEvaluationId, TrackingAlertSeverity,
+    TrackingCapabilityStatus, TrackingCheckInId, TrackingCheckInState, TrackingChildDeviceId,
+    TrackingChildProfileId, TrackingConfidenceBasis, TrackingEvaluationId, TrackingEvidenceRef,
+    TrackingExpectedPlaceRef, TrackingExpectedPlaceState, TrackingGeofenceRuleRef,
+    TrackingLocationRelation, TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceProviderKind,
+    TrackingNotificationChannel, TrackingNotificationId, TrackingObservationId,
+    TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingPolicySeverity,
     TrackingPolicyViolationId, TrackingProviderRef, TrackingReasonCode, TrackingScheduleId,
     TrackingTimestamp, TrackingTransitionId, TrackingTransitionKind, TrackingUncertaintyCode,
 };
@@ -64,6 +65,14 @@ pub enum TrackingParentActionRequirement {
     Required,
     #[serde(rename = "not-required")]
     NotRequired,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TrackingExpectedPlaceExceptionState {
+    #[serde(rename = "holiday-mode")]
+    HolidayMode,
+    #[serde(rename = "trip-exception")]
+    TripException,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -166,6 +175,10 @@ pub struct TrackingExpectedPlaceStateEvaluatedEvent {
     pub source_observation_id: TrackingObservationId,
     pub source_observed_at: TrackingTimestamp,
     pub expected_place_state: TrackingExpectedPlaceState,
+    pub distance_tolerance_meters: Option<u32>,
+    pub late_grace_seconds: u32,
+    pub early_exit_grace_seconds: u32,
+    pub exception_state: Option<TrackingExpectedPlaceExceptionState>,
     pub reason_codes: Vec<TrackingReasonCode>,
     pub evidence_refs: Vec<TrackingEvidenceRef>,
     pub parent_action_requirement: TrackingParentActionRequirement,
@@ -184,6 +197,30 @@ pub struct TrackingPolicyViolationDetectedEvent {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TrackingParentNotificationState {
+    #[serde(rename = "allowed")]
+    Allowed,
+    #[serde(rename = "suppressed-duplicate")]
+    SuppressedDuplicate,
+    #[serde(rename = "suppressed-missing-evidence")]
+    SuppressedMissingEvidence,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrackingAlertEvaluatedEvent {
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub alert_evaluation_id: TrackingAlertEvaluationId,
+    pub source_policy_violation_id: TrackingPolicyViolationId,
+    pub policy_rule_ref: TrackingPolicyRuleRef,
+    pub severity: TrackingAlertSeverity,
+    pub parent_notification_state: TrackingParentNotificationState,
+    pub evaluated_at: TrackingTimestamp,
+    pub evidence_refs: Vec<TrackingEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrackingParentAcknowledgementRecordedEvent {
     pub child_device_id: TrackingChildDeviceId,
@@ -193,6 +230,66 @@ pub struct TrackingParentAcknowledgementRecordedEvent {
     pub acknowledged_at: TrackingTimestamp,
     pub acknowledgement_state: TrackingAcknowledgementState,
     pub evidence_refs: Vec<TrackingEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TrackingChildCheckInRequestState {
+    #[serde(rename = "pending")]
+    Pending,
+    #[serde(rename = "sent")]
+    Sent,
+    #[serde(rename = "answered")]
+    Answered,
+    #[serde(rename = "expired")]
+    Expired,
+    #[serde(rename = "cancelled")]
+    Cancelled,
+    #[serde(rename = "escalated")]
+    Escalated,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TrackingChildCheckInDeliveryState {
+    #[serde(rename = "queued")]
+    Queued,
+    #[serde(rename = "requested")]
+    Requested,
+    #[serde(rename = "duplicate")]
+    Duplicate,
+    #[serde(rename = "stale")]
+    Stale,
+    #[serde(rename = "unsupported-delivery")]
+    UnsupportedDelivery,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrackingChildCheckInRequestedEvent {
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub check_in_id: TrackingCheckInId,
+    pub requested_at: TrackingTimestamp,
+    pub request_state: TrackingChildCheckInRequestState,
+    pub delivery_state: TrackingChildCheckInDeliveryState,
+    pub related_alert_id: TrackingPolicyViolationId,
+    pub include_location_if_permitted: bool,
+    pub expires_at: TrackingTimestamp,
+    pub evidence_refs: Vec<TrackingEvidenceRef>,
+    pub audit_refs: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrackingChildCheckInRequestReceipt {
+    pub schema_version: u16,
+    pub child_device_id: TrackingChildDeviceId,
+    pub child_profile_id: TrackingChildProfileId,
+    pub check_in_id: TrackingCheckInId,
+    pub related_alert_id: TrackingPolicyViolationId,
+    pub request_state: TrackingChildCheckInRequestState,
+    pub delivery_state: TrackingChildCheckInDeliveryState,
+    pub receipt_recorded_at: TrackingTimestamp,
+    pub reason_code: Option<TrackingReasonCode>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -348,6 +445,23 @@ impl DomainEvent for TrackingPolicyViolationDetectedEvent {
     }
 }
 
+impl DomainEvent for TrackingAlertEvaluatedEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        tracking_event_contract(constants::tracking_runtime::TRACKING_ALERT_EVALUATED_EVENT_TYPE)
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        tracking_child_aggregate_key(&self.child_device_id, &self.child_profile_id)
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        tracking_idempotency_key(
+            constants::tracking_runtime::TRACKING_ALERT_EVALUATED_EVENT_TYPE,
+            &self.alert_evaluation_id,
+        )
+    }
+}
+
 impl DomainEvent for TrackingParentAcknowledgementRecordedEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
         tracking_event_contract(
@@ -367,6 +481,33 @@ impl DomainEvent for TrackingParentAcknowledgementRecordedEvent {
     }
 }
 
+impl DomainEvent for TrackingChildCheckInRequestedEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        tracking_event_contract(
+            constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_REQUESTED_EVENT_TYPE,
+        )
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        tracking_child_aggregate_key(&self.child_device_id, &self.child_profile_id)
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        tracking_idempotency_key(
+            constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_REQUESTED_EVENT_TYPE,
+            &self.check_in_id,
+        )
+    }
+}
+
+impl RequestEvent for TrackingChildCheckInRequestedEvent {
+    type Response = TrackingChildCheckInRequestReceipt;
+
+    fn request_id(&self) -> Result<RequestId, EventingError> {
+        RequestId::parse(self.check_in_id.as_str())
+    }
+}
+
 impl DomainEvent for TrackingChildCheckInRecordedEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
         tracking_event_contract(
@@ -383,6 +524,15 @@ impl DomainEvent for TrackingChildCheckInRecordedEvent {
             constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE,
             &self.check_in_id,
         )
+    }
+}
+
+impl EventResponseContract for TrackingChildCheckInRequestReceipt {
+    fn validate(&self) -> Result<(), EventingError> {
+        if self.schema_version != AGENT_PROTOCOL_SCHEMA_VERSION {
+            return Err(EventingError::InvalidVersion);
+        }
+        Ok(())
     }
 }
 
@@ -421,9 +571,11 @@ pub fn policy_eligible_tracking_runtime_config() -> TrackingRuntimeConfig {
     }
 }
 
-fn tracking_event_contract(event_type: &str) -> Result<EventContract, EventingError> {
+fn tracking_event_contract(
+    event_type: impl std::fmt::Display,
+) -> Result<EventContract, EventingError> {
     Ok(EventContract::new(
-        EventType::parse(event_type)?,
+        EventType::parse(event_type.to_string())?,
         SchemaVersion::new(AGENT_PROTOCOL_SCHEMA_VERSION)?,
     ))
 }
@@ -441,7 +593,7 @@ fn tracking_child_aggregate_key(
 }
 
 fn tracking_idempotency_key(
-    event_type: &str,
+    event_type: impl std::fmt::Display,
     unique_ref: impl std::fmt::Display,
 ) -> Result<IdempotencyKey, EventingError> {
     IdempotencyKey::parse(format!(

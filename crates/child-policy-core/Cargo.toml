@@ -11,4 +11,6 @@ workspace = true
 path = "src/lib.rs"
 
 [dependencies]
+ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-policy-control-core = { path = "../policy-control-core" }

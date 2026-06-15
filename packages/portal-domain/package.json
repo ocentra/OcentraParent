@@ -41,6 +41,10 @@
       "import": "./dist/browser-action-intent-stream-status.js",
       "types": "./dist/browser-action-intent-stream-status.d.ts"
     },
+    "./policy-preview-panel": {
+      "import": "./dist/policy-preview-panel.js",
+      "types": "./dist/policy-preview-panel.d.ts"
+    },
     "./screen-summary-panel": {
       "import": "./dist/screen-summary-panel.js",
       "types": "./dist/screen-summary-panel.d.ts"

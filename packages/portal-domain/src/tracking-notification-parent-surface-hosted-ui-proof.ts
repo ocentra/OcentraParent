@@ -3,8 +3,115 @@ import type { DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
 import { TrackingStatusProofArtifacts, type TrackingStatusProofArtifact } from './tracking-status-proof-artifacts';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
 type PortalDisplayText = DisplayText;
+
+const TrackingNotificationParentSurfaceHistoryStatus = {
+  HistoryIntentReady: 'history-intent-ready',
+  ManualActionRequired: 'manual-action-required',
+  ProviderUnavailable: 'provider-unavailable',
+} as const;
+
+const RequiredTrackingNotificationParentSurfaceHistoryNonClaims = [
+  'no-rendered-parent-notification-ui',
+  'no-parent-preference-mutation-runtime',
+  'no-parent-frequency-control-ui',
+  'no-quiet-hours-timer-runtime',
+  'no-provider-delivery-execution',
+  'no-provider-receipt-ingestion-runtime',
+  'no-provider-credentials',
+  'no-cloud-routing',
+  'no-child-device-delivery',
+  'no-mobile-physical-device-proof',
+  'no-authority-proof',
+  'no-retry-worker-runtime',
+  'no-production-durable-history-storage',
+  'no-production-durable-outbox-storage',
+  'no-adapter-dispatch',
+] as const;
+
+const TrackingNotificationParentSurfaceHostedUiValues = {
+  NotReported: 'not reported',
+  ReferenceSeparator: ' | ',
+  SchemaVersion: 'v0.6',
+} as const;
+
+const FalseSchema = Schema.Literal(false);
+const NonNegativeCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
+const TrackingNotificationParentSurfaceHistoryStatusSchema = withParser(
+  Schema.Literal(...Object.values(TrackingNotificationParentSurfaceHistoryStatus))
+);
+const TrackingNotificationParentSurfaceHistoryRowSchema = withParser(
+  Schema.Struct({
+    historyRowId: NonEmptyStringSchema,
+    sourceAlertId: NonEmptyStringSchema,
+    sourceProviderNotificationRowId: NonEmptyStringSchema,
+    sourceReceiptBoundaryRowId: NonEmptyStringSchema,
+    sourcePreferencePreflightRowId: NonEmptyStringSchema,
+    status: TrackingNotificationParentSurfaceHistoryStatusSchema,
+    sourcePolicyDecisionId: NonEmptyStringSchema,
+    evidenceRefs: Schema.Array(NonEmptyStringSchema),
+    notificationStatusRefs: Schema.Array(NonEmptyStringSchema),
+    reasonCodeRefs: Schema.Array(NonEmptyStringSchema),
+    providerStatusEntryRef: NonEmptyStringSchema,
+    providerAttemptRef: NonEmptyStringSchema,
+    auditRefs: Schema.Array(NonEmptyStringSchema),
+    providerPreferenceRefs: Schema.Array(NonEmptyStringSchema),
+    parentPreferenceRequirementRefs: Schema.Array(NonEmptyStringSchema),
+    quietHoursRequirementRefs: Schema.Array(NonEmptyStringSchema),
+    receiptRequirementRefs: Schema.Array(NonEmptyStringSchema),
+    manualProofRequirements: Schema.Array(NonEmptyStringSchema),
+    drillInRefs: Schema.Array(NonEmptyStringSchema),
+    redactedParentSummaryRef: NonEmptyStringSchema,
+    renderedParentNotificationUiClaimed: FalseSchema,
+    parentPreferenceMutationRuntimeClaimed: FalseSchema,
+    providerDeliveryClaimed: FalseSchema,
+    receiptIngestionRuntimeClaimed: FalseSchema,
+    childDeviceDeliveryClaimed: FalseSchema,
+    mobilePhysicalDeviceProofClaimed: FalseSchema,
+    authorityProofClaimed: FalseSchema,
+  })
+);
+const TrackingNotificationParentSurfaceHistoryReadModelSchema = withParser(
+  Schema.Struct({
+    schemaVersion: NonEmptyStringSchema,
+    proofId: NonEmptyStringSchema,
+    generatedAt: NonEmptyStringSchema,
+    family: Schema.Struct({
+      familyId: NonEmptyStringSchema,
+    }),
+    sourceProviderNotificationProofRef: NonEmptyStringSchema,
+    sourceReceiptBoundaryProofRef: NonEmptyStringSchema,
+    sourcePreferencePreflightProofRef: NonEmptyStringSchema,
+    sourceContractRefs: Schema.Array(NonEmptyStringSchema),
+    rows: Schema.Array(TrackingNotificationParentSurfaceHistoryRowSchema),
+    historyIntentReadyCount: NonNegativeCountSchema,
+    manualActionRequiredCount: NonNegativeCountSchema,
+    providerUnavailableCount: NonNegativeCountSchema,
+    proofNonClaims: Schema.Array(NonEmptyStringSchema),
+    renderedParentNotificationUiClaimed: FalseSchema,
+    parentPreferenceMutationRuntimeClaimed: FalseSchema,
+    parentFrequencyControlUiClaimed: FalseSchema,
+    quietHoursTimerRuntimeClaimed: FalseSchema,
+    providerDeliveryRuntimeClaimed: FalseSchema,
+    providerReceiptIngestionRuntimeClaimed: FalseSchema,
+    providerCredentialsClaimed: FalseSchema,
+    cloudRoutingClaimed: FalseSchema,
+    childDeviceDeliveryClaimed: FalseSchema,
+    mobilePhysicalDeviceProofClaimed: FalseSchema,
+    authorityProofClaimed: FalseSchema,
+    retryExecutionRuntimeClaimed: FalseSchema,
+    productionDurableHistoryStorageClaimed: FalseSchema,
+    productionDurableOutboxStorageClaimed: FalseSchema,
+    adapterDispatchClaimed: FalseSchema,
+  })
+);
+
+type TrackingNotificationParentSurfaceHistoryRow = Infer<typeof TrackingNotificationParentSurfaceHistoryRowSchema>;
+type TrackingNotificationParentSurfaceHistoryReadModel = Infer<
+  typeof TrackingNotificationParentSurfaceHistoryReadModelSchema
+>;
 
 export type TrackingNotificationParentSurfaceHostedUiRow = {
   readonly title: PortalDisplayText;
@@ -40,56 +147,166 @@ export type TrackingNotificationParentSurfaceHostedUiProof = {
   readonly rows: readonly TrackingNotificationParentSurfaceHostedUiRow[];
 };
 
-type TrackingNotificationParentSurfaceHostedDefinition = {
-  readonly titleToken: (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken];
-  readonly statusToken: (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken];
-  readonly policyDecisionToken: (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken];
-  readonly evidenceToken: (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken];
-  readonly providerAttemptToken: (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken];
-  readonly receiptRequirementToken: (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken];
-  readonly preferenceRequirementToken: (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken];
-  readonly manualProofToken: (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken];
-  readonly redactedSummaryToken: (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken];
-};
-
-const TrackingNotificationParentSurfaceHostedDefinitions = [
-  {
-    titleToken: PortalDevTextToken.TrackingNotificationParentSurfaceHistoryIntent,
-    statusToken: PortalDevTextToken.TrackingNotificationParentSurfaceHistoryIntentReady,
-    policyDecisionToken: PortalDevTextToken.TrackingNotificationParentSurfaceHomeDecision,
-    evidenceToken: PortalDevTextToken.TrackingNotificationParentSurfaceLocationEvidence,
-    providerAttemptToken: PortalDevTextToken.TrackingNotificationParentSurfaceHomeAttempt,
-    receiptRequirementToken: PortalDevTextToken.TrackingNotificationParentSurfaceHomeReceiptRequirement,
-    preferenceRequirementToken: PortalDevTextToken.TrackingNotificationParentSurfaceHomePreferenceRequirement,
-    manualProofToken: PortalDevTextToken.TrackingNotificationParentSurfaceHomeManualProof,
-    redactedSummaryToken: PortalDevTextToken.TrackingNotificationParentSurfaceHomeSummary,
-  },
-  {
-    titleToken: PortalDevTextToken.TrackingNotificationParentSurfaceManualAction,
-    statusToken: PortalDevTextToken.TrackingNotificationParentSurfaceManualActionRequired,
-    policyDecisionToken: PortalDevTextToken.TrackingNotificationParentSurfaceSchoolDecision,
-    evidenceToken: PortalDevTextToken.TrackingNotificationParentSurfaceLocationEvidence,
-    providerAttemptToken: PortalDevTextToken.TrackingNotificationParentSurfaceSchoolAttempt,
-    receiptRequirementToken: PortalDevTextToken.TrackingNotificationParentSurfaceSchoolReceiptRequirement,
-    preferenceRequirementToken: PortalDevTextToken.TrackingNotificationParentSurfaceSchoolPreferenceRequirement,
-    manualProofToken: PortalDevTextToken.TrackingNotificationParentSurfaceSchoolManualProof,
-    redactedSummaryToken: PortalDevTextToken.TrackingNotificationParentSurfaceSchoolSummary,
-  },
-  {
-    titleToken: PortalDevTextToken.TrackingNotificationParentSurfaceProviderUnavailable,
-    statusToken: PortalDevTextToken.TrackingNotificationParentSurfaceProviderUnavailableStatus,
-    policyDecisionToken: PortalDevTextToken.TrackingNotificationParentSurfaceUnavailableDecision,
-    evidenceToken: PortalDevTextToken.TrackingNotificationParentSurfaceLocationEvidence,
-    providerAttemptToken: PortalDevTextToken.TrackingNotificationParentSurfaceUnavailableAttempt,
-    receiptRequirementToken: PortalDevTextToken.TrackingNotificationParentSurfaceUnavailableReceiptRequirement,
-    preferenceRequirementToken: PortalDevTextToken.TrackingNotificationParentSurfaceUnavailablePreferenceRequirement,
-    manualProofToken: PortalDevTextToken.TrackingNotificationParentSurfaceUnavailableManualProof,
-    redactedSummaryToken: PortalDevTextToken.TrackingNotificationParentSurfaceUnavailableSummary,
-  },
-] as const satisfies readonly TrackingNotificationParentSurfaceHostedDefinition[];
+const DefaultTrackingNotificationParentSurfaceHistoryReadModel =
+  TrackingNotificationParentSurfaceHistoryReadModelSchema.parse({
+    schemaVersion: TrackingNotificationParentSurfaceHostedUiValues.SchemaVersion,
+    proofId: 'tracking-notification-parent-surface-history-proof',
+    generatedAt: '2026-06-06T16:16:00.000Z',
+    family: {
+      familyId: 'family-tracking-notification-history',
+    },
+    sourceProviderNotificationProofRef: 'tracking-provider-notification-proof-for-parent-surface-history',
+    sourceReceiptBoundaryProofRef: 'tracking-notification-receipt-boundary-proof-for-parent-surface-history',
+    sourcePreferencePreflightProofRef: 'tracking-notification-preference-preflight-proof-for-parent-surface-history',
+    sourceContractRefs: [
+      'tracking-provider-notification-proof',
+      'tracking-notification-receipt-boundary-proof',
+      'tracking-notification-preference-preflight-proof',
+      'notifications-expectations',
+      'location-geofence-device-status',
+    ],
+    rows: [
+      {
+        historyRowId: 'tracking-notification-history-tracking-alert-home-arrival',
+        sourceAlertId: 'tracking-alert-home-arrival',
+        sourceProviderNotificationRowId: 'tracking-provider-notification-tracking-alert-home-arrival',
+        sourceReceiptBoundaryRowId: 'tracking-notification-receipt-tracking-alert-home-arrival',
+        sourcePreferencePreflightRowId: 'tracking-notification-preference-preflight-tracking-alert-home-arrival',
+        status: TrackingNotificationParentSurfaceHistoryStatus.HistoryIntentReady,
+        sourcePolicyDecisionId: 'tracking-decision-home-arrival',
+        evidenceRefs: ['location-evidence-geofence-entry'],
+        notificationStatusRefs: ['tracking-notification-intent-home-arrival'],
+        reasonCodeRefs: ['home-arrival-notification'],
+        providerStatusEntryRef: 'tracking-provider-status-entry-home-arrival',
+        providerAttemptRef: 'tracking-provider-attempt-home-arrival',
+        auditRefs: ['tracking-provider-notification-audit-tracking-alert-home-arrival'],
+        providerPreferenceRefs: ['tracking-parent-provider-preference-home-arrival'],
+        parentPreferenceRequirementRefs: ['parent-notification-preference-required-home-arrival'],
+        quietHoursRequirementRefs: ['tracking-quiet-hours-policy-required-tracking-alert-home-arrival'],
+        receiptRequirementRefs: ['receipt-ingestion-required-home-arrival'],
+        manualProofRequirements: ['provider-delivery-runtime-required', 'receipt-webhook-runtime-required'],
+        drillInRefs: ['tracking-notification-history-drill-in-tracking-alert-home-arrival'],
+        redactedParentSummaryRef: 'tracking-notification-redacted-summary-tracking-alert-home-arrival',
+        renderedParentNotificationUiClaimed: false,
+        parentPreferenceMutationRuntimeClaimed: false,
+        providerDeliveryClaimed: false,
+        receiptIngestionRuntimeClaimed: false,
+        childDeviceDeliveryClaimed: false,
+        mobilePhysicalDeviceProofClaimed: false,
+        authorityProofClaimed: false,
+      },
+      {
+        historyRowId: 'tracking-notification-history-tracking-alert-left-expected-place',
+        sourceAlertId: 'tracking-alert-left-expected-place',
+        sourceProviderNotificationRowId: 'tracking-provider-notification-tracking-alert-left-expected-place',
+        sourceReceiptBoundaryRowId: 'tracking-notification-receipt-tracking-alert-left-expected-place',
+        sourcePreferencePreflightRowId: 'tracking-notification-preference-preflight-tracking-alert-left-expected-place',
+        status: TrackingNotificationParentSurfaceHistoryStatus.ManualActionRequired,
+        sourcePolicyDecisionId: 'tracking-decision-left-expected-place',
+        evidenceRefs: ['location-evidence-geofence-entry'],
+        notificationStatusRefs: ['tracking-notification-intent-left-school'],
+        reasonCodeRefs: ['left-expected-place'],
+        providerStatusEntryRef: 'tracking-provider-status-entry-left-school',
+        providerAttemptRef: 'tracking-provider-attempt-left-school',
+        auditRefs: ['tracking-provider-notification-audit-tracking-alert-left-expected-place'],
+        providerPreferenceRefs: ['tracking-parent-provider-preference-left-school'],
+        parentPreferenceRequirementRefs: [
+          'tracking-parent-notification-preference-required-tracking-alert-left-school',
+        ],
+        quietHoursRequirementRefs: ['quiet-hours-requirement-left-school'],
+        receiptRequirementRefs: ['manual-receipt-required-left-school'],
+        manualProofRequirements: ['manual-provider-review-required', 'quiet-hours-runtime-required'],
+        drillInRefs: ['tracking-notification-history-drill-in-tracking-alert-left-expected-place'],
+        redactedParentSummaryRef: 'tracking-notification-redacted-summary-tracking-alert-left-expected-place',
+        renderedParentNotificationUiClaimed: false,
+        parentPreferenceMutationRuntimeClaimed: false,
+        providerDeliveryClaimed: false,
+        receiptIngestionRuntimeClaimed: false,
+        childDeviceDeliveryClaimed: false,
+        mobilePhysicalDeviceProofClaimed: false,
+        authorityProofClaimed: false,
+      },
+      {
+        historyRowId: 'tracking-notification-history-tracking-alert-provider-unavailable',
+        sourceAlertId: 'tracking-alert-provider-unavailable',
+        sourceProviderNotificationRowId: 'tracking-provider-notification-tracking-alert-provider-unavailable',
+        sourceReceiptBoundaryRowId: 'tracking-notification-receipt-tracking-alert-provider-unavailable',
+        sourcePreferencePreflightRowId:
+          'tracking-notification-preference-preflight-tracking-alert-provider-unavailable',
+        status: TrackingNotificationParentSurfaceHistoryStatus.ProviderUnavailable,
+        sourcePolicyDecisionId: 'tracking-decision-provider-unavailable',
+        evidenceRefs: ['location-evidence-geofence-entry'],
+        notificationStatusRefs: ['tracking-notification-intent-provider-unavailable'],
+        reasonCodeRefs: ['provider-unavailable'],
+        providerStatusEntryRef: 'tracking-provider-status-entry-provider-unavailable',
+        providerAttemptRef: 'tracking-provider-attempt-unavailable',
+        auditRefs: ['tracking-provider-notification-audit-tracking-alert-provider-unavailable'],
+        providerPreferenceRefs: ['tracking-parent-provider-preference-provider-unavailable'],
+        parentPreferenceRequirementRefs: ['source-unavailable-preference-required'],
+        quietHoursRequirementRefs: [],
+        receiptRequirementRefs: ['provider-receipt-unavailable'],
+        manualProofRequirements: ['provider-adapter-unavailable', 'manual-parent-history-review-required'],
+        drillInRefs: ['tracking-notification-history-drill-in-tracking-alert-provider-unavailable'],
+        redactedParentSummaryRef: 'tracking-notification-redacted-summary-tracking-alert-provider-unavailable',
+        renderedParentNotificationUiClaimed: false,
+        parentPreferenceMutationRuntimeClaimed: false,
+        providerDeliveryClaimed: false,
+        receiptIngestionRuntimeClaimed: false,
+        childDeviceDeliveryClaimed: false,
+        mobilePhysicalDeviceProofClaimed: false,
+        authorityProofClaimed: false,
+      },
+    ],
+    historyIntentReadyCount: 1,
+    manualActionRequiredCount: 1,
+    providerUnavailableCount: 1,
+    proofNonClaims: RequiredTrackingNotificationParentSurfaceHistoryNonClaims,
+    renderedParentNotificationUiClaimed: false,
+    parentPreferenceMutationRuntimeClaimed: false,
+    parentFrequencyControlUiClaimed: false,
+    quietHoursTimerRuntimeClaimed: false,
+    providerDeliveryRuntimeClaimed: false,
+    providerReceiptIngestionRuntimeClaimed: false,
+    providerCredentialsClaimed: false,
+    cloudRoutingClaimed: false,
+    childDeviceDeliveryClaimed: false,
+    mobilePhysicalDeviceProofClaimed: false,
+    authorityProofClaimed: false,
+    retryExecutionRuntimeClaimed: false,
+    productionDurableHistoryStorageClaimed: false,
+    productionDurableOutboxStorageClaimed: false,
+    adapterDispatchClaimed: false,
+  });
 
 export function trackingNotificationParentSurfaceHostedUiProof(): TrackingNotificationParentSurfaceHostedUiProof {
-  const rows = TrackingNotificationParentSurfaceHostedDefinitions.map((definition) => hostedRow(definition));
+  return trackingNotificationParentSurfaceHostedUiProofFromReadModel(
+    DefaultTrackingNotificationParentSurfaceHistoryReadModel
+  );
+}
+
+export function trackingNotificationParentSurfaceHostedUiProofFromReadModel(
+  readModelInput: unknown
+): TrackingNotificationParentSurfaceHostedUiProof {
+  const parsed = TrackingNotificationParentSurfaceHistoryReadModelSchema.safeParse(readModelInput);
+  if (!parsed.success) {
+    return unavailableHostedUiProof();
+  }
+
+  const readModel = parsed.data;
+  return hostedUiProofFromReadModel(readModel);
+}
+
+export const TrackingNotificationParentSurfaceHostedUiDetails = {
+  PreferenceRequirement: PortalDetails.ParentRuleContextReferences,
+  ProviderAttempt: PortalDetails.ProviderSource,
+  ReceiptRequirement: PortalDetails.AdapterDispatch,
+  RedactedSummary: PortalDetails.PrivacyMode,
+} as const;
+
+function hostedUiProofFromReadModel(
+  readModel: TrackingNotificationParentSurfaceHistoryReadModel
+): TrackingNotificationParentSurfaceHostedUiProof {
+  const rows = readModel.rows.map((row) => hostedRowFromHistoryRow(row));
   return {
     title: resolvePortalDevText(PortalDevTextToken.TrackingNotificationParentSurfaceHostedUi),
     body: resolvePortalDevText(PortalDevTextToken.TrackingNotificationParentSurfaceHostedUiBody),
@@ -100,6 +317,30 @@ export function trackingNotificationParentSurfaceHostedUiProof(): TrackingNotifi
     missingProof: resolvePortalDevText(PortalDevTextToken.TrackingManualRequired),
     productClaim: resolvePortalDevText(PortalDevTextToken.TrackingNoProductClaim),
     renderedParentNotificationUiRows: detailFromValue(rows.length),
+    parentPreferenceMutationRows: detailFromClaim(readModel.parentPreferenceMutationRuntimeClaimed),
+    providerDeliveryClaimedRows: detailFromClaim(readModel.providerDeliveryRuntimeClaimed),
+    receiptIngestionClaimedRows: detailFromClaim(readModel.providerReceiptIngestionRuntimeClaimed),
+    childDeviceDeliveryClaimedRows: detailFromClaim(readModel.childDeviceDeliveryClaimed),
+    physicalDeviceClaimedRows: detailFromClaim(readModel.mobilePhysicalDeviceProofClaimed),
+    authorityClaimedRows: detailFromClaim(readModel.authorityProofClaimed),
+    productionStorageClaimedRows: detailFromClaim(readModel.productionDurableHistoryStorageClaimed),
+    adapterDispatchClaimedRows: detailFromClaim(readModel.adapterDispatchClaimed),
+    productClaimReadyRows: zero(),
+    rows,
+  };
+}
+
+function unavailableHostedUiProof(): TrackingNotificationParentSurfaceHostedUiProof {
+  return {
+    title: resolvePortalDevText(PortalDevTextToken.TrackingNotificationParentSurfaceHostedUi),
+    body: resolvePortalDevText(PortalDevTextToken.TrackingNotificationParentSurfaceHostedUiBody),
+    proofTier: resolvePortalDevText(PortalDevTextToken.TrackingProofService),
+    rowsReturned: zero(),
+    proofArtifact: TrackingStatusProofArtifacts.NotificationParentSurfaceHistory,
+    boundary: resolvePortalDevText(PortalDevTextToken.TrackingNotificationParentSurfaceHostedBoundary),
+    missingProof: resolvePortalDevText(PortalDevTextToken.TrackingManualRequired),
+    productClaim: resolvePortalDevText(PortalDevTextToken.TrackingNoProductClaim),
+    renderedParentNotificationUiRows: zero(),
     parentPreferenceMutationRows: zero(),
     providerDeliveryClaimedRows: zero(),
     receiptIngestionClaimedRows: zero(),
@@ -109,35 +350,59 @@ export function trackingNotificationParentSurfaceHostedUiProof(): TrackingNotifi
     productionStorageClaimedRows: zero(),
     adapterDispatchClaimedRows: zero(),
     productClaimReadyRows: zero(),
-    rows,
+    rows: [],
   };
 }
 
-export const TrackingNotificationParentSurfaceHostedUiDetails = {
-  PreferenceRequirement: PortalDetails.ParentRuleContextReferences,
-  ProviderAttempt: PortalDetails.ProviderSource,
-  ReceiptRequirement: PortalDetails.AdapterDispatch,
-  RedactedSummary: PortalDetails.PrivacyMode,
-} as const;
-
-function hostedRow(
-  definition: TrackingNotificationParentSurfaceHostedDefinition
+function hostedRowFromHistoryRow(
+  row: TrackingNotificationParentSurfaceHistoryRow
 ): TrackingNotificationParentSurfaceHostedUiRow {
   return {
-    title: resolvePortalDevText(definition.titleToken),
-    status: detailFromText(definition.statusToken),
-    policyDecisionRef: detailFromText(definition.policyDecisionToken),
-    evidenceRefs: detailFromText(definition.evidenceToken),
-    providerAttemptRef: detailFromText(definition.providerAttemptToken),
-    receiptRequirementRefs: detailFromText(definition.receiptRequirementToken),
-    preferenceRequirementRefs: detailFromText(definition.preferenceRequirementToken),
-    manualProofRequirements: detailFromText(definition.manualProofToken),
-    redactedSummaryRef: detailFromText(definition.redactedSummaryToken),
+    title: titleForHistoryStatus(row.status),
+    status: detailFromValue(row.status),
+    policyDecisionRef: detailFromValue(row.sourcePolicyDecisionId),
+    evidenceRefs: detailFromReferences(row.evidenceRefs),
+    providerAttemptRef: detailFromValue(row.providerAttemptRef),
+    receiptRequirementRefs: detailFromReferences(row.receiptRequirementRefs),
+    preferenceRequirementRefs: detailFromReferences(preferenceRequirementRefsFor(row)),
+    manualProofRequirements: detailFromReferences(row.manualProofRequirements),
+    redactedSummaryRef: detailFromValue(row.redactedParentSummaryRef),
   };
 }
 
-function detailFromText(token: (typeof PortalDevTextToken)[keyof typeof PortalDevTextToken]): PortalDetailValue {
-  return detailFromValue(resolvePortalDevText(token));
+function titleForHistoryStatus(status: TrackingNotificationParentSurfaceHistoryRow['status']): PortalDisplayText {
+  switch (status) {
+    case TrackingNotificationParentSurfaceHistoryStatus.HistoryIntentReady:
+      return resolvePortalDevText(PortalDevTextToken.TrackingNotificationParentSurfaceHistoryIntent);
+    case TrackingNotificationParentSurfaceHistoryStatus.ManualActionRequired:
+      return resolvePortalDevText(PortalDevTextToken.TrackingNotificationParentSurfaceManualAction);
+    case TrackingNotificationParentSurfaceHistoryStatus.ProviderUnavailable:
+      return resolvePortalDevText(PortalDevTextToken.TrackingNotificationParentSurfaceProviderUnavailable);
+  }
+}
+
+function preferenceRequirementRefsFor(row: TrackingNotificationParentSurfaceHistoryRow): readonly string[] {
+  if (
+    row.status === TrackingNotificationParentSurfaceHistoryStatus.ManualActionRequired &&
+    row.quietHoursRequirementRefs.length > 0
+  ) {
+    return row.quietHoursRequirementRefs;
+  }
+  return row.parentPreferenceRequirementRefs.length > 0
+    ? row.parentPreferenceRequirementRefs
+    : row.quietHoursRequirementRefs;
+}
+
+function detailFromClaim(claim: boolean): PortalDetailValue {
+  return detailFromValue(Number(claim));
+}
+
+function detailFromReferences(refs: readonly string[]): PortalDetailValue {
+  return detailFromValue(
+    refs.length > 0
+      ? refs.join(TrackingNotificationParentSurfaceHostedUiValues.ReferenceSeparator)
+      : TrackingNotificationParentSurfaceHostedUiValues.NotReported
+  );
 }
 
 function detailFromValue(value: unknown): PortalDetailValue {

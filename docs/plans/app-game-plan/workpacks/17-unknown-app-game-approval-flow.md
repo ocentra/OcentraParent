@@ -30,14 +30,14 @@ where proof is missing.
 
 ## Tests And Proof
 
-- [x] New inventory app creates candidate.
-- [x] Unknown process/new app approval request carries evidence and child
+- [ ] New inventory app creates candidate.
+- [ ] Unknown process/new app approval request carries evidence and child
       status refs.
-- [x] Unknown game-like executable stays unknown/possible game through safe
+- [ ] Unknown game-like executable stays unknown/possible game through safe
       observe-only/manual-required fallback.
-- [x] Parent approval includes evidence refs.
-- [x] Block remains manual-required without adapter proof.
-- [x] Approval survives restart where storage exists through replayable/replayed
+- [ ] Parent approval includes evidence refs.
+- [ ] Block remains manual-required without adapter proof.
+- [ ] Approval survives restart where storage exists through replayable/replayed
       persistence state plus audit refs.
 
 ## Completed Contract Slice - 2026-06-03

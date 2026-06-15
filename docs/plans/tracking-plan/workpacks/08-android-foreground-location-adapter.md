@@ -45,19 +45,19 @@ Proof root: `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 
 ## AI Worker Checklist
 
-- [x] Prove foreground permission UX.
-- [x] Prove fused sample.
-- [x] Prove emulator current `LocationManager` sample with raw coordinate proof
+- [ ] Prove foreground permission UX.
+- [ ] Prove fused sample.
+- [ ] Prove emulator current `LocationManager` sample with raw coordinate proof
       export.
-- [x] Prove emulator foreground permission grant and app-reported last-known
+- [ ] Prove emulator foreground permission grant and app-reported last-known
       sample state.
-- [x] Preserve provider, accuracy, and timestamp metadata in emulator
+- [ ] Preserve provider, accuracy, and timestamp metadata in emulator
       foreground proof without exporting raw coordinates.
-- [x] Document emulator device, OS version, app build, foreground service
+- [ ] Document emulator device, OS version, app build, foreground service
       scaffold, and proof commands without claiming fused/current,
       physical-device, or product-ready location behavior.
-- [x] Generate the Android Studio/local proof artifact plan before device work.
-- [x] Record parent-domain manual-required proof rows for missing foreground
+- [ ] Generate the Android Studio/local proof artifact plan before device work.
+- [ ] Record parent-domain manual-required proof rows for missing foreground
       permission grant and foreground location sample before device/runtime work.
 
 ## Where We Are
@@ -124,26 +124,26 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: Android foreground workpack doc, tracking
+- [ ] Touched files: Android foreground workpack doc, tracking
       implementation checklist, owning tracking feature doc, WP08 generated
       proof artifacts, and focused Android permission/background proof results.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-android-permission-background-proof.mjs`
       passed locally for manual-required rows;
       `npm run test:tracking-plan-android-emulator-proof` passed locally for
       the emulator foreground permission and last-known sample metadata proof.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/08-android-foreground-location-adapter/`,
       including `02-platform-permission-proof.md`,
       `03-runtime-location-evidence.json`, `15-manual-platform-proof.md`, and
       `16-validation-commands.log`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and this workpack doc updated for the local manual-required
       foreground permission/sample proof; central capability row update remains
       a hub/primary-owned doc delta.
-- [x] Known gaps/manual-required states: foreground permission grant,
+- [ ] Known gaps/manual-required states: foreground permission grant,
       foreground permission UX dialog, app-reported current `LocationManager`
       sample state, fused current sample state, provider, timestamp, accuracy
       metadata, source, and raw latitude/longitude proof export are now observed
@@ -153,23 +153,23 @@ This workpack can be assigned independently, implemented against the owning doma
       authority, provider delivery, notification delivery, geofence
       transition/dwell delivery, Android system geofence delivery, and
       product-ready Android tracking remain unclaimed.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: Android foreground proof bundle, Android status UI, Android
+- [ ] Touched files: Android foreground proof bundle, Android status UI, Android
       emulator proof harness, owning tracking feature doc, implementation
       checklist, this workpack doc, regenerated WP08/WP09/WP10 Android proof
       artifacts, and hub doc delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `npm run test:tracking-plan-android-emulator-proof` passed after adding
       current foreground sample source plus raw latitude/longitude proof export.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/08-android-foreground-location-adapter/03-runtime-location-evidence.json`
       and `test-results/tracking-plan-android-emulator-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and this workpack doc updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta.
-- [x] Known gaps/manual-required states: this remains emulator P3 local proof
+- [ ] Known gaps/manual-required states: this remains emulator P3 local proof
       plus Samsung S9 physical permission/background-sample evidence
       (`backgroundLocationSampleCount: 3194`). Android
       physical geofence transition/dwell delivery, Android system geofence

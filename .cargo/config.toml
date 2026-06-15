@@ -1,0 +1,2 @@
+[alias]
+lint-architecture = "run --manifest-path tools/no-reexports/Cargo.toml --"

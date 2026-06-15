@@ -11,7 +11,10 @@ fn app_foreground_observation_records_evidence_and_requests_policy_not_ai() {
         panic!();
     };
 
-    assert_eq!(observed.event_type, ChildRuntimeDomain::App.observed_event_type());
+    assert_eq!(
+        observed.event_type,
+        ChildRuntimeDomain::App.observed_event_type()
+    );
     assert_eq!(
         evidence.event_type,
         ChildRuntimeDomain::App.evidence_recorded_event_type()

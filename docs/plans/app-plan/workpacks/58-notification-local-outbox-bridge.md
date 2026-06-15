@@ -43,11 +43,11 @@ unavailable intents remain unqueued and all provider/runtime claims stay false.
 
 ## DONE Checklist
 
-- [x] Cross-recorded from shared app/game WP58 without creating a separate
+- [ ] Cross-recorded from shared app/game WP58 without creating a separate
       native-app notification outbox schema.
-- [x] Native app notification local-outbox rows stay backed by the shared
+- [ ] Native app notification local-outbox rows stay backed by the shared
       app/game notification intent contract and existing parent-domain local
       outbox record parser.
-- [x] Proof pack records no provider delivery, no receipt ingestion, no
+- [ ] Proof pack records no provider delivery, no receipt ingestion, no
       scheduler runtime, no parent UI, no child delivery, no policy execution,
       no broad app blocking, and no platform support claim.

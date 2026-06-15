@@ -72,6 +72,80 @@ fn row_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<FieldPair> {
             optional_string(row.map(|value| &value.target.target_value)),
         ),
         (
+            constants::field::POLICY_PREVIEW_SAVE_STATE,
+            optional_protocol_string(row.and_then(|value| {
+                value
+                    .policy_preview_save_state
+                    .map(|state| state.as_protocol_str())
+            })),
+        ),
+        (
+            constants::field::POLICY_PREVIEW_MANUAL_REVIEW_STATE,
+            optional_protocol_string(row.and_then(|value| {
+                value
+                    .policy_preview_manual_review_state
+                    .map(|state| state.as_protocol_str())
+            })),
+        ),
+        (
+            constants::field::POLICY_PREVIEW_TARGET_STATE,
+            optional_protocol_string(row.and_then(|value| {
+                value
+                    .policy_preview_target_state
+                    .map(|state| state.as_protocol_str())
+            })),
+        ),
+        (
+            constants::field::POLICY_PREVIEW_TARGET_EXPLANATION_CODE,
+            optional_string(
+                row.and_then(|value| value.policy_preview_target_explanation_code.as_ref()),
+            ),
+        ),
+        (
+            constants::field::POLICY_PREVIEW_FINDING_KINDS,
+            optional_string(row.and_then(|value| value.policy_preview_finding_kinds.as_ref())),
+        ),
+        (
+            constants::field::POLICY_SOURCE_STATUS,
+            optional_protocol_string(row.and_then(|value| {
+                value
+                    .policy_source_status
+                    .map(|state| state.as_protocol_str())
+            })),
+        ),
+        (
+            constants::field::POLICY_SOURCE_SURFACE,
+            optional_protocol_string(row.and_then(|value| {
+                value
+                    .policy_source_surface
+                    .map(|state| state.as_protocol_str())
+            })),
+        ),
+        (
+            constants::field::POLICY_REQUEST_ORIGIN,
+            optional_protocol_string(row.and_then(|value| {
+                value
+                    .policy_request_origin
+                    .map(|state| state.as_protocol_str())
+            })),
+        ),
+        (
+            constants::field::POLICY_ASSISTANT_CONFIRMATION_STATE,
+            optional_protocol_string(row.and_then(|value| {
+                value
+                    .policy_assistant_confirmation_state
+                    .map(|state| state.as_protocol_str())
+            })),
+        ),
+        (
+            constants::field::POLICY_REQUEST_STATUS,
+            optional_protocol_string(row.and_then(|value| {
+                value
+                    .policy_request_status
+                    .map(|state| state.as_protocol_str())
+            })),
+        ),
+        (
             constants::field::POLICY_EVIDENCE_REFERENCE_COUNT,
             optional_u64(row.map(|value| value.evidence_references.len() as u64)),
         ),

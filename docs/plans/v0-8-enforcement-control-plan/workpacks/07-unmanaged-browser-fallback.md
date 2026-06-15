@@ -34,11 +34,11 @@ perform scoped process action where proved.
 
 ## Requirement Checklist
 
-- [x] Never attach exact URL, title, tab, or content to unmanaged process state.
-- [x] Require explicit process identity for process fallback.
-- [x] Label possible bypass and manual-required exact URL gaps.
-- [x] Keep managed/unmanaged states separate in UI and proof JSON.
-- [x] Add tests for unsupported and degraded states.
+- [ ] Never attach exact URL, title, tab, or content to unmanaged process state.
+- [ ] Require explicit process identity for process fallback.
+- [ ] Label possible bypass and manual-required exact URL gaps.
+- [ ] Keep managed/unmanaged states separate in UI and proof JSON.
+- [ ] Add tests for unsupported and degraded states.
 
 ## Acceptance And Proof
 

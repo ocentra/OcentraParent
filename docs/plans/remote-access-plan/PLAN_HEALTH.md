@@ -1,8 +1,8 @@
 # Plan Health
 
-Health: first-pass route exists; implementation plan and proof matrix are missing.
+Health: execution-grade live-view route exists; standing paired access and proof matrix are present but still need proof-backed closure.
 
-Known risks: remote access confused with screen capture, remote control overclaimed from local proof, relay data retention, weak revocation, child disclosure gap, abuse/DoS risk.
+Known risks: remote access confused with screen capture, deferred control overclaimed from live-view proof, relay data retention, weak revocation/remove-device behavior, child disclosure gap, abuse/DoS risk.
 
 ## High-Information-Density Gate
 
@@ -18,7 +18,7 @@ Known risks: remote access confused with screen capture, remote control overclai
 
 ### Decision routes and failure controls
 
-- Decision route: follow this plan�s AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
+- Decision route: follow this plan's AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
 - Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
 
 ### Proof mapping

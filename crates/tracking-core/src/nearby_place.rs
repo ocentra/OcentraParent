@@ -1,11 +1,11 @@
 use ocentra_parent_agent_protocol::{
-    constants, tracking_nearby_place_request_id_from_evidence_ref, TrackingAiAnalysisRequestedEvent,
-    TrackingConfidenceBasis, TrackingEvidenceRecordedEvent, TrackingEvidenceRef,
-    TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceClassifiedEvent,
+    constants, tracking_nearby_place_request_id_from_evidence_ref,
+    TrackingAiAnalysisRequestedEvent, TrackingConfidenceBasis, TrackingEvidenceRecordedEvent,
+    TrackingEvidenceRef, TrackingNearbyPlaceAmbiguityState, TrackingNearbyPlaceClassifiedEvent,
     TrackingNearbyPlaceProviderKind, TrackingNearbyPlaceRequestId, TrackingPlaceCategory,
     TrackingProviderRef, TrackingReasonCode,
 };
-use ocentra_policy_control_core::AiResultAuthorityState;
+use ocentra_policy_control_core::policy_authority::AiResultAuthorityState;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TrackingNearbyPlaceProviderAvailabilityState {
@@ -59,7 +59,9 @@ pub fn classify_tracking_nearby_place_request(
         provider_ref: provider_decision.provider_ref,
         query_radius_meters: provider_decision.query_radius_meters,
         distance_meters: provider_decision.distance_meters,
-        place_category: tracking_place_category(constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL),
+        place_category: tracking_place_category(
+            constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL,
+        ),
         confidence: constants::tracking_runtime::DEFAULT_NEARBY_PLACE_CONFIDENCE,
         confidence_basis: tracking_confidence_basis(
             constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT,
@@ -145,7 +147,8 @@ fn nearby_provider_kind(value: &'static str) -> TrackingNearbyPlaceProviderKind 
 }
 
 fn tracking_provider_ref(value: &'static str) -> TrackingProviderRef {
-    TrackingProviderRef::parse(value).expect(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF)
+    TrackingProviderRef::parse(value)
+        .expect(constants::tracking_runtime::DEFAULT_TRACKING_PROVIDER_REF)
 }
 
 fn tracking_place_category(value: &'static str) -> TrackingPlaceCategory {
@@ -158,9 +161,8 @@ fn tracking_confidence_basis(value: &'static str) -> TrackingConfidenceBasis {
 }
 
 fn nearby_ambiguity_state(value: &'static str) -> TrackingNearbyPlaceAmbiguityState {
-    TrackingNearbyPlaceAmbiguityState::parse(value).expect(
-        constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_MULTIPLE_CANDIDATES,
-    )
+    TrackingNearbyPlaceAmbiguityState::parse(value)
+        .expect(constants::tracking_runtime::NEARBY_PLACE_AMBIGUITY_MULTIPLE_CANDIDATES)
 }
 
 fn tracking_reason_code(value: &'static str) -> TrackingReasonCode {

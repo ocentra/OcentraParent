@@ -158,12 +158,12 @@ A workpack is done only when applicable proof exists for:
 
 ## Main Network Gates
 
-- [x] Network plan folder exists.
-- [x] Source index exists.
-- [x] Current snapshot exists.
-- [x] Full-scope plan exists.
-- [x] Test/proof blueprint exists.
-- [x] Implementation checklist/workpacks exist.
+- [ ] Network plan folder exists.
+- [ ] Source index exists.
+- [ ] Current snapshot exists.
+- [ ] Full-scope plan exists.
+- [ ] Test/proof blueprint exists.
+- [ ] Implementation checklist/workpacks exist.
 - [ ] NetworkFlowEvidence is schema-backed for full end-state fields.
 - [ ] NetworkDomainEvidence is schema-backed.
 - [ ] NetworkActivityClassification is schema-backed.

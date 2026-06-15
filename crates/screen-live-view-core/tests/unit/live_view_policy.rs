@@ -1,17 +1,14 @@
-use ocentra_screen_live_view_core::ScreenLiveViewObservationIntent;
 use ocentra_parent_agent_protocol::{
     ChildDomainAiAnalysisRequirement, ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
 };
+use ocentra_screen_live_view_core::ScreenLiveViewObservationIntent;
 
 #[test]
 fn screen_live_view_observation_requests_policy_not_ai_analysis() {
     let observed = ocentra_screen_live_view_core::default_screen_live_view_observed_event();
-    let evidence = ocentra_screen_live_view_core::screen_live_view_evidence_recorded_event(
-        &observed,
-    );
-    let ai = ocentra_screen_live_view_core::screen_live_view_ai_analysis_requested_event(
-        &evidence,
-    );
+    let evidence =
+        ocentra_screen_live_view_core::screen_live_view_evidence_recorded_event(&observed);
+    let ai = ocentra_screen_live_view_core::screen_live_view_ai_analysis_requested_event(&evidence);
     let policy = ocentra_screen_live_view_core::screen_live_view_policy_evaluation_requested_event(
         &evidence,
     )
@@ -38,12 +35,9 @@ fn unauthorized_screen_live_view_session_still_uses_policy_not_ai() {
     let observed = ocentra_screen_live_view_core::screen_live_view_observed_event(
         ScreenLiveViewObservationIntent::UnauthorizedSessionRequiresPolicy,
     );
-    let evidence = ocentra_screen_live_view_core::screen_live_view_evidence_recorded_event(
-        &observed,
-    );
-    let ai = ocentra_screen_live_view_core::screen_live_view_ai_analysis_requested_event(
-        &evidence,
-    );
+    let evidence =
+        ocentra_screen_live_view_core::screen_live_view_evidence_recorded_event(&observed);
+    let ai = ocentra_screen_live_view_core::screen_live_view_ai_analysis_requested_event(&evidence);
     let policy = ocentra_screen_live_view_core::screen_live_view_policy_evaluation_requested_event(
         &evidence,
     )
@@ -66,12 +60,9 @@ fn screen_live_view_health_observation_only_records_no_ai_or_policy_work() {
     let observed = ocentra_screen_live_view_core::screen_live_view_observed_event(
         ScreenLiveViewObservationIntent::SessionHealthObservationOnly,
     );
-    let evidence = ocentra_screen_live_view_core::screen_live_view_evidence_recorded_event(
-        &observed,
-    );
-    let ai = ocentra_screen_live_view_core::screen_live_view_ai_analysis_requested_event(
-        &evidence,
-    );
+    let evidence =
+        ocentra_screen_live_view_core::screen_live_view_evidence_recorded_event(&observed);
+    let ai = ocentra_screen_live_view_core::screen_live_view_ai_analysis_requested_event(&evidence);
     let policy = ocentra_screen_live_view_core::screen_live_view_policy_evaluation_requested_event(
         &evidence,
     );

@@ -63,17 +63,17 @@ support.
 
 ## DONE Checklist
 
-- [x] Hub lock covers the exact implementation, docs, proof, and validation
+- [ ] Hub lock covers the exact implementation, docs, proof, and validation
       paths except the D-owned service README.
-- [x] Existing notification intent contract, policy readiness service model,
+- [ ] Existing notification intent contract, policy readiness service model,
       app/game service read model, protocol-domain, Rust protocol, and
       WebSocket command routing inspected.
-- [x] TypeScript parser rejects wrong events, invalid JSON, invalid payloads,
+- [ ] TypeScript parser rejects wrong events, invalid JSON, invalid payloads,
       invalid readiness states, and true delivery/runtime/UI/adapter claims.
-- [x] Rust protocol DTO serializes readiness rows and preserves all no-claim
+- [ ] Rust protocol DTO serializes readiness rows and preserves all no-claim
       booleans.
-- [x] Agent-service WebSocket command reports notification readiness from the
+- [ ] Agent-service WebSocket command reports notification readiness from the
       real app/game activity-store read model.
-- [x] Proof pack records no provider delivery, no receipt ingestion, no local
+- [ ] Proof pack records no provider delivery, no receipt ingestion, no local
       outbox runtime, no scheduler runtime, no parent UI, no child delivery, no
       policy execution, no adapter dispatch, and no platform support claim.

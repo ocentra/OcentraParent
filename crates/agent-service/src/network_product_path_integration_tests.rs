@@ -74,6 +74,18 @@ fn assert_product_path_report_refs(
     assert_eq!(product_path.adapter_action_executed_count, 0);
     assert_eq!(product_path.ai_advisory_rows, 1);
     assert_eq!(product_path.weak_or_unavailable_blocked_rows, 1);
+    assert!(product_path
+        .analyzer_alert_refs
+        .iter()
+        .any(|value| value.contains(evidence_id)));
+    assert!(product_path
+        .ai_detection_refs
+        .iter()
+        .any(|value| value.contains(evidence_id)));
+    assert_eq!(
+        product_path.risk_budget_refs,
+        vec![constants::network_flow::PRODUCT_PATH_RISK_BUDGET_REF.to_string()]
+    );
     assert!(product_path.policy_decision_refs[0].contains(evidence_id));
     assert!(product_path.action_result_refs[0].contains(evidence_id));
     assert!(product_path.retention_refs[0].contains(evidence_id));
@@ -96,6 +108,22 @@ fn assert_product_path_payload_refs(
     assert_eq!(
         payload.get(constants::field::NETWORK_PRODUCT_PATH_ADAPTER_ACTION_EXECUTED),
         Some(&LogFieldValue::Number(0.0))
+    );
+    assert_payload_ref_contains(
+        payload,
+        constants::field::NETWORK_PRODUCT_PATH_ANALYZER_ALERT_REFS,
+        evidence_id,
+    );
+    assert_payload_ref_contains(
+        payload,
+        constants::field::NETWORK_PRODUCT_PATH_AI_DETECTION_REFS,
+        evidence_id,
+    );
+    assert_eq!(
+        payload.get(constants::field::NETWORK_PRODUCT_PATH_RISK_BUDGET_REFS),
+        Some(&LogFieldValue::String(
+            constants::network_flow::PRODUCT_PATH_RISK_BUDGET_REF.to_string()
+        ))
     );
     assert_payload_ref_contains(
         payload,

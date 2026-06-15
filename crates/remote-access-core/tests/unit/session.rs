@@ -1,6 +1,6 @@
 use ocentra_eventing::DomainEvent;
 use ocentra_family_identity_core::ChildDisclosureState;
-use ocentra_policy_control_core::ParentAuthorityState;
+use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 use ocentra_remote_access_core::{
     evaluate_remote_access_session, plan_remote_access_session_effects,
     resolve_remote_access_session_request, RemoteAccessAggregateId, RemoteAccessAutoExpiryState,

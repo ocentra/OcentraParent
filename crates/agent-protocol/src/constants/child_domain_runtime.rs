@@ -9,8 +9,7 @@ pub const DOMAIN_SCREEN_LIVE_VIEW: &str = "screen-live-view";
 pub const APP_OBSERVED_EVENT_TYPE: &str = "app.activity.observed";
 pub const APP_EVIDENCE_RECORDED_EVENT_TYPE: &str = "app.evidence.recorded";
 pub const APP_AI_ANALYSIS_REQUESTED_EVENT_TYPE: &str = "app.ai.analysis.requested";
-pub const APP_POLICY_EVALUATION_REQUESTED_EVENT_TYPE: &str =
-    "app.policy.evaluation.requested";
+pub const APP_POLICY_EVALUATION_REQUESTED_EVENT_TYPE: &str = "app.policy.evaluation.requested";
 
 pub const APP_GAME_OBSERVED_EVENT_TYPE: &str = "app-game.activity.observed";
 pub const APP_GAME_EVIDENCE_RECORDED_EVENT_TYPE: &str = "app-game.evidence.recorded";

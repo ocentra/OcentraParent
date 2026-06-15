@@ -16,11 +16,11 @@
 
 ## Owns
 
-- data custody guarantees, encrypted storage, evidence retention, export, sync, deletion/tombstones, no-stolen-data boundaries, cloud/relay custody, and query/report source truth.
+- Data custody guarantees, data taxonomy, encrypted storage, key custody, provider matrix, bundle protocol, event model, retention, export/import, sync, deletion and tombstones, no-stolen-data boundaries, cloud or relay custody, report or query custody, and parent storage settings or apply flow.
 
 ## Does Not Own
 
-- Adjacent implementation completion in: eventing-plan, portal-ux-household-surfaces-plan, parent-desktop-runtime-package-plan
+- Adjacent implementation completion in: eventing-plan, portal-ux-household-surfaces-plan, parent-client-runtime-distribution-plan, account-identity-family-plan, payment-subscription-plan.
 - Broad source rewrites without selected workpack proof.
 - Release or production claims outside this plan's evidence.
 

@@ -170,6 +170,10 @@ pub enum AgentCommandName {
     AgentNetworkWindowsFirewallLabStatusGet,
     #[serde(rename = "agent.network.windows-wfp-gate.status.get")]
     AgentNetworkWindowsWfpGateStatusGet,
+    #[serde(rename = "agent.network.android-vpn-service-gate.status.get")]
+    AgentNetworkAndroidVpnServiceGateStatusGet,
+    #[serde(rename = "agent.network.apple-network-extension-gate.status.get")]
+    AgentNetworkAppleNetworkExtensionGateStatusGet,
     #[serde(rename = "agent.local-ai.runtime.status.get")]
     AgentLocalAiRuntimeStatusGet,
     #[serde(rename = "agent.local-ai.chat.generate")]
@@ -354,6 +358,10 @@ pub enum AgentEventName {
     AgentNetworkWindowsFirewallLabStatusReported,
     #[serde(rename = "agent.network.windows-wfp-gate.status.reported")]
     AgentNetworkWindowsWfpGateStatusReported,
+    #[serde(rename = "agent.network.android-vpn-service-gate.status.reported")]
+    AgentNetworkAndroidVpnServiceGateStatusReported,
+    #[serde(rename = "agent.network.apple-network-extension-gate.status.reported")]
+    AgentNetworkAppleNetworkExtensionGateStatusReported,
     #[serde(rename = "agent.local-ai.runtime.status.reported")]
     AgentLocalAiRuntimeStatusReported,
     #[serde(rename = "agent.local-ai.chat.generation.reported")]

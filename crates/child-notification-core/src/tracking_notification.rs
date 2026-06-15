@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, ParentNotificationRequestedEvent, TrackingNotificationChannel,
-    TrackingPolicyViolationDetectedEvent, tracking_notification_id_from_violation_id,
+    constants, tracking_notification_id_from_violation_id, ParentNotificationRequestedEvent,
+    TrackingNotificationChannel, TrackingPolicyViolationDetectedEvent,
 };
 
 pub fn request_parent_notification_from_policy_violation(

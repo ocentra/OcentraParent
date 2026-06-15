@@ -133,6 +133,7 @@ impl RecordedAt {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "u16", into = "u16")]
 pub struct SchemaVersion(u16);
 
 impl SchemaVersion {
@@ -148,12 +149,37 @@ impl SchemaVersion {
     }
 }
 
+impl TryFrom<u16> for SchemaVersion {
+    type Error = EventingError;
+
+    fn try_from(value: u16) -> Result<Self, Self::Error> {
+        Self::new(value)
+    }
+}
+
+impl From<SchemaVersion> for u16 {
+    fn from(value: SchemaVersion) -> Self {
+        value.0
+    }
+}
+
 fn validate_text(field: &'static str, value: String) -> Result<String, EventingError> {
     if value.trim().is_empty() {
         return Err(EventingError::empty_value(field));
     }
-    if field == EVENT_TYPE_LABEL || field == EVENT_NAMESPACE_LABEL {
-        validate_event_taxonomy(field, &value)?;
+    match field {
+        EVENT_TYPE_LABEL | EVENT_NAMESPACE_LABEL => validate_event_taxonomy(field, &value)?,
+        EVENT_ID_LABEL
+        | CORRELATION_ID_LABEL
+        | CAUSATION_ID_LABEL
+        | REQUEST_ID_LABEL
+        | JOURNAL_HASH_LABEL
+        | SUBSCRIBER_ID_LABEL
+        | SOURCE_SERVICE_LABEL
+        | SOURCE_COMPONENT_LABEL
+        | RUNTIME_INSTANCE_ID_LABEL
+        | TARGET_HANDLER_LABEL => validate_identifier_without_whitespace(field, &value)?,
+        _ => {}
     }
     Ok(value)
 }
@@ -170,6 +196,16 @@ fn validate_event_taxonomy(field: &'static str, value: &str) -> Result<(), Event
         previous_was_separator = is_separator;
     }
     if previous_was_separator {
+        return Err(EventingError::invalid_value(field, value));
+    }
+    Ok(())
+}
+
+fn validate_identifier_without_whitespace(
+    field: &'static str,
+    value: &str,
+) -> Result<(), EventingError> {
+    if value.chars().any(char::is_whitespace) {
         return Err(EventingError::invalid_value(field, value));
     }
     Ok(())

@@ -42,11 +42,11 @@ not own separate truth.
 
 ## Requirement Checklist
 
-- [~] Persist device records, evidence, manual name, assigned child, trusted
+- [ ] Persist device records, evidence, manual name, assigned child, trusted
   state, ignored state, revoked state, online state, first-seen, and
   last-seen. Manual name/device type persistence for LAN-discovered
   neighbors is proved; broader state coverage remains open.
-- [~] Preserve parent decisions across rescan and restart. Portal refresh and
+- [ ] Preserve parent decisions across rescan and restart. Portal refresh and
   service readback are proved for rename/type; full restart coverage remains
   open.
 - [ ] Support migrations and safe fallback to unpaired state when registry proof

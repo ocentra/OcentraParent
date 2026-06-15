@@ -3,7 +3,7 @@ use ocentra_parent_agent_protocol::{
     constants, tracking_temporary_live_session_id_from_child_device_id, TrackingChildDeviceId,
     TrackingTemporaryLiveState,
 };
-use ocentra_policy_control_core::ParentAuthorityState;
+use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 use ocentra_tracking_core::TrackingHighCadenceState;
 
 fn child_device_id() -> TrackingChildDeviceId {
@@ -54,8 +54,10 @@ fn temporary_live_tracking_expires_at_duration_boundary() {
 
     assert_eq!(
         decision.session_state,
-        TrackingTemporaryLiveState::parse(constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED)
-            .expect(constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED)
+        TrackingTemporaryLiveState::parse(
+            constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED
+        )
+        .expect(constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED)
     );
     assert_eq!(
         decision.high_cadence_state,

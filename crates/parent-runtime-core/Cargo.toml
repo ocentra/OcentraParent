@@ -14,6 +14,7 @@ path = "src/lib.rs"
 ocentra-child-runtime = { path = "../child-runtime" }
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-policy-control-core = { path = "../policy-control-core" }
 serde = { version = "1.0.228", features = ["derive"] }
 
 [dev-dependencies]

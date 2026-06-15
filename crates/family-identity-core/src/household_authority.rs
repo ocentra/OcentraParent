@@ -67,8 +67,24 @@ pub enum HouseholdAuthorizationFailureReason {
     WrongDeviceScope,
     #[serde(rename = "missing-capability-grant")]
     MissingCapabilityGrant,
+    #[serde(rename = "controller-lease-required")]
+    ControllerLeaseRequired,
+    #[serde(rename = "controller-lease-expired")]
+    ControllerLeaseExpired,
+    #[serde(rename = "controller-lease-revoked")]
+    ControllerLeaseRevoked,
     #[serde(rename = "role-not-authorized")]
     RoleNotAuthorized,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentControllerLeaseState {
+    #[serde(rename = "active")]
+    Active,
+    #[serde(rename = "expired")]
+    Expired,
+    #[serde(rename = "revoked")]
+    Revoked,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -81,6 +97,7 @@ pub struct HouseholdAuthorityInput {
     pub device_trust_state: DeviceTrustState,
     pub session_freshness_state: SessionFreshnessState,
     pub capability_granted: bool,
+    pub controller_lease_state: Option<ParentControllerLeaseState>,
     pub action: HouseholdAuthorityAction,
 }
 
@@ -155,6 +172,12 @@ pub fn authorize_household_action(input: HouseholdAuthorityInput) -> HouseholdAu
         );
     }
 
+    if let Some(failure_reason) =
+        controller_lease_failure_reason(input.action, input.controller_lease_state)
+    {
+        return rejected(failure_reason, input.action);
+    }
+
     HouseholdAuthorityDecision {
         authorization_state: HouseholdAuthorizationState::Authorized,
         audit_requirement_state: audit_requirement_state(input.action),
@@ -206,6 +229,26 @@ fn requires_capability_grant(action: HouseholdAuthorityAction) -> bool {
     )
 }
 
+fn controller_lease_failure_reason(
+    action: HouseholdAuthorityAction,
+    controller_lease_state: Option<ParentControllerLeaseState>,
+) -> Option<HouseholdAuthorizationFailureReason> {
+    if !requires_controller_lease(action) {
+        return None;
+    }
+
+    match controller_lease_state {
+        Some(ParentControllerLeaseState::Active) => None,
+        Some(ParentControllerLeaseState::Expired) => {
+            Some(HouseholdAuthorizationFailureReason::ControllerLeaseExpired)
+        }
+        Some(ParentControllerLeaseState::Revoked) => {
+            Some(HouseholdAuthorizationFailureReason::ControllerLeaseRevoked)
+        }
+        None => Some(HouseholdAuthorizationFailureReason::ControllerLeaseRequired),
+    }
+}
+
 fn requires_fresh_session(action: HouseholdAuthorityAction) -> bool {
     matches!(
         action,
@@ -238,6 +281,13 @@ fn requires_child_profile_device_scope(action: HouseholdAuthorityAction) -> bool
             | HouseholdAuthorityAction::ChangePolicy
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
+    )
+}
+
+fn requires_controller_lease(action: HouseholdAuthorityAction) -> bool {
+    matches!(
+        action,
+        HouseholdAuthorityAction::StartRemoteView | HouseholdAuthorityAction::StartRemoteControl
     )
 }
 

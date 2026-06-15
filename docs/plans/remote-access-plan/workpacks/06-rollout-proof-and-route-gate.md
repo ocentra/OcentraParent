@@ -1,12 +1,12 @@
-# Workpack 06: Rollout Proof and Route Gate
+# Workpack 06: Rollout Proof And Route Gate
 
 Goal: define the gate for remote access readiness.
 
 Expected proof:
 
-- Capability/session model.
+- Paired capability/session model.
 - Live view proof if touched.
-- Remote control proof if touched.
+- Deferred control proof if touched.
 - AuthZ/replay/revocation proof.
 - Relay unavailable/degraded proof.
 - Privacy/custody proof.
@@ -18,11 +18,11 @@ Failure: PR_READY from local capture, local LAN, or UI-only proof.
 
 Required proof pack:
 
-- Capability/session model.
+- Paired capability/session model.
 - Account/household/device authZ proof.
 - Live view proof if touched.
-- Remote control proof if touched.
-- Consent/disclosure proof.
+- Deferred control proof if touched.
+- Pairing/disclosure proof.
 - Relay failure/abuse proof.
 - Privacy/retention proof.
 - Route/index sync.
@@ -44,11 +44,11 @@ Failure examples:
 
 ## Research Gate
 
-This rollout gate cannot be closed from first-pass docs. The assigned agent must inspect remote architecture docs, screen capture code/docs, LAN transport code/docs, portal remote routes, local service capabilities, and RustDesk comparison notes. Remote view, remote control, relay retention, child disclosure, and consent decisions must be discussed with Sujan before implementation claims.
+This rollout gate cannot be closed from stale legacy docs. The assigned agent must inspect remote architecture docs, screen capture code/docs, LAN transport code/docs, portal remote routes, local service capabilities, and RustDesk comparison notes. Remote view, deferred control, relay retention, child disclosure, and pairing decisions must be discussed with Sujan before implementation claims.
 
 ## Required Route Updates
 
-- Remote screen/live view and remote desktop/control route here before `screen-plan` or `lan-plan`.
+- Remote live view routes here before `screen-plan` or `lan-plan`.
 - `screen-plan` may prove capture primitives only.
 - `lan-plan` may prove local transport only.
 - `account-identity-family-plan` must prove actor/device/session authority before remote access is considered safe.
@@ -59,8 +59,8 @@ The report must name:
 
 - capability type.
 - actor/household/device authority.
-- session grant state.
-- consent/disclosure state.
+- paired grant state.
+- disclosure state.
 - relay path and failure mode.
 - retention/custody state.
 - abuse/rate-limit proof.

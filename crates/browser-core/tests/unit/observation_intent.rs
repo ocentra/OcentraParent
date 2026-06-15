@@ -9,8 +9,7 @@ use ocentra_parent_agent_protocol::{
 
 #[test]
 fn ambiguous_navigation_requests_ai_and_policy_evidence() {
-    let observed =
-        browser_observed_event(BrowserObservationIntent::AmbiguousNavigationRequiresAi);
+    let observed = browser_observed_event(BrowserObservationIntent::AmbiguousNavigationRequiresAi);
     let evidence = browser_evidence_recorded_event(&observed);
 
     assert_eq!(observed.domain, ChildRuntimeDomain::Browser);

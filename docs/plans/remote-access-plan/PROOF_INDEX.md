@@ -1,3 +1,9 @@
 # Proof Index
 
-No proof artifacts are accepted yet. First proof pack must include session authority, live view, remote control if touched, relay failure, privacy/custody, and route sync evidence.
+Status: reset.
+
+Proof artifacts are not stored in this plan folder. Use the designated local artifact path for the workpack or crate.
+
+- [ ] Proof collected in the designated local artifact path.
+- [ ] Proof pointer recorded outside the plan folder.
+- [ ] Local artifacts kept uncommitted until PR time unless the workpack says otherwise.

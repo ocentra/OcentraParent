@@ -54,12 +54,13 @@ fn discovery_decision_event_has_aggregate_and_idempotency_contract() {
         },
     );
 
-    assert_eq!(event.aggregate_key().expect("aggregate").as_str(), event.aggregate_id.as_str());
-    assert!(
-        event
-            .idempotency_key()
-            .expect("idempotency")
-            .as_str()
-            .ends_with(event.decision_id.as_str())
+    assert_eq!(
+        event.aggregate_key().expect("aggregate").as_str(),
+        event.aggregate_id.as_str()
     );
+    assert!(event
+        .idempotency_key()
+        .expect("idempotency")
+        .as_str()
+        .ends_with(event.decision_id.as_str()));
 }

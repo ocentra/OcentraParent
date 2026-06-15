@@ -1,8 +1,8 @@
 # Plan Health
 
-Health: first-pass route exists; implementation depth is missing.
+Health: execution-grade route exists; implementation and proof depth are still missing.
 
-Known risks: route drift with existing portal/LAN/package plans, public site collecting more data than intended, account decisions buried in website work, install success claimed without platform proof.
+Known risks: route drift with existing portal/LAN/package plans, public site collecting more data than intended, account decisions buried in website work, parent and child bootstrap flows collapsing into one claim, and install success claimed without platform proof.
 
 ## High-Information-Density Gate
 
@@ -18,7 +18,7 @@ Known risks: route drift with existing portal/LAN/package plans, public site col
 
 ### Decision routes and failure controls
 
-- Decision route: follow this plan�s AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
+- Decision route: follow this plan's AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
 - Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
 
 ### Proof mapping

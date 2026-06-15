@@ -9,12 +9,14 @@ use ocentra_entitlement_core::{
 use ocentra_eventing::DomainEvent;
 use ocentra_family_identity_core::{
     ActorAccountState, ChildDisclosureState, ChildProfileBindingState, DeviceOwnershipScope,
-    DeviceScopeInput, FamilyActorRole, HouseholdMembership,
+    DeviceScopeInput, DeviceTrustState, FamilyActorRole, HouseholdMembership,
 };
-use ocentra_policy_control_core::ParentAuthorityState;
+use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 use ocentra_provisioning_core::{
-    PairingTokenState, ParentDeviceRegistrationState, ProvisioningReadinessInput, RecoveryState,
-    RequiredPermissionState,
+    AccountReadinessState, ChildAppReadinessState, ChildInstallState, ChildServiceState,
+    DataCustodySyncState, NetworkReachabilityState, PairingLifecycleState, ParentAppReadinessState,
+    ParentDeviceRegistrationState, PermissionReadinessState, PolicyBaselineState,
+    ProvisioningBlockerReason, ProvisioningOverallState, ProvisioningReadinessInput, RecoveryState,
 };
 use ocentra_remote_access_core::{
     RemoteAccessInputAuthorityState, RemoteAccessRelayState, RemoteAccessReplayState,
@@ -59,6 +61,61 @@ fn child_runtime_preflight_blocks_when_entitlement_is_parent_portal_only() {
     assert_eq!(
         decision.manual_review_state,
         ocentra_child_runtime::ChildRuntimeManualReviewState::Required
+    );
+}
+
+#[test]
+fn child_runtime_preflight_keeps_offline_child_in_manual_review_state() {
+    let mut input = valid_child_runtime_preflight_input();
+    input.provisioning_input.child_install_state = ChildInstallState::Installed;
+    input.provisioning_input.child_service_state = ChildServiceState::Offline;
+    input.provisioning_input.child_app_readiness_state = ChildAppReadinessState::Offline;
+    input.provisioning_input.network_reachability_state = NetworkReachabilityState::OfflineChild;
+
+    let decision = ocentra_child_runtime::evaluate_child_runtime_preflight(input);
+
+    assert_eq!(
+        decision.runtime_start_state,
+        ocentra_child_runtime::ChildRuntimeStartState::Blocked
+    );
+    assert_eq!(
+        decision.manual_review_state,
+        ocentra_child_runtime::ChildRuntimeManualReviewState::Required
+    );
+    assert_eq!(
+        decision.provisioning_decision.overall_state,
+        ProvisioningOverallState::Degraded
+    );
+    assert_eq!(
+        decision.provisioning_decision.blocker_reason,
+        Some(ProvisioningBlockerReason::ChildAppOffline)
+    );
+}
+
+#[test]
+fn child_runtime_preflight_blocks_installed_not_started_separately_from_offline() {
+    let mut input = valid_child_runtime_preflight_input();
+    input.provisioning_input.child_install_state = ChildInstallState::Installed;
+    input.provisioning_input.child_service_state = ChildServiceState::NotStarted;
+    input.provisioning_input.child_app_readiness_state = ChildAppReadinessState::Installed;
+
+    let decision = ocentra_child_runtime::evaluate_child_runtime_preflight(input);
+
+    assert_eq!(
+        decision.runtime_start_state,
+        ocentra_child_runtime::ChildRuntimeStartState::Blocked
+    );
+    assert_eq!(
+        decision.manual_review_state,
+        ocentra_child_runtime::ChildRuntimeManualReviewState::Required
+    );
+    assert_eq!(
+        decision.provisioning_decision.overall_state,
+        ProvisioningOverallState::Blocked
+    );
+    assert_eq!(
+        decision.provisioning_decision.blocker_reason,
+        Some(ProvisioningBlockerReason::ChildServiceNotStarted)
     );
 }
 
@@ -157,10 +214,19 @@ fn valid_child_runtime_preflight_input() -> ocentra_child_runtime::ChildRuntimeP
         },
         provisioning_input: ProvisioningReadinessInput {
             household_membership: HouseholdMembership::Member,
+            account_readiness_state: AccountReadinessState::Ready,
+            parent_app_readiness_state: ParentAppReadinessState::Ready,
             parent_device_registration_state: ParentDeviceRegistrationState::Registered,
+            child_install_state: ChildInstallState::Installed,
+            child_service_state: ChildServiceState::ServiceStarted,
+            child_app_readiness_state: ChildAppReadinessState::Ready,
             child_device_ownership_scope: DeviceOwnershipScope::ChildProfileDevice,
-            required_permission_state: RequiredPermissionState::Granted,
-            pairing_token_state: PairingTokenState::Valid,
+            device_trust_state: DeviceTrustState::Trusted,
+            permission_readiness_state: PermissionReadinessState::Granted,
+            pairing_lifecycle_state: PairingLifecycleState::Trusted,
+            policy_baseline_state: PolicyBaselineState::Applied,
+            data_custody_sync_state: DataCustodySyncState::Synced,
+            network_reachability_state: NetworkReachabilityState::Reachable,
             recovery_state: RecoveryState::Normal,
         },
         entitlement_input: EntitlementCapabilityInput {

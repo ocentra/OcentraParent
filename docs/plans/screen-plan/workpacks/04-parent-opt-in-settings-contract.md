@@ -33,16 +33,16 @@ before persistence.
 
 ## Checklist
 
-- [x] Define disabled-by-default setting.
-- [x] Define child/device/schedule scope.
-- [x] Define analysis mode.
-- [x] Define cadence/trigger settings.
-- [x] Define capture scope.
-- [x] Define OCR/redaction settings.
-- [x] Define TTL/retry/deletion settings.
-- [x] Define parent audit fields.
-- [x] Persist parent setting changes in a local child-device service store.
-- [x] Reject raw screenshot retention and unsafe policy/capture combinations
+- [ ] Define disabled-by-default setting.
+- [ ] Define child/device/schedule scope.
+- [ ] Define analysis mode.
+- [ ] Define cadence/trigger settings.
+- [ ] Define capture scope.
+- [ ] Define OCR/redaction settings.
+- [ ] Define TTL/retry/deletion settings.
+- [ ] Define parent audit fields.
+- [ ] Persist parent setting changes in a local child-device service store.
+- [ ] Reject raw screenshot retention and unsafe policy/capture combinations
       before service persistence.
 
 ## Proof

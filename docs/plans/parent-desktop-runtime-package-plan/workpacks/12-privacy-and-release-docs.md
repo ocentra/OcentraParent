@@ -31,11 +31,11 @@ what is signed, what is preview-only, and what remains unavailable.
 
 ## Requirement Checklist
 
-- [x] Update feature docs when status changes.
-- [x] Keep release wording honest.
-- [x] Label child activity custody.
-- [x] Document package preview boundaries.
-- [x] Record manual proof gaps.
+- [ ] Update feature docs when status changes.
+- [ ] Keep release wording honest.
+- [ ] Label child activity custody.
+- [ ] Document package preview boundaries.
+- [ ] Record manual proof gaps.
 
 ## Acceptance And Proof
 

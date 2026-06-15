@@ -30,12 +30,12 @@ broad browser/network/mobile enforcement.
 
 ## Checklist
 
-- [x] Define enforcement handoff payload.
-- [x] Include summary ref.
-- [x] Include parent policy rule.
-- [x] Include confidence/unknown state.
-- [x] Block raw model text/pixel handoff.
-- [x] Add audit event.
+- [ ] Define enforcement handoff payload.
+- [ ] Include summary ref.
+- [ ] Include parent policy rule.
+- [ ] Include confidence/unknown state.
+- [ ] Block raw model text/pixel handoff.
+- [ ] Add audit event.
 
 ## Proof
 

@@ -21,6 +21,10 @@ import { openPortalFrameTunerWindow } from './portal-dev-tool-window';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
 import {
+  AppGameAdapterDispatchRoutePanel,
+  shouldRenderAppGameAdapterDispatchRoute,
+} from './AppGameAdapterDispatchRoutePanel';
+import {
   AppGameNotificationParentSurfaceRoutePanel,
   shouldRenderAppGameNotificationParentSurfaceRoute,
 } from './AppGameNotificationParentSurfaceRoutePanel';
@@ -28,10 +32,24 @@ import {
   AppGamePolicyReadinessRoutePanel,
   shouldRenderAppGamePolicyReadinessRoute,
 } from './AppGamePolicyReadinessRoutePanel';
+import { AiRuntimeRoutePanel, shouldRenderAiRuntimeRoute } from './AiRuntimeRoutePanel';
+import {
+  AppGamePlatformProofStatusRoutePanel,
+  shouldRenderAppGamePlatformProofStatusRoute,
+} from './AppGamePlatformProofStatusRoutePanel';
+import {
+  AppGameChildRuntimeTransportReceiptRoutePanel,
+  shouldRenderAppGameChildRuntimeTransportReceiptRoute,
+} from './AppGameChildRuntimeTransportReceiptRoutePanel';
+import {
+  AppGameTimerParentSurfaceRoutePanel,
+  shouldRenderAppGameTimerParentSurfaceRoute,
+} from './AppGameTimerParentSurfaceRoutePanel';
 import {
   BrowserParentExplanationRoutePanel,
   shouldRenderBrowserParentExplanationRoute,
 } from './BrowserParentExplanationRoutePanel';
+import { PolicyPreviewRoutePanel, shouldRenderPolicyPreviewRoute } from './PolicyPreviewRoutePanel';
 import {
   shouldRenderSocialAuditExplanationRoute,
   SocialAuditExplanationRoutePanel,
@@ -43,6 +61,7 @@ import {
   shouldRenderTrackingParentPortalSummary,
   TrackingParentPortalSummaryCard,
 } from './TrackingParentPortalSummaryCard';
+import { ScreenSummaryRoutePanel, shouldRenderScreenSummaryRoute } from './ScreenSummaryRoutePanel';
 import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
 
 type ParentPortalRouteProps = {
@@ -129,6 +148,50 @@ export function ParentPortalRoute({
           readModelResult={activityState.appGamePolicyReadinessReadModel}
         />
       ) : null}
+      {shouldRenderAppGamePlatformProofStatusRoute(route) ? (
+        <AppGamePlatformProofStatusRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          readModelResult={activityState.appGamePlatformProofStatusReadModel}
+        />
+      ) : null}
+      {shouldRenderAppGameChildRuntimeTransportReceiptRoute(route) ? (
+        <AppGameChildRuntimeTransportReceiptRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          readModelResult={activityState.appGameChildRuntimeTransportReceiptReadModel}
+        />
+      ) : null}
+      {shouldRenderAppGameAdapterDispatchRoute(route) ? (
+        <AppGameAdapterDispatchRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          executeResult={activityState.appGameAdapterDispatchExecutedResult}
+          preflightResult={activityState.appGameAdapterDispatchPreflightReadModel}
+          resultReadModel={activityState.appGameAdapterDispatchResultReadModel}
+        />
+      ) : null}
+      {shouldRenderAppGameTimerParentSurfaceRoute(route) ? (
+        <AppGameTimerParentSurfaceRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          readModelResult={activityState.appGameTimerParentSurfaceReadModel}
+        />
+      ) : null}
+      {shouldRenderPolicyPreviewRoute(route) ? (
+        <PolicyPreviewRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          liveActivity={activityState}
+        />
+      ) : null}
+      {shouldRenderAiRuntimeRoute(route) ? (
+        <AiRuntimeRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          liveActivity={activityState}
+        />
+      ) : null}
       {shouldRenderBrowserParentExplanationRoute(route) ? <BrowserParentExplanationRoutePanel /> : null}
       {shouldRenderSocialAuditExplanationRoute(route) &&
       browserPanelEvent === AgentEvent.BrowserSocialAuditExplanationReadModelReported ? (
@@ -144,6 +207,7 @@ export function ParentPortalRoute({
           actions={actions}
           commandEnabled={state.socket?.readyState === WebSocket.OPEN}
           events={state.events}
+          liveActivity={activityState}
         />
       ) : null}
       {shouldRenderSocialDashboardRoute(route) &&
@@ -154,7 +218,14 @@ export function ParentPortalRoute({
           events={state.events}
         />
       ) : null}
-      {shouldRenderScreenSettingsRoute(route) ? <ScreenSettingsRoutePanel /> : null}
+      {shouldRenderScreenSettingsRoute(route) ? (
+        <ScreenSettingsRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          events={state.events}
+        />
+      ) : null}
+      {shouldRenderScreenSummaryRoute(route) ? <ScreenSummaryRoutePanel liveActivity={activityState} /> : null}
     </div>
   );
 }

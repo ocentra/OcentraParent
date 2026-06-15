@@ -16,6 +16,11 @@ import {
   ScreenEvidenceSchemaVersion,
   ScreenEvidenceSummaryTextSchema,
 } from './screen-evidence-primitives';
+import {
+  ScreenPolicyEvidenceActionSchema,
+  ScreenPolicyEvidenceRefListSchema,
+  ScreenPolicyEvidenceRefSchema,
+} from './screen-policy-evidence-chain';
 
 export const ScreenEvidenceQueueHealthSchema = withParser(
   Schema.Struct({
@@ -46,6 +51,32 @@ export const ScreenEvidenceRecentSummarySchema = withParser(
     latestConfidence: Schema.Union(ScreenEvidenceConfidenceSchema, Schema.Null),
     latestImageDeletionState: Schema.Union(ScreenDeletionStateSchema, Schema.Null),
     latestPolicyEligible: Schema.Union(Schema.Boolean, Schema.Null),
+    latestPolicyDecisionRef: Schema.optionalWith(
+      Schema.Union(ScreenPolicyEvidenceRefSchema, Schema.Null),
+      { default: () => null }
+    ),
+    latestPolicyAction: Schema.optionalWith(
+      Schema.Union(ScreenPolicyEvidenceActionSchema, Schema.Null),
+      { default: () => null }
+    ),
+    latestPolicyReasonCodes: Schema.optionalWith(ScreenPolicyEvidenceRefListSchema, {
+      default: () => [],
+    }),
+    latestParentRuleRefs: Schema.optionalWith(ScreenPolicyEvidenceRefListSchema, {
+      default: () => [],
+    }),
+    latestLocalModelRuntimeRefs: Schema.optionalWith(ScreenPolicyEvidenceRefListSchema, {
+      default: () => [],
+    }),
+    latestParentExplanationRefs: Schema.optionalWith(ScreenPolicyEvidenceRefListSchema, {
+      default: () => [],
+    }),
+    latestExplanationReasons: Schema.optionalWith(ScreenPolicyEvidenceRefListSchema, {
+      default: () => [],
+    }),
+    latestDeletionReasons: Schema.optionalWith(ScreenPolicyEvidenceRefListSchema, {
+      default: () => [],
+    }),
     evidence: Schema.Array(ActivityEvidenceRefSchema),
     results: Schema.Array(ScreenAnalysisResultSchema),
   })

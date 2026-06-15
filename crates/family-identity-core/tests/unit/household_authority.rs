@@ -2,7 +2,8 @@ use ocentra_family_identity_core::{
     authorize_household_action, ActorAccountState, AuditRequirementState, ChildProfileBindingState,
     DeviceOwnershipScope, DeviceTrustState, ElevatedConfirmationState, FamilyActorRole,
     HouseholdAuthorityAction, HouseholdAuthorityInput, HouseholdAuthorizationFailureReason,
-    HouseholdAuthorizationState, HouseholdMembership, SessionFreshnessState,
+    HouseholdAuthorizationState, HouseholdMembership, ParentControllerLeaseState,
+    SessionFreshnessState,
 };
 
 fn trusted_parent_input(action: HouseholdAuthorityAction) -> HouseholdAuthorityInput {
@@ -15,6 +16,7 @@ fn trusted_parent_input(action: HouseholdAuthorityAction) -> HouseholdAuthorityI
         device_trust_state: DeviceTrustState::Trusted,
         session_freshness_state: SessionFreshnessState::Fresh,
         capability_granted: true,
+        controller_lease_state: None,
         action,
     }
 }
@@ -92,6 +94,39 @@ fn observer_can_view_child_status_but_cannot_change_policy() {
 }
 
 #[test]
+fn child_device_agent_cannot_use_parent_controller_authority() {
+    let remote_view = authorize_household_action(HouseholdAuthorityInput {
+        actor_role: FamilyActorRole::ChildDeviceAgent,
+        action: HouseholdAuthorityAction::StartRemoteView,
+        ..trusted_parent_input(HouseholdAuthorityAction::StartRemoteView)
+    });
+
+    assert_eq!(
+        remote_view.authorization_state,
+        HouseholdAuthorizationState::Rejected
+    );
+    assert_eq!(
+        remote_view.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::RoleNotAuthorized)
+    );
+
+    let policy_change = authorize_household_action(HouseholdAuthorityInput {
+        actor_role: FamilyActorRole::ChildDeviceAgent,
+        action: HouseholdAuthorityAction::ChangePolicy,
+        ..trusted_parent_input(HouseholdAuthorityAction::ChangePolicy)
+    });
+
+    assert_eq!(
+        policy_change.authorization_state,
+        HouseholdAuthorizationState::Rejected
+    );
+    assert_eq!(
+        policy_change.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::RoleNotAuthorized)
+    );
+}
+
+#[test]
 fn remote_view_requires_capability_grant() {
     let decision = authorize_household_action(HouseholdAuthorityInput {
         actor_role: FamilyActorRole::Guardian,
@@ -125,6 +160,107 @@ fn stale_session_blocks_remote_control() {
     assert_eq!(
         decision.failure_reason,
         Some(HouseholdAuthorizationFailureReason::SessionNotFresh)
+    );
+}
+
+#[test]
+fn active_controller_lease_allows_remote_control() {
+    let decision = authorize_household_action(HouseholdAuthorityInput {
+        actor_role: FamilyActorRole::Guardian,
+        controller_lease_state: Some(ParentControllerLeaseState::Active),
+        action: HouseholdAuthorityAction::StartRemoteControl,
+        ..trusted_parent_input(HouseholdAuthorityAction::StartRemoteControl)
+    });
+
+    assert_eq!(
+        decision.authorization_state,
+        HouseholdAuthorizationState::Authorized
+    );
+    assert_eq!(
+        decision.audit_requirement_state,
+        AuditRequirementState::Required
+    );
+    assert_eq!(
+        decision.elevated_confirmation_state,
+        ElevatedConfirmationState::Required
+    );
+    assert_eq!(decision.failure_reason, None);
+}
+
+#[test]
+fn missing_controller_lease_blocks_remote_view() {
+    let decision = authorize_household_action(HouseholdAuthorityInput {
+        actor_role: FamilyActorRole::Guardian,
+        action: HouseholdAuthorityAction::StartRemoteView,
+        ..trusted_parent_input(HouseholdAuthorityAction::StartRemoteView)
+    });
+
+    assert_eq!(
+        decision.authorization_state,
+        HouseholdAuthorizationState::Rejected
+    );
+    assert_eq!(
+        decision.audit_requirement_state,
+        AuditRequirementState::Required
+    );
+    assert_eq!(
+        decision.elevated_confirmation_state,
+        ElevatedConfirmationState::NotRequired
+    );
+    assert_eq!(
+        decision.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::ControllerLeaseRequired)
+    );
+}
+
+#[test]
+fn expired_or_revoked_controller_lease_is_denied() {
+    let expired_lease = authorize_household_action(HouseholdAuthorityInput {
+        actor_role: FamilyActorRole::Guardian,
+        controller_lease_state: Some(ParentControllerLeaseState::Expired),
+        action: HouseholdAuthorityAction::StartRemoteView,
+        ..trusted_parent_input(HouseholdAuthorityAction::StartRemoteView)
+    });
+
+    assert_eq!(
+        expired_lease.authorization_state,
+        HouseholdAuthorizationState::Rejected
+    );
+    assert_eq!(
+        expired_lease.audit_requirement_state,
+        AuditRequirementState::Required
+    );
+    assert_eq!(
+        expired_lease.elevated_confirmation_state,
+        ElevatedConfirmationState::NotRequired
+    );
+    assert_eq!(
+        expired_lease.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::ControllerLeaseExpired)
+    );
+
+    let revoked_lease = authorize_household_action(HouseholdAuthorityInput {
+        actor_role: FamilyActorRole::Guardian,
+        controller_lease_state: Some(ParentControllerLeaseState::Revoked),
+        action: HouseholdAuthorityAction::StartRemoteControl,
+        ..trusted_parent_input(HouseholdAuthorityAction::StartRemoteControl)
+    });
+
+    assert_eq!(
+        revoked_lease.authorization_state,
+        HouseholdAuthorizationState::Rejected
+    );
+    assert_eq!(
+        revoked_lease.audit_requirement_state,
+        AuditRequirementState::Required
+    );
+    assert_eq!(
+        revoked_lease.elevated_confirmation_state,
+        ElevatedConfirmationState::Required
+    );
+    assert_eq!(
+        revoked_lease.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::ControllerLeaseRevoked)
     );
 }
 

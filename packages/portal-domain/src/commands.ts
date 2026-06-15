@@ -131,6 +131,14 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
+    command: AgentCommand.NetworkAndroidVpnServiceGateStatusGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.NetworkAppleNetworkExtensionGateStatusGet,
+    payload: {},
+  },
+  {
     command: AgentCommand.ActivityTrackingReadModelGet,
     payload: {},
   },
@@ -331,6 +339,18 @@ export const PortalCommandButtons = [
     label: resolvePortalDevText(PortalDevTextToken.GetNetworkWindowsWfpGateStatus),
     command: AgentCommand.NetworkWindowsWfpGateStatusGet,
     resultEvent: AgentEvent.NetworkWindowsWfpGateStatusReported,
+    payload: {},
+  },
+  {
+    label: 'Get network Android VpnService gate status',
+    command: AgentCommand.NetworkAndroidVpnServiceGateStatusGet,
+    resultEvent: AgentEvent.NetworkAndroidVpnServiceGateStatusReported,
+    payload: {},
+  },
+  {
+    label: 'Get network Apple Network Extension gate status',
+    command: AgentCommand.NetworkAppleNetworkExtensionGateStatusGet,
+    resultEvent: AgentEvent.NetworkAppleNetworkExtensionGateStatusReported,
     payload: {},
   },
   {

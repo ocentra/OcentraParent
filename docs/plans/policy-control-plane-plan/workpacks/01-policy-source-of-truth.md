@@ -1,91 +1,104 @@
-# Workpack 01: Policy Source of Truth
+# Workpack 01: Policy Source Of Truth
 
-Goal: define one typed source of truth for parent policy.
+Goal: define a typed, versioned, household-scoped parent policy source of truth and prove that no portal, AI, compiled artifact, or domain cache can replace it.
 
-Expected shape:
+Owns: source document shape, policy versioning, actor/role/household scope, schema validation, migration boundary, duplicate-truth rejection, and custody boundaries for export/delete/sync.
 
-- Policy documents are versioned, household-scoped, actor-audited, and schema-validated.
-- Parent intent, compiled domain policy, enforcement result, and audit event are separate artifacts.
-- Policy can be exported/deleted/synced through data custody rules.
+Handoff: portal and AI may draft or preview only. Domain plans consume compiled outputs only. Data custody owns export/delete/sync custody.
 
-Expected proof:
+## Required source entities
 
-- Schema negative tests.
-- Version skew and migration proof.
-- Duplicate truth rejection.
-- Audit references.
-- Account/role authorization proof.
-- Export/delete/sync custody proof for policy data.
-- Domain consumer handoff proof.
+```text
+FamilyPolicySet
+PolicyVersion
+PolicyRule
+PolicyTarget
+PolicySchedule
+TimeBudget
+PolicyTemplate
+PolicyException
+PolicyOverride
+PermissionRequest
+PolicyDecision
+PolicyDeliveryState
+PolicyAuditEvent
+PolicyRollbackRef
+```
 
-Failure: domain plans storing independent parent policy truth without a control-plane contract.
+## Required states
 
-## Decision Tree
+```text
+draft
+previewed
+confirmed
+queued
+delivered
+acknowledged
+active
+partiallyActive
+rejected
+superseded
+rolledBack
+stale
+expired
+manualRequired
+```
 
-| If the assignment touches...  | Required route                                            |
-| ----------------------------- | --------------------------------------------------------- |
-| Parent-authored policy model  | this workpack and account role matrix                     |
-| Domain-specific compiled rule | owning domain plan plus policy compiler workpack          |
-| Portal authoring UI           | portal-ux policy authoring workpack                       |
-| Assistant-generated policy    | AI/portal assistant preview; parent confirmation required |
-| Export/delete/sync            | data-custody-storage-plan                                 |
-| Enforcement result            | v0-8-enforcement-control-plan                             |
+## Required behavior
 
-## Execution Detail
+- Parent-authored policy source documents are the only parent policy source of truth.
+- Parent intent, draft, preview, confirmed source policy, compiled domain policy, delivered state, ack state, enforcement result, and audit event remain separate artifacts.
+- Portal UI is not source truth.
+- AI draft text is not source truth.
+- Compiled domain artifacts are not source truth.
+- Domain caches are not source truth.
+- Wrong-household and revoked-actor writes must fail.
+- Version skew must be rejected or explicitly migrated.
 
-Minimum context:
+## Required proof IDs
 
-- `docs/expectations/policy.md`
-- `docs/features/policy-schedules-approvals.md`
-- `docs/architecture/policy-control-catalog-worker-prompt.md`
-- `docs/plans/account-identity-family-plan/AGENTS.md`
+```text
+policy-source.schema-negative
+policy-source.source-of-truth-matrix
+policy-source.version-skew
+policy-source.migration-boundary
+policy-source.duplicate-truth-rejected
+policy-source.domain-cache-not-truth
+policy-source.portal-ui-not-truth
+policy-source.ai-preview-not-write
+policy-source.audit-ref-required
+policy-source.authz-role-matrix
+policy-source.wrong-household-rejected
+policy-source.revoked-actor-rejected
+policy-source.export-delete-custody
+policy-source.policy-version-supersede
+```
 
-Required model:
+## Negative cases
 
-- Parent-authored policy source.
-- Policy version.
-- Target children/devices/resources.
-- Schedule/exception set.
-- Domain compiler outputs.
-- Delivery state.
-- Enforcement result.
-- Audit refs.
-- Actor/role/session authority.
-- Conflict set and precedence.
-- Retention/export/delete metadata.
-- Migration/version compatibility state.
+```text
+domain plan stores independent parent policy truth
+portal local state becomes source truth
+AI draft writes policy
+compiled browser policy mutates source truth
+wrong-household actor reads or writes policy
+revoked parent changes policy
+schema/version mismatch accepted
+policy marked active before delivery/ack
+duplicate source policy accepted
+```
 
-Rules:
+## Proof artifact expectations
 
-- Parent intent is not runtime enforcement.
-- Compiled domain policy is not source truth.
-- AI suggestions are not policy until parent confirms a typed action.
-- Domain plans may cache compiled policy but cannot become independent source truth.
-- Every policy mutation has actor, role, reason, version, and audit reference.
-- Policy status must distinguish draft, preview, confirmed, delivered, acknowledged, active, rejected, rolled back, and stale.
+```text
+docs/proof/policy-control-plane-plan/01-source-of-truth-matrix-proof.md
+docs/proof/policy-control-plane-plan/01-schema-negative-proof.md
+docs/proof/policy-control-plane-plan/01-version-skew-proof.md
+docs/proof/policy-control-plane-plan/01-duplicate-truth-negative-proof.md
+docs/proof/policy-control-plane-plan/01-ai-preview-not-write-proof.md
+docs/proof/policy-control-plane-plan/01-authz-negative-proof.md
+```
 
-Expected tests/proof names:
+## Failure
 
-- `policy-source.schema-negative`
-- `policy-source.version-skew`
-- `policy-source.duplicate-truth-rejected`
-- `policy-source.ai-preview-not-write`
-- `policy-source.audit-ref`
-- `policy-source.authz-role-matrix`
-- `policy-source.domain-cache-not-truth`
-- `policy-source.export-delete-custody`
-- `policy-source.conflict-precedence`
-
-Proof artifact expectations:
-
-- Source-of-truth matrix.
-- Schema/contract fixture list.
-- Consumer domain handoff table.
-- Mutation lifecycle examples.
-- Denied actor and wrong-household negative cases.
-
-## Failure Conditions
-
-- Do not let app/browser/network/tracking/screen plans each invent parent policy truth.
-- Do not treat assistant text as policy.
-- Do not mark a policy active before delivery/ack/enforcement status proves the claim.
+Do not let each domain invent its own parent policy truth, and do not mark a policy active before delivery, ack, and audit proof exist.

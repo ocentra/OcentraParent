@@ -5,8 +5,9 @@ use ocentra_parent_agent_protocol::{
 
 #[test]
 fn parent_defined_place_rejects_invalid_zero_radius() {
-    let evidence_ref = TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
-        .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF);
+    let evidence_ref =
+        TrackingEvidenceRef::parse(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)
+            .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF);
     let decision = ocentra_tracking_core::evaluate_parent_defined_place(
         ocentra_tracking_core::TrackingParentDefinedPlaceInput {
             source_evidence_ref: evidence_ref.clone(),
@@ -22,10 +23,7 @@ fn parent_defined_place_rejects_invalid_zero_radius() {
         )
         .expect(constants::tracking_runtime::PARENT_DEFINED_PLACE_STATE_REJECTED_INVALID_RADIUS)
     );
-    assert_eq!(
-        decision.evidence_refs,
-        vec![evidence_ref.clone()]
-    );
+    assert_eq!(decision.evidence_refs, vec![evidence_ref.clone()]);
     assert_eq!(
         decision.place_id,
         tracking_parent_defined_place_id_from_evidence_ref(&evidence_ref)

@@ -1,31 +1,22 @@
 # Test and Proof Expectations
 
-| Risk surface           | Expected proof                                                                                                   |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Auth provider decision | Decision record with rejected options, staged migration, data custody impact, and cost/vendor lock-in notes.     |
-| Registration/login     | Success, invalid credentials, expired link, replayed token, rate limit, account lock/recovery proof.             |
-| Role authorization     | Parent, co-parent, child, support/admin, revoked user, wrong household, and no-role rejection proof.             |
-| Device authority       | New device, revoked device, transferred device, stale child agent, wrong household, and replay proof.            |
-| Session lifecycle      | Expiry, refresh, logout, global revocation, stolen token replay, clock skew, and concurrent session proof.       |
-| Abuse/security         | brute force, enumeration, CSRF/origin/header, open redirect, token fixation, logging redaction, and alert proof. |
-| PR gate                | Workpack updates, route sync, proof artifacts, skipped-risk notes.                                               |
+Status: reset.
 
-## Where tests should live
+## Purpose
+This file tracks the required execution flow. It does not store proof artifacts.
 
-- Place identity-family tests in account/domain package tests and proof output directories once assigned workpacks land.
-- Keep provider decision and session tests in the same workspace as token/session runtime boundaries for shared fixtures.
-- Prefer contract tests + integration tests over mock-only provider fixtures for auth and custody transitions.
+## Required flow
+- [ ] Code written.
+- [ ] Tests written.
+- [ ] Compile and validate passed.
+- [ ] Tests passed.
+- [ ] Full crate or package validation passed.
+- [ ] Proof collected in the designated local artifact path.
+- [ ] Proof pointer recorded outside the plan folder.
 
-## Expected test/proof inventory
-
-- `account-identity.auth-provider.decisions`: migration/rejection matrix for provider choice and custody impact.
-- `account-identity.auth-session.replay-idempotency`: token lifecycle rejects replay, stolen tokens, and stale sessions.
-- `account-identity.authz.role-boundary`: role/device/household authorization rejects cross-family and missing-role actions.
-- `account-identity.recovery.rate-limit`: recovery lockout, enumeration, and rate-limit abuse paths stay negative-first.
-- `account-identity.observability.audit`: logs/metrics/alerts cover auth decisions and denial reasons with redaction.
+## Proof storage
+Proof artifacts live in the designated local artifact path for the workpack or crate, not in this plan folder.
 
 ## Failure conditions
-
-- No account/identity DONE without authN/authZ, replay protection, token lifecycle, and observability proof.
-- No account/identity DONE if role/device/household boundaries are proven only by happy path.
-- No account/identity DONE if abuse and recovery proof does not include negative and stale/retry cases.
+- Do not mark DONE or PR_READY until the code, tests, validation, and proof flow are complete.
+- Do not store proof inventories inside the plan folder.

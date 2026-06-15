@@ -1,9 +1,14 @@
+use std::time::Duration;
+
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
+    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventCustody, EventId,
+    EventMetadata, EventSource, EventType, EventingError, IdempotencyKey, RecordedAt,
+    RequestOptions, RequestReport, RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent,
+    SourceService, TargetHandler,
 };
 use ocentra_parent_agent_protocol::{
-    ParentTrackingConfigUpdatedEvent, TrackingConfigUpdateTargetScope,
+    constants, ParentTrackingConfigUpdatedEvent, TrackingChildCheckInRequestReceipt,
+    TrackingChildCheckInRequestedEvent, TrackingConfigUpdateTargetScope,
 };
 use serde::{Deserialize, Serialize};
 
@@ -85,6 +90,35 @@ pub struct ParentRuntimeDispatchDecision {
     pub child_runtime_publish_state: ChildRuntimePublishState,
     pub parent_audit_retention_state: ParentAuditRetentionState,
     pub child_acknowledgement_wait_state: ChildAcknowledgementWaitState,
+}
+
+impl ParentRuntimeDispatchDecision {
+    pub async fn publish_tracking_child_check_in_request(
+        &self,
+        bus: &EventBus,
+        event: TrackingChildCheckInRequestedEvent,
+    ) -> Result<Option<RequestReport<TrackingChildCheckInRequestReceipt>>, EventingError> {
+        if self.child_runtime_publish_state != ChildRuntimePublishState::Publish {
+            return Ok(None);
+        }
+
+        let metadata = tracking_child_check_in_request_metadata(&event)?;
+        if self.child_acknowledgement_wait_state == ChildAcknowledgementWaitState::Await {
+            return Ok(Some(
+                bus.publish_request(
+                    event,
+                    metadata,
+                    RequestOptions::with_timeout(Duration::from_millis(
+                        constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_REQUEST_TIMEOUT_MS,
+                    ))?,
+                )
+                .await?,
+            ));
+        }
+
+        bus.publish(event, metadata).await?;
+        Ok(None)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -256,4 +290,36 @@ fn parent_runtime_dispatch_ref(event: &ParentTrackingConfigUpdatedEvent) -> Stri
     let mut value = String::from(PARENT_RUNTIME_TRACKING_DISPATCH_PREFIX);
     value.push_str(event.source_command_id.as_str());
     value
+}
+
+fn tracking_child_check_in_request_metadata(
+    event: &TrackingChildCheckInRequestedEvent,
+) -> Result<EventMetadata, EventingError> {
+    Ok(EventMetadata::from_parts(
+        EventId::generated(),
+        tracking_child_check_in_correlation_id(event.check_in_id.as_str())?,
+        tracking_child_check_in_source()?,
+        RecordedAt::parse(event.requested_at.as_str())?,
+        Some(TargetHandler::parse(
+            constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_CHECK_IN_REQUESTER,
+        )?),
+    ))
+}
+
+fn tracking_child_check_in_source() -> Result<EventSource, EventingError> {
+    Ok(EventSource::new(
+        EventCustody::parse(constants::eventing_source::CUSTODY_LOCAL_JOURNAL)?,
+        RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)?,
+        SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
+        SourceComponent::parse(constants::tracking_runtime::SOURCE_COMPONENT_PARENT_RUNTIME)?,
+        RuntimeInstanceId::parse(constants::peer::PORTAL_DEV)?,
+    ))
+}
+
+fn tracking_child_check_in_correlation_id(
+    check_in_id: &str,
+) -> Result<CorrelationId, EventingError> {
+    let mut value = String::from(constants::tracking_runtime::CORRELATION_PREFIX);
+    value.push_str(check_in_id);
+    CorrelationId::parse(value)
 }

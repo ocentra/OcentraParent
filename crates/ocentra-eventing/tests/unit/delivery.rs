@@ -71,7 +71,7 @@ fn local_input() -> EventDeliveryDecisionInput {
                 .expect("target handler parses"),
             event_namespace: namespace,
             accepted_event_types: vec![
-                EventType::parse("tracking.location.observed").expect("event type parses"),
+                EventType::parse("tracking.location.observed").expect("event type parses")
             ],
         },
         backpressure_policy: EventDeliveryBackpressurePolicy {

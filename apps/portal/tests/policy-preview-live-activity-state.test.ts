@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 
 describe('portal policy-preview live activity state', () => {
@@ -21,6 +21,16 @@ function registerPolicyPreviewParsingTests(): void {
       parentRuleContextRefIds: 'parent-rule-context-1',
       dryRun: true,
       enforcementHandoffState: 'disabled-preview-only',
+      policyPreviewSaveState: 'ready-to-save',
+      policyPreviewManualReviewState: 'not-required',
+      policyPreviewTargetState: 'supported',
+      policyPreviewTargetExplanationCode: 'target-supported',
+      policyPreviewFindingKinds: 'policy-match',
+      policySourceStatus: 'preview',
+      policySourceSurface: 'parent-portal',
+      policyRequestOrigin: 'assistant-draft',
+      policyAssistantConfirmationState: 'parent-confirmation-required',
+      policyRequestStatus: 'pending-parent-review',
       networkEvidenceGrade: 'B',
       networkRequestedPolicyAction: 'block',
       networkMappedPolicyAction: 'ask-parent',
@@ -44,6 +54,9 @@ function registerPolicyPreviewParsingTests(): void {
     expect(state.policyPreviewReadModel?.returned).toBe(0);
     expect(state.policyPreviewReadModel?.previewId).toBeNull();
     expect(state.policyPreviewReadModel?.decisionAction).toBeNull();
+    expect(state.policyPreviewReadModel?.policyPreviewSaveState).toBeNull();
+    expect(state.policyPreviewReadModel?.policySourceStatus).toBeNull();
+    expect(state.policyPreviewReadModel?.policyRequestStatus).toBeNull();
   });
 
   it('keeps unavailable policy-preview responses visible without inventing rows', () => {
@@ -142,6 +155,16 @@ function policyPreviewEventWith(payloadOverrides: Record<string, unknown>) {
       localAiResultId: 'local-ai-result-1',
       dryRun: true,
       enforcementHandoffState: 'disabled-preview-only',
+      [AgentProtocolDefaults.Field.PolicyPreviewSaveState]: 'ready-to-save',
+      [AgentProtocolDefaults.Field.PolicyPreviewManualReviewState]: 'not-required',
+      [AgentProtocolDefaults.Field.PolicyPreviewTargetState]: 'supported',
+      [AgentProtocolDefaults.Field.PolicyPreviewTargetExplanationCode]: 'target-supported',
+      [AgentProtocolDefaults.Field.PolicyPreviewFindingKinds]: 'policy-match',
+      [AgentProtocolDefaults.Field.PolicySourceStatus]: 'preview',
+      [AgentProtocolDefaults.Field.PolicySourceSurface]: 'parent-portal',
+      [AgentProtocolDefaults.Field.PolicyRequestOrigin]: 'assistant-draft',
+      [AgentProtocolDefaults.Field.PolicyAssistantConfirmationState]: 'parent-confirmation-required',
+      [AgentProtocolDefaults.Field.PolicyRequestStatus]: 'pending-parent-review',
       networkEvidenceGrade: 'B',
       networkRequestedPolicyAction: 'block',
       networkMappedPolicyAction: 'ask-parent',
@@ -193,6 +216,16 @@ function emptyPolicyPreviewEvent() {
       localAiResultId: null,
       dryRun: null,
       enforcementHandoffState: 'disabled-preview-only',
+      [AgentProtocolDefaults.Field.PolicyPreviewSaveState]: null,
+      [AgentProtocolDefaults.Field.PolicyPreviewManualReviewState]: null,
+      [AgentProtocolDefaults.Field.PolicyPreviewTargetState]: null,
+      [AgentProtocolDefaults.Field.PolicyPreviewTargetExplanationCode]: null,
+      [AgentProtocolDefaults.Field.PolicyPreviewFindingKinds]: null,
+      [AgentProtocolDefaults.Field.PolicySourceStatus]: null,
+      [AgentProtocolDefaults.Field.PolicySourceSurface]: null,
+      [AgentProtocolDefaults.Field.PolicyRequestOrigin]: null,
+      [AgentProtocolDefaults.Field.PolicyAssistantConfirmationState]: null,
+      [AgentProtocolDefaults.Field.PolicyRequestStatus]: null,
       networkEvidenceGrade: null,
       networkRequestedPolicyAction: null,
       networkMappedPolicyAction: null,

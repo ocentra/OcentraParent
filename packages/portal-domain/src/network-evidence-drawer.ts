@@ -3,6 +3,9 @@ import type {
   ActivityNetworkFlowObservation,
   ActivityNetworkFlowReadModel,
 } from '@ocentra-parent/network-domain/network-flow';
+import { AgentProtocolDefaults, type AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
+import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/agent-protocol-domain/policy-preview-read-model';
+import type { AgentNetworkRuntimeEventResult } from '@ocentra-parent/agent-protocol-domain/network-runtime-events';
 import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
 import { PortalFormatting } from './formatting';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
@@ -45,8 +48,19 @@ export type NetworkEvidenceDrawerSummary = {
   readonly deletedEvidenceReferences: PortalDetailValue;
 };
 
+interface NetworkEvidenceDrawerSummaryContext {
+  readonly networkFlowEventPayload?: AgentProtocolLogFields | null;
+  readonly policyPreviewReadModel?: PortalPolicyPreviewReadModel | null;
+  readonly networkRuntimeEventChainStream?: NetworkEvidenceDrawerRuntimeEventChainStream | null;
+}
+
+interface NetworkEvidenceDrawerRuntimeEventChainStream {
+  readonly events: readonly AgentNetworkRuntimeEventResult[];
+}
+
 export function networkEvidenceDrawerSummary(
-  readModel: ActivityNetworkFlowReadModel | null
+  readModel: ActivityNetworkFlowReadModel | null,
+  context?: NetworkEvidenceDrawerSummaryContext
 ): NetworkEvidenceDrawerSummary {
   const row = firstNetworkFlowRow(readModel);
   return {
@@ -66,16 +80,41 @@ export function networkEvidenceDrawerSummary(
     browserRef: notReported(),
     domainEvidenceRef: domainDetail(row),
     byteSummary: byteSummary(row),
-    analyzerAlertRef: notReported(),
-    detectionResultRef: notReported(),
-    aiAuditRef: notReported(),
-    riskBudgetRef: notReported(),
-    policyDecisionRef: notReported(),
-    interventionResultRef: notReported(),
+    analyzerAlertRef: detailFromValue(
+      networkFlowPayloadFieldValue(
+        context?.networkFlowEventPayload,
+        AgentProtocolDefaults.Field.NetworkProductPathAnalyzerAlertRefs
+      )
+    ),
+    detectionResultRef: detailFromValue(
+      networkFlowPayloadFieldValue(
+        context?.networkFlowEventPayload,
+        AgentProtocolDefaults.Field.NetworkProductPathAiDetectionRefs
+      )
+    ),
+    aiAuditRef: detailFromValue(
+      latestRuntimeEventFieldValue(context?.networkRuntimeEventChainStream, 'aiAnalysisRef') ??
+        context?.policyPreviewReadModel?.localAiResultId ??
+        undefined
+    ),
+    riskBudgetRef: detailFromValue(
+      networkFlowPayloadFieldValue(
+        context?.networkFlowEventPayload,
+        AgentProtocolDefaults.Field.NetworkProductPathRiskBudgetRefs
+      )
+    ),
+    policyDecisionRef: detailFromValue(
+      latestRuntimeEventFieldValue(context?.networkRuntimeEventChainStream, 'policyDecisionRef') ??
+        context?.policyPreviewReadModel?.decisionId ??
+        undefined
+    ),
+    interventionResultRef: detailFromValue(
+      latestRuntimeEventFieldValue(context?.networkRuntimeEventChainStream, 'enforcementResultRef')
+    ),
     eventHistoryRef: detailFromValue(row?.eventId),
     retentionState: retentionState(readModel),
     custody: readModelCustodyDetail(readModel),
-    evidenceGrade: notReported(),
+    evidenceGrade: detailFromValue(context?.policyPreviewReadModel?.networkEvidenceGrade ?? undefined),
     confidence: notReported(),
     uncertaintyReasonCodes: uncertaintyReasonCodes(row),
     evidenceReferences: evidenceReferenceDetail(row),
@@ -184,6 +223,40 @@ function evidenceReferenceDetail(row: ActivityNetworkFlowObservation | null): Po
     return notReported();
   }
   return joinedDetail(row.evidence.map((evidence) => evidence.evidenceId));
+}
+
+function networkFlowPayloadFieldValue(
+  payload: AgentProtocolLogFields | null | undefined,
+  fieldName: string
+): LogFieldValue | undefined {
+  if (payload === null || payload === undefined) {
+    return undefined;
+  }
+  const fieldValue = payload[fieldName];
+  if (fieldValue === '') {
+    return undefined;
+  }
+  return fieldValue;
+}
+
+function latestRuntimeEventFieldValue(
+  stream: NetworkEvidenceDrawerRuntimeEventChainStream | null | undefined,
+  fieldName: 'aiAnalysisRef' | 'policyDecisionRef' | 'enforcementResultRef'
+): LogFieldValue | undefined {
+  if (stream === null || stream === undefined) {
+    return undefined;
+  }
+  for (let index = stream.events.length - 1; index >= 0; index -= 1) {
+    const event = stream.events[index];
+    if (event?.ok !== true) {
+      continue;
+    }
+    const fieldValue = (event.value as Record<string, unknown>)[fieldName];
+    if (typeof fieldValue === 'string' && fieldValue.length > 0) {
+      return fieldValue;
+    }
+  }
+  return undefined;
 }
 
 function retentionState(readModel: ActivityNetworkFlowReadModel | null): PortalDetailValue {

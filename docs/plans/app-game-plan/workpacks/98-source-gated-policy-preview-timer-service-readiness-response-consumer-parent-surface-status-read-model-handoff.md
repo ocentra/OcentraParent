@@ -27,11 +27,11 @@ Add a parent-domain-only handoff that consumes WP97 response-consumer parent-sur
 
 ## Implementation Checklist
 
-- [x] Add parent-domain status read-model handoff schemas, builder, no-claim flags, and state rules.
-- [x] Add focused parser/builder tests using the real WP97 proof output.
-- [x] Add proof harness and app-game/app proof artifacts.
-- [x] Update feature/checklist/README docs with the no-claim decision.
-- [x] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
+- [ ] Add parent-domain status read-model handoff schemas, builder, no-claim flags, and state rules.
+- [ ] Add focused parser/builder tests using the real WP97 proof output.
+- [ ] Add proof harness and app-game/app proof artifacts.
+- [ ] Update feature/checklist/README docs with the no-claim decision.
+- [ ] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
 
 ## Evidence
 

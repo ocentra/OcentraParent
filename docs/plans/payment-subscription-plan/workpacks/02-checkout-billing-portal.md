@@ -1,60 +1,28 @@
-# Workpack 02: Checkout Billing Portal
+# Workpack 02: Checkout and Billing Portal
 
-Goal: define the payment frontend/server boundary.
+Purpose: define the Cloudflare Worker/API boundary for checkout session creation, hosted portal sessions, and billing entry points.
 
-Expected shape:
+## Owns
 
-- Family site or portal calls an authenticated app API.
-- Server/Worker creates Stripe Checkout Session or Customer Portal Session.
-- Browser receives only a short-lived Stripe-hosted URL/session result.
-- Stripe secrets, webhook secrets, and provider admin actions never run in client code.
-- Checkout creation includes bot/abuse controls and strict return/cancel URL validation.
+- `CLOUDFLARE_BILLING_CONTROL_PLANE.md`
+- `BILLING_API_BOUNDARY.md`
+- `CHECKOUT_BILLING_PORTAL_MODEL.md`
+- PSP-001, PSP-002, PSP-004, and PSP-006
 
-Expected proof:
+## Must prove
 
-- Authenticated checkout route proof.
-- Invalid product and unauthorized role rejection.
-- Origin/redirect validation.
-- Secret-not-in-client scan.
-- Billing portal session proof.
+- Checkout sessions are created server-side.
+- Portal sessions are created server-side.
+- Missing provider config fails safely.
+- Checkout success is not treated as payment proof.
+- Browser callers never see provider secrets.
 
-Failure: direct browser payment flow that bypasses app-owned auth, product validation, and entitlement ledger.
+## Proof path
 
-## Execution Detail
+- Use `docs/proof/payment-subscription-plan/wp02/` or the owning crate's local proof directory.
 
-Minimum context:
+## Failure conditions
 
-- `E:\ocentra-games\infra\cloudflare\src\handlers\payments.ts`
-- `E:\ocentra-games\infra\cloudflare\src\flows\payment-checkout-flow.ts`
-- `E:\ocentra-games\infra\cloudflare\src\utils\turnstile.ts`
-- Official Stripe Checkout and Customer Portal docs for current behavior.
-
-Research required:
-
-- Verify whether Parent should deploy billing API under the family web Worker, a shared API Worker, or an app-local backend during MVP.
-- Discuss with Sujan whether custom payment UI is needed; default should be Stripe-hosted Checkout for lower PCI scope.
-
-Required decisions:
-
-- API route owner.
-- Success/cancel URL allowlist.
-- Customer creation timing.
-- Billing portal entry point.
-- Bot/abuse control.
-- Test-mode and production-mode separation.
-
-Expected tests/proof names:
-
-- `checkout.auth-required`
-- `checkout.turnstile-or-abuse-gate`
-- `checkout.invalid-product-rejected`
-- `checkout.redirect-allowlist`
-- `checkout.no-client-secret-exposure`
-- `billing-portal.short-lived-session`
-
-Proof artifact expectations:
-
-- Route matrix.
-- Secret scan.
-- Checkout/portal request-response proof.
-- Explicit direct-browser rejection note.
+- The workpack fails if the browser can complete payment without the server boundary.
+- The workpack fails if checkout or portal flows leak secrets.
+- The workpack fails if a redirect is treated as final entitlement proof.

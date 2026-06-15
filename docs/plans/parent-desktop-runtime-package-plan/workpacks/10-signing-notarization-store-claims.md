@@ -31,11 +31,11 @@ manual-required, preview-only, or proved.
 
 ## Requirement Checklist
 
-- [x] Add matrix rows for signing/store states.
-- [x] Keep credentials out of source.
-- [x] Record manual proof requirements.
-- [x] Avoid store distribution claims before artifacts exist.
-- [x] Update release docs/checklist when status changes.
+- [ ] Add matrix rows for signing/store states.
+- [ ] Keep credentials out of source.
+- [ ] Record manual proof requirements.
+- [ ] Avoid store distribution claims before artifacts exist.
+- [ ] Update release docs/checklist when status changes.
 
 ## Acceptance And Proof
 

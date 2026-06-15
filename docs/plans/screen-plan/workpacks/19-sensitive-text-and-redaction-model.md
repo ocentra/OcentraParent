@@ -41,16 +41,16 @@ credential suppression, PII redaction, and snippet limit settings.
 
 ## Checklist
 
-- [x] Define OCR snippet limit.
-- [x] Define OCR disabled state.
-- [x] Define password/credential suppression.
-- [x] Define PII redaction mode.
-- [x] Define parent-controlled text retention.
-- [x] Add security tests.
-- [x] Add portal read-model/intent proof for redacted snippets.
-- [x] Persist service-emitted OCR snippets and redaction-note shape into the Activity Screen read model.
-- [x] Add real portal screenshot from a service-emitted redaction row.
-- [x] Apply local redaction in the live service path from a persisted parent-selected OCR redaction policy.
+- [ ] Define OCR snippet limit.
+- [ ] Define OCR disabled state.
+- [ ] Define password/credential suppression.
+- [ ] Define PII redaction mode.
+- [ ] Define parent-controlled text retention.
+- [ ] Add security tests.
+- [ ] Add portal read-model/intent proof for redacted snippets.
+- [ ] Persist service-emitted OCR snippets and redaction-note shape into the Activity Screen read model.
+- [ ] Add real portal screenshot from a service-emitted redaction row.
+- [ ] Apply local redaction in the live service path from a persisted parent-selected OCR redaction policy.
 
 ## Proof
 

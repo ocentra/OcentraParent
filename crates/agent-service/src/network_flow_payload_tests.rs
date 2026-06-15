@@ -145,6 +145,13 @@ fn network_flow_payload_includes_product_path_counts_and_refs_when_supplied() {
         adapter_action_executed_count: 0,
         ai_advisory_rows: 1,
         weak_or_unavailable_blocked_rows: 1,
+        analyzer_alert_refs: vec![row_ref(
+            constants::network_flow::PRODUCT_PATH_ANALYZER_ALERT_REF_PREFIX,
+        )],
+        ai_detection_refs: vec![row_ref(
+            constants::network_flow::PRODUCT_PATH_AI_DETECTION_REF_PREFIX,
+        )],
+        risk_budget_refs: vec![constants::network_flow::PRODUCT_PATH_RISK_BUDGET_REF.to_string()],
         policy_decision_refs: vec![constants::network_flow::TEST_POLICY_DECISION_REF.to_string()],
         action_result_refs: vec![constants::network_flow::TEST_ENFORCEMENT_RESULT_REF.to_string()],
         retention_refs: vec![
@@ -182,6 +189,24 @@ fn network_flow_payload_includes_product_path_counts_and_refs_when_supplied() {
     assert_eq!(
         payload.get(constants::field::NETWORK_PRODUCT_PATH_WEAK_OR_UNAVAILABLE_BLOCKED_ROWS),
         Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::NETWORK_PRODUCT_PATH_ANALYZER_ALERT_REFS),
+        Some(&LogFieldValue::String(row_ref(
+            constants::network_flow::PRODUCT_PATH_ANALYZER_ALERT_REF_PREFIX
+        )))
+    );
+    assert_eq!(
+        payload.get(constants::field::NETWORK_PRODUCT_PATH_AI_DETECTION_REFS),
+        Some(&LogFieldValue::String(row_ref(
+            constants::network_flow::PRODUCT_PATH_AI_DETECTION_REF_PREFIX
+        )))
+    );
+    assert_eq!(
+        payload.get(constants::field::NETWORK_PRODUCT_PATH_RISK_BUDGET_REFS),
+        Some(&LogFieldValue::String(
+            constants::network_flow::PRODUCT_PATH_RISK_BUDGET_REF.to_string()
+        ))
     );
     assert_eq!(
         payload.get(constants::field::NETWORK_PRODUCT_PATH_POLICY_DECISION_REFS),
@@ -262,4 +287,10 @@ fn test_network_evidence_id() -> String {
     let mut evidence_id = String::from(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX);
     evidence_id.push_str(constants::activity_store::TEST_NETWORK_EVENT_ID);
     evidence_id
+}
+
+fn row_ref(prefix: &str) -> String {
+    let mut value = String::from(prefix);
+    value.push_str(&test_network_evidence_id());
+    value
 }

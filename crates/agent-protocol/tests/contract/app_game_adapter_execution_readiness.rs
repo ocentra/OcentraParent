@@ -30,7 +30,8 @@ fn app_game_adapter_execution_readiness_serializes_no_claim_upgrades() {
     let read_model = AppGameAdapterExecutionReadinessReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
         read_model_id: APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL_ID.to_string(),
-        generated_at: ocentra_parent_agent_protocol::policy_constants::TEST_EVALUATED_AT.to_string(),
+        generated_at: ocentra_parent_agent_protocol::policy_constants::TEST_EVALUATED_AT
+            .to_string(),
         source_read_model_ids: vec!["v0-8-supported-adapter-runtime-proof".to_string()],
         custody_label: "supported-adapter-runtime-proof".to_string(),
         capability_status: "app-game-adapter-execution-partial".to_string(),
@@ -82,12 +83,14 @@ fn app_game_adapter_execution_readiness_serializes_no_claim_upgrades() {
             platform_enforcement_claimed: false,
             provider_delivery_claimed: false,
             private_diagnostics_claimed: false,
-            last_checked_at: ocentra_parent_agent_protocol::policy_constants::TEST_EVALUATED_AT.to_string(),
+            last_checked_at: ocentra_parent_agent_protocol::policy_constants::TEST_EVALUATED_AT
+                .to_string(),
         }],
     };
 
     let reparsed = serde_json::from_value::<AppGameAdapterExecutionReadinessReadModel>(
-        serde_json::to_value(read_model).expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(read_model)
+            .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
     )
     .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES);
 

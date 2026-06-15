@@ -56,6 +56,8 @@ use crate::{
     },
     local_ai_chat_generation::build_local_ai_chat_generation_report,
     local_ai_runtime_status::build_local_ai_runtime_status_report,
+    network_android_vpn_service_gate_status_bridge::build_network_android_vpn_service_gate_status_report,
+    network_apple_network_extension_gate_status_bridge::build_network_apple_network_extension_gate_status_report,
     network_linux_nftables_lab_status_bridge::build_network_linux_nftables_lab_status_report,
     network_live_capture_readiness_bridge::build_network_live_capture_status_report,
     network_remote_delivery_status_payload::build_network_remote_delivery_status_report,
@@ -216,6 +218,8 @@ async fn build_command_event(
         | AgentCommandName::AgentNetworkRuntimeEventChainStreamGet
         | AgentCommandName::AgentNetworkRemoteDeliveryStatusGet
         | AgentCommandName::AgentNetworkLiveCaptureStatusGet
+        | AgentCommandName::AgentNetworkAndroidVpnServiceGateStatusGet
+        | AgentCommandName::AgentNetworkAppleNetworkExtensionGateStatusGet
         | AgentCommandName::AgentNetworkLinuxNftablesLabStatusGet
         | AgentCommandName::AgentNetworkWindowsFirewallLabStatusGet
         | AgentCommandName::AgentNetworkWindowsWfpGateStatusGet => {
@@ -497,6 +501,12 @@ async fn build_browser_network_command_report(command: AgentCommandEnvelope) -> 
         }
         AgentCommandName::AgentNetworkLiveCaptureStatusGet => {
             build_network_live_capture_status_report(command)
+        }
+        AgentCommandName::AgentNetworkAndroidVpnServiceGateStatusGet => {
+            build_network_android_vpn_service_gate_status_report(command)
+        }
+        AgentCommandName::AgentNetworkAppleNetworkExtensionGateStatusGet => {
+            build_network_apple_network_extension_gate_status_report(command)
         }
         AgentCommandName::AgentNetworkLinuxNftablesLabStatusGet => {
             build_network_linux_nftables_lab_status_report(command)

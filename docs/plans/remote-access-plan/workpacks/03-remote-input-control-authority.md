@@ -1,11 +1,11 @@
 # Workpack 03: Remote Input Control Authority
 
-Goal: define remote input/control as a separate high-risk capability.
+Goal: define remote input/control as a separate high-risk capability deferred from the current live-view pass.
 
 Expected shape:
 
 - Remote input is off by default.
-- Parent confirmation and session freshness are required.
+- Parent confirmation and session freshness are required when this workpack is opened.
 - Input scope, stop/escape behavior, blocked surfaces, and child disclosure are explicit.
 - Control cannot bypass policy, OS permission, or child safety constraints.
 
@@ -19,6 +19,8 @@ Expected proof:
 Failure: remote desktop/control hidden inside live view or LAN transport work.
 
 ## Execution Detail
+
+This workpack is not part of the current live-view pass.
 
 Minimum context:
 

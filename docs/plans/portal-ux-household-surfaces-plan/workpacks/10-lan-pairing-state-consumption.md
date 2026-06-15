@@ -41,31 +41,31 @@ and manual-required.
 
 ## Requirement Checklist
 
-- [x] Use B/service read models for LAN state.
-- [x] Keep routers/infrastructure visible but non-enrollable.
-- [x] Keep signed discovery, relay/cache, revoked/offline, and
+- [ ] Use B/service read models for LAN state.
+- [ ] Keep routers/infrastructure visible but non-enrollable.
+- [ ] Keep signed discovery, relay/cache, revoked/offline, and
       manual-required proof states in B-owned typed contracts/service state
       rather than a portal-only truth.
-- [x] Show assignment/ignore/revocation state where available from
+- [ ] Show assignment/ignore/revocation state where available from
       `householdDeviceDecisions` and signed relay route-safety audit rows.
-- [x] Show manual-required physical proof labels.
-- [x] Test LAN fixture states without claiming real LAN proof.
-- [x] Wire the existing add-device parent action to
+- [ ] Show manual-required physical proof labels.
+- [ ] Test LAN fixture states without claiming real LAN proof.
+- [ ] Wire the existing add-device parent action to
       `agent.lan-pairing.add-device.request` when a selected device has a
       controllable LAN route.
-- [x] Wire first-class parent controls for add, route select, rename, trust,
+- [ ] Wire first-class parent controls for add, route select, rename, trust,
       ignore, restore, revoke, and route-custody decisions through existing LAN
       add-device decision fields plus route select/revoke commands. Portal
       transport routes those commands to the selected local-network child
       target.
-- [x] Render Activity/Network LAN diagnostics for service-backed selected
+- [ ] Render Activity/Network LAN diagnostics for service-backed selected
       route, evidence, signed proof, revocation/route rejection state,
       relay/cache unavailable, parent decisions, route requirements, audit
       checks, and manual/unproved proof state.
-- [x] Add richer Activity/Network diagnostics for scan/evidence first-seen and
+- [ ] Add richer Activity/Network diagnostics for scan/evidence first-seen and
       last-seen timing, evidence expiry, signed adapter proof state, and
       policy-target history.
-- [x] Add live browser proof screenshots. Captured on B lane ports in
+- [ ] Add live browser proof screenshots. Captured on B lane ports in
       `output/playwright/lan-ux-proof/devices-lan-controls.png`,
       `output/playwright/lan-ux-proof/activity-network-diagnostics.png`, and
       `output/playwright/lan-ux-proof/policy-network-targets.png`.

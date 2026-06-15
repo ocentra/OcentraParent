@@ -2,48 +2,45 @@
 
 Goal: define proof required before data custody claims are product-current.
 
+Context to read:
+
+- `docs/plans/data-custody-storage-plan/PLAN_STATE.md`
+- `docs/plans/data-custody-storage-plan/CHECKLIST_INDEX.md`
+- `docs/plans/data-custody-storage-plan/PROOF_INDEX.md`
+- `docs/plans/data-custody-storage-plan/TEST_PROOF_EXPECTATIONS.md`
+- `docs/PLAN_INDEX.md`
+- `docs/FEATURE_ROUTE_INDEX.md`
+- `docs/agent/PR_DONE_FLOW.md`
+
 Required proof pack:
 
 - Data custody matrix.
-- Key/encryption custody decision.
+- Key and platform custody model.
 - Parent-owned cloud sync matrix.
-- Retention/delete/tombstone proof.
-- Export/import/backup/restore proof.
-- Report/query/notification custody proof.
-- Privacy language review.
-- Route/index sync.
+- Retention, delete, and tombstone proof.
+- Export, import, backup, and restore proof.
+- Report, query, notification, and assistant custody proof.
+- Parent storage settings UI proof.
+- Route and index sync.
 
 Validation expectations:
 
 - Unit and contract tests for schema, export/import, retention, tombstone, and query behavior.
-- Integration tests for sync/deletion/replay boundaries when implementation exists.
+- Integration tests for sync, delete, and replay boundaries when implementation exists.
 - Security tests for authZ, encryption, secret leakage, replay, and redaction.
+- UI proof for state cards, restore preview, delete and disconnect flow, and claim-safe copy.
 - Observability proof for logs, metrics, traces, alerts, and support diagnostics.
+
+Expected proof names:
+
+- `data-custody.rollout.pr-gate`
+- `data-custody.source.acceptance-route`
+- `data-custody.observability.redaction`
+- `data-custody.rollout.route-sync`
 
 Failure conditions:
 
-- PR_READY without negative privacy/security tests.
-- Product docs claiming no data theft without explicit data classes, storage locations, and encryption/custody proof.
+- PR_READY without negative privacy or security tests.
+- Product docs claiming no data theft without explicit data classes, storage locations, and encryption or custody proof.
+- Route or proof indexes drifting away from the selected workpack set.
 
-## Research Gate
-
-This rollout gate cannot be closed from docs alone. The assigned agent must first inspect existing eventing, logging, portal report, local storage, sync/export, and cloud-provider code/docs. Any unresolved encryption, provider sync, retention, or parent-owned-storage decision must be discussed with Sujan before changing product status.
-
-## Required Route Updates
-
-- `docs/PLAN_INDEX.md` must route data custody work here before `eventing-plan` when the task is retention, export, sync, encryption, delete, cloud, or query custody.
-- `docs/FEATURE_ROUTE_INDEX.md` must keep `evidence-store-query` and `reports-notifications-sync` tied to this plan for custody claims.
-- Adjacent plans may be referenced only for implementation handoffs; they do not prove custody completion.
-
-## Minimum DONE Report
-
-The report must name:
-
-- data classes touched.
-- source-of-truth owner.
-- encryption/key decision.
-- retention/delete behavior.
-- export/import behavior.
-- cloud sync provider state.
-- proof artifacts.
-- skipped risks and Sujan decisions still required.

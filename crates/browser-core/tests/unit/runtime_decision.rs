@@ -118,7 +118,10 @@ fn background_inventory_navigation_records_typed_runtime_decision() {
         event.decision.runtime_action_state,
         BrowserRuntimeActionState::RecordInventory
     );
-    assert_eq!(event.decision.ai_handoff_state, BrowserAiHandoffState::NotRequired);
+    assert_eq!(
+        event.decision.ai_handoff_state,
+        BrowserAiHandoffState::NotRequired
+    );
     assert_eq!(
         event.decision.policy_handoff_state,
         BrowserPolicyHandoffState::DoNotPublish

@@ -121,7 +121,7 @@ This matrix is the execution reference for all 19 plans in this branch.
   - `docs/plans/network-plan/PLAN_EXECUTION_BLUEPRINT.md`
   - `docs/proof/network-plan/PLAN_PROOF_MANIFEST.md`
 
-10. parent-desktop-runtime-package-plan
+10. parent-client-runtime-distribution-plan
 
 - Current posture: no implementation checklist baseline.
 - Missing precision: service/launcher contracts, signed artifact evidence, rollback path.
@@ -216,7 +216,7 @@ This matrix is the execution reference for all 19 plans in this branch.
 1. account-identity-family-plan
 2. policy-control-plane-plan
 3. portal-ux-household-surfaces-plan
-4. parent-desktop-runtime-package-plan
+4. parent-client-runtime-distribution-plan
 5. remote-access-plan
 6. network-plan
 7. lan-plan
@@ -328,7 +328,7 @@ Per-plan minimum families that must be present in slice evidence:
 - security: request security, host/origin header tests, smuggling probes
 - non-functional: request latency, memory/FD and backlog pressure
 
-10. parent-desktop-runtime-package-plan
+10. parent-client-runtime-distribution-plan
 
 - unit: route and bootstrap contracts
 - integration: service smoke + launcher readiness

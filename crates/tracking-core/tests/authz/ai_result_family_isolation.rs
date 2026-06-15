@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
     constants, TrackingChildDeviceId, TrackingConfidenceBasis, TrackingNearbyPlaceAmbiguityState,
     TrackingNearbyPlaceClassifiedEvent, TrackingNearbyPlaceProviderKind,
-    TrackingParentActionRequirement, TrackingPlaceCategory, TrackingProviderRef, TrackingReasonCode,
+    TrackingParentActionRequirement, TrackingPlaceCategory, TrackingProviderRef,
+    TrackingReasonCode,
 };
 
 #[test]
@@ -32,8 +33,10 @@ fn ai_result_from_wrong_child_or_device_is_rejected_before_policy() {
         ),
         query_radius_meters: constants::tracking_runtime::DEFAULT_NEARBY_QUERY_RADIUS_METERS,
         distance_meters: Some(constants::tracking_runtime::DEFAULT_NEARBY_DISTANCE_METERS),
-        place_category: TrackingPlaceCategory::parse(constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL)
-            .expect(constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL),
+        place_category: TrackingPlaceCategory::parse(
+            constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL,
+        )
+        .expect(constants::tracking_runtime::PLACE_CATEGORY_HOSPITAL),
         confidence: constants::tracking_runtime::DEFAULT_NEARBY_PLACE_CONFIDENCE,
         confidence_basis: TrackingConfidenceBasis::parse(
             constants::tracking_runtime::CONFIDENCE_BASIS_AI_BOUNDARY_CONTRACT,
@@ -50,7 +53,8 @@ fn ai_result_from_wrong_child_or_device_is_rejected_before_policy() {
         parent_action_requirement: TrackingParentActionRequirement::Required,
     };
 
-    let decision = ocentra_tracking_core::validate_tracking_ai_result_as_evidence(&request, &result);
+    let decision =
+        ocentra_tracking_core::validate_tracking_ai_result_as_evidence(&request, &result);
 
     assert_eq!(
         decision.decision_state,

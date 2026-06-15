@@ -1,77 +1,29 @@
-# Payment Subscription Plan � HID Execution Blueprint
+# Execution Blueprint
+
+Status: reset.
 
 ## Execution objective
 
-Convert billing from research to enforceable entitlement and webhook safety model.
+Turn the monetization route from docs into code, tests, validation, and proof in slice order.
 
-## Slice 01 � Pricing and Entitlement ADR
+## Execution slices
 
-### Acceptance
+1. Cloudflare billing control plane.
+2. Product/pricing/referral/seat model.
+3. Provider strategy and regional matrix.
+4. Hosted checkout/customer portal/invoice model.
+5. Provider webhook lifecycle and idempotency.
+6. Referral qualification and anti-abuse lifecycle.
+7. App-owned billing/referral/entitlement ledgers.
+8. Signed EntitlementSnapshot and device-bound license gates.
+9. Parent website billing dashboard.
+10. Support/admin billing ops.
+11. Invoice/tax/refund/dispute/cancel/grace.
+12. Security/privacy/observability/test-live boundary.
+13. Rollout proof and route gate.
 
-- Pricing/seat model and entitlement contract captured with downgrade/overage assumptions.
+## Required order
 
-### Tests
-
-- `payment-subscription.pricing.adr-review`
-
-### Proof
-
-- `docs/proof/payment-subscription-plan/slice-01-pricing-adr.md`
-
-## Slice 02 � Checkout and Lifecycle State Machine
-
-### Acceptance
-
-- Checkout lifecycle handles cancel/expired/incomplete and paid/unpaid state transitions.
-
-### Tests
-
-- `payment-subscription.billing.subscription-lifecycle`
-- `payment-subscription.checkout.state`
-
-### Proof
-
-- `docs/proof/payment-subscription-plan/slice-02-lifecycle.md`
-
-## Slice 03 � Webhook and Abuse Hardening
-
-### Acceptance
-
-- Signature verification + idempotent event handling with duplicate/out-of-order/retry proof.
-
-### Tests
-
-- `payment-subscription.billing.webhook-idempotency`
-- `payment-subscription.billing.security-rate-limit`
-
-### Proof
-
-- `docs/proof/payment-subscription-plan/slice-03-webhook-hardened.md`
-
-## Workpacks (execution lane)
-
-### Slice-to-workpack binding
-
-- Slice 01: docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md
-- Slice 02: docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md
-- Slice 03: docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md
-
-## PR-ready gate
-
-- No entitlement claim until webhook replay and lifecycle proofs are attached.
-
-## HID test floor (this plan)
-
-### Required test families for closed slice
-
-- Unit: pricing/subscription schema boundaries
-- Integration: lifecycle orchestration and entitlement sync
-- E2E: checkout/login lifecycle with failure branches
-- Security: webhook replay/duplicate and privilege bypass checks
-- Non-functional: pricing and payment settlement stability
-
-### Mandatory slice evidence checks
-
-- negative cases documented (at least one per slice)
-- rollback/teardown proof recorded
-- proof manifest references command output, artifacts, and manual review notes
+- Select one workpack, then collect code, tests, validation, proof, and route sync for that workpack only.
+- Do not mix proof from sibling workpacks into the current proof folder.
+- Do not mark a workpack PR-ready until the selected slice has at least one negative test and one rollback or teardown proof.

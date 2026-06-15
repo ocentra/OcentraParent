@@ -4,10 +4,6 @@ use ocentra_eventing::{
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::{
-    constants, AgentCommandEnvelope, AgentRoute,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
-};
 use super::{
     default_tracking_retention_settings_write_request, default_tracking_runtime_config,
     TrackingAcceptedAt, TrackingDurableSettingsPersistenceState, TrackingPolicyRuleRef,
@@ -15,6 +11,7 @@ use super::{
     TrackingRuntimeConfig, TrackingSourceMessageId, TrackingSourcePeerId, TrackingTargetDeviceId,
     TrackingTargetPlatform,
 };
+use crate::{constants, AgentCommandEnvelope, AgentRoute, AGENT_PROTOCOL_SCHEMA_VERSION};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]

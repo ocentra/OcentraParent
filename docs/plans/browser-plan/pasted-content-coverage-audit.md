@@ -33,64 +33,64 @@ copied as unmanaged notes.
 
 ## Coverage Checklist
 
-- [x] Managed browser proves exact URL/tab.
-- [x] Unmanaged browser proves bypass/process use only.
-- [x] Network/domain proves destination only, not exact page or active tab.
-- [x] Extension/native host is optional helper, not foundation.
-- [x] Browser inventory includes family, product, channel, install type,
+- [ ] Managed browser proves exact URL/tab.
+- [ ] Unmanaged browser proves bypass/process use only.
+- [ ] Network/domain proves destination only, not exact page or active tab.
+- [ ] Extension/native host is optional helper, not foundation.
+- [ ] Browser inventory includes family, product, channel, install type,
       executable/path ref, package family, signature/hash ref, process state,
       management tier, capability state, and reason codes.
-- [x] Windows inventory includes registry, known paths, Start Menu shortcuts,
+- [ ] Windows inventory includes registry, known paths, Start Menu shortcuts,
       AppX/MSIX packages, running processes, signature/hash, and default handler
       posture.
-- [x] macOS, Linux, Android, iOS, Safari, Firefox, mobile, and extension paths
+- [ ] macOS, Linux, Android, iOS, Safari, Firefox, mobile, and extension paths
       stay platform-specific/manual-required until real proof exists.
-- [x] Managed profile store, launcher, loopback-only bridge, CDP `/json/version`
+- [ ] Managed profile store, launcher, loopback-only bridge, CDP `/json/version`
       and `/json/list`, target evidence, and active-tab uncertainty are represented.
-- [x] Bridge custody rejects default profile, wrong profile, wrong process,
+- [ ] Bridge custody rejects default profile, wrong profile, wrong process,
       wrong port, non-loopback endpoint, stale session, malformed target, and raw
       debugger URL leakage.
-- [x] Journal and SQLite/read-model proof comes before portal, policy, or AI
+- [ ] Journal and SQLite/read-model proof comes before portal, policy, or AI
       consumers.
-- [x] Portal UI requirements include managed sessions, current tab evidence,
+- [ ] Portal UI requirements include managed sessions, current tab evidence,
       active-state labels, unmanaged browser use, degraded/manual-required states,
       policy preview, intervention rows, and malicious/long-value layout safety.
-- [x] Managed intervention covers observe, dry-run, warn, redirect/block,
+- [ ] Managed intervention covers observe, dry-run, warn, redirect/block,
       child-facing hold screens, journal/action refs, and portal proof.
-- [x] Windows AppLocker/App Control stays real-platform/manual-proof gated.
-- [x] Managed Chrome/Edge policy writer inputs are explicit: incognito, guest,
+- [ ] Windows AppLocker/App Control stays real-platform/manual-proof gated.
+- [ ] Managed Chrome/Edge policy writer inputs are explicit: incognito, guest,
       profile adding, history deletion where supported, safe search, restricted
       mode, and URL allow/block lists.
-- [x] URL/video AI pipeline includes URL shape, memory lookup, metadata,
+- [ ] URL/video AI pipeline includes URL shape, memory lookup, metadata,
       hidden managed analysis load, AI result, provider route, policy evaluator,
       post-analysis action, queue/scheduling, cache/knowledge graph, and degraded
       states.
-- [x] URL/video examples include YouTube, Shorts, Vimeo, TikTok, Instagram,
+- [ ] URL/video examples include YouTube, Shorts, Vimeo, TikTok, Instagram,
       Facebook, Twitch, X/Twitter, Reddit, Discord, livestreams, multilingual
       content, self-harm, misinformation, rage-bait, and educational video.
-- [x] Social platform scope includes Facebook, Instagram, Messenger, TikTok,
+- [ ] Social platform scope includes Facebook, Instagram, Messenger, TikTok,
       Snapchat, YouTube, YouTube Shorts, Vimeo, Twitch, Discord, Reddit, X/Twitter,
       Pinterest, Roblox/social-game surfaces, unknown social sites, fake/new
       accounts, feeds/reels/shorts, livestreams, messaging/contact risk,
       upload/post, parent approvals, AI, memory/cache, and audit proof.
-- [x] Social privacy boundaries preserve permission/source/confidence and do
+- [ ] Social privacy boundaries preserve permission/source/confidence and do
       not claim private-message reading, native per-reel blocking, raw screenshot
       storage, or platform teen-setting trust without separate proof.
-- [x] Browser-game scope includes browser portals, HTML5/WebGL/canvas/iframe
+- [ ] Browser-game scope includes browser portals, HTML5/WebGL/canvas/iframe
       games, unblocked school sites, educational games, Roblox web flows, Minecraft
       account/launch flows, cloud gaming, Xbox Cloud Gaming, GeForce NOW, Amazon
       Luna, Boosteroid, Steam remote/web surfaces, itch.io, CrazyGames, Poki,
       Miniclip, Coolmath Games, Kongregate-style portals, microtransactions, loot
       boxes, multiplayer chat, UGC games, unsafe content, AI, approvals, time
       budgets, and proof.
-- [x] Browser-game evidence includes URL/domain shape, runtime signals,
+- [ ] Browser-game evidence includes URL/domain shape, runtime signals,
       metadata, hidden analysis safety, optional screen/OCR/vision summary, network
       limits, cloud-gaming ambiguity, and degraded states for canvas/iframe/cloud
       surfaces.
-- [x] Test/proof expectations include unit, integration, contract, adapter
+- [ ] Test/proof expectations include unit, integration, contract, adapter
       fixture, security, persistence, E2E, Playwright UI, manual browser/platform,
       performance, and CI proof gates.
-- [x] Required proof artifacts include source snapshots, raw JSON/logs,
+- [ ] Required proof artifacts include source snapshots, raw JSON/logs,
       journal/read-model output, policy/action refs, UI screenshots, child-facing
       screenshots where actions occur, security-negative proof, and manual platform
       evidence.

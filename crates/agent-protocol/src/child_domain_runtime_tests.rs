@@ -6,13 +6,12 @@ use crate::{
     child_domain_analysis_purpose, child_domain_evidence_recorded_event, child_domain_evidence_ref,
     child_domain_evidence_ref_from_observation_id, child_domain_observation_id_from_subject_ref,
     child_domain_observed_event,
-    child_domain_policy_request_id_from_fact_ref,
     child_domain_policy_evaluation_requested_from_ai_result_event_if_required,
-    child_domain_policy_rule_ref, child_domain_policy_severity, child_domain_policy_violation_id,
-    constants, ChildDomainAiAnalysisRequirement, ChildDomainAnalysisPurposeKind,
-    ChildDomainEventType, ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequirement,
-    ChildDomainPolicyRuleKind, ChildDomainPolicySeverityKind, ChildDomainRefSuffix,
-    ChildRuntimeDomain,
+    child_domain_policy_request_id_from_fact_ref, child_domain_policy_rule_ref,
+    child_domain_policy_severity, child_domain_policy_violation_id, constants,
+    ChildDomainAiAnalysisRequirement, ChildDomainAnalysisPurposeKind, ChildDomainEventType,
+    ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequirement, ChildDomainPolicyRuleKind,
+    ChildDomainPolicySeverityKind, ChildDomainRefSuffix, ChildRuntimeDomain,
 };
 
 #[test]
@@ -26,9 +25,10 @@ fn child_domain_event_type_rejects_unknown_event_name() {
 
 #[test]
 fn child_domain_event_type_accepts_known_event_name() {
-    let event_type =
-        ChildDomainEventType::parse(constants::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE)
-            .expect(constants::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE);
+    let event_type = ChildDomainEventType::parse(
+        constants::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+    )
+    .expect(constants::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE);
 
     assert_eq!(
         event_type,
@@ -42,7 +42,10 @@ fn child_domain_default_profile_uses_typed_contract_selectors() {
     let event = child_domain_observed_event(ChildRuntimeDomain::Browser.default_observed_profile());
     let evidence = child_domain_evidence_recorded_event(&event);
 
-    assert_eq!(app_event.event_type, ChildRuntimeDomain::App.observed_event_type());
+    assert_eq!(
+        app_event.event_type,
+        ChildRuntimeDomain::App.observed_event_type()
+    );
     assert!(app_event
         .subject_ref
         .as_str()
@@ -99,7 +102,9 @@ fn child_domain_ref_and_policy_constructors_use_typed_selectors() {
     let rule = child_domain_policy_rule_ref(ChildDomainPolicyRuleKind::Default);
     let severity = child_domain_policy_severity(ChildDomainPolicySeverityKind::Review);
 
-    assert!(evidence.as_str().contains(ChildRuntimeDomain::Browser.as_contract_text()));
+    assert!(evidence
+        .as_str()
+        .contains(ChildRuntimeDomain::Browser.as_contract_text()));
     assert!(ai_request
         .as_str()
         .contains(ChildRuntimeDomain::Browser.as_contract_text()));
@@ -131,11 +136,17 @@ fn child_domain_ai_completion_is_a_named_boundary_event_before_policy() {
         child_domain_policy_evaluation_requested_from_ai_result_event_if_required(&ai_completed)
             .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
 
-    assert_eq!(ai_completed.event_type, ChildDomainEventType::ai_analysis_completed());
+    assert_eq!(
+        ai_completed.event_type,
+        ChildDomainEventType::ai_analysis_completed()
+    );
     assert_eq!(ai_completed.source_ai_request_id, ai_request.ai_request_id);
     assert_eq!(ai_completed.evidence_refs, ai_request.evidence_refs);
     assert_eq!(ai_request.source_observed_at, evidence.source_observed_at);
-    assert_eq!(ai_completed.source_observed_at, ai_request.source_observed_at);
+    assert_eq!(
+        ai_completed.source_observed_at,
+        ai_request.source_observed_at
+    );
     assert_eq!(
         policy_request.source_observed_at,
         ai_completed.source_observed_at

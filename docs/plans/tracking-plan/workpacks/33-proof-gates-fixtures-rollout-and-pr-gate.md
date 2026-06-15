@@ -264,13 +264,13 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
 
 ## AI Worker Checklist
 
-- [x] Run the smallest useful validation while working.
-- [x] Run requested focused tests before handoff.
-- [x] Update feature docs and queue central capability checklist delta when
+- [ ] Run the smallest useful validation while working.
+- [ ] Run requested focused tests before handoff.
+- [ ] Update feature docs and queue central capability checklist delta when
       proof changes.
-- [x] Include touched files, validation, product-doc updates, known gaps, and
+- [ ] Include touched files, validation, product-doc updates, known gaps, and
       platform proof state in `DONE`.
-- [x] Do not mark product-complete from planning-only docs.
+- [ ] Do not mark product-complete from planning-only docs.
 
 ## Where We Are
 
@@ -566,416 +566,416 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs`, `node scripts/test/tracking-plan-runtime-proof.mjs`, and `node scripts/test/tracking-plan-service-read-model-proof.mjs` passed locally.
-- [x] Proof artifacts under `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`, including tracked `proof-summary.json` with `minimumSeriousMvpAuditSummary` and generated `00-run-metadata.json` with `minimumSeriousMvpAudit`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS physical behavior, precise desktop location, provider delivery, full live parent/child UI, hosted a11y, richer live service-backed UI citations, authority proof, production pilot, and full root-gate validation remain proof-gated as applicable.
-- [x] Workpack id and branch: `codex/tracking-proof-gap-closure`.
-- [x] Touched files: pre-device proof script, root test script wiring, tracking feature doc, tracking README, implementation checklist, WP08-WP12, WP30, WP32, WP33, and generated pre-device proof artifacts.
-- [x] Validation commands and results: `npm run test:tracking-plan-pre-device-proof` passed locally; it reran tracking contract/runtime/service proof, child Android device artifact gate, child iOS entitlement proof, and mobile child-agent aggregate proof.
-- [x] Proof artifacts under `output/tracking-plan-proof/pre-device-gap-closure/`, including `proof-summary.json`, `android-studio-local-proof-plan.json`, `ios-simulator-local-proof-plan.json`, `wsl-local-proof-plan.json`, `physical-device-manual-proof-plan.json`, and `16-validation-commands.log`.
-- [x] Product doc/checklist updates: owning feature doc and tracking checklist updated; the central `docs/product-capability-checklist.md` row update is queued through the hub DOC_DELTA queue with the pre-device proof gate while keeping Android Studio/emulator, iOS simulator, WSL/local, physical-device, authority, hosted UI, and production proof as gaps.
-- [x] Known gaps/manual-required states: Android Studio/emulator runtime, iOS simulator/local, WSL/local replay, physical Android/iOS behavior, authority-enrolled proof, full hosted UI/accessibility, production pilot, and richer live UI/read-model/product claims remain proof-gated as applicable.
-- [x] Workpack id and branch: `codex/tracking-wsl-local-replay-proof`.
-- [x] Touched files: WSL proof script, root test script wiring, tracking
+- [ ] Workpack id and branch: `codex/tracking-plan-full-scope`.
+- [ ] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
+- [ ] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs`, `node scripts/test/tracking-plan-runtime-proof.mjs`, and `node scripts/test/tracking-plan-service-read-model-proof.mjs` passed locally.
+- [ ] Proof artifacts under `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`, including tracked `proof-summary.json` with `minimumSeriousMvpAuditSummary` and generated `00-run-metadata.json` with `minimumSeriousMvpAudit`.
+- [ ] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
+- [ ] Known gaps/manual-required states: Android/iOS physical behavior, precise desktop location, provider delivery, full live parent/child UI, hosted a11y, richer live service-backed UI citations, authority proof, production pilot, and full root-gate validation remain proof-gated as applicable.
+- [ ] Workpack id and branch: `codex/tracking-proof-gap-closure`.
+- [ ] Touched files: pre-device proof script, root test script wiring, tracking feature doc, tracking README, implementation checklist, WP08-WP12, WP30, WP32, WP33, and generated pre-device proof artifacts.
+- [ ] Validation commands and results: `npm run test:tracking-plan-pre-device-proof` passed locally; it reran tracking contract/runtime/service proof, child Android device artifact gate, child iOS entitlement proof, and mobile child-agent aggregate proof.
+- [ ] Proof artifacts under `output/tracking-plan-proof/pre-device-gap-closure/`, including `proof-summary.json`, `android-studio-local-proof-plan.json`, `ios-simulator-local-proof-plan.json`, `wsl-local-proof-plan.json`, `physical-device-manual-proof-plan.json`, and `16-validation-commands.log`.
+- [ ] Product doc/checklist updates: owning feature doc and tracking checklist updated; the central `docs/product-capability-checklist.md` row update is queued through the hub DOC_DELTA queue with the pre-device proof gate while keeping Android Studio/emulator, iOS simulator, WSL/local, physical-device, authority, hosted UI, and production proof as gaps.
+- [ ] Known gaps/manual-required states: Android Studio/emulator runtime, iOS simulator/local, WSL/local replay, physical Android/iOS behavior, authority-enrolled proof, full hosted UI/accessibility, production pilot, and richer live UI/read-model/product claims remain proof-gated as applicable.
+- [ ] Workpack id and branch: `codex/tracking-wsl-local-replay-proof`.
+- [ ] Touched files: WSL proof script, root test script wiring, tracking
       feature doc, tracking README, implementation checklist, WP32, WP33, and
       generated WSL proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `npm run test:tracking-plan-wsl-local-proof` passed locally.
-- [x] Proof artifacts under `output/tracking-plan-proof/wsl-local-replay/`,
+- [ ] Proof artifacts under `output/tracking-plan-proof/wsl-local-replay/`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/19-wsl-local-replay-proof.json`,
       and
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/17-wsl-local-proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, tracking README,
+- [ ] Product doc/checklist updates: owning feature doc, tracking README,
       implementation checklist, WP32, and WP33 updated; the central
       `docs/product-capability-checklist.md` row update is queued through the
       hub DOC_DELTA queue with WSL/local replay proof while keeping
       Android/iOS physical-device, authority, hosted UI, provider-delivery, and
       production proof as gaps.
-- [x] Known gaps/manual-required states: Android Studio/emulator runtime, iOS
+- [ ] Known gaps/manual-required states: Android Studio/emulator runtime, iOS
       simulator/local, physical Android/iOS behavior, authority-enrolled proof,
       full hosted UI/accessibility, production pilot, provider delivery, and
       richer live UI/read-model/product claims remain proof-gated as
       applicable.
-- [x] Workpack id and branch: `codex/tracking-ios-simulator-proof`.
-- [x] Touched files: iOS simulator proof script, root script wiring,
+- [ ] Workpack id and branch: `codex/tracking-ios-simulator-proof`.
+- [ ] Touched files: iOS simulator proof script, root script wiring,
       package-preview CI artifact wiring, tracking feature doc, implementation
       checklist, WP11, WP12, WP31, WP33, and generated tracking iOS proof
       artifacts.
-- [x] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
+- [ ] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
       writes local proof; macOS package-preview runs the proof with
       `--require-simulator` after the real iOS simulator smoke.
-- [x] Proof artifacts under `test-results/tracking-plan-ios-simulator-proof/`,
+- [ ] Proof artifacts under `test-results/tracking-plan-ios-simulator-proof/`,
       WP11, WP12, and WP31 proof roots.
-- [x] Product doc/checklist updates: owning feature doc and tracking checklist
+- [ ] Product doc/checklist updates: owning feature doc and tracking checklist
       updated; central capability checklist delta remains primary-owned through
       hub.
-- [x] Known gaps/manual-required states: Core Location authorization/sample,
+- [ ] Known gaps/manual-required states: Core Location authorization/sample,
       background/region, notifications, entitlements, signing/TestFlight/App
       Store, physical-device, authority, hosted full UI/accessibility, and
       production proof remain unclaimed.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-live-service-citation-proof`.
-- [x] Touched files: portal tracking status renderer/tests, service proof
+- [ ] Touched files: portal tracking status renderer/tests, service proof
       script, tracking feature doc, implementation checklist, WP30, WP32,
       WP33, and generated WP32 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-plan-service-read-model-proof.mjs` passed.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`,
       including `14-retention-delete-proof.json`,
       `18-service-read-model-proof.json`, and `proof-summary.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, WP32, and WP33 updated; central capability row delta
       queued through the hub instead of editing
       `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: hosted full UI/accessibility, full
+- [ ] Known gaps/manual-required states: hosted full UI/accessibility, full
       parent/child UI, broader product read models, Android/iOS physical-device
       proof, authority, provider delivery, notifications, and production proof
       remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-hosted-ui-accessibility-proof-v2`.
-- [x] Touched files: hosted Playwright proof spec, hosted proof script, root
+- [ ] Touched files: hosted Playwright proof spec, hosted proof script, root
       script wiring, parent route tracking CSS, tracking feature doc,
       implementation checklist, WP30, WP33, and generated hosted proof
       artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `npm run test:tracking-plan-hosted-ui-proof` passed locally.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `test-results/tracking-plan-hosted-ui-proof/`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`, and
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`,
       including `18-hosted-ui-accessibility-proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and WP33 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: child-device delivery/runtime UI, full
+- [ ] Known gaps/manual-required states: child-device delivery/runtime UI, full
       service-data UI beyond the hosted parent route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-child-check-in-ui-proof`.
-- [x] Touched files: hosted child check-in proof model, portal tracking status
+- [ ] Touched files: hosted child check-in proof model, portal tracking status
       renderer/tests, hosted Playwright proof spec, hosted proof script,
       portal/text domain constants, tracking feature doc, implementation
       checklist, WP30, WP33, and generated hosted proof artifacts.
-- [x] Validation commands and results: `npm run test:tracking-plan-hosted-ui-proof`
+- [ ] Validation commands and results: `npm run test:tracking-plan-hosted-ui-proof`
       passes locally after focused portal/text tests.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `test-results/tracking-plan-hosted-ui-proof/`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`, and
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`,
       including
       `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and WP33 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: child-device delivery/runtime UI, full
+- [ ] Known gaps/manual-required states: child-device delivery/runtime UI, full
       parent/child UI beyond the hosted route, Android/iOS physical-device
       proof, authority, provider delivery, notifications, and production proof
       remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-evidence-quality-gate-proof`.
-- [x] Touched files: activity-domain evidence quality gate helper/test, root
+- [ ] Touched files: activity-domain evidence quality gate helper/test, root
       script wiring, evidence-quality proof script, tracking feature doc,
       implementation checklist, WP33, generated WP33 proof artifacts, and hub
       doc delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `npm run test:tracking-plan-evidence-quality-gate-proof` is the focused
       proof command for this slice and reruns activity-domain, parent-domain,
       and portal citation checks.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `test-results/tracking-plan-evidence-quality-gate-proof/` and
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`,
       including `19-evidence-quality-gate-proof.json` and
       `20-evidence-quality-gate-validation.log`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and WP33 updated; central capability row delta queued through
       the hub instead of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: hosted CI for this gate, live
+- [ ] Known gaps/manual-required states: hosted CI for this gate, live
       device/provider behavior, child-device delivery/runtime UI, full
       parent/child UI beyond the hosted route, Android/iOS physical-device
       proof, authority, provider delivery, notifications, and production proof
       remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-notification-receipt-boundary-proof`.
-- [x] Touched files: parent-domain receipt boundary proof contract, focused
+- [ ] Touched files: parent-domain receipt boundary proof contract, focused
       tests, proof script, owning tracking feature doc, implementation
       checklist, WP26, WP33, and generated receipt boundary proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-notification-receipt-boundary-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/22-notification-receipt-boundary-proof.json`,
       `output/tracking-plan-proof/26-alert-severity-and-notification-model/22-notification-receipt-boundary-proof.json`,
       `output/tracking-plan-proof/tracking-notification-receipt-boundary-proof/proof.json`,
       and
       `test-results/tracking-notification-receipt-boundary-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP26, and WP33 updated. Central
       `docs/product-capability-checklist.md` was not edited because E-C
       currently owns that lock.
-- [x] Known gaps/manual-required states: actual webhook/provider receipt
+- [ ] Known gaps/manual-required states: actual webhook/provider receipt
       ingestion runtime, provider delivery, credentials, adapter dispatch,
       retry/quiet-hours workers, parent notification UI, child-device delivery,
       physical-device proof, authority proof, durable outbox storage, and
       product-ready notification behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-notification-preference-preflight-proof`.
-- [x] Touched files: parent-domain tracking notification preference preflight
+- [ ] Touched files: parent-domain tracking notification preference preflight
       proof/test, proof script, tracking feature doc, implementation checklist,
       WP26, WP33, and generated WP26/WP33 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-notification-preference-preflight-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/24-notification-preference-preflight-proof.json`
       plus the WP26 companion proof and test-results proof.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP26, and WP33 updated; central
       `docs/product-capability-checklist.md` was not edited because E-C owns
       that lock.
-- [x] Known gaps/manual-required states: parent notification UI/history,
+- [ ] Known gaps/manual-required states: parent notification UI/history,
       preference mutation runtime, frequency-control UI, quiet-hours timer
       runtime, provider delivery/receipt runtime, credentials, child-device
       delivery, physical-device proof, authority, durable outbox storage, and
       product-ready notification behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain tracking notification parent-surface history
+- [ ] Touched files: parent-domain tracking notification parent-surface history
       proof/test, proof script, owning tracking feature docs, implementation
       checklist, WP26, WP33, generated WP26/WP33 proof artifacts, and hub doc
       delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-notification-parent-surface-history-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/26-notification-parent-surface-history-proof.json`,
       `output/tracking-plan-proof/26-alert-severity-and-notification-model/26-notification-parent-surface-history-proof.json`,
       `output/tracking-plan-proof/tracking-notification-parent-surface-history-proof/proof.json`,
       and
       `test-results/tracking-notification-parent-surface-history-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature docs, implementation
+- [ ] Product doc/checklist updates: owning feature docs, implementation
       checklist, WP26, and WP33 updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta.
-- [x] Known gaps/manual-required states: rendered parent notification UI,
+- [ ] Known gaps/manual-required states: rendered parent notification UI,
       parent preference mutation runtime, frequency-control UI, quiet-hours
       timer runtime, provider delivery, receipt ingestion runtime, credentials,
       cloud routing, child-device delivery, physical-device proof, authority
       proof, retry workers, production durable history/outbox storage, adapter
       dispatch, and product-ready notification behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: hosted notification parent-surface proof model, portal
+- [ ] Touched files: hosted notification parent-surface proof model, portal
       tracking status route renderer, portal hosted Playwright proof spec,
       portal tests, hosted proof script, portal/text/domain constants, owning
       tracking feature doc, implementation checklist, WP26/WP30/WP33 docs, and
       generated hosted proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `cmd /c npm run build --workspace @ocentra-parent/text-domain` passed;
       `cmd /c npm run build --workspace @ocentra-parent/portal-domain` passed;
       `cmd /c npm run test --workspace @ocentra-parent/portal --
 tracking-status-panel` passed; `cmd /c npm run lint --workspace
 @ocentra-parent/portal` passed; `cmd /c npm run
 test:tracking-plan-hosted-ui-proof` passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/35-notification-parent-surface-hosted-ui-proof.json`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/22-notification-parent-surface-hosted-ui-proof.json`,
       `output/tracking-plan-proof/26-alert-severity-and-notification-model/27-notification-parent-surface-hosted-ui-proof.json`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png`,
       and `test-results/tracking-plan-hosted-ui-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP26, WP30, and WP33 updated. Central
       `docs/product-capability-checklist.md` update remains hub-sequenced
       because E-B owns that lock.
-- [x] Known gaps/manual-required states: hosted notification parent-surface rows
+- [ ] Known gaps/manual-required states: hosted notification parent-surface rows
       are read-only rendering proof only; writable preference mutation,
       provider delivery, receipt ingestion runtime, credentials, cloud routing,
       child-device delivery, physical-device proof, authority proof, retry
       workers, production durable history/outbox storage, adapter dispatch, and
       product-ready notification behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain expected-place alert policy proof/test,
+- [ ] Touched files: parent-domain expected-place alert policy proof/test,
       proof script, owning tracking feature doc, implementation checklist,
       WP16, WP33, generated WP16/WP33 proof artifacts, and hub doc delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-expected-place-alert-policy-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/29-expected-place-alert-policy-proof.json`,
       `output/tracking-plan-proof/16-expected-place-schedule-engine/29-expected-place-alert-policy-proof.json`,
       `output/tracking-plan-proof/tracking-expected-place-alert-policy-proof/proof.json`,
       and `test-results/tracking-expected-place-alert-policy-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP16, and WP33 updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta.
-- [x] Known gaps/manual-required states: rendered parent UI, alert delivery
+- [ ] Known gaps/manual-required states: rendered parent UI, alert delivery
       runtime, provider delivery, notification receipt runtime, child-device
       runtime, physical-device proof, authority proof, production workers,
       adapter dispatch, exception/holiday integration, and product-ready
       expected-place behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain parent acknowledgement action readiness
+- [ ] Touched files: parent-domain parent acknowledgement action readiness
       proof/test, proof script, owning tracking feature doc, implementation
       checklist, WP17, WP33, generated WP17/WP33 proof artifacts, and hub doc
       delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-parent-acknowledgement-action-readiness-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/30-parent-acknowledgement-action-readiness-proof.json`,
       `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/30-parent-acknowledgement-action-readiness-proof.json`,
       and
       `test-results/tracking-parent-acknowledgement-action-readiness-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP17, and WP33 updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta.
-- [x] Known gaps/manual-required states: rendered portal acknowledgement UI,
+- [ ] Known gaps/manual-required states: rendered portal acknowledgement UI,
       live service mutation, alert/provider delivery, notification receipt
       runtime, child-device runtime, physical-device proof, authority proof,
       production workers, adapter dispatch, and product-ready parent action
       behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain child check-in timeout proof model/test,
+- [ ] Touched files: parent-domain child check-in timeout proof model/test,
       proof script, owning tracking feature doc, implementation checklist,
       WP18, WP33, generated WP18/WP33 proof artifacts, and hub doc delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs`
       passed after adding optional location-sample, prompt/response audit,
       alert-outcome, and rule-only escalation assertions.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/31-child-check-in-timeout-escalation-proof.json`,
       `output/tracking-plan-proof/18-child-check-in-flow/31-child-check-in-timeout-escalation-proof.json`,
       `test-results/tracking-child-check-in-timeout-escalation-proof/proof.json`,
       and
       `test-results/tracking-child-check-in-timeout-escalation-proof/tracking-child-check-in-timeout-read-model.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP18, and WP33 updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta.
-- [x] Known gaps/manual-required states: this remains P1 fixture proof.
+- [ ] Known gaps/manual-required states: this remains P1 fixture proof.
       Child-device delivery/runtime execution, rendered child-device UI,
       provider delivery, notification receipt runtime, live location sample
       runtime, physical-device proof, authority proof, production timeout
       workers, adapter dispatch, and product-ready child check-in behavior
       remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: hosted parent action readiness proof model, portal route
+- [ ] Touched files: hosted parent action readiness proof model, portal route
       renderer/tests, hosted Playwright proof spec, hosted proof script,
       portal/text/domain constants, owning tracking feature doc, implementation
       checklist, WP16, WP17, WP30, WP33, and generated hosted proof artifacts.
-- [x] Validation commands and results: pending final hosted proof refresh after
+- [ ] Validation commands and results: pending final hosted proof refresh after
       focused text-domain, portal-domain, and portal tracking-status tests
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/36-parent-action-readiness-hosted-ui-proof.json`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/23-parent-action-readiness-hosted-ui-proof.json`,
       `output/tracking-plan-proof/16-expected-place-schedule-engine/30-expected-place-alert-policy-hosted-ui-proof.json`,
       `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/31-parent-acknowledgement-action-hosted-ui-proof.json`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`,
       and `test-results/tracking-plan-hosted-ui-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP16, WP17, WP30, and WP33 updated. Central
       `docs/product-capability-checklist.md` remains hub-sequenced because E-B
       owns that lock.
-- [x] Known gaps/manual-required states: hosted parent action readiness rows are
+- [ ] Known gaps/manual-required states: hosted parent action readiness rows are
       read-only rendering proof only; live service mutation, alert/provider
       delivery, receipt ingestion runtime, child-device runtime, Android/iOS
       physical-device proof, authority proof, production workers, adapter
       dispatch, and product-ready parent action behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain tracking POI provider adapter/test, proof
+- [ ] Touched files: parent-domain tracking POI provider adapter/test, proof
       script, owning tracking feature doc, implementation checklist, WP20,
       WP33, generated WP20 proof artifacts, and hub doc delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-poi-provider-adapter-proof.mjs` passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/08-provider-parity-readiness-proof.json`
       and `test-results/tracking-poi-provider-adapter-proof/provider-parity-readiness.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP20, and WP33 updated. Central
       `docs/product-capability-checklist.md` is queued through the hub doc
       delta.
-- [x] Known gaps/manual-required states: live Google/Apple/OSM provider
+- [ ] Known gaps/manual-required states: live Google/Apple/OSM provider
       execution, provider credentials/auth, provider terms review, exact-place
       claims, physical-device proof, provider UI, production persistence, and
       product-ready nearby-place behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: implementation checklist and WP33 proof-gate doc.
-- [x] Validation commands and results:
+- [ ] Touched files: implementation checklist and WP33 proof-gate doc.
+- [ ] Validation commands and results:
       `node scripts/test/tracking-policy-compiler-runtime-proof.mjs` passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/proof.json`
       and `test-results/tracking-policy-compiler-runtime-proof/proof.json`.
-- [x] Product doc/checklist updates: implementation checklist and WP33 updated;
+- [ ] Product doc/checklist updates: implementation checklist and WP33 updated;
       no central capability checklist row change needed because this checkpoint
       corrects stale proof-tier wording for already documented WP25 proof.
-- [x] Known gaps/manual-required states: runtime enforcement, platform adapters,
+- [ ] Known gaps/manual-required states: runtime enforcement, platform adapters,
       provider delivery, notification receipt ingestion, production workers,
       physical-device behavior, full UI/report/policy consumers, child-device
       delivery, authority proof, and product-ready policy behavior remain
       proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain iOS privacy disclosure release proof/test,
+- [ ] Touched files: parent-domain iOS privacy disclosure release proof/test,
       focused proof script, root script wiring, owning tracking feature doc,
       implementation checklist, WP12, WP33, generated WP12/WP33 proof
       artifacts, and hub doc delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-ios-privacy-disclosure-release-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/20-ios-privacy-disclosure-release-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/47-ios-privacy-disclosure-release-proof.json`,
       and `test-results/tracking-ios-privacy-disclosure-release-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP12, and WP33 updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta instead of editing the shared checklist directly.
-- [x] Known gaps/manual-required states: App Store review, privacy label proof,
+- [ ] Known gaps/manual-required states: App Store review, privacy label proof,
       Core Location runtime, background delivery, region runtime, notification
       delivery, entitlement, TestFlight/device, physical-device behavior,
       authority proof, and product-ready iOS tracking remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain authority enrollment proof/test, focused
+- [ ] Touched files: parent-domain authority enrollment proof/test, focused
       proof script, owning tracking feature doc, implementation checklist,
       WP31, WP33, generated WP31/WP33 proof artifacts, and hub doc delta queue.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-authority-enrollment-manual-required-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/21-authority-enrollment-manual-required-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/48-authority-enrollment-manual-required-proof.json`,
       and `test-results/tracking-authority-enrollment-manual-required-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP31, and WP33 updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta instead of editing the shared checklist directly.
-- [x] Known gaps/manual-required states: real enrolled-device authority state,
+- [ ] Known gaps/manual-required states: real enrolled-device authority state,
       hard-control runtime, physical-device behavior, provider delivery,
       production workers, and product-ready tracking remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain physical-device artifact gate proof/test,
+- [ ] Touched files: parent-domain physical-device artifact gate proof/test,
       focused proof script, owning tracking feature doc, implementation
       checklist, WP33, generated WP33 proof artifacts, generated named proof
       root, and generated physical-device manual validation runbook.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-physical-device-artifact-gate-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/49-physical-device-artifact-gate-validation-commands.log`,
       `output/tracking-plan-proof/tracking-physical-device-artifact-gate-proof/proof.json`,
@@ -984,75 +984,75 @@ test:tracking-plan-hosted-ui-proof` passed.
       `test-results/tracking-physical-device-artifact-gate-proof/proof.json`,
       and
       `test-results/tracking-physical-device-artifact-gate-proof/read-model.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and WP33 updated. Central
       `docs/product-capability-checklist.md` was not edited in this batch because
       the product checklist row already keeps physical-device proof manual-required
       and another lane currently owns shared checklist edits.
-- [x] Known gaps/manual-required states: Android physical-device background
+- [ ] Known gaps/manual-required states: Android physical-device background
       geofence artifacts and iOS physical-device region-monitoring artifacts are
       missing, so physical-device behavior, authority enrollment, provider
       delivery, production workers, and product-ready tracking remain
       proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain tracking provider runtime readiness blocker
+- [ ] Touched files: parent-domain tracking provider runtime readiness blocker
       proof/test, proof script, owning tracking feature doc, implementation
       checklist, WP26 notification-model doc, this proof-gate doc, and generated
       WP26/WP33 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-provider-runtime-readiness-blocker-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/26-alert-severity-and-notification-model/30-provider-runtime-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/52-provider-runtime-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/52-provider-runtime-readiness-blocker-validation-commands.log`,
       `output/tracking-plan-proof/tracking-provider-runtime-readiness-blocker-proof/proof.json`,
       and
       `test-results/tracking-provider-runtime-readiness-blocker-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP26, and this proof-gate doc updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta instead of editing the shared checklist directly.
-- [x] Known gaps/manual-required states: provider delivery runtime, webhook
+- [ ] Known gaps/manual-required states: provider delivery runtime, webhook
       receipt ingestion runtime, credentials, adapter dispatch,
       retry/quiet-hours runtime, parent notification UI runtime, production
       durable outbox storage, child-device delivery, physical-device proof,
       authority proof, and product-ready tracking remain proof-gated until real
       provider-runtime artifacts exist.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: product-readiness closure proof model, closure harness,
+- [ ] Touched files: product-readiness closure proof model, closure harness,
       owning tracking feature doc, implementation checklist, this proof-gate
       doc, and refreshed closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-product-readiness-closure-proof.mjs` passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and this proof-gate doc updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta instead of editing the shared checklist directly.
-- [x] Known gaps/manual-required states: closure now requires the
+- [ ] Known gaps/manual-required states: closure now requires the
       provider-runtime readiness blocker proof ref, but provider delivery
       runtime, webhook receipt ingestion runtime, credentials, adapter
       dispatch, retry/quiet-hours runtime, parent notification UI runtime,
       production durable outbox storage, child-device delivery, physical-device
       proof, authority proof, and product-ready tracking remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: escalation runtime blocker proof model/test, focused proof
+- [ ] Touched files: escalation runtime blocker proof model/test, focused proof
       script, product-readiness closure proof model, closure harness, owning
       tracking feature doc, implementation checklist, WP27, this proof-gate
       doc, generated escalation blocker proof artifacts, and refreshed closure
       proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-escalation-runtime-readiness-blocker-proof.mjs`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/27-escalation-engine/10-escalation-runtime-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/53-escalation-runtime-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
@@ -1060,72 +1060,72 @@ test:tracking-plan-hosted-ui-proof` passed.
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       `test-results/tracking-escalation-runtime-readiness-blocker-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP27, and this proof-gate doc updated. Central
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta instead of editing the shared checklist directly.
-- [x] Known gaps/manual-required states: closure now requires the
+- [ ] Known gaps/manual-required states: closure now requires the
       escalation-runtime readiness blocker proof ref too, but production
       escalation workers, production quiet-hours timers, provider
       delivery/receipt runtime, parent notification history runtime,
       child-device delivery, durable escalation storage, physical-device proof,
       authority proof, emergency auto-contact policy, and product-ready
       escalation remain proof-gated until real runtime artifacts exist.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: product-readiness closure proof model, closure harness,
+- [ ] Touched files: product-readiness closure proof model, closure harness,
       owning tracking feature doc, implementation checklist, this proof-gate
       doc, and refreshed closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-product-readiness-closure-proof.mjs` passed.
-- [x] Proof artifacts: refreshed
+- [ ] Proof artifacts: refreshed
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and WP33 updated. Central
       `docs/product-capability-checklist.md` update remains hub/primary
       sequenced through doc delta instead of editing the shared checklist
       directly.
-- [x] Known gaps/manual-required states: closure now requires the
+- [ ] Known gaps/manual-required states: closure now requires the
       authority-enrollment manual-required proof ref too, but real enrolled
       authority state, hard-control runtime, physical-device behavior, provider
       delivery, production workers, and product-ready tracking remain
       proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: product-readiness closure proof model, closure harness,
+- [ ] Touched files: product-readiness closure proof model, closure harness,
       owning tracking feature doc, implementation checklist, this proof-gate
       doc, and refreshed closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-product-readiness-closure-proof.mjs` passed.
-- [x] Proof artifacts: refreshed
+- [ ] Proof artifacts: refreshed
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and WP33 updated. Central
       `docs/product-capability-checklist.md` update remains hub/primary
       sequenced through doc delta instead of editing the shared checklist
       directly.
-- [x] Known gaps/manual-required states: closure now also requires iOS
+- [ ] Known gaps/manual-required states: closure now also requires iOS
       release-gate, notification receipt/preference/outbox, and child-runtime
       artifact gate proof refs, but real notification runtime, child-device
       delivery, physical-device behavior, authority enrollment, provider
       delivery, production workers, and product-ready tracking remain
       proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: tracking notification preference status handoff
+- [ ] Touched files: tracking notification preference status handoff
       proof/test, focused proof script, product-readiness closure proof model,
       closure harness, owning tracking feature doc, implementation checklist,
       WP26, this proof-gate doc, generated status handoff proof artifacts, and
       refreshed closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-notification-preference-status-handoff-proof.mjs`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/26-alert-severity-and-notification-model/31-notification-preference-status-handoff-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/54-notification-preference-status-handoff-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
@@ -1133,30 +1133,30 @@ test:tracking-plan-hosted-ui-proof` passed.
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       `test-results/tracking-notification-preference-status-handoff-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP26, and this proof-gate doc updated. Central
       `docs/product-capability-checklist.md` update remains hub/primary
       sequenced through doc delta instead of editing the shared checklist
       directly.
-- [x] Known gaps/manual-required states: closure now also requires the
+- [ ] Known gaps/manual-required states: closure now also requires the
       notification preference status handoff proof ref, but parent notification
       preference UI/history UI, preference mutation runtime, quiet-hours timer
       runtime, provider delivery/receipt runtime, credentials, cloud routing,
       child-device delivery, physical-device proof, authority proof,
       production workers, production durable outbox storage, adapter dispatch,
       and product-ready notification behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: tracking authority-runtime readiness blocker proof/test,
+- [ ] Touched files: tracking authority-runtime readiness blocker proof/test,
       focused proof script, product-readiness closure proof model, closure
       harness, owning tracking feature doc, implementation checklist, WP31,
       this proof-gate doc, generated authority-runtime blocker proof artifacts,
       and refreshed closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-authority-runtime-readiness-blocker-proof.mjs`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/22-authority-runtime-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/55-authority-runtime-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
@@ -1164,29 +1164,29 @@ test:tracking-plan-hosted-ui-proof` passed.
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       `test-results/tracking-authority-runtime-readiness-blocker-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP31, and this proof-gate doc updated. Central
       `docs/product-capability-checklist.md` update remains hub/primary
       sequenced through doc delta instead of editing the shared checklist
       directly.
-- [x] Known gaps/manual-required states: closure now also requires the
+- [ ] Known gaps/manual-required states: closure now also requires the
       authority-runtime readiness blocker proof ref, but real enrolled-device
       authority state, hard-control runtime, parent-visible authority runtime,
       physical-device behavior, provider delivery, production workers, and
       product-ready tracking remain proof-gated.
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: full product UI readiness blocker proof/test, focused
+- [ ] Touched files: full product UI readiness blocker proof/test, focused
       proof script, product-readiness closure proof model, closure harness,
       owning tracking feature doc, implementation checklist, WP30, this
       proof-gate doc, generated full-product UI blocker proof artifacts, and
       refreshed closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-full-product-ui-readiness-blocker-proof.mjs`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/31-full-product-ui-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/56-full-product-ui-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
@@ -1194,84 +1194,84 @@ test:tracking-plan-hosted-ui-proof` passed.
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       `test-results/tracking-full-product-ui-readiness-blocker-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and this proof-gate doc updated. Central product
       capability checklist update will be queued through hub doc-deltas; this
       branch does not edit `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: closure now also requires the full
+- [ ] Known gaps/manual-required states: closure now also requires the full
       product UI readiness blocker proof ref, but full parent/child product UI
       beyond the hosted route, child-device runtime UI, parent receipt UI,
       physical-device UI proof, authority-gated UI proof, provider-delivery UI
       proof, production product UI, and product-ready tracking UI remain
       proof-gated.
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: production durable workers readiness blocker proof/test,
+- [ ] Touched files: production durable workers readiness blocker proof/test,
       focused proof script, product-readiness closure proof model, closure
       harness, owning tracking feature doc, implementation checklist, this
       proof-gate doc, generated production durable worker blocker proof
       artifacts, and refreshed closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-production-durable-workers-readiness-blocker-proof.mjs`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/57-production-durable-workers-readiness-blocker-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
       `output/tracking-plan-proof/tracking-production-durable-workers-readiness-blocker-proof/proof.json`,
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       `test-results/tracking-production-durable-workers-readiness-blocker-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and this proof-gate doc updated. Central product capability
       checklist update will be queued through hub doc-deltas; this branch does
       not edit `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: closure now also requires the
+- [ ] Known gaps/manual-required states: closure now also requires the
       production durable workers readiness blocker proof ref, but tracking
       location upload, retention cleanup, notification outbox, escalation
       timeout, provider receipt, child-device delivery, authority status,
       production audit durable storage, production worker execution, and
       product-ready tracking remain proof-gated.
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: implementation checklist proof-pack inventory wording and
+- [ ] Touched files: implementation checklist proof-pack inventory wording and
       this proof-gate doc only.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-product-readiness-closure-proof.mjs` passed;
       `cmd /c npm run format:check` passed; `git diff --check` passed;
       `cmd /c npm run --silent lanes:guard` passed.
-- [x] Proof artifacts: no new proof artifact added; existing closure proof
+- [ ] Proof artifacts: no new proof artifact added; existing closure proof
       remains the canonical local/CI accounting artifact.
-- [x] Product doc/checklist updates: owning implementation checklist and this
+- [ ] Product doc/checklist updates: owning implementation checklist and this
       proof-gate doc updated. Central product capability checklist is not
       edited by this branch.
-- [x] Known gaps/manual-required states: sub-agent and local audits found no
+- [ ] Known gaps/manual-required states: sub-agent and local audits found no
       missing non-duplicate local/CI proof artifact after
       `6063f06a`; Android/iOS physical proof, actual child-device runtime,
       full product parent/child UI beyond hosted route, authority,
       provider delivery/receipt runtime, production worker execution, and
       product-ready tracking remain proof-gated.
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: production worker runtime artifact gate proof/test,
+- [ ] Touched files: production worker runtime artifact gate proof/test,
       focused proof script, owning tracking feature doc, implementation
       checklist, this proof-gate doc, and generated production worker runtime
       artifact gate proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-production-worker-runtime-artifact-gate-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/58-production-worker-runtime-artifact-gate-proof.json`,
       `output/tracking-plan-proof/tracking-production-worker-runtime-artifact-gate-proof/proof.json`,
       and
       `test-results/tracking-production-worker-runtime-artifact-gate-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and this proof-gate doc updated. Central product capability
       checklist is not edited by this branch.
-- [x] Known gaps/manual-required states: this artifact gate reuses the required
+- [ ] Known gaps/manual-required states: this artifact gate reuses the required
       production artifact refs from the durable-workers readiness blocker, but
       the real tracking production location-upload, retention-cleanup,
       notification-outbox, escalation-timeout, provider-receipt,
@@ -1280,19 +1280,19 @@ test:tracking-plan-hosted-ui-proof` passed.
       production storage, physical-device behavior, authority, provider
       delivery/receipt runtime, and product-ready tracking remain proof-gated.
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: full product UI readiness blocker proof source, full
+- [ ] Touched files: full product UI readiness blocker proof source, full
       product UI runtime artifact gate proof/test, local artifact capture proof
       source/test/script, owning tracking feature doc, implementation checklist,
       this proof-gate doc, and generated full product UI runtime artifact gate
       proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs`
       passed;
       `node scripts/test/tracking-full-product-ui-runtime-artifact-gate-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/33-full-product-ui-local-runtime-artifact-capture-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/66-full-product-ui-local-runtime-artifact-capture-proof.json`,
       `output/tracking-plan-proof/tracking-full-product-ui-local-runtime-artifact-capture-proof/proof.json`,
@@ -1302,10 +1302,10 @@ test:tracking-plan-hosted-ui-proof` passed.
       `output/tracking-plan-proof/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json`,
       and
       `test-results/tracking-full-product-ui-runtime-artifact-gate-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and this proof-gate doc updated. Central product capability
       checklist is not edited by this branch.
-- [x] Known gaps/manual-required states: the local capture proof now supplies
+- [ ] Known gaps/manual-required states: the local capture proof now supplies
       parent overview, parent device detail, notification history/preferences,
       retention settings local write result, cross-surface accessibility, and
       local product UI trace artifacts from the hosted proof stack, and the
@@ -1317,18 +1317,18 @@ test:tracking-plan-hosted-ui-proof` passed.
       authority, provider delivery, production product UI, and product-ready
       tracking remain proof-gated.
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: authority runtime artifact gate proof/test, focused proof
+- [ ] Touched files: authority runtime artifact gate proof/test, focused proof
       script, product-readiness closure proof model, closure harness, owning
       tracking feature doc, implementation checklist, WP31, this proof-gate
       doc, generated authority runtime artifact gate proof artifacts, and
       refreshed closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-authority-runtime-artifact-gate-proof.mjs`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/23-authority-runtime-artifact-gate-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/61-authority-runtime-artifact-gate-proof.json`,
       `output/tracking-plan-proof/tracking-authority-runtime-artifact-gate-proof/proof.json`,
@@ -1336,29 +1336,29 @@ test:tracking-plan-hosted-ui-proof` passed.
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       `test-results/tracking-authority-runtime-artifact-gate-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP31, and this proof-gate doc updated. Central product
       capability checklist is not edited by this branch; the row delta is
       queued through hub doc-deltas.
-- [x] Known gaps/manual-required states: this artifact gate derives required
+- [ ] Known gaps/manual-required states: this artifact gate derives required
       authority runtime artifacts from the existing runtime-readiness blocker
       proof, but real enrolled-device authority state, hard-control runtime,
       parent-visible authority runtime, physical-device behavior, provider
       delivery, production workers, and product-ready tracking remain
       proof-gated.
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: escalation runtime artifact gate proof/test, focused proof
+- [ ] Touched files: escalation runtime artifact gate proof/test, focused proof
       script, product-readiness closure proof model, closure harness, owning
       tracking feature doc, implementation checklist, WP27, this proof-gate
       doc, generated escalation runtime artifact gate proof artifacts, and
       refreshed closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-escalation-runtime-artifact-gate-proof.mjs`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/27-escalation-engine/11-escalation-runtime-artifact-gate-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/62-escalation-runtime-artifact-gate-proof.json`,
       `output/tracking-plan-proof/tracking-escalation-runtime-artifact-gate-proof/proof.json`,
@@ -1366,11 +1366,11 @@ test:tracking-plan-hosted-ui-proof` passed.
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       `test-results/tracking-escalation-runtime-artifact-gate-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP27, and this proof-gate doc updated. Central product
       capability checklist is not edited by this branch; the row delta is
       queued through hub doc-deltas.
-- [x] Known gaps/manual-required states: this artifact gate derives required
+- [ ] Known gaps/manual-required states: this artifact gate derives required
       escalation runtime artifacts from the existing runtime-readiness blocker
       proof, but production escalation workers, quiet-hours timers, provider
       delivery/receipt runtime, parent notification history runtime,
@@ -1378,71 +1378,71 @@ test:tracking-plan-hosted-ui-proof` passed.
       auto-contact policy, physical-device proof, authority proof, and
       product-ready escalation remain proof-gated.
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: tracking claim-audit proof/test, focused proof script,
+- [ ] Touched files: tracking claim-audit proof/test, focused proof script,
       product-readiness closure proof model, closure harness, owning tracking
       feature doc, implementation checklist, this proof-gate doc, generated
       claim-audit proof artifacts, and refreshed closure proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-claim-audit-proof.mjs` passed;
       `npm run test --workspace @ocentra-parent/parent-domain --
 tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
       passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/65-claim-audit-proof.json`,
       `output/tracking-plan-proof/tracking-claim-audit-proof/proof.json`,
       `test-results/tracking-claim-audit-proof/proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
       `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
       and `test-results/tracking-product-readiness-closure-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and this proof-gate doc updated. Central product capability
       checklist is not edited by this branch; row deltas stay hub-routed.
-- [x] Known gaps/manual-required states: claim audit rows keep Android/iOS
+- [ ] Known gaps/manual-required states: claim audit rows keep Android/iOS
       physical behavior, approved-manual desktop location, actual child-device
       runtime, full product parent/child UI, authority, provider delivery,
       retention platform runtime enforcement, production workers, escalation
       runtime workers, and product-ready tracking unclaimed until real artifact
       sets or approval exist.
-- [x] Aggregate closure refresh: claim audit now carries supporting proof refs
+- [ ] Aggregate closure refresh: claim audit now carries supporting proof refs
       for the full-product UI runtime gate and local runtime artifact capture,
       records eight observed local UI artifacts and four hard full-product UI
       runtime gaps, and the product-readiness closure proof now records those
       counts alongside the retention writable execution derivation and
       child-runtime plus production-worker required/present/missing artifact
       counts while keeping product-ready false.
-- [x] Real-runtime handoff accounting refresh: the handoff proof now consumes
+- [ ] Real-runtime handoff accounting refresh: the handoff proof now consumes
       the product-readiness closure aggregate counts, including child-runtime,
       retention-runtime, and production-worker artifact counts, records
       readiness categories for seven physical/runtime rows, one provider-runtime
       row, and two production-runtime rows, and keeps all manual handoff rows
       `ciRunnable=false` with product-ready false.
-- [x] Provider-runtime artifact inventory refresh: provider runtime readiness
+- [ ] Provider-runtime artifact inventory refresh: provider runtime readiness
       blocker proof now preserves the provider delivery artifact gate's exact
       required, present, and missing runtime artifact refs/counts, with zero
       provider runtime artifacts present and provider delivery/receipt/product
       claims still false.
-- [x] Retention runtime closure accounting refresh: product-readiness closure
+- [ ] Retention runtime closure accounting refresh: product-readiness closure
       and real-runtime handoff now carry two required retention runtime
       artifacts, one present local writable execution artifact, one missing
       platform retention runtime enforcement artifact, one manual-required
       retention row, and zero artifact-complete retention runtime rows.
-- [x] Retention platform enforcement preflight refresh: WP07/WP33 now carries
+- [ ] Retention platform enforcement preflight refresh: WP07/WP33 now carries
       Android, iOS, and desktop manual-required acceptance rows, manual
       validation commands, and missing platform runtime artifact refs while
       keeping platform enforcement and product-ready retention false. The
       product-readiness closure and real-runtime handoff proofs now carry the
       three-row, six-required-artifact preflight accounting forward.
-- [x] Full product UI runtime preflight refresh: WP30/WP33 now carries four
+- [ ] Full product UI runtime preflight refresh: WP30/WP33 now carries four
       manual-required acceptance rows for the missing retention production
       write-result UI, rendered child-device check-in, rendered child-device
       location consent, and child-device safe/help response artifacts. The
       product-readiness closure and real-runtime handoff proofs now carry the
       four-row, four-required-artifact, zero-present accounting forward while
       full product UI runtime and product-ready claims remain false.
-- [x] Production worker runtime preflight refresh: WP33 now carries eight
+- [ ] Production worker runtime preflight refresh: WP33 now carries eight
       manual-required acceptance rows for the missing production location
       upload, retention cleanup, notification outbox, escalation timeout,
       provider receipt, child-device delivery, authority status, and audit
@@ -1450,26 +1450,26 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       handoff proofs now carry the eight-row, eight-required-artifact,
       zero-present accounting forward while production runtime and product-ready
       claims remain false.
-- [x] Claim-audit tier accounting refresh: claim-audit proof, product-readiness
+- [ ] Claim-audit tier accounting refresh: claim-audit proof, product-readiness
       closure, real-runtime handoff, and source reconciliation gap-map now
       carry and assert the final manual-required split of seven
       physical-device/runtime rows, one approved-manual desktop row, one
       manual provider-runtime row, and two production-runtime rows, keeping
       product-ready false.
-- [x] Retention writable product runtime handoff refresh: claim-audit and
+- [ ] Retention writable product runtime handoff refresh: claim-audit and
       real-runtime handoff now give
       `retention-writable-product-settings-required` its own row sourced from
       the full-product UI runtime preflight retention write-result row and
       supporting the local retention writable execution proof. This keeps the
       production retention write-result artifact manual-required without
       treating hosted local write rendering as product runtime proof.
-- [x] Applied retention settings runtime bridge refresh: WP07/WP33 now consumes
+- [ ] Applied retention settings runtime bridge refresh: WP07/WP33 now consumes
       the local writable execution proof, records the local writable execution
       runtime artifact as present, records the platform retention enforcement
       artifact as missing, and keeps product-ready, production, provider,
       authority, physical-device, notification receipt, and child-device runtime
       claims false.
-- [x] Android emulator artifact inventory refresh: new WP08/WP09/WP10/WP33
+- [ ] Android emulator artifact inventory refresh: new WP08/WP09/WP10/WP33
       inventory proof verifies the existing adb runtime outputs, foreground and
       background permission UI artifacts, app-reported location evidence, local
       geofence transition evidence, device-status proof, and validation log as
@@ -1478,7 +1478,7 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       emulator artifact counts without changing Android system geofence
       delivery, physical-device, authority, production runtime, or product-ready
       claims.
-- [x] iOS simulator artifact inventory refresh: new WP11/WP12/WP31/WP33
+- [ ] iOS simulator artifact inventory refresh: new WP11/WP12/WP31/WP33
       inventory proof verifies existing simulator package proof artifacts,
       manual-required Core Location proof artifacts, privacy disclosure
       release-gate artifacts, platform proof notes, and validation logs as
@@ -1487,7 +1487,7 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       simulator artifact counts without changing Core Location runtime,
       background region delivery, physical-device, authority, provider,
       production runtime, or product-ready claims.
-- [x] Android physical-device runtime refresh: Samsung S9 proof now uses debug
+- [ ] Android physical-device runtime refresh: Samsung S9 proof now uses debug
       APK push plus on-device package-manager install, verifies
       foreground-service `ServiceRecord` with `isForeground=true`, records
       4,177 foreground-service-backed background GPS samples, app-owned
@@ -1497,14 +1497,14 @@ tracking-claim-audit-proof tracking-product-readiness-closure-proof`
       behavior artifact set missing, content accepted rows at zero, physical
       geofence/system delivery counters at zero, and product-ready tracking
       false.
-- [x] Local platform proof batch now carries the Samsung S9 Android physical
+- [ ] Local platform proof batch now carries the Samsung S9 Android physical
       package/service/status proof as an explicit local status row beside
       Android emulator, WSL/local, hosted UI, product UI local artifacts,
       parent-child local runtime bridge, cross-platform capability, and
       real-runtime handoff accounting. This does not upgrade Android physical
       behavior, iOS runtime, child-device runtime, authority, provider,
       production, or product-ready claims.
-- [x] Local execution strategy proof now records the single-branch batch
+- [ ] Local execution strategy proof now records the single-branch batch
       workflow before PR handoff: Windows host validation, WSL replay, Docker
       CLI availability, Android emulator route, Samsung S9 physical status-only
       route, macOS/iOS CI/manual route, physical/manual runtime route, and

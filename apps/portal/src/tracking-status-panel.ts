@@ -221,6 +221,7 @@ function renderTrackingStatusServiceDataCoverage(coverage: TrackingStatusService
   appendDetail(metadata, PortalDetails.HistoryVisibility, coverage.rowVisibility);
   appendDetail(metadata, PortalDetails.LastObserved, coverage.lastObserved);
   appendDetail(metadata, PortalDetails.EventId, coverage.eventId);
+  appendDetail(metadata, PortalDetails.Device, coverage.deviceCounts);
   appendDetail(metadata, PortalDetails.Capability, coverage.capability);
   appendDetail(metadata, PortalDetails.Custody, coverage.custody);
   appendDetail(metadata, PortalDetails.ActivityKind, coverage.activityKinds);

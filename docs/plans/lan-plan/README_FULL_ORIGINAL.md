@@ -140,58 +140,58 @@ Checked items below mean there is concrete proof in merged `main` or in branch
 `codex/v0-9-lan-signed-discovery-relay-spine`. They do not mark a whole
 workpack complete unless every requirement in that workpack is complete.
 
-- [x] Main has the baseline V0.9 household LAN read model: local child-agent
+- [ ] Main has the baseline V0.9 household LAN read model: local child-agent
       inventory, passive neighbor/router separation, scan summary, trusted
       registry input, selected-device readiness, route recovery, and portal
       target filtering.
-- [x] Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds typed
+- [ ] Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds typed
       signed-discovery and relay/cache spine contracts in `parent-domain` and
       `agent-protocol-domain`.
-- [x] The same branch adds Rust protocol/service parity for signed discovery
+- [ ] The same branch adds Rust protocol/service parity for signed discovery
       rows, rejected discovery states, route custody safety, trusted registry
       route checks, and relay/cache unavailable/manual-required states.
-- [x] `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs` exists as the
+- [ ] `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs` exists as the
       focused proof harness for this branch and keeps physical household proof,
       real relay/cache, and mobile/store/signing claims manual-required unless
       separately proved.
-- [x] Feature docs for remote/LAN/mobile platforms and family setup/device
+- [ ] Feature docs for remote/LAN/mobile platforms and family setup/device
       roles were updated on this branch to describe the signed discovery relay
       proof and remaining gaps.
-- [x] Parent-facing Devices/LAN UX now consumes the signed discovery relay
+- [ ] Parent-facing Devices/LAN UX now consumes the signed discovery relay
       spine from the B read model for selected-device route custody, signed
       proof, relay/cache unavailable, manual-proof, audit, route requirement,
       unproved-claim, and parent-decision labels.
-- [x] Devices/LAN add-to-portal now sends the existing
+- [ ] Devices/LAN add-to-portal now sends the existing
       `agent.lan-pairing.add-device.request` command when the selected LAN slot
       has a controllable service route, while unsupported/router slots remain
       visible-only.
-- [x] Parent-facing Devices/LAN UX now has first-class action controls for
+- [ ] Parent-facing Devices/LAN UX now has first-class action controls for
       add, route select, rename, trust, ignore, restore, and revoke. Add,
       rename/trust/ignore/restore decisions use the existing
       `agent.lan-pairing.add-device.request` household-decision fields; route
       select/revoke use LAN route commands, and the portal transport now routes
       LAN commands to the selected local-network child target.
-- [x] Activity/Network diagnostics now render service-backed LAN read-model
+- [ ] Activity/Network diagnostics now render service-backed LAN read-model
       state for selected/family target, cloud relay, physical LAN state,
       selected route, signed proof, route safety, relay/cache, manual proof,
       unproved claims, route requirements, audit checks, canonical devices,
       evidence records, parent decisions, sources, and latest evidence.
-- [x] Activity/Network diagnostics now include lightweight LAN scan/evidence
+- [ ] Activity/Network diagnostics now include lightweight LAN scan/evidence
       timeline rows, signed adapter/heartbeat proof state, and policy-target
       history in addition to route/evidence/decision state.
-- [x] Branch `codex/v0-9-lan-source-matrix-plan-completion` adds a typed
+- [ ] Branch `codex/v0-9-lan-source-matrix-plan-completion` adds a typed
       `lanDiscoverySourceMatrix` read-model field across parent-domain,
       agent-protocol-domain, Rust protocol, and Rust service state. The matrix
       carries all 20 workpacks and source rows with implemented, partial,
       manual-required, and not-implemented statuses.
-- [x] `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` writes
+- [ ] `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` writes
       `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`. Latest
       local proof shows 2 implemented workpacks, 10 partial workpacks,
       5 manual-required workpacks, 3 not-implemented workpacks, 9 implemented
       source rows, 5 partial source rows, 10 manual-required source rows, and
       7 not-implemented source rows. It also proves weak sources cannot confirm
       child-agent identity or assign a child profile.
-- [x] Live browser proof was captured on the B lane dev ports for Devices/LAN,
+- [ ] Live browser proof was captured on the B lane dev ports for Devices/LAN,
       Activity/Network diagnostics, and Network policy target binding:
       `output/playwright/lan-source-matrix-plan-completion/devices-lan-source-matrix.png`,
       `output/playwright/lan-source-matrix-plan-completion/activity-network-source-matrix.png`,
@@ -208,7 +208,7 @@ workpack complete unless every requirement in that workpack is complete.
 - [ ] Cloud relay/cache, parent-owned storage, Android/iOS child parity,
       package signing, and store-distribution claims remain unavailable or
       manual-required until separate implementation proof exists.
-- [x] `docs/product-capability-checklist.md` has the matching LAN
+- [ ] `docs/product-capability-checklist.md` has the matching LAN
       source-matrix proof note. The Remote/LAN/mobile and family setup rows
       point at the source-matrix proof script, proof JSON, and screenshot
       artifacts above while keeping physical household proof manual-required.

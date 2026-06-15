@@ -1,11 +1,11 @@
 use ocentra_eventing::DomainEvent;
-use ocentra_policy_control_core::{
+use ocentra_policy_control_core::policy_authority::{
     resolve_policy_conflict, resolve_policy_evaluation_request, AiResultAuthorityState,
     EvidenceReferenceState, ParentAuthorityState, PolicyActionAuthorizationState,
-    PolicyConflictDecision, PolicyConflictInput, PolicyConflictResolutionState, PolicyConflictState,
-    PolicyControlAggregateId, PolicyControlInput, PolicyControlRequestId, PolicyDecisionMode,
-    PolicyDecisionSource, PolicyEnforcementExecutionState, PolicyEvaluationRequestedEvent,
-    PolicyManualReviewState,
+    PolicyConflictDecision, PolicyConflictInput, PolicyConflictResolutionState,
+    PolicyConflictState, PolicyControlAggregateId, PolicyControlInput, PolicyControlRequestId,
+    PolicyDecisionMode, PolicyDecisionSource, PolicyEnforcementExecutionState,
+    PolicyEvaluationRequestedEvent, PolicyManualReviewState,
 };
 
 const POLICY_AGGREGATE_ID: &str = "policy-control-household-default";
@@ -36,8 +36,7 @@ fn parent_policy_with_stable_evidence_can_authorize_enforcement() {
     let request = PolicyEvaluationRequestedEvent {
         aggregate_id: PolicyControlAggregateId::parse(POLICY_AGGREGATE_ID)
             .expect("policy aggregate id"),
-        request_id: PolicyControlRequestId::parse(POLICY_REQUEST_ID)
-            .expect("policy request id"),
+        request_id: PolicyControlRequestId::parse(POLICY_REQUEST_ID).expect("policy request id"),
         input: policy_input(AiResultAuthorityState::EvidenceOnly),
         conflict_input: conflict_input(PolicyDecisionSource::ParentPolicy),
     };
@@ -79,8 +78,7 @@ fn ai_result_claiming_authority_blocks_enforcement_and_requires_review() {
     let request = PolicyEvaluationRequestedEvent {
         aggregate_id: PolicyControlAggregateId::parse(POLICY_AGGREGATE_ID)
             .expect("policy aggregate id"),
-        request_id: PolicyControlRequestId::parse(POLICY_REQUEST_ID)
-            .expect("policy request id"),
+        request_id: PolicyControlRequestId::parse(POLICY_REQUEST_ID).expect("policy request id"),
         input: policy_input(AiResultAuthorityState::ClaimsAuthority),
         conflict_input: conflict_input(PolicyDecisionSource::AiEvidence),
     };

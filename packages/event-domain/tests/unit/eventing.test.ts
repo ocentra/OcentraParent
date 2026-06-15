@@ -22,7 +22,7 @@ describe('event-domain eventing contracts', () => {
   it('parses eventing contract and stored envelope header without a feature-local schema clone', () => {
     const contract = EventingEventContractSchema.parse({
       eventType: 'tracking.location.observed',
-      schemaVersion: 1,
+      schemaVersion: 2,
     });
     const header = EventingStoredEnvelopeHeaderSchema.parse({
       contract,
@@ -48,8 +48,39 @@ describe('event-domain eventing contracts', () => {
     });
 
     expect(header.contract.eventType).toBe('tracking.location.observed');
+    expect(header.contract.schemaVersion).toBe(2);
     expect(header.metadata.source.component).toBe('tracking-runtime-flow');
     expect(header.journalHash).toBe('journal-hash-1');
+  });
+
+  it('rejects zero schema versions at the shared stored-envelope boundary', () => {
+    const result = EventingStoredEnvelopeHeaderSchema.safeParse({
+      contract: {
+        eventType: 'tracking.location.observed',
+        schemaVersion: 0,
+      },
+      metadata: {
+        eventId: 'event-1',
+        correlationId: 'correlation-1',
+        causationId: null,
+        aggregateKey: 'child-device-1',
+        idempotencyKey: 'tracking-location-1',
+        source: {
+          custody: 'local-child-runtime',
+          role: 'child-runtime',
+          service: 'tracking-core',
+          component: 'tracking-runtime-flow',
+          instanceId: 'child-runtime-1',
+        },
+        observedAt: '2026-06-12T10:00:00.000Z',
+        targetHandler: null,
+        priority: EventingEventPriority.Normal,
+        deadline: null,
+      },
+      journalHash: 'journal-hash-1',
+    });
+
+    expect(result.success).toBe(false);
   });
 
   it('parses event topology manifests with subscriber targets from the common schema', () => {

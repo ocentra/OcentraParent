@@ -58,6 +58,7 @@ export function TrackingParentPortalSummaryCard({
               { label: PortalDetails.RowsReturned, value: coverage.rowsReturned },
               { label: PortalDetails.HistoryVisibility, value: coverage.rowVisibility },
               { label: PortalDetails.LastObserved, value: coverage.lastObserved },
+              { label: PortalDetails.Device, value: coverage.deviceCounts },
               { label: PortalDetails.Capability, value: coverage.capability },
               { label: PortalDetails.Custody, value: coverage.custody },
               { label: PortalDetails.ActivityKind, value: coverage.activityKinds },

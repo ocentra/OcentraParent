@@ -60,21 +60,21 @@ It does not add:
 
 ## AI Worker Checklist
 
-- [x] Source docs read: app/game feature doc, app-game snapshot, app-plan
+- [ ] Source docs read: app/game feature doc, app-game snapshot, app-plan
       snapshot, agent-core README, protocol/test/rust/source-shape/validation
       rules.
-- [x] Hub lock covered exact source, docs, workpack, and proof output paths.
-- [x] Existing app-game journal/SQLite replay path was extended instead of
+- [ ] Hub lock covered exact source, docs, workpack, and proof output paths.
+- [ ] Existing app-game journal/SQLite replay path was extended instead of
       creating a second storage path.
-- [x] Journal event builders serialize row JSON with protocol row-kind fields.
-- [x] SQLite read model projects evidence claim, identity, approval authority,
+- [ ] Journal event builders serialize row JSON with protocol row-kind fields.
+- [ ] SQLite read model projects evidence claim, identity, approval authority,
       approval action-result, platform authority matrix, and classifier result
       rows with returned counts.
-- [x] Positive test appends rows through the real encrypted journal and replays
+- [ ] Positive test appends rows through the real encrypted journal and replays
       them through the real SQLite `ActivityStore`.
-- [x] Negative tests reject inventory-use upgrades, inactive authority grants,
+- [ ] Negative tests reject inventory-use upgrades, inactive authority grants,
       manual-required action execution, manual platform adapter execution, and
       classifier direct action/raw-content claims before SQLite ingest.
-- [x] No live source adapter, classifier provider, service event, portal,
+- [ ] No live source adapter, classifier provider, service event, portal,
       policy evaluator, or platform adapter claim was added.
-- [x] Product checklist was not edited; no product status moved.
+- [ ] Product checklist was not edited; no product status moved.

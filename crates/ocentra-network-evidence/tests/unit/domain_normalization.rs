@@ -11,11 +11,8 @@ const TOO_LONG_LABEL: &str =
 fn domain_normalization_extracts_suffix_and_registrable_domain() {
     let model = PublicSuffixModel::ocentra_fixture();
 
-    let evidence = normalize_domain_with_public_suffix(
-        MIXED_CASE_DOMAIN_WITH_TRAILING_DOT,
-        &model,
-    )
-    .expect("domain evidence should normalize");
+    let evidence = normalize_domain_with_public_suffix(MIXED_CASE_DOMAIN_WITH_TRAILING_DOT, &model)
+        .expect("domain evidence should normalize");
 
     assert_eq!(evidence.normalized_domain, "video.example.co.uk");
     assert_eq!(
@@ -28,7 +25,10 @@ fn domain_normalization_extracts_suffix_and_registrable_domain() {
         ]
     );
     assert_eq!(evidence.public_suffix.as_deref(), Some("co.uk"));
-    assert_eq!(evidence.registrable_domain.as_deref(), Some("example.co.uk"));
+    assert_eq!(
+        evidence.registrable_domain.as_deref(),
+        Some("example.co.uk")
+    );
     assert_eq!(evidence.evidence_grade, NetworkEvidenceGrade::C);
     assert!(!evidence.exact_url_available);
     assert!(!evidence.decrypted_payload_available);
@@ -43,7 +43,10 @@ fn domain_normalization_deduplicates_longest_public_suffix_rules() {
         .expect("domain evidence should normalize");
 
     assert_eq!(evidence.public_suffix.as_deref(), Some("co.uk"));
-    assert_eq!(evidence.registrable_domain.as_deref(), Some("example.co.uk"));
+    assert_eq!(
+        evidence.registrable_domain.as_deref(),
+        Some("example.co.uk")
+    );
 }
 
 #[test]

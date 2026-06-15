@@ -167,6 +167,10 @@ pub mod event_id {
         "network-windows-firewall-lab-status-reported";
     pub const NETWORK_WINDOWS_WFP_GATE_STATUS_REPORTED: &str =
         "network-windows-wfp-gate-status-reported";
+    pub const NETWORK_ANDROID_VPN_SERVICE_GATE_STATUS_REPORTED: &str =
+        "network-android-vpn-service-gate-status-reported";
+    pub const NETWORK_APPLE_NETWORK_EXTENSION_GATE_STATUS_REPORTED: &str =
+        "network-apple-network-extension-gate-status-reported";
     pub const LOCAL_AI_RUNTIME_STATUS_REPORTED: &str = "local-ai-runtime-status-reported";
     pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
     pub const PARENT_ASSISTANT_ANSWER_REPORTED: &str = "parent-assistant-answer-reported";
@@ -206,6 +210,8 @@ pub mod event_id {
 
 #[path = "constants/field.rs"]
 pub mod field;
+#[path = "constants/policy_control.rs"]
+pub mod policy_control;
 #[path = "constants/tracking_config_update.rs"]
 pub mod tracking_config_update;
 #[path = "constants/tracking_retention_settings_write.rs"]

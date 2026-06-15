@@ -18,16 +18,15 @@ use ocentra_parent_agent_protocol::{
     TrackingConfigAuditEntryCommittedEvent, TrackingConfigAuditOutcome,
     TrackingConfigChangeApprovedEvent, TrackingConfigChangeRejectedEvent,
     TrackingConfigChangeRequestedEvent, TrackingConfigEffectiveState,
-    TrackingConfigUpdateRequest,
     TrackingConfigPolicyDecisionCompletedEvent, TrackingConfigPolicyDecisionState,
     TrackingConfigPolicyEvaluationRequestedEvent, TrackingConfigPortalReadModelUpdatedEvent,
-    TrackingConfigPortalUpdateKind, TrackingConfigUpdateEventName, TrackingConfigUpdateResponse,
-    TrackingConfigUpdateResponseState, TrackingDurableSettingsPersistenceState,
-    TrackingPolicyRuleRef, TrackingRemoteAiState, TrackingRemoteSyncState,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
+    TrackingConfigPortalUpdateKind, TrackingConfigUpdateEventName, TrackingConfigUpdateRequest,
+    TrackingConfigUpdateResponse, TrackingConfigUpdateResponseState,
+    TrackingDurableSettingsPersistenceState, TrackingPolicyRuleRef, TrackingRemoteAiState,
+    TrackingRemoteSyncState, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
-use crate::{
+use crate::tracking_dispatch::{
     parent_runtime_tracking_dispatch_evaluated_event_from_origin,
     route_parent_tracking_config_update_event_from_origin, ChildAcknowledgementState,
     ChildRuntimePublishState, ParentRuntimeOriginState,
@@ -70,11 +69,8 @@ impl ParentTrackingConfigUpdateEventFlow {
         let bus = EventBus::new();
         let state = ParentTrackingConfigUpdateEventState::default();
         let previous_event_ref = previous_event_ref.into();
-        let decision_subscription_report = subscribe_tracking_config_policy_decision_events(
-            &bus,
-            state.clone(),
-        )
-        .await?;
+        let decision_subscription_report =
+            subscribe_tracking_config_policy_decision_events(&bus, state.clone()).await?;
         let policy_evaluation_subscription_report =
             subscribe_tracking_config_policy_evaluation_events(
                 &bus,
@@ -119,9 +115,7 @@ impl ParentTrackingConfigUpdateEventFlow {
 
         Ok(ParentTrackingConfigUpdateEventFlowReport {
             parent_subscription_report: self.parent_subscription_report.clone(),
-            change_requested_subscription_report: self
-                .change_requested_subscription_report
-                .clone(),
+            change_requested_subscription_report: self.change_requested_subscription_report.clone(),
             policy_evaluation_subscription_report: self
                 .policy_evaluation_subscription_report
                 .clone(),
@@ -608,7 +602,9 @@ impl ParentTrackingConfigUpdateEventState {
             .cloned()
             .ok_or_else(|| EventingError::InvalidValue {
                 field: constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED,
-                value: crate::PARENT_RUNTIME_TRACKING_DISPATCH_EVALUATED_EVENT_TYPE.to_string(),
+                value:
+                    crate::tracking_dispatch::PARENT_RUNTIME_TRACKING_DISPATCH_EVALUATED_EVENT_TYPE
+                        .to_string(),
             })
     }
 
@@ -673,9 +669,7 @@ impl ParentTrackingConfigUpdateEventState {
     }
 }
 
-fn tracking_policy_rule_refs(
-    request: &TrackingConfigUpdateRequest,
-) -> Vec<TrackingPolicyRuleRef> {
+fn tracking_policy_rule_refs(request: &TrackingConfigUpdateRequest) -> Vec<TrackingPolicyRuleRef> {
     let mut rule_refs = vec![TrackingPolicyRuleRef::parse(
         constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME,
     )
@@ -822,9 +816,7 @@ fn tracking_config_runtime_metadata(
         tracking_config_runtime_correlation_id(source_command_id)?,
         tracking_config_runtime_source(runtime_role)?,
         RecordedAt::parse(constants::tracking_retention_settings_write::ACCEPTED_AT)?,
-        target_handler
-            .map(TargetHandler::parse)
-            .transpose()?,
+        target_handler.map(TargetHandler::parse).transpose()?,
     ))
 }
 

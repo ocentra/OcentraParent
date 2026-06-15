@@ -27,7 +27,10 @@ fn session_requires_policy_without_ai_analysis() {
         observed.policy_evaluation_requirement,
         ChildDomainPolicyEvaluationRequirement::Required
     );
-    assert_eq!(screen_live_view_ai_analysis_requested_event(&evidence), None);
+    assert_eq!(
+        screen_live_view_ai_analysis_requested_event(&evidence),
+        None
+    );
     assert_eq!(
         screen_live_view_policy_evaluation_requested_event(&evidence)
             .expect("screen live view policy request")
@@ -47,7 +50,10 @@ fn unauthorized_session_still_routes_to_policy_only() {
         observed.observed_state,
         ChildDomainObservedSignal::RequiresPolicy.into_observed_state()
     );
-    assert_eq!(screen_live_view_ai_analysis_requested_event(&evidence), None);
+    assert_eq!(
+        screen_live_view_ai_analysis_requested_event(&evidence),
+        None
+    );
     assert_eq!(
         screen_live_view_policy_evaluation_requested_event(&evidence)
             .expect("screen live view policy request")
@@ -67,7 +73,10 @@ fn session_health_observation_stays_evidence_only() {
         observed.observed_state,
         ChildDomainObservedSignal::ObserveOnly.into_observed_state()
     );
-    assert_eq!(screen_live_view_ai_analysis_requested_event(&evidence), None);
+    assert_eq!(
+        screen_live_view_ai_analysis_requested_event(&evidence),
+        None
+    );
     assert_eq!(
         screen_live_view_policy_evaluation_requested_event(&evidence),
         None

@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, tracking_read_model_payload, LogFieldValue, LogFields, TrackingReadModel,
-    TrackingEvidenceRef, TrackingReadModelCapabilityStatus, TrackingReadModelCount,
+    constants, tracking_read_model_payload, LogFieldValue, LogFields, TrackingEvidenceRef,
+    TrackingReadModel, TrackingReadModelCapabilityStatus, TrackingReadModelCount,
     TrackingReadModelCountValue, TrackingReadModelCustodyLabel, TrackingReadModelDeviceId,
     TrackingReadModelEventId, TrackingReadModelGeneratedAt, TrackingReadModelKind,
     TrackingReadModelObservedAt, TrackingReadModelObserver, TrackingReadModelPlatform,
@@ -27,7 +27,9 @@ fn tracking_read_model_payload_contains_contract_json_and_latest_citations() {
 fn tracking_read_model_fixture() -> TrackingReadModel {
     TrackingReadModel {
         schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
-        generated_at: generated_at(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT),
+        generated_at: generated_at(
+            constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
+        ),
         custody_label: custody_label(),
         limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
         returned: 1,
@@ -36,11 +38,15 @@ fn tracking_read_model_fixture() -> TrackingReadModel {
         capability_status: capability_status(
             constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT,
         ),
-        latest_event_id: Some(event_id(constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID)),
+        latest_event_id: Some(event_id(
+            constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
+        )),
         latest_observed_at: Some(observed_at(
             constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
         )),
-        latest_active_event_id: Some(event_id(constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID)),
+        latest_active_event_id: Some(event_id(
+            constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
+        )),
         latest_active_observed_at: Some(observed_at(
             constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
         )),
@@ -124,9 +130,9 @@ fn tracking_row() -> TrackingReadModelRow {
         )),
         query_visibility: query_visibility(TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE),
         deleted_at: None,
-        evidence_reference_ids: vec![
-            evidence_ref(constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID),
-        ],
+        evidence_reference_ids: vec![evidence_ref(
+            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
+        )],
         deleted_evidence_reference_ids: Vec::new(),
         evidence: Vec::new(),
     }
@@ -182,7 +188,8 @@ fn subject_id(value: &str) -> TrackingReadModelSubjectId {
 }
 
 fn subject_display_name(value: &str) -> TrackingReadModelSubjectDisplayName {
-    TrackingReadModelSubjectDisplayName::parse(value).expect(constants::error::AGENT_EVENT_SERIALIZES)
+    TrackingReadModelSubjectDisplayName::parse(value)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn query_visibility(value: &str) -> TrackingReadModelQueryVisibility {

@@ -31,13 +31,13 @@ deletion proof, and PPPC/MDM deployment review exist.
 
 ## Checklist
 
-- [x] Verify current Apple official capture docs.
-- [~] Add macOS capability probe.
-- [~] Prove Screen Recording permission state.
-- [~] Prove display capture.
-- [~] Prove window/app capture.
-- [x] Record PPPC/MDM manual-required state unless proved.
-- [~] Prove local OCR and deletion.
+- [ ] Verify current Apple official capture docs.
+- [ ] Add macOS capability probe.
+- [ ] Prove Screen Recording permission state.
+- [ ] Prove display capture.
+- [ ] Prove window/app capture.
+- [ ] Record PPPC/MDM manual-required state unless proved.
+- [ ] Prove local OCR and deletion.
 
 ## Proof
 

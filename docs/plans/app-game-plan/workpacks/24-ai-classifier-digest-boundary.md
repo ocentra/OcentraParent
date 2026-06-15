@@ -40,13 +40,13 @@ lock. The proof harness still runs the existing activity-domain digest test.
 
 ## Tests And Proof
 
-- [x] Missing evidence refs rejected.
-- [x] Confidence outside `0..1` rejected.
-- [x] Block/terminate/hide/suspend/shield fields rejected.
-- [x] Duration field in AI output rejected.
-- [x] Raw OS scan result in AI output rejected.
-- [x] Provider unavailable and low-confidence fallback states are explicit.
-- [x] Proof artifacts recorded in
+- [ ] Missing evidence refs rejected.
+- [ ] Confidence outside `0..1` rejected.
+- [ ] Block/terminate/hide/suspend/shield fields rejected.
+- [ ] Duration field in AI output rejected.
+- [ ] Raw OS scan result in AI output rejected.
+- [ ] Provider unavailable and low-confidence fallback states are explicit.
+- [ ] Proof artifacts recorded in
       `output/app-game-plan-proof/24-ai-classifier-digest-boundary/`.
 
 ## Done Signal

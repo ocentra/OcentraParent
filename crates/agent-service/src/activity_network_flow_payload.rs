@@ -316,6 +316,18 @@ fn product_path_ref_pairs(
 ) -> Vec<FieldPair> {
     vec![
         (
+            constants::field::NETWORK_PRODUCT_PATH_ANALYZER_ALERT_REFS,
+            joined_refs(product_path.map(|value| value.analyzer_alert_refs.as_slice())),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_AI_DETECTION_REFS,
+            joined_refs(product_path.map(|value| value.ai_detection_refs.as_slice())),
+        ),
+        (
+            constants::field::NETWORK_PRODUCT_PATH_RISK_BUDGET_REFS,
+            joined_refs(product_path.map(|value| value.risk_budget_refs.as_slice())),
+        ),
+        (
             constants::field::NETWORK_PRODUCT_PATH_POLICY_DECISION_REFS,
             joined_refs(product_path.map(|value| value.policy_decision_refs.as_slice())),
         ),

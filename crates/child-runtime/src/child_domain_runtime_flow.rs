@@ -76,9 +76,10 @@ impl ChildDomainRuntimeEventFlow {
         self.bus
             .publish(
                 event.clone(),
-                child_domain_runtime_metadata(ChildDomainRuntimeHop::Observed(
-                    &event.observation_id,
-                ), &recorded_at)?,
+                child_domain_runtime_metadata(
+                    ChildDomainRuntimeHop::Observed(&event.observation_id),
+                    &recorded_at,
+                )?,
             )
             .await?;
 
@@ -154,9 +155,10 @@ async fn subscribe_child_domain_observer(
                     .publisher()
                     .publish(
                         evidence.clone(),
-                        child_domain_runtime_metadata(ChildDomainRuntimeHop::EvidenceRecorded(
-                            &evidence.evidence_ref,
-                        ), &evidence.source_observed_at)?,
+                        child_domain_runtime_metadata(
+                            ChildDomainRuntimeHop::EvidenceRecorded(&evidence.evidence_ref),
+                            &evidence.source_observed_at,
+                        )?,
                     )
                     .await?;
                 if let Some(ai_request) = child_domain_ai_analysis_requested_event(&evidence)? {
@@ -219,9 +221,12 @@ async fn subscribe_child_domain_ai(
                     .publisher()
                     .publish(
                         completed,
-                        child_domain_runtime_metadata(ChildDomainRuntimeHop::AiAnalysisCompleted(
-                            &context.payload().ai_request_id,
-                        ), &context.payload().source_observed_at)?,
+                        child_domain_runtime_metadata(
+                            ChildDomainRuntimeHop::AiAnalysisCompleted(
+                                &context.payload().ai_request_id,
+                            ),
+                            &context.payload().source_observed_at,
+                        )?,
                     )
                     .await?;
                 Ok(())
@@ -298,7 +303,9 @@ async fn subscribe_child_domain_policy(
             let state = state.clone();
             async move {
                 let violation =
-                    ocentra_child_policy_core::evaluate_child_domain_policy(context.payload());
+                    ocentra_child_policy_core::child_domain_policy::evaluate_child_domain_policy(
+                        context.payload(),
+                    )?;
                 state.record_policy_violation(violation.clone());
                 context
                     .publisher()

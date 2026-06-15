@@ -24,12 +24,12 @@ Capture MVP should define queue priority fields. Full scheduler proof belongs to
 
 ## Checklist
 
-- [x] Define AI job type and priority.
-- [x] Enforce one heavy job at a time on normal PCs.
-- [x] Prioritize policy-blocking jobs over background summaries.
-- [x] Add timeout and skipped/degraded states.
-- [x] Add max image pixels and OCR snippet limits.
-- [x] Report model/runtime queue status.
+- [ ] Define AI job type and priority.
+- [ ] Enforce one heavy job at a time on normal PCs.
+- [ ] Prioritize policy-blocking jobs over background summaries.
+- [ ] Add timeout and skipped/degraded states.
+- [ ] Add max image pixels and OCR snippet limits.
+- [ ] Report model/runtime queue status.
 
 ## Proof
 

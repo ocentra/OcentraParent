@@ -64,90 +64,90 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 
 ## AI Worker Checklist
 
-- [x] Journal evidence before portal/policy/AI use.
-- [x] Add replay/query/delete tests.
-- [x] Add tombstone proof.
-- [x] Ensure AI/report/policy cite stored refs.
-- [x] Keep Ocentra-hosted storage off by default.
-- [x] Include the P2 service read-model proof in the pre-device gate.
-- [x] Record P3 WSL/local replay proof for the read-model proof stack.
-- [x] Expose live portal citation rows for service-backed read-model rows and
+- [ ] Journal evidence before portal/policy/AI use.
+- [ ] Add replay/query/delete tests.
+- [ ] Add tombstone proof.
+- [ ] Ensure AI/report/policy cite stored refs.
+- [ ] Keep Ocentra-hosted storage off by default.
+- [ ] Include the P2 service read-model proof in the pre-device gate.
+- [ ] Record P3 WSL/local replay proof for the read-model proof stack.
+- [ ] Expose live portal citation rows for service-backed read-model rows and
       retention tombstones.
-- [x] Mark and screenshot the hosted service-backed citation detail card so the
+- [ ] Mark and screenshot the hosted service-backed citation detail card so the
       evidence refs and no-product-claim boundary are captured in hosted proof
       output.
-- [x] Mark and screenshot the hosted read-only evidence drawer card from the
+- [ ] Mark and screenshot the hosted read-only evidence drawer card from the
       selected service-backed citation without adding policy evaluation,
       dispatch, delivery, device, authority, or product-ready claims.
-- [x] Expose hosted parent service-data coverage for service-backed read-model
+- [ ] Expose hosted parent service-data coverage for service-backed read-model
       row counts, kinds, custody, capability, and active/deleted evidence refs.
-- [x] Expose active product-surface summary fields for kind/device/capability
+- [ ] Expose active product-surface summary fields for kind/device/capability
       counts and latest active row metadata without reintroducing deleted
       history.
-- [x] Expose family dashboard rollup rows for active family summary,
+- [ ] Expose family dashboard rollup rows for active family summary,
       child-attention summary, and retention-audit summary without claiming
       portal UI completion or child-device/runtime behavior.
-- [x] Expose retention settings read-model rows for retention window,
+- [ ] Expose retention settings read-model rows for retention window,
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
       disabled state without claiming service mutation or product UI.
-- [x] Render the retention settings read-model rows on the hosted parent route
+- [ ] Render the retention settings read-model rows on the hosted parent route
       without claiming writable settings, service mutation, platform runtime,
       child-device delivery, provider delivery, authority, physical-device
       execution, or production readiness.
-- [x] Add retention settings writer-boundary preflight rows for retention
+- [ ] Add retention settings writer-boundary preflight rows for retention
       window, delete-after-alert, parent export, remote-sync disabled, and
       remote-AI disabled write intents without claiming executed service
       mutation, live retention UI, platform runtime, child-device delivery,
       provider delivery, authority, physical-device execution, or production
       readiness.
-- [x] Add local executed service mutation proof for the same retention settings
+- [ ] Add local executed service mutation proof for the same retention settings
       rows while preserving remote-sync disabled, remote-AI disabled, and no
       platform/device/product-ready claims.
-- [x] Add typed service transport proof for a retention settings write
+- [ ] Add typed service transport proof for a retention settings write
       command local-execution result with a local durable settings store ref
       while preserving no writable product UI, platform, device, provider,
       authority, notification receipt, or product-ready claims.
-- [x] Render the service-backed retention write result in hosted portal proof
+- [ ] Render the service-backed retention write result in hosted portal proof
       from the typed command response, including local service state revision
       evidence and durable store ref, without claiming writable product settings, platform, device,
       provider, authority, notification receipt, or product-ready behavior.
-- [x] Derive retention local service state readback rows from the accepted
+- [ ] Derive retention local service state readback rows from the accepted
       write-command proof, including applied values, service state revision, and
       snapshot ref plus durable store ref, without claiming writable product
       settings, platform, device, provider, authority, notification receipt, or
       product-ready behavior.
-- [x] Add redacted report/export read-model packet rows that compose service
+- [ ] Add redacted report/export read-model packet rows that compose service
       read-model, report/policy consumer, family dashboard rollup, and
       retention settings proof refs without claiming raw location payload
       export, portal UI, platform runtime, device delivery, authority, provider,
       notification receipt, or product-ready behavior.
-- [x] Require parent report summary, policy drill-in, and retention audit
+- [ ] Require parent report summary, policy drill-in, and retention audit
       export consumer rows to cite stored journal refs and stored read-model row
       refs before report/policy use without claiming AI execution, portal
       completion, platform runtime, device delivery, provider delivery,
       authority, or product-ready behavior.
-- [x] Render the report/policy consumer rows on the hosted parent route without
+- [ ] Render the report/policy consumer rows on the hosted parent route without
       claiming AI execution, product policy mutation, platform runtime,
       child-device delivery, provider delivery, notification receipt ingestion,
       physical-device proof, authority, production, or product-ready behavior.
-- [x] Require AI parent-report, policy-drill-in, and metadata-fallback consumer
+- [ ] Require AI parent-report, policy-drill-in, and metadata-fallback consumer
       rows to cite stored journal refs, stored read-model row refs, provider
       route proof refs, and report/policy consumer proof refs before AI
       report/policy use without claiming model execution, assistant policy
       writes, assistant enforcement, device runtime, provider delivery,
       authority, production behavior, or product-ready behavior.
-- [x] Prove that Ocentra-hosted storage is not the default tracking journal,
+- [ ] Prove that Ocentra-hosted storage is not the default tracking journal,
       SQLite read-model, parent export, AI context, or remote-sync custody path
       without claiming remote upload, portal UI, service mutation, platform
       runtime, device delivery, authority, production, or product-ready
       behavior.
-- [x] Derive a retention product-readiness blocker row from the durable
+- [ ] Derive a retention product-readiness blocker row from the durable
       settings proof so local durable settings readiness stays separate from
       writable product settings execution, platform runtime, child-device
       delivery, provider delivery, notification receipt ingestion,
       physical-device proof, authority enrollment, production workers, and
       product-ready behavior.
-- [x] Derive retention product-settings writable execution proof from the
+- [ ] Derive retention product-settings writable execution proof from the
       accepted local service state row, including source proof refs, service
       revision, snapshot ref, durable store ref, applied values, and no-claim
       boundaries.
@@ -166,8 +166,11 @@ summary fields for latest active event metadata plus active kind, device, and
 capability-status counts; those counts are derived from the same SQLite rows
 and explicitly exclude retention tombstones. The parent portal consumes that
 event as a narrow live summary plus live citation rows on the `policy-tracking`
-route. The hosted parent route now also marks the service-backed citation detail
-card and captures it in
+route. That consumer now prefers the additive `latestActive*` metadata when it
+is present, falls back to the legacy top-level latest-event fields when it is
+absent, and keeps deleted-history evidence refs out of the narrow live summary
+while leaving tombstone citation rows visible. The hosted parent route now also
+marks the service-backed citation detail card and captures it in
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png`.
 The hosted route now also renders a read-only evidence drawer from the selected
 service-backed citation and captures it in
@@ -176,7 +179,12 @@ The hosted parent route now also exposes a service-data coverage panel
 backed by the parsed
 `trackingReadModel` payload, including active/tombstone counts, latest tombstone
 metadata, kind coverage, custody/capability, active evidence references, deleted
-evidence references, and `productClaimReady=false`. The refreshed
+evidence references, and `productClaimReady=false`. That coverage consumer now
+uses the additive active kind/device/capability count buckets when they are
+present and falls back to the legacy row-derived values when they are absent.
+The shared `portal-domain` owner now also has a direct `tests/unit/tracking-status-panel.test.ts`
+unit test covering the same active-summary and legacy-fallback mapping without
+depending on the blocked `apps/portal` workspace suite. The refreshed
 `20-service-data-ui-proof.json` also carries a service-backed citation matrix
 that binds the coverage card back to the same service command/event/payload,
 live citation fields, active evidence refs, tombstone deleted-evidence refs,
@@ -355,315 +363,315 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-journal-read-model-replay-proof`.
-- [x] Touched files: Rust ActivityStore/protocol files, tracking
+- [ ] Touched files: Rust ActivityStore/protocol files, tracking
       contract/runtime files, proof scripts, tracking plan docs, checklist, and
       this workpack doc.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       focused service proof command
       `node scripts/test/tracking-plan-service-read-model-proof.mjs` passed.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`,
       including `10-journal-sqlite-proof.json`,
       `14-retention-delete-proof.json`, and
       `18-service-read-model-proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and this workpack doc updated for the P2 service-backed
       tombstone replay proof; product capability checklist update remains a
       primary-owned DOC_DELTA.
-- [x] Known gaps/manual-required states: hosted portal screenshot/accessibility
+- [ ] Known gaps/manual-required states: hosted portal screenshot/accessibility
       proof, broader read models, full UI, platform replay, export,
       Android/iOS physical proof, provider delivery, and notifications remain
       proof-gated as applicable.
-- [x] Workpack id and branch: `codex/tracking-wsl-local-replay-proof`.
-- [x] Touched files: WSL proof script, root test script wiring, tracking
+- [ ] Workpack id and branch: `codex/tracking-wsl-local-replay-proof`.
+- [ ] Touched files: WSL proof script, root test script wiring, tracking
       feature doc, tracking README, implementation checklist, WP32, WP33, and
       generated WSL proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `npm run test:tracking-plan-wsl-local-proof` passed locally.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/wsl-local-replay/` and
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/19-wsl-local-replay-proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, tracking checklist,
+- [ ] Product doc/checklist updates: owning feature doc, tracking checklist,
       README, WP32, and WP33 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: richer read models, full UI, hosted
+- [ ] Known gaps/manual-required states: richer read models, full UI, hosted
       UI/accessibility, Android/iOS physical-device proof, authority, provider
       delivery, notifications, and production proof remain proof-gated as
       applicable.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-live-service-citation-proof`.
-- [x] Touched files: portal tracking status renderer/tests, service proof
+- [ ] Touched files: portal tracking status renderer/tests, service proof
       script, tracking feature doc, implementation checklist, WP30, WP32,
       WP33, and generated WP32 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-plan-service-read-model-proof.mjs` passed.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`,
       including `14-retention-delete-proof.json`,
       `18-service-read-model-proof.json`, and `proof-summary.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, WP32, and WP33 updated; central capability row delta
       queued through the hub instead of editing
       `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: broader product read models, full
+- [ ] Known gaps/manual-required states: broader product read models, full
       parent/child UI, hosted UI/accessibility, Android/iOS physical-device
       proof, authority, provider delivery, notifications, and production proof
       remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-service-data-ui-proof`.
-- [x] Touched files: portal tracking status renderer/tests, portal text token
+- [ ] Touched files: portal tracking status renderer/tests, portal text token
       source/tests, service-data UI proof script, root script wiring, tracking
       feature doc, implementation checklist, WP30, WP32, and generated WP30/WP32
       service-data UI proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `npm run test:tracking-plan-service-data-ui-proof` passed locally after
       focused text-domain and portal tracking status panel tests.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json`,
       and `test-results/tracking-plan-service-data-ui-proof/proof.json`.
-- [x] Service-backed citation matrix recorded in those artifacts for the
+- [ ] Service-backed citation matrix recorded in those artifacts for the
       command/event/payload, live citation field set, active evidence refs,
       tombstone deleted-evidence refs, and no-claim boundaries.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and WP32 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: broader product read models, full
+- [ ] Known gaps/manual-required states: broader product read models, full
       parent/child UI beyond the hosted parent route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-read-model-product-surface-proof`.
-- [x] Touched files: Rust protocol/core/service tracking read-model files and
+- [ ] Touched files: Rust protocol/core/service tracking read-model files and
       tests, TypeScript tracking read-model parser/tests, service proof script,
       tracking feature doc, implementation checklist, WP32, module READMEs, and
       generated WP32 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       focused parser and Rust tracking read-model tests passed before proof
       generation; `node scripts/test/tracking-plan-service-read-model-proof.mjs`
       reruns the full focused WP32 proof stack.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json`
       plus refreshed `14-retention-delete-proof.json`,
       `18-service-read-model-proof.json`, and `proof-summary.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP32, and module READMEs updated; central capability row delta
       queued through the hub instead of editing
       `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: full UI/report/policy consumers,
+- [ ] Known gaps/manual-required states: full UI/report/policy consumers,
       parent/child UI beyond the hosted parent route, Android/iOS
       physical-device proof, authority, provider delivery, notifications, and
       production proof remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-family-dashboard-rollup-proof`.
-- [x] Touched files: parent-domain family dashboard rollup proof source/test,
+- [ ] Touched files: parent-domain family dashboard rollup proof source/test,
       proof harness, tracking feature doc, implementation checklist, WP32, and
       generated WP32 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-family-dashboard-rollup-proof.mjs` passed.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json`,
       `output/tracking-plan-proof/family-dashboard-rollup-proof/`, and
       `test-results/tracking-family-dashboard-rollup-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, and WP32 updated; central capability checklist row was not
       edited because another lane owns `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: rendered portal dashboard UI,
+- [ ] Known gaps/manual-required states: rendered portal dashboard UI,
       child-device delivery/runtime execution, Android/iOS physical-device
       proof, authority, provider delivery, notifications, and production proof
       remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-retention-settings-read-model-proof`.
-- [x] Touched files: parent-domain retention settings read-model proof
+- [ ] Touched files: parent-domain retention settings read-model proof
       source/test, proof harness, tracking feature doc, implementation
       checklist, WP07, WP32, and generated WP07/WP32 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-retention-settings-read-model-proof.mjs`
       passed locally.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/24-retention-settings-read-model-proof.json`,
       and `test-results/tracking-retention-settings-read-model-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, and WP32 updated; central capability checklist row is
       not edited by this worker while another lane owns it.
-- [x] Known gaps/manual-required states: actual writable product settings,
+- [ ] Known gaps/manual-required states: actual writable product settings,
       live service-backed retention UI, service mutation, platform runtime,
       child-device delivery/runtime execution, Android/iOS physical-device
       proof, authority, provider delivery, notification receipts, and
       production proof remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-retention-settings-writer-boundary-proof`.
-- [x] Touched files: parent-domain retention settings writer-boundary proof
+- [ ] Touched files: parent-domain retention settings writer-boundary proof
       source/test, proof harness, tracking feature doc, implementation
       checklist, WP07, WP32, and generated WP07/WP32/WP33 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-retention-settings-writer-boundary-proof.mjs`
       passed locally.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/07-retention-and-custody-model/19-retention-settings-writer-boundary-proof.json`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/25-retention-settings-writer-boundary-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/25-retention-settings-writer-boundary-proof.json`,
       and `test-results/tracking-retention-settings-writer-boundary-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, and WP32 updated; central capability checklist row is
       not edited by this worker while another lane owns it.
-- [x] Known gaps/manual-required states: executed service mutation, live
+- [ ] Known gaps/manual-required states: executed service mutation, live
       service-backed retention UI, platform runtime, child-device delivery,
       Android/iOS physical-device proof, authority, provider delivery,
       notification receipts, and production proof remain proof-gated.
-- [x] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain AI stored-ref consumer proof source/test,
+- [ ] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
+- [ ] Touched files: parent-domain AI stored-ref consumer proof source/test,
       proof harness, tracking feature doc, implementation checklist, WP24,
       WP32, product capability checklist, and generated WP24/WP32/WP33 proof
       artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-ai-stored-ref-consumer-proof.mjs` passed
       locally.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/24-ai-provider-routing/19-ai-stored-ref-consumer-proof.json`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/30-ai-stored-ref-consumer-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/30-ai-stored-ref-consumer-proof.json`,
       and `test-results/tracking-ai-stored-ref-consumer-proof/proof.json`.
-- [x] Product doc/checklist updates: owning tracking feature doc, tracking
+- [ ] Product doc/checklist updates: owning tracking feature doc, tracking
       implementation checklist, WP24, WP32, and central product capability
       checklist row updated.
-- [x] Known gaps/manual-required states: AI model execution, assistant policy
+- [ ] Known gaps/manual-required states: AI model execution, assistant policy
       writes, assistant enforcement, full rendered UI/report/policy surfaces,
       platform runtime, child-device delivery, Android/iOS physical-device
       proof, authority, provider delivery, notification receipts, production
       behavior, and product-ready tracking remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-hosted-citation-detail-proof`.
-- [x] Touched files: portal renderers, portal-domain proof marker, hosted
+- [ ] Touched files: portal renderers, portal-domain proof marker, hosted
       Playwright proof spec, tracking feature doc, implementation checklist,
       WP30, WP32, portal README, and generated hosted proof artifacts.
-- [x] Validation commands and results: pending final local hosted proof refresh
+- [ ] Validation commands and results: pending final local hosted proof refresh
       and guard run before PR-ready report.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-citation-detail.png`
       and `test-results/tracking-plan-hosted-ui-proof/`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, WP32, and portal README updated; central capability row
       delta stays hub-sequenced instead of editing
       `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: broader product read models, full
+- [ ] Known gaps/manual-required states: broader product read models, full
       parent/child UI beyond the hosted parent route, Android/iOS physical-device
       proof, authority, provider delivery, notifications, and production proof
       remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-evidence-drawer-hosted-ui-proof`.
-- [x] Touched files: WP32 doc plus hosted portal proof files in WP30; no new
+- [ ] Touched files: WP32 doc plus hosted portal proof files in WP30; no new
       read-model storage or service contracts were added.
-- [x] Validation commands and results: pending final focused hosted proof refresh
+- [ ] Validation commands and results: pending final focused hosted proof refresh
       and guard run before PR-ready report.
-- [x] Proof artifacts under
+- [ ] Proof artifacts under
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json`
       and `test-results/tracking-plan-hosted-ui-proof/`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and WP32 updated; central capability checklist row stays
       hub-sequenced instead of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: the evidence drawer is hosted
+- [ ] Known gaps/manual-required states: the evidence drawer is hosted
       read-only citation display only; policy evaluation, action dispatch,
       child-device delivery/runtime execution, provider delivery, physical-device
       proof, authority, and product readiness remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain retention local service state proof source and
+- [ ] Touched files: parent-domain retention local service state proof source and
       test, proof harness, tracking feature doc, implementation checklist, WP07,
       WP32, and generated WP07/WP32/WP33 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-retention-local-service-state-proof.mjs`
       passed locally.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/33-retention-local-service-state-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/40-retention-local-service-state-proof.json`,
       and
       `test-results/tracking-retention-local-service-state-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, and WP32 updated; central product capability checklist
       remains hub/primary sequenced.
-- [x] Known gaps/manual-required states: writable product settings, platform
+- [ ] Known gaps/manual-required states: writable product settings, platform
       runtime, child-device delivery, Android/iOS physical proof, authority,
       provider delivery, notification receipts, production workers, and
       product-ready retention behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain retention durable settings proof source and
+- [ ] Touched files: parent-domain retention durable settings proof source and
       test, proof harness, tracking feature doc, implementation checklist,
       WP07, WP32, and generated WP07/WP32/WP33 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-retention-durable-settings-proof.mjs`
       passed locally.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/34-retention-durable-settings-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/41-retention-durable-settings-proof.json`,
       and
       `test-results/tracking-retention-durable-settings-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, and WP32 updated; central product capability checklist
       remains hub/primary sequenced because E-B owns the lock.
-- [x] Known gaps/manual-required states: product-ready writable settings,
+- [ ] Known gaps/manual-required states: product-ready writable settings,
       platform runtime, child-device delivery, Android/iOS physical proof,
       authority, provider delivery, notification receipts, production workers,
       and product-ready retention behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain retention settings mutation proof source and
+- [ ] Touched files: parent-domain retention settings mutation proof source and
       test, proof harness, tracking feature doc, implementation checklist,
       WP07, WP32, and generated WP07/WP32/WP33 proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-retention-settings-mutation-proof.mjs`
       passed locally.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/26-retention-settings-mutation-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/32-retention-settings-mutation-proof.json`,
       and `test-results/tracking-retention-settings-mutation-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, and WP32 updated; central product capability checklist
       remains hub/primary sequenced.
-- [x] Known gaps/manual-required states: live service-backed writable retention
+- [ ] Known gaps/manual-required states: live service-backed writable retention
       UI, platform runtime, child-device delivery, Android/iOS physical proof,
       authority, provider delivery, notification receipts, production workers,
       and product-ready retention behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: agent-protocol-domain retention settings write command
+- [ ] Touched files: agent-protocol-domain retention settings write command
       contract/test, Rust agent-protocol command/event/result types, Rust
       agent-service WebSocket response test, proof harness, tracking feature
       doc, implementation checklist, WP07, WP32, and generated WP07/WP32/WP33
       proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-retention-settings-write-command-proof.mjs`
       passed locally.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/27-retention-settings-write-command-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/33-retention-settings-write-command-proof.json`,
       and
       `test-results/tracking-retention-settings-write-command-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, and WP32 updated; central product capability checklist
       remains hub/primary sequenced.
-- [x] Known gaps/manual-required states: durable writable retention UI,
+- [ ] Known gaps/manual-required states: durable writable retention UI,
       product-ready service execution, platform runtime, child-device
       delivery, Android/iOS physical proof, authority, provider delivery,
       notification receipts, production workers, and product-ready retention
       behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: hosted retention settings UI proof model, live activity
+- [ ] Touched files: hosted retention settings UI proof model, live activity
       state, portal event-result routing, React route panel, DOM tracking status
       panel, hosted Playwright proof, portal tests, text-domain tokens,
       portal-domain proof artifact marker, hosted UI proof harness, tracking
       feature doc, implementation checklist, WP07, WP30, WP32, and regenerated
       hosted UI proof screenshots/results.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain`
       passed; `cmd /c npm run build --workspace @ocentra-parent/text-domain`
       passed; `cmd /c npm run build --workspace @ocentra-parent/portal-domain`
@@ -671,15 +679,15 @@ This workpack can be assigned independently, implemented against the owning doma
 tracking-status-panel` passed; `cmd /c npm run build --workspace
 @ocentra-parent/portal` passed; `cmd /c npm run format:check` passed;
       `cmd /c npm run test:tracking-plan-hosted-ui-proof` passed.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-retention-settings.png`,
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/18-hosted-ui-accessibility-proof.json`,
       and `test-results/tracking-plan-hosted-ui-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP07, WP30, and WP32 updated; central product capability
       checklist remains hub/primary sequenced.
-- [x] Known gaps/manual-required states: hosted route consumes and renders the
+- [ ] Known gaps/manual-required states: hosted route consumes and renders the
       typed local service execution response with local service state revision
       and local durable settings persistence. Writable product settings,
       applied product-ready service mutation
@@ -688,47 +696,47 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
       notification receipt ingestion,
       production workers, and full parent/child
       UI beyond the hosted route remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain report export read-model proof source and
+- [ ] Touched files: parent-domain report export read-model proof source and
       test, proof harness, tracking feature doc, implementation checklist,
       WP32, parent-domain README, and generated WP32/WP33/test-results proof
       artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-report-export-read-model-proof.mjs` passed
       locally.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/34-report-export-read-model-proof.json`,
       `output/tracking-plan-proof/tracking-report-export-read-model-proof/proof.json`,
       and `test-results/tracking-report-export-read-model-proof/proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP32, and parent-domain README updated; central product
       capability checklist remains hub/primary sequenced.
-- [x] Known gaps/manual-required states: report/export proof is redacted
+- [ ] Known gaps/manual-required states: report/export proof is redacted
       evidence-ref packet readiness only. Raw location payload export, rendered
       report UI, service mutation, platform runtime, child-device
       delivery/runtime execution, Android/iOS physical proof, authority,
       provider delivery, notification receipt ingestion, production workers,
       and product-ready export behavior remain proof-gated.
-- [x] Workpack id and branch:
+- [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [x] Touched files: parent-domain hosted storage default boundary proof source
+- [ ] Touched files: parent-domain hosted storage default boundary proof source
       and test, proof harness, tracking feature doc, implementation checklist,
       WP32, central capability checklist, and generated WP32/WP33/test-results
       proof artifacts.
-- [x] Validation commands and results:
+- [ ] Validation commands and results:
       `node scripts/test/tracking-hosted-storage-default-boundary-proof.mjs`
       passed locally.
-- [x] Proof artifacts:
+- [ ] Proof artifacts:
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/31-hosted-storage-default-boundary-proof.json`,
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/38-hosted-storage-default-boundary-proof.json`,
       `test-results/tracking-hosted-storage-default-boundary-proof/proof.json`,
       and
       `test-results/tracking-hosted-storage-default-boundary-proof/hosted-storage-default-boundary-read-model.json`.
-- [x] Product doc/checklist updates: owning feature doc, implementation
+- [ ] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP32, and central product capability checklist updated.
-- [x] Known gaps/manual-required states: this proves only that Ocentra-hosted
+- [ ] Known gaps/manual-required states: this proves only that Ocentra-hosted
       storage, raw location remote upload, SQLite snapshot remote upload,
       remote sync, and remote AI are not default tracking custody paths.
       Rendered UI/report/policy surfaces, service mutation, platform runtime,

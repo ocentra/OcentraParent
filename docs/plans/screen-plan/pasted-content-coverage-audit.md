@@ -17,34 +17,34 @@
 
 ## Covered
 
-- [x] Local screen summaries.
-- [x] Parent opt-in.
-- [x] Screen capability/status.
-- [x] Capture cadence.
-- [x] Trigger capture.
-- [x] Capture scope.
-- [x] Encrypted temporary queue.
-- [x] Local OCR/vision.
-- [x] Validated structured result.
-- [x] Image digest.
-- [x] Deletion state.
-- [x] Journal/SQLite read model.
-- [x] Policy dry-run/enforcement handoff.
-- [x] Portal summary UX.
-- [x] No raw image by default.
-- [x] Optional screenshot mode.
-- [x] Optional live-view mode.
-- [x] Platform proof.
-- [x] Tests/proof packs.
-- [x] Tiered screen-intelligence router.
-- [x] Managed browser structured extraction before screenshot.
-- [x] OCR before VLM.
-- [x] Household provider route before remote/API.
-- [x] Detector prompt packs.
-- [x] Cross-slice browser/app/game/social/video/bypass/unknown ownership.
-- [x] Native game and unknown-process trigger coverage.
-- [x] Real browser/app/timed-cadence capture proof matrix.
-- [x] Separate post-screen/post-AI pipeline proof plan.
+- [ ] Local screen summaries.
+- [ ] Parent opt-in.
+- [ ] Screen capability/status.
+- [ ] Capture cadence.
+- [ ] Trigger capture.
+- [ ] Capture scope.
+- [ ] Encrypted temporary queue.
+- [ ] Local OCR/vision.
+- [ ] Validated structured result.
+- [ ] Image digest.
+- [ ] Deletion state.
+- [ ] Journal/SQLite read model.
+- [ ] Policy dry-run/enforcement handoff.
+- [ ] Portal summary UX.
+- [ ] No raw image by default.
+- [ ] Optional screenshot mode.
+- [ ] Optional live-view mode.
+- [ ] Platform proof.
+- [ ] Tests/proof packs.
+- [ ] Tiered screen-intelligence router.
+- [ ] Managed browser structured extraction before screenshot.
+- [ ] OCR before VLM.
+- [ ] Household provider route before remote/API.
+- [ ] Detector prompt packs.
+- [ ] Cross-slice browser/app/game/social/video/bypass/unknown ownership.
+- [ ] Native game and unknown-process trigger coverage.
+- [ ] Real browser/app/timed-cadence capture proof matrix.
+- [ ] Separate post-screen/post-AI pipeline proof plan.
 
 ## Not Claimed Until Proof
 

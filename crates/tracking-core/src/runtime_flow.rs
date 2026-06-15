@@ -1,24 +1,24 @@
+use super::geofence::geofence_transition_from_parts;
 use super::{
     default_expected_place_evaluation, evaluate_expected_place_state,
     TrackingExpectedPlaceEvaluation, TrackingGeofenceEvaluation, TrackingGeofenceInsideState,
 };
-use super::geofence::geofence_transition_from_parts;
 use ocentra_evidence::PrivatePayloadState;
 use ocentra_parent_agent_protocol::{
-    constants, ParentNotificationRequestedEvent, TrackingAcknowledgementId,
-    TrackingAcknowledgementState, TrackingAiAnalysisRequestedEvent, TrackingAiAnalysisRequirement,
-    TrackingAiBoundaryMode, TrackingAiPurpose, TrackingAiRequestId, TrackingCapabilityStatus,
-    TrackingCheckInId, TrackingCheckInState, TrackingChildCheckInRecordedEvent,
-    TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRecordedEvent,
-    TrackingEvidenceRef, TrackingExpectedPlaceRef, TrackingExpectedPlaceStateEvaluatedEvent,
-    TrackingGeofenceRuleRef, TrackingGeofenceTransitionDetectedEvent,
-    TrackingLocationObservedEvent,
+    constants, tracking_acknowledgement_id_from_violation_id,
+    tracking_ai_request_id_from_evidence_ref, tracking_check_in_id_from_observation_id,
+    tracking_evidence_ref_from_observation_id, ParentNotificationRequestedEvent,
+    TrackingAcknowledgementId, TrackingAcknowledgementState, TrackingAiAnalysisRequestedEvent,
+    TrackingAiAnalysisRequirement, TrackingAiBoundaryMode, TrackingAiPurpose, TrackingAiRequestId,
+    TrackingCapabilityStatus, TrackingCheckInId, TrackingCheckInState,
+    TrackingChildCheckInRecordedEvent, TrackingChildDeviceId, TrackingChildProfileId,
+    TrackingEvidenceRecordedEvent, TrackingEvidenceRef, TrackingExpectedPlaceRef,
+    TrackingExpectedPlaceStateEvaluatedEvent, TrackingGeofenceRuleRef,
+    TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent,
     TrackingLocationRelation, TrackingNotificationChannel, TrackingObservationId,
     TrackingParentAcknowledgementRecordedEvent, TrackingParentActionRequirement,
     TrackingRuntimeConfig, TrackingRuntimeEnabledState, TrackingRuntimeMode, TrackingTimestamp,
-    TrackingUncertaintyCode, tracking_acknowledgement_id_from_violation_id,
-    tracking_ai_request_id_from_evidence_ref, tracking_check_in_id_from_observation_id,
-    tracking_evidence_ref_from_observation_id,
+    TrackingUncertaintyCode,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -71,7 +71,9 @@ impl TrackingLocationRelationKind {
             Self::UncertainNearExpectedPlace => {
                 constants::tracking_runtime::LOCATION_RELATION_UNCERTAIN_NEAR_EXPECTED_PLACE
             }
-            Self::AtExpectedPlace => constants::tracking_runtime::LOCATION_RELATION_AT_EXPECTED_PLACE,
+            Self::AtExpectedPlace => {
+                constants::tracking_runtime::LOCATION_RELATION_AT_EXPECTED_PLACE
+            }
             Self::AwayFromExpectedPlace => {
                 constants::tracking_runtime::LOCATION_RELATION_AWAY_FROM_EXPECTED_PLACE
             }
@@ -440,8 +442,12 @@ fn tracking_check_in_state(value: TrackingCheckInStateValue) -> TrackingCheckInS
 fn infer_tracking_location_relation(
     event: &TrackingLocationObservedEvent,
 ) -> TrackingLocationRelationKind {
-    let latitude_delta = event.latitude_e7.abs_diff(DEFAULT_EXPECTED_PLACE_LATITUDE_E7);
-    let longitude_delta = event.longitude_e7.abs_diff(DEFAULT_EXPECTED_PLACE_LONGITUDE_E7);
+    let latitude_delta = event
+        .latitude_e7
+        .abs_diff(DEFAULT_EXPECTED_PLACE_LATITUDE_E7);
+    let longitude_delta = event
+        .longitude_e7
+        .abs_diff(DEFAULT_EXPECTED_PLACE_LONGITUDE_E7);
     let expected_place_delta = latitude_delta.max(longitude_delta);
 
     if expected_place_delta <= EXPECTED_PLACE_MAX_DELTA_E7 {

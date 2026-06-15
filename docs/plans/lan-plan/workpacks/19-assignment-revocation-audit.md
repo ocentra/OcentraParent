@@ -48,34 +48,34 @@ audited and survive restart.
 
 ## Requirement Checklist
 
-- [x] Current branch proves route-custody and trusted-registry safety states for
+- [ ] Current branch proves route-custody and trusted-registry safety states for
       accepted and rejected signed discovery/relay decisions.
-- [x] Current branch models revoked, unavailable, manual-required, and
+- [ ] Current branch models revoked, unavailable, manual-required, and
       wrong-target route states without allowing weak LAN evidence to become
       authority.
-- [x] Portal selected-device details and Activity/Network diagnostics now show
+- [ ] Portal selected-device details and Activity/Network diagnostics now show
       parent decision/audit rows, route custody, route rejection state, and
       relay/cache custody from the typed LAN read model.
-- [x] Portal add-to-parent flow now calls the existing
+- [ ] Portal add-to-parent flow now calls the existing
       `agent.lan-pairing.add-device.request` command only for selected LAN
       slots with a controllable route.
-- [x] Expose first-class portal controls for add, route select, rename, trust,
+- [ ] Expose first-class portal controls for add, route select, rename, trust,
       ignore, restore, and revoke by reusing existing LAN command surfaces:
       `agent.lan-pairing.add-device.request` for household decisions plus route
       select/revoke commands for route custody. Portal command routing now sends
       LAN commands to the selected local-network child target.
-- [x] Portal household rename/type for a LAN-discovered neighbor uses canonical
+- [ ] Portal household rename/type for a LAN-discovered neighbor uses canonical
       device identity, routes over `local-network` even without a child-agent id,
       receives `agent.lan-pairing.add-device.reported`, and survives portal
       refresh from service readback.
 - [ ] Reject anonymous, wrong-origin, wrong-route, wrong-device, replayed, and
       expired pairing/control requests.
-- [~] Preserve assignment and rename through rescan and weak evidence changes.
+- [ ] Preserve assignment and rename through rescan and weak evidence changes.
   Rename/type survives portal refresh through service readback; full rescan,
   restart, assignment, and weak-evidence contradiction proof remains open.
 - [ ] Apply revocation before any new rule, query, approval, or heartbeat
       authority is accepted.
-- [x] Show selected-device and route status clearly in parent-visible state.
+- [ ] Show selected-device and route status clearly in parent-visible state.
 
 ## Acceptance And Proof
 

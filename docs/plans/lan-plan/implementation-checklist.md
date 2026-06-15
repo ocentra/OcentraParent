@@ -195,23 +195,23 @@ Checked items below are concrete proof in current `main` or the B-lane LAN
 source-matrix branch. They do not mark a whole workpack complete unless every
 requirement in that workpack is complete.
 
-- [x] The LAN read model carries all 20 plan workpacks as typed status rows.
-- [x] The source matrix carries implemented, partial, manual-required, and
+- [ ] The LAN read model carries all 20 plan workpacks as typed status rows.
+- [ ] The source matrix carries implemented, partial, manual-required, and
       not-implemented rows instead of hiding gaps in prose.
-- [x] Weak LAN evidence sources are visible but cannot confirm child-agent
+- [ ] Weak LAN evidence sources are visible but cannot confirm child-agent
       identity or assign a child profile.
-- [x] Signed child-agent hello and heartbeat remain artifact-gated instead of
+- [ ] Signed child-agent hello and heartbeat remain artifact-gated instead of
       being silently marked implemented.
-- [x] Devices/LAN and Activity/Network can render the matrix through the
+- [ ] Devices/LAN and Activity/Network can render the matrix through the
       service-backed add-device read model.
-- [x] Devices/LAN household rename/type decisions for LAN-discovered neighbors
+- [ ] Devices/LAN household rename/type decisions for LAN-discovered neighbors
       route through the Rust LAN service and survive refresh without a
       portal-only second truth; proof is recorded in
       `output/lan-plan-proof/15-household-device-store/devices-identity-routing-proof.md`.
-- [x] Live B-lane browser screenshots exist for Devices/LAN,
+- [ ] Live B-lane browser screenshots exist for Devices/LAN,
       Activity/Network, and Network policy target binding under
       `output/playwright/lan-source-matrix-plan-completion/`.
-- [x] Focused proof JSON exists at
+- [ ] Focused proof JSON exists at
       `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`.
 - [ ] Packet-mode adapters remain manual-required or not implemented.
 - [ ] Physical household proof still needs a second child-agent device.

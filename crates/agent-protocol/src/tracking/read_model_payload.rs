@@ -202,5 +202,5 @@ fn join_evidence_ids(row: Option<&TrackingReadModelRow>) -> String {
             .collect::<Vec<_>>()
             .join(&separator)
     })
-        .unwrap_or_default()
+    .unwrap_or_default()
 }

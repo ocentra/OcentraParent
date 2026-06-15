@@ -1,11 +1,15 @@
 use super::{
     constants, policy_constants as policy, ChildProfileReference, FamilyReference,
     LocalAiParentRuleContextRef, ParentActorReference, ParentActorRole, ParentDeviceReference,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction, PolicyDecision,
-    PolicyDecisionHandoffState, PolicyPreviewNetworkEvidenceMapping, PolicyPreviewReadModel,
-    PolicyPreviewReadModelRow, PolicyRule, PolicyTarget, PolicyTargetType,
+    ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction,
+    PolicyAssistantConfirmationState, PolicyDecision, PolicyDecisionHandoffState,
+    PolicyPreviewFindingKind, PolicyPreviewManualReviewState, PolicyPreviewNetworkEvidenceMapping,
+    PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyPreviewSaveState,
+    PolicyPreviewTargetState, PolicyRequestOrigin, PolicyRequestStatus, PolicyRule,
+    PolicySourceStatus, PolicySourceSurface, PolicyTarget, PolicyTargetType,
     POLICY_DRY_RUN_SCHEMA_VERSION,
 };
+use crate::policy_preview_finding_kinds_csv;
 
 #[test]
 fn policy_preview_read_model_serializes_stored_evidence_rows() {
@@ -23,6 +27,40 @@ fn policy_preview_read_model_serializes_stored_evidence_rows() {
         policy::PREVIEW_CUSTODY_ACTIVITY_STORE
     );
     assert_eq!(serialized["rows"][0]["previewId"], policy::TEST_PREVIEW_ID);
+    assert_eq!(
+        serialized["rows"][0]["policyPreviewSaveState"],
+        "preview-required"
+    );
+    assert_eq!(
+        serialized["rows"][0]["policyPreviewManualReviewState"],
+        "required"
+    );
+    assert_eq!(
+        serialized["rows"][0]["policyPreviewTargetState"],
+        "unsupported"
+    );
+    assert_eq!(
+        serialized["rows"][0]["policyPreviewTargetExplanationCode"],
+        constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER
+    );
+    assert_eq!(
+        serialized["rows"][0]["policyPreviewFindingKinds"],
+        "unsupported-target"
+    );
+    assert_eq!(serialized["rows"][0]["policySourceStatus"], "preview");
+    assert_eq!(serialized["rows"][0]["policySourceSurface"], "ai-preview");
+    assert_eq!(
+        serialized["rows"][0]["policyRequestOrigin"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        serialized["rows"][0]["policyAssistantConfirmationState"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        serialized["rows"][0]["policyRequestStatus"],
+        serde_json::Value::Null
+    );
     assert_eq!(
         serialized["rows"][0]["decision"]["enforcementHandoffState"],
         policy::HANDOFF_DISABLED
@@ -88,6 +126,20 @@ fn policy_preview_read_model() -> PolicyPreviewReadModel {
                 enforcement_handoff_state: PolicyDecisionHandoffState::Disabled,
                 expires_at: None,
             },
+            policy_preview_save_state: Some(PolicyPreviewSaveState::PreviewRequired),
+            policy_preview_manual_review_state: Some(PolicyPreviewManualReviewState::Required),
+            policy_preview_target_state: Some(PolicyPreviewTargetState::Unsupported),
+            policy_preview_target_explanation_code: Some(
+                constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER.to_string(),
+            ),
+            policy_preview_finding_kinds: policy_preview_finding_kinds_csv(&[
+                PolicyPreviewFindingKind::UnsupportedTarget,
+            ]),
+            policy_source_status: Some(PolicySourceStatus::Preview),
+            policy_source_surface: Some(PolicySourceSurface::AiPreview),
+            policy_request_origin: None::<PolicyRequestOrigin>,
+            policy_assistant_confirmation_state: None::<PolicyAssistantConfirmationState>,
+            policy_request_status: None::<PolicyRequestStatus>,
             network_evidence_mapping: Some(PolicyPreviewNetworkEvidenceMapping {
                 evidence_grade: policy::NETWORK_EVIDENCE_GRADE_B.to_string(),
                 requested_action: policy::ACTION_BLOCK.to_string(),

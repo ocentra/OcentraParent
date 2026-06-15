@@ -14,18 +14,15 @@
 
 # Data Custody Storage Plan Agent Route
 
-Use this plan for data custody guarantees, encrypted storage, evidence retention, export, sync, deletion/tombstones, no-stolen-data boundaries, cloud/relay custody, and query/report source truth.
-
-## Research Gate
-
-This plan is still under research. Before implementation, DONE, or PR_READY, the assigned agent must inspect existing storage/eventing/report/query code and docs, map what already exists versus missing, research provider/encryption tradeoffs for the touched slice, and discuss unresolved custody/privacy choices with Sujan. Do not treat first-pass workpacks as final architecture.
+Use this plan for data custody guarantees, encrypted storage, evidence retention, export/import/restore, sync, deletion/tombstones, no-stolen-data boundaries, cloud/relay custody, report/query custody, and parent storage settings/apply flow.
 
 ## High-Density Execution Contract
 
 Task: work only the assigned slice for this plan.
-Context: [PLAN_STATE.md](PLAN_STATE.md) is current state; [WORKPACK_INDEX.md](WORKPACK_INDEX.md) chooses one workpack; [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) defines required local proof.
-Scope rule: one plan, one workpack, exact checklist/proof rows. Adjacent plans are closed until the selected workpack names a handoff.
-Implementation rule: docs define expected outcome, boundary, shape, validation, and proof. They do not prescribe implementation code.
+Context: [PLAN_STATE.md](PLAN_STATE.md) is current state; [NEXT_ACTIONS.md](NEXT_ACTIONS.md) is the resume queue; [WORKPACK_INDEX.md](WORKPACK_INDEX.md) chooses one workpack; [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) defines required proof.
+Scope rule: one plan, one workpack, exact proof rows. Adjacent plans are closed until the selected workpack names a handoff.
+Execution rule: architecture decisions live in [DECISIONS.md](DECISIONS.md), [DATA_CLASSIFICATION.md](DATA_CLASSIFICATION.md), [KEY_CUSTODY_MODEL.md](KEY_CUSTODY_MODEL.md), [PARENT_STORAGE_PROVIDER_MATRIX.md](PARENT_STORAGE_PROVIDER_MATRIX.md), [BUNDLE_PROTOCOL.md](BUNDLE_PROTOCOL.md), [EVENT_MODEL.md](EVENT_MODEL.md), [UI_EXPECTATIONS.md](UI_EXPECTATIONS.md), [PLATFORM_KEY_CUSTODY_MATRIX.md](PLATFORM_KEY_CUSTODY_MATRIX.md), [PARENT_SAVE_RETRIEVE_APPLY_FLOW.md](PARENT_SAVE_RETRIEVE_APPLY_FLOW.md), and [RESEARCH_AND_UI_GUIDANCE.md](RESEARCH_AND_UI_GUIDANCE.md). Workpacks must reference those decisions instead of re-litigating them.
+Implementation rule: docs define outcome, boundary, shape, validation, and proof. They do not prescribe implementation code.
 Proof rule: proof must include command/log evidence, negative cases, artifact paths, updated rows, and skipped-risk notes when applicable.
 Failure condition: no DONE/PR_READY when expected proof is missing, only happy-path evidence exists, or this plan is used to claim adjacent implementation completion.
 
@@ -48,6 +45,7 @@ Failure condition: no DONE/PR_READY when expected proof is missing, only happy-p
 
 ## Product Sources
 
-- Feature docs: evidence-store-query.md, reports-notifications-sync.md, remote-lan-mobile-platforms.md
+- Architecture docs: DECISIONS.md, DATA_CLASSIFICATION.md, KEY_CUSTODY_MODEL.md, PARENT_STORAGE_PROVIDER_MATRIX.md, BUNDLE_PROTOCOL.md, EVENT_MODEL.md, UI_EXPECTATIONS.md, PLATFORM_KEY_CUSTODY_MATRIX.md, PARENT_SAVE_RETRIEVE_APPLY_FLOW.md, RESEARCH_AND_UI_GUIDANCE.md
+- Feature docs: evidence-store-query.md, reports-notifications-sync.md
 - Expectation docs: data-custody.md, evidence-storage.md, sync-export.md, cloud.md
-- Adjacent plans: eventing-plan, portal-ux-household-surfaces-plan, parent-desktop-runtime-package-plan
+- Adjacent plans: eventing-plan, portal-ux-household-surfaces-plan, parent-client-runtime-distribution-plan, account-identity-family-plan, device-trust-bootstrap-plan, payment-subscription-plan

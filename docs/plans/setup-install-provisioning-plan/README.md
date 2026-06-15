@@ -13,9 +13,9 @@
 
 # Setup Install Provisioning Plan
 
-This plan owns the end-to-end parent onboarding journey from public family site to usable household.
+This plan owns the end-to-end setup bootstrap graph from public family site to a paired household-ready state.
 
-Use it for `family.ocentra.ca`, informational pages that collect no child data, registration entry, parent install, child install, pairing, permissions, first-run readiness, degraded states, and recovery.
+Use it for `family.ocentra.ca`, invite and code entry, parent install bootstrap, child install bootstrap, pairing, permissions, first-run readiness, degraded states, and recovery.
 
 Do not use it for package internals, LAN protocol internals, portal component styling, or domain-specific enforcement. Those stay in their owning plans and are named only as handoffs.
 

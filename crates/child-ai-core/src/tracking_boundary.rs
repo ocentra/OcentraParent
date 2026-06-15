@@ -38,7 +38,5 @@ pub fn classify_tracking_nearby_place(
             value: String::from("empty"),
         });
     }
-    Ok(ocentra_tracking_core::classify_tracking_nearby_place_request(
-        event,
-    ))
+    Ok(ocentra_tracking_core::classify_tracking_nearby_place_request(event))
 }

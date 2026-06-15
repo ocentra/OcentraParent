@@ -166,6 +166,7 @@ function TrackingStatusServiceDataCoverageCard({
         <TrackingStatusDetail label={PortalDetails.HistoryVisibility} value={coverage.rowVisibility} />
         <TrackingStatusDetail label={PortalDetails.LastObserved} value={coverage.lastObserved} />
         <TrackingStatusDetail label={PortalDetails.EventId} value={coverage.eventId} />
+        <TrackingStatusDetail label={PortalDetails.Device} value={coverage.deviceCounts} />
         <TrackingStatusDetail label={PortalDetails.Capability} value={coverage.capability} />
         <TrackingStatusDetail label={PortalDetails.Custody} value={coverage.custody} />
         <TrackingStatusDetail label={PortalDetails.ActivityKind} value={coverage.activityKinds} />

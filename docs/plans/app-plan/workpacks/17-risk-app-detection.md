@@ -48,24 +48,24 @@ AI/chatbot, messaging/social/video, and unknown risk without directly enforcing.
 
 Fill this before reporting `DONE` or PR-ready:
 
-- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-snapshot.md), [full scope plan](../v0-5-native-apps-full-scope-plan.md), [platform deep dive](../v0-5-native-apps-platform-deep-dive.md), [test blueprint](../v0-5-native-apps-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
-- [x] Confirm this is native/installed-app scope, not browser pages, browser games, or game-specific product semantics unless the source docs explicitly route that handoff.
-- [x] Hub lock covers this workpack and exact implementation/docs paths.
-- [x] Existing app/game source layout inspected; no parallel app-control truth created. `packages/activity-domain` taxonomy is reused but not edited because it is locked by `codex-a`.
-- [x] Before-state source snapshot recorded in `output/app-plan-proof/17-riskapp-detection/00-source-snapshot.md`.
-- [x] Contracts updated first where this workpack changes behavior: `packages/parent-domain/src/app-riskdetection.ts`, `app-riskdetection-rules.ts`, and `app-riskdetection-data.ts`.
-- [x] Rust/service/portal parity N/A for this slice because no runtime protocol, service read model, or portal payload changed.
-- [x] Raw evidence artifact captured: `output/app-plan-proof/17-riskapp-detection/03-runtime-evidence.json`.
-- [x] Tests/proof listed in this workpack and [test blueprint](../v0-5-native-apps-test-blueprint.md) are implemented as contract/proof-harness evidence.
-- [x] Required fixtures are represented by proof-matrix rows for known catalog, unknown executable-name, unknown publisher/hash, local AI digest, and parent display override candidates.
-- [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
-- [x] UI snapshots N/A; `output/app-plan-proof/17-riskapp-detection/06-ui-snapshots/ui-not-applicable.md` records why.
-- [x] Security/no-claim negative proof captured in `output/app-plan-proof/17-riskapp-detection/08-security-negative-proof.log`.
-- [x] Manual platform proof N/A for support claims; `09-manual-platform-proof.md` records that no live classifier, portal, or enforcement claim moved up.
-- [x] Platform limitations remain contract-only; live scanning, service events, portal rendering, AI provider quality, and enforcement stay later proof.
-- [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
-- [x] Feature/checklist update decision recorded: feature doc and app-plan checklist updated; product capability checklist unchanged because the row remains in progress and `codex-a` owns that lock.
-- [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+- [ ] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-snapshot.md), [full scope plan](../v0-5-native-apps-full-scope-plan.md), [platform deep dive](../v0-5-native-apps-platform-deep-dive.md), [test blueprint](../v0-5-native-apps-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
+- [ ] Confirm this is native/installed-app scope, not browser pages, browser games, or game-specific product semantics unless the source docs explicitly route that handoff.
+- [ ] Hub lock covers this workpack and exact implementation/docs paths.
+- [ ] Existing app/game source layout inspected; no parallel app-control truth created. `packages/activity-domain` taxonomy is reused but not edited because it is locked by `codex-a`.
+- [ ] Before-state source snapshot recorded in `output/app-plan-proof/17-riskapp-detection/00-source-snapshot.md`.
+- [ ] Contracts updated first where this workpack changes behavior: `packages/parent-domain/src/app-riskdetection.ts`, `app-riskdetection-rules.ts`, and `app-riskdetection-data.ts`.
+- [ ] Rust/service/portal parity N/A for this slice because no runtime protocol, service read model, or portal payload changed.
+- [ ] Raw evidence artifact captured: `output/app-plan-proof/17-riskapp-detection/03-runtime-evidence.json`.
+- [ ] Tests/proof listed in this workpack and [test blueprint](../v0-5-native-apps-test-blueprint.md) are implemented as contract/proof-harness evidence.
+- [ ] Required fixtures are represented by proof-matrix rows for known catalog, unknown executable-name, unknown publisher/hash, local AI digest, and parent display override candidates.
+- [ ] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
+- [ ] UI snapshots N/A; `output/app-plan-proof/17-riskapp-detection/06-ui-snapshots/ui-not-applicable.md` records why.
+- [ ] Security/no-claim negative proof captured in `output/app-plan-proof/17-riskapp-detection/08-security-negative-proof.log`.
+- [ ] Manual platform proof N/A for support claims; `09-manual-platform-proof.md` records that no live classifier, portal, or enforcement claim moved up.
+- [ ] Platform limitations remain contract-only; live scanning, service events, portal rendering, AI provider quality, and enforcement stay later proof.
+- [ ] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
+- [ ] Feature/checklist update decision recorded: feature doc and app-plan checklist updated; product capability checklist unchanged because the row remains in progress and `codex-a` owns that lock.
+- [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
 ## Manual-Required Gaps
 
