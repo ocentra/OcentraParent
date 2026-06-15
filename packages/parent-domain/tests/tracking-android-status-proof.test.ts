@@ -18,6 +18,7 @@ const ProofOptions = {
   sourceProofRefs: [
     'output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/04-device-status-proof.json',
     'test-results/tracking-plan-android-emulator-proof/proof.json',
+    'test-results/tracking-android-physical-device-runtime-proof/proof.json',
     'docs/plans/tracking-plan/workpacks/10-android-battery-connectivity-and-status-adapter.md',
   ],
 } as const;
@@ -26,36 +27,15 @@ describe('tracking Android status proof', () => {
   it('builds low-power, killed/restarted, pending-upload, and manual-required rows', () => {
     const readModel = buildTrackingAndroidStatusProofReadModel(ProofOptions, androidStatusRows());
 
-    expect(readModel.rows.map((row) => row.caseKind)).toEqual([
-      'low-power-degraded',
-      'app-killed-restarted',
-      'pending-upload-auditable',
-      'manual-required',
-    ]);
-    expect(readModel.lowPowerDegradedCount).toBe(1);
-    expect(readModel.appRestartObservedCount).toBe(1);
-    expect(readModel.pendingUploadAuditableCount).toBe(1);
-    expect(readModel.manualRequiredCount).toBe(1);
+    expectStatusSummary(readModel);
     expect(readModel.runtimeEvidenceRefs).toEqual(expectedRuntimeEvidenceRefs());
   });
 
   it('keeps parent-visible degraded status and audit refs attached to each open WP10 gap', () => {
     const readModel = buildTrackingAndroidStatusProofReadModel(ProofOptions, androidStatusRows());
-    const lowPower = readModel.rows[0];
-    const restarted = readModel.rows[1];
-    const pendingUpload = readModel.rows[2];
 
-    expect(lowPower.claimState).toBe('degraded');
-    expect(lowPower.lowPowerMode).toBe(true);
-    expect(lowPower.parentVisibleStatusToken).toBe('tracking-android-status-low-power-degraded');
-    expect(lowPower.auditRefs).toEqual(['tracking-android-status-audit-low-power']);
-
-    expect(restarted.appProcessRunning).toBe(true);
-    expect(restarted.appRestartObserved).toBe(true);
-    expect(restarted.parentVisibleStatusToken).toBe('tracking-android-status-app-restarted-audit');
-
-    expect(pendingUpload.pendingUploadCount).toBe(3);
-    expect(pendingUpload.parentVisibleStatusToken).toBe('tracking-android-status-pending-upload-audit');
+    expectEmulatorStatusRows(readModel.rows);
+    expectPhysicalStatusRow(readModel.rows[3]);
   });
 
   it('rejects Android status rows and read models that overclaim device runtime behavior', () => {
@@ -80,8 +60,58 @@ describe('tracking Android status proof', () => {
         productReadyAndroidTrackingClaimed: true,
       }).success
     ).toBe(false);
+    expect(
+      TrackingAndroidStatusProofReadModelSchema.safeParse({
+        ...readModel,
+        physicalStatusObservedCount: 0,
+      }).success
+    ).toBe(false);
   });
 });
+
+type TrackingAndroidStatusProofReadModel = ReturnType<typeof buildTrackingAndroidStatusProofReadModel>;
+type TrackingAndroidStatusProofRow = TrackingAndroidStatusProofReadModel['rows'][number];
+
+function expectStatusSummary(readModel: TrackingAndroidStatusProofReadModel) {
+  expect(readModel.rows.map((row) => row.caseKind)).toEqual([
+    'low-power-degraded',
+    'app-killed-restarted',
+    'pending-upload-auditable',
+    'physical-status-observed',
+    'manual-required',
+  ]);
+  expect(readModel.lowPowerDegradedCount).toBe(1);
+  expect(readModel.appRestartObservedCount).toBe(1);
+  expect(readModel.pendingUploadAuditableCount).toBe(1);
+  expect(readModel.physicalStatusObservedCount).toBe(1);
+  expect(readModel.physicalDeviceStatusEvidenceObserved).toBe(true);
+  expect(readModel.manualRequiredCount).toBe(1);
+}
+
+function expectEmulatorStatusRows(rows: readonly TrackingAndroidStatusProofRow[]) {
+  expect(rows[0].claimState).toBe('degraded');
+  expect(rows[0].lowPowerMode).toBe(true);
+  expect(rows[0].parentVisibleStatusToken).toBe('tracking-android-status-low-power-degraded');
+  expect(rows[0].auditRefs).toEqual(['tracking-android-status-audit-low-power']);
+  expect(rows[1].appProcessRunning).toBe(true);
+  expect(rows[1].appRestartObserved).toBe(true);
+  expect(rows[1].parentVisibleStatusToken).toBe('tracking-android-status-app-restarted-audit');
+  expect(rows[2].pendingUploadCount).toBe(3);
+  expect(rows[2].parentVisibleStatusToken).toBe('tracking-android-status-pending-upload-audit');
+}
+
+function expectPhysicalStatusRow(physicalStatus: TrackingAndroidStatusProofRow) {
+  expect(physicalStatus.claimState).toBe('physical-status-observed');
+  expect(physicalStatus.source).toBe('physical-device-battery-connectivity-dump');
+  expect(physicalStatus.batteryPercent).toBe(83);
+  expect(physicalStatus.parentVisibleStatusToken).toBe(
+    'tracking-android-status-physical-battery-connectivity-observed'
+  );
+  expect(physicalStatus.evidenceRefs).toEqual([
+    'test-results/tracking-android-physical-device-runtime-proof/07-battery.txt',
+    'test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt',
+  ]);
+}
 
 function expectedRuntimeEvidenceRefs() {
   return [
@@ -98,6 +128,16 @@ function expectedRuntimeEvidenceRefs() {
     {
       evidenceReferenceId: 'android-query-store-pending-upload-count',
       kind: 'query-store-summary',
+      observedAt: Timestamp,
+    },
+    {
+      evidenceReferenceId: 'test-results/tracking-android-physical-device-runtime-proof/07-battery.txt',
+      kind: 'activity-event',
+      observedAt: Timestamp,
+    },
+    {
+      evidenceReferenceId: 'test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt',
+      kind: 'activity-event',
       observedAt: Timestamp,
     },
     {
@@ -151,6 +191,23 @@ function androidStatusRows(): readonly TrackingAndroidStatusInputRow[] {
       pendingUploadCount: 3,
       evidenceRefs: ['android-query-store-pending-upload-count'],
       auditRefs: ['tracking-android-status-audit-pending-upload'],
+    },
+    {
+      rowId: 'tracking-android-status-physical-device-status',
+      caseKind: 'physical-status-observed',
+      source: 'physical-device-battery-connectivity-dump',
+      observedAt: Timestamp,
+      batteryPercent: 83,
+      charging: false,
+      lowPowerMode: false,
+      appProcessRunning: true,
+      appRestartObserved: false,
+      pendingUploadCount: 0,
+      evidenceRefs: [
+        'test-results/tracking-android-physical-device-runtime-proof/07-battery.txt',
+        'test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt',
+      ],
+      auditRefs: ['tracking-android-status-audit-physical-status-observed'],
     },
     {
       rowId: 'tracking-android-status-manual-required',

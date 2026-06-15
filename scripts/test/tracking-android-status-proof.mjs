@@ -29,6 +29,7 @@ const readModel = proofModule.buildTrackingAndroidStatusProofReadModel(
     sourceProofRefs: [
       'output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/04-device-status-proof.json',
       'test-results/tracking-plan-android-emulator-proof/proof.json',
+      'test-results/tracking-android-physical-device-runtime-proof/proof.json',
       'docs/plans/tracking-plan/workpacks/10-android-battery-connectivity-and-status-adapter.md',
     ],
   },
@@ -111,6 +112,23 @@ function androidStatusRows() {
       auditRefs: ['tracking-android-status-audit-pending-upload'],
     },
     {
+      rowId: 'tracking-android-status-physical-device-status',
+      caseKind: 'physical-status-observed',
+      source: 'physical-device-battery-connectivity-dump',
+      observedAt: timestamp,
+      batteryPercent: 83,
+      charging: false,
+      lowPowerMode: false,
+      appProcessRunning: true,
+      appRestartObserved: false,
+      pendingUploadCount: 0,
+      evidenceRefs: [
+        'test-results/tracking-android-physical-device-runtime-proof/07-battery.txt',
+        'test-results/tracking-android-physical-device-runtime-proof/08-connectivity.txt',
+      ],
+      auditRefs: ['tracking-android-status-audit-physical-status-observed'],
+    },
+    {
       rowId: 'tracking-android-status-manual-required',
       caseKind: 'manual-required',
       source: 'manual-platform-plan',
@@ -133,8 +151,10 @@ function summarize(readModel) {
     lowPowerDegradedCount: readModel.lowPowerDegradedCount,
     appRestartObservedCount: readModel.appRestartObservedCount,
     pendingUploadAuditableCount: readModel.pendingUploadAuditableCount,
+    physicalStatusObservedCount: readModel.physicalStatusObservedCount,
     manualRequiredCount: readModel.manualRequiredCount,
     runtimeEvidenceRefs: readModel.runtimeEvidenceRefs.length,
+    physicalDeviceStatusEvidenceObserved: readModel.physicalDeviceStatusEvidenceObserved,
     claimStates: countBy(readModel.rows.map((row) => row.claimState)),
     caseKinds: countBy(readModel.rows.map((row) => row.caseKind)),
   };
@@ -155,10 +175,11 @@ function nonClaims(readModel) {
 
 function assertProof(proof) {
   if (
-    proof.summary.rows !== 4 ||
+    proof.summary.rows !== 5 ||
     proof.summary.lowPowerDegradedCount !== 1 ||
     proof.summary.appRestartObservedCount !== 1 ||
     proof.summary.pendingUploadAuditableCount !== 1 ||
+    proof.summary.physicalStatusObservedCount !== 1 ||
     proof.summary.manualRequiredCount !== 1
   ) {
     throw new Error(`Unexpected Android status summary: ${JSON.stringify(proof.summary)}`);
@@ -182,9 +203,9 @@ async function writeProofPack(path, proof) {
       proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
       '```',
       '',
-      '- Scope: parent-domain Android status read model for low-power degradation, killed/restarted audit rows, pending-upload auditability, and manual-required platform gaps.',
+      '- Scope: parent-domain Android status read model for low-power degradation, killed/restarted audit rows, pending-upload auditability, Samsung S9 physical battery/connectivity/status evidence, and manual-required platform gaps.',
       '- Source inspected: location/geofence feature doc, location/geofence expectations, platform expectations, tracking settings inventory, V0.5 platform deep dive, and WP10 workpack.',
-      '- Boundary: this proof extends emulator/local status evidence only; it does not claim foreground location samples, background location runtime, geofence transitions, notification delivery, device-owner authority, physical-device behavior, or product-ready Android tracking.',
+      '- Boundary: this proof extends emulator/local plus Samsung S9 status evidence only; it does not claim foreground location samples, background location runtime, geofence transitions, offline radio behavior, notification delivery, device-owner authority, physical-device behavior, or product-ready Android tracking.',
       '',
     ].join('\n'),
     'utf8'
@@ -216,6 +237,7 @@ async function writeProofPack(path, proof) {
     lowPower: proof.readModel.rows.find((row) => row.caseKind === 'low-power-degraded'),
     killedRestarted: proof.readModel.rows.find((row) => row.caseKind === 'app-killed-restarted'),
     pendingUpload: proof.readModel.rows.find((row) => row.caseKind === 'pending-upload-auditable'),
+    physicalStatus: proof.readModel.rows.find((row) => row.caseKind === 'physical-status-observed'),
     manualRequired: proof.readModel.rows.find((row) => row.caseKind === 'manual-required'),
     nonClaims: proof.nonClaims,
   });

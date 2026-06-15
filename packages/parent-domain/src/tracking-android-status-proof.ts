@@ -18,25 +18,33 @@ export const TrackingAndroidStatusProofReferenceSchema = TrackingAndroidStatusTe
 );
 
 export const TrackingAndroidStatusCaseSchema = withParser(
-  Schema.Literal('low-power-degraded', 'app-killed-restarted', 'pending-upload-auditable', 'manual-required')
+  Schema.Literal(
+    'low-power-degraded',
+    'app-killed-restarted',
+    'pending-upload-auditable',
+    'physical-status-observed',
+    'manual-required'
+  )
 );
 export const TrackingAndroidStatusSourceSchema = withParser(
   Schema.Literal(
     'emulator-battery-dump',
     'emulator-activity-manager',
     'query-store-pending-upload',
+    'physical-device-battery-connectivity-dump',
     'manual-platform-plan'
   )
 );
 export const TrackingAndroidStatusClaimStateSchema = withParser(
-  Schema.Literal('scaffold-observed', 'degraded', 'manual-required')
+  Schema.Literal('scaffold-observed', 'degraded', 'physical-status-observed', 'manual-required')
 );
 
 export const RequiredTrackingAndroidStatusProofNonClaims = [
   'no-foreground-location-sample',
   'no-background-location-runtime',
   'no-geofence-transition-runtime',
-  'no-physical-device-proof',
+  'no-physical-device-behavior-proof',
+  'no-offline-radio-behavior-proof',
   'no-notification-delivery',
   'no-device-owner-authority',
   'no-production-upload-worker',
@@ -109,8 +117,10 @@ const TrackingAndroidStatusProofReadModelBaseSchema = Schema.Struct({
   lowPowerDegradedCount: TrackingAndroidStatusNonNegativeIntegerSchema,
   appRestartObservedCount: TrackingAndroidStatusNonNegativeIntegerSchema,
   pendingUploadAuditableCount: TrackingAndroidStatusNonNegativeIntegerSchema,
+  physicalStatusObservedCount: TrackingAndroidStatusNonNegativeIntegerSchema,
   manualRequiredCount: TrackingAndroidStatusNonNegativeIntegerSchema,
   proofNonClaims: Schema.Array(TrackingAndroidStatusProofNonClaimSchema),
+  physicalDeviceStatusEvidenceObserved: Schema.Boolean,
   foregroundLocationClaimed: Schema.Literal(false),
   backgroundLocationRuntimeClaimed: Schema.Literal(false),
   geofenceRuntimeClaimed: Schema.Literal(false),
@@ -171,8 +181,10 @@ export function buildTrackingAndroidStatusProofReadModel(
     lowPowerDegradedCount: rows.filter((row) => row.caseKind === 'low-power-degraded').length,
     appRestartObservedCount: rows.filter((row) => row.appRestartObserved).length,
     pendingUploadAuditableCount: rows.filter((row) => row.pendingUploadCount > 0).length,
+    physicalStatusObservedCount: rows.filter((row) => row.caseKind === 'physical-status-observed').length,
     manualRequiredCount: rows.filter((row) => row.claimState === 'manual-required').length,
     proofNonClaims: RequiredTrackingAndroidStatusProofNonClaims,
+    physicalDeviceStatusEvidenceObserved: rows.some((row) => row.caseKind === 'physical-status-observed'),
     foregroundLocationClaimed: false,
     backgroundLocationRuntimeClaimed: false,
     geofenceRuntimeClaimed: false,
@@ -220,6 +232,9 @@ function claimStateFor(input: TrackingAndroidStatusInputRow) {
   if (input.caseKind === 'manual-required') {
     return 'manual-required';
   }
+  if (input.caseKind === 'physical-status-observed') {
+    return 'physical-status-observed';
+  }
   if (input.lowPowerMode || input.pendingUploadCount > 0 || input.appRestartObserved) {
     return 'degraded';
   }
@@ -235,6 +250,9 @@ function parentVisibleStatusTokenFor(input: TrackingAndroidStatusInputRow): stri
   }
   if (input.caseKind === 'pending-upload-auditable') {
     return 'tracking-android-status-pending-upload-audit';
+  }
+  if (input.caseKind === 'physical-status-observed') {
+    return 'tracking-android-status-physical-battery-connectivity-observed';
   }
   return 'tracking-android-status-manual-platform-proof-required';
 }
@@ -270,6 +288,10 @@ function readModelCountsAreHonest(readModel: TrackingAndroidStatusProofReadModel
     readModel.lowPowerDegradedCount === countRows(readModel.rows, (row) => row.caseKind === 'low-power-degraded') &&
     readModel.appRestartObservedCount === countRows(readModel.rows, (row) => row.appRestartObserved) &&
     readModel.pendingUploadAuditableCount === countRows(readModel.rows, (row) => row.pendingUploadCount > 0) &&
+    readModel.physicalStatusObservedCount ===
+      countRows(readModel.rows, (row) => row.caseKind === 'physical-status-observed') &&
+    readModel.physicalDeviceStatusEvidenceObserved ===
+      readModel.rows.some((row) => row.caseKind === 'physical-status-observed') &&
     readModel.manualRequiredCount === countRows(readModel.rows, (row) => row.claimState === 'manual-required') &&
     readModel.runtimeEvidenceRefs.length === runtimeEvidenceRefCount
   );
@@ -312,7 +334,10 @@ function rowCaseEvidenceMatches(row: TrackingAndroidStatusProofRowCandidate): bo
   const lowPowerMatches = row.caseKind !== 'low-power-degraded' || (row.lowPowerMode && row.claimState === 'degraded');
   const restartMatches = row.caseKind !== 'app-killed-restarted' || row.appRestartObserved;
   const uploadMatches = row.caseKind !== 'pending-upload-auditable' || row.pendingUploadCount > 0;
-  return lowPowerMatches && restartMatches && uploadMatches;
+  const physicalStatusMatches =
+    row.caseKind !== 'physical-status-observed' ||
+    (row.source === 'physical-device-battery-connectivity-dump' && row.batteryPercent !== null);
+  return lowPowerMatches && restartMatches && uploadMatches && physicalStatusMatches;
 }
 
 function rowRuntimeClaimsAreFalse(row: TrackingAndroidStatusProofRowCandidate): boolean {

@@ -59,6 +59,9 @@ Proof root: `output/tracking-plan-proof/10-android-battery-connectivity-and-stat
       screenshot, and logcat for local status proof.
 - [x] Generate the Android Studio/local and physical-device proof artifact plan
       before device work.
+- [x] Link Samsung S9 physical battery/connectivity/status artifacts into the
+      WP10 parent-domain status read model. Proof:
+      `test-results/tracking-android-status-proof/proof.json`.
 
 ## Where We Are
 
@@ -82,20 +85,22 @@ claims remain pending.
 `node scripts/test/tracking-android-status-proof.mjs` now adds a focused WP10
 parent-domain proof for the remaining local status gap states. It records
 low-power/battery-saver degradation, app killed/restarted auditability,
-pending-upload count auditability, and a manual-required platform-proof row
-under `17-status-gap-proof.json` and
+pending-upload count auditability, Samsung S9 physical battery/connectivity
+status evidence, and a manual-required platform-proof row under
+`17-status-gap-proof.json` and
 `test-results/tracking-android-status-proof/proof.json`. This proof is
 parser/read-model evidence only; it does not claim foreground location samples,
-background location runtime, geofence transitions, notification delivery,
-device-owner authority, physical-device behavior, production upload workers, or
-product-ready Android tracking.
+background location runtime, geofence transitions, offline radio behavior,
+notification delivery, device-owner authority, physical-device behavior,
+production upload workers, or product-ready Android tracking.
 
 `node scripts/test/tracking-android-physical-device-runtime-proof.mjs` now
 records Samsung S9 physical-device status artifacts for the Android runtime
 proof: foreground-service `ServiceRecord` with `isForeground=true`, device
 metadata, battery/connectivity dumps, UI/keyguard screenshot, logcat, and 3,194
 foreground-service-backed background GPS samples. These artifacts support WP10
-status evidence and WP33 physical-device review accounting, but they do not
+status evidence and WP33 physical-device review accounting. The WP10 row is now
+closed only for physical battery/connectivity/status evidence; it still does not
 prove offline radio behavior, Android system geofence delivery, authority,
 production upload workers, or product-ready Android tracking.
 
@@ -137,9 +142,9 @@ This workpack can be assigned independently, implemented against the owning doma
       `15-manual-platform-proof.md`, and `16-validation-commands.log`.
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, and this workpack doc updated for the local Android
-      low-power, killed/restarted, pending-upload, and manual-required status
-      proof; central capability row update remains a hub/primary-owned doc
-      delta.
+      low-power, killed/restarted, pending-upload, Samsung S9 physical status,
+      and manual-required status proof; central capability row update remains a
+      hub/primary-owned doc delta.
 - [x] Known gaps/manual-required states: foreground-service-backed physical
       background GPS samples are observed on the Samsung S9, but geofence
       transitions, Android system delivery, offline radio behavior, notification
