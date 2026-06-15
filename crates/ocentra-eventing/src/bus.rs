@@ -6,8 +6,9 @@
 
 use tokio::sync::{RwLock, Semaphore};
 
-use crate::{ExpectValue, 
-    queue::EventQueue, AggregateKey, DomainEvent, EventType, EventingError, HandlerExecutionPolicy,
+use crate::{
+    ExpectValue,
+    AggregateKey, DomainEvent, EventQueue, EventType, EventingError, HandlerExecutionPolicy,
     JournalPolicy, RequestRegistry, SharedEventClock, SharedEventJournal, StoredEventEnvelope,
 };
 
@@ -18,22 +19,20 @@ mod dispatch;
 mod journaling;
 mod lifecycle;
 mod publish;
-mod publisher;
+pub mod publisher;
 mod queue_drain;
-mod reports;
-mod subscriber;
+pub mod reports;
+pub mod subscriber;
 
 use subscriber::{insert_subscriber, record_for, remove_subscriber, SubscriberRecord};
 
 use active_dispatch::ActiveDispatchTracker;
 
-pub use publisher::{EventContext, EventPublisher};
-pub use reports::{
-    dead_letter_recorded_event_type, DeadLetter, DeadLetterEvent, DeadLetterReason,
-    EventMetricsSnapshot, EventQueueMetrics, EventRequestMetrics, EventTraceFields, HandlerOutcome,
-    HandlerReport, PublishReport, QueueDrainReport,
+use publisher::{EventContext, EventPublisher};
+use reports::{
+    DeadLetter, EventMetricsSnapshot, HandlerOutcome, HandlerReport, PublishReport, QueueDrainReport,
 };
-pub use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport, UnsubscribeReport};
+use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DispatchMode {

@@ -1,10 +1,16 @@
+use crate::ExpectValue;
 use std::time::Duration;
 
 use super::fixtures::{
     metadata, metadata_with_event_id, subscriber, test_event_with_idempotency, TestEvent,
     TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
 };
-use crate::{DeadLetterReason, EventBus, EventQueuePolicy, EventingError, RequestOptions};
+use crate::bus::reports::DeadLetterReason;
+use crate::bus::EventBus;
+use crate::queue::policy::EventQueuePolicy;
+use crate::request::RequestOptions;
+use crate::error::EventingError;
+use crate::request::EventResponseContract;
 
 const IN_MEMORY_RETENTION_PROBE_COUNT: usize = 4097;
 const EXPECTED_IN_MEMORY_RETENTION_LIMIT: usize = 4096;
@@ -12,7 +18,7 @@ const EXPECTED_IN_MEMORY_RETENTION_LIMIT: usize = 4096;
 #[tokio::test]
 async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts() {
     let policy = EventQueuePolicy::no_subscriber_queue(1)
-        .expect("queue policy is valid")
+        .expect_value("queue policy is valid")
         .with_idempotency_registry();
     let bus = EventBus::with_queue_policy(policy);
     bus.publish(
@@ -20,13 +26,13 @@ async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts()
         metadata_with_event_id(TEST_TARGET, "metrics-event-1"),
     )
     .await
-    .expect("first event queues");
+    .expect_value("first event queues");
     bus.publish(
         test_event_with_idempotency("overflow", "metrics-overflow-idempotency"),
         metadata_with_event_id(TEST_TARGET, "metrics-event-2"),
     )
     .await
-    .expect("overflow drops oldest and keeps newest");
+    .expect_value("overflow drops oldest and keeps newest");
 
     let queued = bus.metrics_snapshot().await;
     assert_eq!(queued.subscription_count, 0);
@@ -42,7 +48,7 @@ async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts()
         Ok(())
     })
     .await
-    .expect("subscriber drains queue");
+    .expect_value("subscriber drains queue");
     let drained = bus.metrics_snapshot().await;
     assert_eq!(drained.subscription_count, 1);
     assert_eq!(drained.queue.queued_event_count, 0);
@@ -52,7 +58,7 @@ async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts()
         .publish_request(
             SlowMetricsRequest::new(),
             metadata(TEST_TARGET),
-            RequestOptions::with_timeout(Duration::from_millis(1)).expect("timeout parses"),
+            RequestOptions::with_timeout(Duration::from_millis(1)).expect_value("timeout parses"),
         )
         .await;
     assert!(matches!(
@@ -78,7 +84,7 @@ async fn metrics_snapshot_reports_bounded_in_memory_event_retention() {
             metadata_with_event_id(TEST_TARGET, &format!("retention-event-{index}")),
         )
         .await
-        .expect("retention probe event publishes");
+        .expect_value("retention probe event publishes");
     }
 
     let metrics = bus.metrics_snapshot().await;
@@ -92,7 +98,7 @@ async fn metrics_snapshot_reports_bounded_in_memory_event_retention() {
     assert_eq!(
         journal
             .first()
-            .expect("retained journal has first entry")
+            .expect_value("retained journal has first entry")
             .event_id
             .as_str(),
         "retention-event-1"
@@ -107,7 +113,7 @@ struct SlowMetricsRequest {
 impl SlowMetricsRequest {
     fn new() -> Self {
         Self {
-            request_id: crate::RequestId::parse("metrics-request-1").expect("request id parses"),
+            request_id: crate::RequestId::parse("metrics-request-1").expect_value("request id parses"),
         }
     }
 }
@@ -142,4 +148,4 @@ struct MetricsResponse {
     decision: String,
 }
 
-impl crate::EventResponseContract for MetricsResponse {}
+impl EventResponseContract for MetricsResponse {}

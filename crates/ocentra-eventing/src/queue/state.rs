@@ -4,14 +4,17 @@
     time::Duration,
 };
 
-use crate::{ExpectValue, 
+use crate::{
     DeadLetterReason, EventClockInstant, EventId, EventQueueMetrics, EventType, EventingError,
-    IdempotencyKey, StoredEventEnvelope,
+    ExpectValue, IdempotencyKey, StoredEventEnvelope,
 };
 
-use super::{
-    reservation::DispatchReservation, EventQueuePolicy, NoSubscriberQueuePolicy, QueueDisposition,
-    QueueOverflowPolicy, QueueReport,
+use crate::queue::{
+    policy::{
+        EventQueuePolicy, NoSubscriberQueuePolicy, QueueDisposition, QueueOverflowPolicy,
+        QueueReport,
+    },
+    reservation::DispatchReservation,
 };
 
 const COMPLETED_IDEMPOTENCY_RETENTION_LIMIT: usize = 4096;
@@ -164,7 +167,7 @@ impl EventQueue {
 
     pub(crate) fn mark_completed(&self, event_id: &EventId, key: IdempotencyKey) {
         let mut state = self.state.lock().expect_value("event queue lock");
-        state.in_flight_event_ids.remove(&event_id);
+        state.in_flight_event_ids.remove(event_id);
         state.in_flight_keys.remove(&key);
         if self.policy.idempotency_registry_enabled() && state.completed_keys.insert(key.clone()) {
             state.completed_key_order.push_back(key);
@@ -174,7 +177,7 @@ impl EventQueue {
 
     pub(crate) fn release_in_flight(&self, event_id: &EventId, key: Option<&IdempotencyKey>) {
         let mut state = self.state.lock().expect_value("event queue lock");
-        state.in_flight_event_ids.remove(&event_id);
+        state.in_flight_event_ids.remove(event_id);
         if let Some(key) = key {
             state.in_flight_keys.remove(key);
         }
