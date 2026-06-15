@@ -34,6 +34,7 @@ test-results/logging-domain-parity-<proof-mode>/
 - [ ] Reference games logging-domain files inspected.
 - [ ] Parent current package files inspected.
 - [ ] Live usage of parent logging-domain confirmed.
+- [ ] Existing parent MCP presence or absence confirmed.
 - [ ] Dead-code or split-route risks documented.
 - [ ] Reference-to-target mapping confirmed.
 - [ ] Existing parent exports listed before code changes.
@@ -117,8 +118,10 @@ test-results/logging-domain-parity-<proof-mode>/
 
 ## WP07 MCP Query Interface
 
+- [ ] Existing parent MCP framework audited.
+- [ ] Existing MCP reused/upgraded or absence recorded.
 - [ ] Shared query service added for CLI and MCP.
-- [ ] MCP server script added.
+- [ ] MCP server script added or existing server extended.
 - [ ] `mcp:logging` package/root script added.
 - [ ] Error query tool implemented.
 - [ ] Recent logs query tool implemented.
@@ -132,4 +135,19 @@ test-results/logging-domain-parity-<proof-mode>/
 - [ ] MCP and CLI share data access code.
 - [ ] MCP smoke tests pass.
 - [ ] Agent guidance documents MCP-first, CLI-fallback behavior.
+- [ ] Proof root and workpack completion section filled.
+
+## WP08 Logger Instrumentation and Adoption
+
+- [ ] Parent TypeScript logger usage pattern implemented or documented at API boundary.
+- [ ] Parent Rust logger usage pattern implemented through logging-core.
+- [ ] Portal dev/runtime logging uses parent logger instead of ad hoc fetch/console path.
+- [ ] Agent-service startup/health/dev diagnostics use logging-core.
+- [ ] Validation/evidence scripts log run_id and command_id where useful.
+- [ ] At least one TypeScript runtime path produces source/context fields queryable from storage.
+- [ ] At least one Rust service path produces source/context fields queryable from storage or fixture output.
+- [ ] Tests verify registered source/context fields are preserved.
+- [ ] Checks prevent new raw console logging in touched logging surfaces.
+- [ ] Checks prevent ad hoc JSON log writers outside logging-domain/logging-core.
+- [ ] MCP or CLI query proof shows useful source/context values.
 - [ ] Proof root and workpack completion section filled.
