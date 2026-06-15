@@ -1,4 +1,4 @@
-use std::{
+﻿use std::{
     collections::{BTreeMap, VecDeque},
     sync::{Arc, Mutex},
     time::Duration,
@@ -7,7 +7,7 @@ use std::{
 use serde::{de::DeserializeOwned, Serialize};
 use tokio::sync::oneshot;
 
-use crate::{DomainEvent, EventRequestMetrics, EventingError, PublishReport, RequestId};
+use crate::{ExpectValue, DomainEvent, EventRequestMetrics, EventingError, PublishReport, RequestId};
 
 const TERMINAL_REQUEST_RETENTION_LIMIT: usize = 4096;
 
@@ -79,10 +79,11 @@ impl RequestRegistry {
         request_id: RequestId,
     ) -> Result<oneshot::Receiver<RequestPayload>, EventingError> {
         let (sender, receiver) = oneshot::channel();
-        let mut state = self.state.lock().expect("request registry lock");
+        let mut state = self.state.lock().expect_value("request registry lock");
         if state.entries.contains_key(&request_id) {
+            let duplicate_request_id = request_id.clone();
             return Err(EventingError::DuplicateRequest {
-                request_id: request_id.clone(),
+                request_id: duplicate_request_id,
             });
         }
         state
@@ -100,7 +101,7 @@ impl RequestRegistry {
         R: EventResponseContract,
     {
         let payload = RequestPayload::from_response(&request_id, response)?;
-        let mut state = self.state.lock().expect("request registry lock");
+        let mut state = self.state.lock().expect_value("request registry lock");
         let Some(entry) = state.entries.get_mut(&request_id) else {
             return Ok(completion_report(
                 request_id,
@@ -147,7 +148,7 @@ impl RequestRegistry {
     }
 
     pub(crate) fn timeout(&self, request_id: &RequestId) {
-        let mut state = self.state.lock().expect("request registry lock");
+        let mut state = self.state.lock().expect_value("request registry lock");
         if let Some(entry) = state.entries.get_mut(request_id) {
             if entry.state == RequestState::Pending {
                 entry.state = RequestState::TimedOut;
@@ -159,7 +160,7 @@ impl RequestRegistry {
     }
 
     pub(crate) fn cancel(&self, request_id: &RequestId) -> bool {
-        let mut state = self.state.lock().expect("request registry lock");
+        let mut state = self.state.lock().expect_value("request registry lock");
         let removed = state.entries.remove(request_id).is_some();
         if removed {
             state
@@ -170,7 +171,7 @@ impl RequestRegistry {
     }
 
     pub(crate) fn metrics(&self) -> EventRequestMetrics {
-        let state = self.state.lock().expect("request registry lock");
+        let state = self.state.lock().expect_value("request registry lock");
         EventRequestMetrics {
             pending_request_count: state
                 .entries
@@ -199,7 +200,7 @@ impl RequestRegistry {
     }
 
     fn clear_entries(&self) -> RequestRegistryClearReport {
-        let mut state = self.state.lock().expect("request registry lock");
+        let mut state = self.state.lock().expect_value("request registry lock");
         let report = RequestRegistryClearReport {
             pending_request_count: state
                 .entries
@@ -323,3 +324,6 @@ fn trim_terminal_requests(state: &mut RequestRegistryState) {
         }
     }
 }
+
+
+

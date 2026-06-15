@@ -1,4 +1,4 @@
-use std::{
+﻿use std::{
     collections::BTreeMap,
     future::Future,
     pin::Pin,
@@ -8,6 +8,8 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 use tokio::sync::oneshot;
+
+use crate::ExpectValue;
 
 pub type EventClockSleep<'a> = Pin<Box<dyn Future<Output = ()> + Send + 'a>>;
 pub type SharedEventClock = Arc<dyn EventClock>;
@@ -89,11 +91,11 @@ impl ManualEventClock {
 
     pub fn advance(&self, duration: Duration) {
         let ready_sleepers = {
-            let mut state = self.state.lock().expect("manual event clock lock");
+            let mut state = self.state.lock().expect_value("manual event clock lock");
             state.now = state
                 .now
                 .checked_add(duration)
-                .expect("manual event clock duration overflow");
+                .expect_value("manual event clock duration overflow");
             let ready_targets = state
                 .sleepers
                 .keys()
@@ -116,7 +118,7 @@ impl ManualEventClock {
     pub fn pending_sleep_count(&self) -> usize {
         self.state
             .lock()
-            .expect("manual event clock lock")
+            .expect_value("manual event clock lock")
             .sleepers
             .values()
             .map(Vec::len)
@@ -126,12 +128,12 @@ impl ManualEventClock {
 
 impl EventClock for ManualEventClock {
     fn now(&self) -> EventClockInstant {
-        EventClockInstant::from(self.state.lock().expect("manual event clock lock").now)
+        EventClockInstant::from(self.state.lock().expect_value("manual event clock lock").now)
     }
 
     fn sleep<'a>(&'a self, duration: Duration) -> EventClockSleep<'a> {
         let receiver = {
-            let mut state = self.state.lock().expect("manual event clock lock");
+            let mut state = self.state.lock().expect_value("manual event clock lock");
             let Some(target) = state.now.checked_add(duration) else {
                 return Box::pin(async {});
             };
@@ -153,3 +155,6 @@ struct ManualEventClockState {
     now: Duration,
     sleepers: BTreeMap<Duration, Vec<oneshot::Sender<()>>>,
 }
+
+
+

@@ -1,4 +1,4 @@
-use crate::{EventClockInstant, EventType, EventingError, QueueDisposition, StoredEventEnvelope};
+﻿use crate::{EventClockInstant, EventType, EventingError, QueueDisposition, StoredEventEnvelope};
 
 use super::{
     publish::DispatchStoredError,
@@ -56,7 +56,7 @@ impl EventBus {
                 expired_count += 1;
                 let dead_letter = DeadLetter::for_queue(&queued_envelope.stored, reason, error);
                 self.queue.mark_completed(
-                    queued_envelope.stored.event_id.clone(),
+                    &queued_envelope.stored.event_id,
                     queued_envelope.stored.idempotency_key.clone(),
                 );
                 self.record_dead_letter(dead_letter).await;
@@ -122,3 +122,6 @@ fn queued_expiration(
     }
     None
 }
+
+
+

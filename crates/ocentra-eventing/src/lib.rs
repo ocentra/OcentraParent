@@ -4,6 +4,7 @@ mod bus;
 mod clock;
 mod compatibility;
 mod compatibility_markdown;
+mod expect_value;
 mod contract_registry;
 mod delivery;
 mod envelope;
@@ -32,6 +33,7 @@ pub use clock::{
 pub use compatibility::{
     EventCompatibilityEntry, EventCompatibilityMatrix, EventCompatibilityStatus,
 };
+pub use expect_value::ExpectValue;
 pub use contract_registry::{
     EventContractDescriptor, EventContractRegistry, EventContractRegistryDocumentation,
 };

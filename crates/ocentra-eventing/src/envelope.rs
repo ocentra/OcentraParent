@@ -1,4 +1,4 @@
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+﻿use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use crate::{
     AggregateKey, CausationId, CorrelationId, EventClockInstant, EventCustody, EventId, EventType,
@@ -196,7 +196,8 @@ impl StoredEventPayload {
         E: Serialize,
     {
         Ok(Self {
-            value: serde_json::to_value(payload).map_err(EventingError::payload_encode)?,
+            value: serde_json::to_value(payload)
+                .map_err(|error| EventingError::payload_encode(&error))?,
         })
     }
 
@@ -233,7 +234,7 @@ impl StoredEventEnvelope {
         E: DomainEvent,
     {
         let payload: E = self.payload.decode().map_err(|error| {
-            EventingError::payload_decode(self.contract.event_type.clone(), error)
+            EventingError::payload_decode(self.contract.event_type.clone(), &error)
         })?;
         let expected = payload.contract()?;
         if expected != self.contract {
@@ -264,3 +265,5 @@ impl StoredEventEnvelope {
         self.deadline.is_some_and(|deadline| now >= deadline)
     }
 }
+
+

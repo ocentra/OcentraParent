@@ -1,4 +1,4 @@
-use std::{
+﻿use std::{
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
@@ -10,7 +10,7 @@ use tokio::{
     sync::Semaphore,
 };
 
-use crate::{EventingError, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
+use crate::{ExpectValue, EventingError, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
 use super::{
     hash_chain::hash_entry, EventJournal, JournalAppend, JournalAppendFuture, SharedEventJournal,
@@ -90,10 +90,10 @@ impl NdjsonEventJournal {
         let _append_permit = Arc::clone(&self.append_gate)
             .acquire_owned()
             .await
-            .expect("journal append gate remains open");
+            .expect_value("journal append gate remains open");
         self.recover_state().await?;
         let append = {
-            let state = self.state.lock().expect("journal state lock");
+            let state = self.state.lock().expect_value("journal state lock");
             let next_sequence = state.next_sequence.saturating_add(1);
             let previous_hash = previous_hash(&self.options, &state);
             let current_hash = current_hash(
@@ -111,7 +111,7 @@ impl NdjsonEventJournal {
         };
         self.write_entry(&append, envelope, phase).await?;
         {
-            let mut state = self.state.lock().expect("journal state lock");
+            let mut state = self.state.lock().expect_value("journal state lock");
             state.next_sequence = append.sequence;
             state.previous_hash = append.current_hash.clone();
             state.recovered = true;
@@ -120,11 +120,11 @@ impl NdjsonEventJournal {
     }
 
     async fn recover_state(&self) -> Result<(), EventingError> {
-        if self.state.lock().expect("journal state lock").recovered {
+        if self.state.lock().expect_value("journal state lock").recovered {
             return Ok(());
         }
         let recovered = self.read_recovered_state().await?;
-        let mut state = self.state.lock().expect("journal state lock");
+        let mut state = self.state.lock().expect_value("journal state lock");
         if !state.recovered {
             *state = recovered;
         }
@@ -137,7 +137,7 @@ impl NdjsonEventJournal {
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
                 return Ok(NdjsonJournalState::recovered_empty());
             }
-            Err(error) => return Err(EventingError::journal_io(self.path_string(), error)),
+            Err(error) => return Err(EventingError::journal_io(self.path_string(), &error)),
         };
         let mut lines = BufReader::new(file).lines();
         let mut line_number = 0_usize;
@@ -145,7 +145,7 @@ impl NdjsonEventJournal {
         while let Some(line) = lines
             .next_line()
             .await
-            .map_err(|error| EventingError::journal_io(self.path_string(), error))?
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?
         {
             line_number += 1;
             if line.trim().is_empty() {
@@ -179,21 +179,22 @@ impl NdjsonEventJournal {
             phase,
             envelope: envelope.clone(),
         };
-        let mut line = serde_json::to_vec(&entry).map_err(EventingError::journal_encode)?;
+        let mut line = serde_json::to_vec(&entry)
+            .map_err(|error| EventingError::journal_encode(&error))?;
         line.push(b'\n');
         let mut file = OpenOptions::new()
             .create(true)
             .append(true)
             .open(&self.path)
             .await
-            .map_err(|error| EventingError::journal_io(self.path_string(), error))?;
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
         file.write_all(&line)
             .await
-            .map_err(|error| EventingError::journal_io(self.path_string(), error))?;
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
         if self.options.flush == JournalFlushPolicy::Always {
             file.flush()
                 .await
-                .map_err(|error| EventingError::journal_io(self.path_string(), error))?;
+                .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
         }
         Ok(())
     }
@@ -273,3 +274,5 @@ fn current_hash(
 fn default_journal_phase() -> JournalDispatchPhase {
     JournalDispatchPhase::AfterDispatch
 }
+
+

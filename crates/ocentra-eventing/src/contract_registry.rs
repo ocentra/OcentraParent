@@ -1,4 +1,7 @@
-use std::{any::type_name, collections::BTreeMap};
+﻿use std::{
+    any::type_name,
+    collections::{btree_map::Entry, BTreeMap},
+};
 
 use crate::{DomainEvent, EventContract, EventType, EventingError, SchemaVersion};
 
@@ -64,16 +67,10 @@ impl EventContractRegistry {
         descriptor: EventContractDescriptor,
     ) -> Result<&EventContractDescriptor, EventingError> {
         let event_type = descriptor.event_type().clone();
-        if self.descriptors.contains_key(&event_type) {
-            return Err(EventingError::DuplicateEventContract {
-                event_type: event_type.clone(),
-            });
+        match self.descriptors.entry(event_type.clone()) {
+            Entry::Occupied(_) => Err(EventingError::DuplicateEventContract { event_type }),
+            Entry::Vacant(vacant) => Ok(&*vacant.insert(descriptor)),
         }
-        self.descriptors.insert(event_type.clone(), descriptor);
-        Ok(self
-            .descriptors
-            .get(&event_type)
-            .expect("registered event descriptor is present"))
     }
 
     pub fn descriptors(&self) -> impl Iterator<Item = &EventContractDescriptor> {
@@ -123,3 +120,5 @@ impl EventContractRegistryDocumentation {
 fn escape_markdown_cell(value: &str) -> String {
     value.replace(CELL_ESCAPE_TARGET, CELL_ESCAPE_REPLACEMENT)
 }
+
+

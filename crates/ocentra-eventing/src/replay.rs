@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+﻿use serde::{Deserialize, Serialize};
 use tokio::{
     fs::File,
     io::{AsyncBufReadExt, BufReader},
@@ -119,7 +119,7 @@ impl NdjsonEventJournal {
     ) -> Result<ReplayReadReport, EventingError> {
         let file = File::open(self.path())
             .await
-            .map_err(|error| EventingError::journal_io(self.path_string(), error))?;
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
         let mut lines = BufReader::new(file).lines();
         let mut line_number = 0_usize;
         let mut records = Vec::new();
@@ -130,7 +130,7 @@ impl NdjsonEventJournal {
         while let Some(line) = lines
             .next_line()
             .await
-            .map_err(|error| EventingError::journal_io(self.path_string(), error))?
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?
         {
             line_number += 1;
             if line.trim().is_empty() {
@@ -174,3 +174,4 @@ impl NdjsonEventJournal {
         })
     }
 }
+

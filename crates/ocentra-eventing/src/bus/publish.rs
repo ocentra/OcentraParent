@@ -1,6 +1,7 @@
+﻿use std::sync::Arc;
 use tokio::task::JoinHandle;
 
-use crate::{
+use crate::{ExpectValue, 
     queue::NoSubscriberQueueDecision, DomainEvent, EventEnvelope, EventMetadata, EventingError,
     JournalDispatchPhase, QueueDisposition, RequestCompletionReport, RequestEvent, RequestId,
     RequestOptions, RequestReport, StoredEventEnvelope,
@@ -100,10 +101,10 @@ impl EventBus {
             if publish_report.is_some() && response_payload.is_some() {
                 let publish_report = publish_report
                     .take()
-                    .expect("publish report was checked as present");
+                    .expect_value("publish report was checked as present");
                 let payload = response_payload
                     .take()
-                    .expect("response payload was checked as present");
+                    .expect_value("response payload was checked as present");
                 let response = payload.decode::<E::Response>(&request_id)?;
                 return Ok(RequestReport {
                     request_id,
@@ -202,7 +203,7 @@ impl EventBus {
                 self.record_stored_snapshot(&stored).await;
                 let dead_letter = DeadLetter::for_queue(&dropped, reason, error);
                 self.queue
-                    .mark_completed(dropped.event_id.clone(), dropped.idempotency_key.clone());
+                    .mark_completed(&dropped.event_id, dropped.idempotency_key.clone());
                 self.record_dead_letter(dead_letter).await;
                 Ok(empty_publish_report(
                     &stored,
@@ -215,7 +216,7 @@ impl EventBus {
                 self.record_stored_snapshot(&stored).await;
                 let dead_letter = DeadLetter::for_queue(&stored, reason, error);
                 self.queue
-                    .mark_completed(stored.event_id.clone(), stored.idempotency_key.clone());
+                    .mark_completed(&stored.event_id, stored.idempotency_key.clone());
                 self.record_dead_letter(dead_letter).await;
                 Ok(empty_publish_report(
                     &stored,
@@ -241,7 +242,7 @@ impl EventBus {
             },
         );
         self.queue
-            .mark_completed(stored.event_id.clone(), stored.idempotency_key.clone());
+            .mark_completed(&stored.event_id, stored.idempotency_key.clone());
         self.record_dead_letter(dead_letter).await;
         Ok(empty_publish_report(
             &stored,
@@ -314,7 +315,7 @@ impl EventBus {
     }
 
     pub(super) fn subscribers_for(&self, stored: &StoredEventEnvelope) -> Vec<SubscriberRecord> {
-        let registry = self.registry.lock().expect("event registry lock");
+        let registry = self.registry.lock().expect_value("event registry lock");
         let subscribers = registry
             .get(&stored.contract.event_type)
             .cloned()
@@ -341,7 +342,7 @@ impl EventBus {
                     subscribers,
                     EventPublisher::new(self.clone()),
                     self.handler_policy.clone(),
-                    self.clock.clone(),
+                    Arc::clone(&self.clock),
                 )
                 .await
             }
@@ -351,24 +352,23 @@ impl EventBus {
                     subscribers,
                     EventPublisher::new(self.clone()),
                     self.handler_policy.clone(),
-                    self.clock.clone(),
+                    Arc::clone(&self.clock),
                 )
                 .await
             }
             DispatchMode::OrderedByAggregateKey => {
                 let aggregate_key = stored.aggregate_key.clone();
                 let aggregate_gate = self.aggregate_gate(&aggregate_key);
-                let aggregate_permit = aggregate_gate
-                    .clone()
+                let aggregate_permit = Arc::clone(&aggregate_gate)
                     .acquire_owned()
                     .await
-                    .expect("aggregate ordering gate remains open");
+                    .expect_value("aggregate ordering gate remains open");
                 let reports = dispatch_sequential(
                     stored,
                     subscribers,
                     EventPublisher::new(self.clone()),
                     self.handler_policy.clone(),
-                    self.clock.clone(),
+                    Arc::clone(&self.clock),
                 )
                 .await;
                 drop(aggregate_permit);
@@ -415,3 +415,6 @@ async fn abort_request_publish(
     publish.abort();
     let _ = publish.await;
 }
+
+
+

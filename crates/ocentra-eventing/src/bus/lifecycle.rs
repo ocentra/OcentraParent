@@ -1,4 +1,4 @@
-use crate::{DispatchMode, EventingError};
+use crate::{ExpectValue, DispatchMode, EventingError};
 
 use super::{
     reports::{DeadLetter, DeadLetterReason},
@@ -80,14 +80,14 @@ impl EventBus {
     }
 
     fn clear_subscriptions_for_shutdown(&self) -> usize {
-        let mut registry = self.registry.lock().expect("event registry lock");
+        let mut registry = self.registry.lock().expect_value("event registry lock");
         let subscription_count = registry.values().map(Vec::len).sum();
         registry.clear();
         subscription_count
     }
 
     fn clear_aggregate_gates_for_shutdown(&self) -> usize {
-        let mut aggregate_gates = self.aggregate_gates.lock().expect("aggregate gate lock");
+        let mut aggregate_gates = self.aggregate_gates.lock().expect_value("aggregate gate lock");
         let aggregate_gate_count = aggregate_gates.len();
         aggregate_gates.clear();
         aggregate_gate_count
@@ -95,7 +95,7 @@ impl EventBus {
 
     pub async fn clear_for_test(&self) -> EventBusClearReport {
         let subscription_count = {
-            let mut registry = self.registry.lock().expect("event registry lock");
+            let mut registry = self.registry.lock().expect_value("event registry lock");
             let subscription_count = registry.values().map(Vec::len).sum();
             registry.clear();
             subscription_count
@@ -113,7 +113,7 @@ impl EventBus {
             dead_letter_count
         };
         let aggregate_gate_count = {
-            let mut aggregate_gates = self.aggregate_gates.lock().expect("aggregate gate lock");
+            let mut aggregate_gates = self.aggregate_gates.lock().expect_value("aggregate gate lock");
             let aggregate_gate_count = aggregate_gates.len();
             aggregate_gates.clear();
             aggregate_gate_count
@@ -135,7 +135,6 @@ impl EventBus {
         }
     }
 }
-
 fn empty_shutdown_report(mode: ShutdownMode, already_shutdown: bool) -> EventBusShutdownReport {
     EventBusShutdownReport {
         mode,
@@ -153,3 +152,4 @@ fn empty_shutdown_report(mode: ShutdownMode, already_shutdown: bool) -> EventBus
         timed_out_request_count: 0,
     }
 }
+

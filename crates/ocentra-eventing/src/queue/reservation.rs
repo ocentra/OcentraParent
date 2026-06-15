@@ -1,4 +1,4 @@
-use crate::{EventId, IdempotencyKey};
+﻿use crate::{EventId, IdempotencyKey};
 
 use super::state::EventQueue;
 
@@ -24,7 +24,7 @@ impl DispatchReservation {
     pub(crate) fn complete(mut self) {
         if let Some(event_id) = self.event_id.take() {
             if let Some(key) = self.key.take() {
-                self.queue.mark_completed(event_id, key);
+                self.queue.mark_completed(&event_id, key);
             } else {
                 self.queue.release_in_flight(&event_id, None);
             }
@@ -40,3 +40,4 @@ impl Drop for DispatchReservation {
         }
     }
 }
+
