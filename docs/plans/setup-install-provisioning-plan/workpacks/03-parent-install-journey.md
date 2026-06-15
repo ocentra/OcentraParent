@@ -1,75 +1,131 @@
-# Workpack 03: Parent Install Journey
+<!-- agent-capsule -->
 
-Goal: define how a parent gets from the family site/account to a trusted parent app or portal controller.
+> Agent Capsule
+> Plan: `setup-install-provisioning-plan`
+> Doc: `WP03 Parent Install Journey`
+> Kind: assigned implementation/research workpack.
+> Read when: selected by WORKPACK_INDEX.md or explicit assignment.
+> Stop rule: do not implement package build, signing, notarization, update, rollback, or entitlement here.
+> Proves: parent-visible install journey/state only after proof artifacts exist.
+> Does not prove: signed package readiness, updater readiness, store readiness, or product install readiness.
+> Proof rule: before DONE, write all WP03 proof artifacts and command log.
 
-Owns: bootstrap code entry, download selection, platform eligibility, installer copy, install progress labels, update-channel handoff, and support/degraded states.
+<!-- /agent-capsule -->
 
-Handoff: `parent-client-runtime-distribution-plan` owns package build, signing, notarization, update, rollback, and artifact proof.
+# WP03 Parent Install Journey
 
-Expected shape:
+## Goal
 
-- Platform detection is advisory; user can choose platform manually.
-- Parent install is a bootstrap code flow first, then a full parent package install.
-- Every platform has one of: supported, preview, manual-required, unavailable, or planned.
-- Download integrity, bootstrap code state, and version visibility are user-visible when available.
-- Failed install and unsupported OS states link to support/recovery.
+Define how a parent gets from family site/account state to a parent app/controller install journey with honest platform, version, bootstrap, integrity, and recovery states.
 
-Expected proof:
+## Required inputs
 
-- Platform matrix.
-- Bootstrap parent code state machine and negative proof.
-- Download/version/integrity artifact references.
-- UI proof for supported, unavailable, and manual-required states.
-- Handoff proof to package plan.
+```text
+RESEARCH_AND_DECISIONS.md
+docs/plans/parent-desktop-runtime-package-plan/AGENTS.md
+docs/expectations/release-installer.md
+docs/expectations/platform-deliverables.md
+docs/features/production-distribution-support.md
+docs/plans/setup-install-provisioning-plan/SETUP_STATE_MACHINE.md
+```
 
-Failure: claiming production installer readiness from a website download button alone.
+## Owned scope
 
-## Execution Detail
+```text
+parent bootstrap code/link visible state
+parent platform selection UX
+parent download/version/integrity display expectation
+install progress labels
+unsupported/manual-required/update-required states
+handoff to runtime distribution owner
+support/recovery links
+```
 
-Minimum context:
+## Out of scope
 
-- `docs/plans/parent-desktop-runtime-package-plan/AGENTS.md`
-- `docs/expectations/release-installer.md`
-- `docs/expectations/platform-deliverables.md`
-- `docs/features/production-distribution-support.md`
-- `docs/plans/setup-install-provisioning-plan/SETUP_STATE_MACHINE.md`
+```text
+package build
+code signing
+notarization
+store packaging
+update server
+rollback implementation
+payment entitlement
+```
 
-Agent decision tree:
+## Required output
 
-- If the task is installer artifact generation/signing/update, route to `parent-client-runtime-distribution-plan`.
-- If the task is what the parent sees and how setup progresses, stay in this workpack.
-- If install requires login or entitlement, route to `account-identity-family-plan` or `payment-subscription-plan` for that boundary.
+```text
+parent bootstrap state machine
+platform matrix: Windows, macOS, Linux, Android parent, iOS parent, web-only fallback
+states: unsupported, planned, previewOnly, manualRequired, readyForTest, productionReady, blocked
+version/integrity display expectations
+runtime distribution handoff contract
+support/recovery route states
+```
 
-Required output:
+## Required proof root
 
-- Parent bootstrap installer flow: tutorial, agreement, consent, code entry, code validation, full package selection, full package download, full parent portal install, parent portal launch.
-- Platform install matrix: Windows, macOS, Linux, Android parent, iOS parent, web-only fallback.
-- States: available, preview, manual-required, unsupported, blocked by permissions, failed, installed, update-required.
-- Download integrity and version display expectations.
-- Support/recovery routes for failed install and wrong platform.
+```text
+output/setup-install-provisioning-plan-proof/03-parent-install-journey/
+```
 
-Expected tests/proof names:
+Required artifacts:
 
-- `setup.bootstrap.parent-code-state-machine`
-- `setup.bootstrap.parent-code-expired-rejected`
-- `setup.bootstrap.parent-code-revoked-rejected`
-- `setup.bootstrap.parent-code-wrong-household-rejected`
-- `setup.bootstrap.parent-code-wrong-role-rejected`
-- `setup.bootstrap.parent-download-authorized-only`
-- `setup.bootstrap.parent-base-installer-no-child-data`
-- `setup.bootstrap.parent-full-package-selection-proof`
-- `setup.parent-install.platform-matrix`
-- `setup.parent-install.download-integrity-visible`
-- `setup.parent-install.unsupported-platform-state`
-- `setup.parent-install.update-channel-handoff`
-- `setup.parent-install.no-fake-installed-state`
+```text
+00-parent-bootstrap-code-state-proof.md
+01-parent-platform-matrix-proof.md
+02-download-integrity-proof.md
+03-unsupported-platform-proof.md
+04-update-rollback-handoff-proof.md
+05-parent-install-ui-proof.md
+16-validation-commands.log
+```
 
-Proof artifact expectations:
+## Acceptance criteria
 
-- `03-parent-platform-matrix-proof.md`
-- `03-download-integrity-proof.md`
-- `03-unsupported-platform-proof.md`
-- `03-update-rollback-handoff-proof.md`
-- `03-parent-install-ui-proof.md`
-- `bootstrap-parent-code-flow-proof.md`
-- `bootstrap-parent-installer-proof.md`
+- [ ] Parent bootstrap code/link state machine exists.
+- [ ] Platform matrix exists.
+- [ ] Download/version/integrity display expectation exists.
+- [ ] Unsupported/manual-required/update-required states are visible.
+- [ ] Runtime distribution handoff is explicit.
+- [ ] Download button cannot imply signed package readiness.
+- [ ] Focused commands pass or blocker recorded.
+
+## Focused commands
+
+```bash
+node -e "console.log('parent-install-journey-handoff')"
+npm run lint:architecture -- --files docs/plans/setup-install-provisioning-plan docs/plans/parent-desktop-runtime-package-plan
+```
+
+If UI routes exist later:
+
+```bash
+npm run test --workspace @ocentra-parent/portal -- setup
+npm run test:e2e --workspace @ocentra-parent/portal -- setup
+```
+
+## Negative states
+
+- Website download button claims production installer readiness without package proof.
+- Platform detection forces wrong platform without manual choice.
+- Unsupported OS looks successful.
+- Update-required state is hidden.
+- Parent installed state implies child device readiness.
+
+## Manual-required gaps
+
+Signed installers, notarization, store delivery, update/rollback, and package artifact verification remain owned by runtime distribution plans.
+
+## Fill before DONE
+
+```text
+Workpack id and branch:
+Parent install journey changes:
+Touched files:
+Validation commands and results:
+Proof artifacts:
+Known gaps/manual-required states:
+No-claim boundaries:
+```
