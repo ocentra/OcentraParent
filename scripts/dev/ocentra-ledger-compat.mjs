@@ -61,10 +61,19 @@ async function main() {
       reportWithPrimaryNotification();
       return;
     case 'hub:lock':
-      runLedger(['claim', lane, required('paths'), '--reason', options.reason ?? 'claimed from product repo']);
+      {
+        const paths = splitClaimPaths(required('paths'));
+        if (paths.length === 0) {
+          throw new Error('hub:lock requires at least one exact file path.');
+        }
+        if (paths.length > 10) {
+          throw new Error('hub:lock supports at most 10 exact file paths at once.');
+        }
+        runLedger(['claim', lane, ...paths, '--reason', options.reason ?? 'claimed from product repo']);
+      }
       return;
     case 'hub:unlock':
-      runLedger(['release', lane, required('paths')]);
+      runLedger(['release', lane, ...splitClaimPaths(required('paths'))]);
       return;
     case 'hub:lane-ledger:audit':
     case 'hub:state:sync':
@@ -131,8 +140,8 @@ function hookContext() {
     '- State root is external to the product repo. Use npm run ledger:root to inspect it.',
     '- Check work with npm run ledger:doctor, npm run hub:inbox, npm run hub:heartbeats, npm run ledger:workers, and npm run ledger:tasks.',
     '- Send work with npm run hub:message -- --lane codex-b --subject "..." --body "..."; acknowledge with npm run hub:ack.',
-    '- Claim paths with npm run hub:lock -- --paths "path/or/glob" --reason "..."; guard with npm run hub:guard before commit.',
-    '- Report STARTED, BLOCKED, PR-ready, DONE, and handoffs through npm run hub:report or the typed ledger worker/task/status commands.',
+    '- Claim exact file paths only with npm run hub:lock -- --paths "file/a.ts,file/b.ts" --reason "..."; claim at most 10 files at once and guard with npm run hub:guard before commit.',
+    '- Report STARTED, BLOCKED, PR_READY, DONE, and handoffs through npm run hub:report or the typed ledger worker/task/status commands.',
   ].join('\n');
 
   console.log(
@@ -165,16 +174,11 @@ function claimHookSession(input, eventName) {
     '--summary',
     `${eventName} hook active`,
   ]);
-  if (result.ok) {
-    return {
-      context: [
-        '- Active Codex session lease is held by this thread until another explicit session takes over or the lease expires.',
-      ],
-    };
-  }
   return {
     context: [
-      '- READ-ONLY: this lane is already owned by another active Codex session. You may answer questions and inspect status, but do not ack mail, edit files, claim paths, heartbeat, or report work from this thread unless the user explicitly retargets this lane.',
+      result.ok
+        ? '- Active Codex session lease is recorded for this thread; exact-file claims are the write gate.'
+        : '- Active Codex session lease could not be refreshed, but this thread may still answer questions and inspect status; exact-file claims are the write gate.',
     ],
   };
 }
@@ -188,7 +192,66 @@ function messageBody() {
 function reportBody() {
   const summary = options.summary ?? positionalText();
   const details = options.details;
+  validateLifecycleReport(summary, details);
   return details === undefined ? summary : `${summary}\n\n${details}`;
+}
+
+function validateLifecycleReport(summary, details) {
+  const kind = lifecycleReportKind(summary);
+  if (kind === undefined) {
+    return;
+  }
+  if (details === undefined || details.trim().length === 0) {
+    throw new Error(
+      `${kind} reports require a structured --details block with lane, threadId, assignedBy, plan, workpack, worktree, branch, and scope.`
+    );
+  }
+
+  const fields = parseMetadataFields(details);
+  const required = ['lane', 'threadid', 'assignedby', 'plan', 'workpack', 'worktree', 'branch', 'scope'];
+  const stateRequired =
+    {
+      STARTED: ['startedat'],
+      BLOCKED: ['blocker'],
+      PR_READY: ['validation'],
+      DONE: ['validation', 'commit'],
+    }[kind] ?? [];
+  const missing = [...required, ...stateRequired].filter((field) => !hasNonEmptyField(fields, field));
+  if (missing.length > 0) {
+    throw new Error(
+      `${kind} reports require structured fields: ${missing.join(', ')}. Use key: value lines in --details.`
+    );
+  }
+}
+
+function lifecycleReportKind(summary) {
+  const firstLine = summary.split(/\r?\n/u)[0]?.trim() ?? '';
+  const match = firstLine.match(/^(STARTED|BLOCKED|PR(?:[_ -]?READY)|DONE)\b/iu);
+  if (match === null) {
+    return undefined;
+  }
+  const token = match[1].replace(/[\s-]/gu, '_').toUpperCase();
+  return token === 'PR_READY' ? 'PR_READY' : token;
+}
+
+function parseMetadataFields(details) {
+  const fields = new Map();
+  for (const rawLine of details.split(/\r?\n/gu)) {
+    const line = rawLine.trim().replace(/^[*-]\s+/u, '');
+    if (line.length === 0) {
+      continue;
+    }
+    const match = line.match(/^([A-Za-z][A-Za-z0-9_-]*)\s*[:=]\s*(.+)$/u);
+    if (match === null) {
+      continue;
+    }
+    fields.set(match[1].toLowerCase(), match[2].trim());
+  }
+  return fields;
+}
+
+function hasNonEmptyField(fields, field) {
+  return (fields.get(field) ?? '').trim().length > 0;
 }
 
 function reportWithPrimaryNotification() {
@@ -214,6 +277,17 @@ function primaryNotificationBody(body) {
 
 function positionalText() {
   return options._.join(' ').trim();
+}
+
+function splitClaimPaths(value) {
+  return splitPathList(value).map((item) => item.replace(/\\/gu, '/'));
+}
+
+function splitPathList(value) {
+  return value
+    .split(/[,\n]/u)
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
 }
 
 function required(name) {

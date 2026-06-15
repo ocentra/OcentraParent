@@ -123,12 +123,11 @@ They do not write `.hub` files.
 
 ## Session Leases
 
-Ledger also tracks one active Codex session lease per worker lane. Repo hooks use
-the Codex hook `session_id` to claim or refresh the lease. If two chats are open
-for the same lane, the first active session keeps the lane and the second hook
-marks that chat read-only. The read-only duplicate may answer questions and
-inspect status, but it must not ack mail, edit files, claim paths, heartbeat, or
-report work unless the user explicitly retargets that lane.
+Ledger records Codex session leases as thread wake records for a lane, not as
+exclusive lane ownership. Repo hooks use the Codex hook `session_id` to record
+or refresh the current thread identity for wake routing. Several chats may be
+active for the same lane at once, and exact-file claims are the write gate that
+prevents collisions.
 
 Idle liveness should stay outside Codex chat. A watcher or daemon may write
 Ledger heartbeat events, but idle workers should not spend chat turns reporting

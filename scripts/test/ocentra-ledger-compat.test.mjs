@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -7,7 +7,7 @@ import test from 'node:test';
 
 const wrapper = 'scripts/dev/ocentra-ledger-compat.mjs';
 
-test('ledger hook claims one active Codex session per lane', () => {
+test('ledger hook records a thread without turning duplicate chats read-only', () => {
   const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-session-test-'));
   const fakeLedger = writeFakeLedger(root);
   const first = runHook(root, fakeLedger, 'session-one', 'SessionStart');
@@ -15,25 +15,32 @@ test('ledger hook claims one active Codex session per lane', () => {
 
   assert.equal(first.status, 0);
   assert.equal(second.status, 0);
-  assert.match(first.context, /Active Codex session lease is held by this thread/u);
-  assert.match(second.context, /READ-ONLY: this lane is already owned by another active Codex session/u);
+  assert.match(first.context, /Active Codex session lease is recorded for this thread/u);
+  assert.match(
+    second.context,
+    /Active Codex session lease could not be refreshed, but this thread may still answer questions and inspect status/u
+  );
 });
 
 test('worker PR_READY reports also notify the primary inbox', () => {
   const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-report-notify-test-'));
   const fakeLedger = writeReportFakeLedger(root);
-  const result = spawnSync(process.execPath, [wrapper, 'hub:report', '--summary', 'PR_READY app-game branch'], {
-    cwd: process.cwd(),
-    encoding: 'utf8',
-    env: {
-      ...process.env,
-      LEDGER_ROOT: root,
-      LEDGER_LANE: 'codex-c',
-      OCENTRA_LEDGER_WRAPPER: fakeLedger,
-    },
-    stdio: ['ignore', 'pipe', 'pipe'],
-    windowsHide: true,
-  });
+  const result = spawnSync(
+    process.execPath,
+    [wrapper, 'hub:report', '--summary', 'PR_READY app-game branch', '--details', prReadyDetails()],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        LEDGER_ROOT: root,
+        LEDGER_LANE: 'codex-c',
+        OCENTRA_LEDGER_WRAPPER: fakeLedger,
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    }
+  );
 
   assert.equal(result.status, 0);
   const calls = JSON.parse(readFileSync(join(root, 'calls.json'), 'utf8'));
@@ -50,18 +57,22 @@ test('worker PR_READY reports also notify the primary inbox', () => {
 test('ordinary worker reports do not notify the primary inbox', () => {
   const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-report-quiet-test-'));
   const fakeLedger = writeReportFakeLedger(root);
-  const result = spawnSync(process.execPath, [wrapper, 'hub:report', '--summary', 'STARTED app-game branch'], {
-    cwd: process.cwd(),
-    encoding: 'utf8',
-    env: {
-      ...process.env,
-      LEDGER_ROOT: root,
-      LEDGER_LANE: 'codex-c',
-      OCENTRA_LEDGER_WRAPPER: fakeLedger,
-    },
-    stdio: ['ignore', 'pipe', 'pipe'],
-    windowsHide: true,
-  });
+  const result = spawnSync(
+    process.execPath,
+    [wrapper, 'hub:report', '--summary', 'STARTED app-game branch', '--details', startedDetails()],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        LEDGER_ROOT: root,
+        LEDGER_LANE: 'codex-c',
+        OCENTRA_LEDGER_WRAPPER: fakeLedger,
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    }
+  );
 
   assert.equal(result.status, 0);
   const calls = JSON.parse(readFileSync(join(root, 'calls.json'), 'utf8'));
@@ -70,6 +81,63 @@ test('ordinary worker reports do not notify the primary inbox', () => {
     ['report']
   );
 });
+
+test('lifecycle worker reports require structured metadata', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-ledger-report-schema-test-'));
+  const fakeLedger = writeReportFakeLedger(root);
+  const result = spawnSync(
+    process.execPath,
+    [wrapper, 'hub:report', '--summary', 'BLOCKED app-game branch', '--details', 'lane: codex-c'],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        LEDGER_ROOT: root,
+        LEDGER_LANE: 'codex-c',
+        OCENTRA_LEDGER_WRAPPER: fakeLedger,
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    }
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /BLOCKED reports require structured fields/u);
+  const callsPath = join(root, 'calls.json');
+  assert.equal(existsSync(callsPath), false);
+});
+
+function startedDetails() {
+  return [
+    'lane: codex-c',
+    'threadId: thread-123',
+    'assignedBy: primary',
+    'plan: sample-plan',
+    'workpack: WP01',
+    'worktree: E:\\OcentraParent',
+    'branch: codex/sample-branch',
+    'scope: docs/agent/HUB_LEDGER_MESSAGING.md',
+    'startedAt: 2026-06-15T15:20:00Z',
+    'nextAction: verify contract',
+  ].join('\n');
+}
+
+function prReadyDetails() {
+  return [
+    'lane: codex-c',
+    'threadId: thread-123',
+    'assignedBy: primary',
+    'plan: sample-plan',
+    'workpack: WP01',
+    'worktree: E:\\OcentraParent',
+    'branch: codex/sample-branch',
+    'scope: docs/agent/HUB_LEDGER_MESSAGING.md',
+    'validation: node --test scripts/test/ocentra-ledger-compat.test.mjs',
+    'commit: 61bd396',
+    'proof: wrapper validation and inbox notification',
+  ].join('\n');
+}
 
 function writeFakeLedger(root) {
   const fakeLedger = join(root, 'fake-ledger.mjs');
