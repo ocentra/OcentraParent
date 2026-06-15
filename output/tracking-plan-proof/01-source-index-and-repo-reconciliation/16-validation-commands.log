@@ -1,0 +1,2 @@
+node scripts/test/tracking-product-readiness-closure-proof.mjs exit=0
+node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs exit=0

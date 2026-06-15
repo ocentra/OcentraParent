@@ -16,18 +16,15 @@
 
 ## Snapshot Date
 
-2026-06-02.
+2026-06-08.
 
-## Existing
+## Source Inputs That Exist
 
 - Feature doc exists.
 - Expectation doc exists.
 - Capability guide exists.
 - Schema proposal exists.
 - Tracking settings inventory exists with 338 raw settings.
-- Focused TypeScript contract proof now exists for tracking evidence,
-  geofence/place models, tracking AI safety evidence, tracking policy/action
-  contracts, and proof-routing states.
 - Location posture modes are represented as design inputs: Off, Last known,
   Check-in, Arrival alerts, Temporary live, and Missing device.
 - Capability/degraded vocabulary exists as raw inventory input, including
@@ -37,16 +34,60 @@
   last sync, battery percentage, charging state, low-power mode, and pending
   upload count.
 
-## Missing Product Runtime
+## Local/CI Proof Now Exists
 
-- Platform adapter proof.
-- Journal/SQLite read models.
-- Parent/child UI.
-- Notification/escalation engine.
-- Retention/delete/export proof.
-- Android/iOS foreground and background location runtime.
-- Nearby-place provider runtime.
-- Expected-place and geofence transition runtime engines.
+- Focused TypeScript contract proof exists for tracking evidence,
+  geofence/place models, tracking AI safety evidence, tracking policy/action
+  contracts, and proof-routing states.
+- P1 deterministic proof exists for geofence transitions, expected-place
+  decisions, acknowledgement/exception handling, child check-in, temporary live
+  tracking, missing-device mode, retention/delete/export, and report/export
+  read-model boundaries.
+- Android emulator foreground/background scaffold proof exists, including
+  emulator foreground permission and local background/geofence storage rows. It
+  is not physical-device or Android system geofence delivery proof.
+- iOS simulator/manual-required proof exists for package-preview/simulator
+  routing and privacy-disclosure release gates. It is not iOS Always/region or
+  real-device proof.
+- Desktop presence proof exists only as hint-only LAN/IP/Wi-Fi state, not
+  precise desktop location proof.
+- Rust ActivityStore and service read-model proof exists for local tracking
+  event ingestion and the `agent.activity.tracking.read-model.get` service
+  path.
+- Hosted parent-route UI proof exists for the current tracking route, hosted
+  child check-in/runtime cards, evidence drawer, report/export surfaces,
+  notification parent-surface history, retention settings local write result,
+  and unsupported/manual platform states. It is not full product parent/child
+  runtime UI proof.
+- Provider and notification local proof exists for POI/provider mapping,
+  provider-notification intent, notification preference preflight/status handoff,
+  notification receipt boundary, local outbox readiness, provider-delivery
+  artifact gates, and provider-runtime blocker accounting. It is not live
+  provider credentials, dispatch, webhook ingestion, or receipt runtime proof.
+- Authority, child-runtime, full-product UI, production worker, retention
+  runtime, physical-device, and escalation artifact gates now enumerate required
+  real-runtime artifacts while keeping product claims false.
+- Product-readiness closure proof exists through
+  `node scripts/test/tracking-product-readiness-closure-proof.mjs`; it verifies
+  the local/CI proof accounting chain and keeps product-ready tracking false.
+
+## Runtime/Product Claims Still Missing
+
+- Real Android physical-device background location and system geofence delivery
+  proof.
+- Real iOS Always/region/background physical-device proof.
+- Retention writable product settings execution and platform runtime
+  enforcement proof.
+- Actual child-device delivery/runtime execution and rendered child-device UI
+  proof.
+- Full product parent/child UI beyond the hosted parent proof route.
+- Authority-enrolled device-owner/managed-profile/supervised-device hard-control
+  runtime proof.
+- Live provider delivery/receipt runtime with credentials, adapter dispatch,
+  webhook ingestion, retry/quiet-hours runtime, and parent notification history
+  runtime.
+- Production durable workers, durable outbox/history/storage, escalation worker,
+  quiet-hours timer, and production support proof.
 
 ## Manual Required
 
@@ -84,10 +125,12 @@
 
 ## Product Claim Boundary
 
-The repo now has planning documents, raw inventory, and a focused
-contract-proof spine for tracking. Claims must stay limited to contract proof
-until platform adapters, journal/read models, UI, provider runtime, and full
-proof packs exist.
+The repo now has planning documents, raw inventory, focused contract proof,
+local/CI runtime fixture proof, hosted-route UI proof, service read-model proof,
+artifact gates, and closure proof for tracking. Claims must stay limited to the
+recorded proof tier. Physical-device, authority-enrolled, provider runtime,
+production, full parent/child UI, and product-ready tracking claims remain
+false until matching real-runtime artifacts exist.
 
 ## Contracts That Exist
 
@@ -112,19 +155,24 @@ tracking must own the child-location claim boundary and no-claim rules.
 
 ## Rust Runtime That Exists
 
-No Rust tracking runtime proof exists in this snapshot. Rust implementation is
-now unblocked by explicit TypeScript domain contracts, but still needs
-test-backed protocol mirroring, journal ingest, SQLite replay/query, and
-delete/export proof before runtime claims can move.
+Rust tracking proof now includes ActivityStore ingestion/read-model tests and a
+real service read-model path. It does not yet prove mobile platform adapters,
+provider dispatch, production workers, authority control, or product-ready
+runtime behavior.
 
 ## Portal That Exists
 
-No product-complete parent or child tracking UI exists in this snapshot.
-Portal work remains blocked on contracts, read models, and UI snapshot states.
+Hosted portal proof exists for the current tracking parent route, service-backed
+summary/citation states, report/export rows, notification parent surface,
+retention settings local write result, child check-in/runtime proof cards, and
+unsupported/manual platform states. Full product parent/child UI and actual
+child-device runtime UI remain proof-gated.
 
 ## Proof That Exists
 
-Existing proof includes documentation proof plus focused contract proof:
+Existing proof includes documentation proof, focused contract proof, local/CI
+runtime fixture proof, hosted UI proof, service/read-model proof, artifact
+gates, and closure proof:
 
 - source index;
 - current snapshot;
@@ -132,16 +180,26 @@ Existing proof includes documentation proof plus focused contract proof:
 - workpack split;
 - product-doc references.
 - `node scripts/test/tracking-plan-contract-proof.mjs`;
+- `node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs`;
+- `node scripts/test/tracking-product-readiness-closure-proof.mjs`;
 - generated proof roots under `output/tracking-plan-proof/`;
 - activity-domain and parent-domain tracking contract builds/tests;
 - schema-boundary/source-shape guard proof.
 
-## Current Gaps
+## Remaining Product-Claim Blockers
 
-The main gaps are runtime contracts, real platform permission proof,
-journal/SQLite ingest, read models, WebSocket protocol, parent/child UI,
-notification policy integration, retention/delete/export proof, and
-Playwright/manual evidence.
+- `android-physical-background-proof-required`
+- `ios-physical-region-proof-required`
+- `retention-writable-product-settings-required`
+- `retention-platform-runtime-enforcement-required`
+- `actual-child-device-runtime-required`
+- `full-product-parent-child-ui-required`
+- `authority-enrollment-proof-required`
+- `provider-delivery-receipt-runtime-required`
+- `production-durable-workers-required`
+
+These blockers are expected. Local/CI proof accounting can be complete while
+product-ready tracking remains false.
 
 ## Enhancement Rule
 

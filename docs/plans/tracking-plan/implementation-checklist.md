@@ -1,20 +1,5 @@
 # Tracking Plan Implementation Checklist
 
-<!-- agent-capsule -->
-
-> Agent Capsule
-> Plan: `tracking-plan`
-> Doc: `Tracking Plan Implementation Checklist`
-> Kind: full checklist; read exact rows only.
-> Read when: Only for exact rows named by CHECKLIST_INDEX.md, workpack, or PR/DONE proof.
-> Stop rule: Do not scan the whole checklist. Open exact row/section only.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
-> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
-
-<!-- /agent-capsule -->
-
 A checkbox may be marked `[x]` only after the referenced proof pack exists
 under:
 
@@ -46,18 +31,13 @@ Every checked item must cite one or more proof artifacts.
 
 ## Main Execution Gates
 
-- [ ] Tracking domain/protocol/runtime/UI organization pass is complete enough
-      for PR-ready handoff. Required proof before checking: repo scan and
-      cleanup notes in
-      `docs/architecture/repo-domain-organization-cleanup-plan.md`, canonical
-      TypeScript owners for tracking evidence/policy/protocol/portal ids,
-      Rust boundary ownership across `agent-core`, `agent-protocol`, and
-      `agent-service`, duplicate-shape classification, a movement map before
-      code edits, feature/package/crate-owned test placement, feature-owned
-      proof roots, updated workpack/checklist proof paths when files move, and
-      validation from A's `codex/tracking-plan-full-continuation-a` branch.
-      This is the first slice of the repo-wide organization cleanup and must
-      not become micro-PR churn.
+- [x] Source index and current gap map are reconciled against the current
+      tracking docs and product-readiness closure blockers. Source/gap proof:
+      `output/tracking-plan-proof/01-source-index-and-repo-reconciliation/proof.json`;
+      `output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/proof.json`;
+      `test-results/tracking-source-reconciliation-gap-map-proof/proof.json`.
+      This updates source truth and blocker accounting only; product-ready
+      tracking remains false until the real-runtime blockers are satisfied.
 - [x] No precise location is inferred from LAN/IP/pairing. Contract proof:
       `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.
 - [x] Every location sample has source, timestamp, accuracy/hint quality,
