@@ -42,6 +42,11 @@ Before editing, claim ownership paths:
 npm run hub:lock -- --paths "path/or/package,other/path" --reason "<short scope>"
 ```
 
+Claims are file-level only: lock exact file paths, not folders or globs, and
+keep each claim batch to 10 files or fewer. If you need more than that, split
+the work into smaller write batches and release the claim as soon as the write
+is done.
+
 ## Read only your route
 
 1. Read `PLAN_WORKER_FLOW.md`.
@@ -66,3 +71,20 @@ When done, verify, commit locally on the worker branch, push only when ready for
 review, and report exact validation, commit state, touched files, known gaps,
 and proof artifacts. Workers do not merge PRs or push to `main` unless the
 user explicitly asks for that exact action.
+
+When the report is one of `STARTED`, `BLOCKED`, `PR_READY`, or `DONE`, include
+the structured metadata block from `HUB_LEDGER_MESSAGING.md` so the hub can
+route the work automatically. Keep the values exact and file-level:
+
+- lane
+- threadId
+- assignedBy
+- plan
+- workpack
+- worktree
+- branch
+- scope
+- startedAt or blocker / validation / commit as the state requires
+
+Do not send folder claims or globs in the metadata block. Claims remain exact
+file paths only, with 10 files or fewer per claim batch.
