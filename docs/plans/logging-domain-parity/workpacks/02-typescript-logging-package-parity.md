@@ -1,0 +1,159 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `logging-domain-parity`
+> Doc: `WP02 TypeScript Logging Package Parity`
+> Kind: assigned implementation workpack.
+> Read when: selected by WORKPACK_INDEX.md or explicit assignment.
+> Stop rule: Do not open sibling workpacks unless a dependency is named here.
+> Proves: TypeScript package parity only after tests/proof pass.
+> Does not prove: Rust logging-core, local validation wrappers, or production readiness.
+> Proof rule: Before DONE, run focused commands and write proof artifacts.
+
+<!-- /agent-capsule -->
+
+# WP02 TypeScript Logging Package Parity
+
+## Purpose
+
+Bring `packages/logging-domain` toward the mature games TypeScript package shape:
+
+```text
+test-log
+transport
+app-log
+scripts
+exports
+scopes
+```
+
+This workpack is the first real implementation slice.
+
+## Source inputs
+
+```text
+docs/plans/logging-domain-parity/00-current-state-and-reference-audit.md
+docs/plans/logging-domain-parity/01-parent-logging-architecture.md
+ocentra-games/packages/logging-domain/package.json
+ocentra-games/packages/logging-domain/src/test-log/**
+ocentra-games/packages/logging-domain/src/transport/**
+ocentra-games/packages/logging-domain/src/app-log/**
+ocentra-games/packages/logging-domain/scripts/**
+OcentraParent/packages/logging-domain/package.json
+OcentraParent/packages/logging-domain/src/**
+```
+
+## Target state
+
+Parent logging-domain has TypeScript parity modules and scripts adapted to parent scopes.
+
+Required module groups:
+
+```text
+packages/logging-domain/src/test-log/
+packages/logging-domain/src/transport/
+packages/logging-domain/src/app-log/
+packages/logging-domain/scripts/
+```
+
+Required scripts:
+
+```text
+bridge
+db:ensure
+db:rebuild
+db:ingest
+logs:prepare
+test:query
+view:ndjson
+```
+
+## Scope rules
+
+Required parent scopes:
+
+```text
+parent-agent
+parent-portal
+parent-cloudflare
+parent-codex
+parent-test
+```
+
+Do not hardcode generic parent logging to `cloudflare`.
+
+Cloudflare can exist only as explicit `parent-cloudflare` scope.
+
+## Required proof root
+
+```text
+output/logging-domain-parity-proof/02-typescript-logging-package-parity/
+```
+
+Required artifacts:
+
+```text
+00-package-export-before-after.json
+01-typescript-parity-file-map.json
+02-scope-defaults-proof.json
+03-query-script-smoke.json
+16-validation-commands.log
+```
+
+## Checklist rows
+
+- [ ] `src/test-log` parity modules added/adapted.
+- [ ] `src/transport` parity modules added/adapted.
+- [ ] `src/app-log` parity modules added/adapted or explicit deferral recorded.
+- [ ] `scripts/log-bridge.ts` added.
+- [ ] DB ensure/rebuild/ingest/query/view scripts added.
+- [ ] Package exports updated explicitly.
+- [ ] Existing proof/contract exports preserved.
+- [ ] Parent scopes added without generic Cloudflare default.
+- [ ] TypeScript tests added/updated.
+- [ ] Focused package build/test commands pass.
+- [ ] Proof root written.
+- [ ] Workpack completion section filled.
+
+## Expected source changes
+
+Likely files:
+
+```text
+packages/logging-domain/package.json
+packages/logging-domain/src/test-log/**
+packages/logging-domain/src/transport/**
+packages/logging-domain/src/app-log/**
+packages/logging-domain/scripts/**
+packages/logging-domain/tests/**
+```
+
+Do not remove existing exports unless migration is documented and tests prove no consumers break.
+
+## Focused commands
+
+```bash
+npm run build --workspace @ocentra-parent/logging-domain
+npm run test --workspace @ocentra-parent/logging-domain
+```
+
+If new query scripts are ready:
+
+```bash
+npm run test:query --workspace @ocentra-parent/logging-domain -- stats --scope=parent-test
+```
+
+## Manual-required gaps
+
+This workpack does not implement Rust logging-core or validation wrappers. Those belong to WP04/WP05.
+
+## Fill before DONE or PR-ready
+
+```text
+Workpack id and branch:
+Touched files:
+Validation commands and results:
+Proof artifacts:
+Product/runtime claims:
+Known gaps/manual-required states:
+```
