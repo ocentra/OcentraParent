@@ -2,63 +2,124 @@
 
 > Agent Capsule
 > Plan: `account-identity-family-plan`
-> Doc: AGENTS
+> Doc: `Account Identity Family Plan Agent Route`
 > Kind: plan route and local agent contract.
-> Read when: First file inside this plan after a global route selects it.
-> Stop rule: Choose one workpack; do not inspect setup, portal, or data plans unless named.
+> Read when: first file inside this plan after a global route selects it.
+> Stop rule: choose one workpack; do not inspect setup, portal, data, policy, payment, Cloudflare, device-trust, LAN, or remote plans unless the selected workpack names a handoff.
 > Proves: local routing and ownership only.
-> Does not prove: auth implementation, production security, or PR readiness.
+> Does not prove: auth implementation, production security, payment readiness, device trust, family setup readiness, or PR readiness.
+> Proof rule: if this file changes status or claims, update the assigned workpack, checklist row, proof route, and PLAN_STATE.
 
 <!-- /agent-capsule -->
 
 # Account Identity Family Plan Agent Route
 
-Task: define the account and household authority system.
-Context: the product needs a parent account, household, child profile, device membership, roles, invites, recovery, setup UI, and safe session/token lifecycle. The architecture is Cloudflare-first for app/data custody, with Firebase Auth allowed only as an external identity provider/token issuer if the decision record keeps family data out of the IdP.
-Scope: identity model, provider decision, login/session lifecycle, role authorization, household/device ownership, invite/recovery, parent family setup UI, and abuse/security proof.
-Out of scope: public site content, installer/package build mechanics, child data storage, policy authoring, and remote transport.
+## Mission
 
-## High-Density Execution Contract
+This plan defines the account, household, role, invite, recovery, session, and device-authority foundation that other plans consume.
 
-- Route first from `PLAN_STATE.md`; treat this plan as the single source for account-family authority and do not read sibling plans unless the assignment names a handoff path.
-- Work only the selected workpack plus the exact checklist/proof rows named by `CHECKLIST_INDEX.md` and `PROOF_AND_TEST_INVENTORY.md`.
-- Every accepted action must include: decision owner, boundary, concrete acceptance evidence path, failure condition, and remaining-risk note.
-- Stop condition: do not claim DONE/PR_READY without proof rows updated for session, household, device, and UI boundaries, and with unresolved risk either cleared or explicitly deferred with a valid reason.
+The core rule:
 
-## Decision And Proof Gate
+```text
+authentication proves who the actor is
+household membership proves where the actor belongs
+role proves what the actor may do
+device trust proves which physical/local endpoint may act
+session freshness proves whether the current request is still allowed
+```
 
-- This plan is execution-grade on paper, but it is not product-ready until the workpack proofs and route sync gates are present.
-- Before implementation claims, confirm the provider decision, identity authority model, session/token model, invite/recovery model, device authority matrix, and UI expectations all agree with the current repo contracts.
-- Keep family data in Cloudflare-owned custody domains by default; Firebase Auth, if used, stays adapter-only as an external IdP/token issuer.
+Do not collapse those boundaries.
 
-## Decision Tree
+## Scope
 
-| If the task is about...                           | Open                                            |
-| ------------------------------------------------- | ----------------------------------------------- |
-| Cloudflare vs Firebase/Auth.js/provider choice    | `workpacks/01-auth-provider-decision.md`        |
+This plan owns:
+
+```text
+provider decision and identity adapter boundary
+user/account identity references
+household membership and role model
+child profile identity, separate from child device trust
+session, token, refresh, logout, revoke, replay, and freshness model
+invites, recovery, transfer, deletion handoff, and co-parent/observer lifecycle
+device ownership authorization matrix
+first-run account/family setup UI contracts and states
+account/family security proof gate
+```
+
+Out of scope:
+
+```text
+public marketing/download site content -> setup-install-provisioning-plan
+installer/package mechanics -> setup-install-provisioning-plan
+shared Cloudflare worker scaffold/auth middleware -> cloudflare-control-plane-plan
+billing semantics and entitlement math -> payment-subscription-plan
+policy rule authoring/evaluation -> policy-control-plane-plan
+child-device local trust bootstrap/key sealing -> device-trust-bootstrap-plan
+child activity data storage/export/delete -> data-custody-storage-plan
+LAN transport and remote transport -> lan-plan / remote-access-plan
+```
+
+## Required read order
+
+1. `PLAN_STATE.md`
+2. `NEXT_ACTIONS.md`
+3. `WORKPACK_INDEX.md`
+4. one selected workpack under `workpacks/`
+5. `CHECKLIST_INDEX.md` only for that workpack rows
+6. `TEST_PROOF_EXPECTATIONS.md` only for that workpack command/proof set
+7. `PROOF_INDEX.md` only when writing or validating proof artifacts
+8. `PLAN_EXECUTION_BLUEPRINT.md` only when execution order or DONE/PR_READY criteria are unclear
+9. `RESEARCH_AND_DECISIONS.md` only when provider/security/session/recovery decisions are touched
+
+Do not read all workpacks. Do not read sibling plans by default.
+
+## Decision tree
+
+| If the task is about... | Open |
+| --- | --- |
+| Cloudflare/Firebase/Auth.js/provider choice | `workpacks/01-auth-provider-decision.md` |
 | Users, households, roles, child profiles, devices | `workpacks/02-identity-household-role-model.md` |
-| Sessions, tokens, refresh, revocation, replay     | `workpacks/03-session-token-lifecycle.md`       |
-| Invites, recovery, co-parent, transfer, deletion  | `workpacks/04-invites-recovery-lifecycle.md`    |
-| Cross-family authZ and device ownership           | `workpacks/05-device-ownership-authz.md`        |
-| Proof, threat model, route gate                   | `workpacks/06-security-proof-and-route-gate.md` |
-| Parent account and family setup UI               | `workpacks/07-parent-account-family-setup-ui.md` |
+| Sessions, tokens, refresh, revocation, replay | `workpacks/03-session-token-lifecycle.md` |
+| Invites, recovery, co-parent, transfer, deletion | `workpacks/04-invites-recovery-lifecycle.md` |
+| Cross-family authZ and device ownership | `workpacks/05-device-ownership-authz.md` |
+| Security, abuse proof, route sync, rollout gate | `workpacks/06-security-proof-and-route-gate.md` |
+| Parent account and family setup UI | `workpacks/07-parent-account-family-setup-ui.md` |
 
-## Ownership Boundaries
+## Non-negotiable authority rules
 
-- `setup-install-provisioning-plan` owns the installer/download route and public release mechanics that hand off into account flows.
-- `data-custody-storage-plan` owns storage, export, delete, encryption, and parent-owned sync.
-- `policy-control-plane-plan` owns policy authority after authenticated household context exists.
-- `remote-access-plan` owns remote session grants after identity/device authority exists.
-- `device-trust-bootstrap-plan` owns trusted-device bootstrap, parent step-up proof, and local sealed trust boundaries after identity exists.
+- Third-party identity providers may prove user identity; they do not own household membership, child profiles, devices, invites, recovery, policy authority, child evidence, or product readiness.
+- Firebase custom claims, if used, are minimal access hints only; product data and household truth stay in Ocentra-owned storage.
+- Auth.js, if used, is a session/auth adapter; it does not become the family authority model.
+- D1 is the default relational owner for account/household/member/device/session/invite metadata when Cloudflare runtime is selected.
+- Durable Objects coordinate short-lived setup rooms, rate limits, invite/recovery/session coordination, and serialized state transitions where needed.
+- KV is non-authoritative cache/rate-limit hint state only.
+- R2 is not used for family authority; if later approved, it stores only explicitly encrypted artifacts outside child activity default custody.
+- Authentication is not authorization. Every action checks household, role, device, session freshness, revocation, and action capability.
+- Child profile is not child device trust.
+- Parent login is not parent trusted-device proof.
+- Support/admin is a separate audited actor class, never hidden parent ownership.
 
-## State
+## Local work loop
 
-- State remains proof-open until provider decision, auth/session proof, invite/recovery proof, device authZ proof, setup UI proof, and cross-plan handoff proof are explicitly synchronized.
-- Do not move to DONE/PR_READY unless workpack completion, proof artifacts, and route/index sync are explicitly synchronized.
+1. Select exactly one workpack.
+2. Fill the pre-edit note from the workpack.
+3. Change only owned docs/source paths named by that workpack.
+4. Add/update the required tests or record the exact missing test location.
+5. Run the focused commands in `TEST_PROOF_EXPECTATIONS.md` through `npm run agent:run --` when possible.
+6. Write proof artifacts to the workpack proof root from `PROOF_INDEX.md`.
+7. Update `CHECKLIST_INDEX.md`, the selected workpack completion section, and `PLAN_STATE.md` only for proven rows.
+8. Report no-claim boundaries.
 
-## Failure Conditions
+## Failure conditions
 
-- Do not store product data in Firebase or any third-party identity system by default.
-- Do not treat authentication as authorization; every action needs household, role, and device authority.
-- Do not allow child profile creation to imply a real child device is trusted.
-- Do not claim secure login without replay, expiry, revocation, rate-limit, abuse, and recovery proof.
+Do not claim DONE or PR_READY if any of these are true:
+
+- Provider decision is missing, stale, or stores family product data in an IdP.
+- A valid login token is treated as household, device, policy, export, billing, or remote authority.
+- Cross-family id guessing has no denial proof.
+- Observer/co-parent/child/support permissions are not separated.
+- Session expiry, refresh, logout, revocation, replay, CSRF/origin, and stale-token cases are untested.
+- Invite/recovery flows lack expiry, single-use, revocation, enumeration resistance, and support-audit proof.
+- UI implies “logged in” means “trusted household/device ready.”
+- Child private activity data is routed into account/identity systems.
+- Proof artifacts or command logs are missing.
