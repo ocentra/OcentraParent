@@ -1,10 +1,15 @@
 use std::time::Duration;
 
-use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventBus, EventContract, EventResponseContract, EventSubscriber,
-    EventType, EventingError, IdempotencyKey, RequestEvent, RequestId, RequestOptions,
-    SchemaVersion, SubscriberId, TargetHandler,
+use ocentra_eventing::bus::subscriber::EventSubscriber;
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::bus::reports::{DeadLetter, PublishReport};
+use ocentra_eventing::envelope::{DomainEvent, EventContract, StoredEventEnvelope};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    AggregateKey, EventType, IdempotencyKey, RequestId, SchemaVersion, SubscriberId,
+    TargetHandler,
 };
+use ocentra_eventing::request::{EventResponseContract, RequestEvent, RequestOptions, RequestReport};
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
@@ -21,9 +26,9 @@ use super::{network_aggregate_key, network_event_metadata, NetworkRuntimeEventPa
 
 #[derive(Clone, Debug)]
 pub struct NetworkRuntimeReviewReport {
-    pub request_report: ocentra_eventing::RequestReport<NetworkRuntimeReviewResponse>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub request_report: RequestReport<NetworkRuntimeReviewResponse>,
+    pub stored_events: Vec<StoredEventEnvelope>,
+    pub dead_letters: Vec<DeadLetter>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

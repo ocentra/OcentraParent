@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    AggregateKey, CorrelationId, DomainEvent, EventContract, EventCustody, EventMetadata,
-    EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey, RecordedAt,
+use crate::bus::subscriber::EventSubscriber;
+use crate::envelope::{DomainEvent, EventContract, EventMetadata, EventSource};
+use crate::error::EventingError;
+use crate::ids::{
+    AggregateKey, CorrelationId, EventCustody, EventType, IdempotencyKey, RecordedAt,
     RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService, SubscriberId,
     TargetHandler,
 };
@@ -51,36 +53,50 @@ impl DomainEvent for TestEvent {
 }
 
 pub(super) fn test_event(label: &str) -> TestEvent {
-    test_event_with_aggregate(label, TEST_AGGREGATE)
-}
-
-pub(super) fn test_event_with_aggregate(label: &str, aggregate_key: &str) -> TestEvent {
-    test_event_for_type_with_aggregate(label, aggregate_key, TEST_EVENT_TYPE)
-}
-
-pub(super) fn test_event_for_type(label: &str, event_type: &str) -> TestEvent {
-    test_event_for_type_with_aggregate(label, TEST_AGGREGATE, event_type)
-}
-
-pub(super) fn test_event_with_idempotency(label: &str, idempotency_key: &str) -> TestEvent {
-    test_event_for_type_with_aggregate_and_idempotency(
-        label,
-        TEST_AGGREGATE,
-        TEST_EVENT_TYPE,
-        idempotency_key,
+    fixture_or_exit(
+        try_test_event_for_type_with_aggregate_and_idempotency(
+            label,
+            TEST_AGGREGATE,
+            TEST_EVENT_TYPE,
+            TEST_IDEMPOTENCY,
+        ),
+        "test_event",
     )
 }
 
-fn test_event_for_type_with_aggregate(
-    label: &str,
-    aggregate_key: &str,
-    event_type: &str,
-) -> TestEvent {
-    test_event_for_type_with_aggregate_and_idempotency(
-        label,
-        aggregate_key,
-        event_type,
-        TEST_IDEMPOTENCY,
+pub(super) fn test_event_with_aggregate(label: &str, aggregate_key: &str) -> TestEvent {
+    fixture_or_exit(
+        try_test_event_for_type_with_aggregate_and_idempotency(
+            label,
+            aggregate_key,
+            TEST_EVENT_TYPE,
+            TEST_IDEMPOTENCY,
+        ),
+        "test_event_with_aggregate",
+    )
+}
+
+pub(super) fn test_event_for_type(label: &str, event_type: &str) -> TestEvent {
+    fixture_or_exit(
+        try_test_event_for_type_with_aggregate_and_idempotency(
+            label,
+            TEST_AGGREGATE,
+            event_type,
+            TEST_IDEMPOTENCY,
+        ),
+        "test_event_for_type",
+    )
+}
+
+pub(super) fn test_event_with_idempotency(label: &str, idempotency_key: &str) -> TestEvent {
+    fixture_or_exit(
+        try_test_event_for_type_with_aggregate_and_idempotency(
+            label,
+            TEST_AGGREGATE,
+            TEST_EVENT_TYPE,
+            idempotency_key,
+        ),
+        "test_event_with_idempotency",
     )
 }
 
@@ -90,46 +106,95 @@ pub(super) fn test_event_for_type_with_aggregate_and_idempotency(
     event_type: &str,
     idempotency_key: &str,
 ) -> TestEvent {
-    TestEvent {
+    fixture_or_exit(
+        try_test_event_for_type_with_aggregate_and_idempotency(
+            label,
+            aggregate_key,
+            event_type,
+            idempotency_key,
+        ),
+        "test_event_for_type_with_aggregate_and_idempotency",
+    )
+}
+
+fn try_test_event_for_type_with_aggregate_and_idempotency(
+    label: &str,
+    aggregate_key: &str,
+    event_type: &str,
+    idempotency_key: &str,
+) -> Result<TestEvent, EventingError> {
+    Ok(TestEvent {
         label: label.to_string(),
-        aggregate_key: AggregateKey::parse(aggregate_key).expect("aggregate key parses"),
-        idempotency_key: IdempotencyKey::parse(idempotency_key).expect("idempotency key parses"),
-        event_type: EventType::parse(event_type).expect("event type parses"),
-    }
+        aggregate_key: AggregateKey::parse(aggregate_key)?,
+        idempotency_key: IdempotencyKey::parse(idempotency_key)?,
+        event_type: EventType::parse(event_type)?,
+    })
 }
 
 pub(super) fn metadata(target: &str) -> EventMetadata {
-    metadata_with_event_id(target, TEST_EVENT_ID)
+    fixture_or_exit(
+        try_metadata_with_event_id(target, TEST_EVENT_ID),
+        "metadata",
+    )
 }
 
 pub(super) fn metadata_with_event_id(target: &str, event_id: &str) -> EventMetadata {
-    EventMetadata::from_parts(
-        crate::EventId::parse(event_id).expect("event id parses"),
-        CorrelationId::parse(TEST_CORRELATION_ID).expect("correlation id parses"),
-        source(),
-        RecordedAt::parse(TEST_OBSERVED_AT).expect("recorded at parses"),
-        Some(TargetHandler::parse(target).expect("target handler parses")),
+    fixture_or_exit(
+        try_metadata_with_event_id(target, event_id),
+        "metadata_with_event_id",
     )
 }
 
-fn source() -> EventSource {
-    EventSource::new(
-        EventCustody::parse(TEST_CUSTODY).expect("event custody parses"),
-        RuntimeRole::parse(TEST_RUNTIME_ROLE).expect("runtime role parses"),
-        SourceService::parse(TEST_SOURCE_SERVICE).expect("source service parses"),
-        SourceComponent::parse(TEST_SOURCE_COMPONENT).expect("source component parses"),
-        RuntimeInstanceId::parse(TEST_INSTANCE).expect("runtime instance parses"),
-    )
+fn try_metadata_with_event_id(target: &str, event_id: &str) -> Result<EventMetadata, EventingError> {
+    Ok(EventMetadata::from_parts(
+        crate::ids::EventId::parse(event_id)?,
+        CorrelationId::parse(TEST_CORRELATION_ID)?,
+        EventSource::new(
+            EventCustody::parse(TEST_CUSTODY)?,
+            RuntimeRole::parse(TEST_RUNTIME_ROLE)?,
+            SourceService::parse(TEST_SOURCE_SERVICE)?,
+            SourceComponent::parse(TEST_SOURCE_COMPONENT)?,
+            RuntimeInstanceId::parse(TEST_INSTANCE)?,
+        ),
+        RecordedAt::parse(TEST_OBSERVED_AT)?,
+        Some(TargetHandler::parse(target)?),
+    ))
 }
 
 pub(super) fn subscriber(id: &str, target: &str) -> EventSubscriber {
-    subscriber_for_event(id, target, TEST_EVENT_TYPE)
+    fixture_or_exit(
+        try_subscriber_for_event(id, target, TEST_EVENT_TYPE),
+        "subscriber",
+    )
 }
 
 pub(super) fn subscriber_for_event(id: &str, target: &str, event_type: &str) -> EventSubscriber {
-    EventSubscriber::new(
-        SubscriberId::parse(id).expect("subscriber id parses"),
-        EventType::parse(event_type).expect("event type parses"),
-        TargetHandler::parse(target).expect("target handler parses"),
+    fixture_or_exit(
+        try_subscriber_for_event(id, target, event_type),
+        "subscriber_for_event",
     )
+}
+
+fn try_subscriber_for_event(
+    id: &str,
+    target: &str,
+    event_type: &str,
+) -> Result<EventSubscriber, EventingError> {
+    Ok(EventSubscriber::new(
+        SubscriberId::parse(id)?,
+        EventType::parse(event_type)?,
+        TargetHandler::parse(target)?,
+    ))
+}
+
+fn fixture_or_exit<T>(result: Result<T, EventingError>, context: &'static str) -> T {
+    match result {
+        Ok(value) => value,
+        Err(error) => invalid_fixture(context, &error),
+    }
+}
+
+fn invalid_fixture(context: &'static str, error: &EventingError) -> ! {
+    let _ = (context, error);
+    std::process::exit(1);
 }

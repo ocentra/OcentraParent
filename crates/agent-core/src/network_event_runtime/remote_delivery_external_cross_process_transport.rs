@@ -1,7 +1,8 @@
-use ocentra_eventing::SourceComponent;
+use ocentra_eventing::ids::SourceComponent;
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_cross_process_replay;
+use super::remote_delivery_cross_process_replay::
+    prove_network_runtime_remote_delivery_cross_process_replay;
 use super::remote_delivery_cross_process_replay_types::{
     NetworkRuntimeRemoteDeliveryCrossProcessReplayRecord,
     NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
@@ -210,10 +211,13 @@ fn has_unsupported_claims(report: &NetworkRuntimeRemoteDeliveryCrossProcessRepla
 mod tests {
     use ocentra_parent_agent_protocol::constants;
 
-    use crate::network_event_runtime::{
-        prove_network_runtime_remote_delivery_cross_process_replay,
+    use crate::network_event_runtime::remote_delivery_cross_process_replay::
+        prove_network_runtime_remote_delivery_cross_process_replay;
+    use crate::network_event_runtime::remote_delivery_external_cross_process_transport::{
         prove_network_runtime_remote_delivery_external_cross_process_transport,
         prove_network_runtime_remote_delivery_external_cross_process_transport_from_replay,
+    };
+    use crate::network_event_runtime::remote_delivery_external_cross_process_transport_types::{
         NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError,
         NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
         NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportState,

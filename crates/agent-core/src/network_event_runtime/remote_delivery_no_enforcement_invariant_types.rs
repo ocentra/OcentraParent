@@ -1,4 +1,5 @@
-use ocentra_eventing::{EventingError, SourceComponent};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::SourceComponent;
 
 use super::{
     NetworkRuntimeRemoteDeliveryDispatchReadinessError,

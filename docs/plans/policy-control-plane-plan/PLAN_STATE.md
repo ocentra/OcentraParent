@@ -8,7 +8,7 @@ Current truth:
 - Existing domain plans own runtime effects; this plan owns the parent policy control plane contract and proof route.
 - Parent-facing UI is specified here and in the portal plan, but no plan should treat UI state as policy truth.
 - Proof inventory and route gate docs now exist; they are required before any DONE or PR_READY claim.
-- `policy-control-core` source/compiler/conflict/preview/request owner modules now compile through their real `policy_source` / `policy_authority` boundaries, and the crate-owned unit plus version-skew suites execute green in this checkout.
+- `policy-control-core` source/compiler/conflict/preview/request owner modules now compile through their real `policy_source` / `policy_authority` boundaries, and the crate-owned unit suite executes green in this checkout; `version_skew` still has two failing assertions in `tests/version-skew/policy_compiler.rs` that need the codex-b-owned fixture update.
 - `policy-control-core` source registration now also has an explicit actor-authority gate for WP01, so wrong-household and revoked-parent writes fail before a parent policy source document can replace source truth.
 - `policy-control-core` source lifecycle now also has an explicit WP01 supersede transition, so a source document cannot move to `superseded` without a strictly newer replacement policy version and a fresh audit reference proving the supersede event.
 - `policy-control-core` source lifecycle now also owns a typed rollback reference plus rollback transition guard, so a source document cannot move to `rolledBack` unless it carries a prior-version reference and a fresh rollback audit reference.
@@ -21,6 +21,7 @@ Current truth:
 - `policy-domain` now also owns a shared WP03 compiler-contract module for compiled artifact ids, domains, capability states, support matrices, rule statuses, delivery targets, no-claim labels, source lifecycle refs, and rollback/supersede metadata, with unit tests written in `packages/policy-domain/tests/unit/policy-compiler.test.ts` instead of leaving TypeScript compiler seams to invent those shapes ad hoc across app-game, browser, and tracking domains.
 - `app-game-domain` now also consumes the shared WP03 capability-state owner contract in its policy-target compiler seam, so app/game compile requests and preview fixtures use `PolicyCompilerCapabilityStateSchema` / `PolicyCompilerCapabilityState`, and manual-required or unsupported capability refs can no longer drift into `dry-run-ready` compiled output.
 - `tracking-domain` now also consumes the shared WP03 compiled-artifact contract at the runtime-proof consumer boundary, so tracking compiler requests reject non-tracking artifacts, source-policy-version mismatches, and missing source-rule coverage before the local runtime-proof seam can treat a free-floating tracking rule as sufficient input.
+- WP01 proof docs now exist under `docs/proof/policy-control-plane-plan/01-*.md`, but the workpack remains open until the codex-b-owned `version_skew` assertions are corrected and revalidated.
 
 Open gaps:
 
@@ -29,6 +30,7 @@ Open gaps:
 - Source-of-truth closure still needs broader lifecycle coverage beyond the new authority, active-after-ack, supersede, and rollback guards.
 - WP03 still needs the remaining downstream TS adoption of the new explicit support-matrix / capability-state contract, with the next gaps now narrowed to the browser-domain compiler seams, broader parent-surface consumers, and any other consumer boundaries outside the owner package that still duplicate or bypass the shared compiler artifact contract.
 - WP07 still needs Rust/source-compiler parity for the new time-budget reset/carryover, bonus-expiry, and offline-timer-recovery semantics beyond the new `policy-domain` owner contract and timezone-boundary conflict handling.
+- WP01 still has the two failing `version_skew` assertions as the immediate blocker for proof closure, even though the architecture gate and unit suite now pass locally.
 - The newest WP03 support-matrix, delivery-provenance, app-game downstream capability-state adoption, and tracking shared-artifact consumer additions are recorded here as code plus tests written only; this file does not claim focused cargo or npm execution for that incremental slice yet.
 - Package-local `npm run type-check --workspace @ocentra-parent/policy-domain` and `npm run test --workspace @ocentra-parent/policy-domain` are currently blocked in this checkout before execution because `packages/policy-domain/tsconfig.json` extends a missing repo-root `tsconfig.base.json`.
 - Focused `packages/app-game-domain` Vitest execution is also still blocked in this checkout because `@ocentra-parent/policy-domain/policy-compiler` cannot resolve without a built `packages/policy-domain/dist/policy-compiler.js`, and building that owner package is currently blocked by the same missing `tsconfig.base.json` plus pre-existing owner-package TypeScript errors.

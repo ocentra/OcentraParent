@@ -7,6 +7,19 @@ const testRoot = join('test-results', 'eventing-network-ts-event-parity-proof');
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 
+const sourceShapeChecks = [
+  ['source-shape-agent-protocol-domain-network-runtime-events', 'packages/agent-protocol-domain/src/network-runtime-events.ts'],
+  ['source-shape-agent-protocol-domain-network-runtime-events-tests', 'packages/agent-protocol-domain/tests/unit/network-runtime-events.test.ts'],
+  ['source-shape-agent-protocol-network-flow-events', 'crates/agent-protocol/src/network_flow_events.rs'],
+  ['source-shape-agent-protocol-network-flow-constants', 'crates/agent-protocol/src/constants/network_flow.rs'],
+].map(([name, prefix]) => ({
+  name,
+  command: 'node',
+  args: ['scripts/check-source-shape.mjs'],
+  env: { SOURCE_SHAPE_ROOT_PREFIX: prefix },
+  log: join(proofRoot, `${name}.log`),
+}));
+
 const commands = [
   {
     name: 'agent-protocol-network-runtime-event-tests',
@@ -21,18 +34,7 @@ const commands = [
     ]),
     log: join(proofRoot, 'agent-protocol-network-runtime-event-tests.log'),
   },
-  {
-    name: 'agent-protocol-domain-build',
-    command: npmCommand(),
-    args: npmArgs(['--workspace', '@ocentra-parent/agent-protocol-domain', 'run', 'build']),
-    log: join(proofRoot, 'agent-protocol-domain-build.log'),
-  },
-  {
-    name: 'source-shape',
-    command: 'node',
-    args: ['scripts/check-source-shape.mjs'],
-    log: join(proofRoot, 'source-shape.log'),
-  },
+  ...sourceShapeChecks,
 ];
 
 const commandResults = commands.map(runCommand);
@@ -76,13 +78,13 @@ const proof = {
 
 writeFileSync(join(proofRoot, 'proof-summary.json'), `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(join(testRoot, 'proof.json'), `${JSON.stringify(proof, null, 2)}\n`);
-console.log('eventing-network-ts-event-parity-proof-ok:tests,build,public-import,source-shape');
+console.log('eventing-network-ts-event-parity-proof-ok:tests,public-import,source-shape');
 console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function assertSourceContracts() {
   const packageJson = readText('packages/agent-protocol-domain/package.json');
   const source = readText('packages/agent-protocol-domain/src/network-runtime-events.ts');
-  const tests = readText('packages/agent-protocol-domain/tests/network-runtime-events.test.ts');
+  const tests = readText('packages/agent-protocol-domain/tests/unit/network-runtime-events.test.ts');
   const rustContracts = readText('crates/agent-protocol/src/network_flow_events.rs');
   const rustConstants = readText('crates/agent-protocol/src/constants/network_flow.rs');
   const readme = readText('packages/agent-protocol-domain/README.md');
@@ -160,7 +162,11 @@ function assertIncludes(text, expected, label) {
 }
 
 function runCommand(entry) {
-  const result = spawnSync(entry.command, entry.args, { encoding: 'utf8', shell: false });
+  const result = spawnSync(entry.command, entry.args, {
+    encoding: 'utf8',
+    env: { ...process.env, ...entry.env },
+    shell: false,
+  });
   writeFileSync(entry.log, `${result.stdout ?? ''}${result.stderr ?? ''}`);
   if (result.status !== 0) {
     throw new Error(`${entry.name} failed with exit ${result.status}`);

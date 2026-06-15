@@ -4,11 +4,13 @@ use tokio::{
     io::{AsyncBufReadExt, BufReader},
 };
 
-use crate::journal::verify_hash_chain_entry;
-use crate::{
-    CorrelationId, EventType, EventingError, JournalDispatchPhase, JournalHash, NdjsonEventJournal,
-    NdjsonJournalEntry, StoredEventEnvelope,
-};
+use crate::envelope::StoredEventEnvelope;
+use crate::error::EventingError;
+use crate::ids::{CorrelationId, EventType, JournalHash};
+use crate::journal::hash_chain::verify_hash_chain_entry;
+use crate::journal::ndjson::NdjsonEventJournal;
+use crate::journal::policy::JournalDispatchPhase;
+use crate::journal::ndjson::NdjsonJournalEntry;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -119,7 +121,7 @@ impl NdjsonEventJournal {
     ) -> Result<ReplayReadReport, EventingError> {
         let file = File::open(self.path())
             .await
-            .map_err(|error| EventingError::journal_io(self.path_string(), error))?;
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
         let mut lines = BufReader::new(file).lines();
         let mut line_number = 0_usize;
         let mut records = Vec::new();
@@ -130,7 +132,7 @@ impl NdjsonEventJournal {
         while let Some(line) = lines
             .next_line()
             .await
-            .map_err(|error| EventingError::journal_io(self.path_string(), error))?
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?
         {
             line_number += 1;
             if line.trim().is_empty() {

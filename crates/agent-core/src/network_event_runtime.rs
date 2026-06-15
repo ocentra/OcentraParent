@@ -1,8 +1,12 @@
-use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventCustody, EventId,
-    EventMetadata, EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey,
-    RecordedAt, RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId,
-    TargetHandler,
+use ocentra_eventing::bus::subscriber::EventSubscriber;
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::bus::reports::{DeadLetter, PublishReport};
+use ocentra_eventing::envelope::StoredEventEnvelope;
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::envelope::{DomainEvent, EventContract, EventMetadata, EventSource};
+use ocentra_eventing::ids::{
+    AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey, RecordedAt,
+    RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId, TargetHandler,
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus,
@@ -20,156 +24,145 @@ use crate::{
     NetworkObservation,
 };
 
-mod broker_delivery;
-mod queue;
-mod refs;
-mod remote_delivery_cross_process_custody_readiness;
-mod remote_delivery_cross_process_custody_readiness_types;
-mod remote_delivery_cross_process_replay;
-mod remote_delivery_cross_process_replay_types;
-mod remote_delivery_delete_export_propagation;
-mod remote_delivery_delete_export_propagation_types;
-mod remote_delivery_dispatch_readiness;
-mod remote_delivery_dispatch_readiness_types;
-mod remote_delivery_durable_envelope;
-mod remote_delivery_durable_envelope_types;
+pub(crate) mod broker_delivery;
+pub(crate) mod queue;
+pub(crate) mod refs;
+pub(crate) mod remote_delivery_cross_process_custody_readiness;
+pub(crate) mod remote_delivery_cross_process_custody_readiness_types;
+pub(crate) mod remote_delivery_cross_process_replay;
+pub(crate) mod remote_delivery_cross_process_replay_types;
+pub(crate) mod remote_delivery_delete_export_propagation;
+pub(crate) mod remote_delivery_delete_export_propagation_types;
+pub(crate) mod remote_delivery_dispatch_readiness;
+pub(crate) mod remote_delivery_dispatch_readiness_types;
+pub(crate) mod remote_delivery_durable_envelope;
+pub(crate) mod remote_delivery_durable_envelope_types;
 #[cfg(test)]
-mod remote_delivery_event_chain_journal;
-mod remote_delivery_event_chain_journal_types;
-mod remote_delivery_event_chain_store;
-mod remote_delivery_external_cross_process_transport;
-mod remote_delivery_external_cross_process_transport_types;
-mod remote_delivery_fixture_transport;
-mod remote_delivery_fixture_transport_types;
-mod remote_delivery_no_enforcement_invariant;
-mod remote_delivery_no_enforcement_invariant_types;
-mod remote_delivery_outbox_handoff;
-mod remote_delivery_outbox_handoff_types;
-mod remote_delivery_provider_child_readiness;
-mod remote_delivery_provider_child_readiness_types;
-mod remote_delivery_receipt_ledger;
-mod remote_delivery_receipt_ledger_types;
-mod remote_delivery_status;
-mod remote_delivery_transport_dispatch_state;
-mod remote_delivery_transport_dispatch_state_types;
+pub(crate) mod remote_delivery_event_chain_journal;
+pub(crate) mod remote_delivery_event_chain_journal_types;
+pub(crate) mod remote_delivery_event_chain_store;
+pub(crate) mod remote_delivery_external_cross_process_transport;
+pub(crate) mod remote_delivery_external_cross_process_transport_types;
+pub(crate) mod remote_delivery_fixture_transport;
+pub(crate) mod remote_delivery_fixture_transport_types;
+pub(crate) mod remote_delivery_no_enforcement_invariant;
+pub(crate) mod remote_delivery_no_enforcement_invariant_types;
+pub(crate) mod remote_delivery_outbox_handoff;
+pub(crate) mod remote_delivery_outbox_handoff_types;
+pub(crate) mod remote_delivery_provider_child_readiness;
+pub(crate) mod remote_delivery_provider_child_readiness_types;
+pub(crate) mod remote_delivery_receipt_ledger;
+pub(crate) mod remote_delivery_receipt_ledger_types;
+pub(crate) mod remote_delivery_status;
+pub(crate) mod remote_delivery_transport_dispatch_state;
+pub(crate) mod remote_delivery_transport_dispatch_state_types;
 #[cfg(test)]
-mod review;
+pub(crate) mod review;
 
-pub use broker_delivery::{
-    prove_network_runtime_broker_delivery_semantics, NetworkRuntimeBrokerDeliveryProofError,
-    NetworkRuntimeBrokerDeliverySemantics, NetworkRuntimeBrokerDeliverySemanticsReport,
-};
-#[cfg(test)]
-pub(crate) use queue::{
-    queue_network_runtime_flow_expires_before_drain, queue_network_runtime_flow_until_subscriber,
-    NetworkRuntimeQueueDrainReport, NetworkRuntimeQueueIdempotencyReport,
-    NetworkRuntimeQueueOverflowReport, NetworkRuntimeQueueTtlReport,
-};
-pub(crate) use queue::{
-    queue_network_runtime_flow_overflow_dead_letters,
-    queue_network_runtime_flow_rejects_duplicate_idempotency,
-};
 use refs::NetworkRuntimeChainRefs;
-pub use remote_delivery_cross_process_custody_readiness::prove_network_runtime_remote_delivery_cross_process_custody_readiness;
-pub use remote_delivery_cross_process_custody_readiness_types::{
-    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError,
-    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord,
-    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
-    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState,
-};
-pub use remote_delivery_cross_process_replay::prove_network_runtime_remote_delivery_cross_process_replay;
+
+pub type NetworkRuntimeRemoteDeliveryBlockedDispatchRecord =
+    remote_delivery_transport_dispatch_state_types::NetworkRuntimeRemoteDeliveryBlockedDispatchRecord;
+pub type NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError =
+    remote_delivery_cross_process_custody_readiness_types::NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError;
+pub type NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord =
+    remote_delivery_cross_process_custody_readiness_types::NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord;
+pub type NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport =
+    remote_delivery_cross_process_custody_readiness_types::NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport;
+pub type NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState =
+    remote_delivery_cross_process_custody_readiness_types::NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState;
+pub type NetworkRuntimeRemoteDeliveryCrossProcessReplayError =
+    remote_delivery_cross_process_replay_types::NetworkRuntimeRemoteDeliveryCrossProcessReplayError;
+pub type NetworkRuntimeRemoteDeliveryCrossProcessReplayRecord =
+    remote_delivery_cross_process_replay_types::NetworkRuntimeRemoteDeliveryCrossProcessReplayRecord;
+pub type NetworkRuntimeRemoteDeliveryCrossProcessReplayReport =
+    remote_delivery_cross_process_replay_types::NetworkRuntimeRemoteDeliveryCrossProcessReplayReport;
+pub type NetworkRuntimeRemoteDeliveryCrossProcessReplayState =
+    remote_delivery_cross_process_replay_types::NetworkRuntimeRemoteDeliveryCrossProcessReplayState;
+pub type NetworkRuntimeRemoteDeliveryDeleteExportPropagationError =
+    remote_delivery_delete_export_propagation_types::NetworkRuntimeRemoteDeliveryDeleteExportPropagationError;
+pub type NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord =
+    remote_delivery_delete_export_propagation_types::NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord;
+pub type NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport =
+    remote_delivery_delete_export_propagation_types::NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport;
+pub type NetworkRuntimeRemoteDeliveryDeleteExportPropagationState =
+    remote_delivery_delete_export_propagation_types::NetworkRuntimeRemoteDeliveryDeleteExportPropagationState;
+pub type NetworkRuntimeRemoteDeliveryDispatchGate =
+    remote_delivery_dispatch_readiness_types::NetworkRuntimeRemoteDeliveryDispatchGate;
+pub type NetworkRuntimeRemoteDeliveryDispatchReadinessError =
+    remote_delivery_dispatch_readiness_types::NetworkRuntimeRemoteDeliveryDispatchReadinessError;
+pub type NetworkRuntimeRemoteDeliveryDispatchReadinessReport =
+    remote_delivery_dispatch_readiness_types::NetworkRuntimeRemoteDeliveryDispatchReadinessReport;
+pub type NetworkRuntimeRemoteDeliveryDispatchReadinessState =
+    remote_delivery_dispatch_readiness_types::NetworkRuntimeRemoteDeliveryDispatchReadinessState;
+pub type NetworkRuntimeRemoteDeliveryDurableEnvelopeError =
+    remote_delivery_durable_envelope_types::NetworkRuntimeRemoteDeliveryDurableEnvelopeError;
+pub type NetworkRuntimeRemoteDeliveryDurableEnvelopeRecord =
+    remote_delivery_durable_envelope_types::NetworkRuntimeRemoteDeliveryDurableEnvelopeRecord;
+pub type NetworkRuntimeRemoteDeliveryDurableEnvelopeReport =
+    remote_delivery_durable_envelope_types::NetworkRuntimeRemoteDeliveryDurableEnvelopeReport;
+pub type NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError =
+    remote_delivery_external_cross_process_transport_types::NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError;
+pub type NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportRecord =
+    remote_delivery_external_cross_process_transport_types::NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportRecord;
+pub type NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport =
+    remote_delivery_external_cross_process_transport_types::NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport;
+pub type NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportState =
+    remote_delivery_external_cross_process_transport_types::NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportState;
+pub type NetworkRuntimeRemoteDeliveryFixtureTransportError =
+    remote_delivery_fixture_transport_types::NetworkRuntimeRemoteDeliveryFixtureTransportError;
+pub type NetworkRuntimeRemoteDeliveryFixtureTransportRecord =
+    remote_delivery_fixture_transport_types::NetworkRuntimeRemoteDeliveryFixtureTransportRecord;
+pub type NetworkRuntimeRemoteDeliveryFixtureTransportReport =
+    remote_delivery_fixture_transport_types::NetworkRuntimeRemoteDeliveryFixtureTransportReport;
+pub type NetworkRuntimeRemoteDeliveryFixtureTransportState =
+    remote_delivery_fixture_transport_types::NetworkRuntimeRemoteDeliveryFixtureTransportState;
+pub type NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError =
+    remote_delivery_no_enforcement_invariant_types::NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError;
+pub type NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport =
+    remote_delivery_no_enforcement_invariant_types::NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport;
+pub type NetworkRuntimeRemoteDeliveryNoEnforcementInvariantState =
+    remote_delivery_no_enforcement_invariant_types::NetworkRuntimeRemoteDeliveryNoEnforcementInvariantState;
+pub type NetworkRuntimeRemoteDeliveryNoEnforcementStage =
+    remote_delivery_no_enforcement_invariant_types::NetworkRuntimeRemoteDeliveryNoEnforcementStage;
+pub type NetworkRuntimeRemoteDeliveryOutboxCandidate =
+    remote_delivery_outbox_handoff_types::NetworkRuntimeRemoteDeliveryOutboxCandidate;
+pub type NetworkRuntimeRemoteDeliveryOutboxHandoffError =
+    remote_delivery_outbox_handoff_types::NetworkRuntimeRemoteDeliveryOutboxHandoffError;
+pub type NetworkRuntimeRemoteDeliveryOutboxHandoffReport =
+    remote_delivery_outbox_handoff_types::NetworkRuntimeRemoteDeliveryOutboxHandoffReport;
+pub type NetworkRuntimeRemoteDeliveryOutboxState =
+    remote_delivery_outbox_handoff_types::NetworkRuntimeRemoteDeliveryOutboxState;
+pub type NetworkRuntimeRemoteDeliveryProviderChildReadinessError =
+    remote_delivery_provider_child_readiness_types::NetworkRuntimeRemoteDeliveryProviderChildReadinessError;
+pub type NetworkRuntimeRemoteDeliveryProviderChildReadinessRecord =
+    remote_delivery_provider_child_readiness_types::NetworkRuntimeRemoteDeliveryProviderChildReadinessRecord;
+pub type NetworkRuntimeRemoteDeliveryProviderChildReadinessReport =
+    remote_delivery_provider_child_readiness_types::NetworkRuntimeRemoteDeliveryProviderChildReadinessReport;
+pub type NetworkRuntimeRemoteDeliveryProviderChildReadinessState =
+    remote_delivery_provider_child_readiness_types::NetworkRuntimeRemoteDeliveryProviderChildReadinessState;
+pub type NetworkRuntimeRemoteDeliveryReceiptLedgerError =
+    remote_delivery_receipt_ledger_types::NetworkRuntimeRemoteDeliveryReceiptLedgerError;
+pub type NetworkRuntimeRemoteDeliveryReceiptLedgerReport =
+    remote_delivery_receipt_ledger_types::NetworkRuntimeRemoteDeliveryReceiptLedgerReport;
+pub type NetworkRuntimeRemoteDeliveryReceiptRecord =
+    remote_delivery_receipt_ledger_types::NetworkRuntimeRemoteDeliveryReceiptRecord;
+pub type NetworkRuntimeRemoteDeliveryState = remote_delivery_status::NetworkRuntimeRemoteDeliveryState;
+pub type NetworkRuntimeRemoteDeliveryStatusError =
+    remote_delivery_status::NetworkRuntimeRemoteDeliveryStatusError;
+pub type NetworkRuntimeRemoteDeliveryStatusReport =
+    remote_delivery_status::NetworkRuntimeRemoteDeliveryStatusReport;
+pub type NetworkRuntimeRemoteDeliveryTransportDispatchState =
+    remote_delivery_transport_dispatch_state_types::NetworkRuntimeRemoteDeliveryTransportDispatchState;
+pub type NetworkRuntimeRemoteDeliveryTransportDispatchStateError =
+    remote_delivery_transport_dispatch_state_types::NetworkRuntimeRemoteDeliveryTransportDispatchStateError;
+pub type NetworkRuntimeRemoteDeliveryTransportDispatchStateReport =
+    remote_delivery_transport_dispatch_state_types::NetworkRuntimeRemoteDeliveryTransportDispatchStateReport;
+pub type NetworkRuntimeRemoteEventChainJournalError =
+    remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalError;
 #[cfg(test)]
-pub(crate) use remote_delivery_cross_process_replay::prove_network_runtime_remote_delivery_cross_process_replay_from_custody_readiness;
-pub use remote_delivery_cross_process_replay_types::{
-    NetworkRuntimeRemoteDeliveryCrossProcessReplayError,
-    NetworkRuntimeRemoteDeliveryCrossProcessReplayRecord,
-    NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
-    NetworkRuntimeRemoteDeliveryCrossProcessReplayState,
-};
-pub use remote_delivery_delete_export_propagation::prove_network_runtime_remote_delivery_delete_export_propagation;
-#[cfg(test)]
-pub(crate) use remote_delivery_delete_export_propagation::prove_network_runtime_remote_delivery_delete_export_propagation_from_fixture_transport;
-pub use remote_delivery_delete_export_propagation_types::{
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord,
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationState,
-};
-pub use remote_delivery_dispatch_readiness::prove_network_runtime_remote_delivery_dispatch_readiness;
-pub use remote_delivery_dispatch_readiness_types::{
-    NetworkRuntimeRemoteDeliveryDispatchReadinessError,
-    NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
-    NetworkRuntimeRemoteDeliveryDispatchReadinessState,
-};
-pub use remote_delivery_durable_envelope::prove_network_runtime_remote_delivery_durable_envelope;
-pub use remote_delivery_durable_envelope_types::{
-    NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
-    NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
-};
-#[cfg(test)]
-pub(crate) use remote_delivery_event_chain_journal::prove_network_runtime_remote_event_chain_journal;
-pub use remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalError;
-#[cfg(test)]
-pub(crate) use remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalReport;
-pub use remote_delivery_external_cross_process_transport::prove_network_runtime_remote_delivery_external_cross_process_transport;
-#[cfg(test)]
-pub(crate) use remote_delivery_external_cross_process_transport::prove_network_runtime_remote_delivery_external_cross_process_transport_from_replay;
-pub use remote_delivery_external_cross_process_transport_types::{
-    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError,
-    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportRecord,
-    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
-    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportState,
-};
-pub use remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport;
-#[cfg(test)]
-pub(crate) use remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport_from_outbox;
-pub use remote_delivery_fixture_transport_types::{
-    NetworkRuntimeRemoteDeliveryFixtureTransportError,
-    NetworkRuntimeRemoteDeliveryFixtureTransportRecord,
-    NetworkRuntimeRemoteDeliveryFixtureTransportReport,
-    NetworkRuntimeRemoteDeliveryFixtureTransportState,
-};
-pub use remote_delivery_no_enforcement_invariant::prove_network_runtime_remote_delivery_no_enforcement_invariant;
-#[cfg(test)]
-pub(crate) use remote_delivery_no_enforcement_invariant::prove_network_runtime_remote_delivery_no_enforcement_invariant_from_dispatch_readiness;
-pub use remote_delivery_no_enforcement_invariant_types::{
-    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError,
-    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,
-    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantState,
-    NetworkRuntimeRemoteDeliveryNoEnforcementStage,
-};
-pub use remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff;
-pub use remote_delivery_outbox_handoff_types::{
-    NetworkRuntimeRemoteDeliveryOutboxHandoffError,
-    NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryOutboxState,
-};
-pub use remote_delivery_provider_child_readiness::prove_network_runtime_remote_delivery_provider_child_readiness;
-pub use remote_delivery_provider_child_readiness_types::{
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessError,
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessRecord,
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessState,
-};
-pub use remote_delivery_receipt_ledger::prove_network_runtime_remote_delivery_receipt_ledger;
-pub use remote_delivery_receipt_ledger_types::{
-    NetworkRuntimeRemoteDeliveryReceiptLedgerError, NetworkRuntimeRemoteDeliveryReceiptLedgerReport,
-};
-pub use remote_delivery_status::{
-    prove_network_runtime_remote_delivery_status, NetworkRuntimeRemoteDeliveryState,
-    NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
-};
-pub use remote_delivery_transport_dispatch_state::prove_network_runtime_remote_delivery_transport_dispatch_state;
-pub use remote_delivery_transport_dispatch_state_types::{
-    NetworkRuntimeRemoteDeliveryBlockedDispatchRecord,
-    NetworkRuntimeRemoteDeliveryTransportDispatchState,
-    NetworkRuntimeRemoteDeliveryTransportDispatchStateError,
-    NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
-};
-#[cfg(test)]
-pub use review::{
-    request_network_runtime_review_for_observation, NetworkRuntimeReviewReport,
-    NetworkRuntimeReviewResponse,
-};
+pub type NetworkRuntimeRemoteEventChainJournalReport =
+    remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalReport;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct NetworkRuntimeEventPayload {
@@ -272,9 +265,9 @@ impl DomainEvent for NetworkRuntimeEventPayload {
 
 #[derive(Clone, Debug)]
 pub struct NetworkRuntimeReport {
-    pub publish_reports: Vec<ocentra_eventing::PublishReport>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub publish_reports: Vec<PublishReport>,
+    pub stored_events: Vec<StoredEventEnvelope>,
+    pub dead_letters: Vec<DeadLetter>,
 }
 
 impl NetworkRuntimeReport {
@@ -298,6 +291,94 @@ pub async fn publish_network_runtime_chain_for_observation(
     spine
         .publish_observation_chain(observation, observed_at)
         .await
+}
+
+pub async fn prove_network_runtime_remote_delivery_cross_process_custody_readiness(
+) -> Result<
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
+    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError,
+> {
+    remote_delivery_cross_process_custody_readiness::prove_network_runtime_remote_delivery_cross_process_custody_readiness().await
+}
+
+pub async fn prove_network_runtime_remote_delivery_cross_process_replay(
+) -> Result<
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
+    NetworkRuntimeRemoteDeliveryCrossProcessReplayError,
+> {
+    remote_delivery_cross_process_replay::prove_network_runtime_remote_delivery_cross_process_replay().await
+}
+
+pub async fn prove_network_runtime_remote_delivery_delete_export_propagation(
+) -> Result<
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
+    NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
+> {
+    remote_delivery_delete_export_propagation::prove_network_runtime_remote_delivery_delete_export_propagation().await
+}
+
+pub async fn prove_network_runtime_remote_delivery_dispatch_readiness(
+) -> Result<
+    NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
+    NetworkRuntimeRemoteDeliveryDispatchReadinessError,
+> {
+    remote_delivery_dispatch_readiness::prove_network_runtime_remote_delivery_dispatch_readiness().await
+}
+
+pub async fn prove_network_runtime_remote_delivery_durable_envelope(
+) -> Result<
+    NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
+    NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
+> {
+    remote_delivery_durable_envelope::prove_network_runtime_remote_delivery_durable_envelope().await
+}
+
+pub async fn prove_network_runtime_remote_delivery_external_cross_process_transport(
+) -> Result<
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
+    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError,
+> {
+    remote_delivery_external_cross_process_transport::prove_network_runtime_remote_delivery_external_cross_process_transport().await
+}
+
+pub async fn prove_network_runtime_remote_delivery_fixture_transport(
+) -> Result<
+    NetworkRuntimeRemoteDeliveryFixtureTransportReport,
+    NetworkRuntimeRemoteDeliveryFixtureTransportError,
+> {
+    remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport().await
+}
+
+pub async fn prove_network_runtime_remote_delivery_no_enforcement_invariant(
+) -> Result<
+    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,
+    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError,
+> {
+    remote_delivery_no_enforcement_invariant::prove_network_runtime_remote_delivery_no_enforcement_invariant().await
+}
+
+pub async fn prove_network_runtime_remote_delivery_outbox_handoff(
+) -> Result<
+    NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
+    NetworkRuntimeRemoteDeliveryOutboxHandoffError,
+> {
+    remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff().await
+}
+
+pub async fn prove_network_runtime_remote_delivery_provider_child_readiness(
+) -> Result<
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
+    NetworkRuntimeRemoteDeliveryProviderChildReadinessError,
+> {
+    remote_delivery_provider_child_readiness::prove_network_runtime_remote_delivery_provider_child_readiness().await
+}
+
+pub async fn prove_network_runtime_remote_delivery_transport_dispatch_state(
+) -> Result<
+    NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
+    NetworkRuntimeRemoteDeliveryTransportDispatchStateError,
+> {
+    remote_delivery_transport_dispatch_state::prove_network_runtime_remote_delivery_transport_dispatch_state().await
 }
 
 struct NetworkRuntimeSpine {

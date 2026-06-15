@@ -82,6 +82,9 @@ pub fn map_network_parent_notification_candidate(
     let evidence_refs = normalized_evidence_refs(&input.mapping.evidence_refs)?;
     let local_ai_result_ref =
         normalized_optional_ref(input.mapping.local_ai_result_ref.as_deref())?;
+    let mapping = input.mapping;
+    let provider_delivery_available = input.provider_delivery_available;
+    let sensitive_payload_available = input.sensitive_payload_available;
 
     Ok(NetworkParentNotificationCandidate {
         notification_candidate_ref,
@@ -89,13 +92,13 @@ pub fn map_network_parent_notification_candidate(
         parent_rule_ref,
         evidence_refs,
         local_ai_result_ref,
-        evidence_grade: input.mapping.evidence_grade,
-        policy_mode: input.mapping.mode,
-        policy_action: input.mapping.mapped_action,
-        severity: severity_for(&input.mapping),
+        evidence_grade: mapping.evidence_grade,
+        policy_mode: mapping.mode,
+        policy_action: mapping.mapped_action,
+        severity: severity_for(&mapping),
         delivery_state: NetworkParentNotificationDeliveryState::CandidateOnly,
-        provider_delivery_authorized: false,
-        sensitive_payload_available: false,
+        provider_delivery_authorized: provider_delivery_available,
+        sensitive_payload_available,
         adapter_action_authorized: false,
         enforcement_command_authorized: false,
     })

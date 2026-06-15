@@ -5,10 +5,11 @@ use std::{
 
 use tokio::sync::RwLock;
 
-use crate::{
-    queue::EventQueue, EventQueuePolicy, HandlerExecutionPolicy, JournalPolicy, RequestRegistry,
-    SharedEventClock, SharedEventJournal,
-};
+use crate::clock::SharedEventClock;
+use crate::execution::HandlerExecutionPolicy;
+use crate::journal::{policy::JournalPolicy, SharedEventJournal};
+use crate::queue::{policy::EventQueuePolicy, state::EventQueue};
+use crate::request::RequestRegistry;
 
 use super::{active_dispatch::ActiveDispatchTracker, EventBus, EventBusLifecycleState};
 
@@ -24,7 +25,7 @@ impl EventBus {
             requests: RequestRegistry::default(),
             journal_policy: JournalPolicy::default(),
             event_journal: None,
-            clock: crate::SystemEventClock::shared(),
+            clock: crate::clock::SystemEventClock::shared(),
             shutdown: Arc::new(Mutex::new(EventBusLifecycleState::Active)),
             active_dispatches: ActiveDispatchTracker::default(),
         }

@@ -1,4 +1,4 @@
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::{
     child_domain_child_device_id, child_domain_child_profile_id, child_domain_evidence_ref,
     child_domain_observed_at, child_domain_policy_violation_id_from_policy_request_id,

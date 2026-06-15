@@ -143,25 +143,27 @@ pub fn build_network_ai_audit_report(
     let analyzer_alert_refs = cited_analyzer_alert_refs(&input.detection_results)?;
     let uncertainty_codes = audit_uncertainty_codes(&input.detection_results);
     let narrative_state = narrative_state(&input.detection_results, &uncertainty_codes);
+    let detection_results = input.detection_results;
+    let recommendations = recommendations(
+        &audit_report_ref,
+        &detection_refs,
+        &evidence_refs,
+        &parent_rule_refs,
+        recommendation_kinds(&detection_results, &uncertainty_codes),
+    );
 
     Ok(NetworkAiAuditReport {
-        audit_report_ref: audit_report_ref.clone(),
+        audit_report_ref,
         narrative_template_ref,
         model_version_ref,
         policy_context_ref,
         narrative_state,
         narrative_headline: narrative_headline(narrative_state),
-        cited_detection_refs: detection_refs.clone(),
-        cited_evidence_refs: evidence_refs.clone(),
+        cited_detection_refs: detection_refs,
+        cited_evidence_refs: evidence_refs,
         cited_analyzer_alert_refs: analyzer_alert_refs,
-        cited_parent_rule_refs: parent_rule_refs.clone(),
-        recommendations: recommendations(
-            &audit_report_ref,
-            &detection_refs,
-            &evidence_refs,
-            &parent_rule_refs,
-            recommendation_kinds(&input.detection_results, &uncertainty_codes),
-        ),
+        cited_parent_rule_refs: parent_rule_refs,
+        recommendations,
         uncertainty_codes,
         parent_readable: true,
         advisory_only: true,

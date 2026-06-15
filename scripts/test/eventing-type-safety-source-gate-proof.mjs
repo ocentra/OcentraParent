@@ -26,6 +26,8 @@ const commands = [
   },
 ];
 
+process.env.SOURCE_SHAPE_ROOT_PREFIX = 'crates/ocentra-eventing';
+
 const commandResults = commands.map((entry) => {
   const result = spawnSync(entry.command, entry.args, {
     encoding: 'utf8',
@@ -115,7 +117,13 @@ const sourceAssertions = [
       !envelopeSource.includes('pub value: serde_json::Value'),
     [],
   ],
-  ['stored-payload-wrapper-exported', libSource.includes('StoredEventEnvelope, StoredEventPayload'), []],
+  [
+    'stored-payload-wrapper-exported',
+    libSource.includes('pub mod envelope;') &&
+      envelopeSource.includes('pub struct StoredEventEnvelope') &&
+      envelopeSource.includes('pub struct StoredEventPayload'),
+    [],
+  ],
   [
     'dead-letter-event-type-public-api-is-typed',
     reportsSource.includes('pub fn dead_letter_recorded_event_type() -> Result<EventType, EventingError>') &&

@@ -27,7 +27,7 @@ This file is the short resume list for the next worker. It is derived from open 
 
 1. [WP11 Type Safety And Ownership Hardening](workpacks/11-type-safety-and-ownership-hardening.md) - the reusable crate is test-green, but workspace clippy denies still block proof completion on `ocentra-eventing`.
 2. [WP12 Rollout Proof And PR Gate](workpacks/12-rollout-proof-and-pr-gate.md) - reconcile the proof pack, checklist rows, and final reporting once the lint debt is closed.
-3. [WP07 Parent Protocol Event Contracts](workpacks/07-parent-protocol-event-contracts.md) through [WP10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md) - consumer handoffs remain open after the reusable runtime is validated.
+3. [WP07 Parent Protocol Event Contracts](workpacks/07-parent-protocol-event-contracts.md) through [WP09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md) - consumer handoffs remain open after the reusable runtime is validated.
 4. [WP01 Source Boundary And Semantics Audit](workpacks/01-source-boundary-and-semantics-audit.md) through [WP06 Journal Replay And Lineage](workpacks/06-journal-replay-and-lineage.md) - already validated by crate/package tests; revisit only if hardening refactors require it.
 
 ## PR readiness guard

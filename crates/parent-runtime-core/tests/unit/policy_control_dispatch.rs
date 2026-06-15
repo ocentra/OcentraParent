@@ -1,4 +1,4 @@
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_parent_runtime_core::policy_control_dispatch::{
     parent_runtime_policy_control_dispatch_evaluated_event, route_parent_policy_control_delivery,
     route_parent_policy_control_delivery_from_origin, ParentPolicyControlAcknowledgementState,

@@ -1,6 +1,11 @@
-use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventId, EventMetadata,
-    EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey, RecordedAt,
+use ocentra_eventing::bus::reports::{DeadLetter, PublishReport};
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::bus::subscriber::EventSubscriber;
+use ocentra_eventing::envelope::StoredEventEnvelope;
+use ocentra_eventing::envelope::{DomainEvent, EventContract, EventMetadata, EventSource};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey, RecordedAt,
     RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId, TargetHandler,
 };
 use ocentra_parent_agent_protocol::{
@@ -124,9 +129,9 @@ impl DomainEvent for ParentChildRuntimeEventPayload {
 
 #[derive(Clone, Debug)]
 pub struct ParentChildRuntimeReport {
-    pub publish_reports: Vec<ocentra_eventing::PublishReport>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub publish_reports: Vec<PublishReport>,
+    pub stored_events: Vec<StoredEventEnvelope>,
+    pub dead_letters: Vec<DeadLetter>,
 }
 
 pub async fn publish_parent_child_runtime_for_validated_intent(

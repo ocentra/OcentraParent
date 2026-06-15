@@ -1,7 +1,10 @@
-use crate::{
-    DispatchMode, EventingError, JournalDispatchPhase, QueueDisposition, ReplayMode, ReplayRecord,
-    StoredEventEnvelope,
-};
+use crate::bus::DispatchMode;
+use crate::error::EventingError;
+use crate::envelope::StoredEventEnvelope;
+use crate::ids::EventType;
+use crate::journal::policy::JournalDispatchPhase;
+use crate::queue::policy::QueueDisposition;
+use crate::replay::{ReplayMode, ReplayRecord};
 
 use super::{
     reports::{empty_publish_report, DeadLetter, PublishReport},
@@ -55,7 +58,7 @@ impl EventBus {
             let event_type = records
                 .first()
                 .map(|record| record.envelope.contract.event_type.clone())
-                .unwrap_or(crate::EventType::parse(PROJECTION_ONLY_REPLAY_EVENT_TYPE)?);
+                .unwrap_or(EventType::parse(PROJECTION_ONLY_REPLAY_EVENT_TYPE)?);
             return Err(EventingError::ReplayActionNotAllowed { event_type });
         }
 

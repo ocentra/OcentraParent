@@ -1,7 +1,8 @@
-use ocentra_eventing::SourceComponent;
+use ocentra_eventing::ids::SourceComponent;
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_provider_child_readiness;
+use super::remote_delivery_provider_child_readiness::
+    prove_network_runtime_remote_delivery_provider_child_readiness;
 use super::remote_delivery_cross_process_custody_readiness_types::{
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord,
@@ -275,7 +276,8 @@ mod tests {
     #[tokio::test]
     async fn rejects_cross_process_replay_claims() {
         let mut provider_child_readiness =
-            crate::network_event_runtime::prove_network_runtime_remote_delivery_provider_child_readiness()
+            crate::network_event_runtime::remote_delivery_provider_child_readiness::
+                prove_network_runtime_remote_delivery_provider_child_readiness()
                 .await
                 .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_PROVIDER_CHILD_READINESS);
         provider_child_readiness

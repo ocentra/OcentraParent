@@ -1,7 +1,9 @@
-use ocentra_eventing::{
-    CorrelationId, EventCustody, EventId, EventMetadata, EventSource, EventingError, RecordedAt,
-    RuntimeInstanceId, SourceComponent, SourceService, TargetHandler,
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    CorrelationId, EventCustody, EventId, RecordedAt, RuntimeInstanceId, SourceComponent,
+    SourceService, TargetHandler,
 };
+use ocentra_eventing::envelope::{EventMetadata, EventSource};
 use ocentra_parent_agent_protocol::constants;
 
 use crate::{

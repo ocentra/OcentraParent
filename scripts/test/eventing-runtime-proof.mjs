@@ -9,6 +9,8 @@ mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 mkdirSync(logRoot, { recursive: true });
 
+process.env.SOURCE_SHAPE_ROOT_PREFIX = 'crates/ocentra-eventing';
+
 const sourceBranch = runText('git', ['branch', '--show-current']).trim();
 const sourceCommit = runText('git', ['rev-parse', 'HEAD']).trim();
 const sourceOriginMain = runText('git', ['rev-parse', 'origin/main']).trim();

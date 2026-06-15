@@ -1,4 +1,7 @@
 import type { AgentTrackingRetentionSettingsWriteResultParseResult } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
+import {
+  AgentTrackingRetentionSettingsWriteResultParseState,
+} from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import type { DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
@@ -142,7 +145,7 @@ function retentionSettingsWritePreflight(
   if (writeResult === null) {
     return base;
   }
-  if (!writeResult.ok) {
+  if (writeResult.parseState === AgentTrackingRetentionSettingsWriteResultParseState.Failed) {
     return {
       ...base,
       parserReason: detailFromValue(writeResult.reason),
@@ -161,23 +164,23 @@ function retentionSettingsWritePreflight(
       value.sourceReadModelProofRefs.join(PortalFormatting.EventDetailSeparator)
     ),
     appliedRetentionWindowHours: detailFromValue(value.appliedRetentionWindowHours ?? 0),
-    appliedDeleteAfterAlertResolved: detailFromFlag(value.appliedDeleteAfterAlertResolved),
-    parentExportPrepared: detailFromFlag(value.parentExportPrepared),
-    remoteSyncEnabled: detailFromFlag(value.remoteSyncEnabled),
-    remoteAiEnabled: detailFromFlag(value.remoteAiEnabled),
+    appliedDeleteAfterAlertResolved: detailFromValue(value.appliedDeleteAfterAlertResolutionState),
+    parentExportPrepared: detailFromValue(value.parentExportState),
+    remoteSyncEnabled: detailFromValue(value.remoteSyncState),
+    remoteAiEnabled: detailFromValue(value.remoteAiState),
     localServiceStateRevision: detailFromValue(value.localServiceStateRevision ?? 0),
     localServiceStateSnapshotRef: detailFromValue(value.localServiceStateSnapshotRef),
-    durableSettingsPersistedRows: detailFromFlag(value.durableSettingsPersisted),
-    commandTransportClaimedRows: detailFromFlag(value.commandTransportClaimed),
-    serviceWritePreflightClaimedRows: detailFromFlag(value.serviceWritePreflightClaimed),
-    serviceMutationExecutedRows: detailFromFlag(value.serviceMutationExecuted),
-    platformRuntimeClaimedRows: detailFromFlag(value.platformRuntimeClaimed),
-    childDeviceDeliveryClaimedRows: detailFromFlag(value.childDeviceDeliveryClaimed),
-    providerDeliveryClaimedRows: detailFromFlag(value.providerDeliveryClaimed),
-    notificationReceiptClaimedRows: detailFromFlag(value.notificationReceiptClaimed),
-    physicalDeviceClaimedRows: detailFromFlag(value.physicalDeviceClaimed),
-    authorityClaimedRows: detailFromFlag(value.authorityClaimed),
-    productClaimReadyRows: detailFromFlag(value.productClaimReady),
+    durableSettingsPersistedRows: detailFromValue(value.durableSettingsPersistenceState),
+    commandTransportClaimedRows: detailFromValue(value.commandTransportClaimState),
+    serviceWritePreflightClaimedRows: detailFromValue(value.serviceWritePreflightClaimState),
+    serviceMutationExecutedRows: detailFromValue(value.serviceMutationExecutionState),
+    platformRuntimeClaimedRows: detailFromValue(value.platformRuntimeClaimState),
+    childDeviceDeliveryClaimedRows: detailFromValue(value.childDeviceDeliveryClaimState),
+    providerDeliveryClaimedRows: detailFromValue(value.providerDeliveryClaimState),
+    notificationReceiptClaimedRows: detailFromValue(value.notificationReceiptClaimState),
+    physicalDeviceClaimedRows: detailFromValue(value.physicalDeviceClaimState),
+    authorityClaimedRows: detailFromValue(value.authorityClaimState),
+    productClaimReadyRows: detailFromValue(value.productClaimState),
   };
 }
 
@@ -213,10 +216,6 @@ function emptyRetentionSettingsWritePreflight(): TrackingRetentionSettingsWriteP
     parserReason: notReported(),
     boundary: resolvePortalDevText(PortalDevTextToken.TrackingRetentionSettingsWritePreflightBoundary),
   };
-}
-
-function detailFromFlag(value: boolean): PortalDetailValue {
-  return detailFromValue(value ? 1 : 0);
 }
 
 function notReported(): PortalDetailValue {

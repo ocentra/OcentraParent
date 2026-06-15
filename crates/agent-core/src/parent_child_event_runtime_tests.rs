@@ -2,6 +2,8 @@ use ocentra_parent_agent_protocol::{
     constants, ChildCommandDecision, ChildCommandKind, ParentChildCommandDeliveryState,
     ParentChildCommandTransportBoundary, ParentCommandValidationState,
 };
+use ocentra_eventing::envelope::EventEnvelope;
+use ocentra_eventing::ids::{EventCustody, RuntimeRole};
 
 use super::{
     publish_parent_child_runtime_for_validated_intent, ParentChildRuntimeEventPayload,
@@ -36,7 +38,7 @@ async fn parent_child_runtime_publishes_validated_intent_before_child_handoff() 
     );
     assert_eq!(
         report.stored_events[0].source.role,
-        ocentra_eventing::RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)
+        RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)
             .expect(constants::eventing_source::ERROR_RUNTIME_ROLE_PARSES)
     );
 
@@ -111,7 +113,7 @@ async fn child_agent_receive_publishes_local_events_and_parent_read_model() {
     );
     assert_eq!(
         report.stored_events[4].source.custody,
-        ocentra_eventing::EventCustody::parse(constants::eventing_source::CUSTODY_LOCAL_JOURNAL)
+        EventCustody::parse(constants::eventing_source::CUSTODY_LOCAL_JOURNAL)
             .expect(constants::eventing_source::ERROR_EVENT_CUSTODY_PARSES)
     );
     assert_eq!(
@@ -165,9 +167,10 @@ fn decode_payloads(report: &ParentChildRuntimeReport) -> Vec<ParentChildRuntimeE
         .stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::EventEnvelope<ParentChildRuntimeEventPayload> = event
-                .decode()
-                .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES);
+            let envelope: EventEnvelope<ParentChildRuntimeEventPayload> =
+                event.decode().expect(
+                    constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES,
+                );
             envelope.payload
         })
         .collect()

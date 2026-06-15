@@ -1,6 +1,7 @@
-use ocentra_eventing::{
-    CorrelationId, EventId, EventType, EventingError, ReplayMode, SourceComponent,
-};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{CorrelationId, EventId, EventType, SourceComponent};
+use ocentra_eventing::replay::ReplayMode;
+
 
 use super::{
     NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,

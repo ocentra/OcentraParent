@@ -3,11 +3,17 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use ocentra_eventing::{
-    CorrelationId, EventBus, EventCustody, EventId, EventMetadata, EventSource, EventSubscriber,
-    EventType, EventingError, RecordedAt, RequestCompletionReport, RuntimeInstanceId, RuntimeRole,
-    SourceComponent, SourceService, SubscriberId, SubscriptionReport, TargetHandler,
+use ocentra_eventing::bus::reports::EventMetricsSnapshot;
+use ocentra_eventing::bus::subscriber::EventSubscriber;
+use ocentra_eventing::bus::subscriber::SubscriptionReport;
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::envelope::{EventMetadata, EventSource};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    CorrelationId, EventCustody, EventId, EventType, RecordedAt, RuntimeInstanceId, RuntimeRole,
+    SourceComponent, SourceService, SubscriberId, TargetHandler,
 };
+use ocentra_eventing::request::RequestCompletionReport;
 use ocentra_parent_agent_protocol::{
     constants, ParentNotificationRequestedEvent, TrackingAiAnalysisRequestedEvent,
     TrackingCheckInId, TrackingChildCheckInDeliveryState, TrackingChildCheckInRecordedEvent,
@@ -108,7 +114,7 @@ impl TrackingRuntimeEventFlow {
         self.report()
     }
 
-    pub async fn metrics_snapshot(&self) -> ocentra_eventing::EventMetricsSnapshot {
+    pub async fn metrics_snapshot(&self) -> EventMetricsSnapshot {
         self.bus.metrics_snapshot().await
     }
 

@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
-use ocentra_eventing::{SourceComponent, StoredEventEnvelope};
+use ocentra_eventing::envelope::StoredEventEnvelope;
+use ocentra_eventing::ids::SourceComponent;
 use ocentra_parent_agent_protocol::constants;
 
 use super::action_handoff::request_browser_runtime_action_intent_handoff_for_input;

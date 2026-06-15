@@ -1,11 +1,17 @@
 use std::sync::{Arc, Mutex};
 use std::{path::PathBuf, time::Duration};
 
-use ocentra_eventing::{
-    CorrelationId, EventBus, EventCustody, EventId, EventMetadata, EventSource, EventSubscriber,
-    EventType, EventingError, RecordedAt, RequestOptions, RequestReport, RuntimeInstanceId,
-    RuntimeRole, SourceComponent, SourceService, SubscriberId, SubscriptionReport, TargetHandler,
+use ocentra_eventing::bus::reports::EventMetricsSnapshot;
+use ocentra_eventing::bus::subscriber::SubscriptionReport;
+use ocentra_eventing::bus::subscriber::EventSubscriber;
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::envelope::{EventMetadata, EventSource, StoredEventEnvelope};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    CorrelationId, EventCustody, EventId, EventType, RecordedAt, RuntimeInstanceId, RuntimeRole,
+    SourceComponent, SourceService, SubscriberId, TargetHandler,
 };
+use ocentra_eventing::request::{RequestOptions, RequestReport};
 use ocentra_parent_agent_protocol::{
     child_tracking_config_updated_event_from_parent, constants,
     tracking_config_update_applied_event_from_child, ChildTrackingConfigUpdatedEvent,
@@ -94,11 +100,11 @@ impl TrackingConfigUpdateEventFlow {
         })
     }
 
-    pub async fn metrics_snapshot(&self) -> ocentra_eventing::EventMetricsSnapshot {
+    pub async fn metrics_snapshot(&self) -> EventMetricsSnapshot {
         self.bus.metrics_snapshot().await
     }
 
-    pub async fn journal_snapshot(&self) -> Vec<ocentra_eventing::StoredEventEnvelope> {
+    pub async fn journal_snapshot(&self) -> Vec<StoredEventEnvelope> {
         self.bus.journal().await
     }
 }

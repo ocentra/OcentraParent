@@ -10,7 +10,7 @@ use ocentra_entitlement_core::entitlement_access::{
     EntitlementSnapshotFreshnessState, EntitlementSnapshotSignatureState,
     FamilySetupState, OfflineGraceState, SubscriptionState,
 };
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 
 const ENTITLEMENT_AGGREGATE_ID: &str = "entitlement-household-default";
 const ENTITLEMENT_EVALUATION_ID: &str = "entitlement-evaluation-default";

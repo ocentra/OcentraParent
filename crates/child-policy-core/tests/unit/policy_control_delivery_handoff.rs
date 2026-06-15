@@ -1,7 +1,7 @@
 use ocentra_child_policy_core::policy_control_delivery_handoff::{
     apply_policy_control_delivery_handoff, queue_policy_control_delivery_handoff,
 };
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
     PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliverySequence,
     PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,

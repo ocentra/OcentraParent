@@ -1,6 +1,5 @@
 import {
   type Infer,
-  Schema,
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';

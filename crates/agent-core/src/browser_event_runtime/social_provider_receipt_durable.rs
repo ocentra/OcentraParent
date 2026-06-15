@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
-use ocentra_eventing::{SourceComponent, StoredEventEnvelope};
+use ocentra_eventing::envelope::StoredEventEnvelope;
+use ocentra_eventing::ids::SourceComponent;
 use ocentra_parent_agent_protocol::constants;
 
 use super::social_provider_receipt::{

@@ -1,13 +1,16 @@
 use ocentra_parent_agent_protocol::constants;
 
-use crate::network_event_runtime::{
+use crate::network_event_runtime::remote_delivery_delete_export_propagation::{
     prove_network_runtime_remote_delivery_delete_export_propagation,
     prove_network_runtime_remote_delivery_delete_export_propagation_from_fixture_transport,
-    prove_network_runtime_remote_delivery_fixture_transport,
+};
+use crate::network_event_runtime::remote_delivery_delete_export_propagation_types::{
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationState,
 };
+use crate::network_event_runtime::remote_delivery_fixture_transport::
+    prove_network_runtime_remote_delivery_fixture_transport;
 
 #[tokio::test]
 async fn network_runtime_remote_delivery_delete_export_propagation_records_readiness_refs() {

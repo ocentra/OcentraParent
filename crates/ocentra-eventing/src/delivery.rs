@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{EventNamespace, EventType, SourceComponent, SubscriberId, TargetHandler};
+use crate::ids::{EventNamespace, EventType, SourceComponent, SubscriberId, TargetHandler};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]

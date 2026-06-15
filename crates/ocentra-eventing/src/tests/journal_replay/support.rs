@@ -5,10 +5,13 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::{
-    EventBus, EventEnvelope, EventJournal, EventType, EventingError, JournalAppend, JournalPolicy,
-    StoredEventEnvelope,
-};
+use crate::bus::EventBus;
+use crate::envelope::EventEnvelope;
+use crate::journal::{EventJournal, JournalAppend, policy::JournalPolicy};
+use crate::error::EventingError;
+use crate::ids::EventType;
+use crate::envelope::StoredEventEnvelope;
+use crate::sync::lock_unpoison;
 
 use super::super::fixtures::{metadata, subscriber, TestEvent, TEST_SUBSCRIBER, TEST_TARGET};
 
@@ -19,29 +22,28 @@ pub(super) fn bus_with_recording_journal(
     EventBus::with_journal(policy, Arc::new(RecordingJournal { log }))
 }
 
-pub(super) async fn subscribe_log_handler(bus: &EventBus, log: Arc<Mutex<Vec<String>>>) {
+pub(super) async fn subscribe_log_handler(
+    bus: &EventBus,
+    log: Arc<Mutex<Vec<String>>>,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |_| {
         let log = Arc::clone(&log);
         async move {
-            log.lock()
-                .expect("recording log")
-                .push(String::from("handler"));
+            lock_unpoison(&log).push(String::from("handler"));
             Ok(())
         }
     })
     .await
-    .expect("subscriber registers");
+    ?;
+    Ok(())
 }
 
-pub(super) fn stored_event(event: TestEvent) -> StoredEventEnvelope {
-    EventEnvelope::from_event(event, metadata(TEST_TARGET))
-        .expect("envelope builds")
-        .store()
-        .expect("stored envelope builds")
+pub(super) fn stored_event(event: TestEvent) -> Result<StoredEventEnvelope, EventingError> {
+    EventEnvelope::from_event(event, metadata(TEST_TARGET))?.store()
 }
 
-pub(super) fn event_type(value: &str) -> EventType {
-    EventType::parse(value).expect("event type parses")
+pub(super) fn event_type(value: &str) -> Result<EventType, EventingError> {
+    EventType::parse(value)
 }
 
 pub(super) fn shared_log() -> Arc<Mutex<Vec<String>>> {
@@ -49,45 +51,48 @@ pub(super) fn shared_log() -> Arc<Mutex<Vec<String>>> {
 }
 
 pub(super) fn snapshot(log: &Arc<Mutex<Vec<String>>>) -> Vec<String> {
-    log.lock().expect("recording log").clone()
+    lock_unpoison(log).clone()
 }
 
 pub(super) fn journal_path(label: &str) -> PathBuf {
     std::env::temp_dir().join(format!(
         "ocentra-eventing-{label}-{}-{}.ndjson",
         std::process::id(),
-        crate::EventId::generated().as_str()
+        crate::ids::EventId::generated().as_str()
     ))
 }
 
-pub(super) async fn read_lines(path: &PathBuf) -> Vec<String> {
-    tokio::fs::read_to_string(path)
-        .await
-        .expect("journal file reads")
-        .lines()
-        .map(String::from)
-        .collect()
+pub(super) async fn read_lines(
+    path: &PathBuf,
+) -> Result<Vec<String>, Box<dyn std::error::Error + Send + Sync>> {
+    Ok(tokio::fs::read_to_string(path).await?.lines().map(String::from).collect())
 }
 
-pub(super) async fn write_lines(path: &PathBuf, lines: &[String]) {
+pub(super) async fn write_lines(
+    path: &PathBuf,
+    lines: &[String],
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut content = lines.join("\n");
     content.push('\n');
-    tokio::fs::write(path, content)
-        .await
-        .expect("journal file writes");
+    tokio::fs::write(path, content).await?;
+    Ok(())
 }
 
-pub(super) async fn tamper_first_journal_payload_label(path: &PathBuf, label: &str) {
-    let mut lines = read_lines(path).await;
-    let mut entry: serde_json::Value =
-        serde_json::from_str(&lines[0]).expect("journal line decodes as value");
+pub(super) async fn tamper_first_journal_payload_label(
+    path: &PathBuf,
+    label: &str,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let mut lines = read_lines(path).await?;
+    let mut entry: serde_json::Value = serde_json::from_str(&lines[0])?;
     entry["envelope"]["payload"]["label"] = serde_json::Value::String(label.to_string());
-    lines[0] = serde_json::to_string(&entry).expect("journal value encodes");
-    write_lines(path, &lines).await;
+    lines[0] = serde_json::to_string(&entry)?;
+    write_lines(path, &lines).await?;
+    Ok(())
 }
 
-pub(super) async fn cleanup(path: &PathBuf) {
+pub(super) async fn cleanup(path: &PathBuf) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let _ = tokio::fs::remove_file(path).await;
+    Ok(())
 }
 
 struct RecordingJournal {
@@ -100,7 +105,7 @@ impl EventJournal for RecordingJournal {
         envelope: &'a StoredEventEnvelope,
     ) -> Pin<Box<dyn Future<Output = Result<JournalAppend, EventingError>> + Send + 'a>> {
         Box::pin(async move {
-            let mut log = self.log.lock().expect("recording log");
+            let mut log = lock_unpoison(&self.log);
             log.push(format!("journal:{}", envelope.contract.event_type.as_str()));
             Ok(JournalAppend {
                 sequence: log.len() as u64,

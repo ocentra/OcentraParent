@@ -1,6 +1,10 @@
-use ocentra_eventing::EventCompatibilityMatrix;
+use std::io::{self, Write};
 
-fn main() {
+use ocentra_eventing::compatibility::EventCompatibilityMatrix;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let matrix = EventCompatibilityMatrix::ocentra_games_lineage();
-    print!("{}", matrix.render_markdown());
+    let mut stdout = io::stdout().lock();
+    stdout.write_all(matrix.render_markdown().as_bytes())?;
+    Ok(())
 }

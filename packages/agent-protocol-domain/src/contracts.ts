@@ -6,50 +6,33 @@ import {
   type LogFields,
   type LogLevel,
 } from '@ocentra-parent/logging-domain/contracts';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   AgentCorrelationIdSchema,
+  AgentEventAcknowledgementState as AgentEventAcknowledgementStateValue,
+  AgentEventAcknowledgementStateLiteral,
+  AgentEventAcknowledgementStateSchema,
+  AgentEventDeliveryMode as AgentEventDeliveryModeValue,
+  AgentEventDeliveryModeLiteral,
+  AgentEventDeliveryModeSchema,
   AgentDeviceIdSchema,
   AgentEventIdSchema,
   AgentMessageIdSchema,
   AgentMessageTargetSchema,
   AgentPeerSchema,
-  AgentProtocolSchemaVersion,
-  AgentTimestampSchema,
-  AgentWebSocketUrlSchema,
-  SerializedAgentMessageSchema,
-} from '@ocentra-parent/evidence-domain/primitives';
-import {
-  AgentLanBrowserRuntimeCommandNameLiteral,
-  AgentLanBrowserRuntimeEventNameLiteral,
-} from './lan-pairing-browser-runtime';
-export { AgentProtocolDefaults } from './defaults';
-
-export {
-  AgentCorrelationIdSchema,
-  AgentDeviceIdSchema,
-  AgentEventIdSchema,
-  AgentMessageIdSchema,
-  AgentMessageTargetSchema,
   AgentPeerIdSchema,
   AgentPeerRoleLiteral,
   AgentPeerRoleSchema,
-  AgentPeerSchema,
   AgentPlatformSchema,
   AgentProtocolSchemaVersion,
   AgentRouteLiteral,
   AgentRouteSchema,
-  AgentEventDeliveryMode,
-  AgentEventDeliveryModeLiteral,
-  AgentEventDeliveryModeSchema,
-  AgentEventAcknowledgementState,
-  AgentEventAcknowledgementStateLiteral,
-  AgentEventAcknowledgementStateSchema,
   AgentTimestampSchema,
-  AgentWebSocketUrlSchema,
   SerializedAgentMessageSchema,
   type AgentCorrelationId,
   type AgentDeviceId,
+  type AgentEventAcknowledgementState as AgentEventAcknowledgementStateType,
+  type AgentEventDeliveryMode as AgentEventDeliveryModeType,
   type AgentEventId,
   type AgentMessageId,
   type AgentMessageTarget,
@@ -58,13 +41,16 @@ export {
   type AgentPeerRole,
   type AgentPlatform,
   type AgentRoute,
-  type AgentEventDeliveryMode,
-  type AgentEventAcknowledgementState,
   type AgentTimestamp,
-  type AgentWebSocketUrl,
   type SerializedAgentMessage,
-} from '@ocentra-parent/evidence-domain/primitives';
-export {
+} from '@ocentra-parent/event-domain/primitives';
+import {
+  AgentLanBrowserRuntimeCommandNameLiteral,
+  AgentLanBrowserRuntimeEventNameLiteral,
+} from './lan-pairing-browser-runtime';
+import { AgentProtocolDefaults } from './defaults';
+import {
+  parseAgentBrowserRuntimeEventChainStreamFields,
   AgentBrowserRuntimeCapabilityStatus,
   AgentBrowserRuntimeCapabilityStatusSchema,
   AgentBrowserRuntimeCustodyLabel,
@@ -80,7 +66,6 @@ export {
   AgentBrowserRuntimeQueryVisibilitySchema,
   deriveAgentBrowserRuntimeActionIntentStatus,
   deriveAgentBrowserRuntimeSocialProviderReceiptStatus,
-  parseAgentBrowserRuntimeEventChainStreamFields,
   type AgentBrowserRuntimeActionIntentCandidate,
   type AgentBrowserRuntimeActionIntentStatus,
   type AgentBrowserRuntimeEventChainEntry,
@@ -90,7 +75,7 @@ export {
   type AgentBrowserRuntimeEventPayload,
   type AgentBrowserRuntimeSocialProviderReceiptStatus,
 } from './browser-runtime-events';
-export {
+import {
   AgentLanBrowserAddDeviceDiscoveryDeviceSchema,
   AgentLanBrowserAddDevicePairingRequestSchema,
   AgentLanBrowserAddDeviceReadModelSchema,
@@ -110,7 +95,31 @@ export {
   type AgentLanSelectedDeviceReadiness,
   type AgentLanTrustedDeviceRegistryEntry,
 } from './lan-pairing-browser-add-device-state';
-export {
+import {
+  AgentLanDiscoverySourceAuthoritySchema,
+  AgentLanDiscoverySourceKindSchema,
+  AgentLanDiscoverySourceMatrixSchema,
+  AgentLanDiscoverySourceProofStateSchema,
+  AgentLanDiscoverySourceRowSchema,
+  AgentLanDiscoverySourceRuntimeOwnerSchema,
+  AgentLanDiscoverySourceRuntimePathSchema,
+  AgentLanDiscoverySourceStatusSchema,
+  AgentLanDiscoverySourceUiSurfaceSchema,
+  AgentLanPlanWorkpackIdSchema,
+  AgentLanPlanWorkpackStatusRowSchema,
+  type AgentLanDiscoverySourceAuthority,
+  type AgentLanDiscoverySourceKind,
+  type AgentLanDiscoverySourceMatrix,
+  type AgentLanDiscoverySourceProofState,
+  type AgentLanDiscoverySourceRow,
+  type AgentLanDiscoverySourceRuntimeOwner,
+  type AgentLanDiscoverySourceRuntimePath,
+  type AgentLanDiscoverySourceStatus,
+  type AgentLanDiscoverySourceUiSurface,
+  type AgentLanPlanWorkpackId,
+  type AgentLanPlanWorkpackStatusRow,
+} from './lan-discovery-source-matrix';
+import {
   AgentLanSignedDiscoveryRelayAdapterKindSchema,
   AgentLanSignedDiscoveryRelayAdapterRowSchema,
   AgentLanSignedDiscoveryRelayCacheCheckSchema,
@@ -140,31 +149,7 @@ export {
   type AgentLanSignedDiscoveryRelaySourceConfidence,
   type AgentLanSignedDiscoveryRelaySpine,
 } from './lan-signed-discovery-relay-spine';
-export {
-  AgentLanDiscoverySourceAuthoritySchema,
-  AgentLanDiscoverySourceKindSchema,
-  AgentLanDiscoverySourceMatrixSchema,
-  AgentLanDiscoverySourceProofStateSchema,
-  AgentLanDiscoverySourceRowSchema,
-  AgentLanDiscoverySourceRuntimeOwnerSchema,
-  AgentLanDiscoverySourceRuntimePathSchema,
-  AgentLanDiscoverySourceStatusSchema,
-  AgentLanDiscoverySourceUiSurfaceSchema,
-  AgentLanPlanWorkpackIdSchema,
-  AgentLanPlanWorkpackStatusRowSchema,
-  type AgentLanDiscoverySourceAuthority,
-  type AgentLanDiscoverySourceKind,
-  type AgentLanDiscoverySourceMatrix,
-  type AgentLanDiscoverySourceProofState,
-  type AgentLanDiscoverySourceRow,
-  type AgentLanDiscoverySourceRuntimeOwner,
-  type AgentLanDiscoverySourceRuntimePath,
-  type AgentLanDiscoverySourceStatus,
-  type AgentLanDiscoverySourceUiSurface,
-  type AgentLanPlanWorkpackId,
-  type AgentLanPlanWorkpackStatusRow,
-} from './lan-discovery-source-matrix';
-export {
+import {
   AgentLanBrowserAddDeviceRequestSchema,
   AgentLanBrowserDiscoveryScanRequestSchema,
   AgentLanBrowserRuntimeCommandSchema,
@@ -174,7 +159,7 @@ export {
   type AgentLanBrowserRuntimeCommand,
   type AgentLanBrowserRuntimeEvent,
 } from './lan-pairing-browser-runtime';
-export {
+import {
   AgentLanPairingAddressRefSchema,
   AgentLanPairingAuditEventSchema,
   AgentLanPairingChallengeIdSchema,
@@ -229,6 +214,234 @@ export {
   type AgentPairingTokenHash,
   type AgentRouteSecurityPolicy,
 } from './security';
+export const AgentWebSocketUrlSchema = NonEmptyStringSchema.pipe(Schema.brand('AgentWebSocketUrl'));
+export type AgentWebSocketUrl = typeof AgentWebSocketUrlSchema.Type;
+export { AgentProtocolDefaults };
+
+export const AgentEventAcknowledgementState = AgentEventAcknowledgementStateValue;
+export const AgentEventDeliveryMode = AgentEventDeliveryModeValue;
+
+export {
+  AgentCorrelationIdSchema,
+  AgentDeviceIdSchema,
+  AgentEventAcknowledgementStateLiteral,
+  AgentEventAcknowledgementStateSchema,
+  AgentEventDeliveryModeLiteral,
+  AgentEventDeliveryModeSchema,
+  AgentEventIdSchema,
+  AgentMessageIdSchema,
+  AgentMessageTargetSchema,
+  AgentPeerIdSchema,
+  AgentPeerRoleLiteral,
+  AgentPeerRoleSchema,
+  AgentPeerSchema,
+  AgentPlatformSchema,
+  AgentProtocolSchemaVersion,
+  AgentRouteLiteral,
+  AgentRouteSchema,
+  AgentTimestampSchema,
+  SerializedAgentMessageSchema,
+};
+export type AgentEventAcknowledgementState = AgentEventAcknowledgementStateType;
+export type AgentEventDeliveryMode = AgentEventDeliveryModeType;
+
+export type {
+  AgentCorrelationId,
+  AgentDeviceId,
+  AgentEventId,
+  AgentMessageId,
+  AgentMessageTarget,
+  AgentPeer,
+  AgentPeerId,
+  AgentPeerRole,
+  AgentPlatform,
+  AgentRoute,
+  AgentTimestamp,
+  SerializedAgentMessage,
+};
+
+export {
+  AgentBrowserRuntimeCapabilityStatus,
+  AgentBrowserRuntimeCapabilityStatusSchema,
+  AgentBrowserRuntimeCustodyLabel,
+  AgentBrowserRuntimeCustodyLabelSchema,
+  AgentBrowserRuntimeEventChainEntrySchema,
+  AgentBrowserRuntimeEventChainStreamSchema,
+  AgentBrowserRuntimeEventPayloadSchema,
+  AgentBrowserRuntimeEventType,
+  AgentBrowserRuntimeEventTypeSchema,
+  AgentBrowserRuntimePhase,
+  AgentBrowserRuntimePhaseSchema,
+  AgentBrowserRuntimeQueryVisibility,
+  AgentBrowserRuntimeQueryVisibilitySchema,
+  deriveAgentBrowserRuntimeActionIntentStatus,
+  deriveAgentBrowserRuntimeSocialProviderReceiptStatus,
+  parseAgentBrowserRuntimeEventChainStreamFields,
+};
+export type {
+  AgentBrowserRuntimeActionIntentCandidate,
+  AgentBrowserRuntimeActionIntentStatus,
+  AgentBrowserRuntimeEventChainEntry,
+  AgentBrowserRuntimeEventChainStream,
+  AgentBrowserRuntimeEventChainStreamFailureReason,
+  AgentBrowserRuntimeEventChainStreamResult,
+  AgentBrowserRuntimeEventPayload,
+  AgentBrowserRuntimeSocialProviderReceiptStatus,
+};
+
+export {
+  AgentLanBrowserAddDeviceDiscoveryDeviceSchema,
+  AgentLanBrowserAddDevicePairingRequestSchema,
+  AgentLanBrowserAddDeviceReadModelSchema,
+  AgentLanBrowserAddDeviceScanSummarySchema,
+  AgentLanCanonicalHouseholdDeviceSchema,
+  AgentLanHouseholdDeviceActionKindSchema,
+  AgentLanPairingDiscoverySourceSchema,
+  AgentLanSelectedDeviceReadinessSchema,
+  AgentLanTrustedDeviceRegistryEntrySchema,
+};
+export type {
+  AgentLanBrowserAddDeviceDiscoveryDevice,
+  AgentLanBrowserAddDevicePairingRequest,
+  AgentLanBrowserAddDeviceReadModel,
+  AgentLanBrowserAddDeviceScanSummary,
+  AgentLanCanonicalHouseholdDevice,
+  AgentLanHouseholdDeviceActionKind,
+  AgentLanPairingDiscoverySource,
+  AgentLanSelectedDeviceReadiness,
+  AgentLanTrustedDeviceRegistryEntry,
+};
+
+export {
+  AgentLanDiscoverySourceAuthoritySchema,
+  AgentLanDiscoverySourceKindSchema,
+  AgentLanDiscoverySourceMatrixSchema,
+  AgentLanDiscoverySourceProofStateSchema,
+  AgentLanDiscoverySourceRowSchema,
+  AgentLanDiscoverySourceRuntimeOwnerSchema,
+  AgentLanDiscoverySourceRuntimePathSchema,
+  AgentLanDiscoverySourceStatusSchema,
+  AgentLanDiscoverySourceUiSurfaceSchema,
+  AgentLanPlanWorkpackIdSchema,
+  AgentLanPlanWorkpackStatusRowSchema,
+};
+export type {
+  AgentLanDiscoverySourceAuthority,
+  AgentLanDiscoverySourceKind,
+  AgentLanDiscoverySourceMatrix,
+  AgentLanDiscoverySourceProofState,
+  AgentLanDiscoverySourceRow,
+  AgentLanDiscoverySourceRuntimeOwner,
+  AgentLanDiscoverySourceRuntimePath,
+  AgentLanDiscoverySourceStatus,
+  AgentLanDiscoverySourceUiSurface,
+  AgentLanPlanWorkpackId,
+  AgentLanPlanWorkpackStatusRow,
+};
+
+export {
+  AgentLanSignedDiscoveryRelayAdapterKindSchema,
+  AgentLanSignedDiscoveryRelayAdapterRowSchema,
+  AgentLanSignedDiscoveryRelayCacheCheckSchema,
+  AgentLanSignedDiscoveryRelayCacheRowSchema,
+  AgentLanSignedDiscoveryRelayCustodyLabelSchema,
+  AgentLanSignedDiscoveryRelayDecisionStateSchema,
+  AgentLanSignedDiscoveryRelayProofStateSchema,
+  AgentLanSignedDiscoveryRelayRuntimeOwnerSchema,
+  AgentLanSignedDiscoveryRelayRouteSafetyCheckSchema,
+  AgentLanSignedDiscoveryRelayRouteSafetyRowSchema,
+  AgentLanSignedDiscoveryRelaySignedProofCheckSchema,
+  AgentLanSignedDiscoveryRelaySignedProofRowSchema,
+  AgentLanSignedDiscoveryRelaySourceConfidenceSchema,
+  AgentLanSignedDiscoveryRelaySpineSchema,
+};
+export type {
+  AgentLanSignedDiscoveryRelayAdapterKind,
+  AgentLanSignedDiscoveryRelayAdapterRow,
+  AgentLanSignedDiscoveryRelayCacheCheck,
+  AgentLanSignedDiscoveryRelayCacheRow,
+  AgentLanSignedDiscoveryRelayCustodyLabel,
+  AgentLanSignedDiscoveryRelayDecisionState,
+  AgentLanSignedDiscoveryRelayProofState,
+  AgentLanSignedDiscoveryRelayRuntimeOwner,
+  AgentLanSignedDiscoveryRelayRouteSafetyCheck,
+  AgentLanSignedDiscoveryRelayRouteSafetyRow,
+  AgentLanSignedDiscoveryRelaySignedProofCheck,
+  AgentLanSignedDiscoveryRelaySignedProofRow,
+  AgentLanSignedDiscoveryRelaySourceConfidence,
+  AgentLanSignedDiscoveryRelaySpine,
+};
+
+export {
+  AgentLanBrowserAddDeviceRequestSchema,
+  AgentLanBrowserDiscoveryScanRequestSchema,
+  AgentLanBrowserRuntimeCommandSchema,
+  AgentLanBrowserRuntimeEventSchema,
+};
+export type {
+  AgentLanBrowserAddDeviceRequest,
+  AgentLanBrowserDiscoveryScanRequest,
+  AgentLanBrowserRuntimeCommand,
+  AgentLanBrowserRuntimeEvent,
+};
+
+export {
+  AgentLanPairingAddressRefSchema,
+  AgentLanPairingAuditEventSchema,
+  AgentLanPairingChallengeIdSchema,
+  AgentLanPairingChallengeSchema,
+  AgentLanChildAgentResponseSchema,
+  AgentLanPairingDeviceRefSchema,
+  AgentLanPairingDiscoveryDeviceSchema,
+  AgentLanPairingIntentIdSchema,
+  AgentLanPairingIntentKindSchema,
+  AgentLanPairingNetworkModeSchema,
+  AgentLanPairingParentAuthoritySchema,
+  AgentLanPairingProductionDiscoveryStateSchema,
+  AgentLanParentIntentEnvelopeSchema,
+  AgentLanPairingProofDigestSchema,
+  AgentLanPairingProofPreviewSchema,
+  AgentLanPairingRejectionReasonSchema,
+  AgentLanPairingResponseStateSchema,
+  AgentLanPairingRouteIdSchema,
+  AgentLanPairingRuntimeSupportStatusSchema,
+  AgentLanAiProviderRoutingStateSchema,
+  AgentPairingIdSchema,
+  AgentLanSelectedDeviceReachabilitySchema,
+  AgentLanSelectedRouteTrustStateSchema,
+  AgentPairingProofSchema,
+  AgentPairingStateSchema,
+  AgentPairingTokenHashSchema,
+  AgentRouteSecurityPolicySchema,
+};
+export type {
+  AgentLanPairingAddressRef,
+  AgentLanPairingChallenge,
+  AgentLanPairingChallengeId,
+  AgentLanChildAgentResponse,
+  AgentLanPairingDeviceRef,
+  AgentLanPairingDiscoveryDevice,
+  AgentLanPairingIntentId,
+  AgentLanPairingIntentKind,
+  AgentLanPairingNetworkMode,
+  AgentLanPairingParentAuthority,
+  AgentLanPairingProductionDiscoveryState,
+  AgentLanParentIntentEnvelope,
+  AgentLanPairingProofDigest,
+  AgentLanPairingProofPreview,
+  AgentLanPairingRejectionReason,
+  AgentLanPairingResponseState,
+  AgentLanPairingRouteId,
+  AgentLanPairingRuntimeSupportStatus,
+  AgentLanAiProviderRoutingState,
+  AgentPairingId,
+  AgentLanSelectedDeviceReachability,
+  AgentLanSelectedRouteTrustState,
+  AgentPairingProof,
+  AgentPairingState,
+  AgentPairingTokenHash,
+  AgentRouteSecurityPolicy,
+};
 
 export const AgentCommandNameLiteral = {
   HealthCheck: 'agent.health.check',
@@ -630,7 +843,12 @@ export type AgentProtocolSnapshot = AgentLogSnapshot;
 export const decodeAgentDeviceId = Schema.decodeUnknownSync(AgentDeviceIdSchema);
 export const decodeAgentMessageId = Schema.decodeUnknownSync(AgentMessageIdSchema);
 export const decodeAgentTimestamp = Schema.decodeUnknownSync(AgentTimestampSchema);
-export const decodeAgentWebSocketUrl = Schema.decodeUnknownSync(AgentWebSocketUrlSchema);
+export function decodeAgentWebSocketUrl(value: unknown): AgentWebSocketUrl {
+  if (typeof value !== 'string' || value.length === 0) {
+    throw new Error('Expected AgentWebSocketUrl to be a non-empty string');
+  }
+  return value as AgentWebSocketUrl;
+}
 export const decodeSerializedAgentMessage = Schema.decodeUnknownSync(SerializedAgentMessageSchema);
 
 export function isAgentProtocolLogText(value: unknown): value is string {
@@ -638,47 +856,37 @@ export function isAgentProtocolLogText(value: unknown): value is string {
 }
 
 export {
-  parseAgentSocialAlertReportReadModelEvent,
-  SocialAlertReportReadModelSnapshotSchema,
-  type AgentSocialAlertReportReadModelFailureReason,
-  type AgentSocialAlertReportReadModelResult,
-  type SocialAlertReportReadModelIntent,
-  type SocialAlertReportReadModelSnapshot,
-} from './social-alert-report-read-model';
-
-export {
-  parseAgentSocialParentNotificationDeliveryReadModelEvent,
-  SocialParentNotificationDeliveryReadModelSnapshotSchema,
-  type AgentSocialParentNotificationDeliveryReadModelFailureReason,
-  type AgentSocialParentNotificationDeliveryReadModelResult,
-  type SocialParentNotificationDeliveryReadModelRow,
-  type SocialParentNotificationDeliveryReadModelSnapshot,
-} from './social-parent-notification-delivery-read-model';
-export {
   parseAgentSocialAlertReportParentSurfaceReadModelEvent,
   SocialAlertReportParentSurfaceReadModelSnapshotSchema,
-  type AgentSocialAlertReportParentSurfaceReadModelFailureReason,
-  type AgentSocialAlertReportParentSurfaceReadModelResult,
-  type SocialAlertReportParentSurfaceReadModelRow,
-  type SocialAlertReportParentSurfaceReadModelSnapshot,
+} from './social-alert-report-parent-surface-read-model';
+export type {
+  AgentSocialAlertReportParentSurfaceReadModelFailureReason,
+  AgentSocialAlertReportParentSurfaceReadModelResult,
+  SocialAlertReportParentSurfaceReadModelRow,
+  SocialAlertReportParentSurfaceReadModelSnapshot,
 } from './social-alert-report-parent-surface-read-model';
 
 export {
   parseAgentSocialSourceCustodyMutationEvent,
   SocialSourceCustodyMutationSnapshotSchema,
-  type AgentSocialSourceCustodyMutationFailureReason,
-  type AgentSocialSourceCustodyMutationResult,
-  type SocialSourceCustodyMutationSettings,
-  type SocialSourceCustodyMutationSnapshot,
 } from './social-source-custody-mutation';
+export type {
+  AgentSocialSourceCustodyMutationFailureReason,
+  AgentSocialSourceCustodyMutationResult,
+  SocialSourceCustodyMutationSettings,
+  SocialSourceCustodyMutationSnapshot,
+} from './social-source-custody-mutation';
+
 export {
   AppGameTimerParentPreferenceSetupRequestResultSchema,
   AppGameTimerParentPreferenceSetupRequestSchema,
   parseAgentAppGameTimerParentPreferenceSetupRequestEvent,
-  type AgentAppGameTimerParentPreferenceSetupRequestFailureReason,
-  type AgentAppGameTimerParentPreferenceSetupRequestResult,
-  type AppGameTimerParentPreferenceSetupRequest,
-  type AppGameTimerParentPreferenceSetupRequestResult,
+} from './app-game-timer-parent-preference-setup-request';
+export type {
+  AgentAppGameTimerParentPreferenceSetupRequestFailureReason,
+  AgentAppGameTimerParentPreferenceSetupRequestResult,
+  AppGameTimerParentPreferenceSetupRequest,
+  AppGameTimerParentPreferenceSetupRequestResult,
 } from './app-game-timer-parent-preference-setup-request';
 
 export const AgentCommand = {

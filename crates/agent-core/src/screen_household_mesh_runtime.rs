@@ -1,8 +1,13 @@
-use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventCustody, EventId,
-    EventMetadata, EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey,
-    RecordedAt, RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId,
-    TargetHandler,
+use ocentra_eventing::bus::reports::{DeadLetter, PublishReport};
+use ocentra_eventing::bus::subscriber::EventSubscriber;
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::envelope::{
+    DomainEvent, EventContract, EventMetadata, EventSource, StoredEventEnvelope,
+};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey, RecordedAt,
+    RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId, TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
@@ -163,9 +168,9 @@ impl DomainEvent for ScreenHouseholdMeshEventPayload {
 
 #[derive(Clone, Debug)]
 pub struct ScreenHouseholdMeshReport {
-    pub publish_reports: Vec<ocentra_eventing::PublishReport>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub publish_reports: Vec<PublishReport>,
+    pub stored_events: Vec<StoredEventEnvelope>,
+    pub dead_letters: Vec<DeadLetter>,
 }
 
 impl ScreenHouseholdMeshReport {

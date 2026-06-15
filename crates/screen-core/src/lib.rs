@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-mod runtime_decision;
+pub mod runtime_decision;
 
 use ocentra_parent_agent_protocol::{
     child_domain_ai_analysis_requested_event_if_required,
@@ -14,14 +14,6 @@ use ocentra_parent_agent_protocol::{
 use serde::{Deserialize, Serialize};
 
 pub const CRATE_NAME: &str = "ocentra-screen-core";
-
-pub use runtime_decision::{
-    evaluate_screen_runtime, screen_runtime_decision_recorded_event,
-    screen_runtime_input_from_capture, screen_runtime_observed_event, ScreenAggregateId,
-    ScreenAiHandoffState, ScreenCaptureScheduleState, ScreenContentSignalState,
-    ScreenPolicyHandoffState, ScreenRuntimeActionState, ScreenRuntimeDecision,
-    ScreenRuntimeDecisionId, ScreenRuntimeDecisionRecordedEvent, ScreenRuntimeInput,
-};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ScreenObservationIntent {

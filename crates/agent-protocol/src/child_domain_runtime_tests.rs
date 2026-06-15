@@ -1,4 +1,4 @@
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 
 use crate::{
     child_domain_ai_analysis_completed_event, child_domain_ai_analysis_requested_event,

@@ -1,5 +1,5 @@
 use crate::constants;
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use serde::{Deserialize, Serialize};
 
 macro_rules! tracking_text_identifier {

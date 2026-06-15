@@ -185,6 +185,10 @@ pub fn plan_network_apple_network_extension_gate(
         gate_state == NetworkAppleNetworkExtensionGateState::AppleEntitlementProofReady;
     let supervision_authority_proved =
         input.supervision_required && artifacts.supervision_or_mdm_proof_ref.is_some();
+    let policy_mapping = input.policy_mapping;
+    let platform = input.platform;
+    let capability_state = input.capability_state;
+    let supervision_required = input.supervision_required;
 
     Ok(NetworkAppleNetworkExtensionGateProof {
         apple_network_extension_gate_ref: normalized.apple_network_extension_gate_ref,
@@ -192,11 +196,11 @@ pub fn plan_network_apple_network_extension_gate(
         parent_rule_ref: normalized.parent_rule_ref,
         evidence_refs: normalized.evidence_refs,
         local_ai_result_ref: normalized.local_ai_result_ref,
-        evidence_grade: input.policy_mapping.evidence_grade,
-        platform: input.platform,
+        evidence_grade: policy_mapping.evidence_grade,
+        platform,
         bundle_ref: normalized.bundle_ref,
         network_extension_ref: normalized.network_extension_ref,
-        capability_state: input.capability_state,
+        capability_state,
         gate_state,
         boundary_reasons,
         missing_required_artifacts,
@@ -209,7 +213,7 @@ pub fn plan_network_apple_network_extension_gate(
         extension_configuration_proof_ref: artifacts.extension_configuration_proof_ref,
         rollback_plan_ref: artifacts.rollback_plan_ref,
         audit_event_ref: artifacts.audit_event_ref,
-        supervision_required: input.supervision_required,
+        supervision_required,
         supervision_or_mdm_proof_ref: artifacts.supervision_or_mdm_proof_ref,
         apple_entitlement_proof_ready,
         supervision_authority_proved,

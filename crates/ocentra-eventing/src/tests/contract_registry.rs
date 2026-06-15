@@ -1,17 +1,18 @@
-use crate::{
-    tests::fixtures::{test_event, test_event_for_type, OTHER_EVENT_TYPE, TEST_EVENT_TYPE},
-    EventContractRegistry, EventType, EventingError,
-};
+use crate::contract_registry::EventContractRegistry;
+use crate::error::EventingError;
+use crate::ids::EventType;
+use crate::tests::fixtures::{test_event, test_event_for_type, OTHER_EVENT_TYPE, TEST_EVENT_TYPE};
+use std::error::Error;
 
 #[test]
-fn contract_registry_generates_markdown_in_event_type_order() {
+fn contract_registry_generates_markdown_in_event_type_order() -> Result<(), Box<dyn Error>> {
     let mut registry = EventContractRegistry::new();
     registry
         .register_event(&test_event_for_type("second", OTHER_EVENT_TYPE))
-        .expect("other event registers");
+        ?;
     registry
         .register_event(&test_event("first"))
-        .expect("test event registers");
+        ?;
 
     let descriptors = registry
         .descriptors()
@@ -29,39 +30,45 @@ fn contract_registry_generates_markdown_in_event_type_order() {
     assert!(markdown.contains("| eventing.test.other | 1 |"));
     assert!(markdown.contains("ocentra_eventing::tests::fixtures::TestEvent"));
 
-    let observed_index = markdown
-        .find(TEST_EVENT_TYPE)
-        .expect("observed event appears in markdown");
-    let other_index = markdown
-        .find(OTHER_EVENT_TYPE)
-        .expect("other event appears in markdown");
+    let observed_index = markdown.find(TEST_EVENT_TYPE).ok_or_else(|| {
+        std::io::Error::other(format!("markdown missing event type {TEST_EVENT_TYPE}"))
+    })?;
+    let other_index = markdown.find(OTHER_EVENT_TYPE).ok_or_else(|| {
+        std::io::Error::other(format!("markdown missing event type {OTHER_EVENT_TYPE}"))
+    })?;
     assert!(observed_index < other_index);
+    Ok(())
 }
 
 #[test]
-fn contract_registry_rejects_duplicate_event_type() {
+fn contract_registry_rejects_duplicate_event_type() -> Result<(), Box<dyn Error>> {
     let mut registry = EventContractRegistry::new();
     registry
         .register_event(&test_event("first"))
-        .expect("first event registers");
+        ?;
 
-    let duplicate = registry
-        .register_event(&test_event("duplicate"))
-        .expect_err("duplicate event type rejects");
+    let duplicate = match registry.register_event(&test_event("duplicate")) {
+        Ok(_) => {
+            return Err(std::io::Error::other("expected duplicate event type rejection").into());
+        }
+        Err(error) => error,
+    };
     assert_eq!(
         duplicate,
         EventingError::DuplicateEventContract {
-            event_type: EventType::parse(TEST_EVENT_TYPE).expect("test event type parses")
+            event_type: EventType::parse(TEST_EVENT_TYPE)?
         }
     );
+    Ok(())
 }
 
 #[test]
-fn empty_contract_registry_docs_are_explicit() {
+fn empty_contract_registry_docs_are_explicit() -> Result<(), Box<dyn Error>> {
     let markdown = EventContractRegistry::new().render_markdown();
 
     assert_eq!(
         markdown.as_str(),
         "# Event Contract Registry\n\n_No event contracts registered._\n"
     );
+    Ok(())
 }

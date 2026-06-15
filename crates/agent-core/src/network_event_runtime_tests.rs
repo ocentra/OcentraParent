@@ -2,7 +2,7 @@ use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
 
-use crate::network_event_runtime::{
+use crate::network_event_runtime::review::{
     request_network_runtime_review_for_observation, NetworkRuntimeReviewReport,
     NetworkRuntimeReviewResponse,
 };
@@ -39,14 +39,18 @@ async fn network_runtime_chain_publishes_full_metadata_only_flow() {
     assert_eq!(
         count_event_type(
             &report,
-            constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
+            NetworkRuntimePhase::EnforcementCommandIssued
         ),
         1
     );
     assert_eq!(
+        constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED,
+        NetworkRuntimePhase::EnforcementCommandIssued.event_type()
+    );
+    assert_eq!(
         count_event_type(
             &report,
-            constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED
+            NetworkRuntimePhase::EnforcementResultObserved
         ),
         1
     );
@@ -71,10 +75,13 @@ async fn network_runtime_chain_carries_exact_refs_without_direct_enforcement_sho
             .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_CHAIN_PUBLISHES);
     let payloads = decode_payloads(&report);
 
-    assert_ai_request_refs(&payloads, observed_at);
-    assert_policy_evaluation_refs(&payloads, observed_at);
-    assert_enforcement_command_refs(&payloads, observed_at);
-    assert_audit_and_portal_refs(&payloads, observed_at);
+    assert_ai_request_refs(&payloads);
+    assert_policy_evaluation_refs(&payloads);
+    assert_enforcement_command_refs(
+        &payloads,
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    );
+    assert_audit_and_portal_refs(&payloads);
 }
 
 #[tokio::test]
@@ -95,14 +102,14 @@ async fn manual_required_network_evidence_does_not_publish_enforcement_command()
     assert_eq!(
         count_event_type(
             &report,
-            constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
+            NetworkRuntimePhase::EnforcementCommandIssued
         ),
         0
     );
     assert_eq!(
         count_event_type(
             &report,
-            constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED
+            NetworkRuntimePhase::EnforcementResultObserved
         ),
         0
     );
@@ -146,14 +153,14 @@ async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() {
     assert_eq!(
         count_event_type(
             &report,
-            constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
+            NetworkRuntimePhase::EnforcementCommandIssued
         ),
         0
     );
     assert_eq!(
         count_event_type(
             &report,
-            constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED
+            NetworkRuntimePhase::EnforcementResultObserved
         ),
         0
     );
@@ -209,75 +216,76 @@ fn decode_payloads(report: &NetworkRuntimeReport) -> Vec<NetworkRuntimeEventPayl
         .stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::EventEnvelope<NetworkRuntimeEventPayload> = event
-                .decode()
-                .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES);
+            let envelope: ocentra_eventing::envelope::EventEnvelope<NetworkRuntimeEventPayload> =
+                event
+                    .decode()
+                    .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES);
             envelope.payload
         })
         .collect()
 }
 
-fn count_event_type(report: &NetworkRuntimeReport, event_type: &str) -> usize {
+fn count_event_type(report: &NetworkRuntimeReport, phase: NetworkRuntimePhase) -> usize {
     report
         .stored_events
         .iter()
-        .filter(|event| event.contract.event_type.as_str() == event_type)
+        .filter(|event| event.contract.event_type.as_str() == phase.event_type())
         .count()
 }
 
-fn assert_ai_request_refs(payloads: &[NetworkRuntimeEventPayload], observed_at: &str) {
+fn assert_ai_request_refs(payloads: &[NetworkRuntimeEventPayload]) {
     let ai_request = payload_for_phase(payloads, NetworkRuntimePhase::AiAnalysisRequested);
     assert_eq!(
         ai_request.previous_phase_ref,
         Some(expected_available_ref(
-            observed_at,
+            &payload_for_phase(payloads, NetworkRuntimePhase::ActivityClassified),
             NetworkRuntimePhase::ActivityClassified
         ))
     );
     assert_eq!(
         ai_request.evidence_ref,
-        expected_available_ref(observed_at, NetworkRuntimePhase::FlowObserved)
+        expected_available_ref(
+            &payload_for_phase(payloads, NetworkRuntimePhase::FlowObserved),
+            NetworkRuntimePhase::FlowObserved
+        )
     );
     assert_eq!(
         ai_request.ai_request_ref,
-        Some(expected_available_ref(
-            observed_at,
-            NetworkRuntimePhase::AiAnalysisRequested
-        ))
+        Some(expected_available_ref(&ai_request, NetworkRuntimePhase::AiAnalysisRequested))
     );
     assert_eq!(ai_request.ai_analysis_ref, None);
     assert_eq!(ai_request.policy_decision_ref, None);
     assert_eq!(ai_request.enforcement_command_ref, None);
 }
 
-fn assert_policy_evaluation_refs(payloads: &[NetworkRuntimeEventPayload], observed_at: &str) {
+fn assert_policy_evaluation_refs(payloads: &[NetworkRuntimeEventPayload]) {
     let policy_evaluation =
         payload_for_phase(payloads, NetworkRuntimePhase::PolicyEvaluationRequested);
     assert_eq!(
         policy_evaluation.previous_phase_ref,
         Some(expected_available_ref(
-            observed_at,
+            &payload_for_phase(payloads, NetworkRuntimePhase::AiAnalysisCompleted),
             NetworkRuntimePhase::AiAnalysisCompleted
         ))
     );
     assert_eq!(
         policy_evaluation.ai_request_ref,
         Some(expected_available_ref(
-            observed_at,
+            &payload_for_phase(payloads, NetworkRuntimePhase::AiAnalysisRequested),
             NetworkRuntimePhase::AiAnalysisRequested
         ))
     );
     assert_eq!(
         policy_evaluation.ai_analysis_ref,
         Some(expected_available_ref(
-            observed_at,
+            &payload_for_phase(payloads, NetworkRuntimePhase::AiAnalysisCompleted),
             NetworkRuntimePhase::AiAnalysisCompleted
         ))
     );
     assert_eq!(
         policy_evaluation.policy_evaluation_ref,
         Some(expected_available_ref(
-            observed_at,
+            &policy_evaluation,
             NetworkRuntimePhase::PolicyEvaluationRequested
         ))
     );
@@ -288,22 +296,21 @@ fn assert_policy_evaluation_refs(payloads: &[NetworkRuntimeEventPayload], observ
 fn assert_enforcement_command_refs(payloads: &[NetworkRuntimeEventPayload], observed_at: &str) {
     let enforcement_command =
         payload_for_phase(payloads, NetworkRuntimePhase::EnforcementCommandIssued);
-    let mut adapter_ref =
-        expected_correlation_ref(ActivityCaptureCapabilityStatus::Available, observed_at);
+    let mut adapter_ref = expected_correlation_ref(&enforcement_command);
     adapter_ref.push(constants::delimiter::HYPHEN);
     adapter_ref.push_str(constants::network_flow::TARGET_ENFORCEMENT_DRY_RUN);
 
     assert_eq!(
         enforcement_command.previous_phase_ref,
         Some(expected_available_ref(
-            observed_at,
+            &payload_for_phase(payloads, NetworkRuntimePhase::PolicyDecisionCompleted),
             NetworkRuntimePhase::PolicyDecisionCompleted
         ))
     );
     assert_eq!(
         enforcement_command.policy_decision_ref,
         Some(expected_available_ref(
-            observed_at,
+            &payload_for_phase(payloads, NetworkRuntimePhase::PolicyDecisionCompleted),
             NetworkRuntimePhase::PolicyDecisionCompleted
         ))
     );
@@ -313,7 +320,8 @@ fn assert_enforcement_command_refs(payloads: &[NetworkRuntimeEventPayload], obse
     );
     assert_eq!(
         enforcement_command.enforcement_command_ref,
-        Some(expected_available_ref(
+        Some(expected_phase_ref(
+            ActivityCaptureCapabilityStatus::Available,
             observed_at,
             NetworkRuntimePhase::EnforcementCommandIssued
         ))
@@ -322,26 +330,26 @@ fn assert_enforcement_command_refs(payloads: &[NetworkRuntimeEventPayload], obse
     assert!(!enforcement_command.claim_boundary.adapter_action_executed);
 }
 
-fn assert_audit_and_portal_refs(payloads: &[NetworkRuntimeEventPayload], observed_at: &str) {
+fn assert_audit_and_portal_refs(payloads: &[NetworkRuntimeEventPayload]) {
     let audit_entry = payload_for_phase(payloads, NetworkRuntimePhase::AuditEntryCommitted);
     assert_eq!(
         audit_entry.previous_phase_ref,
         Some(expected_available_ref(
-            observed_at,
+            &payload_for_phase(payloads, NetworkRuntimePhase::EnforcementResultObserved),
             NetworkRuntimePhase::EnforcementResultObserved
         ))
     );
     assert_eq!(
         audit_entry.enforcement_result_ref,
         Some(expected_available_ref(
-            observed_at,
+            &payload_for_phase(payloads, NetworkRuntimePhase::EnforcementResultObserved),
             NetworkRuntimePhase::EnforcementResultObserved
         ))
     );
     assert_eq!(
         audit_entry.audit_entry_ref,
         Some(expected_available_ref(
-            observed_at,
+            &audit_entry,
             NetworkRuntimePhase::AuditEntryCommitted
         ))
     );
@@ -349,14 +357,14 @@ fn assert_audit_and_portal_refs(payloads: &[NetworkRuntimeEventPayload], observe
     assert_eq!(
         portal_update.previous_phase_ref,
         Some(expected_available_ref(
-            observed_at,
+            &audit_entry,
             NetworkRuntimePhase::AuditEntryCommitted
         ))
     );
     assert_eq!(
         portal_update.audit_entry_ref,
         Some(expected_available_ref(
-            observed_at,
+            &audit_entry,
             NetworkRuntimePhase::AuditEntryCommitted
         ))
     );
@@ -378,25 +386,33 @@ fn expected_phase_ref(
     observed_at: &str,
     phase: NetworkRuntimePhase,
 ) -> String {
-    let mut value = expected_correlation_ref(status, observed_at);
+    let mut value = String::from(constants::network_flow::CORRELATION_NETWORK_RUNTIME_PREFIX);
+    value.push_str(status.as_protocol_str());
+    value.push(constants::delimiter::HYPHEN);
+    value.push_str(observed_at);
     value.push(constants::delimiter::HYPHEN);
     value.push_str(phase.event_type());
     value
 }
 
-fn expected_available_ref(observed_at: &str, phase: NetworkRuntimePhase) -> String {
+fn expected_available_ref(
+    payload: &NetworkRuntimeEventPayload,
+    phase: NetworkRuntimePhase,
+) -> String {
     expected_phase_ref(
         ActivityCaptureCapabilityStatus::Available,
-        observed_at,
+        &payload.observed_at,
         phase,
     )
 }
 
-fn expected_correlation_ref(status: ActivityCaptureCapabilityStatus, observed_at: &str) -> String {
+fn expected_correlation_ref(
+    payload: &NetworkRuntimeEventPayload,
+) -> String {
     let mut value = String::from(constants::network_flow::CORRELATION_NETWORK_RUNTIME_PREFIX);
-    value.push_str(status.as_protocol_str());
+    value.push_str(payload.capability_status.as_protocol_str());
     value.push(constants::delimiter::HYPHEN);
-    value.push_str(observed_at);
+    value.push_str(&payload.observed_at);
     value
 }
 

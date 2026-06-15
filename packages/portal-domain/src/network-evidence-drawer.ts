@@ -1,8 +1,3 @@
-import type {
-  ActivityNetworkEndpoint,
-  ActivityNetworkFlowObservation,
-  ActivityNetworkFlowReadModel,
-} from '@ocentra-parent/network-domain/network-flow';
 import { AgentProtocolDefaults, type AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/agent-protocol-domain/policy-preview-read-model';
 import type { AgentNetworkRuntimeEventResult } from '@ocentra-parent/agent-protocol-domain/network-runtime-events';
@@ -10,6 +5,52 @@ import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
 import { PortalFormatting } from './formatting';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
+
+type ActivityNetworkFlowEndpoint = {
+  readonly ip: LogFieldValue | null;
+  readonly port: LogFieldValue | null;
+};
+
+type ActivityNetworkFlowEvidence = {
+  readonly evidenceId: LogFieldValue;
+};
+
+type ActivityNetworkFlowObservation = {
+  readonly eventId: LogFieldValue | null;
+  readonly observedAt: LogFieldValue | null;
+  readonly adapterId: LogFieldValue | null;
+  readonly capabilityStatus: LogFieldValue | null;
+  readonly protocol: LogFieldValue | null;
+  readonly tcpState: LogFieldValue | null;
+  readonly localEndpoint: ActivityNetworkFlowEndpoint;
+  readonly destinationEndpoint: ActivityNetworkFlowEndpoint;
+  readonly destinationDomain: LogFieldValue | null;
+  readonly domainAttributionStatus: LogFieldValue | null;
+  readonly processAttributionStatus: LogFieldValue | null;
+  readonly processId: LogFieldValue | null;
+  readonly processName: LogFieldValue | null;
+  readonly counters: {
+    readonly connectionCount: LogFieldValue;
+    readonly bytesSent: LogFieldValue | null;
+    readonly bytesReceived: LogFieldValue | null;
+    readonly firstSeenAt: LogFieldValue | null;
+    readonly lastSeenAt: LogFieldValue | null;
+  };
+  readonly evidence: readonly ActivityNetworkFlowEvidence[];
+};
+
+type ActivityNetworkFlowReadModel = {
+  readonly rows: readonly ActivityNetworkFlowObservation[];
+  readonly custody: LogFieldValue | null;
+  readonly capabilityStatus: LogFieldValue | null;
+  readonly returned: LogFieldValue;
+  readonly activeRows: LogFieldValue;
+  readonly tombstoneRows: LogFieldValue;
+  readonly exportableRows: LogFieldValue;
+  readonly latestTombstoneEventId: LogFieldValue | null;
+  readonly latestTombstoneObservedAt: LogFieldValue | null;
+  readonly deletedEvidenceReferenceIds: readonly LogFieldValue[];
+};
 
 export type NetworkEvidenceDrawerSummary = {
   readonly evidenceId: PortalDetailValue;
@@ -280,7 +321,7 @@ function deletedEvidenceReferences(readModel: ActivityNetworkFlowReadModel | nul
   return joinedDetail(readModel.deletedEvidenceReferenceIds);
 }
 
-function endpointDetail(endpoint: ActivityNetworkEndpoint | null | undefined): PortalDetailValue {
+function endpointDetail(endpoint: ActivityNetworkFlowEndpoint | null | undefined): PortalDetailValue {
   if (endpoint === null || endpoint === undefined || endpoint.ip === null) {
     return notReported();
   }

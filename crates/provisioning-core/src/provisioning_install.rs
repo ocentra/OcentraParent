@@ -7,8 +7,9 @@
 //! remain in the updater crate.
 
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
+    envelope::{DomainEvent, EventContract},
+    error::EventingError,
+    ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion},
 };
 use ocentra_family_identity_core::{
     authorize_household_action, authorize_session_token_action, authorize_setup_invite,
@@ -1005,10 +1006,6 @@ fn provisioning_pairing_state_from_family_context(
     session_failure_reason: Option<SessionTokenFailureReason>,
 ) -> PairingLifecycleState {
     let invite_failure_reason = provisioning_setup_invite_failure_reason(input.setup_invite_input);
-    let child_app_readiness_state = provisioning_child_app_readiness_state(
-        input.child_install_state,
-        input.child_service_state,
-    );
     let awaiting_parent_trust_confirmation = input.setup_invite_input.invite_state
         == SetupInviteState::Accepted
         && input.household_authority_input.device_trust_state == DeviceTrustState::Pending;
@@ -1078,11 +1075,7 @@ fn provisioning_pairing_state_from_family_context(
         return PairingLifecycleState::ParentRoleRequired;
     }
 
-    if input.permission_readiness_state != PermissionReadinessState::Granted
-        || child_app_readiness_state != ChildAppReadinessState::Ready
-        || input.network_reachability_state != NetworkReachabilityState::Reachable
-        || authority_decision.authorization_state == HouseholdAuthorizationState::Rejected
-    {
+    if authority_decision.authorization_state == HouseholdAuthorizationState::Rejected {
         if awaiting_parent_trust_confirmation {
             return PairingLifecycleState::Accepted;
         }

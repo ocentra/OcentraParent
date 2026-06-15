@@ -6,10 +6,16 @@ use std::{
 
 use tokio::sync::{RwLock, Semaphore};
 
-use crate::{
-    queue::EventQueue, AggregateKey, DomainEvent, EventType, EventingError, HandlerExecutionPolicy,
-    JournalPolicy, RequestRegistry, SharedEventClock, SharedEventJournal, StoredEventEnvelope,
-};
+use crate::clock::SharedEventClock;
+use crate::envelope::{DomainEvent, StoredEventEnvelope};
+use crate::error::EventingError;
+use crate::execution::HandlerExecutionPolicy;
+use crate::ids::{AggregateKey, EventType};
+use crate::journal::policy::JournalPolicy;
+use crate::queue::state::EventQueue;
+use crate::request::RequestRegistry;
+use crate::sync::lock_unpoison;
+use crate::journal::SharedEventJournal;
 
 mod active_dispatch;
 mod aggregate_gate;
@@ -18,22 +24,20 @@ mod dispatch;
 mod journaling;
 mod lifecycle;
 mod publish;
-mod publisher;
+pub mod publisher;
 mod queue_drain;
-mod reports;
-mod subscriber;
+pub mod reports;
+pub mod subscriber;
 
 use subscriber::{insert_subscriber, record_for, remove_subscriber, SubscriberRecord};
 
 use active_dispatch::ActiveDispatchTracker;
-
-pub use publisher::{EventContext, EventPublisher};
-pub use reports::{
-    dead_letter_recorded_event_type, DeadLetter, DeadLetterEvent, DeadLetterReason,
-    EventMetricsSnapshot, EventQueueMetrics, EventRequestMetrics, EventTraceFields, HandlerOutcome,
-    HandlerReport, PublishReport, QueueDrainReport,
+use publisher::{EventContext, EventPublisher};
+use reports::{
+    DeadLetter, EventMetricsSnapshot, HandlerOutcome, HandlerReport, PublishReport,
+    QueueDrainReport,
 };
-pub use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport, UnsubscribeReport};
+use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DispatchMode {
@@ -167,13 +171,7 @@ impl EventBus {
     }
 
     pub async fn metrics_snapshot(&self) -> EventMetricsSnapshot {
-        let subscription_count = self
-            .registry
-            .lock()
-            .expect("event registry lock")
-            .values()
-            .map(Vec::len)
-            .sum();
+        let subscription_count = lock_unpoison(&self.registry).values().map(Vec::len).sum();
         EventMetricsSnapshot {
             subscription_count,
             stored_event_count: self.stored_journal.read().await.len(),
@@ -200,15 +198,14 @@ impl EventBus {
     }
 
     fn ensure_active(&self) -> Result<(), EventingError> {
-        if *self.shutdown.lock().expect("event bus shutdown lock") != EventBusLifecycleState::Active
-        {
+        if *lock_unpoison(&self.shutdown) != EventBusLifecycleState::Active {
             return Err(EventingError::BusShutdown);
         }
         Ok(())
     }
 
     fn begin_shutdown(&self) -> bool {
-        let mut shutdown = self.shutdown.lock().expect("event bus shutdown lock");
+        let mut shutdown = lock_unpoison(&self.shutdown);
         match *shutdown {
             EventBusLifecycleState::Active => {
                 *shutdown = EventBusLifecycleState::ShuttingDown;
@@ -219,11 +216,11 @@ impl EventBus {
     }
 
     fn mark_shutdown(&self) {
-        *self.shutdown.lock().expect("event bus shutdown lock") = EventBusLifecycleState::Shutdown;
+        *lock_unpoison(&self.shutdown) = EventBusLifecycleState::Shutdown;
     }
 
     fn rollback_shutdown(&self) {
-        let mut shutdown = self.shutdown.lock().expect("event bus shutdown lock");
+        let mut shutdown = lock_unpoison(&self.shutdown);
         if *shutdown == EventBusLifecycleState::ShuttingDown {
             *shutdown = EventBusLifecycleState::Active;
         }

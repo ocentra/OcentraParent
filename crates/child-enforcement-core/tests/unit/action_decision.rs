@@ -5,7 +5,7 @@ use ocentra_child_enforcement_core::{
     EnforcementAuditRecordState, EnforcementIdempotencyState, EnforcementRollbackRequirementState,
     EnforcementRollbackState,
 };
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 
 #[test]

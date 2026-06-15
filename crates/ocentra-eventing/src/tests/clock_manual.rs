@@ -11,12 +11,17 @@ use std::sync::Mutex;
 
 use tokio::{sync::Notify, task::yield_now};
 
-use crate::{
-    AggregateKey, DeadLetterReason, DispatchMode, DomainEvent, EventBus, EventClock, EventContract,
-    EventQueuePolicy, EventResponseContract, EventType, EventingError, HandlerExecutionPolicy,
-    HandlerOutcome, IdempotencyKey, ManualEventClock, RequestCompletionOutcome, RequestEvent,
-    RequestId, RequestOptions, SchemaVersion,
-};
+use crate::bus::reports::DeadLetterReason;
+use crate::bus::DispatchMode;
+use crate::bus::EventBus;
+use crate::clock::{EventClock, ManualEventClock};
+use crate::envelope::{DomainEvent, EventContract};
+use crate::error::EventingError;
+use crate::execution::HandlerExecutionPolicy;
+use crate::ids::{AggregateKey, EventType, IdempotencyKey, RequestId, SchemaVersion};
+use crate::queue::policy::EventQueuePolicy;
+use crate::request::{EventResponseContract, RequestCompletionOutcome, RequestEvent, RequestOptions};
+use crate::bus::reports::HandlerOutcome;
 
 use super::fixtures::{
     metadata, subscriber, subscriber_for_event, test_event, TEST_LABEL, TEST_TARGET,
@@ -28,7 +33,8 @@ const CLOCK_REQUEST_AGGREGATE: &str = "eventing-clock-aggregate";
 const CLOCK_REQUEST_IDEMPOTENCY: &str = "eventing-clock-idempotency";
 
 #[tokio::test]
-async fn manual_clock_advances_registered_sleepers_without_wall_clock_sleep() {
+async fn manual_clock_advances_registered_sleepers_without_wall_clock_sleep(
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let clock = ManualEventClock::new();
     let sleeper_clock = clock.clone();
     let completed = Arc::new(AtomicUsize::new(0));
@@ -38,47 +44,49 @@ async fn manual_clock_advances_registered_sleepers_without_wall_clock_sleep() {
         completed_clone.fetch_add(1, Ordering::SeqCst);
     });
 
-    yield_until(|| clock.pending_sleep_count() == 1).await;
+    yield_until(|| clock.pending_sleep_count() == 1).await?;
     clock.advance(Duration::from_millis(9));
     yield_now().await;
     assert_eq!(completed.load(Ordering::SeqCst), 0);
 
     clock.advance(Duration::from_millis(1));
-    sleeper.await.expect("manual sleeper joins");
+    sleeper.await?;
     assert_eq!(completed.load(Ordering::SeqCst), 1);
+    Ok(())
 }
 
 #[tokio::test]
-async fn manual_clock_expires_queued_ttl_without_wall_clock_sleep() {
+async fn manual_clock_expires_queued_ttl_without_wall_clock_sleep(
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let clock = ManualEventClock::new();
-    let policy = EventQueuePolicy::no_subscriber_queue(2)
-        .expect("queue policy is valid")
-        .with_ttl(Duration::from_millis(10))
-        .expect("ttl policy is valid");
+    let policy = EventQueuePolicy::no_subscriber_queue(2)?
+        .with_ttl(Duration::from_millis(10))?;
     let bus = EventBus::with_queue_policy_and_clock(policy, clock.shared());
 
     bus.publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("event queues");
+        ?;
     clock.advance(Duration::from_millis(11));
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
         subscriber("manual-clock-subscriber", TEST_TARGET),
         |_| async { Ok(()) },
     )
     .await
-    .expect("subscriber registers");
+    ?;
     let drain = bus
         .drain_queued(DispatchMode::Sequential)
         .await
-        .expect("queue is already drained");
+        ?;
 
     assert_eq!(drain.expired_count, 0);
     assert_eq!(drain.dispatched_count, 0);
     assert_eq!(bus.dead_letters().await.len(), 1);
+    Ok(())
 }
 
 #[tokio::test]
-async fn manual_clock_dead_letters_past_deadline_without_dispatch() {
+async fn manual_clock_dead_letters_past_deadline_without_dispatch(
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let clock = ManualEventClock::new();
     let bus = EventBus::with_clock(clock.shared());
     let attempts = Arc::new(AtomicUsize::new(0));
@@ -94,11 +102,11 @@ async fn manual_clock_dead_letters_past_deadline_without_dispatch() {
         },
     )
     .await
-    .expect("subscriber registers");
+    ?;
     let deadline = clock
         .now()
         .checked_add(Duration::from_millis(5))
-        .expect("deadline fits manual clock");
+        .ok_or_else(|| std::io::Error::other("deadline does not fit manual clock"))?;
     clock.advance(Duration::from_millis(6));
 
     let report = bus
@@ -107,21 +115,22 @@ async fn manual_clock_dead_letters_past_deadline_without_dispatch() {
             metadata(TEST_TARGET).with_deadline(deadline),
         )
         .await
-        .expect("deadline publish reports");
+        ?;
     let dead_letters = bus.dead_letters().await;
 
     assert_eq!(attempts.load(Ordering::SeqCst), 0);
     assert_eq!(report.subscriber_count, 0);
     assert_eq!(report.dead_letter_count, 1);
     assert_eq!(dead_letters[0].reason, DeadLetterReason::DeadlineExpired);
+    Ok(())
 }
 
 #[tokio::test]
-async fn manual_clock_drives_handler_timeout_retries_without_wall_clock_sleep() {
+async fn manual_clock_drives_handler_timeout_retries_without_wall_clock_sleep(
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let clock = ManualEventClock::new();
     let bus = EventBus::with_handler_policy_and_clock(
-        HandlerExecutionPolicy::new(Some(Duration::from_millis(5)), 2)
-            .expect("handler policy is valid"),
+        HandlerExecutionPolicy::new(Some(Duration::from_millis(5)), 2)?,
         clock.shared(),
     );
     let attempts = Arc::new(AtomicUsize::new(0));
@@ -140,7 +149,7 @@ async fn manual_clock_drives_handler_timeout_retries_without_wall_clock_sleep() 
         },
     )
     .await
-    .expect("subscriber registers");
+    ?;
     let publish_bus = bus.clone();
     let publish = tokio::spawn(async move {
         publish_bus
@@ -148,25 +157,26 @@ async fn manual_clock_drives_handler_timeout_retries_without_wall_clock_sleep() 
             .await
     });
 
-    yield_until(|| attempts.load(Ordering::SeqCst) == 1 && clock.pending_sleep_count() >= 2).await;
+    yield_until(|| attempts.load(Ordering::SeqCst) == 1 && clock.pending_sleep_count() >= 2)
+        .await?;
     clock.advance(Duration::from_millis(5));
-    yield_until(|| attempts.load(Ordering::SeqCst) == 2 && clock.pending_sleep_count() >= 3).await;
+    yield_until(|| attempts.load(Ordering::SeqCst) == 2 && clock.pending_sleep_count() >= 3)
+        .await?;
     clock.advance(Duration::from_millis(5));
 
-    let report = publish
-        .await
-        .expect("publish joins")
-        .expect("publish reports timeout");
+    let report = publish.await??;
     assert_eq!(attempts.load(Ordering::SeqCst), 2);
     assert_eq!(report.handler_reports[0].attempts, 2);
     assert_eq!(report.dead_letter_count, 1);
+    Ok(())
 }
 
 #[tokio::test]
-async fn manual_clock_stops_retry_when_deadline_expires_between_attempts() {
+async fn manual_clock_stops_retry_when_deadline_expires_between_attempts(
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let clock = ManualEventClock::new();
     let bus = EventBus::with_handler_policy_and_clock(
-        HandlerExecutionPolicy::new(None, 3).expect("handler policy is valid"),
+        HandlerExecutionPolicy::new(None, 3)?,
         clock.shared(),
     );
     let attempts = Arc::new(AtomicUsize::new(0));
@@ -185,11 +195,11 @@ async fn manual_clock_stops_retry_when_deadline_expires_between_attempts() {
         },
     )
     .await
-    .expect("subscriber registers");
+    ?;
     let deadline = clock
         .now()
         .checked_add(Duration::from_millis(1))
-        .expect("deadline fits manual clock");
+        .ok_or_else(|| std::io::Error::other("deadline does not fit manual clock"))?;
     let publish_bus = bus.clone();
     let publish = tokio::spawn(async move {
         publish_bus
@@ -200,13 +210,10 @@ async fn manual_clock_stops_retry_when_deadline_expires_between_attempts() {
             .await
     });
 
-    yield_until(|| clock.pending_sleep_count() >= 1).await;
+    yield_until(|| clock.pending_sleep_count() >= 1).await?;
     clock.advance(Duration::from_millis(1));
 
-    let report = publish
-        .await
-        .expect("publish joins")
-        .expect("publish reports deadline");
+    let report = publish.await??;
     assert_eq!(attempts.load(Ordering::SeqCst), 1);
     assert_eq!(
         report.handler_reports[0].outcome,
@@ -214,10 +221,12 @@ async fn manual_clock_stops_retry_when_deadline_expires_between_attempts() {
     );
     assert_eq!(report.handler_reports[0].attempts, 1);
     assert_eq!(report.dead_letter_count, 1);
+    Ok(())
 }
 
 #[tokio::test]
-async fn manual_clock_drives_request_timeout_and_late_completion_without_wall_clock_sleep() {
+async fn manual_clock_drives_request_timeout_and_late_completion_without_wall_clock_sleep(
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let clock = ManualEventClock::new();
     let bus = EventBus::with_clock(clock.shared());
     let outcomes = Arc::new(Mutex::new(Vec::new()));
@@ -243,42 +252,46 @@ async fn manual_clock_drives_request_timeout_and_late_completion_without_wall_cl
                     let completion = context
                         .complete_request(ClockResponse::approved())
                         .await
-                        .expect("late completion reports");
+                        ?;
                     handler_outcomes
                         .lock()
-                        .expect("outcomes lock")
+                        .map_err(|_err| EventingError::empty_value("outcomes lock poisoned"))?
                         .push(completion.outcome);
+                    Ok::<(), EventingError>(())
                 });
                 Ok(())
             }
         },
     )
     .await
-    .expect("request subscriber registers");
+    ?;
     let request_bus = bus.clone();
     let request = tokio::spawn(async move {
         request_bus
             .publish_request(
-                ClockRequestEvent::new(),
+                ClockRequestEvent::new()?,
                 metadata(TEST_TARGET),
-                RequestOptions::with_timeout(Duration::from_millis(5))
-                    .expect("request timeout is valid"),
+                RequestOptions::with_timeout(Duration::from_millis(5))?,
             )
             .await
     });
 
     late_sleep_registered.notified().await;
-    yield_until(|| clock.pending_sleep_count() >= 2).await;
+    let _ = yield_until(|| clock.pending_sleep_count() >= 2).await;
     clock.advance(Duration::from_millis(5));
-    let result = request.await.expect("request joins");
+    let result = request.await?;
     assert!(matches!(result, Err(EventingError::RequestTimedOut { .. })));
 
     clock.advance(Duration::from_millis(20));
-    yield_until(|| !outcomes.lock().expect("outcomes lock").is_empty()).await;
+    let _ = yield_until(|| !outcomes.lock().is_ok_and(|guard| guard.is_empty())).await;
     assert_eq!(
-        outcomes.lock().expect("outcomes lock").as_slice(),
+        outcomes
+            .lock()
+            .map_err(|_err| EventingError::empty_value("outcomes lock poisoned"))?
+            .as_slice(),
         &[RequestCompletionOutcome::Late]
     );
+    Ok(())
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -287,17 +300,17 @@ struct ClockRequestEvent {
 }
 
 impl ClockRequestEvent {
-    fn new() -> Self {
-        Self {
-            request_id: RequestId::parse(CLOCK_REQUEST_ID).expect("request id parses"),
-        }
+    fn new() -> Result<Self, EventingError> {
+        Ok(Self {
+            request_id: RequestId::parse(CLOCK_REQUEST_ID)?,
+        })
     }
 }
 
 impl DomainEvent for ClockRequestEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(
-            EventType::parse(CLOCK_REQUEST_EVENT_TYPE).expect("event type parses"),
+            EventType::parse(CLOCK_REQUEST_EVENT_TYPE)?,
             SchemaVersion::new(1)?,
         ))
     }
@@ -334,12 +347,14 @@ impl ClockResponse {
 
 impl EventResponseContract for ClockResponse {}
 
-async fn yield_until(condition: impl Fn() -> bool) {
+async fn yield_until(
+    condition: impl Fn() -> bool,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     for _ in 0..50 {
         if condition() {
-            return;
+            return Ok(());
         }
         yield_now().await;
     }
-    panic!("manual clock condition was not reached");
+    Err(std::io::Error::other("manual clock condition was not reached").into())
 }

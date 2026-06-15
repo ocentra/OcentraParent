@@ -1,4 +1,4 @@
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_family_identity_core::{
     ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState, FamilyActorRole,
     HouseholdAuthorityAction, HouseholdAuthorityInput, HouseholdMembership,
@@ -77,6 +77,7 @@ fn ready_family_context() -> ProvisioningFamilyContextInput {
             device_trust_state: DeviceTrustState::Trusted,
             session_freshness_state: SessionFreshnessState::Fresh,
             capability_granted: true,
+            controller_lease_state: None,
             action: HouseholdAuthorityAction::PairChildDevice,
         },
         recovery_operation: None,

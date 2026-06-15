@@ -1,7 +1,7 @@
-use ocentra_eventing::EventDeliveryDecisionProof;
+use ocentra_eventing::delivery::EventDeliveryDecisionProof;
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_outbox_handoff;
+use super::remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff;
 use super::remote_delivery_dispatch_readiness_types::{
     NetworkRuntimeRemoteDeliveryDispatchGate, NetworkRuntimeRemoteDeliveryDispatchReadinessError,
     NetworkRuntimeRemoteDeliveryDispatchReadinessReport,

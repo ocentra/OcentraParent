@@ -78,7 +78,7 @@ pub fn parse_pcap_packets(bytes: &[u8]) -> Result<Vec<PcapPacket>, PcapReplayErr
         }
 
         let packet_len = usize::try_from(included_len)
-            .map_err(|_| PcapReplayError::PacketTooLarge(included_len))?;
+            .map_err(|_error| PcapReplayError::PacketTooLarge(included_len))?;
         let data_start = offset + PCAP_PACKET_HEADER_LEN;
         let data_end = data_start + packet_len;
         if data_end > bytes.len() {

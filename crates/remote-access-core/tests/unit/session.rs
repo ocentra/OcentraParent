@@ -1,4 +1,4 @@
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_family_identity_core::ChildDisclosureState;
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 use ocentra_remote_access_core::{

@@ -1,11 +1,21 @@
 use std::time::Duration;
 
-use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventBus, EventContract, EventContractRegistry,
-    EventResponseContract, EventSubscriber, EventTopologyManifest, EventTopologyPublisher,
-    EventTopologySubscriber, EventType, EventingError, IdempotencyKey, RequestEvent, RequestId,
-    RequestOptions, SchemaVersion, SourceComponent, SubscriberId, TargetHandler,
+use ocentra_eventing::bus::reports::{DeadLetter, PublishReport};
+use ocentra_eventing::bus::subscriber::EventSubscriber;
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::envelope::StoredEventEnvelope;
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    AggregateKey, EventType, IdempotencyKey, RequestId, SchemaVersion, SourceComponent,
+    SubscriberId, TargetHandler,
 };
+use ocentra_eventing::request::{RequestEvent, RequestOptions, RequestReport};
+use ocentra_eventing::contract_registry::EventContractRegistry;
+use ocentra_eventing::topology::{
+    EventTopologyManifest, EventTopologyPublisher, EventTopologySubscriber,
+};
+use ocentra_eventing::request::EventResponseContract;
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
@@ -17,9 +27,9 @@ use super::{browser_aggregate_key, browser_event_metadata};
 
 #[derive(Clone, Debug)]
 pub struct BrowserRuntimeActionIntentHandoffReport {
-    pub request_report: ocentra_eventing::RequestReport<BrowserRuntimeActionIntentHandoffResponse>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub request_report: RequestReport<BrowserRuntimeActionIntentHandoffResponse>,
+    pub stored_events: Vec<StoredEventEnvelope>,
+    pub dead_letters: Vec<DeadLetter>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -221,7 +231,7 @@ pub fn browser_runtime_action_intent_handoff_topology_manifest(
 }
 
 fn candidate_refs(
-    event: &ocentra_eventing::StoredEventEnvelope,
+    event: &StoredEventEnvelope,
 ) -> Option<ActionIntentHandoffRefs> {
     let decoded = event.decode::<BrowserRuntimeEventPayload>().ok()?;
     candidate_refs_from_payload(&decoded.payload)

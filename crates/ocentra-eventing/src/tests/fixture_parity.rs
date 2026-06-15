@@ -1,6 +1,7 @@
 use serde::Deserialize;
+use std::error::Error;
 
-use crate::{
+use crate::ids::{
     AggregateKey, CorrelationId, EventId, EventNamespace, EventType, IdempotencyKey, JournalHash,
     RecordedAt, RequestId, RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService,
     SubscriberId, TargetHandler,
@@ -57,61 +58,62 @@ struct InvalidTextScalar {
 }
 
 #[test]
-fn rust_newtypes_accept_shared_valid_parity_fixture() {
-    let valid = fixture().valid;
+fn rust_newtypes_accept_shared_valid_parity_fixture() -> Result<(), Box<dyn Error>> {
+    let valid = fixture()?.valid;
 
     assert_eq!(
-        EventType::parse(valid.event_type)
-            .expect("event type parses")
-            .as_str(),
+        EventType::parse(valid.event_type)?.as_str(),
         "network.domain.observed"
     );
     assert_eq!(
-        EventNamespace::parse(valid.event_namespace)
-            .expect("event namespace parses")
-            .as_str(),
+        EventNamespace::parse(valid.event_namespace)?.as_str(),
         "network"
     );
-    EventId::parse(valid.event_id).expect("event id parses");
-    CorrelationId::parse(valid.correlation_id).expect("correlation id parses");
-    RequestId::parse(valid.request_id).expect("request id parses");
-    JournalHash::parse(valid.journal_hash).expect("journal hash parses");
-    AggregateKey::parse(valid.aggregate_key).expect("aggregate key parses");
-    IdempotencyKey::parse(valid.idempotency_key).expect("idempotency key parses");
-    SubscriberId::parse(valid.subscriber_id).expect("subscriber id parses");
-    TargetHandler::parse(valid.target_handler).expect("target handler parses");
-    SourceService::parse(valid.source_service).expect("source service parses");
-    SourceComponent::parse(valid.source_component).expect("source component parses");
-    RuntimeInstanceId::parse(valid.runtime_instance_id).expect("runtime instance parses");
-    RecordedAt::parse(valid.recorded_at).expect("recorded at parses");
+    EventId::parse(valid.event_id)?;
+    CorrelationId::parse(valid.correlation_id)?;
+    RequestId::parse(valid.request_id)?;
+    JournalHash::parse(valid.journal_hash)?;
+    AggregateKey::parse(valid.aggregate_key)?;
+    IdempotencyKey::parse(valid.idempotency_key)?;
+    SubscriberId::parse(valid.subscriber_id)?;
+    TargetHandler::parse(valid.target_handler)?;
+    SourceService::parse(valid.source_service)?;
+    SourceComponent::parse(valid.source_component)?;
+    RuntimeInstanceId::parse(valid.runtime_instance_id)?;
+    RecordedAt::parse(valid.recorded_at)?;
     assert_eq!(
-        SchemaVersion::new(valid.schema_version)
-            .expect("schema version parses")
-            .value(),
+        SchemaVersion::new(valid.schema_version)?.value(),
         1
     );
+    Ok(())
 }
 
 #[test]
-fn rust_newtypes_reject_shared_invalid_text_fixture_values() {
-    for invalid in fixture().invalid_text {
+fn rust_newtypes_reject_shared_invalid_text_fixture_values() -> Result<(), Box<dyn Error>> {
+    let fixture = fixture()?;
+
+    for invalid in fixture.invalid_text {
         assert!(
             rejects_text_scalar(&invalid.field, invalid.value),
             "expected Rust newtype rejection for {}",
             invalid.field
         );
     }
+    Ok(())
 }
 
 #[test]
-fn rust_schema_version_rejects_shared_invalid_versions() {
-    for value in fixture().invalid_schema_versions {
+fn rust_schema_version_rejects_shared_invalid_versions() -> Result<(), Box<dyn Error>> {
+    let fixture = fixture()?;
+
+    for value in fixture.invalid_schema_versions {
         assert!(SchemaVersion::new(value).is_err());
     }
+    Ok(())
 }
 
-fn fixture() -> ParityFixture {
-    serde_json::from_str(PARITY_FIXTURE).expect("parity fixture parses")
+fn fixture() -> Result<ParityFixture, Box<dyn Error>> {
+    Ok(serde_json::from_str(PARITY_FIXTURE)?)
 }
 
 fn rejects_text_scalar(field: &str, value: String) -> bool {

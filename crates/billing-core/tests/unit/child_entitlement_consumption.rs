@@ -7,7 +7,7 @@ use ocentra_billing_core::billing_subscription::{
     BillingChildSnapshotSignatureState, BillingEntitlementSnapshotId, BillingEntitlementWriteState,
     BillingManualReviewRequirement, BillingSubscriptionLifecycleState,
 };
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 
 const BILLING_AGGREGATE_ID: &str = "billing-household-default";
 const CHILD_DEVICE_ID: &str = "child-device-default";

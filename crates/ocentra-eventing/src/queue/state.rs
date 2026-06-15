@@ -4,14 +4,16 @@ use std::{
     time::Duration,
 };
 
-use crate::{
-    DeadLetterReason, EventClockInstant, EventId, EventQueueMetrics, EventType, EventingError,
-    IdempotencyKey, StoredEventEnvelope,
-};
+use crate::bus::reports::{DeadLetterReason, EventQueueMetrics};
+use crate::clock::EventClockInstant;
+use crate::envelope::StoredEventEnvelope;
+use crate::error::EventingError;
+use crate::ids::{EventId, EventType, IdempotencyKey};
+use crate::sync::lock_unpoison;
 
 use super::{
-    reservation::DispatchReservation, EventQueuePolicy, NoSubscriberQueuePolicy, QueueDisposition,
-    QueueOverflowPolicy, QueueReport,
+    policy::{EventQueuePolicy, NoSubscriberQueuePolicy, QueueDisposition, QueueOverflowPolicy, QueueReport},
+    reservation::DispatchReservation,
 };
 
 const COMPLETED_IDEMPOTENCY_RETENTION_LIMIT: usize = 4096;
@@ -35,7 +37,7 @@ impl EventQueue {
     }
 
     pub(crate) fn report(&self, disposition: QueueDisposition) -> QueueReport {
-        let queued_count = self.state.lock().expect("event queue lock").queued.len();
+        let queued_count = lock_unpoison(&self.state).queued.len();
         QueueReport {
             disposition,
             queued_count,
@@ -44,7 +46,7 @@ impl EventQueue {
     }
 
     pub(crate) fn metrics(&self) -> EventQueueMetrics {
-        let state = self.state.lock().expect("event queue lock");
+        let state = lock_unpoison(&self.state);
         EventQueueMetrics {
             queued_event_count: state.queued.len(),
             queued_event_id_count: state.queued_event_ids.len(),
@@ -68,8 +70,9 @@ impl EventQueue {
             NoSubscriberQueuePolicy::DeadLetter => Ok(NoSubscriberQueueDecision::DeadLetter(
                 self.report(QueueDisposition::DeadLetteredNoSubscriber),
                 DeadLetterReason::NoSubscriber,
-                EventingError::NoSubscriber {
-                    event_type: stored.contract.event_type.clone(),
+                {
+                    let event_type = stored.contract.event_type;
+                    EventingError::NoSubscriber { event_type }
                 },
             )),
             NoSubscriberQueuePolicy::Queue => self.try_enqueue(stored, now),
@@ -80,7 +83,7 @@ impl EventQueue {
         &self,
         stored: &StoredEventEnvelope,
     ) -> Result<DispatchReservation, EventingError> {
-        let mut state = self.state.lock().expect("event queue lock");
+        let mut state = lock_unpoison(&self.state);
         let event_id = stored.event_id.clone();
         if state.queued_event_ids.contains(&event_id)
             || !state.in_flight_event_ids.insert(event_id.clone())
@@ -111,7 +114,7 @@ impl EventQueue {
     }
 
     pub(crate) fn queued_count(&self, event_type: Option<&EventType>) -> usize {
-        let state = self.state.lock().expect("event queue lock");
+        let state = lock_unpoison(&self.state);
         state
             .queued
             .iter()
@@ -125,14 +128,13 @@ impl EventQueue {
         &self,
         event_type: Option<&EventType>,
     ) -> Option<QueuedEnvelope> {
-        let mut state = self.state.lock().expect("event queue lock");
+        let mut state = lock_unpoison(&self.state);
         let position = state.queued.iter().position(|queued| {
             event_type.is_none_or(|event_type| queued.matches_event_type(event_type))
         })?;
-        let queued = state
-            .queued
-            .remove(position)
-            .expect("queued position was selected from queue");
+        let Some(queued) = state.queued.remove(position) else {
+            unreachable!("queued position was selected from queue");
+        };
         state.queued_event_ids.remove(&queued.stored.event_id);
         if self.policy.idempotency_registry_enabled() {
             state.queued_keys.remove(&queued.stored.idempotency_key);
@@ -141,7 +143,7 @@ impl EventQueue {
     }
 
     pub(crate) fn take_all_queued(&self) -> Vec<QueuedEnvelope> {
-        let mut state = self.state.lock().expect("event queue lock");
+        let mut state = lock_unpoison(&self.state);
         let queued = state.queued.drain(..).collect();
         state.queued_event_ids.clear();
         state.queued_keys.clear();
@@ -149,7 +151,7 @@ impl EventQueue {
     }
 
     pub(crate) fn requeue(&self, queued: QueuedEnvelope) {
-        let mut state = self.state.lock().expect("event queue lock");
+        let mut state = lock_unpoison(&self.state);
         state
             .queued_event_ids
             .insert(queued.stored.event_id.clone());
@@ -161,9 +163,9 @@ impl EventQueue {
         state.queued.push_back(queued);
     }
 
-    pub(crate) fn mark_completed(&self, event_id: EventId, key: IdempotencyKey) {
-        let mut state = self.state.lock().expect("event queue lock");
-        state.in_flight_event_ids.remove(&event_id);
+    pub(crate) fn mark_completed(&self, event_id: &EventId, key: IdempotencyKey) {
+        let mut state = lock_unpoison(&self.state);
+        state.in_flight_event_ids.remove(event_id);
         state.in_flight_keys.remove(&key);
         if self.policy.idempotency_registry_enabled() && state.completed_keys.insert(key.clone()) {
             state.completed_key_order.push_back(key);
@@ -172,7 +174,7 @@ impl EventQueue {
     }
 
     pub(crate) fn release_in_flight(&self, event_id: &EventId, key: Option<&IdempotencyKey>) {
-        let mut state = self.state.lock().expect("event queue lock");
+        let mut state = lock_unpoison(&self.state);
         state.in_flight_event_ids.remove(event_id);
         if let Some(key) = key {
             state.in_flight_keys.remove(key);
@@ -180,7 +182,7 @@ impl EventQueue {
     }
 
     pub(crate) fn clear_for_test(&self) -> EventQueueClearReport {
-        let mut state = self.state.lock().expect("event queue lock");
+        let mut state = lock_unpoison(&self.state);
         let report = EventQueueClearReport {
             queued_event_count: state.queued.len(),
             queued_idempotency_key_count: state.queued_keys.len(),
@@ -207,7 +209,7 @@ impl EventQueue {
                 reason: String::from("queue capacity is not configured"),
             });
         };
-        let mut state = self.state.lock().expect("event queue lock");
+        let mut state = lock_unpoison(&self.state);
         let event_id = stored.event_id.clone();
         if state.queued_event_ids.contains(&event_id)
             || state.in_flight_event_ids.contains(&event_id)
@@ -250,10 +252,13 @@ impl EventQueue {
         now: EventClockInstant,
     ) -> Result<NoSubscriberQueueDecision, EventingError> {
         match self.policy.overflow() {
-            QueueOverflowPolicy::RejectPublish => Err(EventingError::QueueCapacityExceeded {
-                event_type: stored.contract.event_type.clone(),
-                capacity,
-            }),
+            QueueOverflowPolicy::RejectPublish => {
+                let event_type = stored.contract.event_type;
+                Err(EventingError::QueueCapacityExceeded {
+                    event_type,
+                    capacity,
+                })
+            }
             QueueOverflowPolicy::DeadLetterRejected => Ok(NoSubscriberQueueDecision::DeadLetter(
                 QueueReport {
                     disposition: QueueDisposition::DeadLetteredQueueOverflow,
@@ -261,9 +266,12 @@ impl EventQueue {
                     capacity: self.policy.capacity(),
                 },
                 DeadLetterReason::QueueOverflow,
-                EventingError::QueueCapacityExceeded {
-                    event_type: stored.contract.event_type.clone(),
-                    capacity,
+                {
+                    let event_type = stored.contract.event_type;
+                    EventingError::QueueCapacityExceeded {
+                        event_type,
+                        capacity,
+                    }
                 },
             )),
             QueueOverflowPolicy::DropOldestAndDeadLetter => {

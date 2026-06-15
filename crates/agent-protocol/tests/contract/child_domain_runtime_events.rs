@@ -1,4 +1,4 @@
-use ocentra_eventing::{DomainEvent, EventingError};
+use ocentra_eventing::{envelope::DomainEvent, error::EventingError};
 use ocentra_parent_agent_protocol::{
     child_domain_ai_analysis_completed_event, child_domain_ai_analysis_requested_event,
     child_domain_ai_request_id_from_evidence_ref, child_domain_evidence_recorded_event,

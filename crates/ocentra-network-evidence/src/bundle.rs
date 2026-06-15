@@ -56,9 +56,9 @@ pub fn build_network_cross_slice_evidence_bundle(
     let trigger_ref = normalize_ref(&input.trigger_ref)
         .ok_or(NetworkCrossSliceEvidenceBundleError::EmptyTriggerRef)?;
     validate_bundle_sources(&input.sources)?;
+    let sources = input.sources;
 
-    let cascade_sources = input
-        .sources
+    let cascade_sources = sources
         .iter()
         .map(|source| NetworkCascadeSource {
             source_kind: source.source_kind,
@@ -85,8 +85,8 @@ pub fn build_network_cross_slice_evidence_bundle(
         }
     })?;
 
-    let evidence_refs = unique_evidence_refs(&input.sources);
-    let exact_url_evidence_refs = exact_url_evidence_refs(&input.sources);
+    let evidence_refs = unique_evidence_refs(&sources);
+    let exact_url_evidence_refs = exact_url_evidence_refs(&sources);
     let exact_url_available = !exact_url_evidence_refs.is_empty();
     let local_ai_review_recommended = cascade
         .next_checks

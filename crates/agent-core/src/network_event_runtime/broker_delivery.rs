@@ -1,19 +1,23 @@
-use ocentra_eventing::{
+use ocentra_eventing::bus::reports::DeadLetterReason;
+use ocentra_eventing::delivery::{
     decide_event_delivery_route, EventDeliveryBackpressurePolicy, EventDeliveryDecisionError,
     EventDeliveryDecisionInput, EventDeliveryDecisionProof, EventDeliveryDecisionState,
-    EventDeliveryRouteKind, EventDeliverySubscriberFilter, EventNamespace, EventType,
-    EventingError, SourceComponent, SubscriberId, TargetHandler,
+    EventDeliveryRouteKind, EventDeliverySubscriberFilter,
 };
+use ocentra_eventing::envelope::EventEnvelope;
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{EventNamespace, EventType, SourceComponent, SubscriberId, TargetHandler};
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
 
 use crate::NetworkObservation;
 
-use super::{
+use crate::network_event_runtime::queue::{
     queue_network_runtime_flow_overflow_dead_letters,
-    queue_network_runtime_flow_rejects_duplicate_idempotency, NetworkRuntimeEventPayload,
+    queue_network_runtime_flow_rejects_duplicate_idempotency,
 };
+use super::NetworkRuntimeEventPayload;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum NetworkRuntimeBrokerDeliverySemantics {
@@ -175,20 +179,19 @@ fn component_ref(value: &str) -> Result<Option<SourceComponent>, EventingError> 
 }
 
 fn decode_payloads(
-    stored_events: &[ocentra_eventing::StoredEventEnvelope],
+    stored_events: &[ocentra_eventing::envelope::StoredEventEnvelope],
 ) -> Result<Vec<NetworkRuntimeEventPayload>, EventingError> {
     stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::EventEnvelope<NetworkRuntimeEventPayload> =
-                event.decode()?;
+            let envelope: EventEnvelope<NetworkRuntimeEventPayload> = event.decode()?;
             Ok(envelope.payload)
         })
         .collect()
 }
 
 fn count_event_type(
-    stored_events: &[ocentra_eventing::StoredEventEnvelope],
+    stored_events: &[ocentra_eventing::envelope::StoredEventEnvelope],
     event_type: &str,
 ) -> usize {
     stored_events

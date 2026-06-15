@@ -1,4 +1,5 @@
 use ocentra_parent_agent_protocol::constants;
+use ocentra_eventing::envelope::EventEnvelope;
 
 use super::{
     publish_screen_household_mesh_chain_for_input, validate_screen_household_mesh_result,
@@ -176,7 +177,7 @@ fn decode_payloads(report: &ScreenHouseholdMeshReport) -> Vec<ScreenHouseholdMes
         .stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::EventEnvelope<ScreenHouseholdMeshEventPayload> = event
+            let envelope: EventEnvelope<ScreenHouseholdMeshEventPayload> = event
                 .decode()
                 .expect(constants::screen_flow::ERROR_SCREEN_MESH_PAYLOAD_DECODES);
             envelope.payload

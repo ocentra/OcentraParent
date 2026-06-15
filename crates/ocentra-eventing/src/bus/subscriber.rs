@@ -8,9 +8,11 @@ use std::{
     },
 };
 
-use crate::{
-    DomainEvent, EventType, EventingError, StoredEventEnvelope, SubscriberId, TargetHandler,
-};
+use crate::envelope::DomainEvent;
+use crate::envelope::StoredEventEnvelope;
+use crate::error::EventingError;
+use crate::ids::{EventType, SubscriberId, TargetHandler};
+use crate::sync::lock_unpoison;
 
 use super::{EventContext, EventPublisher, QueueDrainReport};
 
@@ -113,10 +115,15 @@ where
     Fut: Future<Output = Result<(), EventingError>> + Send + 'static,
 {
     let callback = Arc::new(handler);
+    let EventSubscriber {
+        id,
+        event_type,
+        target_handler,
+    } = subscriber;
     Ok(SubscriberRecord {
-        id: subscriber.id.clone(),
-        event_type: subscriber.event_type.clone(),
-        target_handler: subscriber.target_handler.clone(),
+        id,
+        event_type,
+        target_handler,
         handler: Arc::new(move |stored, publisher| {
             let callback = Arc::clone(&callback);
             Box::pin(async move {
@@ -131,17 +138,25 @@ pub(super) fn insert_subscriber(
     registry: &Arc<Mutex<BTreeMap<EventType, Vec<SubscriberRecord>>>>,
     record: SubscriberRecord,
 ) -> Result<(), EventingError> {
-    let mut registry = registry.lock().expect("event registry lock");
-    let subscribers = registry.entry(record.event_type.clone()).or_default();
-    if subscribers
-        .iter()
-        .any(|subscriber| subscriber.id == record.id)
-    {
+    let SubscriberRecord {
+        id,
+        event_type,
+        target_handler,
+        handler,
+    } = record;
+    let mut registry = lock_unpoison(registry);
+    let subscribers = registry.entry(event_type.clone()).or_default();
+    if subscribers.iter().any(|subscriber| subscriber.id == id) {
         return Err(EventingError::DuplicateSubscriber {
-            subscriber_id: record.id.clone(),
+            subscriber_id: id,
         });
     }
-    subscribers.push(record);
+    subscribers.push(SubscriberRecord {
+        id,
+        event_type,
+        target_handler,
+        handler,
+    });
     Ok(())
 }
 
@@ -150,7 +165,7 @@ pub(super) fn remove_subscriber(
     event_type: &EventType,
     subscriber_id: &SubscriberId,
 ) -> bool {
-    let mut registry = registry.lock().expect("event registry lock");
+    let mut registry = lock_unpoison(registry);
     let Some(subscribers) = registry.get_mut(event_type) else {
         return false;
     };

@@ -1,4 +1,4 @@
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_lan_core::{
     evaluate_lan_discovery, lan_discovery_decision_recorded_event, LanAggregateId,
     LanDiscoveryActionState, LanDiscoveryDecisionId, LanDiscoveryInput, LanInterfaceState,

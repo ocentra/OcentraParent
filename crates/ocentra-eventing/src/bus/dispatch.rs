@@ -1,8 +1,13 @@
 use std::panic::AssertUnwindSafe;
 
+use std::sync::Arc;
+
 use futures::{future::join_all, FutureExt};
 
-use crate::{EventingError, HandlerExecutionPolicy, SharedEventClock, StoredEventEnvelope};
+use crate::clock::SharedEventClock;
+use crate::envelope::StoredEventEnvelope;
+use crate::error::EventingError;
+use crate::execution::HandlerExecutionPolicy;
 
 use super::{EventPublisher, HandlerOutcome, HandlerReport, SubscriberRecord};
 
@@ -21,7 +26,7 @@ pub(super) async fn dispatch_sequential(
                 subscriber,
                 publisher.clone(),
                 policy.clone(),
-                clock.clone(),
+                Arc::clone(&clock),
             )
             .await,
         );
@@ -42,7 +47,7 @@ pub(super) async fn dispatch_concurrent(
             subscriber,
             publisher.clone(),
             policy.clone(),
-            clock.clone(),
+            Arc::clone(&clock),
         )
     }))
     .await
@@ -75,7 +80,7 @@ async fn dispatch_one(
             &subscriber,
             publisher.clone(),
             &policy,
-            clock.clone(),
+            Arc::clone(&clock),
         )
         .await
         {

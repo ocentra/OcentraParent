@@ -17,6 +17,8 @@
 This file is now a short router. The original workpacks README is preserved at
 [README_FULL_ORIGINAL.md](README_FULL_ORIGINAL.md).
 
+Household Mesh consumer proof is the separate consumer-layer bridge check for the LAN consumer boundary.
+
 Use the plan-level [WORKPACK_INDEX.md](../WORKPACK_INDEX.md) to find
 an assigned workpack. Do not read every file in this directory.
 

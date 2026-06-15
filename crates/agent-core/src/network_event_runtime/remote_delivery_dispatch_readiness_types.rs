@@ -1,8 +1,11 @@
-use ocentra_eventing::{
-    EventDeliveryRequiredArtifact, EventDeliveryRouteKind, EventingError, SourceComponent,
+use ocentra_eventing::delivery::{
+    EventDeliveryRequiredArtifact, EventDeliveryRouteKind,
 };
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::SourceComponent;
+use ocentra_eventing::replay::ReplayMode;
 
-use super::{
+use crate::network_event_runtime::remote_delivery_outbox_handoff_types::{
     NetworkRuntimeRemoteDeliveryOutboxHandoffError, NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
 };
 

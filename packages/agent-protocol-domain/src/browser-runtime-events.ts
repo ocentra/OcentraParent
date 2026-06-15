@@ -1,4 +1,3 @@
-import { ChildDomainRuntimeEventTypeLiteral } from '@ocentra-parent/child-runtime-domain/child-domain-runtime-events';
 import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
 import { type LogFields } from '@ocentra-parent/logging-domain/contracts';
 import {
@@ -15,9 +14,9 @@ const NullableBrowserRuntimeText = Schema.Union(NonEmptyStringSchema, Schema.Nul
 export const AgentBrowserRuntimeEventType = {
   EvidenceObserved: 'browser.evidence.observed',
   EvidenceJournaled: 'browser.evidence.journaled',
-  AiAnalysisRequested: ChildDomainRuntimeEventTypeLiteral.BrowserAiAnalysisRequested,
+  AiAnalysisRequested: 'browser.ai.analysis.requested',
   AiAnalysisCompleted: 'browser.ai.analysis.completed',
-  PolicyEvaluationRequested: ChildDomainRuntimeEventTypeLiteral.BrowserPolicyEvaluationRequested,
+  PolicyEvaluationRequested: 'browser.policy.evaluation.requested',
   PolicyDecisionCompleted: 'browser.policy.decision.completed',
   InterventionCommandIssued: 'browser.intervention.command.issued',
   InterventionResultObserved: 'browser.intervention.result.observed',

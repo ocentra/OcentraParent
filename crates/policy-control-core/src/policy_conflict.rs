@@ -2,7 +2,7 @@
 
 use std::collections::BTreeMap;
 
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 

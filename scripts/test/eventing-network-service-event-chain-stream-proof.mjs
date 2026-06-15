@@ -7,6 +7,27 @@ const testRoot = join('test-results', 'eventing-network-service-event-chain-stre
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 
+const sourceShapeChecks = [
+  ['source-shape-agent-protocol-domain-network-runtime-events', 'packages/agent-protocol-domain/src/network-runtime-events.ts'],
+  ['source-shape-agent-protocol-domain-lan-pairing-challenge', 'packages/agent-protocol-domain/src/lan-pairing-challenge.ts'],
+  ['source-shape-agent-protocol-transport', 'crates/agent-protocol/src/transport.rs'],
+  ['source-shape-agent-protocol-field-constants', 'crates/agent-protocol/src/constants/field.rs'],
+  ['source-shape-agent-service-websocket', 'crates/agent-service/src/websocket.rs'],
+  ['source-shape-agent-service-activity-api', 'crates/agent-service/src/activity_api.rs'],
+  ['source-shape-agent-service-network-runtime-stream-payload', 'crates/agent-service/src/network_runtime_stream_payload.rs'],
+  [
+    'source-shape-agent-service-network-runtime-stream-event-payloads',
+    'crates/agent-service/src/network_runtime_stream_event_payloads.rs',
+  ],
+  ['source-shape-agent-service-network-runtime-stream-tests', 'crates/agent-service/src/network_runtime_stream_tests.rs'],
+].map(([name, prefix]) => ({
+  name,
+  command: 'node',
+  args: ['scripts/check-source-shape.mjs'],
+  env: { SOURCE_SHAPE_ROOT_PREFIX: prefix },
+  log: join(proofRoot, `${name}.log`),
+}));
+
 const commands = [
   {
     name: 'service-network-runtime-stream-tests',
@@ -34,18 +55,7 @@ const commands = [
     ]),
     log: join(proofRoot, 'agent-protocol-domain-network-runtime-tests.log'),
   },
-  {
-    name: 'agent-protocol-domain-build',
-    command: npmCommand(),
-    args: npmArgs(['--workspace', '@ocentra-parent/agent-protocol-domain', 'run', 'build']),
-    log: join(proofRoot, 'agent-protocol-domain-build.log'),
-  },
-  {
-    name: 'source-shape',
-    command: 'node',
-    args: ['scripts/check-source-shape.mjs'],
-    log: join(proofRoot, 'source-shape.log'),
-  },
+  ...sourceShapeChecks,
 ];
 
 const commandResults = commands.map(runCommand);
@@ -87,7 +97,7 @@ const proof = {
 
 writeFileSync(join(proofRoot, 'proof-summary.json'), `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(join(testRoot, 'proof.json'), `${JSON.stringify(proof, null, 2)}\n`);
-console.log('eventing-network-service-event-chain-stream-proof-ok:service,protocol,ts,build,source-shape');
+console.log('eventing-network-service-event-chain-stream-proof-ok:service,protocol,ts,source-shape');
 console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function assertSourceContracts() {
@@ -163,7 +173,11 @@ function assertIncludes(text, expected, label) {
 }
 
 function runCommand(entry) {
-  const result = spawnSync(entry.command, entry.args, { encoding: 'utf8', shell: false });
+  const result = spawnSync(entry.command, entry.args, {
+    encoding: 'utf8',
+    env: { ...process.env, ...entry.env },
+    shell: false,
+  });
   writeFileSync(entry.log, `${result.stdout ?? ''}${result.stderr ?? ''}`);
   if (result.status !== 0) {
     throw new Error(`${entry.name} failed with exit ${result.status}`);

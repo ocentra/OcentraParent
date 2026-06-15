@@ -46,7 +46,7 @@ const typedBoundaryTests = readFileSync('crates/ocentra-eventing/src/tests/typed
 const insertSubscriberBlock = sliceBetween(subscriberSource, 'pub(super) fn insert_subscriber', 'fn remove_subscriber');
 
 const assertions = [
-  ['subscriber-policy-checks-id-per-event-type', insertSubscriberBlock.includes('subscriber.id == record.id')],
+  ['subscriber-policy-checks-id-per-event-type', insertSubscriberBlock.includes('subscriber.id == id')],
   ['subscriber-policy-returns-explicit-error', insertSubscriberBlock.includes('EventingError::DuplicateSubscriber')],
   ['subscriber-policy-does-not-replace-existing-handler', !insertSubscriberBlock.includes('remove_subscriber')],
   ['duplicate-policy-test-exists', typedBoundaryTests.includes('duplicate_subscriber_ids_are_rejected')],

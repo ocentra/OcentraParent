@@ -2,7 +2,7 @@
 
 use std::collections::BTreeSet;
 
-use ocentra_eventing::{EventingError, SchemaVersion};
+use ocentra_eventing::{error::EventingError, ids::SchemaVersion};
 use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 

@@ -100,63 +100,74 @@ struct AwaitableResponseEvent {
 impl EventResponseContract for AwaitableResponseEvent {}
 
 #[tokio::test]
-async fn publish_and_wait_dispatches_typed_fire_and_forget_event() {
+async fn publish_and_wait_dispatches_typed_fire_and_forget_event() -> Result<(), Box<dyn std::error::Error>> {
     let bus = ocentra_eventing::EventBus::new();
     let observed_payload = Arc::new(Mutex::new(None));
     let captured_payload = Arc::clone(&observed_payload);
 
-    bus.subscribe::<FireAndForgetEvent, _, _>(fire_subscriber(), move |context| {
+    bus.subscribe::<FireAndForgetEvent, _, _>(fire_subscriber()?, move |context| {
         let captured_payload = Arc::clone(&captured_payload);
         async move {
-            captured_payload
-                .lock()
-                .expect(PARSE_EXPECTATION)
-                .replace(context.payload().payload_ref.clone());
+            match captured_payload.lock() {
+                Ok(mut guard) => {
+                    guard.replace(context.payload().payload_ref.clone());
+                }
+                Err(_) => {
+                    return Err(EventingError::InvalidHandlerPolicy {
+                        reason: String::from("captured payload mutex poisoned"),
+                    });
+                }
+            }
             Ok(())
         }
     })
     .await
-    .expect(PARSE_EXPECTATION);
+    ?;
 
     let report = bus
         .publish_and_wait(fire_and_forget_event(), metadata())
         .await
-        .expect(PARSE_EXPECTATION);
+        ?;
 
     assert_eq!(report.handled_count, 1);
-    assert_eq!(
-        observed_payload.lock().expect(PARSE_EXPECTATION).clone(),
-        Some(IntegrationPayloadRef::parse(FIRE_AND_FORGET_PAYLOAD_REF))
-    );
+    let observed = match observed_payload.lock() {
+        Ok(guard) => guard.clone(),
+        Err(_) => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "observed payload mutex poisoned",
+            )
+            .into());
+        }
+    };
+    assert_eq!(observed, Some(IntegrationPayloadRef::parse(FIRE_AND_FORGET_PAYLOAD_REF)));
+    Ok(())
 }
 
 #[tokio::test]
-async fn publish_request_waits_for_typed_subscriber_response() {
+async fn publish_request_waits_for_typed_subscriber_response() -> Result<(), Box<dyn std::error::Error>> {
     let bus = ocentra_eventing::EventBus::new();
 
-    bus.subscribe::<AwaitableRequestEvent, _, _>(request_subscriber(), |context| async move {
+    bus.subscribe::<AwaitableRequestEvent, _, _>(request_subscriber()?, |context| async move {
         context.complete_request(awaitable_response_event()).await?;
         Ok(())
     })
     .await
-    .expect(PARSE_EXPECTATION);
+    ?;
 
     let report = bus
         .publish_request(
-            awaitable_request_event(),
+            awaitable_request_event()?,
             metadata(),
-            RequestOptions::with_timeout(Duration::from_millis(RESPONSE_TIMEOUT_MILLIS))
-                .expect(PARSE_EXPECTATION),
+            RequestOptions::with_timeout(Duration::from_millis(RESPONSE_TIMEOUT_MILLIS))?,
         )
         .await
-        .expect(PARSE_EXPECTATION);
+        ?;
 
-    assert_eq!(
-        report.request_id,
-        RequestId::parse(REQUEST_ID).expect(PARSE_EXPECTATION)
-    );
+    assert_eq!(report.request_id, RequestId::parse(REQUEST_ID)?);
     assert_eq!(report.response, awaitable_response_event());
     assert_eq!(report.publish_report.handled_count, 1);
+    Ok(())
 }
 
 fn fire_and_forget_event() -> FireAndForgetEvent {
@@ -165,11 +176,11 @@ fn fire_and_forget_event() -> FireAndForgetEvent {
     }
 }
 
-fn awaitable_request_event() -> AwaitableRequestEvent {
-    AwaitableRequestEvent {
-        request_id: RequestId::parse(REQUEST_ID).expect(PARSE_EXPECTATION),
+fn awaitable_request_event() -> Result<AwaitableRequestEvent, EventingError> {
+    Ok(AwaitableRequestEvent {
+        request_id: RequestId::parse(REQUEST_ID)?,
         payload_ref: IntegrationPayloadRef::parse(REQUEST_PAYLOAD_REF),
-    }
+    })
 }
 
 fn awaitable_response_event() -> AwaitableResponseEvent {
@@ -179,36 +190,36 @@ fn awaitable_response_event() -> AwaitableResponseEvent {
     }
 }
 
-fn fire_subscriber() -> EventSubscriber {
-    subscriber(FIRE_SUBSCRIBER_ID, FIRE_AND_FORGET_EVENT_TYPE)
+fn fire_subscriber() -> Result<EventSubscriber, EventingError> {
+    Ok(EventSubscriber::new(
+        SubscriberId::parse(FIRE_SUBSCRIBER_ID)?,
+        EventType::parse(FIRE_AND_FORGET_EVENT_TYPE)?,
+        TargetHandler::parse(TARGET_HANDLER)?,
+    ))
 }
 
-fn request_subscriber() -> EventSubscriber {
-    subscriber(REQUEST_SUBSCRIBER_ID, REQUEST_EVENT_TYPE)
+fn request_subscriber() -> Result<EventSubscriber, EventingError> {
+    Ok(EventSubscriber::new(
+        SubscriberId::parse(REQUEST_SUBSCRIBER_ID)?,
+        EventType::parse(REQUEST_EVENT_TYPE)?,
+        TargetHandler::parse(TARGET_HANDLER)?,
+    ))
 }
 
-fn subscriber(id: &'static str, event_type: &'static str) -> EventSubscriber {
-    EventSubscriber::new(
-        SubscriberId::parse(id).expect(PARSE_EXPECTATION),
-        EventType::parse(event_type).expect(PARSE_EXPECTATION),
-        TargetHandler::parse(TARGET_HANDLER).expect(PARSE_EXPECTATION),
-    )
-}
-
-fn metadata() -> EventMetadata {
-    EventMetadata::from_parts(
-        ocentra_eventing::EventId::parse(EVENT_ID).expect(PARSE_EXPECTATION),
-        CorrelationId::parse(CORRELATION_ID).expect(PARSE_EXPECTATION),
+fn metadata() -> Result<EventMetadata, EventingError> {
+    Ok(EventMetadata::from_parts(
+        ocentra_eventing::EventId::parse(EVENT_ID)?,
+        CorrelationId::parse(CORRELATION_ID)?,
         EventSource::new(
-            EventCustody::parse(EVENT_CUSTODY).expect(PARSE_EXPECTATION),
-            RuntimeRole::parse(RUNTIME_ROLE).expect(PARSE_EXPECTATION),
-            SourceService::parse(SOURCE_SERVICE).expect(PARSE_EXPECTATION),
-            SourceComponent::parse(SOURCE_COMPONENT).expect(PARSE_EXPECTATION),
-            RuntimeInstanceId::parse(RUNTIME_INSTANCE_ID).expect(PARSE_EXPECTATION),
+            EventCustody::parse(EVENT_CUSTODY)?,
+            RuntimeRole::parse(RUNTIME_ROLE)?,
+            SourceService::parse(SOURCE_SERVICE)?,
+            SourceComponent::parse(SOURCE_COMPONENT)?,
+            RuntimeInstanceId::parse(RUNTIME_INSTANCE_ID)?,
         ),
-        RecordedAt::parse(OBSERVED_AT).expect(PARSE_EXPECTATION),
-        Some(TargetHandler::parse(TARGET_HANDLER).expect(PARSE_EXPECTATION)),
-    )
+        RecordedAt::parse(OBSERVED_AT)?,
+        Some(TargetHandler::parse(TARGET_HANDLER)?),
+    ))
 }
 
 fn aggregate_key() -> Result<AggregateKey, EventingError> {

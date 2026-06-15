@@ -30,6 +30,8 @@ const commands = [
   },
 ];
 
+process.env.SOURCE_SHAPE_ROOT_PREFIX = 'crates/ocentra-eventing';
+
 const commandResults = commands.map(runCommand);
 
 const deliverySource = readFileSync('crates/ocentra-eventing/src/delivery.rs', 'utf8');

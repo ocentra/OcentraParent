@@ -4,11 +4,15 @@ use std::time::Duration;
 use ocentra_child_runtime::{
     publish_parent_tracking_config_updated_event, TrackingConfigUpdateEventFlowReport,
 };
-use ocentra_eventing::{
-    CorrelationId, EventBus, EventCustody, EventId, EventMetadata, EventSource, EventSubscriber,
-    EventType, EventingError, RecordedAt, RequestOptions, RequestReport, RuntimeInstanceId,
-    RuntimeRole, SourceComponent, SourceService, SubscriberId, SubscriptionReport, TargetHandler,
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::bus::subscriber::{EventSubscriber, SubscriptionReport};
+use ocentra_eventing::envelope::{EventMetadata, EventSource};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    CorrelationId, EventCustody, EventId, EventType, RecordedAt, RuntimeInstanceId, RuntimeRole,
+    SourceComponent, SourceService, SubscriberId, TargetHandler,
 };
+use ocentra_eventing::request::{RequestOptions, RequestReport};
 use ocentra_parent_agent_protocol::{
     constants, tracking_config_audit_entry_committed_event, tracking_config_change_approved_event,
     tracking_config_change_rejected_event, tracking_config_change_requested_event,

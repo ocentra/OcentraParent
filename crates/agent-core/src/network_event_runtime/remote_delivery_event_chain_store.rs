@@ -1,10 +1,13 @@
 use std::{collections::BTreeSet, path::PathBuf};
 
-use ocentra_eventing::{
-    EventBus, EventSubscriber, EventType, EventingError, JournalPolicy, JournalSelector,
-    NdjsonEventJournal, NdjsonJournalOptions, ReplayFilter, ReplayReadReport, ReplayRecord,
-    SourceComponent, StoredEventEnvelope, SubscriberId, TargetHandler,
-};
+use ocentra_eventing::bus::subscriber::EventSubscriber;
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::envelope::StoredEventEnvelope;
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{EventId, EventType, SourceComponent, SubscriberId, TargetHandler};
+use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
+use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
+use ocentra_eventing::replay::{ReplayFilter, ReplayReadReport, ReplayRecord};
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
@@ -187,7 +190,7 @@ fn remote_event_chain_journal_path() -> PathBuf {
     file_name.push(constants::delimiter::HYPHEN);
     file_name.push_str(&std::process::id().to_string());
     file_name.push(constants::delimiter::HYPHEN);
-    file_name.push_str(ocentra_eventing::EventId::generated().as_str());
+    file_name.push_str(ocentra_eventing::ids::EventId::generated().as_str());
     file_name.push(constants::delimiter::DOT);
     file_name.push_str(constants::network_flow::TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION);
     std::env::temp_dir().join(file_name)

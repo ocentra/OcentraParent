@@ -1,6 +1,7 @@
-use ocentra_eventing::RuntimeRole;
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
+
+use ocentra_eventing::ids::RuntimeRole;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ScreenHouseholdMeshPhase {

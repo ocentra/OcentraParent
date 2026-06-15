@@ -19,10 +19,39 @@ import {
   ActivityEvidenceIdSchema,
   ActivityTimestampSchema,
 } from '@ocentra-parent/evidence-domain/primitives';
-
-export * from './network-contracts';
+import * as NetworkContracts from './network-contracts';
 
 export const ActivityQuerySchemaVersion = 1;
+
+export const {
+  ActivityNetworkClaimScopeSchema,
+  ActivityNetworkUnsupportedClaimSchema,
+  ActivityNetworkEvidenceGradeSchema,
+  ActivityNetworkDomainEvidenceSourceSchema,
+  ActivityNetworkActivityClassificationKindSchema,
+  ActivityNetworkAdapterCapabilityStateSchema,
+  ActivityNetworkPolicyActionModeSchema,
+  ActivityNetworkPolicyActionKindSchema,
+  ActivityNetworkFlowEvidenceSchema,
+  ActivityNetworkDomainEvidenceSchema,
+  ActivityNetworkActivityClassificationSchema,
+  ActivityNetworkAdapterCapabilitySchema,
+  ActivityNetworkPolicyActionSchema,
+} = NetworkContracts;
+
+export type ActivityNetworkClaimScope = NetworkContracts.ActivityNetworkClaimScope;
+export type ActivityNetworkUnsupportedClaim = NetworkContracts.ActivityNetworkUnsupportedClaim;
+export type ActivityNetworkEvidenceGrade = NetworkContracts.ActivityNetworkEvidenceGrade;
+export type ActivityNetworkDomainEvidenceSource = NetworkContracts.ActivityNetworkDomainEvidenceSource;
+export type ActivityNetworkActivityClassificationKind = NetworkContracts.ActivityNetworkActivityClassificationKind;
+export type ActivityNetworkAdapterCapabilityState = NetworkContracts.ActivityNetworkAdapterCapabilityState;
+export type ActivityNetworkPolicyActionMode = NetworkContracts.ActivityNetworkPolicyActionMode;
+export type ActivityNetworkPolicyActionKind = NetworkContracts.ActivityNetworkPolicyActionKind;
+export type ActivityNetworkFlowEvidence = NetworkContracts.ActivityNetworkFlowEvidence;
+export type ActivityNetworkDomainEvidence = NetworkContracts.ActivityNetworkDomainEvidence;
+export type ActivityNetworkActivityClassification = NetworkContracts.ActivityNetworkActivityClassification;
+export type ActivityNetworkAdapterCapability = NetworkContracts.ActivityNetworkAdapterCapability;
+export type ActivityNetworkPolicyAction = NetworkContracts.ActivityNetworkPolicyAction;
 
 const NetworkPortNumber = Schema.Number.pipe(Schema.int(), Schema.between(0, 65535));
 const NetworkNonNegativeNumber = Schema.Number.pipe(Schema.nonNegative());

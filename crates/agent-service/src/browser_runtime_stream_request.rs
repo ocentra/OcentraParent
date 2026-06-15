@@ -1,11 +1,15 @@
 use std::time::Duration;
 
-use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventMetadata,
-    EventResponseContract, EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey,
-    RecordedAt, RequestEvent, RequestId, RequestOptions, RuntimeInstanceId, SchemaVersion,
-    SourceComponent, SourceService, SubscriberId, TargetHandler,
+use ocentra_eventing::bus::subscriber::EventSubscriber;
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::envelope::{DomainEvent, EventContract, EventMetadata, EventSource};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey, RecordedAt,
+    RequestId, RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService,
+    SubscriberId, TargetHandler,
 };
+use ocentra_eventing::request::{EventResponseContract, RequestEvent, RequestOptions};
 use ocentra_parent_agent_protocol::{constants, BrowserEvidenceReadModel, PolicyPreviewReadModel};
 use serde::{Deserialize, Serialize};
 
@@ -97,13 +101,11 @@ fn browser_runtime_stream_metadata(
     read_model: &BrowserEvidenceReadModel,
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
-        ocentra_eventing::EventId::generated(),
+        EventId::generated(),
         CorrelationId::parse(browser_runtime_stream_correlation_id(read_model))?,
         EventSource::new(
-            ocentra_eventing::EventCustody::parse(
-                constants::eventing_source::CUSTODY_LOCAL_QUERY_STORE,
-            )?,
-            ocentra_eventing::RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)?,
+            EventCustody::parse(constants::eventing_source::CUSTODY_LOCAL_QUERY_STORE)?,
+            RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)?,
             SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
             SourceComponent::parse(constants::browser::RUNTIME_COMPONENT_BROWSER_SPINE)?,
             RuntimeInstanceId::parse(constants::browser::RUNTIME_INSTANCE_LOCAL_BROWSER_RUNTIME)?,

@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_fixture_transport;
+use super::remote_delivery_fixture_transport::
+    prove_network_runtime_remote_delivery_fixture_transport;
 use super::remote_delivery_delete_export_propagation_types::{
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord,
@@ -122,9 +123,9 @@ fn build_delete_export_propagation_report(
 
 fn propagation_record(
     fixture_record: &NetworkRuntimeRemoteDeliveryFixtureTransportRecord,
-    delete_export_propagation_ref: &ocentra_eventing::SourceComponent,
-    remote_delete_readiness_ref: &ocentra_eventing::SourceComponent,
-    remote_export_readiness_ref: &ocentra_eventing::SourceComponent,
+    delete_export_propagation_ref: &ocentra_eventing::ids::SourceComponent,
+    remote_delete_readiness_ref: &ocentra_eventing::ids::SourceComponent,
+    remote_export_readiness_ref: &ocentra_eventing::ids::SourceComponent,
 ) -> NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord {
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord {
         sequence: fixture_record.sequence,

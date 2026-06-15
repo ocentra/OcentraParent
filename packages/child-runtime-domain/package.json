@@ -6,12 +6,12 @@
   "description": "Child Android, child iOS, and mobile child-agent runtime proof contracts.",
   "exports": {
     "./*": {
-      "import": "./dist/*.js",
-      "types": "./dist/*.d.ts"
+      "import": "./dist/src/*.js",
+      "types": "./dist/src/*.d.ts"
     },
     "./package-info": {
-      "import": "./dist/package-info.js",
-      "types": "./dist/package-info.d.ts"
+      "import": "./dist/src/package-info.js",
+      "types": "./dist/src/package-info.d.ts"
     }
   },
   "scripts": {

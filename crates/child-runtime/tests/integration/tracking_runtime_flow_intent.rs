@@ -1,7 +1,9 @@
-use ocentra_eventing::{
-    CorrelationId, EventBus, EventCustody, EventId, EventMetadata, EventSource, EventingError,
-    RecordedAt, RequestCompletionOutcome, RuntimeInstanceId, RuntimeRole, SourceComponent,
-    SourceService, TargetHandler,
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::envelope::{EventMetadata, EventSource};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    CorrelationId, EventCustody, EventId, RecordedAt, RequestCompletionOutcome, RuntimeInstanceId,
+    RuntimeRole, SourceComponent, SourceService, TargetHandler,
 };
 use ocentra_parent_agent_protocol::{
     constants, tracking_ai_request_id_from_evidence_ref, tracking_check_in_id_from_observation_id,

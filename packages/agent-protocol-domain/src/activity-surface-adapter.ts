@@ -34,9 +34,48 @@ import {
   type AgentCommandEnvelope,
   type AgentEventEnvelope,
 } from './contracts';
-import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/evidence-domain/primitives';
+import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/event-domain/primitives';
+import {
+  ActivitySurfaceAdapterCommandBuilder,
+  ActivitySurfaceAdapterCommandBuilderSchema,
+  ActivitySurfaceAdapterEventParser,
+  ActivitySurfaceAdapterEventParserSchema,
+  ActivitySurfaceAdapterFailureReasonSchema,
+  ActivitySurfaceAdapterManifestReadModelKindSchema,
+  ActivitySurfaceAdapterOperationId,
+  ActivitySurfaceAdapterOperationManifest,
+  ActivitySurfaceAdapterOperationSchema,
+  ActivitySurfaceAdapterProductDataOwnerSchema,
+  ActivitySurfaceAdapterResponseKindSchema,
+  ActivitySurfaceAdapterUiConsumerSchema,
+  type ActivitySurfaceAdapterCommandBuilderName,
+  type ActivitySurfaceAdapterEventParserName,
+  type ActivitySurfaceAdapterManifestReadModelKind,
+  type ActivitySurfaceAdapterOperation,
+  type ActivitySurfaceAdapterResponseKind,
+} from './activity-surface-adapter-manifest';
 
-export * from './activity-surface-adapter-manifest';
+export {
+  ActivitySurfaceAdapterCommandBuilder,
+  ActivitySurfaceAdapterCommandBuilderSchema,
+  ActivitySurfaceAdapterEventParser,
+  ActivitySurfaceAdapterEventParserSchema,
+  ActivitySurfaceAdapterFailureReasonSchema,
+  ActivitySurfaceAdapterManifestReadModelKindSchema,
+  ActivitySurfaceAdapterOperationId,
+  ActivitySurfaceAdapterOperationManifest,
+  ActivitySurfaceAdapterOperationSchema,
+  ActivitySurfaceAdapterProductDataOwnerSchema,
+  ActivitySurfaceAdapterResponseKindSchema,
+  ActivitySurfaceAdapterUiConsumerSchema,
+};
+export type {
+  ActivitySurfaceAdapterCommandBuilderName,
+  ActivitySurfaceAdapterEventParserName,
+  ActivitySurfaceAdapterManifestReadModelKind,
+  ActivitySurfaceAdapterOperation,
+  ActivitySurfaceAdapterResponseKind,
+};
 
 export type ActivitySurfaceReportFrequency = 'daily' | 'weekly' | 'monthly';
 export const ActivitySurfaceReadModelKindName = {

@@ -5,16 +5,23 @@ use std::{
     },
     time::Duration,
 };
+use std::error::Error;
 
 use super::fixtures::{
     metadata, subscriber, test_event, TestEvent, TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
 };
-use crate::{EventBus, EventRecorder, EventingError, HandlerExecutionPolicy, HandlerOutcome};
+use crate::bus::reports::HandlerOutcome;
+use crate::bus::EventBus;
+use crate::error::EventingError;
+use crate::execution::HandlerExecutionPolicy;
+use crate::testkit::EventRecorder;
 
 #[tokio::test]
-async fn retry_policy_retries_failed_attempt_and_reports_trace_fields() {
+async fn retry_policy_retries_failed_attempt_and_reports_trace_fields()
+    -> Result<(), Box<dyn Error>>
+{
     let bus = EventBus::with_handler_policy(
-        HandlerExecutionPolicy::new(None, 2).expect("retry policy is valid"),
+        HandlerExecutionPolicy::new(None, 2)?,
     );
     let attempts = Arc::new(AtomicUsize::new(0));
     let attempts_clone = Arc::clone(&attempts);
@@ -30,12 +37,12 @@ async fn retry_policy_retries_failed_attempt_and_reports_trace_fields() {
         }
     })
     .await
-    .expect("subscriber registers");
+    ?;
 
     let report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("publish succeeds after retry");
+        ?;
     let handler_report = &report.handler_reports[0];
 
     assert_eq!(handler_report.outcome, HandlerOutcome::Handled);
@@ -48,13 +55,13 @@ async fn retry_policy_retries_failed_attempt_and_reports_trace_fields() {
     );
     assert_eq!(handler_report.trace.target_handler.as_str(), TEST_TARGET);
     assert_eq!(attempts.load(Ordering::SeqCst), 2);
+    Ok(())
 }
 
 #[tokio::test]
-async fn timeout_policy_retries_then_dead_letters_final_timeout() {
+async fn timeout_policy_retries_then_dead_letters_final_timeout() -> Result<(), Box<dyn Error>> {
     let bus = EventBus::with_handler_policy(
-        HandlerExecutionPolicy::new(Some(Duration::from_millis(5)), 2)
-            .expect("timeout retry policy is valid"),
+        HandlerExecutionPolicy::new(Some(Duration::from_millis(5)), 2)?,
     );
     let attempts = Arc::new(AtomicUsize::new(0));
     let attempts_clone = Arc::clone(&attempts);
@@ -67,49 +74,54 @@ async fn timeout_policy_retries_then_dead_letters_final_timeout() {
         }
     })
     .await
-    .expect("subscriber registers");
+    ?;
 
     let report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("publish survives timeout");
+        ?;
     let dead_letters = bus.dead_letters().await;
 
     assert_eq!(report.handler_reports[0].outcome, HandlerOutcome::TimedOut);
     assert_eq!(report.handler_reports[0].attempts, 2);
     assert_eq!(report.dead_letter_count, 1);
     assert_eq!(
-        dead_letters[0]
-            .subscriber_id
-            .as_ref()
-            .expect("handler dead letter has subscriber")
-            .as_str(),
+        match dead_letters[0].subscriber_id.as_ref() {
+            Some(subscriber_id) => subscriber_id.as_str(),
+            None => {
+                return Err(std::io::Error::other("subscriber id missing").into());
+            }
+        },
         TEST_SUBSCRIBER
     );
     assert_eq!(attempts.load(Ordering::SeqCst), 2);
+    Ok(())
 }
 
 #[tokio::test]
-async fn event_recorder_uses_real_subscription_and_can_unsubscribe() {
+async fn event_recorder_uses_real_subscription_and_can_unsubscribe()
+    -> Result<(), Box<dyn Error>>
+{
     let bus = EventBus::new();
     let recorder =
         EventRecorder::<TestEvent>::attach(&bus, subscriber(TEST_SUBSCRIBER, TEST_TARGET))
             .await
-            .expect("recorder attaches through real bus");
+            ?;
 
     let first_report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("publish records event");
+        ?;
     let recorded = recorder.recorded().await;
     assert!(recorder.unsubscribe());
     let second_report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("publish after unsubscribe succeeds");
+        ?;
 
     assert_eq!(first_report.handled_count, 1);
     assert_eq!(recorded.len(), 1);
     assert_eq!(recorded[0].payload.label, TEST_LABEL);
     assert_eq!(second_report.subscriber_count, 0);
+    Ok(())
 }

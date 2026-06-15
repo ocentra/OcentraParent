@@ -1,4 +1,4 @@
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_request::{
     confirm_assistant_policy_request_preview, expire_child_policy_request,
     register_child_policy_request, resolve_parent_policy_approval,

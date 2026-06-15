@@ -14,7 +14,7 @@ import {
   AgentProtocolSchemaVersion,
   AgentRouteSchema,
   AgentTimestampSchema,
-} from '@ocentra-parent/evidence-domain/primitives';
+} from '@ocentra-parent/event-domain/primitives';
 
 export const AgentPairingIdSchema = NonEmptyStringSchema.pipe(Schema.brand('AgentPairingId'));
 export const AgentPairingTokenHashSchema = NonEmptyStringSchema.pipe(Schema.brand('AgentPairingTokenHash'));

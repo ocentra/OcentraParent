@@ -1,4 +1,4 @@
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::constants::policy_control;
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, latest_policy_audit_event,

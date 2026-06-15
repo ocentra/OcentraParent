@@ -10,7 +10,7 @@ use ocentra_entitlement_core::entitlement_access::{
     EntitlementSnapshotFreshnessState, EntitlementSnapshotSignatureState, FamilySetupState,
     OfflineGraceState, SubscriptionState,
 };
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_family_identity_core::{
     ActorAccountState, ChildDisclosureState, ChildProfileBindingState, DeviceOwnershipScope,
     DeviceScopeInput, DeviceTrustState, FamilyActorRole, HouseholdMembership,

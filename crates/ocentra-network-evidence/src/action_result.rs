@@ -162,6 +162,11 @@ pub fn plan_network_action_result_state(
     let missing_required_artifacts = missing_required_artifacts(&artifacts);
     let boundary_reasons = boundary_reasons(&input, missing_required_artifacts.is_empty());
     let result_state = result_state(&input, &boundary_reasons);
+    let policy_mapping = input.policy_mapping;
+    let requested_action = input.requested_action;
+    let target_kind = input.target_kind;
+    let capability_state = input.capability_state;
+    let adapter_proof_state = input.adapter_proof_state;
     let adapter_result_accepted = matches!(
         result_state,
         NetworkActionResultState::Blocked | NetworkActionResultState::Terminated
@@ -173,12 +178,12 @@ pub fn plan_network_action_result_state(
         parent_rule_ref: normalized.parent_rule_ref,
         evidence_refs: normalized.evidence_refs,
         local_ai_result_ref: normalized.local_ai_result_ref,
-        evidence_grade: input.policy_mapping.evidence_grade,
-        requested_action: input.requested_action,
-        target_kind: input.target_kind,
+        evidence_grade: policy_mapping.evidence_grade,
+        requested_action,
+        target_kind,
         target_ref: normalized.target_ref,
-        capability_state: input.capability_state,
-        adapter_proof_state: input.adapter_proof_state,
+        capability_state,
+        adapter_proof_state,
         result_state,
         boundary_reasons,
         missing_required_artifacts,

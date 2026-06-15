@@ -1,13 +1,18 @@
-use ocentra_eventing::{
+use std::error::Error;
+
+use ocentra_eventing::delivery::{
     decide_event_delivery_route, EventDeliveryBackpressurePolicy, EventDeliveryDecisionError,
     EventDeliveryDecisionInput, EventDeliveryDecisionState, EventDeliveryRouteKind,
-    EventDeliverySubscriberFilter, EventNamespace, EventType, SourceComponent, SubscriberId,
-    TargetHandler,
+    EventDeliverySubscriberFilter,
 };
+use ocentra_eventing::ids::{EventNamespace, EventType, SourceComponent, SubscriberId, TargetHandler};
 
 #[test]
-fn local_event_delivery_requires_namespace_filtered_subscriber_and_backpressure() {
-    let proof = decide_event_delivery_route(local_input()).expect("local route should decide");
+fn local_event_delivery_requires_namespace_filtered_subscriber_and_backpressure()
+    -> Result<(), Box<dyn Error>>
+{
+    let proof = decide_event_delivery_route(local_input()?)
+        .map_err(|error| std::io::Error::other(format!("{error:?}")))?;
 
     assert_eq!(
         proof.decision_state,
@@ -19,60 +24,62 @@ fn local_event_delivery_requires_namespace_filtered_subscriber_and_backpressure(
     assert!(proof.subscriber_filtering_enabled);
     assert!(!proof.decision_authority);
     assert!(!proof.side_effect_authority);
+    Ok(())
 }
 
 #[test]
-fn delivery_rejects_empty_or_out_of_namespace_subscriber_filters() {
-    let mut empty_filter = local_input();
+fn delivery_rejects_empty_or_out_of_namespace_subscriber_filters()
+    -> Result<(), Box<dyn Error>>
+{
+    let mut empty_filter = local_input()?;
     empty_filter.subscriber_filter.accepted_event_types = Vec::new();
     assert_eq!(
         decide_event_delivery_route(empty_filter),
         Err(EventDeliveryDecisionError::EmptySubscriberAcceptedEvents)
     );
 
-    let mut outside_namespace = local_input();
+    let mut outside_namespace = local_input()?;
     outside_namespace.subscriber_filter.accepted_event_types =
-        vec![EventType::parse("browser.navigation.observed").expect("event type parses")];
+        vec![EventType::parse("browser.navigation.observed")?];
     assert_eq!(
         decide_event_delivery_route(outside_namespace),
         Err(EventDeliveryDecisionError::SubscriberFilterOutsideNamespace)
     );
+    Ok(())
 }
 
 #[test]
-fn delivery_rejects_live_external_or_authority_claims_without_artifact_path() {
-    let mut transport_claim = local_input();
+fn delivery_rejects_live_external_or_authority_claims_without_artifact_path()
+    -> Result<(), Box<dyn Error>>
+{
+    let mut transport_claim = local_input()?;
     transport_claim.external_transport_delivery_claimed = true;
     assert_eq!(
         decide_event_delivery_route(transport_claim),
         Err(EventDeliveryDecisionError::LiveExternalTransportDeliveryClaimRejected)
     );
 
-    let mut authority_claim = local_input();
+    let mut authority_claim = local_input()?;
     authority_claim.decision_authority_claimed = true;
     assert_eq!(
         decide_event_delivery_route(authority_claim),
         Err(EventDeliveryDecisionError::DecisionAuthorityClaimRejected)
     );
+    Ok(())
 }
 
-fn local_input() -> EventDeliveryDecisionInput {
-    let namespace = EventNamespace::parse("tracking").expect("namespace parses");
+fn local_input() -> Result<EventDeliveryDecisionInput, Box<dyn Error>> {
+    let namespace = EventNamespace::parse("tracking")?;
 
-    EventDeliveryDecisionInput {
+    Ok(EventDeliveryDecisionInput {
         route_kind: EventDeliveryRouteKind::LocalInProcess,
         event_namespace: namespace.clone(),
-        publisher_component: SourceComponent::parse("tracking-core")
-            .expect("source component parses"),
+        publisher_component: SourceComponent::parse("tracking-core")?,
         subscriber_filter: EventDeliverySubscriberFilter {
-            subscriber_id: SubscriberId::parse("child-runtime-tracking")
-                .expect("subscriber id parses"),
-            target_handler: TargetHandler::parse("child-runtime.tracking")
-                .expect("target handler parses"),
+            subscriber_id: SubscriberId::parse("child-runtime-tracking")?,
+            target_handler: TargetHandler::parse("child-runtime.tracking")?,
             event_namespace: namespace,
-            accepted_event_types: vec![
-                EventType::parse("tracking.location.observed").expect("event type parses")
-            ],
+            accepted_event_types: vec![EventType::parse("tracking.location.observed")?],
         },
         backpressure_policy: EventDeliveryBackpressurePolicy {
             bounded_queue_capacity: 128,
@@ -96,5 +103,5 @@ fn local_input() -> EventDeliveryDecisionInput {
         external_relay_delivery_claimed: false,
         decision_authority_claimed: false,
         side_effect_authority_claimed: false,
-    }
+    })
 }

@@ -31,6 +31,8 @@ README content is preserved at [README_FULL_ORIGINAL.md](README_FULL_ORIGINAL.md
 
 This folder is the implementation plan for a reusable Rust event bus inspired by the Ocentra Games `@ocentra/eventing-domain` package, but rebuilt as a Rust-first crate that can be used by Ocentra Parent and other Ocentra Rust projects.
 
+The household mesh consumer boundary is proven by `scripts/test/eventing-household-mesh-consumer-proof.mjs`.
+
 ## Do not default-read
 
 - `implementation-checklist.md` unless the route names exact rows/sections.

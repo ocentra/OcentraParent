@@ -60,7 +60,10 @@ const sourceAssertions = [
   ['no-hidden-global-bus', !busSource.includes('static EVENT_BUS')],
   ['aggregate-ordering-test', lifecycleTestsSource.includes('ordered_dispatch_serializes_same_aggregate_transitions')],
   ['nested-publish-test', lifecycleTestsSource.includes('nested_publish_uses_context_publisher_without_deadlock')],
-  ['panic-isolation-test', lifecycleTestsSource.includes('panicking_handler_isolated_as_dead_letter_report')],
+  [
+    'panic-isolation-test',
+    lifecycleTestsSource.includes('failing_handler_isolated_as_dead_letter_report'),
+  ],
   ['registrar-dispose-test', lifecycleTestsSource.includes('registrar_dispose_removes_all_owned_subscriptions')],
 ];
 

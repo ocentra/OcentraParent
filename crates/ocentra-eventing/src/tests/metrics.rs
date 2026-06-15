@@ -1,18 +1,25 @@
 use std::time::Duration;
+use std::error::Error;
 
 use super::fixtures::{
     metadata, metadata_with_event_id, subscriber, test_event_with_idempotency, TestEvent,
     TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
 };
-use crate::{DeadLetterReason, EventBus, EventQueuePolicy, EventingError, RequestOptions};
+use crate::bus::reports::DeadLetterReason;
+use crate::bus::EventBus;
+use crate::error::EventingError;
+use crate::queue::policy::EventQueuePolicy;
+use crate::request::RequestOptions;
 
 const IN_MEMORY_RETENTION_PROBE_COUNT: usize = 4097;
 const EXPECTED_IN_MEMORY_RETENTION_LIMIT: usize = 4096;
 
 #[tokio::test]
-async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts() {
+async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts()
+    -> Result<(), Box<dyn Error>>
+{
     let policy = EventQueuePolicy::no_subscriber_queue(1)
-        .expect("queue policy is valid")
+        ?
         .with_idempotency_registry();
     let bus = EventBus::with_queue_policy(policy);
     bus.publish(
@@ -20,13 +27,13 @@ async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts()
         metadata_with_event_id(TEST_TARGET, "metrics-event-1"),
     )
     .await
-    .expect("first event queues");
+    ?;
     bus.publish(
         test_event_with_idempotency("overflow", "metrics-overflow-idempotency"),
         metadata_with_event_id(TEST_TARGET, "metrics-event-2"),
     )
     .await
-    .expect("overflow drops oldest and keeps newest");
+    ?;
 
     let queued = bus.metrics_snapshot().await;
     assert_eq!(queued.subscription_count, 0);
@@ -42,7 +49,7 @@ async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts()
         Ok(())
     })
     .await
-    .expect("subscriber drains queue");
+    ?;
     let drained = bus.metrics_snapshot().await;
     assert_eq!(drained.subscription_count, 1);
     assert_eq!(drained.queue.queued_event_count, 0);
@@ -50,9 +57,9 @@ async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts()
 
     let timeout = bus
         .publish_request(
-            SlowMetricsRequest::new(),
+            SlowMetricsRequest::new()?,
             metadata(TEST_TARGET),
-            RequestOptions::with_timeout(Duration::from_millis(1)).expect("timeout parses"),
+            RequestOptions::with_timeout(Duration::from_millis(1))?,
         )
         .await;
     assert!(matches!(
@@ -67,10 +74,13 @@ async fn metrics_snapshot_reports_queue_dead_letter_journal_and_request_counts()
         bus.dead_letters().await[0].reason,
         DeadLetterReason::QueueOverflow
     );
+    Ok(())
 }
 
 #[tokio::test]
-async fn metrics_snapshot_reports_bounded_in_memory_event_retention() {
+async fn metrics_snapshot_reports_bounded_in_memory_event_retention()
+    -> Result<(), Box<dyn Error>>
+{
     let bus = EventBus::new();
     for index in 0..IN_MEMORY_RETENTION_PROBE_COUNT {
         bus.publish(
@@ -78,7 +88,7 @@ async fn metrics_snapshot_reports_bounded_in_memory_event_retention() {
             metadata_with_event_id(TEST_TARGET, &format!("retention-event-{index}")),
         )
         .await
-        .expect("retention probe event publishes");
+        ?;
     }
 
     let metrics = bus.metrics_snapshot().await;
@@ -90,49 +100,51 @@ async fn metrics_snapshot_reports_bounded_in_memory_event_retention() {
     );
     assert_eq!(journal.len(), EXPECTED_IN_MEMORY_RETENTION_LIMIT);
     assert_eq!(
-        journal
-            .first()
-            .expect("retained journal has first entry")
-            .event_id
-            .as_str(),
+        match journal.first() {
+            Some(entry) => entry.event_id.as_str(),
+            None => {
+                return Err(std::io::Error::other("expected retention journal entry").into());
+            }
+        },
         "retention-event-1"
     );
+    Ok(())
 }
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 struct SlowMetricsRequest {
-    request_id: crate::RequestId,
+    request_id: crate::ids::RequestId,
 }
 
 impl SlowMetricsRequest {
-    fn new() -> Self {
-        Self {
-            request_id: crate::RequestId::parse("metrics-request-1").expect("request id parses"),
-        }
+    fn new() -> Result<Self, Box<dyn Error>> {
+        Ok(Self {
+            request_id: crate::ids::RequestId::parse("metrics-request-1")?,
+        })
     }
 }
 
-impl crate::DomainEvent for SlowMetricsRequest {
-    fn contract(&self) -> Result<crate::EventContract, EventingError> {
-        Ok(crate::EventContract::new(
-            crate::EventType::parse("eventing.metrics.request")?,
-            crate::SchemaVersion::new(1)?,
+impl crate::envelope::DomainEvent for SlowMetricsRequest {
+    fn contract(&self) -> Result<crate::envelope::EventContract, EventingError> {
+        Ok(crate::envelope::EventContract::new(
+            crate::ids::EventType::parse("eventing.metrics.request")?,
+            crate::ids::SchemaVersion::new(1)?,
         ))
     }
 
-    fn aggregate_key(&self) -> Result<crate::AggregateKey, EventingError> {
-        crate::AggregateKey::parse("metrics-request-aggregate")
+    fn aggregate_key(&self) -> Result<crate::ids::AggregateKey, EventingError> {
+        crate::ids::AggregateKey::parse("metrics-request-aggregate")
     }
 
-    fn idempotency_key(&self) -> Result<crate::IdempotencyKey, EventingError> {
-        crate::IdempotencyKey::parse("metrics-request-idempotency")
+    fn idempotency_key(&self) -> Result<crate::ids::IdempotencyKey, EventingError> {
+        crate::ids::IdempotencyKey::parse("metrics-request-idempotency")
     }
 }
 
-impl crate::RequestEvent for SlowMetricsRequest {
+impl crate::request::RequestEvent for SlowMetricsRequest {
     type Response = MetricsResponse;
 
-    fn request_id(&self) -> Result<crate::RequestId, EventingError> {
+    fn request_id(&self) -> Result<crate::ids::RequestId, EventingError> {
         Ok(self.request_id.clone())
     }
 }
@@ -142,4 +154,4 @@ struct MetricsResponse {
     decision: String,
 }
 
-impl crate::EventResponseContract for MetricsResponse {}
+impl crate::request::EventResponseContract for MetricsResponse {}

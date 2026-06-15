@@ -61,7 +61,6 @@ export const NetworkControlCatalogEffectModeLabels = [
 ] as const;
 
 // Generated from docs/network-control-schema-proposal.md and docs/network-control-capability-guide.md. Tests parse the source docs and prove parity.
-// prettier-ignore
 export const NetworkControlCatalogSettingSeeds: readonly NetworkControlCatalogSettingSeed[] = [
   ["docs/network-control-schema-proposal.md","network-management","Network management",1,"network-management-controls","Network management",1,"network.enabled",1,144,"Enable network management?","boolean","Enable network management?","/networkPolicy/enabled",false,[]],
   ["docs/network-control-schema-proposal.md","network-management","Network management",1,"network-management-controls","Network management",1,"network.defaultPosture",2,166,"What should happen to network activity?","single-choice","What should happen to network activity?","/networkPolicy/defaultPosture","observe",[{"value":"allow","label":"Allow","meaning":"Network activity is allowed unless a more specific rule changes it."},{"value":"observe","label":"Observe","meaning":"Network activity is allowed, metadata evidence is collected according to data scope, and decisions are report-only."},{"value":"warn","label":"Warn","meaning":"Matching activity warns the child and records parent-visible events."},{"value":"ask","label":"Ask","meaning":"Matching network activity needs parent approval unless an allow rule or override applies."},{"value":"limit","label":"Limit","meaning":"Network activity is allowed inside configured schedules and budgets."},{"value":"block","label":"Block","meaning":"Network activity is blocked by default unless an explicit exception or parent override allows it."}]],
@@ -428,7 +427,6 @@ export const NetworkControlCatalogSettingSeeds: readonly NetworkControlCatalogSe
   ["docs/network-control-capability-guide.md","network-guide-future-ui-rules","Future UI Rules",12,"network-guide-future-ui-rules-future-ui-rules","Future UI Rules",1,"network-guide-future-ui-rules-future-ui-rules-001",342,829,"router or cloud relay options only where separately configured and proven.",null,null,null,null,[]]
 ] as const;
 
-// prettier-ignore
 export const NetworkControlCapabilitySeeds: readonly NetworkControlCapabilitySeed[] = [
   ["ip-helper-endpoint-snapshot","ready","runtime-adapter-proof-required",["evidence.metadataScope","rules.allowedTargetTypes","reports.visibleFields"]],
   ["dns-client-cache","ready","runtime-adapter-proof-required",["dns.allowedAttributionSources","reports.visibleFields"]],

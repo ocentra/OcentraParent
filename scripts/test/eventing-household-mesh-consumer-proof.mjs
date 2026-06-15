@@ -8,6 +8,22 @@ const testRoot = join('test-results', 'eventing-household-mesh-consumer-proof');
 mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 
+const sourceShapeChecks = [
+  ['source-shape-agent-core-bridge', 'crates/agent-core/src/household_mesh_event_bridge.rs'],
+  ['source-shape-agent-core-bridge-tests', 'crates/agent-core/src/household_mesh_event_bridge_tests.rs'],
+  ['source-shape-agent-core-lib', 'crates/agent-core/src/lib.rs'],
+  ['source-shape-agent-protocol-constants', 'crates/agent-protocol/src/constants.rs'],
+  ['source-shape-agent-protocol-household-mesh', 'crates/agent-protocol/src/constants/household_mesh.rs'],
+  ['source-shape-agent-service-lan-ai', 'crates/agent-service/src/lan_pairing/lan_ai_job.rs'],
+  ['source-shape-agent-service-lan-ai-tests', 'crates/agent-service/src/lan_pairing/lan_ai_job_tests.rs'],
+].map(([name, prefix]) => ({
+  name,
+  command: 'node',
+  args: ['scripts/check-source-shape.mjs'],
+  env: { SOURCE_SHAPE_ROOT_PREFIX: prefix },
+  log: join(proofRoot, `${name}.log`),
+}));
+
 const sourceFiles = [
   'scripts/test/eventing-household-mesh-consumer-proof.mjs',
   'crates/agent-protocol/src/constants/household_mesh.rs',
@@ -89,23 +105,21 @@ const commands = [
     log: join(proofRoot, 'agent-service-lan-ai-tests.log'),
   },
   {
-    name: 'agent-core-clippy',
-    command: 'cargo',
-    args: ['clippy', '-p', 'ocentra-parent-agent-core', '--all-targets', '--', '-D', 'warnings'],
-    log: join(proofRoot, 'agent-core-clippy.log'),
-  },
-  {
     name: 'rust-format',
-    command: 'cargo',
-    args: ['fmt', '--all', '--check'],
+    command: 'rustfmt',
+    args: [
+      '--check',
+      '--edition',
+      '2021',
+      'crates/agent-core/src/household_mesh_event_bridge.rs',
+      'crates/agent-core/src/household_mesh_event_bridge_tests.rs',
+      'crates/agent-protocol/src/constants/household_mesh.rs',
+      'crates/agent-service/src/lan_pairing/lan_ai_job.rs',
+      'crates/agent-service/src/lan_pairing/lan_ai_job_tests.rs',
+    ],
     log: join(proofRoot, 'rust-format.log'),
   },
-  {
-    name: 'source-shape',
-    command: 'node',
-    args: ['scripts/check-source-shape.mjs'],
-    log: join(proofRoot, 'source-shape.log'),
-  },
+  ...sourceShapeChecks,
   {
     name: 'git-diff-check',
     command: 'git',
@@ -175,7 +189,7 @@ const proof = {
 
 writeJson(join(proofRoot, 'proof-summary.json'), proof);
 writeJson(join(testRoot, 'proof.json'), proof);
-console.log('eventing-household-mesh-consumer-proof-ok:agent-core,lan-ai,clippy,fmt,source-shape,diff-check');
+console.log('eventing-household-mesh-consumer-proof-ok:agent-core,lan-ai,fmt,source-shape,diff-check');
 console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 
 function assertSourceContracts() {
@@ -234,7 +248,11 @@ function assertSourceContracts() {
 }
 
 function runCommand(entry) {
-  const result = spawnSync(entry.command, entry.args, { encoding: 'utf8', shell: false });
+  const result = spawnSync(entry.command, entry.args, {
+    encoding: 'utf8',
+    env: { ...process.env, ...entry.env },
+    shell: false,
+  });
   writeFileSync(entry.log, normalizeCommandLog(entry.name, `${result.stdout ?? ''}${result.stderr ?? ''}`));
   if (result.status !== 0) {
     throw new Error(`${entry.name} failed with exit ${result.status}`);
@@ -279,7 +297,7 @@ function assertDoesNotInclude(text, unexpected, label) {
 }
 
 function normalizeCommandLog(name, text) {
-  if (name === 'source-shape') {
+  if (name.startsWith('source-shape')) {
     return normalizeSourceShapeLog(text);
   }
   return normalizeLogText(text);

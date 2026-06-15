@@ -1,4 +1,5 @@
 use ocentra_parent_agent_protocol::constants;
+use ocentra_eventing::envelope::EventEnvelope;
 
 use super::{
     publish_household_mesh_bridge_chain_for_input, validate_household_mesh_bridge_export,
@@ -146,7 +147,7 @@ fn decode_payloads(report: &HouseholdMeshBridgeReport) -> Vec<HouseholdMeshBridg
         .stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::EventEnvelope<HouseholdMeshBridgeEventPayload> = event
+            let envelope: EventEnvelope<HouseholdMeshBridgeEventPayload> = event
                 .decode()
                 .expect(constants::household_mesh::ERROR_BRIDGE_PAYLOAD_DECODES);
             envelope.payload

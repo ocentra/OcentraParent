@@ -1,4 +1,4 @@
-use ocentra_eventing::RuntimeRole;
+use ocentra_eventing::ids::RuntimeRole;
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 

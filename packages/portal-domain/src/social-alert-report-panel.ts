@@ -166,7 +166,9 @@ function providerStatusRow(row: SocialAlertReportProviderStatusRow): SocialAlert
 }
 
 function evidenceRefsValue(intent: SocialAlertReportIntent): PortalDetailValue {
-  return refsValue(intent.evidenceReferences.map((ref) => `${ref.kind}:${ref.evidenceReferenceId}`));
+  return refsValue(
+    intent.evidenceReferences.map((ref: SocialAlertReportIntent['evidenceReferences'][number]) => `${ref.kind}:${ref.evidenceReferenceId}`)
+  );
 }
 
 function detail(label: DisplayText, value: unknown): SocialAlertReportPanelDetail {

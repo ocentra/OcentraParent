@@ -285,13 +285,19 @@ export function collectSourceShapeReport(root = repoRoot) {
 
   const findings = [];
   const warnings = [];
+  const scopePrefix = normalizeScopePrefix(process.env.SOURCE_SHAPE_ROOT_PREFIX);
+  let scopedFiles = 0;
   for (const file of files) {
     const relativePath = toPosix(relative(root, file));
+    if (scopePrefix !== null && !isWithinScope(relativePath, scopePrefix)) {
+      continue;
+    }
     const policy = policyFor(relativePath);
     if (policy === undefined) {
       continue;
     }
 
+    scopedFiles += 1;
     const text = readFileSync(file, 'utf8');
     const result =
       policy.kind === 'rust'
@@ -300,11 +306,31 @@ export function collectSourceShapeReport(root = repoRoot) {
     findings.push(...result.findings);
     warnings.push(...result.warnings);
   }
+
+  if (scopePrefix !== null && scopedFiles === 0) {
+    findings.push({
+      path: scopePrefix,
+      line: 1,
+      reason: 'no files matched SOURCE_SHAPE_ROOT_PREFIX scope',
+    });
+  }
   return { findings, warnings };
 }
 
 export function collectSourceShapeFindings(root = repoRoot) {
   return collectSourceShapeReport(root).findings;
+}
+
+function normalizeScopePrefix(value) {
+  if (value === undefined || value === null) {
+    return null;
+  }
+  const normalized = toPosix(`${value}`.trim()).replace(/\/+$/u, '');
+  return normalized.length > 0 ? normalized : null;
+}
+
+function isWithinScope(relativePath, scopePrefix) {
+  return relativePath === scopePrefix || relativePath.startsWith(`${scopePrefix}/`);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

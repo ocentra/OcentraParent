@@ -1,6 +1,6 @@
 use std::{error::Error, fmt};
 
-use crate::{EventId, EventType, IdempotencyKey, RequestId, SchemaVersion, SubscriberId};
+use crate::ids::{EventId, EventType, IdempotencyKey, RequestId, SchemaVersion, SubscriberId};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum EventingError {
@@ -112,27 +112,27 @@ impl EventingError {
         }
     }
 
-    pub(crate) fn payload_encode(error: serde_json::Error) -> Self {
+    pub(crate) fn payload_encode(error: &impl fmt::Display) -> Self {
         Self::PayloadEncode {
             reason: error.to_string(),
         }
     }
 
-    pub(crate) fn payload_decode(event_type: EventType, error: serde_json::Error) -> Self {
+    pub(crate) fn payload_decode(event_type: EventType, error: &impl fmt::Display) -> Self {
         Self::PayloadDecode {
             event_type,
             reason: error.to_string(),
         }
     }
 
-    pub(crate) fn journal_io(path: String, error: std::io::Error) -> Self {
+    pub(crate) fn journal_io(path: String, error: &impl fmt::Display) -> Self {
         Self::JournalIo {
             path,
             reason: error.to_string(),
         }
     }
 
-    pub(crate) fn journal_encode(error: serde_json::Error) -> Self {
+    pub(crate) fn journal_encode(error: &impl fmt::Display) -> Self {
         Self::JournalEncode {
             reason: error.to_string(),
         }

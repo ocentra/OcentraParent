@@ -26,6 +26,7 @@ Expected tests/proof:
 - `eventing.mesh.cross-device-idempotency`
 - `eventing.mesh.provider-cannot-policy-enforce`
 - Proof includes LAN plan workpack reference, replay/duplicate case, stale message case, and rejected authority case.
+- Proof landed: `output/eventing-plan-proof/12-household-mesh-consumer/proof-summary.json`.
 
 Failure conditions:
 

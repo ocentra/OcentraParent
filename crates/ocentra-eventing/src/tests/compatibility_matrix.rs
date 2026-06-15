@@ -1,4 +1,4 @@
-use crate::{EventCompatibilityMatrix, EventCompatibilityStatus};
+use crate::compatibility::{EventCompatibilityMatrix, EventCompatibilityStatus};
 
 const CLASS_CONTRACTS: &str = "class-backed-contracts";
 const EVENT_METADATA: &str = "event-args-metadata";
@@ -13,6 +13,19 @@ const ISOLATED_TEST_BUS: &str = "isolated-test-bus";
 const REPUBLISH_OVERRIDE: &str = "payload-republish-override";
 const DISPOSAL_CALLBACKS: &str = "payload-disposal-callbacks";
 const BROKER_DELIVERY: &str = "broker-backed-delivery";
+
+fn entry_status(
+    matrix: &EventCompatibilityMatrix,
+    semantic_id: &str,
+) -> Result<EventCompatibilityStatus, Box<dyn std::error::Error>> {
+    match matrix.entry(semantic_id) {
+        Some(entry) => Ok(entry.status()),
+        None => Err(std::io::Error::other(format!(
+            "missing compatibility entry {semantic_id}"
+        ))
+        .into()),
+    }
+}
 
 #[test]
 fn compatibility_matrix_covers_games_lineage_semantics() {
@@ -47,28 +60,20 @@ fn compatibility_matrix_covers_games_lineage_semantics() {
 }
 
 #[test]
-fn compatibility_matrix_marks_deviations_and_manual_required_scope() {
+fn compatibility_matrix_marks_deviations_and_manual_required_scope(
+) -> Result<(), Box<dyn std::error::Error>> {
     let matrix = EventCompatibilityMatrix::ocentra_games_lineage();
 
     assert_eq!(
-        matrix
-            .entry(REPUBLISH_OVERRIDE)
-            .expect("republish entry")
-            .status(),
+        entry_status(&matrix, REPUBLISH_OVERRIDE)?,
         EventCompatibilityStatus::IntentionalDeviation
     );
     assert_eq!(
-        matrix
-            .entry(DISPOSAL_CALLBACKS)
-            .expect("disposal entry")
-            .status(),
+        entry_status(&matrix, DISPOSAL_CALLBACKS)?,
         EventCompatibilityStatus::IntentionalDeviation
     );
     assert_eq!(
-        matrix
-            .entry(BROKER_DELIVERY)
-            .expect("broker entry")
-            .status(),
+        entry_status(&matrix, BROKER_DELIVERY)?,
         EventCompatibilityStatus::ManualRequired
     );
     for entry in matrix.entries() {
@@ -77,6 +82,7 @@ fn compatibility_matrix_marks_deviations_and_manual_required_scope() {
         assert!(!entry.proof_artifact().is_empty());
         assert!(!entry.compatibility_note().is_empty());
     }
+    Ok(())
 }
 
 #[test]

@@ -1,7 +1,10 @@
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 
-use crate::{EventingError, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
+use crate::envelope::StoredEventEnvelope;
+use crate::error::EventingError;
+use crate::ids::JournalHash;
+use crate::journal::policy::JournalDispatchPhase;
 
 use super::ndjson::NdjsonJournalEntry;
 
@@ -27,7 +30,7 @@ pub(super) fn hash_entry(
         phase,
         envelope,
     };
-    let bytes = serde_json::to_vec(&input).map_err(EventingError::journal_encode)?;
+    let bytes = serde_json::to_vec(&input).map_err(|error| EventingError::journal_encode(&error))?;
     let digest = Sha256::digest(&bytes);
     JournalHash::parse(format!("{JOURNAL_HASH_PREFIX}{:x}", digest))
 }

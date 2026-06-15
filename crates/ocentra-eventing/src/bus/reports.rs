@@ -1,9 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    AggregateKey, CorrelationId, DomainEvent, EventContract, EventId, EventType, EventingError,
-    IdempotencyKey, QueueReport, SchemaVersion, StoredEventEnvelope, SubscriberId, TargetHandler,
+use crate::envelope::{DomainEvent, EventContract, StoredEventEnvelope};
+use crate::error::EventingError;
+use crate::ids::{
+    AggregateKey, CorrelationId, EventId, EventType, IdempotencyKey, SchemaVersion, SubscriberId,
+    TargetHandler,
 };
+use crate::queue::policy::QueueReport;
 
 use super::DispatchMode;
 

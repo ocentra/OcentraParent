@@ -1,4 +1,4 @@
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use ocentra_evidence::PrivatePayloadState;
 use ocentra_parent_agent_protocol::{
     constants, TrackingAiAnalysisRequestedEvent, TrackingAiPurpose, TrackingAiRequestId,

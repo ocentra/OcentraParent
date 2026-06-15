@@ -3,7 +3,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
-use crate::EventingError;
+use crate::error::EventingError;
 
 static EVENT_ID_SEQUENCE: AtomicU64 = AtomicU64::new(1);
 static REQUEST_ID_SEQUENCE: AtomicU64 = AtomicU64::new(1);

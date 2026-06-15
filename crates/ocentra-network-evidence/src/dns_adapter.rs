@@ -146,7 +146,11 @@ pub fn plan_network_dns_adapter_proof(
     let artifacts = normalize_artifact_refs(&input)?;
     let missing_required_artifacts = missing_required_artifacts(&artifacts);
     let boundary_reasons = boundary_reasons(&input, missing_required_artifacts.is_empty());
-    let proof_state = proof_state(input.dry_run, input.capability_state, &boundary_reasons);
+    let dry_run = input.dry_run;
+    let capability_state = input.capability_state;
+    let policy_mapping = input.policy_mapping;
+    let requested_action = input.requested_action;
+    let proof_state = proof_state(dry_run, capability_state, &boundary_reasons);
     let adapter_apply_authorized = proof_state == NetworkDnsAdapterProofState::ApplyReady;
 
     Ok(NetworkDnsAdapterProof {
@@ -155,11 +159,11 @@ pub fn plan_network_dns_adapter_proof(
         parent_rule_ref: normalized.parent_rule_ref,
         evidence_refs: normalized.evidence_refs,
         local_ai_result_ref: normalized.local_ai_result_ref,
-        evidence_grade: input.policy_mapping.evidence_grade,
-        requested_action: input.requested_action,
+        evidence_grade: policy_mapping.evidence_grade,
+        requested_action,
         target_domain: normalized.target_domain,
         redirect_target_domain: normalized.redirect_target_domain,
-        capability_state: input.capability_state,
+        capability_state,
         proof_state,
         boundary_reasons,
         missing_required_artifacts,

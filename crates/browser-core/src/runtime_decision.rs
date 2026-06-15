@@ -1,6 +1,7 @@
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
+    envelope::{DomainEvent, EventContract},
+    error::EventingError,
+    ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion},
 };
 use serde::{Deserialize, Serialize};
 

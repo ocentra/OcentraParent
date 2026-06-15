@@ -2,10 +2,9 @@ use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    EventContract, EventContractRegistry, EventNamespace, EventType, SourceComponent, SubscriberId,
-    TargetHandler,
-};
+use crate::contract_registry::EventContractRegistry;
+use crate::envelope::EventContract;
+use crate::ids::{EventNamespace, EventType, SourceComponent, SubscriberId, TargetHandler};
 
 const MARKDOWN_TITLE: &str = "# Event Topology Manifest";
 const MARKDOWN_HEADER: &str =

@@ -791,8 +791,7 @@ fn compiler_outputs_stay_deterministic_across_domain_matrix() {
     type CompilerFn = fn(
         &ParentPolicySourceDocument,
         PolicyVersion,
-    )
-        -> Result<DomainCompiledPolicyArtifact, ocentra_eventing::EventingError>;
+    ) -> Result<DomainCompiledPolicyArtifact, ocentra_eventing::error::EventingError>;
 
     let mut source = sample_policy_source_document();
     source.rules.push(ParentPolicyRule {

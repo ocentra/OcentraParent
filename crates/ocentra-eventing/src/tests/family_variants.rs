@@ -1,13 +1,19 @@
 use std::sync::{Arc, Mutex};
+use std::error::Error;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventContractRegistry,
-    EventCustody, EventEnvelope, EventMetadata, EventSource, EventSubscriber, EventType,
-    EventingError, IdempotencyKey, RecordedAt, RuntimeInstanceId, RuntimeRole, SchemaVersion,
-    SourceComponent, SourceService, SubscriberId, TargetHandler,
+use crate::bus::subscriber::EventSubscriber;
+use crate::bus::EventBus;
+use crate::contract_registry::EventContractRegistry;
+use crate::envelope::{DomainEvent, EventContract, EventEnvelope, EventMetadata, EventSource};
+use crate::error::EventingError;
+use crate::ids::{
+    AggregateKey, CorrelationId, EventCustody, EventType, IdempotencyKey, RecordedAt,
+    RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService, SubscriberId,
+    TargetHandler,
 };
+use crate::sync::lock_unpoison;
 
 const APPROVED_EVENT_TYPE: &str = "eventing.family.decision.approved";
 const REJECTED_EVENT_TYPE: &str = "eventing.family.decision.rejected";
@@ -64,45 +70,49 @@ impl DomainEvent for DecisionFamilyEvent {
 }
 
 #[tokio::test]
-async fn family_subscriber_receives_typed_enum_variants_without_downcast() {
+async fn family_subscriber_receives_typed_enum_variants_without_downcast()
+    -> Result<(), Box<dyn Error>>
+{
     let bus = EventBus::new();
     let received = Arc::new(Mutex::new(Vec::new()));
 
     let approved_seen = Arc::clone(&received);
     bus.subscribe::<DecisionFamilyEvent, _, _>(
-        family_subscriber(APPROVED_SUBSCRIBER, APPROVED_EVENT_TYPE),
+        family_subscriber(APPROVED_SUBSCRIBER, APPROVED_EVENT_TYPE)?,
         move |context| {
             let approved_seen = Arc::clone(&approved_seen);
             async move {
                 match context.payload() {
                     DecisionFamilyEvent::Approved(payload) => {
-                        approved_seen
-                            .lock()
-                            .expect("received lock")
-                            .push(payload.label.clone());
+                        lock_unpoison(&approved_seen).push(payload.label.clone());
                     }
-                    DecisionFamilyEvent::Rejected(_) => panic!("approved subscriber saw rejection"),
+                    DecisionFamilyEvent::Rejected(_) => {
+                        return Err(EventingError::empty_value(
+                            "approved subscriber saw rejection",
+                        ));
+                    }
                 }
                 Ok(())
             }
         },
     )
     .await
-    .expect("approved family subscriber registers");
+    ?;
 
     let rejected_seen = Arc::clone(&received);
     bus.subscribe::<DecisionFamilyEvent, _, _>(
-        family_subscriber(REJECTED_SUBSCRIBER, REJECTED_EVENT_TYPE),
+        family_subscriber(REJECTED_SUBSCRIBER, REJECTED_EVENT_TYPE)?,
         move |context| {
             let rejected_seen = Arc::clone(&rejected_seen);
             async move {
                 match context.payload() {
-                    DecisionFamilyEvent::Approved(_) => panic!("rejected subscriber saw approval"),
+                    DecisionFamilyEvent::Approved(_) => {
+                        return Err(EventingError::empty_value(
+                            "rejected subscriber saw approval",
+                        ));
+                    }
                     DecisionFamilyEvent::Rejected(payload) => {
-                        rejected_seen
-                            .lock()
-                            .expect("received lock")
-                            .push(payload.label.clone());
+                        lock_unpoison(&rejected_seen).push(payload.label.clone());
                     }
                 }
                 Ok(())
@@ -110,46 +120,48 @@ async fn family_subscriber_receives_typed_enum_variants_without_downcast() {
         },
     )
     .await
-    .expect("rejected family subscriber registers");
+    ?;
 
-    bus.publish(approved_event(), family_metadata())
+    bus.publish(approved_event()?, family_metadata()?)
         .await
-        .expect("approved variant publishes");
-    bus.publish(rejected_event(), family_metadata())
+        ?;
+    bus.publish(rejected_event()?, family_metadata()?)
         .await
-        .expect("rejected variant publishes");
+        ?;
 
     assert_eq!(
-        received.lock().expect("received lock").as_slice(),
+        lock_unpoison(&received).as_slice(),
         [APPROVED_LABEL.to_string(), REJECTED_LABEL.to_string()]
     );
+    Ok(())
 }
 
 #[test]
-fn family_variant_stored_decode_rejects_contract_variant_mismatch() {
-    let envelope = EventEnvelope::from_event(approved_event(), family_metadata())
-        .expect("approved envelope builds");
-    let mut stored = envelope.store().expect("approved envelope stores");
+fn family_variant_stored_decode_rejects_contract_variant_mismatch() -> Result<(), Box<dyn Error>>
+{
+    let envelope = EventEnvelope::from_event(approved_event()?, family_metadata()?)?;
+    let mut stored = envelope.store()?;
     stored.contract = EventContract::new(
-        EventType::parse(REJECTED_EVENT_TYPE).expect("rejected event type parses"),
-        SchemaVersion::new(1).expect("schema version parses"),
+        EventType::parse(REJECTED_EVENT_TYPE)?,
+        SchemaVersion::new(1)?,
     );
 
     assert!(matches!(
         stored.decode::<DecisionFamilyEvent>(),
         Err(EventingError::ContractMismatch { .. })
     ));
+    Ok(())
 }
 
 #[test]
-fn family_variants_register_as_distinct_contract_descriptors() {
+fn family_variants_register_as_distinct_contract_descriptors() -> Result<(), Box<dyn Error>> {
     let mut registry = EventContractRegistry::new();
     registry
-        .register_event(&approved_event())
-        .expect("approved family variant registers");
+        .register_event(&approved_event()?)
+        ?;
     registry
-        .register_event(&rejected_event())
-        .expect("rejected family variant registers");
+        .register_event(&rejected_event()?)
+        ?;
 
     let event_types = registry
         .descriptors()
@@ -162,22 +174,23 @@ fn family_variants_register_as_distinct_contract_descriptors() {
             REJECTED_EVENT_TYPE.to_string()
         ]
     );
+    Ok(())
 }
 
-fn approved_event() -> DecisionFamilyEvent {
-    DecisionFamilyEvent::Approved(DecisionPayload {
+fn approved_event() -> Result<DecisionFamilyEvent, Box<dyn Error>> {
+    Ok(DecisionFamilyEvent::Approved(DecisionPayload {
         label: APPROVED_LABEL.to_string(),
-        aggregate_key: AggregateKey::parse(FAMILY_AGGREGATE).expect("aggregate parses"),
-        idempotency_key: IdempotencyKey::parse(APPROVED_IDEMPOTENCY).expect("idempotency parses"),
-    })
+        aggregate_key: AggregateKey::parse(FAMILY_AGGREGATE)?,
+        idempotency_key: IdempotencyKey::parse(APPROVED_IDEMPOTENCY)?,
+    }))
 }
 
-fn rejected_event() -> DecisionFamilyEvent {
-    DecisionFamilyEvent::Rejected(DecisionPayload {
+fn rejected_event() -> Result<DecisionFamilyEvent, Box<dyn Error>> {
+    Ok(DecisionFamilyEvent::Rejected(DecisionPayload {
         label: REJECTED_LABEL.to_string(),
-        aggregate_key: AggregateKey::parse(FAMILY_AGGREGATE).expect("aggregate parses"),
-        idempotency_key: IdempotencyKey::parse(REJECTED_IDEMPOTENCY).expect("idempotency parses"),
-    })
+        aggregate_key: AggregateKey::parse(FAMILY_AGGREGATE)?,
+        idempotency_key: IdempotencyKey::parse(REJECTED_IDEMPOTENCY)?,
+    }))
 }
 
 fn decision_payload(event: &DecisionFamilyEvent) -> &DecisionPayload {
@@ -186,26 +199,26 @@ fn decision_payload(event: &DecisionFamilyEvent) -> &DecisionPayload {
     }
 }
 
-fn family_metadata() -> EventMetadata {
-    EventMetadata::from_parts(
-        crate::EventId::parse(FAMILY_EVENT_ID).expect("event id parses"),
-        CorrelationId::parse(FAMILY_CORRELATION).expect("correlation parses"),
+fn family_metadata() -> Result<EventMetadata, Box<dyn Error>> {
+    Ok(EventMetadata::from_parts(
+        crate::ids::EventId::parse(FAMILY_EVENT_ID)?,
+        CorrelationId::parse(FAMILY_CORRELATION)?,
         EventSource::new(
-            EventCustody::parse(FAMILY_CUSTODY).expect("event custody parses"),
-            RuntimeRole::parse(FAMILY_RUNTIME_ROLE).expect("runtime role parses"),
-            SourceService::parse(FAMILY_SOURCE_SERVICE).expect("source service parses"),
-            SourceComponent::parse(FAMILY_SOURCE_COMPONENT).expect("source component parses"),
-            RuntimeInstanceId::parse(FAMILY_INSTANCE).expect("runtime instance parses"),
+            EventCustody::parse(FAMILY_CUSTODY)?,
+            RuntimeRole::parse(FAMILY_RUNTIME_ROLE)?,
+            SourceService::parse(FAMILY_SOURCE_SERVICE)?,
+            SourceComponent::parse(FAMILY_SOURCE_COMPONENT)?,
+            RuntimeInstanceId::parse(FAMILY_INSTANCE)?,
         ),
-        RecordedAt::parse(FAMILY_OBSERVED_AT).expect("recorded at parses"),
-        Some(TargetHandler::parse(FAMILY_TARGET).expect("target handler parses")),
-    )
+        RecordedAt::parse(FAMILY_OBSERVED_AT)?,
+        Some(TargetHandler::parse(FAMILY_TARGET)?),
+    ))
 }
 
-fn family_subscriber(id: &str, event_type: &str) -> EventSubscriber {
-    EventSubscriber::new(
-        SubscriberId::parse(id).expect("subscriber id parses"),
-        EventType::parse(event_type).expect("event type parses"),
-        TargetHandler::parse(FAMILY_TARGET).expect("target handler parses"),
-    )
+fn family_subscriber(id: &str, event_type: &str) -> Result<EventSubscriber, Box<dyn Error>> {
+    Ok(EventSubscriber::new(
+        SubscriberId::parse(id)?,
+        EventType::parse(event_type)?,
+        TargetHandler::parse(FAMILY_TARGET)?,
+    ))
 }

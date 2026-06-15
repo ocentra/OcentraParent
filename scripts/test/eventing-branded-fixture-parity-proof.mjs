@@ -72,9 +72,9 @@ const commands = [
     args: ['clippy', '-p', 'ocentra-eventing', '--all-targets', '--', '-D', 'warnings'],
   },
   {
-    name: 'source-shape',
+    name: 'eventing-source-shape',
     command: 'node',
-    args: ['scripts/check-source-shape.mjs'],
+    args: [join('scripts', 'test', 'eventing-source-shape-proof.mjs')],
   },
 ];
 

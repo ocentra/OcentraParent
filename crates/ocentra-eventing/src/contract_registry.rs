@@ -1,6 +1,12 @@
-use std::{any::type_name, collections::BTreeMap};
+use std::{
+    any::type_name,
+    collections::{btree_map::Entry, BTreeMap},
+};
 
-use crate::{DomainEvent, EventContract, EventType, EventingError, SchemaVersion};
+use crate::envelope::DomainEvent;
+use crate::error::EventingError;
+use crate::ids::{EventType, SchemaVersion};
+use crate::envelope::EventContract;
 
 const DOC_TITLE: &str = "# Event Contract Registry";
 const DOC_EMPTY: &str = "_No event contracts registered._";
@@ -64,16 +70,12 @@ impl EventContractRegistry {
         descriptor: EventContractDescriptor,
     ) -> Result<&EventContractDescriptor, EventingError> {
         let event_type = descriptor.event_type().clone();
-        if self.descriptors.contains_key(&event_type) {
-            return Err(EventingError::DuplicateEventContract {
-                event_type: event_type.clone(),
-            });
+        match self.descriptors.entry(event_type) {
+            Entry::Occupied(entry) => Err(EventingError::DuplicateEventContract {
+                event_type: entry.key().clone(),
+            }),
+            Entry::Vacant(entry) => Ok(entry.insert(descriptor)),
         }
-        self.descriptors.insert(event_type.clone(), descriptor);
-        Ok(self
-            .descriptors
-            .get(&event_type)
-            .expect("registered event descriptor is present"))
     }
 
     pub fn descriptors(&self) -> impl Iterator<Item = &EventContractDescriptor> {

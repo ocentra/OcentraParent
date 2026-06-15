@@ -10,7 +10,7 @@ use ocentra_entitlement_core::entitlement_access::{
     EntitlementSnapshotSignatureState, FamilySetupState, OfflineGraceState,
     SubscriptionState,
 };
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 
 fn trusted_snapshot_context() -> EntitlementSnapshotContext {
     EntitlementSnapshotContext {

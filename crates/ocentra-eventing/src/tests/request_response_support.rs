@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    AggregateKey, DomainEvent, EventContract, EventResponseContract, EventingError, IdempotencyKey,
-    RequestEvent, RequestId, SchemaVersion,
-};
+use crate::envelope::{DomainEvent, EventContract};
+use crate::error::EventingError;
+use crate::ids::{AggregateKey, IdempotencyKey, RequestId, SchemaVersion};
+use crate::request::{EventResponseContract, RequestEvent};
 
 pub(super) const REQUEST_EVENT_TYPE: &str = "eventing.test.requested";
 pub(super) const RESULT_EVENT_TYPE: &str = "eventing.test.completed";
@@ -21,7 +21,7 @@ pub(super) struct TestRequestEvent {
 impl DomainEvent for TestRequestEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(
-            crate::EventType::parse(REQUEST_EVENT_TYPE)?,
+            crate::ids::EventType::parse(REQUEST_EVENT_TYPE)?,
             SchemaVersion::new(1)?,
         ))
     }
@@ -49,17 +49,17 @@ pub(super) struct InvalidContractRequestEvent {
 }
 
 impl InvalidContractRequestEvent {
-    pub(super) fn new() -> Self {
-        Self {
-            request_id: RequestId::parse(REQUEST_ID).expect("request id parses"),
-        }
+    pub(super) fn new() -> Result<Self, EventingError> {
+        Ok(Self {
+            request_id: RequestId::parse(REQUEST_ID)?,
+        })
     }
 }
 
 impl DomainEvent for InvalidContractRequestEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(
-            crate::EventType::parse(REQUEST_EVENT_TYPE)?,
+            crate::ids::EventType::parse(REQUEST_EVENT_TYPE)?,
             SchemaVersion::new(0)?,
         ))
     }
@@ -117,7 +117,7 @@ pub(super) struct TestResultEvent {
 impl DomainEvent for TestResultEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(
-            crate::EventType::parse(RESULT_EVENT_TYPE)?,
+            crate::ids::EventType::parse(RESULT_EVENT_TYPE)?,
             SchemaVersion::new(1)?,
         ))
     }
@@ -131,11 +131,11 @@ impl DomainEvent for TestResultEvent {
     }
 }
 
-pub(super) fn test_request(label: &str) -> TestRequestEvent {
-    TestRequestEvent {
+pub(super) fn test_request(label: &str) -> Result<TestRequestEvent, EventingError> {
+    Ok(TestRequestEvent {
         label: label.to_string(),
-        request_id: RequestId::parse(REQUEST_ID).expect("request id parses"),
-    }
+        request_id: RequestId::parse(REQUEST_ID)?,
+    })
 }
 
 pub(super) fn test_result_event() -> TestResultEvent {

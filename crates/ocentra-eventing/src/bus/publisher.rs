@@ -1,7 +1,7 @@
-use crate::{
-    DomainEvent, EventEnvelope, EventMetadata, EventingError, RequestCompletionReport,
-    RequestEvent, RequestId,
-};
+use crate::envelope::{DomainEvent, EventEnvelope, EventMetadata};
+use crate::error::EventingError;
+use crate::ids::RequestId;
+use crate::request::{RequestCompletionReport, RequestEvent};
 
 use super::{DispatchMode, EventBus, PublishReport};
 

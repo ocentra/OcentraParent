@@ -3,7 +3,7 @@ use ocentra_child_runtime::policy_control_runtime_flow::{
     expire_policy_control_request_handoff, queue_policy_control_delivery_handoff,
     register_policy_control_request_handoff, resolve_policy_control_request_handoff,
 };
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
     PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliverySequence, PolicyDeliveryState,
     PolicyDeliveryTarget, PolicyDeliveryTransition,

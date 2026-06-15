@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_receipt_ledger;
+use super::remote_delivery_receipt_ledger::prove_network_runtime_remote_delivery_receipt_ledger;
 use super::remote_delivery_durable_envelope_types::{
     NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeRecord,

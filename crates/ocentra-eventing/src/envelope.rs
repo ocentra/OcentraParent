@@ -1,9 +1,11 @@
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-use crate::{
-    AggregateKey, CausationId, CorrelationId, EventClockInstant, EventCustody, EventId, EventType,
-    EventingError, IdempotencyKey, RecordedAt, RuntimeInstanceId, RuntimeRole, SchemaVersion,
-    SourceComponent, SourceService, TargetHandler,
+use crate::clock::EventClockInstant;
+use crate::error::EventingError;
+use crate::ids::{
+    AggregateKey, CausationId, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey,
+    RecordedAt, RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService,
+    TargetHandler,
 };
 
 pub trait DomainEvent: Clone + Send + Sync + Serialize + DeserializeOwned + 'static {
@@ -196,7 +198,8 @@ impl StoredEventPayload {
         E: Serialize,
     {
         Ok(Self {
-            value: serde_json::to_value(payload).map_err(EventingError::payload_encode)?,
+            value: serde_json::to_value(payload)
+                .map_err(|error| EventingError::payload_encode(&error))?,
         })
     }
 
@@ -232,9 +235,10 @@ impl StoredEventEnvelope {
     where
         E: DomainEvent,
     {
-        let payload: E = self.payload.decode().map_err(|error| {
-            EventingError::payload_decode(self.contract.event_type.clone(), error)
-        })?;
+        let payload: E = self
+            .payload
+            .decode()
+            .map_err(|error| EventingError::payload_decode(self.contract.event_type.clone(), &error))?;
         let expected = payload.contract()?;
         if expected != self.contract {
             return Err(EventingError::ContractMismatch {

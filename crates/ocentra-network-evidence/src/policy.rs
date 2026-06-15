@@ -73,16 +73,17 @@ pub fn map_network_evidence_grade_to_policy(
         input.adapter_capability_proof_ref.as_deref(),
         NetworkEvidencePolicyMappingError::EmptyAdapterCapabilityProofRef,
     )?;
-    let (mode, mapped_action) =
-        mapped_mode_and_action(input.evidence_grade, input.requested_action);
+    let evidence_grade = input.evidence_grade;
+    let requested_action = input.requested_action;
+    let (mode, mapped_action) = mapped_mode_and_action(evidence_grade, requested_action);
 
     Ok(NetworkEvidencePolicyMapping {
         policy_decision_ref,
         parent_rule_ref,
         evidence_refs,
         local_ai_result_ref,
-        evidence_grade: input.evidence_grade,
-        requested_action: input.requested_action,
+        evidence_grade,
+        requested_action,
         mapped_action,
         mode,
         adapter_capability_proof_ref,

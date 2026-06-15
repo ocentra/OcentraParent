@@ -4,7 +4,7 @@ use ocentra_app_core::{
     AppForegroundState, AppObservationIntent, AppPolicyHandoffState, AppRuntimeActionState,
     AppRuntimeDecisionId, AppRuntimeInput,
 };
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_parent_agent_protocol::{
     child_domain_evidence_ref_from_observation_id, child_domain_observation_id_from_subject_ref,
     ChildRuntimeDomain,

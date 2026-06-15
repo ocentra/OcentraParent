@@ -2,18 +2,12 @@ use std::{future::Future, pin::Pin, sync::Arc};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{EventingError, JournalHash, StoredEventEnvelope};
+use crate::{error::EventingError, ids::JournalHash, envelope::StoredEventEnvelope};
+use crate::journal::policy::JournalDispatchPhase;
 
-mod hash_chain;
-mod ndjson;
-mod policy;
-
-pub(crate) use hash_chain::verify_hash_chain_entry;
-pub use ndjson::{
-    JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalEntry,
-    NdjsonJournalOptions,
-};
-pub use policy::{JournalDispatchPhase, JournalMode, JournalPolicy, JournalSelector};
+pub(crate) mod hash_chain;
+pub mod ndjson;
+pub mod policy;
 
 pub type JournalAppendFuture<'a> =
     Pin<Box<dyn Future<Output = Result<JournalAppend, EventingError>> + Send + 'a>>;

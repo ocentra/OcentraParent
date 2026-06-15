@@ -173,6 +173,9 @@ pub fn plan_network_android_vpn_service_gate(
         gate_state == NetworkAndroidVpnServiceGateState::PhysicalDeviceProofReady;
     let device_owner_authority_proved =
         input.device_owner_required && artifacts.device_owner_proof_ref.is_some();
+    let policy_mapping = input.policy_mapping;
+    let capability_state = input.capability_state;
+    let device_owner_required = input.device_owner_required;
 
     Ok(NetworkAndroidVpnServiceGateProof {
         android_vpn_service_gate_ref: normalized.android_vpn_service_gate_ref,
@@ -180,10 +183,10 @@ pub fn plan_network_android_vpn_service_gate(
         parent_rule_ref: normalized.parent_rule_ref,
         evidence_refs: normalized.evidence_refs,
         local_ai_result_ref: normalized.local_ai_result_ref,
-        evidence_grade: input.policy_mapping.evidence_grade,
+        evidence_grade: policy_mapping.evidence_grade,
         package_ref: normalized.package_ref,
         vpn_service_ref: normalized.vpn_service_ref,
-        capability_state: input.capability_state,
+        capability_state,
         gate_state,
         boundary_reasons,
         missing_required_artifacts,
@@ -195,7 +198,7 @@ pub fn plan_network_android_vpn_service_gate(
         traffic_observation_proof_ref: artifacts.traffic_observation_proof_ref,
         rollback_plan_ref: artifacts.rollback_plan_ref,
         audit_event_ref: artifacts.audit_event_ref,
-        device_owner_required: input.device_owner_required,
+        device_owner_required,
         device_owner_proof_ref: artifacts.device_owner_proof_ref,
         physical_device_proof_ready,
         device_owner_authority_proved,

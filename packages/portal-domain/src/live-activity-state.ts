@@ -18,7 +18,6 @@ import {
   type ActivityIngestStatus,
   type ActivityRecentSummary,
 } from '@ocentra-parent/activity-domain/query';
-import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/network-domain/network-flow';
 import type {
   ActivityAppUseReadModel,
   ActivityBrowserReadModel,
@@ -138,6 +137,8 @@ import {
   type BrowserSocialProviderReceiptStreamStatusIntent,
 } from './browser-social-provider-receipt-stream-status';
 import { PortalBrowserInventoryFields } from './details';
+
+type ActivityNetworkFlowReadModel = NonNullable<ReturnType<typeof parseNetworkFlowReadModel>>;
 
 type ActivitySurfaceReadModel =
   | ActivityScreenReadModel

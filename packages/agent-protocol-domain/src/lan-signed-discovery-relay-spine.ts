@@ -5,7 +5,6 @@ import {
   LanSignedDiscoveryRelayCacheRowSchema,
   LanSignedDiscoveryRelayCustodyLabelSchema,
   LanSignedDiscoveryRelayDecisionStateSchema,
-  LanSignedDiscoveryRelayProofStateSchema,
   LanSignedDiscoveryRelayRouteSafetyCheckSchema,
   LanSignedDiscoveryRelayRouteSafetyRowSchema,
   LanSignedDiscoveryRelaySignedProofCheckSchema,
@@ -18,7 +17,6 @@ import {
   type LanSignedDiscoveryRelayCacheRow,
   type LanSignedDiscoveryRelayCustodyLabel,
   type LanSignedDiscoveryRelayDecisionState,
-  type LanSignedDiscoveryRelayProofState,
   type LanSignedDiscoveryRelayRouteSafetyCheck,
   type LanSignedDiscoveryRelayRouteSafetyRow,
   type LanSignedDiscoveryRelaySignedProofCheck,
@@ -26,6 +24,10 @@ import {
   type LanSignedDiscoveryRelaySourceConfidence,
   type LanSignedDiscoveryRelaySpine,
 } from '@ocentra-parent/lan-domain/lan-signed-discovery-relay-spine';
+import {
+  LanHouseholdProductProofStateSchema,
+  type LanHouseholdProductProofState,
+} from '@ocentra-parent/lan-domain/lan-pairing-product-proof';
 import {
   LanProductionHouseholdProofRuntimeOwnerSchema,
   type LanProductionHouseholdProofRuntimeOwner,
@@ -35,7 +37,7 @@ export const AgentLanSignedDiscoveryRelayAdapterKindSchema = LanSignedDiscoveryR
 export const AgentLanSignedDiscoveryRelaySourceConfidenceSchema = LanSignedDiscoveryRelaySourceConfidenceSchema;
 export const AgentLanSignedDiscoveryRelayCustodyLabelSchema = LanSignedDiscoveryRelayCustodyLabelSchema;
 export const AgentLanSignedDiscoveryRelayRuntimeOwnerSchema = LanProductionHouseholdProofRuntimeOwnerSchema;
-export const AgentLanSignedDiscoveryRelayProofStateSchema = LanSignedDiscoveryRelayProofStateSchema;
+export const AgentLanSignedDiscoveryRelayProofStateSchema = LanHouseholdProductProofStateSchema;
 export const AgentLanSignedDiscoveryRelaySignedProofCheckSchema = LanSignedDiscoveryRelaySignedProofCheckSchema;
 export const AgentLanSignedDiscoveryRelayRouteSafetyCheckSchema = LanSignedDiscoveryRelayRouteSafetyCheckSchema;
 export const AgentLanSignedDiscoveryRelayCacheCheckSchema = LanSignedDiscoveryRelayCacheCheckSchema;
@@ -50,7 +52,7 @@ export type AgentLanSignedDiscoveryRelayAdapterKind = LanSignedDiscoveryRelayAda
 export type AgentLanSignedDiscoveryRelaySourceConfidence = LanSignedDiscoveryRelaySourceConfidence;
 export type AgentLanSignedDiscoveryRelayCustodyLabel = LanSignedDiscoveryRelayCustodyLabel;
 export type AgentLanSignedDiscoveryRelayRuntimeOwner = LanProductionHouseholdProofRuntimeOwner;
-export type AgentLanSignedDiscoveryRelayProofState = LanSignedDiscoveryRelayProofState;
+export type AgentLanSignedDiscoveryRelayProofState = LanHouseholdProductProofState;
 export type AgentLanSignedDiscoveryRelaySignedProofCheck = LanSignedDiscoveryRelaySignedProofCheck;
 export type AgentLanSignedDiscoveryRelayRouteSafetyCheck = LanSignedDiscoveryRelayRouteSafetyCheck;
 export type AgentLanSignedDiscoveryRelayCacheCheck = LanSignedDiscoveryRelayCacheCheck;

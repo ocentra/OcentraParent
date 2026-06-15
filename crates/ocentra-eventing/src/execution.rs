@@ -1,6 +1,6 @@
 use std::{num::NonZeroUsize, time::Duration};
 
-use crate::EventingError;
+use crate::error::EventingError;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct HandlerExecutionPolicy {

@@ -12,7 +12,7 @@ use ocentra_child_policy_core::policy_control_request_handoff::{
     register_policy_control_request_handoff as register_child_policy_control_request_handoff,
     resolve_policy_control_request_handoff as resolve_child_policy_control_request_handoff,
 };
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
     PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliveryTarget,
     PolicyDeliveryTransition,

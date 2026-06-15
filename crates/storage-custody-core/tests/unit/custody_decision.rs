@@ -1,4 +1,4 @@
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_storage_custody_core::{
     evaluate_storage_custody, plan_storage_custody_actions, storage_custody_action_planned_event,
     storage_custody_decision_recorded_event, LocalPayloadRetentionAction, ParentExportPacketState,

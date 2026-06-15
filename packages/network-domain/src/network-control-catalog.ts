@@ -29,57 +29,54 @@ import {
 } from './network-control-catalog-metadata';
 import {
   NetworkControlCapabilityIdSchema,
-  NetworkControlCapabilitySchema,
+  NetworkControlCapabilitySchema as NetworkControlCapabilitySchemaBase,
   NetworkControlCatalogIdSchema,
-  NetworkControlCatalogSchema,
+  NetworkControlCatalogSchema as NetworkControlCatalogSchemaBase,
   NetworkControlCardKindSchema,
-  NetworkControlEffectivePolicySchema,
+  NetworkControlEffectivePolicySchema as NetworkControlEffectivePolicySchemaBase,
   NetworkControlEffectStatusSchema,
   NetworkControlGroupIdSchema,
   NetworkControlKindSchema,
   NetworkControlOptionIdSchema,
-  NetworkControlPolicyValueSchema,
+  NetworkControlPolicyValueSchema as NetworkControlPolicyValueSchemaBase,
   NetworkControlRuntimeOwnerSchema,
   NetworkControlSectionIdSchema,
   NetworkControlSettingIdSchema,
   NetworkControlUiTabSchema,
-  NetworkControlUpdateCommandSchema,
+  NetworkControlUpdateCommandSchema as NetworkControlUpdateCommandSchemaBase,
   NetworkControlWritesToPathSchema,
-  type NetworkControlCapability,
-  type NetworkControlCatalog,
-  type NetworkControlCatalogGroup,
-  type NetworkControlCatalogSection,
-  type NetworkControlCatalogSetting,
-  type NetworkControlCatalogTab,
-  type NetworkControlEffectivePolicy,
+  type NetworkControlCapability as NetworkControlCapabilityBase,
+  type NetworkControlCatalog as NetworkControlCatalogBase,
+  type NetworkControlCatalogGroup as NetworkControlCatalogGroupBase,
+  type NetworkControlCatalogSection as NetworkControlCatalogSectionBase,
+  type NetworkControlCatalogSetting as NetworkControlCatalogSettingBase,
+  type NetworkControlCatalogTab as NetworkControlCatalogTabBase,
+  type NetworkControlEffectivePolicy as NetworkControlEffectivePolicyBase,
   type NetworkControlEffectStatus,
   type NetworkControlKind,
-  type NetworkControlOption,
-  type NetworkControlPolicyValue,
+  type NetworkControlOption as NetworkControlOptionBase,
+  type NetworkControlPolicyValue as NetworkControlPolicyValueBase,
   type NetworkControlRuntimeOwner,
-  type NetworkControlUpdateCommand,
+  type NetworkControlUpdateCommand as NetworkControlUpdateCommandBase,
 } from './network-control-catalog-schema';
 import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
 
-export {
-  NetworkControlCapabilitySchema,
-  NetworkControlCatalogSchema,
-  NetworkControlEffectivePolicySchema,
-  NetworkControlPolicyValueSchema,
-  NetworkControlUpdateCommandSchema,
-} from './network-control-catalog-schema';
-export type {
-  NetworkControlCapability,
-  NetworkControlCatalog,
-  NetworkControlCatalogGroup,
-  NetworkControlCatalogSection,
-  NetworkControlCatalogSetting,
-  NetworkControlCatalogTab,
-  NetworkControlEffectivePolicy,
-  NetworkControlOption,
-  NetworkControlPolicyValue,
-  NetworkControlUpdateCommand,
-} from './network-control-catalog-schema';
+export const NetworkControlCapabilitySchema = NetworkControlCapabilitySchemaBase;
+export const NetworkControlCatalogSchema = NetworkControlCatalogSchemaBase;
+export const NetworkControlEffectivePolicySchema = NetworkControlEffectivePolicySchemaBase;
+export const NetworkControlPolicyValueSchema = NetworkControlPolicyValueSchemaBase;
+export const NetworkControlUpdateCommandSchema = NetworkControlUpdateCommandSchemaBase;
+
+export type NetworkControlCapability = NetworkControlCapabilityBase;
+export type NetworkControlCatalog = NetworkControlCatalogBase;
+export type NetworkControlCatalogGroup = NetworkControlCatalogGroupBase;
+export type NetworkControlCatalogSection = NetworkControlCatalogSectionBase;
+export type NetworkControlCatalogSetting = NetworkControlCatalogSettingBase;
+export type NetworkControlCatalogTab = NetworkControlCatalogTabBase;
+export type NetworkControlEffectivePolicy = NetworkControlEffectivePolicyBase;
+export type NetworkControlOption = NetworkControlOptionBase;
+export type NetworkControlPolicyValue = NetworkControlPolicyValueBase;
+export type NetworkControlUpdateCommand = NetworkControlUpdateCommandBase;
 
 type GroupDraft = Omit<NetworkControlCatalogGroup, 'settings'> & {
   readonly settings: NetworkControlCatalogSetting[];

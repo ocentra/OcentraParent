@@ -86,26 +86,32 @@ export const PolicyControlApprovalNotificationBoundaryEntrySchema = withParser(
   )
 );
 
+const PolicyControlApprovalNotificationBoundaryReadModelBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  readModelId: PolicyControlApprovalNotificationBoundaryReadModelIdSchema,
+  generatedAt: ParentTimestampSchema,
+  sourceReadModelIds: Schema.Array(PolicyControlApprovalNotificationBoundaryReferenceSchema),
+  returned: BoundaryCountSchema,
+  previewOnlyCount: BoundaryCountSchema,
+  pendingParentReviewCount: BoundaryCountSchema,
+  approvedCount: BoundaryCountSchema,
+  deniedCount: BoundaryCountSchema,
+  modifiedCount: BoundaryCountSchema,
+  expiredRequestCount: BoundaryCountSchema,
+  replayRejectedCount: BoundaryCountSchema,
+  providerDeliveryClaimed: Schema.Literal(false),
+  policyMutationClaimed: Schema.Literal(false),
+  enforcementMutationClaimed: Schema.Literal(false),
+  assistantAutoApprovalClaimed: Schema.Literal(false),
+  entries: Schema.Array(PolicyControlApprovalNotificationBoundaryEntrySchema),
+});
+
+type PolicyControlApprovalNotificationBoundaryReadModelCandidate = Infer<
+  typeof PolicyControlApprovalNotificationBoundaryReadModelBaseSchema
+>;
+
 export const PolicyControlApprovalNotificationBoundaryReadModelSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    readModelId: PolicyControlApprovalNotificationBoundaryReadModelIdSchema,
-    generatedAt: ParentTimestampSchema,
-    sourceReadModelIds: Schema.Array(PolicyControlApprovalNotificationBoundaryReferenceSchema),
-    returned: BoundaryCountSchema,
-    previewOnlyCount: BoundaryCountSchema,
-    pendingParentReviewCount: BoundaryCountSchema,
-    approvedCount: BoundaryCountSchema,
-    deniedCount: BoundaryCountSchema,
-    modifiedCount: BoundaryCountSchema,
-    expiredRequestCount: BoundaryCountSchema,
-    replayRejectedCount: BoundaryCountSchema,
-    providerDeliveryClaimed: Schema.Literal(false),
-    policyMutationClaimed: Schema.Literal(false),
-    enforcementMutationClaimed: Schema.Literal(false),
-    assistantAutoApprovalClaimed: Schema.Literal(false),
-    entries: Schema.Array(PolicyControlApprovalNotificationBoundaryEntrySchema),
-  }).pipe(
+  PolicyControlApprovalNotificationBoundaryReadModelBaseSchema.pipe(
     Schema.filter(
       (readModel) =>
         new Set(readModel.entries.map((entry) => entry.entryId)).size === readModel.entries.length ||
@@ -184,7 +190,7 @@ function policyControlApprovalNotificationEntryIsHonest(
 }
 
 function policyControlApprovalNotificationCountsMatch(
-  readModel: PolicyControlApprovalNotificationBoundaryReadModel
+  readModel: PolicyControlApprovalNotificationBoundaryReadModelCandidate
 ): boolean {
   return (
     readModel.returned === readModel.entries.length &&
@@ -199,7 +205,7 @@ function policyControlApprovalNotificationCountsMatch(
 }
 
 function policyControlApprovalNotificationStatesAreCovered(
-  entries: readonly PolicyControlApprovalNotificationBoundaryEntry[]
+  entries: readonly PolicyControlApprovalNotificationBoundaryEntryCandidate[]
 ): boolean {
   const states = new Set(entries.map((entry) => entry.notificationState));
   return [

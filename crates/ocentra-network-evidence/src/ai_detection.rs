@@ -220,6 +220,9 @@ pub fn evaluate_network_ai_detection_fixtures(
         .ok_or(NetworkAiDetectionEvaluationError::EmptyModelVersionRef)?;
     let baseline_ref = normalize_ref(&input.baseline_ref)
         .ok_or(NetworkAiDetectionEvaluationError::EmptyBaselineRef)?;
+    let minimum_precision_basis_points = input.minimum_precision_basis_points;
+    let minimum_recall_basis_points = input.minimum_recall_basis_points;
+    let maximum_average_drift_basis_points = input.maximum_average_drift_basis_points;
 
     let results = normalize_results(&input)?;
     let counts = count_detection_results(&results);
@@ -230,12 +233,11 @@ pub fn evaluate_network_ai_detection_fixtures(
         ratio_basis_points(counts.true_positive + counts.true_negative, results.len())
             .unwrap_or_default();
     let average_confidence_drift_basis_points = average_drift_basis_points(&results);
-    let precision_state =
-        precision_state(precision_basis_points, input.minimum_precision_basis_points);
-    let recall_state = recall_state(recall_basis_points, input.minimum_recall_basis_points);
+    let precision_state = precision_state(precision_basis_points, minimum_precision_basis_points);
+    let recall_state = recall_state(recall_basis_points, minimum_recall_basis_points);
     let drift_state = drift_state(
         average_confidence_drift_basis_points,
-        input.maximum_average_drift_basis_points,
+        maximum_average_drift_basis_points,
     );
 
     Ok(NetworkAiDetectionEvaluationProof {

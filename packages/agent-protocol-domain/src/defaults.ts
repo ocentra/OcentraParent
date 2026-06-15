@@ -1,10 +1,8 @@
-import { Schema } from '@ocentra-parent/schema-domain/effect';
 import {
   AgentMessageTargetSchema,
   AgentPeerSchema,
   AgentProtocolSchemaVersion,
-  AgentWebSocketUrlSchema,
-} from '@ocentra-parent/evidence-domain/primitives';
+} from '@ocentra-parent/event-domain/primitives';
 import { AgentLanHouseholdDeviceActionKindSchema } from './lan-pairing-browser-add-device-state';
 import {
   AgentLanPairingIntentKindSchema,
@@ -19,11 +17,9 @@ import {
   AgentRouteSecurityPolicySchema,
 } from './security';
 
-const decodeAgentWebSocketUrl = Schema.decodeUnknownSync(AgentWebSocketUrlSchema);
-
 export const AgentProtocolDefaults = {
   SchemaVersion: AgentProtocolSchemaVersion,
-  WebSocketUrl: decodeAgentWebSocketUrl('ws://127.0.0.1:4477/api/dev/ws'),
+  WebSocketUrl: 'ws://127.0.0.1:4477/api/dev/ws',
   MessageIdPrefix: 'cmd-',
   Peer: {
     PortalDev: AgentPeerSchema.parse({

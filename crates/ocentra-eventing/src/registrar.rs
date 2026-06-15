@@ -1,9 +1,10 @@
 use std::{future::Future, mem};
 
-use crate::{
-    DomainEvent, EventBus, EventContext, EventSubscriber, EventingError, SubscriptionHandle,
-    SubscriptionReport, UnsubscribeReport,
-};
+use crate::bus::subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport, UnsubscribeReport};
+use crate::bus::publisher::EventContext;
+use crate::bus::EventBus;
+use crate::envelope::DomainEvent;
+use crate::error::EventingError;
 
 #[derive(Default)]
 pub struct EventRegistrar {

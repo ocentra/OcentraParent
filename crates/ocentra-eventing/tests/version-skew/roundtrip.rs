@@ -1,6 +1,7 @@
-use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventContract, EventCustody, EventEnvelope,
-    EventMetadata, EventSource, EventType, EventingError, IdempotencyKey, RecordedAt,
+use ocentra_eventing::envelope::{DomainEvent, EventContract, EventEnvelope, EventMetadata, EventSource, StoredEventEnvelope};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey, RecordedAt,
     RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService, TargetHandler,
 };
 use serde::{Deserialize, Serialize};
@@ -41,73 +42,82 @@ impl DomainEvent for VersionedRoundtripEvent {
 }
 
 #[test]
-fn stored_envelope_rejects_newer_schema_version_without_silent_decode() {
+fn stored_envelope_rejects_newer_schema_version_without_silent_decode() -> Result<(), Box<dyn std::error::Error>> {
     let live = EventEnvelope::from_event(
         VersionedRoundtripEvent {
             label: String::from("current-contract"),
         },
-        metadata(),
-    )
-    .expect("live envelope builds");
-    let mut stored = live.store().expect("stored envelope builds");
-    stored.contract.schema_version = SchemaVersion::new(2).expect("newer schema version parses");
+        metadata()?,
+    )?;
+    let mut stored = live.store()?;
+    stored.contract.schema_version = SchemaVersion::new(2)?;
 
-    let error = stored
-        .decode::<VersionedRoundtripEvent>()
-        .expect_err("newer stored schema version must fail closed");
+    let error = match stored.decode::<VersionedRoundtripEvent>() {
+        Ok(_) => {
+            return Err(std::io::Error::other("newer stored schema version must fail closed").into());
+        }
+        Err(error) => error,
+    };
 
     assert_eq!(
         error,
         EventingError::ContractMismatch {
-            expected: EventType::parse(TEST_EVENT_TYPE).expect("event type parses"),
-            received: EventType::parse(TEST_EVENT_TYPE).expect("event type parses"),
-            expected_schema_version: SchemaVersion::new(1).expect("expected schema version parses"),
-            received_schema_version: SchemaVersion::new(2).expect("received schema version parses"),
+            expected: EventType::parse(TEST_EVENT_TYPE)?,
+            received: EventType::parse(TEST_EVENT_TYPE)?,
+            expected_schema_version: SchemaVersion::new(1)?,
+            received_schema_version: SchemaVersion::new(2)?,
         }
     );
     assert_eq!(
         error.to_string(),
         "event contract mismatch: expected eventing.version-skew.roundtrip@1, received eventing.version-skew.roundtrip@2"
     );
+    Ok(())
 }
 
 #[test]
-fn stored_envelope_rejects_older_schema_version_without_silent_decode() {
+fn stored_envelope_rejects_older_schema_version_without_silent_decode() -> Result<(), Box<dyn std::error::Error>> {
     let live = EventEnvelope::from_event(
         VersionedRoundtripEvent {
             label: String::from("current-contract"),
         },
-        metadata(),
-    )
-    .expect("live envelope builds");
-    let mut stored = live.store().expect("stored envelope builds");
-    stored.contract.schema_version =
-        SchemaVersion::new(1).expect("stored current schema version parses");
+        metadata()?,
+    )?;
+    let mut stored = live.store()?;
+    stored.contract.schema_version = SchemaVersion::new(1)?;
 
-    let stored_json = serde_json::to_value(&stored).expect("stored envelope serializes");
+    let stored_json = serde_json::to_value(&stored)?;
     let mut skewed_json = stored_json;
     skewed_json["contract"]["schema_version"] = serde_json::Value::from(0);
 
-    let error = serde_json::from_value::<ocentra_eventing::StoredEventEnvelope>(skewed_json)
-        .expect_err("zero stored schema version must fail during deserialize");
+    let error = match serde_json::from_value::<StoredEventEnvelope>(skewed_json) {
+        Ok(_) => {
+            return Err(std::io::Error::other(
+                "zero stored schema version must fail during deserialize",
+            )
+            .into());
+        }
+        Err(error) => error,
+    };
 
     assert!(error
         .to_string()
         .contains("event schema version must be nonzero"));
+    Ok(())
 }
 
-fn metadata() -> EventMetadata {
-    EventMetadata::from_parts(
-        ocentra_eventing::EventId::parse(TEST_EVENT_ID).expect("event id parses"),
-        CorrelationId::parse(TEST_CORRELATION_ID).expect("correlation id parses"),
+fn metadata() -> Result<EventMetadata, EventingError> {
+    Ok(EventMetadata::from_parts(
+        EventId::parse(TEST_EVENT_ID)?,
+        CorrelationId::parse(TEST_CORRELATION_ID)?,
         EventSource::new(
-            EventCustody::parse(TEST_CUSTODY).expect("custody parses"),
-            RuntimeRole::parse(TEST_RUNTIME_ROLE).expect("runtime role parses"),
-            SourceService::parse(TEST_SOURCE_SERVICE).expect("source service parses"),
-            SourceComponent::parse(TEST_SOURCE_COMPONENT).expect("source component parses"),
-            RuntimeInstanceId::parse(TEST_RUNTIME_INSTANCE).expect("runtime instance parses"),
+            EventCustody::parse(TEST_CUSTODY)?,
+            RuntimeRole::parse(TEST_RUNTIME_ROLE)?,
+            SourceService::parse(TEST_SOURCE_SERVICE)?,
+            SourceComponent::parse(TEST_SOURCE_COMPONENT)?,
+            RuntimeInstanceId::parse(TEST_RUNTIME_INSTANCE)?,
         ),
-        RecordedAt::parse(TEST_OBSERVED_AT).expect("observed at parses"),
-        Some(TargetHandler::parse(TEST_TARGET).expect("target handler parses")),
-    )
+        RecordedAt::parse(TEST_OBSERVED_AT)?,
+        Some(TargetHandler::parse(TEST_TARGET)?),
+    ))
 }

@@ -5,7 +5,7 @@ use ocentra_app_game_core::{
     AppGamePolicyHandoffState, AppGameRuntimeActionState, AppGameRuntimeDecisionId,
     AppGameRuntimeInput,
 };
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_parent_agent_protocol::ChildRuntimeDomain;
 
 #[test]

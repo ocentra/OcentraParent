@@ -8,7 +8,7 @@ use ocentra_billing_core::billing_subscription::{
     BillingProviderSignatureState, BillingProviderWebhookEvent,
     BillingProviderWebhookReceivedEvent, BillingSubscriptionLifecycleState,
 };
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 
 const BILLING_AGGREGATE_ID: &str = "billing-household-default";
 const BILLING_PROVIDER_EVENT_ID: &str = "billing-provider-event-default";

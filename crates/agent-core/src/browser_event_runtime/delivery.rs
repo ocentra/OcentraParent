@@ -1,9 +1,10 @@
-use ocentra_eventing::{
+use ocentra_eventing::delivery::{
     decide_event_delivery_route, EventDeliveryBackpressurePolicy, EventDeliveryDecisionError,
     EventDeliveryDecisionInput, EventDeliveryDecisionProof, EventDeliveryDecisionState,
-    EventDeliveryRouteKind, EventDeliverySubscriberFilter, EventNamespace, EventType,
-    EventingError, SourceComponent, SubscriberId, TargetHandler,
+    EventDeliveryRouteKind, EventDeliverySubscriberFilter,
 };
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{EventNamespace, EventType, SourceComponent, SubscriberId, TargetHandler};
 use ocentra_parent_agent_protocol::constants;
 
 use crate::BrowserRuntimePhase;

@@ -6,10 +6,9 @@
 //! local authorization decisions, invite/recovery state, and device-ownership
 //! checks shared by parent and child runtimes.
 
-use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
-};
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use serde::{Deserialize, Serialize};
 
 pub const CRATE_NAME: &str = "ocentra-family-identity-core";
@@ -20,7 +19,6 @@ const DEVICE_SCOPE_DECISION_RECORDED_EVENT_TYPE: &str =
     "family-identity.device-scope-decision.recorded";
 const FAMILY_IDENTITY_IDEMPOTENCY_SEPARATOR: &str = ":";
 const DEVICE_SCOPE_DECISION_PREFIX: &str = "family-identity-device-scope-decision:";
-const ERROR_DEVICE_SCOPE_DECISION_ID: &str = "family identity device scope decision id";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FamilyActorRole {
@@ -265,14 +263,13 @@ pub fn authorize_child_device_scope(input: DeviceScopeInput) -> DeviceScopeDecis
 
 pub fn record_device_scope_decision(
     event: &DeviceScopeEvaluationRequestedEvent,
-) -> DeviceScopeDecisionRecordedEvent {
-    DeviceScopeDecisionRecordedEvent {
+) -> Result<DeviceScopeDecisionRecordedEvent, EventingError> {
+    Ok(DeviceScopeDecisionRecordedEvent {
         aggregate_id: event.aggregate_id.clone(),
-        decision_id: DeviceScopeDecisionId::parse(device_scope_decision_ref(&event.evaluation_id))
-            .expect(ERROR_DEVICE_SCOPE_DECISION_ID),
+        decision_id: DeviceScopeDecisionId::parse(device_scope_decision_ref(&event.evaluation_id))?,
         source_evaluation_id: event.evaluation_id.clone(),
         decision: authorize_child_device_scope(event.input),
-    }
+    })
 }
 
 fn family_identity_event_contract(event_type: &str) -> Result<EventContract, EventingError> {

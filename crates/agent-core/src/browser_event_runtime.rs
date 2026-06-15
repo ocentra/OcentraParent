@@ -1,69 +1,92 @@
-use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventCustody, EventId,
-    EventMetadata, EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey,
+use ocentra_eventing::bus::reports::{DeadLetter, PublishReport};
+use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::bus::subscriber::EventSubscriber;
+use ocentra_eventing::envelope::{DomainEvent, EventContract, EventMetadata, EventSource, StoredEventEnvelope};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey,
     RecordedAt, RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId,
     TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
-mod action_handoff;
+pub(crate) mod action_handoff;
 #[cfg(test)]
-mod action_handoff_child_status;
+pub(crate) mod action_handoff_child_status;
 #[cfg(test)]
-mod action_handoff_child_status_types;
+pub(crate) mod action_handoff_child_status_types;
 #[cfg(test)]
-mod action_handoff_durable;
+pub(crate) mod action_handoff_durable;
 #[cfg(test)]
-mod action_handoff_durable_types;
-mod action_status;
-mod delivery;
-mod social_provider_receipt;
+pub(crate) mod action_handoff_durable_types;
+pub(crate) mod action_status;
+pub(crate) mod delivery;
+pub(crate) mod social_provider_receipt;
 #[cfg(test)]
-mod social_provider_receipt_durable;
+pub(crate) mod social_provider_receipt_durable;
 #[cfg(test)]
-mod social_provider_receipt_durable_types;
-mod topology;
+pub(crate) mod social_provider_receipt_durable_types;
+pub(crate) mod topology;
 
 use crate::{browser_event_runtime_refs::previous_phase_ref, BrowserRuntimePhase};
 
-pub use action_handoff::{
-    browser_runtime_action_intent_handoff_topology_manifest,
-    request_browser_runtime_action_intent_handoff_for_input,
-    BrowserRuntimeActionIntentHandoffReport, BrowserRuntimeActionIntentHandoffResponse,
-};
-#[cfg(test)]
-pub(crate) use action_handoff_child_status::prove_browser_runtime_action_intent_child_status;
-#[cfg(test)]
-pub(crate) use action_handoff_child_status_types::BrowserRuntimeActionIntentChildStatusReadModelState;
-#[cfg(test)]
-pub(crate) use action_handoff_durable::prove_browser_runtime_action_intent_durable_handoff;
-#[cfg(test)]
-pub(crate) use action_handoff_durable_types::BrowserRuntimeActionIntentDurableHandoffReadModelState;
-pub use action_status::{
-    browser_runtime_action_intent_status_topology_manifest,
-    request_browser_runtime_action_intent_status_for_input, BrowserRuntimeActionIntentStatusReport,
-    BrowserRuntimeActionIntentStatusResponse,
-};
-pub use delivery::{
-    prove_browser_runtime_delivery_decision, BrowserRuntimeDeliveryDecisionError,
-    BrowserRuntimeDeliveryDecisionReport,
-};
-pub use social_provider_receipt::{
-    browser_runtime_social_provider_receipt_status_topology_manifest,
-    request_browser_runtime_social_provider_receipt_status_for_input,
-    BrowserRuntimeSocialProviderReceiptStatusReport,
-    BrowserRuntimeSocialProviderReceiptStatusResponse,
-};
-#[cfg(test)]
-pub(crate) use social_provider_receipt_durable::prove_browser_runtime_social_provider_receipt_durable;
-#[cfg(test)]
-pub(crate) use social_provider_receipt_durable_types::BrowserRuntimeSocialProviderReceiptDurableReadModelState;
-pub use topology::browser_runtime_chain_topology_manifest;
-#[cfg(test)]
-pub(crate) use topology::browser_runtime_parent_surface_status_topology_manifest;
-#[cfg(test)]
-pub(crate) use topology::browser_runtime_stream_report_topology_manifest;
+pub type BrowserRuntimeActionIntentHandoffReport = action_handoff::BrowserRuntimeActionIntentHandoffReport;
+pub type BrowserRuntimeActionIntentHandoffResponse = action_handoff::BrowserRuntimeActionIntentHandoffResponse;
+pub type BrowserRuntimeActionIntentStatusReport = action_status::BrowserRuntimeActionIntentStatusReport;
+pub type BrowserRuntimeActionIntentStatusResponse = action_status::BrowserRuntimeActionIntentStatusResponse;
+pub type BrowserRuntimeDeliveryDecisionError = delivery::BrowserRuntimeDeliveryDecisionError;
+pub type BrowserRuntimeDeliveryDecisionReport = delivery::BrowserRuntimeDeliveryDecisionReport;
+pub type BrowserRuntimeSocialProviderReceiptStatusReport =
+    social_provider_receipt::BrowserRuntimeSocialProviderReceiptStatusReport;
+pub type BrowserRuntimeSocialProviderReceiptStatusResponse =
+    social_provider_receipt::BrowserRuntimeSocialProviderReceiptStatusResponse;
+
+pub fn browser_runtime_action_intent_handoff_topology_manifest(
+) -> Result<ocentra_eventing::topology::EventTopologyManifest, EventingError> {
+    action_handoff::browser_runtime_action_intent_handoff_topology_manifest()
+}
+
+pub async fn request_browser_runtime_action_intent_handoff_for_input(
+    input: BrowserRuntimeInput,
+) -> Result<BrowserRuntimeActionIntentHandoffReport, EventingError> {
+    action_handoff::request_browser_runtime_action_intent_handoff_for_input(input).await
+}
+
+pub fn browser_runtime_action_intent_status_topology_manifest(
+) -> Result<ocentra_eventing::topology::EventTopologyManifest, EventingError> {
+    action_status::browser_runtime_action_intent_status_topology_manifest()
+}
+
+pub async fn request_browser_runtime_action_intent_status_for_input(
+    input: BrowserRuntimeInput,
+) -> Result<BrowserRuntimeActionIntentStatusReport, EventingError> {
+    action_status::request_browser_runtime_action_intent_status_for_input(input).await
+}
+
+pub fn prove_browser_runtime_delivery_decision(
+) -> Result<BrowserRuntimeDeliveryDecisionReport, BrowserRuntimeDeliveryDecisionError> {
+    delivery::prove_browser_runtime_delivery_decision()
+}
+
+pub fn browser_runtime_social_provider_receipt_status_topology_manifest(
+) -> Result<ocentra_eventing::topology::EventTopologyManifest, EventingError> {
+    social_provider_receipt::browser_runtime_social_provider_receipt_status_topology_manifest()
+}
+
+pub async fn request_browser_runtime_social_provider_receipt_status_for_input(
+    input: BrowserRuntimeInput,
+) -> Result<BrowserRuntimeSocialProviderReceiptStatusReport, EventingError> {
+    social_provider_receipt::request_browser_runtime_social_provider_receipt_status_for_input(
+        input,
+    )
+    .await
+}
+
+pub fn browser_runtime_chain_topology_manifest(
+) -> Result<ocentra_eventing::topology::EventTopologyManifest, EventingError> {
+    topology::browser_runtime_chain_topology_manifest()
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BrowserRuntimeInput {
@@ -257,9 +280,9 @@ impl DomainEvent for BrowserRuntimeEventPayload {
 
 #[derive(Clone, Debug)]
 pub struct BrowserRuntimeReport {
-    pub publish_reports: Vec<ocentra_eventing::PublishReport>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub publish_reports: Vec<PublishReport>,
+    pub stored_events: Vec<StoredEventEnvelope>,
+    pub dead_letters: Vec<DeadLetter>,
 }
 
 impl BrowserRuntimeReport {

@@ -224,7 +224,6 @@ export function parseAgentAppGameAdapterDispatchPreflightEvent(
   };
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function dispatchPreflightRowIsHonest(row: AgentAppGameAdapterDispatchPreflightRowCandidate): boolean {
   if (row.dispatchPreflightState === AgentAppGameAdapterDispatchPreflightState.DispatchEligible) {
     return (

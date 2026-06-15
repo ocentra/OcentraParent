@@ -83,7 +83,7 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       publish/routing, queue/drain, request-response, and runtime event-chain
       streaming without moving network, AI, policy, enforcement, or portal
       business logic into the reusable bus.
-- [ ] `12-household-mesh-consumer-proof.log`: consumer-layer proof that a
+- [x] `12-household-mesh-consumer-proof.log`: consumer-layer proof that a
       Household Mesh Bridge exports only selected local events into typed
       authenticated LAN messages, validates incoming messages before local
       republish, rejects unselected or mismatched event/message refs, rejects

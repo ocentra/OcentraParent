@@ -1,4 +1,6 @@
 use ocentra_parent_agent_protocol::constants;
+use ocentra_eventing::envelope::EventEnvelope;
+use ocentra_eventing::ids::EventType;
 
 use super::{
     publish_screen_capture_queue_events_for_input, publish_screen_degraded_event_chain_for_input,
@@ -35,14 +37,16 @@ async fn screen_runtime_chain_publishes_uncoupled_lifecycle_flow() {
     assert_eq!(
         count_event_type(
             &report,
-            constants::screen_flow::EVENT_SCREEN_ACTION_DRY_RUN_RECORDED
+            EventType::parse(constants::screen_flow::EVENT_SCREEN_ACTION_DRY_RUN_RECORDED)
+                .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
         ),
         1
     );
     assert_eq!(
         count_event_type(
             &report,
-            constants::screen_flow::EVENT_SCREEN_DELETION_COMMITTED
+            EventType::parse(constants::screen_flow::EVENT_SCREEN_DELETION_COMMITTED)
+                .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES)
         ),
         1
     );
@@ -267,7 +271,7 @@ fn decode_payloads(report: &ScreenRuntimeReport) -> Vec<ScreenRuntimeEventPayloa
         .stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::EventEnvelope<ScreenRuntimeEventPayload> = event
+            let envelope: EventEnvelope<ScreenRuntimeEventPayload> = event
                 .decode()
                 .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES);
             envelope.payload
@@ -275,11 +279,11 @@ fn decode_payloads(report: &ScreenRuntimeReport) -> Vec<ScreenRuntimeEventPayloa
         .collect()
 }
 
-fn count_event_type(report: &ScreenRuntimeReport, event_type: &str) -> usize {
+fn count_event_type(report: &ScreenRuntimeReport, event_type: EventType) -> usize {
     report
         .stored_events
         .iter()
-        .filter(|event| event.contract.event_type.as_str() == event_type)
+        .filter(|event| event.contract.event_type == event_type)
         .count()
 }
 

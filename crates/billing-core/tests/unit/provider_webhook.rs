@@ -8,7 +8,7 @@ use ocentra_billing_core::billing_subscription::{
     BillingProviderSignatureState, BillingProviderWebhookEvent,
     BillingProviderWebhookReceivedEvent, BillingSubscriptionLifecycleState,
 };
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 
 fn provider_event() -> BillingProviderWebhookEvent {
     provider_event_with(

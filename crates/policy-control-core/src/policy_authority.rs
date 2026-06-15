@@ -7,10 +7,11 @@
 //! evidence interpretation; enforcement crates own adapter execution.
 
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
+    envelope::{DomainEvent, EventContract},
+    error::EventingError,
+    ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion},
 };
-pub use ocentra_evidence::EvidenceReferenceState;
+use ocentra_evidence::EvidenceReferenceState;
 use serde::{Deserialize, Serialize};
 
 pub const CRATE_NAME: &str = "ocentra-policy-control-core";

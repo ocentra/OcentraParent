@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 
 const proofRoot = join('output', 'eventing-plan-proof', '67-lock-await');
 mkdirSync(proofRoot, { recursive: true });
+process.env.SOURCE_SHAPE_ROOT_PREFIX = 'crates/ocentra-eventing';
 
 const commands = [
   {
@@ -61,7 +62,9 @@ const sourceAssertions = [
   ['journal-append-has-semaphore-gate', ndjsonSource.includes('append_gate: Arc<Semaphore>')],
   [
     'journal-reserves-state-before-await',
-    /let append = \{\s*let (?:mut )?state = self\.state\.lock\(\)/s.test(ndjsonSource),
+    /let append = \{\s*let state = lock_unpoison\(&self\.state\);\s*let next_sequence = state\.next_sequence\.saturating_add\(1\);/s.test(
+      ndjsonSource
+    ),
   ],
   [
     'journal-writes-after-state-block',
@@ -99,7 +102,7 @@ const sourceAssertions = [
   ],
   [
     'aggregate-map-lock-only-returns-gate',
-    /fn aggregate_gate[\s\S]*Arc::clone\([\s\S]*or_insert_with\(\|\| Arc::new\(Semaphore::new\(1\)\)\)/s.test(
+    /fn aggregate_gate[\s\S]*or_insert_with\(\|\| Arc::new\(Semaphore::new\(1\)\)\)[\s\S]*Arc::clone\(gate\)/s.test(
       aggregateGateSource
     ),
   ],

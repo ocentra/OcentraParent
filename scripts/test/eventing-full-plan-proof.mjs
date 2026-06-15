@@ -9,6 +9,8 @@ mkdirSync(proofRoot, { recursive: true });
 mkdirSync(testRoot, { recursive: true });
 mkdirSync(logRoot, { recursive: true });
 
+process.env.SOURCE_SHAPE_ROOT_PREFIX = 'crates/ocentra-eventing';
+
 const proofScripts = [
   'eventing-branded-fixture-parity-proof.mjs',
   'eventing-command-boundary-proof.mjs',
@@ -57,9 +59,9 @@ const directCommands = [
     args: ['clippy', '-p', 'ocentra-eventing', '--all-targets', '--', '-D', 'warnings'],
   },
   {
-    name: 'source-shape',
+    name: 'eventing-source-shape',
     command: 'node',
-    args: ['scripts/check-source-shape.mjs'],
+    args: [join('scripts', 'test', 'eventing-source-shape-proof.mjs')],
   },
   {
     name: 'git-diff-check',

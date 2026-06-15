@@ -1,6 +1,8 @@
-use ocentra_eventing::{
-    CorrelationId, DeadLetterEvent, DeadLetterReason, EventContractRegistry, EventId, EventType,
-};
+use std::io::{self, Write};
+
+use ocentra_eventing::bus::reports::{DeadLetterEvent, DeadLetterReason};
+use ocentra_eventing::contract_registry::EventContractRegistry;
+use ocentra_eventing::ids::{CorrelationId, EventId, EventType};
 
 const EXAMPLE_ORIGINAL_EVENT_ID: &str = "eventing-example-original-1";
 const EXAMPLE_ORIGINAL_EVENT_TYPE: &str = "eventing.example.original";
@@ -18,6 +20,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut registry = EventContractRegistry::new();
     registry.register_event(&event)?;
-    print!("{}", registry.render_markdown().as_str());
+    let mut stdout = io::stdout().lock();
+    let markdown = registry.render_markdown().into_string();
+    stdout.write_all(markdown.as_bytes())?;
     Ok(())
 }

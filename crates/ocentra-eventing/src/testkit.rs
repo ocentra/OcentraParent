@@ -3,9 +3,12 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::{
-    DomainEvent, EventBus, EventEnvelope, EventSubscriber, EventingError, SubscriptionHandle,
-};
+use crate::bus::EventBus;
+use crate::envelope::{DomainEvent, EventEnvelope};
+use crate::error::EventingError;
+use crate::bus::subscriber::EventSubscriber;
+use crate::bus::subscriber::SubscriptionHandle;
+use crate::sync::lock_unpoison;
 
 pub struct EventRecorder<E>
 where
@@ -30,10 +33,7 @@ where
             .subscribe_with_handle::<E, _, _>(subscriber, move |context| {
                 let recorded_events = Arc::clone(&recorded_events);
                 async move {
-                    recorded_events
-                        .lock()
-                        .expect("event recorder lock")
-                        .push(context.envelope().clone());
+                    lock_unpoison(&recorded_events).push(context.envelope().clone());
                     Ok(())
                 }
             })
@@ -46,7 +46,7 @@ where
     }
 
     pub async fn recorded(&self) -> Vec<EventEnvelope<E>> {
-        self.events.lock().expect("event recorder lock").clone()
+        lock_unpoison(&self.events).clone()
     }
 
     pub fn unsubscribe(&self) -> bool {

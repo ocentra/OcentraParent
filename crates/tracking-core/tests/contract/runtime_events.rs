@@ -1,4 +1,4 @@
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_parent_agent_protocol::{
     constants, tracking_evidence_ref_from_observation_id, TrackingCapabilityStatus,
     TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRef, TrackingObservationId,

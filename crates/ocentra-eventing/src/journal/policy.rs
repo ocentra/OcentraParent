@@ -1,4 +1,5 @@
-use crate::{EventNamespace, EventType, StoredEventEnvelope};
+use crate::envelope::StoredEventEnvelope;
+use crate::ids::{EventNamespace, EventType};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JournalMode {

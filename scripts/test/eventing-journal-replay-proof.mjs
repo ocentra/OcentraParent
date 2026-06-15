@@ -76,7 +76,13 @@ const sourceAssertions = [
   ['projection-only-mode', replaySource.includes('ProjectionOnly')],
   ['action-mode-explicit', replaySource.includes('ActionHandlersAllowed')],
   ['projection-safety-gate', busSource.includes('ReplayActionNotAllowed')],
-  ['public-exports', libSource.includes('EventJournal') && libSource.includes('ReplayFilter')],
+  [
+    'module-surfaces',
+    libSource.includes('pub mod journal;') &&
+      libSource.includes('pub mod replay;') &&
+      journalSource.includes('pub trait EventJournal') &&
+      replaySource.includes('pub struct ReplayFilter'),
+  ],
   ['ndjson-test', journalTests.includes('ndjson_journal_appends_one_object_per_line_with_hash_chain')],
   ['selector-test', journalTests.includes('bus_journal_policy_honors_before_after_and_selected_journaling')],
   ['replay-filter-test', journalTests.includes('replay_cursor_and_filters_read_ordered_projection_records')],

@@ -5,6 +5,14 @@
   "type": "module",
   "description": "Device activity capture, journal, read-model, and family aggregation contracts.",
   "exports": {
+    "./browser-ai-parent-explanation-schemas": {
+      "import": "./dist/browser-ai-parent-explanation-schemas.js",
+      "types": "./dist/browser-ai-parent-explanation-schemas.d.ts"
+    },
+    "./browser-ai-parent-explanation-values": {
+      "import": "./dist/browser-ai-parent-explanation-values.js",
+      "types": "./dist/browser-ai-parent-explanation-values.d.ts"
+    },
     "./activity-family-aggregation": {
       "import": "./dist/activity-family-aggregation.js",
       "types": "./dist/activity-family-aggregation.d.ts"

@@ -9,6 +9,8 @@ use std::{
 use serde::{Deserialize, Serialize};
 use tokio::sync::oneshot;
 
+use crate::sync::lock_unpoison;
+
 pub type EventClockSleep<'a> = Pin<Box<dyn Future<Output = ()> + Send + 'a>>;
 pub type SharedEventClock = Arc<dyn EventClock>;
 
@@ -89,11 +91,8 @@ impl ManualEventClock {
 
     pub fn advance(&self, duration: Duration) {
         let ready_sleepers = {
-            let mut state = self.state.lock().expect("manual event clock lock");
-            state.now = state
-                .now
-                .checked_add(duration)
-                .expect("manual event clock duration overflow");
+            let mut state = lock_unpoison(&self.state);
+            state.now = state.now.saturating_add(duration);
             let ready_targets = state
                 .sleepers
                 .keys()
@@ -114,24 +113,18 @@ impl ManualEventClock {
     }
 
     pub fn pending_sleep_count(&self) -> usize {
-        self.state
-            .lock()
-            .expect("manual event clock lock")
-            .sleepers
-            .values()
-            .map(Vec::len)
-            .sum()
+        lock_unpoison(&self.state).sleepers.values().map(Vec::len).sum()
     }
 }
 
 impl EventClock for ManualEventClock {
     fn now(&self) -> EventClockInstant {
-        EventClockInstant::from(self.state.lock().expect("manual event clock lock").now)
+        EventClockInstant::from(lock_unpoison(&self.state).now)
     }
 
     fn sleep<'a>(&'a self, duration: Duration) -> EventClockSleep<'a> {
         let receiver = {
-            let mut state = self.state.lock().expect("manual event clock lock");
+            let mut state = lock_unpoison(&self.state);
             let Some(target) = state.now.checked_add(duration) else {
                 return Box::pin(async {});
             };

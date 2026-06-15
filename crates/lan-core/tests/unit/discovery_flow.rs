@@ -1,4 +1,4 @@
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_lan_core::{
     evaluate_lan_discovery, lan_ai_analysis_requested_event, lan_discovery_decision_recorded_event,
     lan_evidence_recorded_event, lan_observed_event, lan_policy_evaluation_requested_event,

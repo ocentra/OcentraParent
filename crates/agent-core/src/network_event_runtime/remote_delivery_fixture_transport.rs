@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_outbox_handoff;
+use super::remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff;
 use super::remote_delivery_event_chain_store::source_component;
 use super::remote_delivery_fixture_transport_types::{
     NetworkRuntimeRemoteDeliveryFixtureTransportError,
@@ -114,9 +114,9 @@ fn build_fixture_transport_report(
 
 fn fixture_record(
     candidate: &NetworkRuntimeRemoteDeliveryOutboxCandidate,
-    fixture_transport_ref: &ocentra_eventing::SourceComponent,
-    fixture_dispatch_attempt_ref: &ocentra_eventing::SourceComponent,
-    fixture_ack_ref: &ocentra_eventing::SourceComponent,
+    fixture_transport_ref: &ocentra_eventing::ids::SourceComponent,
+    fixture_dispatch_attempt_ref: &ocentra_eventing::ids::SourceComponent,
+    fixture_ack_ref: &ocentra_eventing::ids::SourceComponent,
 ) -> NetworkRuntimeRemoteDeliveryFixtureTransportRecord {
     NetworkRuntimeRemoteDeliveryFixtureTransportRecord {
         sequence: candidate.sequence,

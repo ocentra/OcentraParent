@@ -56,8 +56,8 @@ This folder is the implementation plan for a reusable Rust event bus inspired by
 
 - Workpacks indexed: 12 route workpacks.
 - Workpack source: `05-implementation-workpacks.md` rows split into focused files under `workpacks/`.
-- Workpacks with implementation proof complete: 0.
-- Workpacks open: 12.
+- Workpacks with implementation proof complete: 1.
+- Workpacks open: 11.
 - Current meaning: the plan is now routeable, but not implementation-complete.
 
 ### Active/open workpacks
@@ -71,9 +71,12 @@ This folder is the implementation plan for a reusable Rust event bus inspired by
 - WP07 parent protocol event contracts.
 - WP08 parent runtime integration.
 - WP09 network consumer event chain.
-- WP10 LAN household mesh consumer.
 - WP11 type safety and ownership hardening.
 - WP12 rollout proof and PR gate.
+
+### Completed workpacks
+
+- WP10 LAN household mesh consumer.
 
 ## Validation reality
 

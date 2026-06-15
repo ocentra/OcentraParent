@@ -28,7 +28,7 @@ This file records documentation health and consistency checks for the plan. It i
 
 - Previous generated index said there was no workpack route. That was stale because the detailed workpack plan lived in `05-implementation-workpacks.md`. The plan now has 12 focused route workpacks under `workpacks/`.
 - Checklist counts still come from the large implementation checklist. Before DONE/PR_READY, verify the assigned route workpack and exact checklist rows match the current proof.
-- The reusable crate and TS mirror pass their direct test suites, but the plan proof pack is still blocked by workspace clippy lints (`expect_used`, `clone_on_ref_ptr`, `needless_pass_by_value`) in `ocentra-eventing`, including library and test targets.
+- The reusable crate and TS mirror pass their direct test suites, WP10 household mesh consumer proof is complete, but the plan proof pack is still blocked by workspace clippy lints (`expect_used`, `clone_on_ref_ptr`, `needless_pass_by_value`) in `ocentra-eventing`, including library and test targets.
 - Do not treat `cargo test` passing as plan closure while the proof pack and rollout gate are still red.
 
 ## Required hygiene before PR_READY
