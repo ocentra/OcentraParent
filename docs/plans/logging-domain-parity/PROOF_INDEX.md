@@ -25,10 +25,6 @@ output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/
 output/logging-domain-parity-proof/04-rust-logging-core-crate/
 output/logging-domain-parity-proof/05-local-validation-evidence/
 output/logging-domain-parity-proof/06-validation-and-enforcement/
-output/logging-domain-parity-proof/07-mcp-query-interface/
-output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/
-output/logging-domain-parity-proof/09-log-control-retention-bridge-lifecycle/
-output/logging-domain-parity-proof/10-proof-trace-pipeline/
 ```
 
 Test result roots:
@@ -40,10 +36,6 @@ test-results/logging-domain-parity-routing/
 test-results/logging-domain-parity-rust-core/
 test-results/logging-domain-parity-local-evidence/
 test-results/logging-domain-parity-validation/
-test-results/logging-domain-parity-mcp/
-test-results/logging-domain-parity-instrumentation/
-test-results/logging-domain-parity-control-lifecycle/
-test-results/logging-domain-parity-proof-trace/
 ```
 
 ## Required proof files per workpack
@@ -55,7 +47,6 @@ test-results/logging-domain-parity-proof-trace/
 01-parent-current-state.json
 02-live-usage-map.json
 03-gap-summary.md
-04-existing-mcp-audit.json
 16-validation-commands.log
 ```
 
@@ -79,17 +70,6 @@ test-results/logging-domain-parity-proof-trace/
 16-validation-commands.log
 ```
 
-### WP09
-
-```text
-00-log-decision-provider-proof.json
-01-wipe-scope-proof.json
-02-retention-cleanup-proof.json
-03-bridge-run-lifecycle-proof.json
-04-tunnel-mode-decision-proof.json
-16-validation-commands.log
-```
-
 ### WP04
 
 ```text
@@ -108,40 +88,6 @@ test-results/logging-domain-parity-proof-trace/
 02-codex-evidence-smoke.txt
 03-diagnostic-parser-proof.json
 04-local-artifact-proof.json
-16-validation-commands.log
-```
-
-### WP07
-
-```text
-00-existing-mcp-audit.json
-01-mcp-tool-list.json
-02-mcp-latest-failures-smoke.json
-03-mcp-run-diagnostics-smoke.json
-04-mcp-artifact-slice-smoke.json
-05-cli-mcp-query-parity-proof.json
-16-validation-commands.log
-```
-
-### WP08
-
-```text
-00-instrumentation-surface-map.json
-01-typescript-logger-pattern-proof.json
-02-rust-logger-pattern-proof.json
-03-storage-observability-proof.json
-04-mcp-source-context-proof.json
-16-validation-commands.log
-```
-
-### WP10
-
-```text
-00-proof-trace-mode-proof.json
-01-playwright-click-trace-proof.json
-02-proof-trace-query-proof.json
-03-proof-trace-gap-proof.json
-04-mcp-proof-trace-proof.json
 16-validation-commands.log
 ```
 
@@ -185,10 +131,6 @@ product runtime logging readiness
 full repo validation
 logging-domain parity complete
 Codex evidence wrapper complete
-MCP logging interface complete
-logger instrumentation complete for the whole repo
-log retention policy complete for all products
-proof-trace coverage for all product flows
 ```
 
 unless the assigned workpack acceptance criteria and validation scripts prove it.
@@ -200,11 +142,5 @@ local bridge smoke passed
 package export parity passed
 Rust NDJSON writer test passed
 agent-run controlled failure recorded
-MCP existing-framework audit completed
-MCP latest-failures smoke passed
-source/context query proof passed
-log decision provider proof passed
-wipe/retention smoke passed
-one proof-trace smoke passed
 validation script negative check passed
 ```
