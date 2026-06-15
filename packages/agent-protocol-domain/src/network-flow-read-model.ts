@@ -3,9 +3,9 @@ import {
   ActivityNetworkFlowReadModelSchema,
   type ActivityNetworkFlowDigest,
   type ActivityNetworkFlowReadModel,
-} from '@ocentra-parent/activity-domain/network-flow';
-import type { ActivityEvidenceRef } from '@ocentra-parent/activity-domain/contracts';
-import { decodeActivityEvidenceId, type ActivityEvidenceId } from '@ocentra-parent/activity-domain/primitives';
+} from '@ocentra-parent/network-domain/network-flow';
+import type { ActivityEvidenceRef } from '@ocentra-parent/evidence-domain/contracts';
+import { decodeActivityEvidenceId, type ActivityEvidenceId } from '@ocentra-parent/evidence-domain/primitives';
 import { ActivityQuerySchemaVersion } from '@ocentra-parent/activity-domain/query';
 import { AgentProtocolDefaults, isAgentProtocolLogText, type AgentProtocolLogFields } from './contracts';
 

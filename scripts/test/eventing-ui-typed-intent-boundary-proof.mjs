@@ -65,6 +65,7 @@ async function main() {
       'src/portal-actions.ts',
       'src/portal-command-controls.ts',
       'src/TrackingStatusRoutePanel.tsx',
+      '../../packages/agent-protocol-domain/src/agent-message-codec.ts',
       '../../packages/portal-domain/src/commands.ts',
     ])
   );
@@ -81,6 +82,7 @@ async function main() {
     proofLabels,
     evidence: {
       portalAgentClient: 'apps/portal/src/agent-client.ts',
+      protocolAgentMessageCodec: 'packages/agent-protocol-domain/src/agent-message-codec.ts',
       portalTransport: 'apps/portal/src/transport.ts',
       portalActions: 'apps/portal/src/portal-actions.ts',
       portalCommandControls: 'apps/portal/src/portal-command-controls.ts',
@@ -115,6 +117,7 @@ async function main() {
 
 async function assertPortalTypedIntentBoundary() {
   const agentClient = await readText('apps/portal/src/agent-client.ts');
+  const protocolAgentMessageCodec = await readText('packages/agent-protocol-domain/src/agent-message-codec.ts');
   const transport = await readText('apps/portal/src/transport.ts');
   const main = await readText('apps/portal/src/main.ts');
   const portalActions = await readText('apps/portal/src/portal-actions.ts');
@@ -122,26 +125,48 @@ async function assertPortalTypedIntentBoundary() {
   const trackingPanel = await readText('apps/portal/src/TrackingStatusRoutePanel.tsx');
   const portalCommands = await readText('packages/portal-domain/src/commands.ts');
 
-  assertIncludes(agentClient, 'AgentCommandEnvelopeSchema.parse', 'agent client validates command envelopes');
-  assertIncludes(agentClient, 'command: AgentCommandName', 'agent client command type is AgentCommandName');
   assertIncludes(
     agentClient,
+    '@ocentra-parent/agent-protocol-domain/agent-message-codec',
+    'portal agent client delegates to protocol-domain codec'
+  );
+  assertIncludes(
+    protocolAgentMessageCodec,
+    'AgentCommandEnvelopeSchema.parse',
+    'agent message codec validates command envelopes'
+  );
+  assertIncludes(
+    protocolAgentMessageCodec,
+    'command: AgentCommandName',
+    'agent message codec command type is AgentCommandName'
+  );
+  assertIncludes(
+    protocolAgentMessageCodec,
     'serializeAgentCommand(command: AgentCommandEnvelope)',
     'serializer accepts command envelope'
   );
-  assertIncludes(agentClient, 'JSON.stringify(command)', 'serializer only serializes validated command envelope');
   assertIncludes(
-    agentClient,
+    protocolAgentMessageCodec,
+    'JSON.stringify(command)',
+    'serializer only serializes validated command envelope'
+  );
+  assertIncludes(
+    protocolAgentMessageCodec,
     'AgentEventEnvelopeSchema.parse(payload)',
     'event parser validates inbound service events'
   );
-  proofLabels.push('portal.agent-client.command-envelope-only');
-  proofLabels.push('portal.agent-client.event-readmodel-parse-only');
+  proofLabels.push('agent-protocol-domain.codec.command-envelope-only');
+  proofLabels.push('agent-protocol-domain.codec.event-readmodel-parse-only');
 
   const socketSendCount = countMatches(transport, 'socket.send(');
   if (socketSendCount !== 1) {
     throw new Error(`transport socket.send count: expected 1, got ${socketSendCount}`);
   }
+  assertIncludes(
+    transport,
+    '@ocentra-parent/agent-protocol-domain/agent-message-codec',
+    'transport consumes protocol-domain codec'
+  );
   assertIncludes(
     transport,
     'socket.send(serializeAgentCommand(createAgentCommand(command, payload, target)))',

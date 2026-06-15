@@ -1,7 +1,7 @@
 import {
   SocialAlertReportIntentSchema,
   type SocialAlertReportIntent,
-} from '@ocentra-parent/parent-domain/social-alert-report-intent';
+} from '@ocentra-parent/social-domain/social-alert-report-intent';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 

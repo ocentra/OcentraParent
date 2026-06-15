@@ -15,8 +15,8 @@ async function main() {
   buildWorkspace('@ocentra-parent/activity-domain');
   buildWorkspace('@ocentra-parent/parent-domain');
 
-  const activityProof = await import('@ocentra-parent/activity-domain/screen-ai-browser-trigger-proof');
-  const parentContext = await import('@ocentra-parent/parent-domain/local-ai-context-builder');
+  const activityProof = await import('@ocentra-parent/screen-domain/screen-ai-browser-trigger-proof');
+  const parentContext = await import('@ocentra-parent/ai-domain/local-ai-context-builder');
 
   const rows = activityProof.screenAiBrowserTriggerProof.rows;
   const localAiRows = rows.map((row) => localAiRow(row, parentContext.buildLocalAiEvidenceContext));
@@ -28,8 +28,8 @@ async function main() {
     schemaVersion: 1,
     proofMode: 'screen-ai-browser-trigger-proof',
     generatedAt: new Date().toISOString(),
-    proofContract: '@ocentra-parent/activity-domain/screen-ai-browser-trigger-proof',
-    localAiContextBuilder: '@ocentra-parent/parent-domain/local-ai-context-builder',
+    proofContract: '@ocentra-parent/screen-domain/screen-ai-browser-trigger-proof',
+    localAiContextBuilder: '@ocentra-parent/ai-domain/local-ai-context-builder',
     rows: rows.map((row) => proofRowSummary(row)),
     localAiRows,
     summary: {

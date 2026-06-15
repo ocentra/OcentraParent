@@ -70,7 +70,7 @@ const adapter = readFileSync(
   'utf8'
 );
 assert(
-  adapter.includes('@ocentra-parent/activity-domain/screen-evidence-settings'),
+  adapter.includes('@ocentra-parent/screen-domain/screen-evidence-settings'),
   'screen settings adapter must import the owning settings schema entrypoint'
 );
 assert(
@@ -111,7 +111,7 @@ const summary = {
     'A replace command that asks to retain raw screenshots is rejected before persistence and leaves no local settings store file.',
   ],
   custody: {
-    parentSettingSchemaOwner: '@ocentra-parent/activity-domain/screen-evidence-settings',
+    parentSettingSchemaOwner: '@ocentra-parent/screen-domain/screen-evidence-settings',
     transportOwner: '@ocentra-parent/agent-protocol-domain and crates/agent-protocol',
     serviceStore: 'local child-device JSON service store',
     rawImageRetainedDefault: false,

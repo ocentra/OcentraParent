@@ -102,7 +102,7 @@ try {
 
 async function buildProofBundle() {
   const { SocialAuditExplanationSnapshotSchema } =
-    await import('@ocentra-parent/parent-domain/social-audit-explanation-read-model');
+    await import('@ocentra-parent/social-domain/social-audit-explanation-read-model');
   return SocialAuditExplanationSnapshotSchema.parse(validSnapshot());
 }
 

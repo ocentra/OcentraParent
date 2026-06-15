@@ -28,7 +28,7 @@ async function main() {
 
   const proofModule = await loadExternalRuntimeTransportQueueProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-external-runtime-transport-queue-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-transport-queue-proof');
   assert.equal(
     packageProofModule.AppInstallPurchaseExternalRuntimeTransportQueueProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseExternalRuntimeTransportQueueProofReadModel.schemaVersion
@@ -83,7 +83,7 @@ async function main() {
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
-      packageExport: '@ocentra-parent/parent-domain/app-install-purchase-external-runtime-transport-queue-proof',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-transport-queue-proof',
       packageReadme: 'packages/parent-domain/README.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval deferred by E-C lock',
       output: relative(repoRoot, proofPath),

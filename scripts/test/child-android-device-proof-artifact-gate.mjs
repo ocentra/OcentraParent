@@ -212,7 +212,7 @@ function addDevicePairingInput(input, source, readinessState) {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await import('@ocentra-parent/parent-domain/child-android-device-proof-artifact-gate');
+  const module = await import('@ocentra-parent/child-runtime-domain/child-android-device-proof-artifact-gate');
   const parsed = module.ChildAndroidDeviceProofArtifactGateReadModelSchema.parse(readModel);
   proofLabels.push('parent-domain.child-android-device-proof-artifact-gate-parse');
   return parsed;

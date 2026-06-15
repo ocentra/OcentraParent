@@ -75,7 +75,7 @@ function proof() {
     commands,
     proofLabels,
     evidence: {
-      parentContract: 'packages/parent-domain/src/lan-pairing-browser-runtime.ts',
+      parentContract: 'packages/lan-domain/src/lan-pairing-browser-runtime.ts',
       agentProtocolContract: 'packages/agent-protocol-domain/src/lan-pairing-browser-runtime.ts',
       rustProtocolContract: 'crates/agent-protocol/src/lan_pairing_browser_runtime.rs',
       rustServiceAdapter: 'crates/agent-service/src/lan_pairing_browser_runtime.rs',

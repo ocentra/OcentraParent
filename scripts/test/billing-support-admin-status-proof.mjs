@@ -41,7 +41,7 @@ async function main() {
       contract: 'packages/parent-domain/src/billing-support-admin-status-proof.ts',
       values: 'packages/parent-domain/src/billing-support-admin-status-values.ts',
       contractTest: 'packages/parent-domain/tests/billing-support-admin-status-proof.test.ts',
-      packageExport: '@ocentra-parent/parent-domain/billing-support-admin-status-proof',
+      packageExport: '@ocentra-parent/billing-domain/billing-support-admin-status-proof',
       documentation,
       proof: relativePath(proofPath),
       summary: relativePath(summaryPath),
@@ -83,7 +83,7 @@ async function main() {
 }
 
 async function assertPublicPackageExport() {
-  const module = await import('@ocentra-parent/parent-domain/billing-support-admin-status-proof');
+  const module = await import('@ocentra-parent/billing-domain/billing-support-admin-status-proof');
   const proof = module.BillingSupportAdminStatusProofReadModel;
 
   assert.equal(proof.schemaVersion, proofMode);

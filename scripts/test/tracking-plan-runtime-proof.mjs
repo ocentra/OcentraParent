@@ -114,7 +114,7 @@ async function main() {
 
 async function runPackageBoundaryProof() {
   const source = [
-    "const module = await import('@ocentra-parent/activity-domain/tracking');",
+    "const module = await import('@ocentra-parent/tracking-domain/tracking');",
     "if (typeof module.evaluateTrackingGeofenceTransition !== 'function') throw new Error('tracking export missing runtime helper');",
     "if (typeof module.TrackingReadModelSchema?.parse !== 'function') throw new Error('tracking export missing read model schema');",
   ].join(' ');

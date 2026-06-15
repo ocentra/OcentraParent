@@ -1,0 +1,77 @@
+{
+  "name": "@ocentra-parent/app-game-domain",
+  "private": true,
+  "version": "0.1.1",
+  "type": "module",
+  "description": "App and native-game inventory, policy, runtime, and parent-surface contracts.",
+  "exports": {
+    "./*": {
+      "import": "./dist/*.js",
+      "types": "./dist/*.d.ts"
+    },
+    "./app-game": {
+      "import": "./dist/app-game.js",
+      "types": "./dist/app-game.d.ts"
+    },
+    "./app-game-category-risk": {
+      "import": "./dist/app-game-category-risk.js",
+      "types": "./dist/app-game-category-risk.d.ts"
+    },
+    "./app-game-category-risk-primitives": {
+      "import": "./dist/app-game-category-risk-primitives.js",
+      "types": "./dist/app-game-category-risk-primitives.d.ts"
+    },
+    "./app-game-foreground": {
+      "import": "./dist/app-game-foreground.js",
+      "types": "./dist/app-game-foreground.d.ts"
+    },
+    "./app-game-identity-primitives": {
+      "import": "./dist/app-game-identity-primitives.js",
+      "types": "./dist/app-game-identity-primitives.d.ts"
+    },
+    "./app-game-inventory": {
+      "import": "./dist/app-game-inventory.js",
+      "types": "./dist/app-game-inventory.d.ts"
+    },
+    "./app-game-inventory-primitives": {
+      "import": "./dist/app-game-inventory-primitives.js",
+      "types": "./dist/app-game-inventory-primitives.d.ts"
+    },
+    "./app-game-launcher": {
+      "import": "./dist/app-game-launcher.js",
+      "types": "./dist/app-game-launcher.d.ts"
+    },
+    "./app-game-primitives": {
+      "import": "./dist/app-game-primitives.js",
+      "types": "./dist/app-game-primitives.d.ts"
+    },
+    "./app-game-runtime": {
+      "import": "./dist/app-game-runtime.js",
+      "types": "./dist/app-game-runtime.d.ts"
+    },
+    "./app-game-session-primitives": {
+      "import": "./dist/app-game-session-primitives.js",
+      "types": "./dist/app-game-session-primitives.d.ts"
+    },
+    "./package-info": {
+      "import": "./dist/package-info.js",
+      "types": "./dist/package-info.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "lint": "npx turbo run lint:exec --filter=@ocentra-parent/app-game-domain",
+    "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ocentra-parent/ai-domain": "file:../ai-domain",
+    "@ocentra-parent/enforcement-domain": "file:../enforcement-domain",
+    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
+    "@ocentra-parent/family-domain": "file:../family-domain",
+    "@ocentra-parent/lan-domain": "file:../lan-domain",
+    "@ocentra-parent/policy-domain": "file:../policy-domain",
+    "@ocentra-parent/schema-domain": "file:../schema-domain"
+  }
+}

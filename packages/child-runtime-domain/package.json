@@ -1,0 +1,29 @@
+{
+  "name": "@ocentra-parent/child-runtime-domain",
+  "private": true,
+  "version": "0.1.1",
+  "type": "module",
+  "description": "Child Android, child iOS, and mobile child-agent runtime proof contracts.",
+  "exports": {
+    "./*": {
+      "import": "./dist/*.js",
+      "types": "./dist/*.d.ts"
+    },
+    "./package-info": {
+      "import": "./dist/package-info.js",
+      "types": "./dist/package-info.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "lint": "npx turbo run lint:exec --filter=@ocentra-parent/child-runtime-domain",
+    "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ocentra-parent/capability-domain": "file:../capability-domain",
+    "@ocentra-parent/family-domain": "file:../family-domain",
+    "@ocentra-parent/schema-domain": "file:../schema-domain"
+  }
+}

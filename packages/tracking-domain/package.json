@@ -1,0 +1,72 @@
+{
+  "name": "@ocentra-parent/tracking-domain",
+  "private": true,
+  "version": "0.1.1",
+  "type": "module",
+  "description": "Tracking location, geofence, expected-place, retention, and read-model contracts.",
+  "exports": {
+    "./*": {
+      "import": "./dist/*.js",
+      "types": "./dist/*.d.ts"
+    },
+    "./tracking": {
+      "import": "./dist/tracking.js",
+      "types": "./dist/tracking.d.ts"
+    },
+    "./tracking-primitives": {
+      "import": "./dist/tracking-primitives.js",
+      "types": "./dist/tracking-primitives.d.ts"
+    },
+    "./tracking-evidence": {
+      "import": "./dist/tracking-evidence.js",
+      "types": "./dist/tracking-evidence.d.ts"
+    },
+    "./tracking-geofence": {
+      "import": "./dist/tracking-geofence.js",
+      "types": "./dist/tracking-geofence.d.ts"
+    },
+    "./tracking-local-place-store-schemas": {
+      "import": "./dist/tracking-local-place-store-schemas.js",
+      "types": "./dist/tracking-local-place-store-schemas.d.ts"
+    },
+    "./tracking-local-place-store": {
+      "import": "./dist/tracking-local-place-store.js",
+      "types": "./dist/tracking-local-place-store.d.ts"
+    },
+    "./tracking-evidence-quality-gate": {
+      "import": "./dist/tracking-evidence-quality-gate.js",
+      "types": "./dist/tracking-evidence-quality-gate.d.ts"
+    },
+    "./tracking-read-model": {
+      "import": "./dist/tracking-read-model.js",
+      "types": "./dist/tracking-read-model.d.ts"
+    },
+    "./tracking-retention-runtime": {
+      "import": "./dist/tracking-retention-runtime.js",
+      "types": "./dist/tracking-retention-runtime.d.ts"
+    },
+    "./tracking-runtime": {
+      "import": "./dist/tracking-runtime.js",
+      "types": "./dist/tracking-runtime.d.ts"
+    },
+    "./package-info": {
+      "import": "./dist/package-info.js",
+      "types": "./dist/package-info.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "lint": "npx turbo run lint:exec --filter=@ocentra-parent/tracking-domain",
+    "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ocentra-parent/ai-domain": "file:../ai-domain",
+    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
+    "@ocentra-parent/family-domain": "file:../family-domain",
+    "@ocentra-parent/lan-domain": "file:../lan-domain",
+    "@ocentra-parent/policy-domain": "file:../policy-domain",
+    "@ocentra-parent/schema-domain": "file:../schema-domain"
+  }
+}

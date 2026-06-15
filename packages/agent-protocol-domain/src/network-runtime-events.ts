@@ -1,4 +1,4 @@
-import { ActivityNetworkEvidenceGradeSchema } from '@ocentra-parent/activity-domain/network-flow';
+import { ActivityNetworkEvidenceGradeSchema } from '@ocentra-parent/network-domain/network-flow';
 import { type Infer, type SafeParseResult, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
 const NetworkRuntimeText = Schema.String.pipe(Schema.minLength(1));

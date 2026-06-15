@@ -117,10 +117,10 @@ async function assertBuiltContract() {
 }
 
 async function assertPublicPackageExports() {
-  const contractModule = await import('@ocentra-parent/parent-domain/production-release-public-docs-status');
+  const contractModule = await import('@ocentra-parent/production-domain/production-release-public-docs-status');
   const readModelModule =
-    await import('@ocentra-parent/parent-domain/production-release-public-docs-status-read-model');
-  const valuesModule = await import('@ocentra-parent/parent-domain/production-release-public-docs-status-values');
+    await import('@ocentra-parent/production-domain/production-release-public-docs-status-read-model');
+  const valuesModule = await import('@ocentra-parent/production-domain/production-release-public-docs-status-values');
 
   assert.equal(typeof contractModule.decodeProductionReleasePublicDocsStatusProof, 'function');
   assert.ok(contractModule.ProductionReleasePublicDocsStatusProofSchema);
@@ -135,9 +135,9 @@ async function assertPublicPackageExports() {
   ]);
 
   return [
-    '@ocentra-parent/parent-domain/production-release-public-docs-status',
-    '@ocentra-parent/parent-domain/production-release-public-docs-status-read-model',
-    '@ocentra-parent/parent-domain/production-release-public-docs-status-values',
+    '@ocentra-parent/production-domain/production-release-public-docs-status',
+    '@ocentra-parent/production-domain/production-release-public-docs-status-read-model',
+    '@ocentra-parent/production-domain/production-release-public-docs-status-values',
   ];
 }
 

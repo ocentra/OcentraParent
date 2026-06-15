@@ -22,7 +22,7 @@ runCommand(
   ])
 );
 
-const remoteBoundaryModule = await import('@ocentra-parent/parent-domain/local-ai-remote-assistant-boundary-proof');
+const remoteBoundaryModule = await import('@ocentra-parent/ai-domain/local-ai-remote-assistant-boundary-proof');
 const proofContract = remoteBoundaryModule.LocalAiRemoteAssistantBoundaryProof;
 
 const requestRejectionChecks = [

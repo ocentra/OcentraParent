@@ -31,11 +31,11 @@ runNpm([
 ]);
 
 const preview = await importDist('app-game-policy-preview-handoff.js');
-const packagePreview = await import('@ocentra-parent/parent-domain/app-game-policy-preview-handoff');
+const packagePreview = await import('@ocentra-parent/app-game-domain/app-game-policy-preview-handoff');
 const compilerRules = await importDist('app-game-policy-target-compiler-rules.js');
 const policy = await importDist('policy.js');
 const refs = await importDist('reference-primitives.js');
-commands.push('node import @ocentra-parent/parent-domain/app-game-policy-preview-handoff');
+commands.push('node import @ocentra-parent/app-game-domain/app-game-policy-preview-handoff');
 if (typeof packagePreview.buildAppGamePolicyPreviewHandoffReadModel !== 'function') {
   throw new Error('Expected package export to expose buildAppGamePolicyPreviewHandoffReadModel');
 }
@@ -310,7 +310,7 @@ async function writeProofPack(proofDir, proof, label) {
       '',
       '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
       '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-policy-preview-handoff app-game-policy-target-compiler: PASS',
-      '- node import @ocentra-parent/parent-domain/app-game-policy-preview-handoff: PASS',
+      '- node import @ocentra-parent/app-game-domain/app-game-policy-preview-handoff: PASS',
       '- Existing compiled app/game policy decisions become preview-ready or manual-required handoff rows.',
       '- Invalid rows claiming evaluator runtime, timer runtime, adapter dispatch, child delivery, or platform enforcement are rejected.',
       '',

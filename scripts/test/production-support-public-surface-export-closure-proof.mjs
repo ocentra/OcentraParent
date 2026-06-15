@@ -98,8 +98,8 @@ async function assertPackageExports() {
 }
 
 async function assertProductionReleasePublicStatus() {
-  const contract = await import('@ocentra-parent/parent-domain/production-release-public-status');
-  const values = await import('@ocentra-parent/parent-domain/production-release-public-status-values');
+  const contract = await import('@ocentra-parent/production-domain/production-release-public-status');
+  const values = await import('@ocentra-parent/production-domain/production-release-public-status-values');
   const proof = contract.ProductionReleasePublicStatusProofSchema.parse(
     contract.ProductionReleasePublicStatusProofReadModel
   );
@@ -129,8 +129,8 @@ async function assertProductionReleasePublicStatus() {
 }
 
 async function assertProductionReleasePublicStatusFreshness() {
-  const contract = await import('@ocentra-parent/parent-domain/production-release-public-status-freshness');
-  const values = await import('@ocentra-parent/parent-domain/production-release-public-status-freshness-values');
+  const contract = await import('@ocentra-parent/production-domain/production-release-public-status-freshness');
+  const values = await import('@ocentra-parent/production-domain/production-release-public-status-freshness-values');
   const proof = contract.ProductionReleasePublicStatusFreshnessProofSchema.parse(
     contract.ProductionReleasePublicStatusFreshnessReadModel
   );
@@ -146,8 +146,8 @@ async function assertProductionReleasePublicStatusFreshness() {
 }
 
 async function assertProductionReleasePublicDocsFreshness() {
-  const contract = await import('@ocentra-parent/parent-domain/production-release-public-docs-freshness');
-  const values = await import('@ocentra-parent/parent-domain/production-release-public-docs-freshness-values');
+  const contract = await import('@ocentra-parent/production-domain/production-release-public-docs-freshness');
+  const values = await import('@ocentra-parent/production-domain/production-release-public-docs-freshness-values');
   const proof = contract.ProductionReleasePublicDocsFreshnessProofSchema.parse(
     contract.ProductionReleasePublicDocsFreshnessReadModel
   );
@@ -162,10 +162,10 @@ async function assertProductionReleasePublicDocsFreshness() {
 }
 
 async function assertProductionSupportPublicationRuntimeReadiness() {
-  const contract = await import('@ocentra-parent/parent-domain/production-support-publication-runtime-readiness');
+  const contract = await import('@ocentra-parent/production-domain/production-support-publication-runtime-readiness');
   const readModel =
-    await import('@ocentra-parent/parent-domain/production-support-publication-runtime-readiness-read-model');
-  const values = await import('@ocentra-parent/parent-domain/production-support-publication-runtime-readiness-values');
+    await import('@ocentra-parent/production-domain/production-support-publication-runtime-readiness-read-model');
+  const values = await import('@ocentra-parent/production-domain/production-support-publication-runtime-readiness-values');
   const proof = contract.ProductionSupportPublicationRuntimeReadinessProofSchema.parse(
     readModel.ProductionSupportPublicationRuntimeReadinessReadModel
   );
@@ -180,10 +180,10 @@ async function assertProductionSupportPublicationRuntimeReadiness() {
 }
 
 async function assertProductionSupportPublicationStatusFreshness() {
-  const contract = await import('@ocentra-parent/parent-domain/production-support-publication-status-freshness');
+  const contract = await import('@ocentra-parent/production-domain/production-support-publication-status-freshness');
   const readModel =
-    await import('@ocentra-parent/parent-domain/production-support-publication-status-freshness-read-model');
-  const values = await import('@ocentra-parent/parent-domain/production-support-publication-status-freshness-values');
+    await import('@ocentra-parent/production-domain/production-support-publication-status-freshness-read-model');
+  const values = await import('@ocentra-parent/production-domain/production-support-publication-status-freshness-values');
   const proof = contract.ProductionSupportPublicationStatusFreshnessProofSchema.parse(
     readModel.ProductionSupportPublicationStatusFreshnessReadModel
   );
@@ -198,9 +198,9 @@ async function assertProductionSupportPublicationStatusFreshness() {
 }
 
 async function assertPublicSupportContactStatus() {
-  const contract = await import('@ocentra-parent/parent-domain/public-support-contact-status');
-  const readModel = await import('@ocentra-parent/parent-domain/public-support-contact-status-read-model');
-  const values = await import('@ocentra-parent/parent-domain/public-support-contact-status-values');
+  const contract = await import('@ocentra-parent/production-domain/public-support-contact-status');
+  const readModel = await import('@ocentra-parent/production-domain/public-support-contact-status-read-model');
+  const values = await import('@ocentra-parent/production-domain/public-support-contact-status-values');
   const proof = contract.PublicSupportContactStatusProofSchema.parse(readModel.PublicSupportContactStatusReadModel);
 
   assert.equal(typeof contract.decodePublicSupportContactStatusProof, 'function');

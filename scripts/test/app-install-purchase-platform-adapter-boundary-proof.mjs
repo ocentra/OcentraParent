@@ -27,7 +27,7 @@ async function main() {
 
   const proofModule = await loadPlatformAdapterBoundaryProofModule();
   const packageModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-platform-adapter-boundary-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-platform-adapter-boundary-proof');
   const parsedReadModel = proofModule.AppInstallPurchasePlatformAdapterBoundaryProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchasePlatformAdapterBoundaryProof(parsedReadModel);
 

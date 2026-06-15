@@ -27,7 +27,7 @@ async function main() {
 
   const proofModule = await loadExternalRuntimeDeviceDeliveryProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-external-runtime-device-delivery-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-device-delivery-proof');
   assert.equal(
     packageProofModule.AppInstallPurchaseExternalRuntimeDeviceDeliveryProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseExternalRuntimeDeviceDeliveryProofReadModel.schemaVersion
@@ -80,7 +80,7 @@ async function main() {
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
-      packageExport: '@ocentra-parent/parent-domain/app-install-purchase-external-runtime-device-delivery-proof',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-device-delivery-proof',
       packageReadme: 'packages/parent-domain/README.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
       output: relative(repoRoot, proofPath),

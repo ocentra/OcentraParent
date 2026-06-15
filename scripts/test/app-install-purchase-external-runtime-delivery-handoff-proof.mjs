@@ -28,7 +28,7 @@ async function main() {
 
   const proofModule = await loadExternalRuntimeDeliveryHandoffProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-external-runtime-delivery-handoff-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-delivery-handoff-proof');
   assert.equal(
     packageProofModule.AppInstallPurchaseExternalRuntimeDeliveryHandoffProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseExternalRuntimeDeliveryHandoffProofReadModel.schemaVersion
@@ -80,7 +80,7 @@ async function main() {
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
-      packageExport: '@ocentra-parent/parent-domain/app-install-purchase-external-runtime-delivery-handoff-proof',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-delivery-handoff-proof',
       packageReadme: 'packages/parent-domain/README.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
       output: relative(repoRoot, proofPath),

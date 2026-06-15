@@ -1,7 +1,7 @@
 import {
   BrowserAiParentExplanationBundleSchema,
   type BrowserAiParentExplanationBundle,
-} from '@ocentra-parent/activity-domain/browser-ai-parent-explanation-schemas';
+} from '@ocentra-parent/browser-domain/browser-ai-parent-explanation-schemas';
 import { type DisplayText, decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
 import {
   BrowserParentExplanationTextToken,

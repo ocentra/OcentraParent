@@ -26,7 +26,7 @@ const {
   LocalAiRuntimeStatusSurfaceReadModel,
   LocalAiRuntimeStatusSurfaceReadModelSchema,
   LocalAiRuntimeStatusSurfaceRowSchema,
-} = await import('@ocentra-parent/parent-domain/local-ai-runtime-status-read-model-proof');
+} = await import('@ocentra-parent/ai-domain/local-ai-runtime-status-read-model-proof');
 
 const readModel = LocalAiRuntimeStatusSurfaceReadModelSchema.parse(LocalAiRuntimeStatusSurfaceReadModel);
 const childSafetyPriorityRows = readModel.rows.filter((row) => row.childSafetyPriorityVisible);

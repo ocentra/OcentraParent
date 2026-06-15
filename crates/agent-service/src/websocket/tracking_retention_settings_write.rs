@@ -1,4 +1,6 @@
-use ocentra_parent_agent_core::apply_tracking_retention_settings_write;
+use ocentra_child_runtime::{
+    parent_tracking_config_updated_event_from_command, publish_parent_tracking_config_updated_event,
+};
 use ocentra_parent_agent_protocol::{
     constants, default_tracking_retention_settings_write_request, AgentCommandEnvelope,
     AgentEventEnvelope, AgentEventName, LogFieldValue, LogLevel,
@@ -12,11 +14,21 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let (request, accepted) = parse_write_request(&command);
-    let applied_state = if accepted {
-        Some(apply_tracking_retention_settings_write(&request))
+    let event_flow_report = if accepted {
+        let parent_event =
+            parent_tracking_config_updated_event_from_command(&command, request.clone());
+        publish_parent_tracking_config_updated_event(&parent_event)
+            .await
+            .ok()
     } else {
         None
     };
+    let applied_report = event_flow_report
+        .as_ref()
+        .map(|report| &report.applied_report);
+    let child_response = event_flow_report
+        .as_ref()
+        .map(|report| &report.parent_request_report.response);
     let result = TrackingRetentionSettingsWriteResult {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         command_id: request.command_id,
@@ -33,20 +45,24 @@ pub(crate) async fn build_tracking_retention_settings_write_report(
         parent_export_prepared: request.requested_parent_export,
         remote_sync_enabled: false,
         remote_ai_enabled: false,
-        local_service_state_revision: applied_state
+        local_service_state_revision: applied_report
             .as_ref()
-            .map(|state| state.local_service_state_revision),
+            .map(|report| report.applied_state.local_service_state_revision),
         local_service_state_snapshot_ref:
             constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF
                 .to_string(),
         durable_settings_store_ref:
             constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF.to_string(),
-        durable_settings_persisted: applied_state
+        durable_settings_persisted: applied_report
             .as_ref()
-            .is_some_and(|state| state.durable_settings_persisted),
+            .is_some_and(|report| report.applied_state.durable_settings_persisted),
+        child_config_response_state: child_response.map(|response| response.response_state.clone()),
+        effective_tracking_state: child_response
+            .map(|response| response.effective_tracking_state.clone()),
+        child_config_ack_received: child_response.is_some(),
         command_transport_claimed: true,
         service_write_preflight_claimed: true,
-        service_mutation_executed: accepted,
+        service_mutation_executed: applied_report.is_some(),
         portal_writable_ui_claimed: false,
         platform_runtime_claimed: false,
         child_device_delivery_claimed: false,
@@ -98,7 +114,7 @@ fn write_state(accepted: bool) -> String {
 
 #[cfg(test)]
 mod tests {
-    use ocentra_parent_agent_core::tracking_retention_settings_durable_store_path;
+    use ocentra_child_runtime::tracking_retention_settings_durable_store_path;
     use ocentra_parent_agent_protocol::{
         AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
         AgentRoute, LogFields, TrackingRetentionSettingsWriteResult, AGENT_PROTOCOL_SCHEMA_VERSION,

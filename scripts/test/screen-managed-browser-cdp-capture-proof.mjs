@@ -38,7 +38,7 @@ async function runManagedBrowserCdpProof() {
     ScreenManagedBrowserCdpMaxPixels,
     ScreenManagedBrowserCdpScreenshotArtifactSchema,
     ScreenManagedBrowserCdpScreenshotRequestSchema,
-  } = await import('@ocentra-parent/activity-domain/screen-evidence');
+  } = await import('@ocentra-parent/screen-domain/screen-evidence');
 
   const browser = await chromium.launch({
     headless: true,

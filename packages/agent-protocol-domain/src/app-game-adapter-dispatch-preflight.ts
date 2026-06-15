@@ -1,4 +1,4 @@
-import { AppGameSchemaVersion } from '@ocentra-parent/activity-domain/app-game';
+import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   AgentAppGameAdapterExecutionDecision,

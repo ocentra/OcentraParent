@@ -27,7 +27,7 @@ async function main() {
 
   const proofModule = await loadProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-product-claim-store-upgrade-readiness-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-product-claim-store-upgrade-readiness-proof');
   assert.equal(
     packageProofModule.AppInstallPurchaseProductClaimStoreUpgradeReadinessProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseProductClaimStoreUpgradeReadinessProofReadModel.schemaVersion
@@ -80,7 +80,7 @@ async function main() {
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDoc: 'docs/product-capability-checklist.md',
-      packageExport: '@ocentra-parent/parent-domain/app-install-purchase-product-claim-store-upgrade-readiness-proof',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-product-claim-store-upgrade-readiness-proof',
       output: relative(repoRoot, proofPath),
     },
     storeUpgradeReadinessSummary: summary,

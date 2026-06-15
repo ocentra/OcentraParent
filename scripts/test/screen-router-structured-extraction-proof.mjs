@@ -25,7 +25,7 @@ async function writeProof() {
     ScreenIntelligenceRouterSchemaVersion,
     ScreenManagedBrowserStructuredTextLimit,
     planScreenIntelligenceRoute,
-  } = await import('@ocentra-parent/activity-domain/screen-evidence');
+  } = await import('@ocentra-parent/screen-domain/screen-evidence');
 
   const enoughStructured = structuredExtraction({
     extractionId: 'managed-browser-structured-youtube-lesson',

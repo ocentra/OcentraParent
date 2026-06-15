@@ -75,7 +75,7 @@ function proof() {
     commands,
     proofLabels,
     evidence: {
-      parentContract: 'packages/parent-domain/src/lan-pairing-device.ts',
+      parentContract: 'packages/lan-domain/src/lan-pairing-device.ts',
       parentContractTest: 'packages/parent-domain/tests/lan-pairing-browser-add-device-state.test.ts',
       agentProtocolContract: 'packages/agent-protocol-domain/src/lan-pairing-browser-add-device-state.ts',
       agentProtocolTest: 'packages/agent-protocol-domain/tests/lan-pairing-browser-add-device-state.test.ts',

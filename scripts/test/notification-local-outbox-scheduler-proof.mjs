@@ -79,7 +79,7 @@ async function main() {
       values: 'packages/parent-domain/src/notification-local-outbox-scheduler-proof-values.ts',
       contractTest: 'packages/parent-domain/tests/notification-local-outbox-scheduler-proof.test.ts',
       builtModule: 'packages/parent-domain/dist/notification-local-outbox-scheduler-proof.js',
-      packageExport: '@ocentra-parent/parent-domain/notification-local-outbox-scheduler-proof',
+      packageExport: '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof',
       featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDoc: 'docs/expectations/notifications.md',
       checklistDoc: 'docs/product-capability-checklist.md',
@@ -155,7 +155,7 @@ async function assertPackageExport(proofModule) {
     types: './dist/notification-local-outbox-scheduler-proof.d.ts',
   });
 
-  const exportedModule = await import('@ocentra-parent/parent-domain/notification-local-outbox-scheduler-proof');
+  const exportedModule = await import('@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof');
   assert.equal(
     exportedModule.NotificationLocalOutboxSchedulerProofReadModel.schemaVersion,
     proofModule.NotificationLocalOutboxSchedulerProofReadModel.schemaVersion

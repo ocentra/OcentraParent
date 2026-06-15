@@ -27,7 +27,7 @@ async function main() {
 
   const proofModule = await loadProviderStoreExecutionReadinessProofModule();
   const packageModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-provider-store-execution-readiness-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-provider-store-execution-readiness-proof');
   const parentDomainPackageJson = await loadParentDomainPackageJson();
   const parsedReadModel = proofModule.AppInstallPurchaseProviderStoreExecutionReadinessProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseProviderStoreExecutionReadinessProof(parsedReadModel);

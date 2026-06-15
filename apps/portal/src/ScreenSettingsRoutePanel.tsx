@@ -4,7 +4,7 @@ import {
   screenControlSettingsPortalProof,
   type ScreenControlSettingsPortalGate,
   type ScreenControlSettingsPortalMetric,
-} from '@ocentra-parent/parent-domain/screen-control-settings-portal-proof';
+} from '@ocentra-parent/screen-domain/screen-control-settings-portal-proof';
 import {
   PortalDetails,
   PortalDom,

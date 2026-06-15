@@ -172,7 +172,7 @@ function buildRuntimeReadModel(packageArtifacts) {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await import('@ocentra-parent/parent-domain/child-android-storage-protocol-proof');
+  const module = await import('@ocentra-parent/child-runtime-domain/child-android-storage-protocol-proof');
   const parsed = module.ChildAndroidStorageProtocolReadModelSchema.parse(readModel);
   proofLabels.push('parent-domain.child-android-storage-protocol-proof-parse');
   return parsed;

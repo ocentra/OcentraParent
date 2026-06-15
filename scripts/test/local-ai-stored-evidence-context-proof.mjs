@@ -47,7 +47,7 @@ const RuntimeStatus = {
 
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
-const { buildLocalAiEvidenceContext } = await import('@ocentra-parent/parent-domain/local-ai-context-builder');
+const { buildLocalAiEvidenceContext } = await import('@ocentra-parent/ai-domain/local-ai-context-builder');
 const realAnalysisProof = readJson(RealAnalysisProofPath);
 const screenOcrProof = readJson(ScreenOcrProofPath);
 const networkStorageProof = readJson(NetworkStorageProofPath);

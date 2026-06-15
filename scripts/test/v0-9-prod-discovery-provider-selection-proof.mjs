@@ -67,7 +67,7 @@ async function main() {
     commands,
     evidence: {
       householdProductionDiscovery: relativePath(householdProofPath),
-      providerSelectionContract: 'packages/parent-domain/src/lan-pairing-provider-selection-proof.ts',
+      providerSelectionContract: 'packages/lan-domain/src/lan-pairing-provider-selection-proof.ts',
       providerSelectionRustProtocol: 'crates/agent-protocol/src/lan_pairing_provider_selection.rs',
       providerSelectionRustServiceReadModel: 'crates/agent-service/src/lan_pairing_provider_selection_read_model.rs',
       proofMatrix: relativePath(matrixPath),

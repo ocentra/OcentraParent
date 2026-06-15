@@ -28,8 +28,8 @@ async function main() {
   await runNpm(['--workspace', '@ocentra-parent/parent-domain', 'run', 'test', '--', 'tracking-location-policy']);
   await runNpm(['--workspace', '@ocentra-parent/portal', 'run', 'test', '--', 'tracking-status-panel']);
 
-  const activity = await import('@ocentra-parent/activity-domain/tracking');
-  const policy = await import('@ocentra-parent/parent-domain/tracking-location-policy');
+  const activity = await import('@ocentra-parent/tracking-domain/tracking');
+  const policy = await import('@ocentra-parent/tracking-domain/tracking-location-policy');
   const checkedAt = new Date().toISOString();
   const readModel = activity.TrackingReadModelSchema.parse(trackingReadModelSample());
   const retentionDeleteProof = activity.applyTrackingRetentionDelete({

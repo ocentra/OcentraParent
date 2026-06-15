@@ -67,7 +67,7 @@ async function main() {
       values: 'packages/parent-domain/src/notification-local-outbox-adapter-proof-values.ts',
       contractTest: 'packages/parent-domain/tests/notification-local-outbox-adapter-proof.test.ts',
       builtModule: 'packages/parent-domain/dist/notification-local-outbox-adapter-proof.js',
-      packageExport: '@ocentra-parent/parent-domain/notification-local-outbox-adapter-proof',
+      packageExport: '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof',
       featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDoc: 'docs/expectations/notifications.md',
       localOutboxJsonl: relativePath(outboxPath),
@@ -125,7 +125,7 @@ async function assertPackageExport(proofModule) {
     types: './dist/notification-local-outbox-adapter-proof.d.ts',
   });
 
-  const exportedModule = await import('@ocentra-parent/parent-domain/notification-local-outbox-adapter-proof');
+  const exportedModule = await import('@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof');
   assert.equal(
     exportedModule.NotificationLocalOutboxAdapterProofReadModel.schemaVersion,
     proofModule.NotificationLocalOutboxAdapterProofReadModel.schemaVersion

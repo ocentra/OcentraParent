@@ -17,6 +17,19 @@ export const AgentTrackingRetentionSettingsWriteStateSchema = withParser(
   Schema.Literal('service-write-command-accepted', 'service-write-command-rejected')
 );
 
+export const AgentTrackingConfigUpdateResponseStateSchema = withParser(Schema.Literal('applied', 'rejected'));
+
+export const AgentTrackingEffectiveStateSchema = withParser(Schema.Literal('enabled', 'disabled', 'degraded'));
+
+export const AgentTrackingConfigUpdateEventType = {
+  Parent: 'tracking.config.updated.parent',
+  Child: 'tracking.config.updated.child',
+} as const;
+
+export const AgentTrackingConfigUpdateTargetScopeSchema = withParser(
+  Schema.Literal('family', 'child-profile', 'child-device', 'device-group')
+);
+
 export const AgentTrackingRetentionSettingsWriteRequestSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AgentProtocolDefaults.SchemaVersion),
@@ -46,6 +59,47 @@ export const AgentTrackingRetentionSettingsWriteRequestSchema = withParser(
     )
 );
 
+export const AgentTrackingConfigUpdateTargetSchema = withParser(
+  Schema.Struct({
+    scope: AgentTrackingConfigUpdateTargetScopeSchema,
+    deviceId: RetentionWriteText,
+    platform: RetentionWriteText,
+    route: RetentionWriteText,
+  })
+);
+
+export const ParentTrackingConfigUpdatedEventSchema = withParser(
+  Schema.Struct({
+    sourceCommandId: RetentionWriteText,
+    sourceMessageId: RetentionWriteText,
+    sourcePeerId: RetentionWriteText,
+    target: AgentTrackingConfigUpdateTargetSchema,
+    config: AgentTrackingRetentionSettingsWriteRequestSchema,
+  })
+);
+
+export const ChildTrackingConfigUpdatedEventSchema = withParser(
+  Schema.Struct({
+    parentEventType: Schema.Literal(AgentTrackingConfigUpdateEventType.Parent),
+    sourceCommandId: RetentionWriteText,
+    target: AgentTrackingConfigUpdateTargetSchema,
+    config: AgentTrackingRetentionSettingsWriteRequestSchema,
+  })
+);
+
+export const TrackingConfigUpdateResponseSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AgentProtocolDefaults.SchemaVersion),
+    sourceCommandId: RetentionWriteText,
+    responseState: AgentTrackingConfigUpdateResponseStateSchema,
+    effectiveTrackingState: AgentTrackingEffectiveStateSchema,
+    childEventType: Schema.Literal(AgentTrackingConfigUpdateEventType.Child),
+    target: AgentTrackingConfigUpdateTargetSchema,
+    localServiceStateRevision: Schema.Union(Schema.Number.pipe(Schema.int(), Schema.positive()), Schema.Null),
+    durableSettingsPersisted: Schema.Boolean,
+  })
+);
+
 export const AgentTrackingRetentionSettingsWriteResultSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AgentProtocolDefaults.SchemaVersion),
@@ -65,6 +119,14 @@ export const AgentTrackingRetentionSettingsWriteResultSchema = withParser(
     localServiceStateSnapshotRef: RetentionWriteText,
     durableSettingsStoreRef: RetentionWriteText,
     durableSettingsPersisted: Schema.Boolean,
+    childConfigResponseState: Schema.optionalWith(
+      Schema.Union(AgentTrackingConfigUpdateResponseStateSchema, Schema.Null),
+      { default: () => null }
+    ),
+    effectiveTrackingState: Schema.optionalWith(Schema.Union(AgentTrackingEffectiveStateSchema, Schema.Null), {
+      default: () => null,
+    }),
+    childConfigAckReceived: Schema.optionalWith(Schema.Boolean, { default: () => false }),
     commandTransportClaimed: Schema.Literal(true),
     serviceWritePreflightClaimed: Schema.Literal(true),
     serviceMutationExecuted: Schema.Boolean,
@@ -129,6 +191,11 @@ export const AgentTrackingRetentionSettingsWriteResultSchema = withParser(
 export type AgentTrackingRetentionSettingsWriteKind = Infer<typeof AgentTrackingRetentionSettingsWriteKindSchema>;
 export type AgentTrackingRetentionSettingsWriteRequest = Infer<typeof AgentTrackingRetentionSettingsWriteRequestSchema>;
 export type AgentTrackingRetentionSettingsWriteResult = Infer<typeof AgentTrackingRetentionSettingsWriteResultSchema>;
+export type AgentTrackingConfigUpdateTargetScope = Infer<typeof AgentTrackingConfigUpdateTargetScopeSchema>;
+export type AgentTrackingConfigUpdateTarget = Infer<typeof AgentTrackingConfigUpdateTargetSchema>;
+export type ParentTrackingConfigUpdatedEvent = Infer<typeof ParentTrackingConfigUpdatedEventSchema>;
+export type ChildTrackingConfigUpdatedEvent = Infer<typeof ChildTrackingConfigUpdatedEventSchema>;
+export type TrackingConfigUpdateResponse = Infer<typeof TrackingConfigUpdateResponseSchema>;
 
 export function defaultAgentTrackingRetentionSettingsWriteRequest(): AgentTrackingRetentionSettingsWriteRequest {
   return AgentTrackingRetentionSettingsWriteRequestSchema.parse({

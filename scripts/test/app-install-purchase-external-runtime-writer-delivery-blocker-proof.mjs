@@ -28,7 +28,7 @@ async function main() {
 
   const proofModule = await loadExternalRuntimeWriterDeliveryBlockerProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-external-runtime-writer-delivery-blocker-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-writer-delivery-blocker-proof');
   assert.equal(
     packageProofModule.AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProofReadModel.schemaVersion
@@ -85,7 +85,7 @@ async function main() {
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       packageExport:
-        '@ocentra-parent/parent-domain/app-install-purchase-external-runtime-writer-delivery-blocker-proof',
+        '@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-writer-delivery-blocker-proof',
       packageReadme: 'packages/parent-domain/README.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval deferred by E-C lock',
       output: relative(repoRoot, proofPath),

@@ -108,10 +108,10 @@ async function assertBuiltContract() {
 }
 
 async function assertPublicPackageExport() {
-  const module = await import('@ocentra-parent/parent-domain/billing-entitlement');
+  const module = await import('@ocentra-parent/billing-domain/billing-entitlement');
   assert.equal(typeof module.decodeBillingEntitlementContractProof, 'function');
   assert.ok(module.BillingEntitlementContractProofSchema);
-  return '@ocentra-parent/parent-domain/billing-entitlement';
+  return '@ocentra-parent/billing-domain/billing-entitlement';
 }
 
 async function assertDocumentationProof() {

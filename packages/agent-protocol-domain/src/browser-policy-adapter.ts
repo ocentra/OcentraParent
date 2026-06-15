@@ -3,8 +3,8 @@ import {
   BrowserControlUpdateResponseSchema,
   type BrowserControlUpdateRequest,
   type BrowserControlUpdateResponse,
-} from '@ocentra-parent/parent-domain/browser-control-policy';
-import type { BrowserControlUpdateKind } from '@ocentra-parent/parent-domain/browser-control-values';
+} from '@ocentra-parent/browser-domain/browser-control-policy';
+import type { BrowserControlUpdateKind } from '@ocentra-parent/browser-domain/browser-control-values';
 import {
   AgentCommand,
   AgentCommandEnvelopeSchema,

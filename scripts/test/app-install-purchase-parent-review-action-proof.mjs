@@ -26,7 +26,7 @@ async function main() {
   );
 
   const proofModule = await loadParentReviewActionProofModule();
-  const packageModule = await import('@ocentra-parent/parent-domain/app-install-purchase-parent-review-action-proof');
+  const packageModule = await import('@ocentra-parent/app-game-domain/app-install-purchase-parent-review-action-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseParentReviewActionProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseParentReviewActionProof(parsedReadModel);
 

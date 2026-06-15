@@ -67,10 +67,10 @@ async function main() {
 }
 
 async function assertBuiltContract() {
-  const contractModule = await import('@ocentra-parent/parent-domain/production-support-publication-workflow');
+  const contractModule = await import('@ocentra-parent/production-domain/production-support-publication-workflow');
   const readModelModule =
-    await import('@ocentra-parent/parent-domain/production-support-publication-workflow-read-model');
-  const valuesModule = await import('@ocentra-parent/parent-domain/production-support-publication-workflow-values');
+    await import('@ocentra-parent/production-domain/production-support-publication-workflow-read-model');
+  const valuesModule = await import('@ocentra-parent/production-domain/production-support-publication-workflow-values');
   const proof = contractModule.ProductionSupportPublicationWorkflowProofSchema.parse(
     readModelModule.ProductionSupportPublicationWorkflowReadModel
   );

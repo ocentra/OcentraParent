@@ -322,7 +322,7 @@ function assertSourceProofs(browserAddDeviceProof, browserRuntimeProof, househol
 }
 
 async function parseReadModel(readModel) {
-  const module = await import('@ocentra-parent/parent-domain/v0-9-household-lan-pairing-proof');
+  const module = await import('@ocentra-parent/lan-domain/v0-9-household-lan-pairing-proof');
   proofLabels.push('parent-domain.v0.9-household-lan-pairing-proof-parse');
   return module.V09HouseholdLanPairingProofReadModelSchema.parse(readModel);
 }

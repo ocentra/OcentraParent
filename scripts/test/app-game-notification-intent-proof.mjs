@@ -89,7 +89,7 @@ async function main() {
       harness: 'scripts/test/app-game-notification-intent-proof.mjs',
       appGameProofPack: 'output/app-game-plan-proof/53-notification-intent-contract',
       appProofPack: 'output/app-plan-proof/53-notification-intent-contract',
-      packageExport: '@ocentra-parent/parent-domain/app-game-notification-intent',
+      packageExport: '@ocentra-parent/app-game-domain/app-game-notification-intent',
     },
     parsedIntents: parsed,
     rejected,
@@ -104,7 +104,7 @@ async function main() {
 }
 
 async function assertPackageExport(notification) {
-  const exportedModule = await import('@ocentra-parent/parent-domain/app-game-notification-intent');
+  const exportedModule = await import('@ocentra-parent/app-game-domain/app-game-notification-intent');
   assertEqual(
     exportedModule.AppGameNotificationIntentKind.TimeLimitReached,
     notification.AppGameNotificationIntentKind.TimeLimitReached,

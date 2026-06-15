@@ -7,7 +7,7 @@ import {
 import {
   AppGameNotificationParentSurfaceIntentReadModelSchema,
   RequiredAppGameNotificationParentSurfaceIntentNonClaims,
-} from '@ocentra-parent/parent-domain/app-game-notification-parent-surface-intent';
+} from '@ocentra-parent/app-game-domain/app-game-notification-parent-surface-intent';
 import {
   createAppGameNotificationParentSurfacePanelIntent,
   type AppGameNotificationParentSurfacePanelIntent,

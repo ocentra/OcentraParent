@@ -28,7 +28,7 @@ async function main() {
 
   const proofModule = await loadDispatchExecutorReceiptProofModule();
   const exportedProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-dispatch-executor-receipt-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-dispatch-executor-receipt-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseDispatchExecutorReceiptProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseDispatchExecutorReceiptProof(parsedReadModel);
 

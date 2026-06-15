@@ -1,9 +1,2 @@
-export * from './tracking-primitives';
-export * from './tracking-evidence';
-export * from './tracking-geofence';
-export * from './tracking-local-place-store-schemas';
-export * from './tracking-local-place-store';
-export * from './tracking-evidence-quality-gate';
-export * from './tracking-read-model';
-export * from './tracking-retention-runtime';
-export * from './tracking-runtime';
+export * from '@ocentra-parent/tracking-domain/tracking';
+

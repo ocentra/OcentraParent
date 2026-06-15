@@ -1,7 +1,7 @@
 import {
   SocialAlertReportIntentKind,
   type SocialAlertReportIntent,
-} from '@ocentra-parent/parent-domain/social-alert-report-intent';
+} from '@ocentra-parent/social-domain/social-alert-report-intent';
 import {
   SocialAlertReportReadModelSnapshotSchema,
   type SocialAlertReportProviderStatusRow,

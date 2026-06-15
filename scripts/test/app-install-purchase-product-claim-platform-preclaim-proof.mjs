@@ -27,7 +27,7 @@ async function main() {
 
   const proofModule = await loadProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-product-claim-platform-preclaim-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-product-claim-platform-preclaim-proof');
   assert.equal(
     packageProofModule.AppInstallPurchaseProductClaimPlatformPreclaimProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseProductClaimPlatformPreclaimProofReadModel.schemaVersion
@@ -66,7 +66,7 @@ async function main() {
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistDoc: 'docs/product-capability-checklist.md',
       packageReadme: 'packages/parent-domain/README.md',
-      packageExport: '@ocentra-parent/parent-domain/app-install-purchase-product-claim-platform-preclaim-proof',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-product-claim-platform-preclaim-proof',
       output: relative(repoRoot, proofPath),
     },
     platformPreclaimSummary: summary,

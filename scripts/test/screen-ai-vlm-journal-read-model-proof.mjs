@@ -39,9 +39,9 @@ const {
   ScreenVlmWorkerRuntimeRef,
   ScreenVlmWorkerSchemaVersion,
   ScreenVlmWorkerTemplateVersion,
-} = await import('@ocentra-parent/activity-domain/screen-vlm-worker');
+} = await import('@ocentra-parent/screen-domain/screen-vlm-worker');
 const { screenVlmCompletedStatusFromResult, screenVlmQueueHandoffFromJob, screenVlmQueuedStatusFromHandoff } =
-  await import('@ocentra-parent/activity-domain/screen-vlm-execution-readiness');
+  await import('@ocentra-parent/screen-domain/screen-vlm-execution-readiness');
 const {
   ScreenVlmJournalReadModelProofSchema,
   ScreenVlmJournalReadModelProofTier,
@@ -49,7 +49,7 @@ const {
   screenVlmJournalLineFromCompletedStatus,
   screenVlmJournalReadModelProjection,
   screenVlmReadModelFromCompletedStatus,
-} = await import('@ocentra-parent/activity-domain/screen-vlm-journal-read-model');
+} = await import('@ocentra-parent/screen-domain/screen-vlm-journal-read-model');
 
 const evidenceRef = {
   evidenceId: 'screen-vlm-journal-read-model-proof-source',

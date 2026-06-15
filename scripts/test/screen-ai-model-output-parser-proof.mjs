@@ -23,7 +23,7 @@ runCommand(
 );
 
 const { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema } =
-  await import('@ocentra-parent/parent-domain/local-ai');
+  await import('@ocentra-parent/ai-domain/local-ai');
 
 const evidenceReference = {
   evidenceReferenceId: 'screen-evidence:winrt-ocr-row',

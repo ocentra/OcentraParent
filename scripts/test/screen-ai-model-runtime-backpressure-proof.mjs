@@ -15,7 +15,7 @@ const successfulCommands = [];
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
 
 const { buildScreenAiModelRuntimeBackpressureProof, screenAiModelRuntimeBackpressureSummary } =
-  await import('@ocentra-parent/parent-domain/screen-ai-model-runtime-backpressure-proof');
+  await import('@ocentra-parent/screen-domain/screen-ai-model-runtime-backpressure-proof');
 
 const physicalDeviceId = 'child-laptop-physical-1';
 const runtimeReferenceId = 'runtime:screen-child-safety-vlm';

@@ -32,7 +32,7 @@ async function main() {
 
   const proofModule = await loadExternalRuntimeWriterTransportPreflightProofModule();
   const packageProofModule =
-    await import('@ocentra-parent/parent-domain/app-install-purchase-external-runtime-writer-transport-preflight-proof');
+    await import('@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-writer-transport-preflight-proof');
   assert.equal(
     packageProofModule.AppInstallPurchaseExternalRuntimeWriterTransportPreflightProofReadModel.schemaVersion,
     proofModule.AppInstallPurchaseExternalRuntimeWriterTransportPreflightProofReadModel.schemaVersion
@@ -80,7 +80,7 @@ async function main() {
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       packageExport:
-        '@ocentra-parent/parent-domain/app-install-purchase-external-runtime-writer-transport-preflight-proof',
+        '@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-writer-transport-preflight-proof',
       packageReadme: 'packages/parent-domain/README.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
       output: relative(repoRoot, proofPath),

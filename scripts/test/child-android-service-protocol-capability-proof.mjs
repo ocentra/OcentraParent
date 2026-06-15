@@ -221,7 +221,7 @@ function buildRuntimeReadModel(packageArtifacts) {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await import('@ocentra-parent/parent-domain/child-android-service-protocol-proof');
+  const module = await import('@ocentra-parent/child-runtime-domain/child-android-service-protocol-proof');
   const parsed = module.ChildAndroidServiceProtocolReadModelSchema.parse(readModel);
   proofLabels.push('parent-domain.child-android-service-protocol-proof-parse');
   return parsed;

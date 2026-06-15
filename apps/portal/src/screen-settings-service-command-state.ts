@@ -1,4 +1,4 @@
-import { type ScreenAnalysisParentSetting } from '@ocentra-parent/activity-domain/screen-evidence-settings';
+import { type ScreenAnalysisParentSetting } from '@ocentra-parent/screen-domain/screen-evidence-settings';
 import {
   AgentCommand,
   type AgentCommandName,
@@ -15,7 +15,7 @@ import {
   ScreenSettingsUpdateStatus,
   type ScreenSettingsUpdateResponse,
 } from '@ocentra-parent/agent-protocol-domain/screen-settings-adapter';
-import { type ScreenEvidenceSettingsUiProof } from '@ocentra-parent/activity-domain/screen-evidence';
+import { type ScreenEvidenceSettingsUiProof } from '@ocentra-parent/screen-domain/screen-evidence';
 
 export type ScreenSettingsServiceRequestId = ReturnType<typeof createScreenSettingsPortalRequestId>;
 

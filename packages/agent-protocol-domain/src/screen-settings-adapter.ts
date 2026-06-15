@@ -1,7 +1,7 @@
 import {
   ScreenAnalysisParentSettingSchema,
   type ScreenAnalysisParentSetting,
-} from '@ocentra-parent/activity-domain/screen-evidence-settings';
+} from '@ocentra-parent/screen-domain/screen-evidence-settings';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   AgentCommand,
