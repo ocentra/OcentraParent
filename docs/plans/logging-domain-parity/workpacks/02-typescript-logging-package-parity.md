@@ -34,6 +34,7 @@ This workpack is the first real implementation slice.
 ```text
 docs/plans/logging-domain-parity/00-current-state-and-reference-audit.md
 docs/plans/logging-domain-parity/01-parent-logging-architecture.md
+docs/plans/logging-domain-parity/05-codex-continuation-plan.md
 ocentra-games/packages/logging-domain/package.json
 ocentra-games/packages/logging-domain/src/test-log/**
 ocentra-games/packages/logging-domain/src/transport/**
@@ -129,6 +130,21 @@ packages/logging-domain/tests/**
 ```
 
 Do not remove existing exports unless migration is documented and tests prove no consumers break.
+
+## Additional validation from continuation note
+
+`05-codex-continuation-plan.md` adds useful TypeScript validation details. Include them in this workpack:
+
+```text
+transport serialization and send behavior
+invalid bridge payload handling
+app/test-log retention behavior
+NDJSON serialization shape
+DuckDB ingest/query smoke
+existing production-safe contract exports still parse
+```
+
+Do not treat this as a new workpack. It strengthens WP02 validation.
 
 ## Focused commands
 
