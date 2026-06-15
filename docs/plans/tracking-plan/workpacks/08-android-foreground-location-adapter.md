@@ -46,7 +46,7 @@ Proof root: `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 ## AI Worker Checklist
 
 - [x] Prove foreground permission UX.
-- [ ] Prove fused sample.
+- [x] Prove fused sample.
 - [x] Prove emulator current `LocationManager` sample with raw coordinate proof
       export.
 - [x] Prove emulator foreground permission grant and app-reported last-known
@@ -70,22 +70,25 @@ foreground Android location claim. Runtime/product-complete behavior is still
 not claimed.
 
 `npm run test:tracking-plan-android-emulator-proof` now fills the local
-emulator foreground proof layer: it builds the Android debug APK, installs and
-launches it on `Pixel_9_Pro_XL_API_35`, grants the declared foreground
-location runtime permissions, captures foreground-service state, UI tree,
-headless screenshot inspection, logcat, package permission state, device
-metadata, battery/connectivity dumps, and writes
-`03-runtime-location-evidence.json` as
-`foreground_permission_ux_current_sample_raw_coordinate_observed` when the
-Android permission-controller foreground location UX dialog is captured before
-the scripted grant and the app UI reports `foreground-location-permission-granted`,
+emulator foreground proof layer: it builds the Android debug APK with Google
+Play Services location, installs and launches it on `Pixel_9_Pro_XL_API_35`,
+grants the declared foreground location runtime permissions, captures
+foreground-service state, UI tree, headless screenshot inspection, logcat,
+package permission state, device metadata, battery/connectivity dumps, and
+writes
+`03-runtime-location-evidence.json` as a fused foreground sample observed status
+when the Android permission-controller foreground location UX dialog is captured
+before the scripted grant and the app UI reports
+`foreground-location-permission-granted`,
 `current-location-sample-observed-emulator-location-manager`, provider `gps`,
-observed epoch millis, accuracy meters, source
-`android-location-manager-current-listener-emulator`, and raw latitude/longitude
-values. This proves emulator foreground permission UX readiness plus
-app-emitted current `LocationManager` sample metadata and raw coordinate proof
-export; it does not prove fused provider collection, physical Android device
-behavior, background/geofence transitions, authority, provider delivery, or
+source `android-location-manager-current-listener-emulator`, and Google Play
+Services fused foreground sample metadata with provider `fused`, observed epoch
+millis, accuracy meters, source `google-play-services-fused-current-emulator`
+or `google-play-services-fused-last-known`, and raw latitude/longitude values.
+This proves emulator foreground permission UX readiness plus app-emitted current
+`LocationManager` and fused sample metadata with raw coordinate proof export; it
+does not prove physical Android device behavior, background/geofence
+transitions, authority, provider delivery, notification delivery, or
 product-ready Android tracking.
 
 `node scripts/test/tracking-android-permission-background-proof.mjs` now records
@@ -142,9 +145,9 @@ This workpack can be assigned independently, implemented against the owning doma
       a hub/primary-owned doc delta.
 - [x] Known gaps/manual-required states: foreground permission grant,
       foreground permission UX dialog, app-reported current `LocationManager`
-      sample state, provider, timestamp, accuracy metadata, source, and raw
-      latitude/longitude proof export are now observed on emulator; fused
-      provider sample, physical-device proof, authority, provider delivery,
+      sample state, fused current sample state, provider, timestamp, accuracy
+      metadata, source, and raw latitude/longitude proof export are now observed
+      on emulator; physical-device proof, authority, provider delivery,
       notification delivery, background/geofence transitions, and product-ready
       Android tracking remain unclaimed.
 - [x] Workpack id and branch:
@@ -164,6 +167,6 @@ This workpack can be assigned independently, implemented against the owning doma
       `docs/product-capability-checklist.md` update is queued through the hub
       doc delta.
 - [x] Known gaps/manual-required states: this remains emulator P3 local proof.
-      Fused provider sample, physical Android device behavior, authority,
-      provider delivery, notification delivery, background/geofence system
-      proof, and product-ready Android tracking remain unclaimed.
+      Physical Android device behavior, authority, provider delivery,
+      notification delivery, background/geofence system proof, and product-ready
+      Android tracking remain unclaimed.

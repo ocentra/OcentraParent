@@ -474,7 +474,8 @@ expose location or device-status features. Parents expect this category.
 - Android emulator package/service/status proof now exists through
   `npm run test:tracking-plan-android-emulator-proof`. It builds the Android
   debug APK, installs and launches it on an emulator, captures foreground
-  service state, UI tree, screenshot, logcat, battery, connectivity dumps, and
+  service state, fused foreground sample state, UI tree, screenshot, logcat,
+  battery, connectivity dumps, and
   a WP10 status-gap bridge for local low-power, killed/restarted,
   pending-upload, and manual-required rows,
   and writes proof under
@@ -492,12 +493,13 @@ expose location or device-status features. Parents expect this category.
   delivery, and product-ready Android tracking claims false.
 - WP08 Android emulator proof now records foreground permission-controller UX
   dialog, foreground permission grant, app-emitted current `LocationManager`
-  provider/timestamp/accuracy/source metadata, and raw latitude/longitude proof
-  export under
+  provider/timestamp/accuracy/source metadata, Google Play Services fused
+  foreground sample provider/timestamp/accuracy/source metadata, and raw
+  latitude/longitude proof export under
   `output/tracking-plan-proof/08-android-foreground-location-adapter/03-runtime-location-evidence.json`.
-  This is emulator-only proof; fused provider collection, physical Android
-  device behavior, authority, provider delivery, notification delivery, and
-  product-ready tracking remain unclaimed.
+  This is emulator-only proof; physical Android device behavior, authority,
+  provider delivery, notification delivery, and product-ready tracking remain
+  unclaimed.
 - WP10 Android status proof now exists through
   `node scripts/test/tracking-android-status-proof.mjs`. It records
   parent-domain rows for low-power degradation, app killed/restarted
@@ -644,9 +646,8 @@ accessibility beyond the hosted parent route are proved.
       background-activity sample, plus local-geofence enter/exit proof now
       exist, and WP08/WP09 parent-domain manual-required
       proof rows still preserve the remaining Android system geofencing, dwell,
-      and device gaps; fused provider foreground capture,
-      Android system geofencing/dwell, and physical-device proof remain
-      pending.
+      and device gaps; Android system geofencing/dwell and physical-device proof
+      remain pending.
 - [x] Android emulator package launch, foreground-service scaffold, battery,
       and connectivity proof. This is not foreground location or geofence
       proof.

@@ -108,10 +108,10 @@ mHapticTextHandleEnabled=false
       mTriggerRequested=false
       mSensor=null
     KeyguardServiceDelegate
-      showing=false
+      showing=true
       inputRestricted=false
       occluded=false
-      secure=false
+      secure=true
       dreaming=false
       systemIsReady=true
       deviceHasKeyguard=true
@@ -121,73 +121,57 @@ mHapticTextHandleEnabled=false
       bootCompleted=true
       screenState=SCREEN_STATE_ON
       interactiveState=INTERACTIVE_STATE_AWAKE
-      KeyguardStateMonitor
-        mIsShowing=false
-        mSimSecure=false
-        mInputRestricted=false
-        mTrusted=false
-        mCurrentUserId=0
     Looper state:
       Looper (android.ui, tid 21) {7a64b33}
         (Total messages: 0, polling=true, quitting=false)
 
 WINDOW MANAGER ANIMATOR STATE (dumpsys window animator)
     Display{#0 state=ON size=1344x2992 ROTATION_0}:
-      Window #0: WindowStateAnimator{3652f97 com.android.systemui.wallpapers.ImageWallpaper}
-      Window #1: WindowStateAnimator{c5f7584 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}
-      Window #2: WindowStateAnimator{28b716d com.ocentra.claim/com.ocentra.claim.MainActivity}
-      Window #3: WindowStateAnimator{93cb1a2 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
-      Window #4: WindowStateAnimator{2432e33 com.android.settings/com.android.settings.spa.SpaActivity}
-      Window #5: WindowStateAnimator{d2065f0 InputMethod}
-      Window #6: WindowStateAnimator{d7ab769 ShellDropTarget}
-      Window #7: WindowStateAnimator{55845ee StatusBar}
-      Window #8: WindowStateAnimator{ff87a8f NotificationShade}
-      Window #9: WindowStateAnimator{bbdf11c Taskbar}
-      Window #10: WindowStateAnimator{6fe6125 EdgeBackGestureHandler0}
-      Window #11: WindowStateAnimator{386d2fa ScreenDecorOverlay}
-      Window #12: WindowStateAnimator{c0c30ab ScreenDecorOverlayBottom}
+      Window #0: WindowStateAnimator{f772fc com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}
+      Window #1: WindowStateAnimator{94ced85 com.ocentra.claim/com.ocentra.claim.MainActivity}
+      Window #2: WindowStateAnimator{ffdd7da ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
+      Window #3: WindowStateAnimator{375840b com.android.settings/com.android.settings.spa.SpaActivity}
+      Window #4: WindowStateAnimator{2c6c2e8 InputMethod}
+      Window #5: WindowStateAnimator{573dd01 Taskbar}
 
 
 
 WINDOW MANAGER SESSIONS (dumpsys window sessions)
   Session Session{13a1e16 2372:u0a10176}:
-    numWindow=2 mCanAddInternalSystemWindow=true mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@7470308
+    numWindow=2 mCanAddInternalSystemWindow=true mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@f7197a6
     mPackageName=com.google.android.apps.nexuslauncher
-  Session Session{17827fe 1442:u0a10196}:
-    numWindow=0 mCanAddInternalSystemWindow=false mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@c58eaa1
-    mPackageName=com.google.android.permissioncontroller
   Session Session{2716e0b 1120:1000}:
-    numWindow=1 mCanAddInternalSystemWindow=true mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@2df24c6
+    numWindow=1 mCanAddInternalSystemWindow=true mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@ff655e7
     mPackageName=com.android.settings
-  Session Session{29b3f93 4466:u0a10212}:
-    numWindow=1 mCanAddInternalSystemWindow=false mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@d5b2c87
-    mPackageName=ca.ocentra.parent.agent
   Session Session{2a339e0 1953:u0a10211}:
-    numWindow=1 mCanAddInternalSystemWindow=false mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@ecd47b4
+    numWindow=1 mCanAddInternalSystemWindow=false mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@1b92594
     mPackageName=com.ocentra.claim
   Session Session{561b06a 2609:u0a10157}:
-    numWindow=1 mCanAddInternalSystemWindow=false mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@2788fdd
+    numWindow=1 mCanAddInternalSystemWindow=false mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@9c0483d
     mPackageName=com.google.android.inputmethod.latin
-  Session Session{66d8b91 943:u0a10181}:
-    numWindow=7 mCanAddInternalSystemWindow=true mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@b18c752
-    mPackageName=com.android.systemui
+  Session Session{9311382 1442:u0a10196}:
+    numWindow=0 mCanAddInternalSystemWindow=false mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@90f8832
+    mPackageName=com.google.android.permissioncontroller
+  Session Session{bbe2865 4530:u0a10212}:
+    numWindow=1 mCanAddInternalSystemWindow=false mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@fc86983
+    mPackageName=ca.ocentra.parent.agent
   Session Session{f696f70 616:1000}:
-    numWindow=0 mCanAddInternalSystemWindow=true mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@1b40a23
+    numWindow=0 mCanAddInternalSystemWindow=true mAlertWindowSurfaces={} mClientDead=false mSurfaceSession=android.view.SurfaceSession@6cd0700
     mPackageName=android
 
 WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
-  Display: mDisplayId=0 (organized)
+  Display: mDisplayId=0
     init=1344x2992 480dpi mMinSizeOfResizeableTaskDp=220 cur=1344x2992 app=1344x2992 rng=1344x1344-2992x2992
-    deferred=false mLayoutNeeded=false
+    deferred=false mLayoutNeeded=true
   mLastOrientationSource=WindowedMagnification:0:31@117329599
-  deepestLastOrientationSource=ActivityRecord{e90bb5d u0 com.android.settings/.spa.SpaActivity t29}
+  deepestLastOrientationSource=DefaultTaskDisplayArea@260958610
   overrideConfig={1.0 310mcc260mnc [en_US] ldltr sw448dp w448dp h997dp 480dpi nrml long port finger qwerty/v/v dpad/v winConfig={ mBounds=Rect(0, 0 - 1344, 2992) mAppBounds=Rect(0, 0 - 1344, 2992) mMaxBounds=Rect(0, 0 - 1344, 2992) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.54 fontWeightAdjustment=0}
-  mLayoutSeq=161
-  mCurrentFocus=Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
-  mFocusedApp=ActivityRecord{e90bb5d u0 com.android.settings/.spa.SpaActivity t29}
+  mLayoutSeq=170
+  mCurrentFocus=null
+  mFocusedApp=ActivityRecord{d3cf395 u0 com.android.settings/.spa.SpaActivity t29}
 
   mHoldScreenWindow=null
-  mObscuringWindow=Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
+  mObscuringWindow=null
   mLastWakeLockHoldingWindow=null
   mLastWakeLockObscuringWindow=Window{38b8e0f u0 com.android.systemui.wallpapers.ImageWallpaper}
 
@@ -244,21 +228,21 @@ WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
             * ImeContainer
           * FullscreenMagnification:0:12
             * Leaf:3:12
-            * DefaultTaskDisplayArea (organized)
+            * DefaultTaskDisplayArea
             * Leaf:0:1
 
   Task display areas in top down Z order:
     TaskDisplayArea DefaultTaskDisplayArea
       overrideConfig={0.0 ?mcc0mnc ?localeList ?layoutDir ?swdp ?wdp ?hdp ?density ?lsize ?long ?ldr ?wideColorGamut ?orien ?uimode ?night ?touch ?keyb/?/? ?nav/? winConfig={ mBounds=Rect(0, 0 - 0, 0) mAppBounds=null mMaxBounds=Rect(0, 0 - 0, 0) mDisplayRotation=undefined mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=undefined} ?fontWeightAdjustment}
-      mPreferredTopFocusableRootTask=Task{7576228 #29 type=standard A=1000:com.android.settings}
-      mLastFocusedRootTask=Task{7576228 #29 type=standard A=1000:com.android.settings}
+      mPreferredTopFocusableRootTask=Task{f982891 #29 type=standard A=1000:com.android.settings}
+      mLastFocusedRootTask=Task{f982891 #29 type=standard A=1000:com.android.settings}
       Application tokens in top down Z order:
-      * Task{7576228 #29 type=standard A=1000:com.android.settings U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+      * Task{f982891 #29 type=standard A=1000:com.android.settings U=0 visible=true visibleRequested=false mode=fullscreen translucent=false sz=1}
         bounds=[0,0][1344,2992]
-        * ActivityRecord{e90bb5d u0 com.android.settings/.spa.SpaActivity t29}
-      * Task{6b113b6 #28 type=standard A=10212:ca.ocentra.parent.agent U=0 visible=false visibleRequested=false mode=fullscreen translucent=true sz=1}
+        * ActivityRecord{d3cf395 u0 com.android.settings/.spa.SpaActivity t29}
+      * Task{bba94f5 #28 type=standard A=10212:ca.ocentra.parent.agent U=0 visible=false visibleRequested=false mode=fullscreen translucent=true sz=1}
         bounds=[0,0][1344,2992]
-        * ActivityRecord{ff27f51 u0 ca.ocentra.parent.agent/.MainActivity t28}
+        * ActivityRecord{96875df u0 ca.ocentra.parent.agent/.MainActivity t28}
       * Task{35c292b #27 type=standard A=10211:com.ocentra.claim U=0 visible=false visibleRequested=false mode=fullscreen translucent=true sz=1}
         bounds=[0,0][1344,2992]
         * ActivityRecord{1e2e470 u0 com.ocentra.claim/.MainActivity t27}
@@ -269,12 +253,6 @@ WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
           * ActivityRecord{f7bee u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t26}
           * TaskFragment{aaf4272 mode=multi-window organizerUid=10176 organizerProc=com.google.android.apps.nexuslauncher}
             bounds=[0,0][1344,2992]
-      * Task{11baaa3 #2 type=undefined U=0 visible=false visibleRequested=false mode=fullscreen translucent=true sz=2}
-        bounds=[0,0][1344,2992]
-        * Task{bb750c7 #4 type=undefined U=0 rootTaskId=2 visible=false visibleRequested=false mode=multi-window translucent=true sz=0}
-          bounds=[0,2992][1344,4488]
-        * Task{3d781a0 #3 type=undefined U=0 rootTaskId=2 visible=false visibleRequested=false mode=multi-window translucent=true sz=0}
-          bounds=[0,0][1344,2992]
 
   no ScreenRotationAnimation
 
@@ -296,28 +274,17 @@ WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
     mHdmiPlugged=false
     mLastAppearance=LIGHT_STATUS_BARS LIGHT_NAVIGATION_BARS
     mLastBehavior=DEFAULT
-    mShowingDream=false mDreamingLockscreen=false
-    mStatusBar=Window{f579388 u0 StatusBar}
-    mExpandedPanel=Window{eb7f8b9 u0 NotificationShade}
-    isKeyguardShowing=false
+    mShowingDream=false mDreamingLockscreen=true
+    isKeyguardShowing=true
     mNavigationBar=Window{9078b3a u0 Taskbar}
     mNavBarOpacityMode=2
     mNavigationBarCanMove=false
     mNavigationBarPosition=4
     mLeftGestureHost=Window{9078b3a u0 Taskbar}
-    mTopGestureHost=Window{f579388 u0 StatusBar}
     mRightGestureHost=Window{9078b3a u0 Taskbar}
     mBottomGestureHost=Window{9078b3a u0 Taskbar}
-    mFocusedWindow=Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
-    mTopFullscreenOpaqueWindowState=Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
-    mSystemBarColorApps={ActivityRecord{e90bb5d u0 com.android.settings/.spa.SpaActivity t29}}
-    mNavBarColorWindowCandidate=Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
-    mNavBarBackgroundWindowCandidate=Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
     mLastStatusBarAppearanceRegions=
-      AppearanceRegion{LIGHT_STATUS_BARS bounds=[0,0][1344,2992]}
     mLastLetterboxDetails=
-    mStatusBarBackgroundWindows=
-      Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
     mTopIsFullscreen=false
     mImeInsetsConsumed=false
     mForceShowNavigationBarEnabled=false mAllowLockscreenWhenOn=false
@@ -351,7 +318,7 @@ WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
         mLastFilteredX=0.0
         mLastFilteredY=9.776321
         mLastFilteredZ=0.812345
-        mLastFilteredTimestampNanos=512049862800 (11.5782995ms ago)
+        mLastFilteredTimestampNanos=515336537800 (0.7616ms ago)
         mTiltHistory={last: 5.0}
         mFlat=false
         mSwinging=false
@@ -374,11 +341,9 @@ WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
     mDeviceState=FOLDED
 
     RotationLockHistory
-      06-07 01:31:30.273: mode=USER_ROTATION_FREE, rotation=ROTATION_0, caller=UiAutomationConnection#restoreRotationStateLocked
-      06-07 01:31:36.792: mode=USER_ROTATION_FREE, rotation=ROTATION_0, caller=UiAutomationConnection#restoreRotationStateLocked
+      06-07 08:10:06.322: mode=USER_ROTATION_FREE, rotation=ROTATION_0, caller=UiAutomationConnection#restoreRotationStateLocked
+      06-07 08:10:13.034: mode=USER_ROTATION_FREE, rotation=ROTATION_0, caller=UiAutomationConnection#restoreRotationStateLocked
 
-  InputConsumers:
-    name=recents_animation_input_consumer pid=2372 user=UserHandle{0}
 
   WindowInsetsStateController
     InsetsState
@@ -388,9 +353,6 @@ WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
       mRoundedCornerFrame=Rect(0, 0 - 0, 0)
       mPrivacyIndicatorBounds=PrivacyIndicatorBounds {static bounds=Rect(1056, 0 - 1302, 159) rotation=0}
       mDisplayShape=DisplayShape{ spec=489068999 displayWidth=1344 displayHeight=2992 physicalPixelDisplaySizeRatio=1.0 rotation=0 offsetX=0 offsetY=0 scale=1.0}
-        InsetsSource id=d4440000 type=statusBars frame=[0,0][1344,159] visible=true flags= sideHint=TOP boundingRects=null
-        InsetsSource id=d4440005 type=mandatorySystemGestures frame=[0,0][1344,195] visible=true flags= sideHint=TOP boundingRects=null
-        InsetsSource id=d4440006 type=tappableElement frame=[0,0][1344,159] visible=true flags= sideHint=TOP boundingRects=null
         InsetsSource id=3 type=ime frame=[0,0][0,0] visible=false flags= sideHint=NONE boundingRects=null
         InsetsSource id=27 type=displayCutout frame=[0,0][1344,159] visible=true flags= sideHint=TOP boundingRects=null
         InsetsSource id=3bf00001 type=navigationBars frame=[0,2920][1344,2992] visible=true flags=SUPPRESS_SCRIM|ANIMATE_RESIZING sideHint=BOTTOM boundingRects=null
@@ -399,9 +361,8 @@ WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
         InsetsSource id=3bf00006 type=tappableElement frame=[0,0][0,0] visible=true flags= sideHint=NONE boundingRects=null
         InsetsSource id=3bf00024 type=systemGestures frame=[1254,0][1344,2992] visible=true flags= sideHint=RIGHT boundingRects=null
     Control map:
-      Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}:
+      Window{ef3c586 u0 com.android.settings/com.android.settings.spa.SpaActivity}:
         InsetsSourceControl: {3 mType=ime mSurfacePosition=Point(192, 2848) mInsetsHint=Insets{left=0, top=0, right=0, bottom=0}}
-        InsetsSourceControl: {d4440000 mType=statusBars initiallyVisible mSurfacePosition=Point(0, 0) mInsetsHint=Insets{left=0, top=159, right=0, bottom=0}}
         InsetsSourceControl: {3bf00001 mType=navigationBars initiallyVisible mSurfacePosition=Point(0, 2920) mInsetsHint=Insets{left=0, top=0, right=0, bottom=72}}
     InsetsSourceProviders:
       InsetsSourceProvider
@@ -430,42 +391,23 @@ WINDOW MANAGER DISPLAY CONTENTS (dumpsys window displays)
         mSource=InsetsSource id=3bf00001 type=navigationBars frame=[0,2920][1344,2992] visible=true flags=SUPPRESS_SCRIM|ANIMATE_RESIZING sideHint=BOTTOM boundingRects=null
         mSourceFrame=Rect(0, 2920 - 1344, 2992)
         mOverrideFrames={2011=Rect(0, 2920 - 1344, 2992), 2031=Rect(0, 2920 - 1344, 2992)}
-        mControl=InsetsSourceControl mId=3bf00001 mType=navigationBars mLeash=Surface(name=Surface(name=9078b3a Taskbar)/@0xfc1e53b - animation-leash of insets_animation)/@0x41e67f2 mInitiallyVisible=true mSurfacePosition=Point(0, 2920) mInsetsHint=Insets{left=0, top=0, right=0, bottom=72} mSkipAnimationOnce=false
+        mControl=InsetsSourceControl mId=3bf00001 mType=navigationBars mLeash=Surface(name=Surface(name=9078b3a Taskbar)/@0xfc1e53b - animation-leash of insets_animation)/@0xb1b38d2 mInitiallyVisible=true mSurfacePosition=Point(0, 2920) mInsetsHint=Insets{left=0, top=0, right=0, bottom=72} mSkipAnimationOnce=false
         mInsetsHint=Insets{left=0, top=0, right=0, bottom=72}
         mIsLeashReadyForDispatching=true mHasPendingPosition=false
         mWindowContainer=Window{9078b3a u0 Taskbar}
-        mAdapter=ControlAdapter mCapturedLeash=Surface(name=Surface(name=9078b3a Taskbar)/@0xfc1e53b - animation-leash of insets_animation)/@0x41e67f2
-        mControlTarget=Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
+        mAdapter=ControlAdapter mCapturedLeash=Surface(name=Surface(name=9078b3a Taskbar)/@0xfc1e53b - animation-leash of insets_animation)/@0xb1b38d2
+        mControlTarget=Window{ef3c586 u0 com.android.settings/com.android.settings.spa.SpaActivity}
       ImeInsetsSourceProvider
         mSource=InsetsSource id=3 type=ime frame=[0,0][0,0] visible=false flags= sideHint=NONE boundingRects=null
         mSourceFrame=Rect(192, 2848 - 1152, 2992)
-        mControl=InsetsSourceControl mId=3 mType=ime mLeash=Surface(name=Surface(name=e8e993c InputMethod)/@0x1c6d3d4 - animation-leash of insets_animation)/@0xbca2e43 mInitiallyVisible=false mSurfacePosition=Point(192, 2848) mInsetsHint=Insets{left=0, top=0, right=0, bottom=0} mSkipAnimationOnce=false
+        mControl=InsetsSourceControl mId=3 mType=ime mLeash=Surface(name=Surface(name=e8e993c InputMethod)/@0x1c6d3d4 - animation-leash of insets_animation)/@0xa535da3 mInitiallyVisible=false mSurfacePosition=Point(192, 2848) mInsetsHint=Insets{left=0, top=0, right=0, bottom=0} mSkipAnimationOnce=false
         mInsetsHint=Insets{left=0, top=0, right=0, bottom=0} stale
         mIsLeashReadyForDispatching=true mHasPendingPosition=false
         mWindowContainer=Window{e8e993c u0 InputMethod}
-        mAdapter=ControlAdapter mCapturedLeash=Surface(name=Surface(name=e8e993c InputMethod)/@0x1c6d3d4 - animation-leash of insets_animation)/@0xbca2e43
-        mControlTarget=Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
+        mAdapter=ControlAdapter mCapturedLeash=Surface(name=Surface(name=e8e993c InputMethod)/@0x1c6d3d4 - animation-leash of insets_animation)/@0xa535da3
+        mControlTarget=Window{ef3c586 u0 com.android.settings/com.android.settings.spa.SpaActivity}
         mImeShowing=false        showImePostLayout not scheduled, mImeRequester=null
 
-      InsetsSourceProvider
-        mSource=InsetsSource id=d4440006 type=tappableElement frame=[0,0][1344,159] visible=true flags= sideHint=TOP boundingRects=null
-        mSourceFrame=Rect(0, 0 - 1344, 159)
-        mIsLeashReadyForDispatching=true mHasPendingPosition=false
-        mWindowContainer=Window{f579388 u0 StatusBar}
-      InsetsSourceProvider
-        mSource=InsetsSource id=d4440005 type=mandatorySystemGestures frame=[0,0][1344,195] visible=true flags= sideHint=TOP boundingRects=null
-        mSourceFrame=Rect(0, 0 - 1344, 195)
-        mIsLeashReadyForDispatching=true mHasPendingPosition=false
-        mWindowContainer=Window{f579388 u0 StatusBar}
-      InsetsSourceProvider
-        mSource=InsetsSource id=d4440000 type=statusBars frame=[0,0][1344,159] visible=true flags= sideHint=TOP boundingRects=null
-        mSourceFrame=Rect(0, 0 - 1344, 159)
-        mControl=InsetsSourceControl mId=d4440000 mType=statusBars mLeash=Surface(name=Surface(name=f579388 StatusBar)/@0x78efe5d - animation-leash of insets_animation)/@0xa004cc0 mInitiallyVisible=true mSurfacePosition=Point(0, 0) mInsetsHint=Insets{left=0, top=159, right=0, bottom=0} mSkipAnimationOnce=false
-        mInsetsHint=Insets{left=0, top=159, right=0, bottom=0}
-        mIsLeashReadyForDispatching=true mHasPendingPosition=false
-        mWindowContainer=Window{f579388 u0 StatusBar}
-        mAdapter=ControlAdapter mCapturedLeash=Surface(name=Surface(name=f579388 StatusBar)/@0x78efe5d - animation-leash of insets_animation)/@0xa004cc0
-        mControlTarget=Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
   InsetsPolicy
     status: WINDOW_STATE_SHOWING
     nav: WINDOW_STATE_SHOWING
@@ -476,75 +418,15 @@ WINDOW MANAGER TOKENS (dumpsys window tokens)
   Display #0
     mInTouchMode=true
   ActivityRecord{1e2e470 u0 com.ocentra.claim/.MainActivity t27}
-  WindowToken{cab703d type=2024 android.os.BinderProxy@e37ed94}
-  ActivityRecord{ff27f51 u0 ca.ocentra.parent.agent/.MainActivity t28}
   WallpaperWindowToken{503891a token=android.os.Binder@5819bc5}
-  WindowToken{c8bc0a6 type=2024 android.os.BinderProxy@5690a01}
   WindowToken{afd1143 type=2019 android.os.BinderProxy@4102fd9}
-  WindowToken{80f9a80 type=2040 android.os.BinderProxy@4580fb2}
   ActivityRecord{f7bee u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t26}
   WindowToken{73d704f type=2011 android.os.Binder@8e47aae}
-  WindowToken{bb76219 type=2024 android.os.BinderProxy@4ef4d60}
-  WindowToken{6add341 type=2038 android.os.BinderProxy@1073b57}
-  ActivityRecord{e90bb5d u0 com.android.settings/.spa.SpaActivity t29}
-  WindowToken{bbab32b type=2000 android.os.BinderProxy@1df7fa5}
+  ActivityRecord{d3cf395 u0 com.android.settings/.spa.SpaActivity t29}
+  ActivityRecord{96875df u0 ca.ocentra.parent.agent/.MainActivity t28}
 
 WINDOW MANAGER WINDOWS (dumpsys window windows)
-  Window #0 Window{54e92de u0 ScreenDecorOverlayBottom}:
-    mDisplayId=0 rootTaskId=1 mSession=Session{66d8b91 943:u0a10181} mClient=android.os.BinderProxy@4ef4d60
-    mOwnerUid=10181 showForAllUsers=true package=com.android.systemui appop=NONE
-    mAttrs={(0,0)(fillxwrap) gr=BOTTOM CENTER_VERTICAL sim={adjust=pan} layoutInDisplayCutoutMode=always ty=NAVIGATION_BAR_PANEL fmt=TRANSLUCENT
-      fl=NOT_FOCUSABLE NOT_TOUCHABLE NOT_TOUCH_MODAL LAYOUT_IN_SCREEN SPLIT_TOUCH FLAG_SLIPPERY
-      pfl=SHOW_FOR_ALL_USERS NO_MOVE_ANIMATION IS_ROUNDED_CORNERS_OVERLAY COLOR_SPACE_AGNOSTIC FIT_INSETS_CONTROLLED TRUSTED_OVERLAY
-      vsysui=LAYOUT_STABLE
-      bhv=DEFAULT
-      frameRateBoostOnTouch=true
-      dvrrWindowFrameRateHint=true}
-    Requested w=1344 h=230 mLayoutSeq=161
-    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
-    WindowStateAnimator{c0c30ab ScreenDecorOverlayBottom}:
-      Surface: shown=true    mForceSeamlesslyRotate=true seamlesslyRotate: pending=null
-    isOnScreen=true
-    isVisible=true
-    keepClearAreas: restricted=[], unrestricted=[]
-    mPrepareSyncSeqId=0
-  Window #1 Window{d5f9032 u0 ScreenDecorOverlay}:
-    mDisplayId=0 rootTaskId=1 mSession=Session{66d8b91 943:u0a10181} mClient=android.os.BinderProxy@e37ed94
-    mOwnerUid=10181 showForAllUsers=true package=com.android.systemui appop=NONE
-    mAttrs={(0,0)(fillxwrap) gr=TOP CENTER_VERTICAL sim={adjust=pan} layoutInDisplayCutoutMode=always ty=NAVIGATION_BAR_PANEL fmt=TRANSLUCENT
-      fl=NOT_FOCUSABLE NOT_TOUCHABLE NOT_TOUCH_MODAL LAYOUT_IN_SCREEN SPLIT_TOUCH FLAG_SLIPPERY
-      pfl=SHOW_FOR_ALL_USERS NO_MOVE_ANIMATION IS_ROUNDED_CORNERS_OVERLAY COLOR_SPACE_AGNOSTIC FIT_INSETS_CONTROLLED TRUSTED_OVERLAY
-      vsysui=LAYOUT_STABLE
-      bhv=DEFAULT
-      frameRateBoostOnTouch=true
-      dvrrWindowFrameRateHint=true}
-    Requested w=1344 h=230 mLayoutSeq=161
-    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
-    WindowStateAnimator{386d2fa ScreenDecorOverlay}:
-      Surface: shown=true    mForceSeamlesslyRotate=true seamlesslyRotate: pending=null
-    isOnScreen=true
-    isVisible=true
-    keepClearAreas: restricted=[], unrestricted=[]
-    mPrepareSyncSeqId=0
-  Window #2 Window{297cae7 u0 EdgeBackGestureHandler0}:
-    mDisplayId=0 rootTaskId=1 mSession=Session{66d8b91 943:u0a10181} mClient=android.os.BinderProxy@5690a01
-    mOwnerUid=10181 showForAllUsers=true package=com.android.systemui appop=NONE
-    mAttrs={(0,0)(315x804) sim={adjust=pan} ty=NAVIGATION_BAR_PANEL fmt=TRANSLUCENT
-      fl=NOT_FOCUSABLE NOT_TOUCHABLE LAYOUT_IN_SCREEN HARDWARE_ACCELERATED
-      pfl=SHOW_FOR_ALL_USERS EXCLUDE_FROM_SCREEN_MAGNIFICATION FIT_INSETS_CONTROLLED TRUSTED_OVERLAY
-      bhv=DEFAULT
-      frameRateBoostOnTouch=true
-      dvrrWindowFrameRateHint=true}
-    Requested w=-1 h=-1 mLayoutSeq=22
-    mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
-    WindowStateAnimator{6fe6125 EdgeBackGestureHandler0}:
-      mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
-    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null
-    isOnScreen=false
-    isVisible=false
-    keepClearAreas: restricted=[], unrestricted=[]
-    mPrepareSyncSeqId=0
-  Window #3 Window{9078b3a u0 Taskbar}:
+  Window #0 Window{9078b3a u0 Taskbar}:
     mDisplayId=0 rootTaskId=1 mSession=Session{13a1e16 2372:u0a10176} mClient=android.os.BinderProxy@229d265
     mOwnerUid=10176 showForAllUsers=true package=com.google.android.apps.nexuslauncher appop=NONE
     mAttrs={(0,0)(fillx72) gr=BOTTOM CENTER_VERTICAL sim={adjust=nothing} layoutInDisplayCutoutMode=always ty=NAVIGATION_BAR fmt=TRANSLUCENT receive insets ignoring z-order
@@ -608,121 +490,19 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
             InsetsFrameProvider: {id=#2c2e0024, index=1, type=systemGestures, source=DISPLAY, flags=[], insetsSize=Insets{left=0, top=0, right=90, bottom=0}}
           frameRateBoostOnTouch=true
           dvrrWindowFrameRateHint=true}}
-    Requested w=1344 h=72 mLayoutSeq=161
+    Requested w=1344 h=72 mLayoutSeq=170
     mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
     ContainerAnimator:
-      mLeash=Surface(name=Surface(name=9078b3a Taskbar)/@0xfc1e53b - animation-leash of insets_animation)/@0x41e67f2 mAnimationType=insets_animation
-      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@b9eeaa
-        ControlAdapter mCapturedLeash=Surface(name=Surface(name=9078b3a Taskbar)/@0xfc1e53b - animation-leash of insets_animation)/@0x41e67f2
-    WindowStateAnimator{bbdf11c Taskbar}:
+      mLeash=Surface(name=Surface(name=9078b3a Taskbar)/@0xfc1e53b - animation-leash of insets_animation)/@0xb1b38d2 mAnimationType=insets_animation
+      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@21e1adf
+        ControlAdapter mCapturedLeash=Surface(name=Surface(name=9078b3a Taskbar)/@0xfc1e53b - animation-leash of insets_animation)/@0xb1b38d2
+    WindowStateAnimator{573dd01 Taskbar}:
       Surface: shown=true    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null
     isOnScreen=true
     isVisible=true
     keepClearAreas: restricted=[], unrestricted=[]
     mPrepareSyncSeqId=0
-  Window #4 Window{eb7f8b9 u0 NotificationShade}:
-    mDisplayId=0 rootTaskId=1 mSession=Session{66d8b91 943:u0a10181} mClient=android.os.BinderProxy@3f31b03
-    mOwnerUid=10181 showForAllUsers=true package=com.android.systemui appop=NONE
-    mAttrs={(0,0)(fillxfill) gr=TOP CENTER_VERTICAL sim={adjust=pan} layoutInDisplayCutoutMode=always ty=NOTIFICATION_SHADE fmt=TRANSLUCENT
-      fl=NOT_FOCUSABLE TOUCHABLE_WHEN_WAKING WATCH_OUTSIDE_TOUCH SPLIT_TOUCH HARDWARE_ACCELERATED DRAWS_SYSTEM_BAR_BACKGROUNDS
-      pfl=OPTIMIZE_MEASURE COLOR_SPACE_AGNOSTIC FIT_INSETS_CONTROLLED
-      bhv=SHOW_TRANSIENT_BARS_BY_SWIPE
-      frameRateBoostOnTouch=true
-      dvrrWindowFrameRateHint=true}
-    Requested w=1344 h=2992 mLayoutSeq=25
-    mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
-    WindowStateAnimator{ff87a8f NotificationShade}:
-      mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
-    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null
-    isOnScreen=false
-    isVisible=false
-    keepClearAreas: restricted=[], unrestricted=[]
-    mPrepareSyncSeqId=0
-  Window #5 Window{f579388 u0 StatusBar}:
-    mDisplayId=0 rootTaskId=1 mSession=Session{66d8b91 943:u0a10181} mClient=android.os.BinderProxy@3abcf7a
-    mOwnerUid=10181 showForAllUsers=true package=com.android.systemui appop=NONE
-    mAttrs={(0,0)(fillx159) gr=TOP CENTER_VERTICAL sim={adjust=pan} layoutInDisplayCutoutMode=always ty=STATUS_BAR fmt=TRANSLUCENT
-      fl=NOT_FOCUSABLE SPLIT_TOUCH HARDWARE_ACCELERATED DRAWS_SYSTEM_BAR_BACKGROUNDS
-      pfl=COLOR_SPACE_AGNOSTIC FIT_INSETS_CONTROLLED
-      bhv=DEFAULT
-      providedInsets:
-        InsetsFrameProvider: {id=#d4440000, index=0, type=statusBars, source=FRAME, flags=[], insetsSize=Insets{left=0, top=156, right=0, bottom=0}}
-        InsetsFrameProvider: {id=#d4440006, index=0, type=tappableElement, source=FRAME, flags=[], insetsSize=Insets{left=0, top=156, right=0, bottom=0}}
-        InsetsFrameProvider: {id=#d4440005, index=0, type=mandatorySystemGestures, source=FRAME, flags=[], mMinimalInsetsSizeInDisplayCutoutSafe=Insets{left=0, top=36, right=0, bottom=0}}
-      frameRateBoostOnTouch=true
-      dvrrWindowFrameRateHint=true
-      paramsForRotation:
-        ROTATION_0={(0,0)(fillx159) gr=TOP CENTER_VERTICAL layoutInDisplayCutoutMode=always ty=STATUS_BAR fmt=TRANSLUCENT
-          fl=NOT_FOCUSABLE SPLIT_TOUCH DRAWS_SYSTEM_BAR_BACKGROUNDS
-          pfl=COLOR_SPACE_AGNOSTIC FIT_INSETS_CONTROLLED
-          bhv=DEFAULT
-          providedInsets:
-            InsetsFrameProvider: {id=#d4440000, index=0, type=statusBars, source=FRAME, flags=[], insetsSize=Insets{left=0, top=159, right=0, bottom=0}}
-            InsetsFrameProvider: {id=#d4440006, index=0, type=tappableElement, source=FRAME, flags=[], insetsSize=Insets{left=0, top=159, right=0, bottom=0}}
-            InsetsFrameProvider: {id=#d4440005, index=0, type=mandatorySystemGestures, source=FRAME, flags=[], insetsSize=Insets{left=0, top=159, right=0, bottom=0}, mMinimalInsetsSizeInDisplayCutoutSafe=Insets{left=0, top=36, right=0, bottom=0}}
-          frameRateBoostOnTouch=true
-          dvrrWindowFrameRateHint=true}
-        ROTATION_90={(0,0)(fillx156) gr=TOP CENTER_VERTICAL layoutInDisplayCutoutMode=always ty=STATUS_BAR fmt=TRANSLUCENT
-          fl=NOT_FOCUSABLE SPLIT_TOUCH DRAWS_SYSTEM_BAR_BACKGROUNDS
-          pfl=COLOR_SPACE_AGNOSTIC FIT_INSETS_CONTROLLED
-          bhv=DEFAULT
-          providedInsets:
-            InsetsFrameProvider: {id=#d4440000, index=0, type=statusBars, source=FRAME, flags=[], insetsSize=Insets{left=0, top=156, right=0, bottom=0}}
-            InsetsFrameProvider: {id=#d4440006, index=0, type=tappableElement, source=FRAME, flags=[], insetsSize=Insets{left=0, top=156, right=0, bottom=0}}
-            InsetsFrameProvider: {id=#d4440005, index=0, type=mandatorySystemGestures, source=FRAME, flags=[], insetsSize=Insets{left=0, top=156, right=0, bottom=0}, mMinimalInsetsSizeInDisplayCutoutSafe=Insets{left=0, top=36, right=0, bottom=0}}
-          frameRateBoostOnTouch=true
-          dvrrWindowFrameRateHint=true}
-        ROTATION_180={(0,0)(fillx156) gr=TOP CENTER_VERTICAL layoutInDisplayCutoutMode=always ty=STATUS_BAR fmt=TRANSLUCENT
-          fl=NOT_FOCUSABLE SPLIT_TOUCH DRAWS_SYSTEM_BAR_BACKGROUNDS
-          pfl=COLOR_SPACE_AGNOSTIC FIT_INSETS_CONTROLLED
-          bhv=DEFAULT
-          providedInsets:
-            InsetsFrameProvider: {id=#d4440000, index=0, type=statusBars, source=FRAME, flags=[], insetsSize=Insets{left=0, top=156, right=0, bottom=0}}
-            InsetsFrameProvider: {id=#d4440006, index=0, type=tappableElement, source=FRAME, flags=[], insetsSize=Insets{left=0, top=156, right=0, bottom=0}}
-            InsetsFrameProvider: {id=#d4440005, index=0, type=mandatorySystemGestures, source=FRAME, flags=[], insetsSize=Insets{left=0, top=156, right=0, bottom=0}, mMinimalInsetsSizeInDisplayCutoutSafe=Insets{left=0, top=36, right=0, bottom=0}}
-          frameRateBoostOnTouch=true
-          dvrrWindowFrameRateHint=true}
-        ROTATION_270={(0,0)(fillx156) gr=TOP CENTER_VERTICAL layoutInDisplayCutoutMode=always ty=STATUS_BAR fmt=TRANSLUCENT
-          fl=NOT_FOCUSABLE SPLIT_TOUCH DRAWS_SYSTEM_BAR_BACKGROUNDS
-          pfl=COLOR_SPACE_AGNOSTIC FIT_INSETS_CONTROLLED
-          bhv=DEFAULT
-          providedInsets:
-            InsetsFrameProvider: {id=#d4440000, index=0, type=statusBars, source=FRAME, flags=[], insetsSize=Insets{left=0, top=156, right=0, bottom=0}}
-            InsetsFrameProvider: {id=#d4440006, index=0, type=tappableElement, source=FRAME, flags=[], insetsSize=Insets{left=0, top=156, right=0, bottom=0}}
-            InsetsFrameProvider: {id=#d4440005, index=0, type=mandatorySystemGestures, source=FRAME, flags=[], insetsSize=Insets{left=0, top=156, right=0, bottom=0}, mMinimalInsetsSizeInDisplayCutoutSafe=Insets{left=0, top=36, right=0, bottom=0}}
-          frameRateBoostOnTouch=true
-          dvrrWindowFrameRateHint=true}}
-    Requested w=1344 h=159 mLayoutSeq=161
-    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
-    ContainerAnimator:
-      mLeash=Surface(name=Surface(name=f579388 StatusBar)/@0x78efe5d - animation-leash of insets_animation)/@0xa004cc0 mAnimationType=insets_animation
-      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@75e9a9b
-        ControlAdapter mCapturedLeash=Surface(name=Surface(name=f579388 StatusBar)/@0x78efe5d - animation-leash of insets_animation)/@0xa004cc0
-    WindowStateAnimator{55845ee StatusBar}:
-      Surface: shown=true    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null
-    isOnScreen=true
-    isVisible=true
-    keepClearAreas: restricted=[], unrestricted=[]
-    mPrepareSyncSeqId=0
-  Window #6 Window{ab9ac09 u0 ShellDropTarget}:
-    mDisplayId=0 rootTaskId=1 mSession=Session{66d8b91 943:u0a10181} mClient=android.os.BinderProxy@7f1aa28
-    mOwnerUid=10181 showForAllUsers=true package=com.android.systemui appop=SYSTEM_ALERT_WINDOW
-    mAttrs={(0,0)(fillxfill) sim={adjust=pan} layoutInDisplayCutoutMode=always ty=APPLICATION_OVERLAY fmt=TRANSLUCENT
-      fl=NOT_FOCUSABLE HARDWARE_ACCELERATED
-      pfl=SHOW_FOR_ALL_USERS NO_MOVE_ANIMATION FIT_INSETS_CONTROLLED INTERCEPT_GLOBAL_DRAG_AND_DROP
-      bhv=DEFAULT
-      frameRateBoostOnTouch=true
-      dvrrWindowFrameRateHint=true}
-    Requested w=1344 h=2992 mLayoutSeq=5
-    mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
-    WindowStateAnimator{d7ab769 ShellDropTarget}:
-      mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
-    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null
-    isOnScreen=false
-    isVisible=false
-    keepClearAreas: restricted=[], unrestricted=[]
-    mPrepareSyncSeqId=0
-  Window #7 Window{e8e993c u0 InputMethod}:
+  Window #1 Window{e8e993c u0 InputMethod}:
     mDisplayId=0 rootTaskId=1 mSession=Session{561b06a 2609:u0a10157} mClient=android.os.BinderProxy@5c02f2f
     mOwnerUid=10157 showForAllUsers=false package=com.google.android.inputmethod.latin appop=NONE
     mAttrs={(0,0)(wrapxwrap) gr=BOTTOM CENTER_VERTICAL sim={adjust=pan forwardNavigation} ty=INPUT_METHOD fmt=TRANSPARENT wanim=0x1030056 receive insets ignoring z-order
@@ -735,40 +515,41 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
       dvrrWindowFrameRateHint=true}
     Requested w=960 h=144 mLayoutSeq=105
     mIsImWindow=true mIsWallpaper=false mIsFloatingLayer=true
+    mPolicyVisibility=false mLegacyPolicyVisibilityAfterAnim=false mAppOpVisibility=true parentHidden=false mPermanentlyHidden=false mHiddenWhileSuspended=false mForceHideNonSystemOverlayWindow=false
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
     ContainerAnimator:
-      mLeash=Surface(name=Surface(name=e8e993c InputMethod)/@0x1c6d3d4 - animation-leash of insets_animation)/@0xbca2e43 mAnimationType=insets_animation
-      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@5453e38
-        ControlAdapter mCapturedLeash=Surface(name=Surface(name=e8e993c InputMethod)/@0x1c6d3d4 - animation-leash of insets_animation)/@0xbca2e43
-    WindowStateAnimator{d2065f0 InputMethod}:
+      mLeash=Surface(name=Surface(name=e8e993c InputMethod)/@0x1c6d3d4 - animation-leash of insets_animation)/@0xa535da3 mAnimationType=insets_animation
+      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@a7b932c
+        ControlAdapter mCapturedLeash=Surface(name=Surface(name=e8e993c InputMethod)/@0x1c6d3d4 - animation-leash of insets_animation)/@0xa535da3
+    WindowStateAnimator{2c6c2e8 InputMethod}:
       mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
     mForceSeamlesslyRotate=false seamlesslyRotate: pending=null
     isOnScreen=false
     isVisible=false
     keepClearAreas: restricted=[], unrestricted=[]
     mPrepareSyncSeqId=0
-  Window #8 Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}:
-    mDisplayId=0 rootTaskId=29 mSession=Session{2716e0b 1120:1000} mClient=android.os.BinderProxy@7041bef
+  Window #2 Window{ef3c586 u0 com.android.settings/com.android.settings.spa.SpaActivity}:
+    mDisplayId=0 rootTaskId=29 mSession=Session{2716e0b 1120:1000} mClient=android.os.BinderProxy@acc9661
     mOwnerUid=1000 showForAllUsers=false package=com.android.settings appop=NONE
-    mAttrs={(0,0)(fillxfill) sim={adjust=pan forwardNavigation} layoutInDisplayCutoutMode=always ty=BASE_APPLICATION wanim=0x10302fd
+    mAttrs={(0,0)(fillxfill) sim={adjust=pan} layoutInDisplayCutoutMode=always ty=BASE_APPLICATION wanim=0x10302fd
       fl=LAYOUT_IN_SCREEN LAYOUT_INSET_DECOR SPLIT_TOUCH HARDWARE_ACCELERATED DRAWS_SYSTEM_BAR_BACKGROUNDS
-      pfl=NO_MOVE_ANIMATION EDGE_TO_EDGE_ENFORCED FORCE_DRAW_STATUS_BAR_BACKGROUND HIDE_NON_SYSTEM_OVERLAY_WINDOWS FIT_INSETS_CONTROLLED
+      pfl=NO_MOVE_ANIMATION EDGE_TO_EDGE_ENFORCED FORCE_DRAW_STATUS_BAR_BACKGROUND FIT_INSETS_CONTROLLED
       vsysui=LIGHT_STATUS_BAR LIGHT_NAVIGATION_BAR
       apr=LIGHT_STATUS_BARS LIGHT_NAVIGATION_BARS
       bhv=DEFAULT
       fitSides=
       frameRateBoostOnTouch=true
       dvrrWindowFrameRateHint=true}
-    Requested w=1344 h=2992 mLayoutSeq=161
-    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
-    WindowStateAnimator{2432e33 com.android.settings/com.android.settings.spa.SpaActivity}:
-      Surface: shown=true    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null
-    isOnScreen=true
-    isVisible=true
+    Requested w=1344 h=2992 mLayoutSeq=167
+    mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
+    WindowStateAnimator{375840b com.android.settings/com.android.settings.spa.SpaActivity}:
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null
+    isOnScreen=false
+    isVisible=false
     keepClearAreas: restricted=[], unrestricted=[]
     mPrepareSyncSeqId=0
-  Window #9 Window{29b84df u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}:
-    mDisplayId=0 rootTaskId=28 mSession=Session{29b3f93 4466:u0a10212} mClient=android.os.BinderProxy@df2c77e
+  Window #3 Window{3db9f06 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}:
+    mDisplayId=0 rootTaskId=28 mSession=Session{bbe2865 4530:u0a10212} mClient=android.os.BinderProxy@c6de5e1
     mOwnerUid=10212 showForAllUsers=false package=ca.ocentra.parent.agent appop=NONE
     mAttrs={(0,0)(fillxfill) sim={adjust=pan} layoutInDisplayCutoutMode=always ty=BASE_APPLICATION wanim=0x1030309
       fl=LAYOUT_IN_SCREEN LAYOUT_INSET_DECOR SPLIT_TOUCH HARDWARE_ACCELERATED DRAWS_SYSTEM_BAR_BACKGROUNDS
@@ -778,15 +559,15 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
       fitSides=
       frameRateBoostOnTouch=true
       dvrrWindowFrameRateHint=true}
-    Requested w=1344 h=2992 mLayoutSeq=149
+    Requested w=1344 h=2992 mLayoutSeq=147
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
-    WindowStateAnimator{93cb1a2 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}:
+    WindowStateAnimator{ffdd7da ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}:
     mForceSeamlesslyRotate=false seamlesslyRotate: pending=null
     isOnScreen=false
     isVisible=false
     keepClearAreas: restricted=[], unrestricted=[]
     mPrepareSyncSeqId=0
-  Window #10 Window{301245b u0 com.ocentra.claim/com.ocentra.claim.MainActivity}:
+  Window #4 Window{301245b u0 com.ocentra.claim/com.ocentra.claim.MainActivity}:
     mDisplayId=0 rootTaskId=27 mSession=Session{2a339e0 1953:u0a10211} mClient=android.os.BinderProxy@80d876a
     mOwnerUid=10211 showForAllUsers=false package=com.ocentra.claim appop=NONE
     mAttrs={(0,0)(fillxfill) sim={adjust=pan} layoutInDisplayCutoutMode=always ty=BASE_APPLICATION wanim=0x1030309
@@ -800,13 +581,13 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
       dvrrWindowFrameRateHint=true}
     Requested w=1344 h=2992 mLayoutSeq=125
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
-    WindowStateAnimator{28b716d com.ocentra.claim/com.ocentra.claim.MainActivity}:
+    WindowStateAnimator{94ced85 com.ocentra.claim/com.ocentra.claim.MainActivity}:
     mForceSeamlesslyRotate=false seamlesslyRotate: pending=null
     isOnScreen=false
     isVisible=false
     keepClearAreas: restricted=[], unrestricted=[]
     mPrepareSyncSeqId=0
-  Window #11 Window{fe9596b u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}:
+  Window #5 Window{fe9596b u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}:
     mDisplayId=0 rootTaskId=1 mSession=Session{13a1e16 2372:u0a10176} mClient=android.os.BinderProxy@f026ba
     mOwnerUid=10176 showForAllUsers=false package=com.google.android.apps.nexuslauncher appop=NONE
     mAttrs={(0,0)(fillxfill) sim={adjust=nothing} layoutInDisplayCutoutMode=always ty=BASE_APPLICATION fmt=TRANSPARENT wanim=0x10302fd
@@ -819,7 +600,7 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
       dvrrWindowFrameRateHint=true}
     Requested w=-1 h=-1 mLayoutSeq=113
     mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
-    WindowStateAnimator{c5f7584 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}:
+    WindowStateAnimator{f772fc com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}:
       mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
     mForceSeamlesslyRotate=false seamlesslyRotate: pending=null
     mWallpaperX=0.0 mWallpaperY=0.5
@@ -828,54 +609,36 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
     isVisible=false
     keepClearAreas: restricted=[], unrestricted=[]
     mPrepareSyncSeqId=0
-  Window #12 Window{38b8e0f u0 com.android.systemui.wallpapers.ImageWallpaper}:
-    mDisplayId=0 rootTaskId=1 mSession=Session{66d8b91 943:u0a10181} mClient=android.os.BinderProxy@8c5776e
-    mOwnerUid=10181 showForAllUsers=true package=com.android.systemui appop=NONE
-    mAttrs={(0,0)(2694x2992) gr=TOP START CENTER layoutInDisplayCutoutMode=always ty=WALLPAPER fmt=RGBX_8888 wanim=0x1030319
-      fl=NOT_FOCUSABLE NOT_TOUCHABLE LAYOUT_IN_SCREEN LAYOUT_NO_LIMITS SCALED LAYOUT_INSET_DECOR
-      pfl=WANTS_OFFSET_NOTIFICATIONS SHOW_FOR_ALL_USERS
-      bhv=DEFAULT
-      frameRateBoostOnTouch=true
-      dvrrWindowFrameRateHint=true}
-    Requested w=922 h=1024 mLayoutSeq=60
-    mIsImWindow=false mIsWallpaper=true mIsFloatingLayer=true
-    mHasSurface=true isReadyForDisplay()=false mWindowRemovalAllowed=false
-    WindowStateAnimator{3652f97 com.android.systemui.wallpapers.ImageWallpaper}:
-      Surface: shown=false    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null
-    mHScale=2.9219089 mVScale=2.921875
-    mWallpaperX=0.0 mWallpaperY=0.5
-    mWallpaperXStep=0.33333334 mWallpaperYStep=1.0
-    mWallpaperZoomOut=0.0
-    isOnScreen=false
-    isVisible=false
-    keepClearAreas: restricted=[], unrestricted=[]
-    mPrepareSyncSeqId=0
-
-  Hiding System Alert Windows:
-  #0 Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
 
   mGlobalConfiguration={1.0 310mcc260mnc [en_US] ldltr sw448dp w448dp h997dp 480dpi nrml long port finger qwerty/v/v dpad/v winConfig={ mBounds=Rect(0, 0 - 1344, 2992) mAppBounds=Rect(0, 0 - 1344, 2992) mMaxBounds=Rect(0, 0 - 1344, 2992) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.54 fontWeightAdjustment=0}
   mHasPermanentDpad=false
   mTopFocusedDisplayId=0
-  imeLayeringTarget in display# 0 Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
-  imeInputTarget in display# 0 Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
-  imeControlTarget in display# 0 Window{71ce6fc u0 com.android.settings/com.android.settings.spa.SpaActivity}
+  imeInputTarget in display# 0 Window{ef3c586 u0 com.android.settings/com.android.settings.spa.SpaActivity}
+  imeControlTarget in display# 0 Window{ef3c586 u0 com.android.settings/com.android.settings.spa.SpaActivity}
   Minimum task size of display#0 220  mBlurEnabled=true
   mLastDisplayFreezeDuration=0 due to new-config
   mDisableSecureWindows=false
  mHighResSnapshotScale=0.8
  mSnapshotEnabled=true
  SnapshotCache Task
+   Entry token=29
+     topApp=ActivityRecord{d3cf395 u0 com.android.settings/.spa.SpaActivity t29}
+     snapshot=TaskSnapshot{ mId=1780834213501 mCaptureTime=514707391000 mTopActivityComponent=com.android.settings/.spa.SpaActivity mSnapshot=android.hardware.HardwareBuffer@ebeb8a (1075x2393) mColorSpace=sRGB IEC61966-2.1 (id=0, model=RGB) mOrientation=1 mRotation=0 mTaskSize=Point(1344, 2992) mContentInsets=[0,0][0,72] mLetterboxInsets=[0,0][0,0] mIsLowResolution=false mIsRealSnapshot=true mWindowingMode=1 mAppearance=24 mIsTranslucent=false mHasImeSurface=false mInternalReferences=7
    Entry token=28
-     topApp=ActivityRecord{ff27f51 u0 ca.ocentra.parent.agent/.MainActivity t28}
-     snapshot=TaskSnapshot{ mId=1780810292496 mCaptureTime=506685075300 mTopActivityComponent=ca.ocentra.parent.agent/.MainActivity mSnapshot=android.hardware.HardwareBuffer@db5c137 (1075x2393) mColorSpace=sRGB IEC61966-2.1 (id=0, model=RGB) mOrientation=1 mRotation=0 mTaskSize=Point(1344, 2992) mContentInsets=[0,159][0,72] mLetterboxInsets=[0,0][0,0] mIsLowResolution=false mIsRealSnapshot=true mWindowingMode=1 mAppearance=528 mIsTranslucent=false mHasImeSurface=false mInternalReferences=2
+     topApp=ActivityRecord{96875df u0 ca.ocentra.parent.agent/.MainActivity t28}
+     snapshot=TaskSnapshot{ mId=1780834208880 mCaptureTime=510064934400 mTopActivityComponent=ca.ocentra.parent.agent/.MainActivity mSnapshot=android.hardware.HardwareBuffer@cf385fb (1075x2393) mColorSpace=sRGB IEC61966-2.1 (id=0, model=RGB) mOrientation=1 mRotation=0 mTaskSize=Point(1344, 2992) mContentInsets=[0,159][0,72] mLetterboxInsets=[0,0][0,0] mIsLowResolution=false mIsRealSnapshot=true mWindowingMode=1 mAppearance=528 mIsTranslucent=false mHasImeSurface=false mInternalReferences=2
    Entry token=27
      topApp=ActivityRecord{1e2e470 u0 com.ocentra.claim/.MainActivity t27}
-     snapshot=TaskSnapshot{ mId=1780810285856 mCaptureTime=500079665300 mTopActivityComponent=com.ocentra.claim/.MainActivity mSnapshot=android.hardware.HardwareBuffer@ecc36a4 (1075x2393) mColorSpace=sRGB IEC61966-2.1 (id=0, model=RGB) mOrientation=1 mRotation=0 mTaskSize=Point(1344, 2992) mContentInsets=[0,159][0,72] mLetterboxInsets=[0,0][0,0] mIsLowResolution=false mIsRealSnapshot=true mWindowingMode=1 mAppearance=536 mIsTranslucent=false mHasImeSurface=false mInternalReferences=2
+     snapshot=TaskSnapshot{ mId=1780834201657 mCaptureTime=502861968000 mTopActivityComponent=com.ocentra.claim/.MainActivity mSnapshot=android.hardware.HardwareBuffer@1a4b618 (1075x2393) mColorSpace=sRGB IEC61966-2.1 (id=0, model=RGB) mOrientation=1 mRotation=0 mTaskSize=Point(1344, 2992) mContentInsets=[0,159][0,72] mLetterboxInsets=[0,0][0,0] mIsLowResolution=false mIsRealSnapshot=true mWindowingMode=1 mAppearance=536 mIsTranslucent=false mHasImeSurface=false mInternalReferences=2
  mHighResSnapshotScale=0.6
  mSnapshotEnabled=true
  SnapshotCache Activity
    UserSavedFile userId=0
+ PersistQueue contains:
+   StoreWriteQueueItem{ID=29, UserId=0}
+   DeleteWriteQueueItem{ID=2, UserId=0}
+   DeleteWriteQueueItem{ID=3, UserId=0}
+   DeleteWriteQueueItem{ID=4, UserId=0}
 WINDOW MANAGER TRACE (dumpsys window trace)
 Status: Disabled
 Log level: 1
