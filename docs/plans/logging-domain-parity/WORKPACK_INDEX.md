@@ -26,6 +26,7 @@ Use this index to select exactly one workpack.
 | open | [WP05 Local Validation Evidence](workpacks/05-local-validation-evidence.md) | 0/12 | `03-local-validation-evidence.md` |
 | open | [WP07 MCP Query Interface](workpacks/07-mcp-query-interface.md) | 0/18 | `06-mcp-query-interface.md` |
 | open | [WP08 Logger Instrumentation and Adoption](workpacks/08-logger-instrumentation-and-adoption.md) | 0/12 | `07-logger-instrumentation-pattern.md` |
+| open | [WP10 Proof Trace Pipeline](workpacks/10-proof-trace-pipeline.md) | 0/13 | `09-proof-trace-pipeline.md` |
 | open | [WP06 Validation and Enforcement](workpacks/06-validation-and-enforcement.md) | 0/12 | `04-validation-and-enforcement.md` |
 
 ## Selection rules
@@ -33,7 +34,7 @@ Use this index to select exactly one workpack.
 Default order:
 
 ```text
-WP01 -> WP02 -> WP03 -> WP09 -> WP04 -> WP05 -> WP07 -> WP08 -> WP06
+WP01 -> WP02 -> WP03 -> WP09 -> WP04 -> WP05 -> WP07 -> WP08 -> WP10 -> WP06
 ```
 
 Allowed parallelism:
@@ -45,11 +46,12 @@ WP09 should run after WP02 because it depends on bridge/path helpers.
 WP05 must wait until enough WP02/WP04/WP09 storage primitives exist.
 WP07 must wait until enough WP02/WP05 query data exists.
 WP08 must wait until relevant logger APIs exist, but can run before WP07 smoke if using CLI query proof.
-WP06 should be last, after the files it checks exist, including lifecycle, MCP, and instrumentation checks.
+WP10 must wait until WP08 has at least one instrumented path and WP09 proof-mode controls exist.
+WP06 should be last, after the files it checks exist, including lifecycle, MCP, instrumentation, and proof-trace checks.
 ```
 
 ## Do not select
 
-Do not create new workpacks unless the existing nine cannot represent the implementation slice.
+Do not create new workpacks unless the existing ten cannot represent the implementation slice.
 
 Do not split into tiny proof-only workpacks.
