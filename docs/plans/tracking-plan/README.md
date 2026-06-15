@@ -53,6 +53,27 @@ instead of creating a private tracking bus. Parent tracking event contracts must
 live in the protocol/domain boundary before runtime publishers use them, and the
 portal may only send typed parent intents and render service read models.
 
+Tracking runtime and decisions are Rust-owned. TypeScript may own portal UI,
+read-model rendering, and protocol-facing schema mirrors, but it must not become
+the tracking runtime brain. For current Rust organization:
+
+- `crates/agent-core` owns tracking state helpers, local durable state,
+  projection/query helpers, and platform-neutral tracking runtime behavior that
+  should not live in WebSocket transport.
+- `crates/agent-protocol` owns Rust-crossing tracking structs, constants,
+  command names, event names, field names, and state labels.
+- `crates/agent-service` owns transport/orchestration only.
+- New Rust tracking tests should live under crate-level `tests/` folders when
+  the behavior is exposed through a public crate API.
+
+Tracking must also stay DRY with adjacent lanes. Do not duplicate generic
+eventing, journal, replay, evidence-ref, custody/retention, provider-status,
+read-model projection, LAN presence, network evidence, browser/app/game
+activity, notification-provider, or AI-provider machinery inside tracking.
+Tracking should add only tracking-specific evidence meaning, state machines,
+policy-evidence preparation, and safety boundaries, then consume shared
+infrastructure through typed contracts.
+
 The required event chain is:
 
 ```text
@@ -386,7 +407,7 @@ accessibility, notification/provider delivery, or production pilot readiness.
   `docs/device-location-tracking-capability-guide.md`,
   `docs/device-location-tracking-schema-proposal.md`, and
   `docs/tracking-control-settings-inventory.md` as source inputs.
-- Build TypeScript domain contracts first, Rust protocol/service parity second,
+- Build Rust runtime ownership first, Rust/TypeScript protocol parity second,
   tracking event contracts third, journal/read-model/event-chain wiring fourth,
   portal consumption fifth, and real platform proof only after those surfaces
   are aligned.

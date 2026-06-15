@@ -61,6 +61,14 @@ delivery, general AI provider runtime, browser telemetry, app/game telemetry,
 LAN discovery, or the shared evidence-store feature except through explicit
 evidence refs.
 
+Tracking must reuse adjacent runtime infrastructure instead of cloning it:
+generic eventing/journal/replay from `crates/ocentra-eventing`, shared evidence
+refs and query-store mechanics, LAN/device presence as hint-only inputs,
+network/browser/app-game evidence through stored refs, provider status
+boundaries, and AI request/result boundary contracts. Tracking-specific code
+should only add location/geofence/expected-place/nearby-place meaning,
+tracking-side state transitions, and policy-evidence preparation.
+
 Tracking also owns the consumer-layer event contracts for location/geofence
 runtime chains: `tracking.*`, `location.*`, `geofence.*`, `expected_place.*`,
 `nearby_place.*`, `tracking.live_mode.*`, tracking notification intent/status,
@@ -69,25 +77,48 @@ must not depend on tracking product types.
 
 ## TypeScript Ownership
 
-Expected TypeScript contract homes are domain packages, not app screens:
+TypeScript is a portal/protocol/read-model contract mirror for tracking, not
+the runtime decision engine. Current buckets:
 
-- `packages/parent-domain` for family, child, place, schedule, policy, and
-  acknowledgement product contracts when implementation starts;
-- `packages/activity-domain` for device activity, location evidence,
-  geofence transitions, and tracking query contracts when implementation
-  starts;
+- `packages/activity-domain` owns schema-facing activity/location evidence,
+  geofence, retention, local place, and tracking read-model contracts used by
+  TypeScript consumers.
 - `packages/agent-protocol-domain` for portal/agent WebSocket command and
-  event contracts after the TypeScript product contracts exist;
+  event contract mirrors.
+- `packages/parent-domain` keeps parent policy/product/readiness contracts and
+  proof accounting. It must not become the tracking runtime brain.
 - `packages/endpoint-domain`, `packages/portal-domain`, and
   `packages/text-domain` for routes, DOM ids, command ids, and display text
   tokens used by portal surfaces.
+- `apps/portal` renders service-backed tracking read models and sends typed
+  parent intents only.
+- `scripts/test/tracking-*.mjs`, hosted proof helpers, artifact inventories,
+  handoff proofs, blocker proofs, and closure proofs are proof/accounting
+  harnesses. Do not move or expand them as runtime code.
 
 ## Rust Ownership
 
 Rust-facing protocol shapes belong in `crates/agent-protocol` only after the
-TypeScript contracts are explicit and test-backed. Runtime service behavior
-must keep Rust string constants in protocol crates and must not infer precise
-location from LAN, IP, or pairing metadata.
+Rust-crossing contract is explicit and test-backed. Runtime tracking behavior
+belongs in Rust before portal proof or TypeScript helper expansion.
+
+- `crates/agent-core` owns tracking state helpers, local durable state,
+  ActivityStore tracking projections, and platform-neutral tracking behavior
+  that should not live in the service shell.
+- `crates/agent-protocol` owns Rust tracking structs, constants, command names,
+  event names, field names, and state labels.
+- `crates/agent-service` owns WebSocket/API transport and event response
+  construction only.
+- `crates/ocentra-eventing` stays generic; tracking consumes it after
+  tracking-specific protocol payloads exist.
+- Shared event/journal/replay/provider/status code must stay shared across
+  tracking, LAN, network, browser, app/game, notification, and AI lanes. Do not
+  create tracking-local copies of common runtime mechanics.
+- New Rust tracking tests should live in crate-level `tests/` folders when
+  testing public crate APIs.
+
+Runtime service behavior must keep Rust string constants in protocol crates and
+must not infer precise location from LAN, IP, or pairing metadata.
 
 ## Portal Ownership
 
