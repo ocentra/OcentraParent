@@ -51,6 +51,9 @@ export const TrackingStatusProofArtifacts = {
   RetentionSettingsWriteCommand: artifact(
     'output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json'
   ),
+  RetentionLocalServiceState: artifact(
+    'output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json'
+  ),
   HostedEvidenceDrawer: artifact(
     'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/20-evidence-drawer-hosted-ui-proof.json'
   ),

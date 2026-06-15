@@ -279,7 +279,8 @@ async function assertHostedRetentionSettingsProof(page: Page, trackingProofRegio
   await expect(trackingProofRegion.getByText('settings-read-model-ready').first()).toBeVisible();
   await expect(trackingProofRegion.getByText('tracking-retention-settings-evidence-window')).toBeVisible();
   await expect(trackingProofRegion.getByText('tracking-retention-settings-evidence-remote-ai-disabled')).toBeVisible();
-  await expect(trackingProofRegion.getByText('24-retention-settings-read-model-proof.json')).toBeVisible();
+  await expect(retentionSettingsCard.getByText('24-retention-settings-read-model-proof.json')).toBeVisible();
+  await expect(retentionSettingsCard.getByText('22-retention-local-service-state-proof.json')).toBeVisible();
   await expect(writePreflight).toBeEnabled();
   await writePreflight.click();
   await expect(page.getByText('service-write-command-accepted')).toBeVisible();
@@ -738,6 +739,7 @@ function assertAccessibilityRetentionAndEvidenceValues(actualValues: readonly st
     'tracking-retention-settings-write-retention-window',
     'retention-window-setting',
     'agent-service-local-retention-settings-state',
+    'output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json',
     'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
     'Portal command/result rendering only; service mutation execution and local state revision are local proof, while durable product persistence, platform runtime, child-device delivery, provider delivery, physical-device proof, authority, and product readiness remain unclaimed.',
     'read-only evidence drawer',

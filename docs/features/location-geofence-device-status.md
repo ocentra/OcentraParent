@@ -146,7 +146,8 @@ expose location or device-status features. Parents expect this category.
   accessibility summary output, proves
   calm child check-in copy/actions plus child disclosure, safe/help response,
   location-share consent copy, typed retention settings write-preflight command
-  rendering, and manual-required/unavailable/authority-required unsupported
+  rendering, the retention local service-state proof artifact on the hosted
+  retention card, and manual-required/unavailable/authority-required unsupported
   platform rows inside the hosted route only, and keeps
   `productClaimReady=false`.
 - WP32 hosted report/policy consumer rendering proof now exists through
@@ -765,10 +766,12 @@ accessibility beyond the hosted parent route are proved.
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
       disabled read-model rows on the hosted parent route, plus typed retention
       settings local service execution command/result rendering with a local
-      service state revision. This is not durable product settings,
-      product-ready service mutation execution, platform runtime, child-device
-      delivery/runtime execution, provider delivery, authority, physical-device,
-      or product-complete proof.
+      service state revision and visible
+      `output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json`
+      reference. This is not durable product settings, product-ready service
+      mutation execution, platform runtime, child-device delivery/runtime
+      execution, provider delivery, authority, physical-device, or
+      product-complete proof.
 - [x] WP07/WP32 retention settings writer-boundary proof for retention window,
       delete-after-alert, parent export, remote-sync disabled, and remote-AI
       disabled write intents. This is local validation and service-mutation
