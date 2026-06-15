@@ -410,12 +410,22 @@ async function captureParentPortalShellScreenshots(page: Page): Promise<{
       {
         route: '#/overview',
         screenshot: path.relative(repoRoot, parentOverviewShellScreenshotPath).replace(/\\/gu, '/'),
-        assertions: ['parent-overview-shell-visible', 'parent-overview-custody-copy-visible'],
+        assertions: [
+          'parent-overview-shell-visible',
+          'parent-overview-custody-copy-visible',
+          'parent-overview-tracking-summary-visible',
+          'parent-overview-no-product-claim-visible',
+        ],
       },
       {
         route: '#/devices',
         screenshot: path.relative(repoRoot, parentDevicesShellScreenshotPath).replace(/\\/gu, '/'),
-        assertions: ['parent-devices-shell-visible', 'parent-devices-context-copy-visible'],
+        assertions: [
+          'parent-devices-shell-visible',
+          'parent-devices-context-copy-visible',
+          'parent-devices-tracking-summary-visible',
+          'parent-devices-no-product-claim-visible',
+        ],
       },
     ],
   };
@@ -435,6 +445,10 @@ async function assertAndCaptureParentPortalShellRoute(
   for (const expectedText of route.expectedSvgText) {
     await expect(surface.locator('text').filter({ hasText: expectedText }).first()).toBeVisible();
   }
+  await expect(page.getByRole('region', { name: 'Tracking status proof' })).toBeVisible();
+  await expect(page.getByText('Service read model').first()).toBeVisible();
+  await expect(page.getByText('Service data coverage').first()).toBeVisible();
+  await expect(page.getByText('No product claim').first()).toBeVisible();
   await page.screenshot({ fullPage: true, path: route.screenshotPath });
 }
 
@@ -550,10 +564,8 @@ async function captureHostedTrackingProofCards(page: Page, cards: HostedTracking
     '[data-ocentra-tracking-proof="child-runtime-ui"]',
     childRuntimeUiScreenshotPath
   );
-  await cards.unsupportedManual.scrollIntoViewIfNeeded();
-  await page.waitForTimeout(250);
-  await expect(cards.unsupportedManual).toBeVisible();
-  await cards.unsupportedManual.screenshot({ path: unsupportedManualScreenshotPath });
+  await scrollTrackingProofCardByHeading(page, 'Unsupported/manual tracking platform proof');
+  await captureTrackingProofCardScreenshot(page, cards.unsupportedManual, unsupportedManualScreenshotPath);
 }
 
 async function captureScrolledTrackingProofCardScreenshot(
@@ -563,13 +575,29 @@ async function captureScrolledTrackingProofCardScreenshot(
   screenshotPath: string
 ): Promise<void> {
   await scrollTrackingProofCard(page, proofSelector);
-  await captureTrackingProofCardScreenshot(proofCard, screenshotPath);
+  await captureTrackingProofCardScreenshot(page, proofCard, screenshotPath);
 }
 
-async function captureTrackingProofCardScreenshot(proofCard: Locator, screenshotPath: string): Promise<void> {
+async function captureTrackingProofCardScreenshot(
+  page: Page,
+  proofCard: Locator,
+  screenshotPath: string
+): Promise<void> {
   await pageSettledForScreenshot();
   await expect(proofCard).toBeVisible();
-  await proofCard.screenshot({ path: screenshotPath });
+  const box = await proofCard.boundingBox();
+  if (box === null) {
+    throw new Error('Tracking proof card screenshot target did not expose a bounding box.');
+  }
+  await page.screenshot({
+    clip: {
+      height: box.height,
+      width: box.width,
+      x: box.x,
+      y: box.y,
+    },
+    path: screenshotPath,
+  });
 }
 
 async function pageSettledForScreenshot(): Promise<void> {
@@ -584,6 +612,19 @@ async function scrollTrackingProofCard(page: Page, proofSelector: string): Promi
       grid.scrollTop = Math.max(0, proofCard.offsetTop - 48);
     }
   }, proofSelector);
+}
+
+async function scrollTrackingProofCardByHeading(page: Page, heading: string): Promise<void> {
+  await page.evaluate((expectedHeading) => {
+    const grid = document.querySelector('.tracking-status-overlay-grid');
+    const proofCard = Array.from(document.querySelectorAll('article')).find((article) => {
+      const headingElement = article.querySelector('h2');
+      return headingElement?.textContent === expectedHeading;
+    });
+    if (grid instanceof HTMLElement && proofCard instanceof HTMLElement) {
+      grid.scrollTop = Math.max(0, proofCard.offsetTop - 48);
+    }
+  }, heading);
 }
 
 async function collectAccessibilitySummary(page: Page): Promise<{

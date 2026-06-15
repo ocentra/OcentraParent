@@ -148,8 +148,10 @@ expose location or device-status features. Parents expect this category.
   desktop, mobile, hosted service-backed citation detail, hosted evidence
   drawer, hosted child-safe check-in, hosted child-runtime UI, hosted family
   dashboard rollup, hosted report/policy consumer, hosted retention settings,
-  hosted parent action readiness, hosted missing-device state, and
-  unsupported/manual platform render-state proof screenshots, writes
+  hosted parent action readiness, hosted missing-device state, hosted parent
+  overview/devices shell tracking summary cards with no-product-claim
+  assertions, and unsupported/manual platform render-state proof screenshots,
+  writes
   accessibility summary output, proves
   calm child check-in copy/actions plus child disclosure, safe/help response,
   location-share consent copy, typed retention settings local service write
@@ -1097,7 +1099,8 @@ accessibility beyond the hosted parent route are proved.
       PNGs, including report/export, notification parent-surface, parent action
       readiness, missing-device, and unsupported/manual platform screenshots,
       evidence drawer proof output, unsupported/manual platform proof output,
-      parent overview/devices shell screenshots around the tracking route,
+      parent overview/devices shell screenshots around the tracking route with
+      service-backed tracking summary and no-product-claim assertions,
       accessibility assertions, child-runtime product-readiness blocker proof,
       and 11-card no-overlap layout geometry without claiming full product
       parent/child UI, child-device runtime,
@@ -1126,7 +1129,8 @@ accessibility beyond the hosted parent route are proved.
       alert policy-decision refs, and retention before/after proof. This is not
       live device/provider behavior proof.
 - [ ] Full live parent/child UI screenshots and accessibility proof beyond the
-      hosted parent shell. Hosted parent overview/devices shell screenshots are
+      hosted parent shell. Hosted parent overview/devices shell screenshots now
+      render the service-backed tracking summary and no-product-claim cards as
       local/CI proof only; actual child-device delivery/runtime execution and
       full product parent/child UI remain pending.
 
