@@ -46,6 +46,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `11-ui-snapshots/hosted-policy-tracking-child-runtime-ui.png`
 - `11-ui-snapshots/hosted-policy-tracking-family-dashboard-rollup.png`
 - `11-ui-snapshots/hosted-policy-tracking-report-export.png`
+- `11-ui-snapshots/hosted-policy-tracking-report-policy-consumer.png`
 - `11-ui-snapshots/hosted-policy-tracking-retention-settings.png`
 - `11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png`
 - `11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`
@@ -62,6 +63,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `22-notification-parent-surface-hosted-ui-proof.json`
 - `23-parent-action-readiness-hosted-ui-proof.json`
 - `24-missing-device-hosted-ui-proof.json`
+- `25-report-policy-consumer-hosted-ui-proof.json`
 - Unsupported/manual platform screenshot:
   `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui.png`
 - Accessibility summary:
@@ -127,6 +129,11 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       claiming current-location runtime, powered-off tracking, remote sync,
       provider delivery, physical-device proof, OS lost-mode API execution,
       authority, production workers, or product readiness.
+- [x] Render and screenshot hosted report/policy consumer rows for parent report
+      summary, policy evidence drill-in, and retention audit export without
+      claiming AI execution, product policy mutation, platform runtime,
+      child-device delivery, provider delivery, notification receipt ingestion,
+      physical-device proof, authority, production, or product readiness.
 - [x] Verify all current hosted screenshot PNG artifacts, evidence drawer proof
       output, unsupported/manual platform proof output, accessibility
       assertions, and no-overlap layout geometry are present and non-empty
@@ -232,6 +239,15 @@ and writes
 while keeping writable preference mutation, provider delivery, receipt
 ingestion runtime, child-device delivery, physical-device proof, authority,
 production storage, adapter dispatch, and product readiness unclaimed.
+The hosted route now also renders read-only report/policy consumer rows derived
+from the WP32 parent report summary, policy evidence drill-in, and retention
+audit export consumer proof. The repeatable hosted proof captures it at
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-policy-consumer.png`
+and writes
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/25-report-policy-consumer-hosted-ui-proof.json`
+while keeping AI execution, product policy mutation, platform runtime,
+child-device delivery, provider delivery, notification receipt ingestion,
+physical-device proof, authority, production, and product readiness unclaimed.
 `node scripts/test/tracking-hosted-ui-artifact-inventory-proof.mjs` now verifies
 the full current hosted screenshot PNG inventory, hosted proof outputs,
 unsupported/manual platform screenshot/proof output, accessibility assertions,

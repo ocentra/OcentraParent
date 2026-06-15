@@ -47,6 +47,10 @@ const requiredScreenshots = [
   },
   {
     root: wp30ProofDir,
+    path: '11-ui-snapshots/hosted-policy-tracking-report-policy-consumer.png',
+  },
+  {
+    root: wp30ProofDir,
     path: '11-ui-snapshots/hosted-policy-tracking-report-export.png',
   },
   {
@@ -79,6 +83,8 @@ const requiredAssertions = [
   'service-data-coverage-visible',
   'family-dashboard-rollup-visible',
   'family-dashboard-rollup-screenshot',
+  'report-policy-consumer-visible',
+  'report-policy-consumer-screenshot',
   'report-export-read-model-visible',
   'report-export-read-model-screenshot',
   'notification-parent-surface-history-visible',
@@ -223,7 +229,7 @@ function assertProof(proof) {
   if (missingAssertions.length > 0) {
     throw new Error(`Missing hosted accessibility assertions: ${missingAssertions.join(', ')}`);
   }
-  if (!proof.layoutProof.noOverlap || proof.layoutProof.boxes.length !== 10) {
+  if (!proof.layoutProof.noOverlap || proof.layoutProof.boxes.length !== 11) {
     throw new Error(`Hosted UI layout proof did not prove non-overlap: ${JSON.stringify(proof.layoutProof)}`);
   }
   if (Object.values(proof.nonClaims).some((value) => value !== false)) {
@@ -265,7 +271,7 @@ function layoutProof(summary) {
   const boxes = summary.summary?.layoutBoxes ?? [];
   return {
     proofMode: 'hosted-tracking-no-overlap-layout-proof',
-    noOverlap: boxes.length === 10 && !boxesOverlap(boxes),
+    noOverlap: boxes.length === 11 && !boxesOverlap(boxes),
     boxes,
   };
 }

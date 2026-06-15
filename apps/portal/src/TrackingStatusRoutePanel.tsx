@@ -33,6 +33,10 @@ import {
   type TrackingReportExportHostedUiProof,
 } from './tracking-report-export-hosted-ui-proof';
 import {
+  trackingReportPolicyConsumerHostedUiProof,
+  type TrackingReportPolicyConsumerHostedUiProof,
+} from './tracking-report-policy-consumer-hosted-ui-proof';
+import {
   TrackingNotificationParentSurfaceHostedUiDetails,
   trackingNotificationParentSurfaceHostedUiProof,
   type TrackingNotificationParentSurfaceHostedUiProof,
@@ -106,6 +110,7 @@ export function TrackingStatusRoutePanel({
           <TrackingStatusLiveSummaryCard summary={liveSummary} />
           <TrackingStatusServiceDataCoverageCard coverage={serviceDataCoverage} />
           <TrackingFamilyDashboardHostedRollupProofCard proof={trackingFamilyDashboardHostedRollupProof()} />
+          <TrackingReportPolicyConsumerHostedUiProofCard proof={trackingReportPolicyConsumerHostedUiProof()} />
           <TrackingReportExportHostedUiProofCard proof={trackingReportExportHostedUiProof()} />
           <TrackingNotificationParentSurfaceHostedUiProofCard
             proof={trackingNotificationParentSurfaceHostedUiProof()}
@@ -278,6 +283,62 @@ function TrackingReportExportHostedUiProofCard({
         ))}
       </dl>
     </article>
+  );
+}
+
+function TrackingReportPolicyConsumerHostedUiProofCard({
+  proof,
+}: {
+  readonly proof: TrackingReportPolicyConsumerHostedUiProof;
+}): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article
+      className={className}
+      {...{ [PortalDom.Attributes.DataTrackingProof]: PortalDom.Attributes.TrackingProofReportPolicyConsumer }}
+    >
+      <h2>{proof.title}</h2>
+      <p>{proof.body}</p>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <TrackingStatusDetail label={PortalDetails.ProofTier} value={proof.proofTier} />
+        <TrackingStatusDetail label={PortalDetails.RowsReturned} value={proof.rowsReturned} />
+        <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proof.proofArtifact} />
+        <TrackingStatusDetail label={PortalDetails.AdapterBoundary} value={proof.boundary} />
+        <TrackingStatusDetail label={PortalDetails.MissingProof} value={proof.missingProof} />
+        <TrackingStatusDetail label={PortalDetails.ProductClaim} value={proof.productClaim} />
+        <TrackingStatusDetail label={PortalDetails.LocalAiResult} value={proof.aiExecutionClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.PolicyEvaluation} value={proof.policyMutationClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.Platform} value={proof.platformRuntimeClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.ChildDelivery} value={proof.childDeviceDeliveryClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.Provider} value={proof.providerDeliveryClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.Events} value={proof.notificationReceiptClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.Device} value={proof.physicalDeviceClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.Enforcement} value={proof.authorityClaimedRows} />
+        <TrackingStatusDetail label={PortalDetails.PolicyReadiness} value={proof.productClaimReadyRows} />
+        {proof.rows.map((proofRow) => (
+          <TrackingReportPolicyConsumerHostedUiRow key={String(proofRow.title)} proofRow={proofRow} />
+        ))}
+      </dl>
+    </article>
+  );
+}
+
+function TrackingReportPolicyConsumerHostedUiRow({
+  proofRow,
+}: {
+  readonly proofRow: TrackingReportPolicyConsumerHostedUiProof['rows'][number];
+}): ReactElement {
+  return (
+    <>
+      <TrackingStatusDetail label={PortalDetails.Title} value={proofRow.title} />
+      <TrackingStatusDetail label={PortalDetails.Status} value={proofRow.status} />
+      <TrackingStatusDetail label={PortalDetails.Database} value={proofRow.storedJournalRef} />
+      <TrackingStatusDetail label={PortalDetails.ReadModelRows} value={proofRow.storedReadModelRef} />
+      <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={proofRow.evidence} />
+      <TrackingStatusDetail label={PortalDetails.RuntimeReference} value={proofRow.reportSurface} />
+    </>
   );
 }
 

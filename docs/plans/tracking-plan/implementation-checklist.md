@@ -543,6 +543,20 @@ Every implementation workpack must update, or explicitly justify not updating:
       snapshot remote upload, remote sync, remote AI, portal UI, service
       mutation, platform runtime, device delivery, authority, production, and
       product-ready claims remain false.
+- [x] Tracking report/policy consumer hosted UI proof renders parent report
+      summary, policy evidence drill-in, and retention audit export rows from
+      the stored-ref consumer proof on the hosted parent `policy-tracking`
+      route. Proof:
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/25-report-policy-consumer-hosted-ui-proof.json`;
+      WP32 hosted artifact:
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/32-report-policy-consumer-hosted-ui-proof.json`;
+      screenshot:
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-policy-consumer.png`.
+      This is read-only stored-ref consumer rendering only; AI execution,
+      product policy mutation, platform runtime, child-device delivery,
+      provider delivery, notification receipt ingestion, physical-device proof,
+      authority, production, and product-ready report/policy behavior remain
+      pending.
 - [x] Tracking report/export read-model packet proof exists for redacted report
       export, retention audit export, family dashboard summary, and policy
       drill-in export packet rows. Proof:
@@ -564,6 +578,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       screenshot proof, hosted read-only evidence drawer screenshot proof,
       hosted report/export packet screenshot proof, hosted notification
       parent-surface history/preference-intent screenshot proof, hosted
+      report/policy consumer screenshot proof, hosted
       parent action readiness screenshot proof, hosted child-safe check-in
       screenshot proof, and hosted child-runtime
       disclosure/safe-help/location-share consent screenshot proof exist; hosted
@@ -618,8 +633,9 @@ Every implementation workpack must update, or explicitly justify not updating:
       hosted parent route Playwright/a11y proof now captures live service-data
       desktop/mobile screenshots plus hosted evidence drawer, child-safe
       check-in, child-runtime UI, notification parent-surface history, parent
-      action readiness, and retention settings write-preflight proof
-      screenshots; hosted artifact inventory proof verifies the stored PNG
+      action readiness, report/policy consumer, and retention settings
+      write-preflight proof screenshots; hosted artifact inventory proof
+      verifies the stored PNG
       files, unsupported/manual platform PNG, and full current hosted
       accessibility assertions; actual child-device runtime execution and full
       parent/child UI beyond that route remain pending.
@@ -647,6 +663,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-notification-parent-surface.png`;
       the hosted parent action readiness screenshot is stored at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-parent-action-readiness.png`;
+      the hosted report/policy consumer screenshot is stored at
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-report-policy-consumer.png`;
       the refreshed hosted artifact inventory proof verifies these PNG artifacts
       plus the unsupported/manual platform screenshot under
       `test-results/tracking-hosted-ui-artifact-inventory-proof/proof.json`;
@@ -657,10 +675,10 @@ Every implementation workpack must update, or explicitly justify not updating:
       it includes the service-backed citation detail, hosted read-only evidence
       drawer, hosted child-safe check-in, and hosted child-runtime UI cards,
       hosted notification parent-surface history rows, hosted parent action
-      readiness rows, plus the retention
+      readiness rows, hosted report/policy consumer rows, plus the retention
       settings write-preflight result card, and hosted
       artifact inventory proof verifies the required hosted assertions and
-      10-card no-overlap layout geometry while actual child-device runtime/full
+      11-card no-overlap layout geometry while actual child-device runtime/full
       UI accessibility remains pending.
 
 ## Evidence Quality Gates

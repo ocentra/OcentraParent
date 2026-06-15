@@ -36,6 +36,9 @@ export const TrackingStatusProofArtifacts = {
   ReportExportReadModel: artifact(
     'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/28-report-export-read-model-proof.json'
   ),
+  ReportPolicyConsumer: artifact(
+    'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json'
+  ),
   NotificationParentSurfaceHistory: artifact(
     'output/tracking-plan-proof/26-alert-severity-and-notification-model/26-notification-parent-surface-history-proof.json'
   ),

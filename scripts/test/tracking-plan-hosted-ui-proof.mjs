@@ -56,6 +56,11 @@ const familyDashboardScreenshot = path.join(
   '11-ui-snapshots',
   'hosted-policy-tracking-family-dashboard-rollup.png'
 );
+const reportPolicyConsumerScreenshot = path.join(
+  workpack30,
+  '11-ui-snapshots',
+  'hosted-policy-tracking-report-policy-consumer.png'
+);
 const reportExportScreenshot = path.join(workpack30, '11-ui-snapshots', 'hosted-policy-tracking-report-export.png');
 const notificationParentSurfaceScreenshot = path.join(
   workpack30,
@@ -82,6 +87,15 @@ const childRuntimeUiScreenshot = path.join(
 );
 const childRuntimeUiProofPath = path.join(workpack30, '19-child-runtime-ui-proof.json');
 const evidenceDrawerHostedUiProofPath = path.join(workpack30, '20-evidence-drawer-hosted-ui-proof.json');
+const reportPolicyConsumerHostedUiProofPath = path.join(workpack30, '25-report-policy-consumer-hosted-ui-proof.json');
+const reportPolicyConsumerWp32HostedUiProofPath = path.join(
+  workpack32,
+  '32-report-policy-consumer-hosted-ui-proof.json'
+);
+const reportPolicyConsumerWp33HostedUiProofPath = path.join(
+  workpack33,
+  '39-report-policy-consumer-hosted-ui-proof.json'
+);
 const reportExportHostedUiProofPath = path.join(workpack30, '21-report-export-hosted-ui-proof.json');
 const reportExportWp32HostedUiProofPath = path.join(workpack32, '29-report-export-hosted-ui-proof.json');
 const notificationParentSurfaceHostedUiProofPath = path.join(
@@ -431,6 +445,10 @@ async function writeProof(playwright) {
       desktopScreenshot: relativePath(desktopScreenshot),
       mobileScreenshot: relativePath(mobileScreenshot),
       familyDashboardScreenshot: relativePath(familyDashboardScreenshot),
+      reportPolicyConsumerScreenshot: relativePath(reportPolicyConsumerScreenshot),
+      reportPolicyConsumerHostedUiProof: relativePath(reportPolicyConsumerHostedUiProofPath),
+      reportPolicyConsumerWp32HostedUiProof: relativePath(reportPolicyConsumerWp32HostedUiProofPath),
+      reportPolicyConsumerWp33HostedUiProof: relativePath(reportPolicyConsumerWp33HostedUiProofPath),
       reportExportScreenshot: relativePath(reportExportScreenshot),
       reportExportHostedUiProof: relativePath(reportExportHostedUiProofPath),
       reportExportWp32HostedUiProof: relativePath(reportExportWp32HostedUiProofPath),
@@ -477,6 +495,26 @@ async function writeProof(playwright) {
         'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/23-family-dashboard-rollup-proof.json',
       screenshot: relativePath(familyDashboardScreenshot),
       renderedRows: ['family-active-summary', 'child-attention-summary', 'retention-audit-summary'],
+      childDeviceDeliveryClaimedRows: 0,
+      providerDeliveryClaimedRows: 0,
+      notificationReceiptClaimedRows: 0,
+      physicalDeviceClaimedRows: 0,
+      authorityClaimedRows: 0,
+      productClaimReadyRows: 0,
+      productClaimReady: false,
+    },
+    reportPolicyConsumerHostedUiProof: {
+      sourceProofs: [
+        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/22-report-policy-consumer-proof.json',
+        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/21-product-surface-summary-proof.json',
+      ],
+      screenshot: relativePath(reportPolicyConsumerScreenshot),
+      renderedRows: ['parent-report-summary', 'policy-evidence-drill-in', 'retention-audit-export'],
+      storedJournalRefsRequired: true,
+      storedReadModelRefsRequired: true,
+      aiExecutionClaimedRows: 0,
+      policyMutationClaimedRows: 0,
+      platformRuntimeClaimedRows: 0,
       childDeviceDeliveryClaimedRows: 0,
       providerDeliveryClaimedRows: 0,
       notificationReceiptClaimedRows: 0,
@@ -639,6 +677,7 @@ async function writeProof(playwright) {
       'This proof uses a seeded temporary ActivityStore SQLite database to prove hosted portal rendering against the real Rust service command.',
       'This proof renders a read-only evidence drawer from the selected service-backed citation but does not claim policy evaluation, action dispatch, child-device delivery, provider delivery, physical-device proof, authority, or product readiness.',
       'This proof renders child runtime UI disclosure, safe/help responses, and location-share consent copy but does not claim child-device delivery or physical-device execution.',
+      'This proof renders parent report summary, policy drill-in, and retention audit consumer rows from stored journal/read-model refs but does not claim AI execution, product policy mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, production, or product readiness.',
       'This proof renders report/export read-model packet rows but does not claim raw location payload export, service mutation, platform runtime, child-device delivery, provider delivery, notification receipt ingestion, physical-device proof, authority, or product-ready export behavior.',
       'This proof renders notification parent-surface history/preference rows but does not claim preference mutation, quiet-hours runtime, provider delivery, receipt ingestion, child-device delivery, physical-device proof, authority, production storage, adapter dispatch, or product readiness.',
       'This proof renders parent action readiness rows for expected-place alert policy and parent acknowledgement actions but does not claim live service mutation, alert delivery, provider delivery, receipt ingestion, child-device runtime, physical-device proof, authority, production workers, adapter dispatch, or product readiness.',
@@ -660,6 +699,9 @@ async function writeProof(playwright) {
   await writeFile(gateProofPath, proofContent);
   await writeFile(childRuntimeUiProofPath, proofContent);
   await writeFile(evidenceDrawerHostedUiProofPath, proofContent);
+  await writeFile(reportPolicyConsumerHostedUiProofPath, proofContent);
+  await writeFile(reportPolicyConsumerWp32HostedUiProofPath, proofContent);
+  await writeFile(reportPolicyConsumerWp33HostedUiProofPath, proofContent);
   await writeFile(reportExportHostedUiProofPath, proofContent);
   await writeFile(reportExportWp32HostedUiProofPath, proofContent);
   await writeFile(notificationParentSurfaceHostedUiProofPath, proofContent);
@@ -681,6 +723,8 @@ async function writeProof(playwright) {
       'asserted=no product-ready or physical-device-proved route copy',
       'asserted=family dashboard rollup rows render from existing proof refs without product-ready claim',
       'asserted=family dashboard rollup screenshot captured',
+      'asserted=report policy consumer rows render stored journal/read-model refs without product-ready claim',
+      'asserted=report policy consumer screenshot captured',
       'asserted=report export packet rows render from existing read-model proof refs without product-ready claim',
       'asserted=report export packet screenshot captured',
       'asserted=notification parent-surface history rows render from existing notification proof refs without provider delivery or receipt runtime claims',
