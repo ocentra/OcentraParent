@@ -120,7 +120,7 @@ async function assertDocsStillBlockDeviceClaims() {
     '- [ ] iOS background/region claims have real device permission/background',
     'iOS unchecked gate'
   );
-  assertIncludes(feature, '- [ ] Android permission/background proof.', 'feature Android gap');
+  assertIncludes(feature, '- [ ] Android permission/background runtime proof.', 'feature Android gap');
   assertIncludes(feature, '- [ ] iOS entitlement/background proof.', 'feature iOS gap');
   assertIncludes(
     feature,

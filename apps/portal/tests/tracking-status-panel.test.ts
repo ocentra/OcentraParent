@@ -628,6 +628,9 @@ describe('tracking retention settings hosted proof surface', () => {
       trackingRetentionSettingsHostedUiProof(liveActivity.activityTrackingRetentionSettingsWriteResult)
     ).toMatchObject({
       title: 'Retention settings read-model UI',
+      proofArtifact: TrackingStatusProofArtifacts.RetentionSettingsReadModel,
+      writeCommandProofArtifact: TrackingStatusProofArtifacts.RetentionSettingsWriteCommand,
+      localStateProofArtifact: TrackingStatusProofArtifacts.RetentionLocalServiceState,
       writePreflight: {
         title: 'Retention local service write result',
         commandId: 'tracking-retention-settings-write-command',
