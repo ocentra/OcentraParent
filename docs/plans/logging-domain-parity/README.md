@@ -24,6 +24,9 @@ Reference implementation:
 
 ```text
 ocentra-games/packages/logging-domain
+ocentra-games/vite/utils/testLogStorage.ts
+ocentra-games/AGENTS.md MCP tool list
+ocentra-games/.cursor/rules/ocentra-games-rules.mdc MCP guidance
 ```
 
 Target implementation:
@@ -32,6 +35,7 @@ Target implementation:
 OcentraParent/packages/logging-domain
 OcentraParent/crates/logging-core
 OcentraParent/scripts/dev/*
+OcentraParent logging MCP query interface
 ```
 
 ## Key local docs
@@ -53,6 +57,8 @@ Reference source docs already written:
 - [02 Rust Logging Core Crate](02-rust-logging-core-crate.md)
 - [03 Local Validation Evidence](03-local-validation-evidence.md)
 - [04 Validation and Enforcement](04-validation-and-enforcement.md)
+- [05 Codex Continuation Plan](05-codex-continuation-plan.md)
+- [06 MCP Query Interface](06-mcp-query-interface.md)
 
 ## Current scope
 
@@ -65,6 +71,7 @@ Rust logging-core crate
 agent-service dev logging migration
 portal dev-log routing fix
 local validation evidence wrappers
+MCP query interface for Codex/local agents
 validation/enforcement scripts
 ```
 
