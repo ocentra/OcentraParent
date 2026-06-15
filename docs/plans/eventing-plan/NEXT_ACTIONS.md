@@ -25,12 +25,10 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
-1. [WP01 Source Boundary And Semantics Audit](workpacks/01-source-boundary-and-semantics-audit.md) - required before crate implementation claims.
-2. [WP02 Crate Contract And Type Boundary](workpacks/02-crate-contract-and-type-boundary.md) - required before runtime/consumer work.
-3. [WP03 Dispatch Runtime And Lifecycle](workpacks/03-dispatch-runtime-and-lifecycle.md) - required before queue/request/journal proof.
-4. [WP04 Queue Idempotency Dead Letter](workpacks/04-queue-idempotency-dead-letter.md), [WP05 Request Response Contracts](workpacks/05-request-response-contracts.md), and [WP06 Journal Replay And Lineage](workpacks/06-journal-replay-and-lineage.md) - runtime proof layers.
-5. [WP07 Parent Protocol Event Contracts](workpacks/07-parent-protocol-event-contracts.md) through [WP10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md) - consumer handoffs; do not claim product behavior from eventing-only proof.
-6. [WP11 Type Safety And Ownership Hardening](workpacks/11-type-safety-and-ownership-hardening.md) and [WP12 Rollout Proof And PR Gate](workpacks/12-rollout-proof-and-pr-gate.md) - hardening and reporting gates.
+1. [WP11 Type Safety And Ownership Hardening](workpacks/11-type-safety-and-ownership-hardening.md) - the reusable crate is test-green, but workspace clippy denies still block proof completion on `ocentra-eventing`.
+2. [WP12 Rollout Proof And PR Gate](workpacks/12-rollout-proof-and-pr-gate.md) - reconcile the proof pack, checklist rows, and final reporting once the lint debt is closed.
+3. [WP07 Parent Protocol Event Contracts](workpacks/07-parent-protocol-event-contracts.md) through [WP10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md) - consumer handoffs remain open after the reusable runtime is validated.
+4. [WP01 Source Boundary And Semantics Audit](workpacks/01-source-boundary-and-semantics-audit.md) through [WP06 Journal Replay And Lineage](workpacks/06-journal-replay-and-lineage.md) - already validated by crate/package tests; revisit only if hardening refactors require it.
 
 ## PR readiness guard
 
@@ -42,4 +40,4 @@ Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), pr
 
 - [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
 - [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
-- [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
+- [ ] Record the clippy/proof blocker, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
