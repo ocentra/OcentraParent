@@ -47,7 +47,8 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 ## AI Worker Checklist
 
 - [ ] Prove Android 10+ background permission where claimed.
-- [x] Prove Android 11+ settings-page background permission flow.
+- [ ] Prove Android 11+ settings-page background permission flow on an image
+      with a resolvable Settings activity.
 - [ ] Prove Android system enter, exit, and dwell transitions.
 - [x] Represent active geofence limit.
 - [x] Add battery/background degraded proof before claims.
@@ -102,7 +103,7 @@ emulator background-permission, foreground-service-backed background-activity
 sample, and local-geofence enter/exit layer for this workpack. The generated
 `05-geofence-transition-proof.json` records package launch, foreground service
 observation, declared `ACCESS_BACKGROUND_LOCATION`, emulator grant state,
-Android app Settings page routing, activity backgrounding through
+Android app Settings route-attempt artifact, activity backgrounding through
 `input keyevent 3`, an emulator `geo fix` sample while the foreground service
 keeps a `LocationManager` GPS listener active, app-owned background sample proof
 storage with provider/timestamp/accuracy, and app-owned local-geofence proof
@@ -144,10 +145,11 @@ That bridge covers low-power degraded, app-killed/restarted, pending-upload,
 and manual-required status rows from WP10 only. It is not Android system
 geofencing, dwell transition, physical-device background, authority, provider
 delivery, production upload worker, or product-ready Android tracking proof.
-The same proof now launches the Android app details
-settings page for `ca.ocentra.parent.agent` and records Settings
-activity/window routing as the Android 11+ background-location settings-page
-flow artifact. It is not Android
+The same proof now attempts to launch the Android app details settings page for
+`ca.ocentra.parent.agent`; on the current ATD emulator image that route is
+unresolvable because no Settings activity is present, so the harness records the
+activity/window route-attempt artifact without claiming Android 11+ Settings
+page proof. It is not Android
 system background delivery, Android system geofencing, dwell transition,
 physical-device, authority, provider delivery, production upload worker, or
 product-ready Android tracking proof.
@@ -200,8 +202,8 @@ This workpack can be assigned independently, implemented against the owning doma
       checklist, and this workpack doc updated for the local manual-required
       background permission/geofence transition proof; central capability row
       update remains a hub/primary-owned doc delta.
-- [x] Known gaps/manual-required states: Android app settings-page routing,
-      background permission grant, foreground-service-backed background sample,
+- [x] Known gaps/manual-required states: Android app settings-page route
+      attempt, background permission grant, foreground-service-backed background sample,
       app-owned local geofence enter/exit, and active geofence-limit
       representation are locally observed. Android proximity-alert registration
       and system broadcast transition counters are separated from those local

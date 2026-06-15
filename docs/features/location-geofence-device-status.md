@@ -242,7 +242,8 @@ expose location or device-status features. Parents expect this category.
   through
   `node scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs`.
   It verifies the existing adb install/launch/runtime outputs, foreground
-  permission UX artifacts, Android 11+ background Settings route artifact,
+  permission UX artifacts, Android 11+ background Settings route attempt
+  artifact, including the ATD emulator unavailable-Settings result,
   app-reported foreground location evidence, local emulator geofence transition
   evidence, device-status proof, and validation log as required local emulator
   artifacts, carries required/present/missing counts into product-readiness
@@ -534,8 +535,10 @@ expose location or device-status features. Parents expect this category.
   through `npm run test:tracking-plan-android-emulator-proof`. It declares
   `ACCESS_BACKGROUND_LOCATION`, grants it on the API 35 emulator, backgrounds
   the activity while the foreground service listens for emulator GPS updates,
-  launches and captures the package app-details Settings page as the Android
-  11+ background-location settings-page flow artifact,
+  attempts to launch and capture the package app-details Settings page as the
+  Android 11+ background-location settings-page flow artifact, but the current
+  ATD emulator image has no resolvable Settings activity, so Settings routing
+  remains unclaimed for that run,
   records app-owned background sample proof storage with provider/timestamp/
   accuracy, drives an outside/inside/outside emulator `geo fix` route, records
   app-owned `LocationManager` GPS-listener local-geofence transition rows,
@@ -1032,7 +1035,7 @@ accessibility beyond the hosted parent route are proved.
       product-ready notification behavior.
 - [ ] Android permission/background runtime proof. WP08 emulator foreground
       permission/sample metadata and WP09 emulator background permission,
-      Android 11+ settings-page flow, foreground-service-backed
+      Android 11+ settings-page route-attempt artifact, foreground-service-backed
       background-activity sample, plus local-geofence enter/exit proof now
       exist, and WP08/WP09 parent-domain manual-required
       proof rows still preserve the remaining Android system geofencing, dwell,
@@ -1289,7 +1292,7 @@ accessibility beyond the hosted parent route are proved.
       authority, provider delivery, production workers, and product-ready
       Android tracking remain unclaimed.
 - [x] WP09 Android emulator background permission,
-      Android 11+ app settings-page routing,
+      Android 11+ app settings-page route-attempt artifact,
       foreground-service-backed background-activity sample, and local-geofence
       enter/exit proof plus active geofence-limit representation and WP10
       status-gap bridge plus separate proximity-alert registration metadata.

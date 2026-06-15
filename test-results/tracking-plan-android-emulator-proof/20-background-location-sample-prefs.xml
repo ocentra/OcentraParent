@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='utf-8' standalone='yes' ?>
 <map>
-    <float name="backgroundLocationSampleAccuracyMeters" value="5.0" />
     <string name="backgroundLocationSampleSource">android-location-manager-gps-listener-foreground-service</string>
+    <float name="backgroundLocationSampleAccuracyMeters" value="5.0" />
     <string name="backgroundLocationSampleProvider">gps</string>
-    <int name="backgroundLocationSampleCount" value="39" />
+    <int name="backgroundLocationSampleCount" value="57" />
     <boolean name="backgroundLocationSampleActivityBackgrounded" value="true" />
-    <long name="backgroundLocationSampleObservedAtEpochMillis" value="1780834293243" />
+    <long name="backgroundLocationSampleObservedAtEpochMillis" value="1780930652449" />
 </map>

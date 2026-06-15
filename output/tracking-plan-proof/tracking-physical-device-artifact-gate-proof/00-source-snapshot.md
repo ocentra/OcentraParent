@@ -1,7 +1,7 @@
 # Tracking Physical Device Artifact Gate Proof
 
 - generatedAt: 2026-06-07T18:20:00.000Z
-- commit: e189dc74fb25fd65c292688df611908328e3d033
+- commit: 915e6d43de5a7288e40711d96392e85b4544bd61
 - requiredProofTier: P4_PHYSICAL_DEVICE
 - currentProofTier: P3_LOCAL_DEV_MACHINE
 - status: manual_required

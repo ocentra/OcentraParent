@@ -115,11 +115,11 @@ Every checked item must cite one or more proof artifacts.
       `LocationManager` sample metadata, Google Play Services fused foreground
       sample metadata, and raw coordinate proof export now exist under
       `output/tracking-plan-proof/08-android-foreground-location-adapter/`;
-      WP09 emulator background permission plus Android app Settings page
-      routing, foreground-service-backed background-activity sample, and
+      WP09 emulator background permission plus Android app Settings route
+      attempt artifact, foreground-service-backed background-activity sample, and
       local-geofence enter/exit proof now records declared and granted
       `ACCESS_BACKGROUND_LOCATION`, app UI background permission text, app
-      details Settings activity/window routing, app-owned background sample storage with
+      details Settings route-attempt activity/window artifacts, app-owned background sample storage with
       provider/timestamp/accuracy, app-owned local geofence transition rows,
       active app-owned geofence count within Android's documented per-app/per-device-user
       limit,
@@ -175,7 +175,7 @@ Every checked item must cite one or more proof artifacts.
       current `LocationManager` sample metadata plus raw coordinate proof
       export, Google Play Services fused foreground sample metadata plus raw
       coordinate proof export, background
-      location permission grant state, Android app Settings page routing,
+      location permission grant state, Android app Settings route-attempt artifact,
       foreground-service-backed background-activity sample storage, emulator
       local-geofence enter/exit rows, active geofence-limit representation,
       UI tree, headless screenshot inspection,
@@ -554,7 +554,7 @@ proof artifacts under their assigned proof roots. It proves emulator package
 mechanics, foreground permission-controller UX dialog, foreground runtime
 permission grant, app-reported current `LocationManager`
 provider/timestamp/accuracy/source metadata plus raw coordinate proof export,
-background location permission grant state, Android app Settings page routing,
+background location permission grant state, Android app Settings route-attempt artifact,
 foreground-service-backed background-activity sample storage, app-owned
 GPS-listener local-geofence enter/exit rows, active geofence-limit
 representation, status scaffold behavior, and fused foreground sample metadata
@@ -686,7 +686,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       permission-controller UX dialog, runtime permission grant, app-reported
       current `LocationManager` sample metadata plus raw coordinate proof export,
       background location permission grant state, Android app Settings page
-      routing, foreground-service-backed background-activity sample storage,
+      route-attempt artifact, foreground-service-backed background-activity sample storage,
       local-geofence enter/exit rows, active geofence-limit representation,
       `LocationManager.addProximityAlert` registration metadata,
       Google Play Services fused foreground sample metadata,
@@ -722,7 +722,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       `node scripts/test/tracking-android-status-proof.mjs`.
 - [ ] Android background/geofence proof is not complete. The emulator proof now
       records background permission grant state, Android app Settings page
-      routing, foreground-service-backed background-activity sample storage,
+      route-attempt artifact, foreground-service-backed background-activity sample storage,
       local-geofence enter/exit rows, and active geofence-limit representation,
       plus system geofence blocker proof over the observed zero system
       proximity broadcast counters with explicit missing runtime-artifact
