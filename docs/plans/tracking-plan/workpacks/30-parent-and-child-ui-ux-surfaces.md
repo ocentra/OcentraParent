@@ -66,6 +66,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `25-report-policy-consumer-hosted-ui-proof.json`
 - `26-child-runtime-delivery-boundary-proof.json`
 - `27-child-runtime-execution-readiness-proof.json`
+- `28-child-runtime-snapshot-requirements-proof.json`
 - Unsupported/manual platform screenshot:
   `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/19-unsupported-manual-hosted-ui.png`
 - Accessibility summary:
@@ -108,6 +109,13 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
       visible-snapshot, parent-receipt, and runtime-observation requirement refs
       while keeping actual child-device delivery/execution, physical-device,
       authority, provider delivery, production, and product-ready claims false.
+- [x] Add a child-runtime snapshot requirements proof that consumes the
+      execution-readiness rows and verifies delivery-envelope,
+      execution-result, visible-snapshot, parent-receipt, and
+      runtime-observation refs for each child check-in state while keeping
+      actual child-device delivery/execution, rendered child-device runtime UI,
+      physical-device, authority, provider delivery, production, and
+      product-ready claims false.
 - [x] Render and screenshot hosted family dashboard rollup rows without claiming
       full dashboard UI, child-device delivery, authority, provider delivery,
       physical-device execution, or production readiness.
@@ -270,7 +278,10 @@ physical-device proof, authority, production, and product readiness unclaimed.
 the full current hosted screenshot PNG inventory, hosted proof outputs,
 unsupported/manual platform screenshot/proof output, parent overview/devices
 shell screenshots around the tracking route, accessibility assertions, and
-11-card no-overlap layout geometry as a separate inventory gate. It writes
+11-card no-overlap layout geometry as a separate inventory gate. It also
+verifies both the child-runtime execution readiness artifact and the
+child-runtime snapshot requirements artifact so those runtime-readiness refs do
+not become orphan proof rows. It writes
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/21-hosted-ui-artifact-inventory-proof.json`
 and
 `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/28-hosted-ui-artifact-inventory-proof.json`

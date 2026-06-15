@@ -1,0 +1,4 @@
+workpack=30-parent-and-child-ui-ux-surfaces
+Child runtime snapshot requirement rows consume the execution-readiness proof and emit deterministic requirement refs.
+Rows are requirement coverage only and do not claim actual child-device delivery, execution, or rendered child UI.
+Provider delivery, notification receipt ingestion, live location runtime, physical-device proof, authority proof, production workers, and product-ready behavior are explicit non-claims.

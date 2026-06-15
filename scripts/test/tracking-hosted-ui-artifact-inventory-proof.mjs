@@ -166,6 +166,9 @@ async function buildProof() {
   const childRuntimeExecutionReadinessProof = await readJson(
     'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/27-child-runtime-execution-readiness-proof.json'
   );
+  const childRuntimeSnapshotRequirementsProof = await readJson(
+    'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json'
+  );
   const accessibilitySummary = await readJson('test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json');
   const screenshots = await Promise.all(requiredScreenshots.map(readScreenshot));
 
@@ -187,6 +190,9 @@ async function buildProof() {
       childRuntimeExecutionReadinessProof: childRuntimeExecutionReadinessProofSummary(
         childRuntimeExecutionReadinessProof
       ),
+      childRuntimeSnapshotRequirementsProof: childRuntimeSnapshotRequirementsProofSummary(
+        childRuntimeSnapshotRequirementsProof
+      ),
       accessibilitySummary: accessibilitySummarySummary(accessibilitySummary),
     },
     screenshots,
@@ -206,6 +212,8 @@ async function buildProof() {
         'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/26-child-runtime-delivery-boundary-proof.json',
       childRuntimeExecutionReadinessProof:
         'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/27-child-runtime-execution-readiness-proof.json',
+      childRuntimeSnapshotRequirementsProof:
+        'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/28-child-runtime-snapshot-requirements-proof.json',
     },
     nonClaims: {
       fullParentChildUiClaimed: false,
@@ -276,6 +284,21 @@ function assertProof(proof) {
       )}`
     );
   }
+  if (
+    proof.sourceProofs.childRuntimeSnapshotRequirementsProof.productReadyClaimed !== false ||
+    proof.sourceProofs.childRuntimeSnapshotRequirementsProof.childDeviceExecutionRuntimeClaimed !== false ||
+    proof.sourceProofs.childRuntimeSnapshotRequirementsProof.physicalDeviceProofClaimed !== false ||
+    proof.sourceProofs.childRuntimeSnapshotRequirementsProof.authorityProofClaimed !== false ||
+    proof.sourceProofs.childRuntimeSnapshotRequirementsProof.requiredSnapshotKindCount <= 0 ||
+    proof.sourceProofs.childRuntimeSnapshotRequirementsProof.visibleSnapshotRequirementCount <= 0 ||
+    proof.sourceProofs.childRuntimeSnapshotRequirementsProof.runtimeObservationRequirementCount <= 0
+  ) {
+    throw new Error(
+      `Child runtime snapshot requirements proof is missing refs or overclaimed runtime/device behavior: ${JSON.stringify(
+        proof.sourceProofs.childRuntimeSnapshotRequirementsProof
+      )}`
+    );
+  }
   const missingAssertions = requiredAssertions.filter(
     (assertion) => !proof.sourceProofs.accessibilitySummary.assertions.includes(assertion)
   );
@@ -339,6 +362,22 @@ function childRuntimeExecutionReadinessProofSummary(proof) {
     rowCount: proof.readModel?.rows?.length ?? 0,
     executionRequirementRefCount: proof.readModel?.executionRequirementRefCount ?? 0,
     runtimeObservationRequirementRefCount: proof.readModel?.runtimeObservationRequirementRefCount ?? 0,
+    childDeviceExecutionRuntimeClaimed: proof.productClaims?.childDeviceExecutionRuntimeClaimed,
+    physicalDeviceProofClaimed: proof.productClaims?.physicalDeviceProofClaimed,
+    authorityProofClaimed: proof.productClaims?.authorityProofClaimed,
+    productReadyClaimed: proof.productClaims?.productReadyClaimed,
+  };
+}
+
+function childRuntimeSnapshotRequirementsProofSummary(proof) {
+  return {
+    proofMode: proof.proofLabels?.[0] ?? proof.workpackId,
+    currentProofTier: proof.currentProofTier,
+    currentStatus: proof.status,
+    rowCount: proof.readModel?.rows?.length ?? 0,
+    requiredSnapshotKindCount: proof.readModel?.requiredSnapshotKindCount ?? 0,
+    visibleSnapshotRequirementCount: proof.readModel?.visibleSnapshotRequirementCount ?? 0,
+    runtimeObservationRequirementCount: proof.readModel?.runtimeObservationRequirementCount ?? 0,
     childDeviceExecutionRuntimeClaimed: proof.productClaims?.childDeviceExecutionRuntimeClaimed,
     physicalDeviceProofClaimed: proof.productClaims?.physicalDeviceProofClaimed,
     authorityProofClaimed: proof.productClaims?.authorityProofClaimed,
