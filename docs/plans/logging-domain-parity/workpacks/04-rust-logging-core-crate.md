@@ -29,6 +29,7 @@ package: ocentra-parent-logging-core
 
 ```text
 docs/plans/logging-domain-parity/02-rust-logging-core-crate.md
+docs/plans/logging-domain-parity/05-codex-continuation-plan.md
 crates/agent-service/src/dev_log.rs
 crates/agent-service/src/service_runtime.rs
 crates/agent-protocol/src/logging.rs
@@ -117,9 +118,25 @@ packages/logging-domain/fixtures/**
 packages/logging-domain/tests/**
 ```
 
+## Additional validation from continuation note
+
+`05-codex-continuation-plan.md` adds the missing Rust validation detail: use `cargo check` as well as unit tests.
+
+Required Rust coverage:
+
+```text
+cargo check for the new crate
+unit tests for logging-core
+unit tests or focused tests for direct consumers
+NDJSON writer behavior
+artifact writer behavior
+TS/Rust JSON fixture parity
+```
+
 ## Focused commands
 
 ```bash
+cargo check -p ocentra-parent-logging-core
 cargo test -p ocentra-parent-logging-core
 cargo clippy -p ocentra-parent-logging-core --all-targets -- -D warnings
 cargo test -p ocentra-parent-agent-service dev_log
