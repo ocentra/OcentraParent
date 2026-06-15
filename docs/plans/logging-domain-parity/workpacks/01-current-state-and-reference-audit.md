@@ -27,6 +27,8 @@ Read only these by default:
 ```text
 docs/plans/logging-domain-parity/00-current-state-and-reference-audit.md
 docs/plans/logging-domain-parity/01-parent-logging-architecture.md
+docs/plans/logging-domain-parity/06-mcp-query-interface.md
+OcentraParent/package.json
 OcentraParent/packages/logging-domain/package.json
 OcentraParent/packages/logging-domain/src/contracts.ts
 OcentraParent/apps/portal/src/dev-logger.ts
@@ -37,6 +39,8 @@ ocentra-games/packages/logging-domain/src/test-log/**
 ocentra-games/packages/logging-domain/src/transport/**
 ocentra-games/packages/logging-domain/src/app-log/**
 ocentra-games/packages/logging-domain/scripts/**
+ocentra-games/AGENTS.md MCP tool list
+ocentra-games/.cursor/rules/ocentra-games-rules.mdc MCP guidance
 ```
 
 ## Target state
@@ -47,9 +51,29 @@ A proof-backed audit exists showing:
 - games reference files mapped
 - parent current files mapped
 - live parent usage identified
+- existing parent MCP presence or absence confirmed
 - missing parity capabilities listed
 - implementation workpack routing confirmed
 ```
+
+## Existing MCP audit
+
+Before implementation, check whether parent already has an MCP system from earlier roadmap work.
+
+Remote pre-check found no obvious MCP implementation, but Codex must confirm locally with:
+
+```bash
+git grep -ni "mcp\|model context protocol\|modelcontextprotocol" -- .
+find . -iname '*mcp*' -o -iname '*modelcontext*'
+```
+
+Record result in:
+
+```text
+output/logging-domain-parity-proof/01-current-state-and-reference-audit/04-existing-mcp-audit.json
+```
+
+If an existing MCP system is found, WP07 must upgrade/adapt it instead of creating a second system.
 
 ## Required proof root
 
@@ -64,6 +88,7 @@ Required artifacts:
 01-parent-current-state.json
 02-live-usage-map.json
 03-gap-summary.md
+04-existing-mcp-audit.json
 16-validation-commands.log
 ```
 
@@ -72,6 +97,7 @@ Required artifacts:
 - [ ] Reference games logging-domain files inspected.
 - [ ] Parent current package files inspected.
 - [ ] Live usage of parent logging-domain confirmed.
+- [ ] Existing parent MCP presence or absence confirmed.
 - [ ] Dead-code or split-route risks documented.
 - [ ] Reference-to-target mapping confirmed.
 - [ ] Existing parent exports listed before code changes.
@@ -91,6 +117,7 @@ real logging pipeline
 proof-only contract
 local development observability
 product/runtime safe logging
+existing MCP framework vs no MCP framework
 ```
 
 ## Focused commands
