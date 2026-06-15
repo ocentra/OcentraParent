@@ -94,19 +94,19 @@ Required artifacts:
 
 ## Checklist rows
 
-- [x] Log decision provider implemented.
-- [x] Error/warn are always stored.
-- [x] Info/debug/log are controlled by environment/source/file/run selection.
-- [x] Console and storage decisions are separate.
-- [x] Fresh-run wipe can wipe selected scope/run/suite/file.
-- [x] Retention cleanup keeps configurable recent local sessions/files.
-- [x] Bridge health check exists.
-- [x] Bridge run-start endpoint records current run metadata.
-- [x] Stale run info is rejected or warned.
-- [x] Local bridge is default.
-- [x] Tunnel bridge mode is optional and condition-gated.
-- [x] Tests cover controls, wipe, retention, and bridge lifecycle.
-- [x] Proof root and workpack completion section filled.
+- [ ] Log decision provider implemented.
+- [ ] Error/warn are always stored.
+- [ ] Info/debug/log are controlled by environment/source/file/run selection.
+- [ ] Console and storage decisions are separate.
+- [ ] Fresh-run wipe can wipe selected scope/run/suite/file.
+- [ ] Retention cleanup keeps configurable recent local sessions/files.
+- [ ] Bridge health check exists.
+- [ ] Bridge run-start endpoint records current run metadata.
+- [ ] Stale run info is rejected or warned.
+- [ ] Local bridge is default.
+- [ ] Tunnel bridge mode is optional and condition-gated.
+- [ ] Tests cover controls, wipe, retention, and bridge lifecycle.
+- [ ] Proof root and workpack completion section filled.
 
 ## Expected source changes
 
@@ -155,8 +155,8 @@ npm run test --workspace @ocentra-parent/logging-domain -- bridge
 If scripts are implemented:
 
 ```bash
-npm run logs:wipe --workspace @ocentra-parent/logging-domain -- --scope=parent-test
-npm run logs:retention --workspace @ocentra-parent/logging-domain -- --scope=parent-codex --keep=10
+npm run logs:wipe -- --scope=parent-test
+npm run logs:retention -- --scope=parent-codex --keep=10
 ```
 
 ## Bridge/tunnel rule
@@ -188,52 +188,3 @@ Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
 ```
-
-## Completion
-
-Workpack id and branch:
-WP09 on `codex/tracking-plan-full-continuation-a`
-
-Touched files:
-`packages/logging-domain/package.json`
-`packages/logging-domain/src/core/logConfig.ts`
-`packages/logging-domain/src/core/logDecisionProvider.ts`
-`packages/logging-domain/src/test-log/wipeNdjsonScope.ts`
-`packages/logging-domain/src/test-log/testLogRetention.ts`
-`packages/logging-domain/src/transport/bridgeTransport.ts`
-`packages/logging-domain/src/transport/bridgeServer.ts`
-`packages/logging-domain/scripts/wipe-logs.ts`
-`packages/logging-domain/scripts/retention-logs.ts`
-`packages/logging-domain/tests/unit/log-decision-provider.test.ts`
-`packages/logging-domain/tests/unit/wipe-ndjson-scope.test.ts`
-`packages/logging-domain/tests/unit/retention-cleanup.test.ts`
-`packages/logging-domain/tests/unit/bridge-run-lifecycle.test.ts`
-
-Validation commands and results:
-`npm run build --workspace @ocentra-parent/logging-domain` passed
-`npm run test --workspace @ocentra-parent/logging-domain -- log-decision` passed
-`npm run test --workspace @ocentra-parent/logging-domain -- wipe` passed
-`npm run test --workspace @ocentra-parent/logging-domain -- retention` passed
-`npm run test --workspace @ocentra-parent/logging-domain -- bridge` passed
-`npm run logs:wipe --workspace @ocentra-parent/logging-domain -- --scope=parent-test` passed
-`npm run logs:retention --workspace @ocentra-parent/logging-domain -- --scope=parent-codex --keep=10` passed
-`npm run lint:architecture -- --files packages/logging-domain` passed
-
-Proof artifacts:
-`output/logging-domain-parity-proof/09-log-control-retention-bridge-lifecycle/00-log-decision-provider-proof.json`
-`output/logging-domain-parity-proof/09-log-control-retention-bridge-lifecycle/01-wipe-scope-proof.json`
-`output/logging-domain-parity-proof/09-log-control-retention-bridge-lifecycle/02-retention-cleanup-proof.json`
-`output/logging-domain-parity-proof/09-log-control-retention-bridge-lifecycle/03-bridge-run-lifecycle-proof.json`
-`output/logging-domain-parity-proof/09-log-control-retention-bridge-lifecycle/04-tunnel-mode-decision-proof.json`
-`output/logging-domain-parity-proof/09-log-control-retention-bridge-lifecycle/16-validation-commands.log`
-
-Product/runtime claims:
-Parent logging now has explicit config-driven low-level log controls with separate console and storage decisions.
-Parent test-log storage can wipe selected scope/run/suite/file slices instead of only clearing whole directories.
-Parent local retention can prune both test-run NDJSON files and app-log sessions by scope.
-Bridge lifecycle now exposes run metadata, flush endpoint presence, selected-scope wipe on run start, and stale run-id rejection for matching test scopes.
-Local bridge remains the default; tunnel and disabled modes are explicit configuration decisions rather than hidden behavior.
-
-Known gaps/manual-required states:
-WP03 remains blocked on upstream portal/agent-protocol contract drift outside its named source boundary.
-WP07 still owns MCP query surfaces over the indexed evidence emitted by this lifecycle layer.
