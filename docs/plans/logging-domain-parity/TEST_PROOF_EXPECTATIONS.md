@@ -2,188 +2,138 @@
 
 > Agent Capsule
 > Plan: `logging-domain-parity`
-> Doc: `Logging Domain Parity Test and Proof Expectations`
-> Kind: command expectation router.
-> Read when: validating a selected workpack or auditing plan completeness.
-> Stop rule: Use the selected workpack first; this file summarizes expected command families only.
-> Proves: validation routing only.
-> Does not prove: completion by itself.
+> Doc: `Logging Domain Parity Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: a workpack asks which commands or proof artifacts are expected.
+> Stop rule: Run focused commands first; do not jump to full validate unless required.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
 <!-- /agent-capsule -->
 
-# Logging Domain Parity Test and Proof Expectations
+# Logging Domain Parity Test Proof Expectations
 
-Use this file to map each workpack to its minimum command families and expected proof root.
+## General rule
 
-## WP01
+Use focused commands first. Broader validation is allowed only after focused commands pass or a precise blocker is recorded.
 
-Expected commands:
-
-```text
-games-reference file inspection
-parent current-state inspection
-existing MCP audit commands
-```
-
-Expected proof root:
-
-```text
-output/logging-domain-parity-proof/01-current-state-and-reference-audit/
-```
-
-## WP02
+## WP01 Current State and Reference Audit
 
 Expected commands:
 
+```bash
+node -e "console.log('audit-only: no source validation required')"
+```
+
+Expected proof:
+
 ```text
+reference file map
+parent current state map
+live usage map
+gap summary
+```
+
+## WP02 TypeScript Logging Package Parity
+
+Expected focused commands:
+
+```bash
 npm run build --workspace @ocentra-parent/logging-domain
 npm run test --workspace @ocentra-parent/logging-domain
-npm run lint:architecture -- --files <touched logging-domain files>
+npm run test:query --workspace @ocentra-parent/logging-domain -- stats --scope=parent-test
 ```
 
-Expected proof root:
+If package scripts are not wired yet, run direct script commands and record the transition.
+
+Expected negative checks:
 
 ```text
-output/logging-domain-parity-proof/02-typescript-logging-package-parity/
+missing bridge script fails parity check
+missing export fails export check
+Cloudflare default in generic parent scope fails scope check
 ```
 
-## WP03
+## WP03 Parent Logging Architecture and Routing
 
-Expected commands:
+Expected focused commands:
 
-```text
-portal route-focused tests or smokes
-agent-service route-focused tests or smokes
-npm run lint:architecture -- --files <touched portal/logging files>
+```bash
+npm run build --workspace @ocentra-parent/logging-domain
+npm run test --workspace @ocentra-parent/portal
+cargo test -p ocentra-parent-agent-service dev_log
 ```
 
-Expected proof root:
+Allowed blocker:
 
 ```text
-output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/
+portal route receiver cannot be fully tested until WP02 bridge exists
 ```
 
-## WP09
+If blocked, record the exact missing dependency and do not claim routing complete.
 
-Expected commands:
+## WP04 Rust Logging Core Crate
 
-```text
-npm run test --workspace @ocentra-parent/logging-domain -- retention
-npm run test --workspace @ocentra-parent/logging-domain -- bridge
-npm run lint:architecture -- --files <touched logging-domain lifecycle files>
-```
+Expected focused commands:
 
-Expected proof root:
-
-```text
-output/logging-domain-parity-proof/09-log-control-retention-bridge-lifecycle/
-```
-
-## WP04
-
-Expected commands:
-
-```text
-cargo check -p ocentra-parent-logging-core
+```bash
 cargo test -p ocentra-parent-logging-core
 cargo clippy -p ocentra-parent-logging-core --all-targets -- -D warnings
 cargo test -p ocentra-parent-agent-service dev_log
 npm run test --workspace @ocentra-parent/logging-domain -- dev-log-fixture
 ```
 
-Expected proof root:
+Expected parity proof:
 
 ```text
-output/logging-domain-parity-proof/04-rust-logging-core-crate/
+Rust fixture deserializes in TypeScript.
+TypeScript fixture deserializes in Rust.
 ```
 
-## WP05
+## WP05 Local Validation Evidence
 
-Expected commands:
+Expected focused commands:
 
-```text
-npm run agent:run -- <validation command>
-npm run agent:query -- <query>
-npm run codex:evidence -- <query>
-npm run test:logging-evidence
+```bash
+npm run agent:run -- node -e "process.exit(0)"
+npm run agent:run -- node -e "process.exit(2)"
+npm run agent:query -- latest-failures
+npm run codex:evidence -- latest-failures
 ```
 
-Expected proof root:
+Expected artifacts:
 
 ```text
-output/logging-domain-parity-proof/05-local-validation-evidence/
+stdout.log
+stderr.log
+metadata.json
+agent-run NDJSON
+diagnostics NDJSON
+artifacts NDJSON
+DuckDB rows
+compact evidence packet
 ```
 
-## WP07
+## WP06 Validation and Enforcement
 
-Expected commands:
+Expected focused commands:
 
-```text
-npm run --silent mcp:logging -- --list-tools
-npm run --silent mcp:logging -- --smoke latest-failures
-npm run --silent mcp:logging -- --smoke run-diagnostics
-npm run --silent mcp:logging -- --smoke artifact-slice
-npm run --silent agent:query -- latest-failures
-npm run --silent codex:evidence -- latest-failures
-```
-
-Expected proof root:
-
-```text
-output/logging-domain-parity-proof/07-mcp-query-interface/
-```
-
-## WP08
-
-Expected commands:
-
-```text
-npm run build --workspace @ocentra-parent/logging-domain
-npm run test --workspace @ocentra-parent/logging-domain
-cargo test -p ocentra-parent-logging-core
-cargo test -p ocentra-parent-agent-service dev_log
-npx vitest run packages/parent-domain/tests/logging/parent-domain-logger-consumer.test.ts --config packages/parent-domain/vitest.config.ts
-npx vitest run tests/logging/portal-dev-log-route.test.ts tests/logging/portal-proof-trace.test.ts
-```
-
-Expected proof root:
-
-```text
-output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/
-```
-
-## WP10
-
-Expected commands:
-
-```text
-npx vitest run tests/logging/portal-proof-trace-pipeline.test.ts tests/logging/portal-proof-trace.test.ts tests/logging/portal-dev-log-route.test.ts
-MCP proof-trace smoke through scripts/dev/mcp-logging-server.mjs or an equivalent client harness
-CLI proof-trace query through scripts/dev/agent-query.mjs
-```
-
-Expected proof root:
-
-```text
-output/logging-domain-parity-proof/10-proof-trace-pipeline/
-```
-
-## WP06
-
-Expected commands:
-
-```text
+```bash
 npm run validate:logging
 npm run test:logging-evidence
 node scripts/check-logging-domain-parity.mjs
 node scripts/check-local-evidence-wrapper.mjs
 node scripts/check-dev-log-routing.mjs
 node scripts/check-logging-exports.mjs
-negative fixture checks for missing bridge, missing endpoint, and invalid payload rejection
 ```
 
-Expected proof root:
+Expected negative checks:
 
 ```text
-output/logging-domain-parity-proof/06-validation-and-enforcement/
+remove/rename bridge script in temp copy -> check fails
+remove/rename required export in temp copy -> check fails
+remove agent wrapper script in temp copy -> check fails
+portal dev-log route without receiver -> check fails
 ```
+
+Do not mutate the real branch for negative checks. Use temporary fixtures or script-internal test fixtures.
