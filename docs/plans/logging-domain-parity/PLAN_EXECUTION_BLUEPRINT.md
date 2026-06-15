@@ -23,7 +23,9 @@ Default order:
 3. WP03 Parent Logging Architecture and Routing
 4. WP04 Rust Logging Core Crate
 5. WP05 Local Validation Evidence
-6. WP06 Validation and Enforcement
+6. WP07 MCP Query Interface
+7. WP08 Logger Instrumentation and Adoption
+8. WP06 Validation and Enforcement
 ```
 
 ## Parallelism
@@ -34,6 +36,8 @@ Allowed only with explicit assignment:
 WP02 and WP04 may run in parallel if fixture/export boundaries are coordinated.
 WP03 may run with WP02 if portal bridge contracts are clear.
 WP05 waits for storage primitives from WP02/WP04.
+WP07 waits until enough queryable data exists from WP02/WP05.
+WP08 waits until relevant logger APIs exist from WP02/WP04, but can begin with narrow portal/service adoption.
 WP06 waits until files it checks exist.
 ```
 
@@ -64,11 +68,19 @@ Reference paths:
 
 ```text
 /tmp/ocentra-games-ref/packages/logging-domain
-/tmp/ocentra-games-ref/infra/cloudflare/scripts/run-suite-helper.ts
-/tmp/ocentra-games-ref/src/lib/logging/init.ts
+/tmp/ocentra-games-ref/vite/utils/testLogStorage.ts
+/tmp/ocentra-games-ref/vite/utils/__tests__/mcp-validation-report.html
+/tmp/ocentra-games-ref/.cursor/rules/ocentra-cloudflare-logging.mdc
+/tmp/ocentra-games-ref/AGENTS.md
 ```
 
 Use reference code as a pattern. Do not blindly copy project-specific defaults.
+
+## MCP design rule
+
+Build or adapt a normal local MCP server for the agent interface.
+
+Do not make Vite middleware the required MCP server unless the selected client actually requires it. Vite/local middleware may remain a log producer or dev bridge, but the MCP server should query the shared DuckDB/NDJSON query service directly.
 
 ## Pre-edit note
 
@@ -92,6 +104,8 @@ TypeScript package parity -> packages/logging-domain/**
 Parent route fix -> apps/portal/** and crates/agent-service/** only as needed
 Rust logging core -> crates/logging-core/** and agent-service migration points
 Local evidence wrappers -> scripts/dev/** and package/root scripts
+MCP query interface -> packages/logging-domain/src/query/**, src/mcp/**, scripts/mcp-logging-server.ts
+Logger instrumentation -> assigned portal/service/script surfaces only
 Validation -> scripts/check-*.mjs and root scripts
 ```
 
