@@ -27,6 +27,7 @@ output/logging-domain-parity-proof/05-local-validation-evidence/
 output/logging-domain-parity-proof/06-validation-and-enforcement/
 output/logging-domain-parity-proof/07-mcp-query-interface/
 output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/
+output/logging-domain-parity-proof/09-log-control-retention-bridge-lifecycle/
 ```
 
 Test result roots:
@@ -40,6 +41,7 @@ test-results/logging-domain-parity-local-evidence/
 test-results/logging-domain-parity-validation/
 test-results/logging-domain-parity-mcp/
 test-results/logging-domain-parity-instrumentation/
+test-results/logging-domain-parity-control-lifecycle/
 ```
 
 ## Required proof files per workpack
@@ -72,6 +74,17 @@ test-results/logging-domain-parity-instrumentation/
 01-portal-dev-log-route-proof.json
 02-agent-service-logging-route-proof.json
 03-scope-model-proof.json
+16-validation-commands.log
+```
+
+### WP09
+
+```text
+00-log-decision-provider-proof.json
+01-wipe-scope-proof.json
+02-retention-cleanup-proof.json
+03-bridge-run-lifecycle-proof.json
+04-tunnel-mode-decision-proof.json
 16-validation-commands.log
 ```
 
@@ -161,6 +174,7 @@ logging-domain parity complete
 Codex evidence wrapper complete
 MCP logging interface complete
 logger instrumentation complete for the whole repo
+log retention policy complete for all products
 ```
 
 unless the assigned workpack acceptance criteria and validation scripts prove it.
@@ -175,5 +189,7 @@ agent-run controlled failure recorded
 MCP existing-framework audit completed
 MCP latest-failures smoke passed
 source/context query proof passed
+log decision provider proof passed
+wipe/retention smoke passed
 validation script negative check passed
 ```
