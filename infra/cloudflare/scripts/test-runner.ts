@@ -1,59 +1,68 @@
 #!/usr/bin/env node
 
-import { readdirSync } from "node:fs";
-import { resolve } from "node:path";
-import { failWithBlocker } from "./manual-required.js";
+import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 
-const FAMILY_DIRS = {
-  unit: "tests/unit",
-  integration: "tests/integration",
-  e2e: "tests/e2e",
-  contract: "tests/contract",
-  security: "tests/security",
-  property: "tests/property",
-  fuzz: "tests/fuzz",
-} as const;
+const typeArg = process.argv.find((arg) => arg.startsWith("--type="));
+const selectedType = typeArg?.slice("--type=".length);
 
-type Family = keyof typeof FAMILY_DIRS;
+const testTargetsByType = new Map<string, ReadonlyArray<string>>([
+  ["unit", ["tests/unit"]],
+  ["integration", ["tests/integration"]],
+  ["e2e", ["tests/e2e"]],
+  ["contract", ["tests/contract"]],
+  ["security", ["tests/security"]],
+  ["property", ["tests/property"]],
+  ["fuzz", ["tests/fuzz"]],
+]);
 
-function parseFamily(): Family | "all" {
-  const typeArg = process.argv.find((arg) => arg.startsWith("--type="));
-  if (!typeArg) {
-    return "all";
-  }
-  const family = typeArg.slice("--type=".length) as Family;
-  return family in FAMILY_DIRS ? family : "all";
+const selectedTargets =
+  selectedType === undefined ? ["tests"] : testTargetsByType.get(selectedType) ?? null;
+
+if (selectedTargets === null) {
+  console.error(`Unknown cloudflare test type: ${selectedType}`);
+  process.exit(1);
 }
 
-function readPlaceholderFiles(targetFamily: Family | "all"): Record<string, string[]> {
-  const families = targetFamily === "all" ? Object.keys(FAMILY_DIRS) as Family[] : [targetFamily];
-  const payload: Record<string, string[]> = {};
-
-  for (const family of families) {
-    payload[family] = readdirSync(resolve(FAMILY_DIRS[family])).sort();
+function collectTestFiles(targetPath: string, files: string[]): void {
+  const stat = fs.statSync(targetPath);
+  if (stat.isDirectory()) {
+    for (const entry of fs.readdirSync(targetPath, { withFileTypes: true })) {
+      collectTestFiles(path.join(targetPath, entry.name), files);
+    }
+    return;
   }
 
-  return payload;
+  if (targetPath.endsWith(".test.ts")) {
+    files.push(targetPath);
+  }
 }
 
-const family = parseFamily();
-console.error(
-  JSON.stringify(
-    {
-      scope: "infra/cloudflare/scripts/test-runner.ts",
-      status: "manual-required",
-      requestedFamily: family,
-      placeholderFiles: readPlaceholderFiles(family),
-      blocker: "test-runner-scaffold-only",
-      nextStep: "Replace placeholder tests and blocker runner with real suite execution plus proof output.",
-    },
-    null,
-    2,
-  ),
+const selectedFiles: string[] = [];
+for (const target of selectedTargets) {
+  collectTestFiles(path.resolve(process.cwd(), target), selectedFiles);
+}
+
+selectedFiles.sort();
+
+if (selectedFiles.length === 0) {
+  console.error(`No cloudflare test files found for type: ${selectedType ?? "all"}`);
+  process.exit(1);
+}
+
+const result = spawnSync(
+  process.execPath,
+  [
+    "--import",
+    "tsx",
+    "--test",
+    ...selectedFiles,
+  ],
+  {
+    cwd: process.cwd(),
+    stdio: "inherit",
+  },
 );
 
-failWithBlocker(
-  "infra/cloudflare/scripts/test-runner.ts",
-  "test-runner-scaffold-only",
-  "Wire real unit/integration/e2e/contract/security/property/fuzz execution before claiming Cloudflare proof.",
-);
+process.exit(result.status ?? 1);

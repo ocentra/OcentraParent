@@ -7,6 +7,7 @@ members = [
   "crates/agent-core",
   "crates/agent-protocol",
   "crates/agent-service",
+  "crates/logging-core",
   "crates/agent-updater",
   "crates/browser-core",
   "crates/child-ai-core",

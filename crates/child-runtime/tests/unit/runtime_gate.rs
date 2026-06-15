@@ -2,9 +2,13 @@ use ocentra_child_enforcement_core::{
     EnforcementActionInput, EnforcementActionMode, EnforcementAdapterExecutionState,
     EnforcementAdapterState, EnforcementIdempotencyState, EnforcementRollbackState,
 };
-use ocentra_entitlement_core::{
-    EntitlementCapability, EntitlementCapabilityInput, EntitlementCapabilityScope,
-    EntitlementPolicyState, FamilySetupState, OfflineGraceState, SubscriptionState,
+use ocentra_entitlement_core::entitlement_access::{
+    EntitlementCapability, EntitlementCapabilityInput, EntitlementCapabilityRejectionReason,
+    EntitlementCapabilityScope, EntitlementDeviceTrustRequirementState,
+    EntitlementDeviceTrustState, EntitlementPackageBuildState, EntitlementPolicyState,
+    EntitlementSnapshotBindingState, EntitlementSnapshotContext,
+    EntitlementSnapshotFreshnessState, EntitlementSnapshotSignatureState, FamilySetupState,
+    OfflineGraceState, SubscriptionState,
 };
 use ocentra_eventing::DomainEvent;
 use ocentra_family_identity_core::{
@@ -61,6 +65,54 @@ fn child_runtime_preflight_blocks_when_entitlement_is_parent_portal_only() {
     assert_eq!(
         decision.manual_review_state,
         ocentra_child_runtime::ChildRuntimeManualReviewState::Required
+    );
+    assert_eq!(
+        decision.entitlement_decision.rejection_reason,
+        Some(EntitlementCapabilityRejectionReason::ParentPortalOnlyScope)
+    );
+}
+
+#[test]
+fn child_runtime_preflight_blocks_when_entitlement_snapshot_household_binding_is_wrong() {
+    let mut input = valid_child_runtime_preflight_input();
+    input.entitlement_input.snapshot_context.household_binding_state =
+        EntitlementSnapshotBindingState::Mismatched;
+
+    let decision = ocentra_child_runtime::evaluate_child_runtime_preflight(input);
+
+    assert_eq!(
+        decision.runtime_start_state,
+        ocentra_child_runtime::ChildRuntimeStartState::Blocked
+    );
+    assert_eq!(
+        decision.manual_review_state,
+        ocentra_child_runtime::ChildRuntimeManualReviewState::Required
+    );
+    assert_eq!(
+        decision.entitlement_decision.rejection_reason,
+        Some(EntitlementCapabilityRejectionReason::WrongHousehold)
+    );
+}
+
+#[test]
+fn child_runtime_preflight_blocks_when_entitlement_snapshot_device_binding_is_wrong() {
+    let mut input = valid_child_runtime_preflight_input();
+    input.entitlement_input.snapshot_context.device_binding_state =
+        EntitlementSnapshotBindingState::Mismatched;
+
+    let decision = ocentra_child_runtime::evaluate_child_runtime_preflight(input);
+
+    assert_eq!(
+        decision.runtime_start_state,
+        ocentra_child_runtime::ChildRuntimeStartState::Blocked
+    );
+    assert_eq!(
+        decision.manual_review_state,
+        ocentra_child_runtime::ChildRuntimeManualReviewState::Required
+    );
+    assert_eq!(
+        decision.entitlement_decision.rejection_reason,
+        Some(EntitlementCapabilityRejectionReason::WrongDevice)
     );
 }
 
@@ -236,6 +288,15 @@ fn valid_child_runtime_preflight_input() -> ocentra_child_runtime::ChildRuntimeP
             family_setup_state: FamilySetupState::Complete,
             policy_state: EntitlementPolicyState::Clean,
             capability_scope: EntitlementCapabilityScope::LocalChildRuntime,
+            snapshot_context: EntitlementSnapshotContext {
+                signature_state: EntitlementSnapshotSignatureState::Trusted,
+                freshness_state: EntitlementSnapshotFreshnessState::Fresh,
+                household_binding_state: EntitlementSnapshotBindingState::Matched,
+                device_binding_state: EntitlementSnapshotBindingState::Matched,
+                device_trust_requirement_state: EntitlementDeviceTrustRequirementState::Required,
+                device_trust_state: EntitlementDeviceTrustState::Present,
+                package_build_state: EntitlementPackageBuildState::Valid,
+            },
         },
         storage_custody_input: StorageCustodyInput {
             location: StorageCustodyLocation::ParentOwnedRemote,

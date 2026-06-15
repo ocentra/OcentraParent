@@ -28,7 +28,17 @@ export const LogFieldsSchema = withParser(
 
 export const LogLevelSchema = withParser(Schema.Literal('trace', 'debug', 'info', 'warn', 'error'));
 
-export const LogSourceSchema = withParser(Schema.Literal('agent-service', 'dev-server', 'local-api', 'portal'));
+export const LogSourceSchema = withParser(
+  Schema.Literal(
+    'agent-service',
+    'dev-server',
+    'local-api',
+    'portal',
+    'codex',
+    'validation',
+    'rust-test'
+  )
+);
 
 export const AgentIdentitySchema = withParser(
   Schema.Struct({
@@ -103,6 +113,26 @@ export const LogSource = {
   DevServer: LogSourceSchema.parse('dev-server'),
   LocalApi: LogSourceSchema.parse('local-api'),
   Portal: LogSourceSchema.parse('portal'),
+  Codex: LogSourceSchema.parse('codex'),
+  Validation: LogSourceSchema.parse('validation'),
+  RustTest: LogSourceSchema.parse('rust-test'),
+} as const;
+
+export const LoggerRuntimeEnvironment = {
+  RunId: 'OCENTRA_PARENT_LOG_RUN_ID',
+  TestName: 'OCENTRA_PARENT_LOG_TEST_NAME',
+  Scope: 'OCENTRA_PARENT_LOG_SCOPE',
+  RunType: 'OCENTRA_PARENT_LOG_RUN_TYPE',
+  SuiteType: 'OCENTRA_PARENT_LOG_SUITE_TYPE',
+  Origin: 'OCENTRA_PARENT_LOG_ORIGIN',
+  Environment: 'OCENTRA_PARENT_LOG_ENVIRONMENT',
+} as const;
+
+export const LoggerRuntimeDefaults = {
+  GeneratedRunIdPrefix: 'parent-log-run-',
+  TestName: 'parent-runtime-logger',
+  UnknownModule: 'UnknownModule',
+  ModuleContextSuffix: 'module',
 } as const;
 
 export const DevLogEndpoint = {
@@ -118,6 +148,15 @@ export const DevLogHttp = {
 
 export const DevLogEnvironment = {
   Directory: 'OCENTRA_PARENT_DEV_LOG_DIR',
+} as const;
+
+export const DevLogBridge = {
+  DefaultUrl: 'http://127.0.0.1:4479',
+  EnvironmentUrl: 'VITE_OCENTRA_PARENT_LOG_BRIDGE_URL',
+  GlobalUrlKey: '__OCENTRA_PARENT_LOG_BRIDGE_URL',
+  PortalContext: 'portal-dev-observability',
+  PortalEnvironment: 'dev',
+  PortalTestName: 'portal-dev-runtime',
 } as const;
 
 export const DevLogFile = {

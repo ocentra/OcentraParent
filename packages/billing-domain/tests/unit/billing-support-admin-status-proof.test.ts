@@ -3,9 +3,11 @@ import {
   BillingSupportAdminStatusProofReadModel,
   BillingSupportAdminStatusProofRowSchema,
   BillingSupportAdminStatusProofSchema,
+} from '../../src/billing-support-admin-status-proof';
+import {
   summarizeBillingSupportAdminStatusRows,
   summarizeBillingSupportAdminStatusRuntimeStates,
-} from '../../src/billing-support-admin-status-proof';
+} from '../../src/billing-support-admin-status-values';
 
 describe('billing support admin status proof', () => {
   acceptsBillingSupportAdminStatusProof();

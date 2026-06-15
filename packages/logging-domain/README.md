@@ -7,6 +7,7 @@ Structured operational logging and redaction contracts.
 - Log event schemas.
 - Redaction-safe operational fields.
 - Shared logging contracts used by TypeScript and Rust-facing protocol paths.
+- Local development observability contracts and bridge/query helpers for parent-local workflows.
 
 ## Must Not Own
 
@@ -24,6 +25,40 @@ flowchart LR
   Redacted["redacted operational log"]
   Runtime --> LogSchema --> Redacted
 ```
+
+## Architecture Split
+
+This package now serves two distinct parent logging modes plus one explicit infra scope.
+
+### Local Dev Observability
+
+Local-only developer and test logging uses:
+
+- bridge-compatible NDJSON rows
+- local DuckDB query helpers
+- parent-local scopes such as `parent-portal`, `parent-agent`, `parent-codex`, and `parent-test`
+- MCP-first query access through `npm run mcp:logging` for Codex and local agents
+- CLI fallback through `npm run agent:query` and `npm run codex:evidence` when MCP wiring is unavailable
+
+These artifacts are workspace-owned local evidence. They are not uploaded to Ocentra services by default. They are not production support bundles and they are not child-data custody claims.
+
+### Product / Runtime Safe Logging
+
+The existing proof/read-model exports remain the product-safe contract surface:
+
+- redaction-safe
+- explicit custody boundaries
+- no raw child activity by default
+
+### Cloudflare Infra Logging
+
+Cloudflare stays separate as explicit `parent-cloudflare` scope. Parent-local generic logging must not default to Cloudflare.
+
+## Parent Routing Notes
+
+- Portal dev logs should prefer the local bridge transport when available.
+- `/api/dev/log-snapshot` is a snapshot/status endpoint for the Rust agent service. It is not the primary local log store.
+- The Rust agent service still has a compatibility local NDJSON writer until WP04 moves that path into `crates/logging-core`.
 
 ## Connected Docs
 

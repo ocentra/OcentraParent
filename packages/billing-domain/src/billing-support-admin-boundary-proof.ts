@@ -1,10 +1,12 @@
 import { Schema } from '@ocentra-parent/schema-domain/effect';
 import {
   BillingSupportAdminBoundaryProofSchema,
-  type BillingSupportAdminAction,
   type BillingSupportAdminFailureState,
-  type BillingSupportAdminRuntimeState,
 } from './billing-support-admin-boundary';
+import type {
+  BillingSupportAdminAction,
+  BillingSupportAdminRuntimeState,
+} from './billing-support-admin-boundary-values';
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 const decodeParentTimestamp = Schema.decodeUnknownSync(ParentTimestampSchema);

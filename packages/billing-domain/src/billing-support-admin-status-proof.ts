@@ -29,8 +29,6 @@ import {
 import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import { FamilyReferenceSchema, ParentAccountReferenceSchema } from '@ocentra-parent/family-domain/references';
 
-export * from './billing-support-admin-status-values';
-
 const decodeParentTimestamp = Schema.decodeUnknownSync(ParentTimestampSchema);
 const UpdatedAt = decodeParentTimestamp('2026-06-05T17:22:00.000Z');
 

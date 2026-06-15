@@ -30,8 +30,6 @@ import {
   type BillingSupportAdminRuntimeState,
 } from './billing-support-admin-boundary-values';
 
-export * from './billing-support-admin-boundary-values';
-
 export const BillingSupportAdminFailureStateSchema = withParser(
   Schema.Struct({
     failureKind: BillingFailureKindSchema,

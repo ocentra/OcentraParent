@@ -1,4 +1,4 @@
-use ocentra_billing_core::{
+use ocentra_billing_core::billing_subscription::{
     decide_child_entitlement_snapshot, record_child_entitlement_consumption_event,
     BillingAggregateId, BillingChildDeviceId, BillingChildEntitlementAccessState,
     BillingChildEntitlementConsumptionRecordedEvent, BillingChildEntitlementConsumptionState,
@@ -111,6 +111,36 @@ fn stale_child_snapshot_is_rejected_without_overwriting_local_state() {
 }
 
 #[test]
+fn missing_signature_child_snapshot_is_rejected_before_local_access_changes() {
+    let decision = decide_child_entitlement_snapshot(snapshot(
+        BillingSubscriptionLifecycleState::Active,
+        BillingChildSnapshotSignatureState::Missing,
+        BillingChildSnapshotFreshnessState::Fresh,
+    ));
+
+    assert_eq!(
+        decision.decision_state,
+        BillingChildEntitlementConsumptionState::Rejected
+    );
+    assert_eq!(
+        decision.access_state,
+        BillingChildEntitlementAccessState::NoChange
+    );
+    assert_eq!(
+        decision.write_state,
+        BillingEntitlementWriteState::DoNotWrite
+    );
+    assert_eq!(
+        decision.manual_review_requirement,
+        BillingManualReviewRequirement::Required
+    );
+    assert_eq!(
+        decision.rejection_reason,
+        Some(BillingChildEntitlementRejectionReason::MissingSignature)
+    );
+}
+
+#[test]
 fn invalid_signature_child_snapshot_is_rejected_before_lifecycle_changes() {
     let decision = decide_child_entitlement_snapshot(snapshot(
         BillingSubscriptionLifecycleState::PastDue,
@@ -130,6 +160,93 @@ fn invalid_signature_child_snapshot_is_rejected_before_lifecycle_changes() {
         decision.rejection_reason,
         Some(BillingChildEntitlementRejectionReason::InvalidSignature)
     );
+}
+
+#[test]
+fn expired_child_snapshot_is_rejected_without_overwriting_local_state() {
+    let decision = decide_child_entitlement_snapshot(snapshot(
+        BillingSubscriptionLifecycleState::Active,
+        BillingChildSnapshotSignatureState::Trusted,
+        BillingChildSnapshotFreshnessState::Expired,
+    ));
+
+    assert_eq!(
+        decision.decision_state,
+        BillingChildEntitlementConsumptionState::Rejected
+    );
+    assert_eq!(
+        decision.access_state,
+        BillingChildEntitlementAccessState::NoChange
+    );
+    assert_eq!(
+        decision.write_state,
+        BillingEntitlementWriteState::DoNotWrite
+    );
+    assert_eq!(
+        decision.manual_review_requirement,
+        BillingManualReviewRequirement::Required
+    );
+    assert_eq!(
+        decision.rejection_reason,
+        Some(BillingChildEntitlementRejectionReason::ExpiredSnapshot)
+    );
+}
+
+#[test]
+fn unknown_lifecycle_child_snapshot_is_rejected_even_when_signature_and_freshness_are_valid() {
+    let decision = decide_child_entitlement_snapshot(snapshot(
+        BillingSubscriptionLifecycleState::Unknown,
+        BillingChildSnapshotSignatureState::Trusted,
+        BillingChildSnapshotFreshnessState::Fresh,
+    ));
+
+    assert_eq!(
+        decision.decision_state,
+        BillingChildEntitlementConsumptionState::Rejected
+    );
+    assert_eq!(
+        decision.access_state,
+        BillingChildEntitlementAccessState::NoChange
+    );
+    assert_eq!(
+        decision.write_state,
+        BillingEntitlementWriteState::DoNotWrite
+    );
+    assert_eq!(
+        decision.manual_review_requirement,
+        BillingManualReviewRequirement::Required
+    );
+    assert_eq!(
+        decision.rejection_reason,
+        Some(BillingChildEntitlementRejectionReason::UnknownLifecycle)
+    );
+}
+
+#[test]
+fn support_required_child_snapshot_holds_access_for_review_with_a_writeable_decision() {
+    let decision = decide_child_entitlement_snapshot(snapshot(
+        BillingSubscriptionLifecycleState::SupportRequired,
+        BillingChildSnapshotSignatureState::Trusted,
+        BillingChildSnapshotFreshnessState::Fresh,
+    ));
+
+    assert_eq!(
+        decision.decision_state,
+        BillingChildEntitlementConsumptionState::Accepted
+    );
+    assert_eq!(
+        decision.access_state,
+        BillingChildEntitlementAccessState::HoldForReview
+    );
+    assert_eq!(
+        decision.write_state,
+        BillingEntitlementWriteState::WriteRequired
+    );
+    assert_eq!(
+        decision.manual_review_requirement,
+        BillingManualReviewRequirement::Required
+    );
+    assert_eq!(decision.rejection_reason, None);
 }
 
 #[test]

@@ -11,6 +11,7 @@ import {
 
 describe('billing entitlement runtime proof', () => {
   acceptsRuntimeStatusConsumptionProof();
+  acceptsManualReviewSnapshotConsumptionProof();
   rejectsDegradedSnapshotConsumptionWithoutFailureState();
   rejectsDeniedDeviceLimitConsumptionThatDoesNotBlockNewDevice();
   rejectsFailureConsumptionThatDropsLocalSafetyOrCustodyBoundary();
@@ -26,7 +27,7 @@ function acceptsRuntimeStatusConsumptionProof(): void {
       'snapshot-stale': 1,
       'payment-required': 1,
       'provider-unavailable': 1,
-      'manual-review': 0,
+      'manual-review': 1,
     });
     expect(summarizeBillingEntitlementRuntimeConsumptionStates(proof.deviceLimitConsumptions)).toEqual({
       'accepted-local': 1,
@@ -51,6 +52,23 @@ function acceptsRuntimeStatusConsumptionProof(): void {
       'no-portal-ui',
     ]);
     expect(proof.childCustodyClaim).toBe('signed-snapshot-consumption-contract');
+  });
+}
+
+function acceptsManualReviewSnapshotConsumptionProof(): void {
+  it('accepts manual-review runtime rows only when they stay tied to manual support review and a manual-admin snapshot', () => {
+    const manualReviewRow = requiredSnapshotRow('manual-review');
+
+    expect(manualReviewRow.source).toBe('manual-support-review');
+    expect(manualReviewRow.entitlementSnapshot.source).toBe('manual-admin-review');
+    expect(manualReviewRow.entitlementSnapshot.signatureState).toBe('manual-required');
+    expect(manualReviewRow.failureState?.failureKind).toBe('validation-failed');
+    expect(
+      BillingEntitlementRuntimeSnapshotConsumptionSchema.safeParse({
+        ...manualReviewRow,
+        source: 'signed-local-snapshot',
+      }).success
+    ).toBe(false);
   });
 }
 
@@ -120,7 +138,7 @@ function rejectsRuntimeProofOverclaims(): void {
   });
 }
 
-function requiredSnapshotRow(runtimeState: 'snapshot-stale') {
+function requiredSnapshotRow(runtimeState: 'manual-review' | 'snapshot-stale') {
   const row = BillingEntitlementRuntimeProofReadModel.snapshotConsumptions.find(
     (entry) => entry.runtimeState === runtimeState
   );

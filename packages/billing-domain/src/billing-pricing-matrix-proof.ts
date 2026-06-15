@@ -327,6 +327,10 @@ function entitlementSnapshot(
     generatedAt: Timestamp,
     expiresAt: ExpiryTimestamp,
     deviceLimit: plan.deviceLimit,
+    baseChildDeviceLimit: plan.deviceLimit,
+    activeReferralCredits: 0,
+    paidExtraChildDeviceSeats: 0,
+    effectiveChildDeviceLimit: plan.deviceLimit,
     featureDecisions,
     failureState,
   });

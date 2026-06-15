@@ -51,6 +51,7 @@ async fn health() -> Json<AgentLogSnapshot> {
     Json(build_dev_log_snapshot())
 }
 
+// Compatibility snapshot endpoint only: this is status/read-model output, not the primary local dev log store.
 async fn log_snapshot() -> Json<AgentLogSnapshot> {
     Json(build_dev_log_snapshot())
 }

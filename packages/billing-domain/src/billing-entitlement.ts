@@ -38,12 +38,6 @@ import {
   PositiveBillingLimitSchema,
 } from './billing-entitlement-values';
 
-export * from './billing-entitlement-values';
-export * from './billing-account-runtime-boundary';
-export * from './billing-invoice-tax-refund-dispute';
-export * from './billing-security-privacy-observability';
-export * from './billing-support-admin-boundary';
-
 export const BillingFeatureEntitlementSchema = withParser(
   Schema.Struct({
     featureCode: BillingFeatureCodeSchema,
@@ -144,6 +138,24 @@ export const BillingFeatureDecisionSchema = withParser(
   )
 );
 
+export const BillingEntitlementSeatCompositionSchema = withParser(
+  Schema.Struct({
+    baseChildDeviceLimit: PositiveBillingLimitSchema,
+    activeReferralCredits: NonNegativeBillingCountSchema,
+    paidExtraChildDeviceSeats: NonNegativeBillingCountSchema,
+    effectiveChildDeviceLimit: PositiveBillingLimitSchema,
+  }).pipe(
+    Schema.filter(
+      (composition) =>
+        composition.effectiveChildDeviceLimit ===
+          composition.baseChildDeviceLimit +
+            composition.activeReferralCredits +
+            composition.paidExtraChildDeviceSeats ||
+        'Expected effective child-device limit to equal base seats plus active referral credits plus paid extra child-device seats'
+    )
+  )
+);
+
 export const BillingEntitlementSnapshotSchema = withParser(
   Schema.Struct({
     schemaVersion: BillingEntitlementSchemaVersionSchema,
@@ -157,6 +169,10 @@ export const BillingEntitlementSnapshotSchema = withParser(
     generatedAt: ParentTimestampSchema,
     expiresAt: ParentTimestampSchema,
     deviceLimit: PositiveBillingLimitSchema,
+    baseChildDeviceLimit: PositiveBillingLimitSchema,
+    activeReferralCredits: NonNegativeBillingCountSchema,
+    paidExtraChildDeviceSeats: NonNegativeBillingCountSchema,
+    effectiveChildDeviceLimit: PositiveBillingLimitSchema,
     featureDecisions: Schema.Array(BillingFeatureDecisionSchema),
     failureState: Schema.Union(BillingFailureStateSchema, Schema.Null),
   }).pipe(
@@ -165,6 +181,21 @@ export const BillingEntitlementSnapshotSchema = withParser(
         snapshot.source !== 'unavailable' ||
         snapshot.failureState !== null ||
         'Expected unavailable entitlement snapshots to carry a parent-visible failure state'
+    ),
+    Schema.filter(
+      (snapshot) =>
+        BillingEntitlementSeatCompositionSchema.safeParse({
+          baseChildDeviceLimit: snapshot.baseChildDeviceLimit,
+          activeReferralCredits: snapshot.activeReferralCredits,
+          paidExtraChildDeviceSeats: snapshot.paidExtraChildDeviceSeats,
+          effectiveChildDeviceLimit: snapshot.effectiveChildDeviceLimit,
+        }).success ||
+        'Expected entitlement snapshots to keep seat composition math aligned'
+    ),
+    Schema.filter(
+      (snapshot) =>
+        snapshot.deviceLimit === snapshot.effectiveChildDeviceLimit ||
+        'Expected deviceLimit to mirror the effective child-device limit surfaced by the snapshot'
     )
   )
 );
@@ -228,11 +259,28 @@ export const BillingDeviceLimitDecisionSchema = withParser(
   )
 );
 
+export const BillingReferralCreditSummarySchema = withParser(
+  Schema.Struct({
+    activeQualifiedReferralParents: NonNegativeBillingCountSchema,
+    activeReferralCredits: NonNegativeBillingCountSchema,
+    pendingReferralInvites: NonNegativeBillingCountSchema,
+    revokedReferralCredits: NonNegativeBillingCountSchema,
+  }).pipe(
+    Schema.filter(
+      (summary) =>
+        summary.activeReferralCredits ===
+          summary.activeQualifiedReferralParents ||
+        'Expected active referral credits to match the count of active qualified referral parents'
+    )
+  )
+);
+
 export const BillingEntitlementContractProofSchema = withParser(
   Schema.Struct({
     schemaVersion: BillingEntitlementSchemaVersionSchema,
     plan: BillingPlanSchema,
     entitlementSnapshot: BillingEntitlementSnapshotSchema,
+    referralCreditSummary: BillingReferralCreditSummarySchema,
     subscriptionStatusProofRows: Schema.Array(BillingSubscriptionStatusProofRowSchema),
     billingSyncEvents: Schema.Array(BillingSyncEventSchema),
     deviceLimitDecisions: Schema.Array(BillingDeviceLimitDecisionSchema),
@@ -253,16 +301,28 @@ export const BillingEntitlementContractProofSchema = withParser(
 );
 
 export type BillingPlan = Infer<typeof BillingPlanSchema>;
+export type BillingEntitlementSeatComposition = Infer<
+  typeof BillingEntitlementSeatCompositionSchema
+>;
 export type BillingEntitlementSnapshot = Infer<typeof BillingEntitlementSnapshotSchema>;
 export type BillingSubscriptionStatusProofRow = Infer<typeof BillingSubscriptionStatusProofRowSchema>;
 export type BillingSyncEvent = Infer<typeof BillingSyncEventSchema>;
 export type BillingDeviceLimitDecision = Infer<typeof BillingDeviceLimitDecisionSchema>;
+export type BillingReferralCreditSummary = Infer<
+  typeof BillingReferralCreditSummarySchema
+>;
 export type BillingFailureState = Infer<typeof BillingFailureStateSchema>;
 export type BillingEntitlementContractProof = Infer<typeof BillingEntitlementContractProofSchema>;
 
 export const decodeBillingEntitlementContractProof = Schema.decodeUnknownSync(BillingEntitlementContractProofSchema);
 
 function billingEntitlementProofIsHonest(proof: {
+  readonly entitlementSnapshot: {
+    readonly activeReferralCredits: number;
+  };
+  readonly referralCreditSummary: {
+    readonly activeReferralCredits: number;
+  };
   readonly billingSyncEvents: ReadonlyArray<{ readonly failureState: BillingFailureState | null }>;
   readonly failureStates: ReadonlyArray<BillingFailureState>;
   readonly nonClaims: ReadonlyArray<string>;
@@ -284,6 +344,8 @@ function billingEntitlementProofIsHonest(proof: {
   ];
   const requiredSubscriptionStatuses = ['trialing', 'active', 'past-due', 'expired', 'grace', 'unavailable'];
   return (
+    proof.referralCreditSummary.activeReferralCredits ===
+      proof.entitlementSnapshot.activeReferralCredits &&
     requiredNonClaims.every((claim) => proof.nonClaims.includes(claim)) &&
     requiredSubscriptionStatuses.every((status) =>
       proof.subscriptionStatusProofRows.some((row) => row.subscriptionStatus === status)

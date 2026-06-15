@@ -201,6 +201,42 @@
       "import": "./dist/billing-entitlement-runtime-proof.js",
       "types": "./dist/billing-entitlement-runtime-proof.d.ts"
     },
+    "./billing-entitlement-runtime-proof-values": {
+      "import": "./dist/billing-entitlement-runtime-proof-values.js",
+      "types": "./dist/billing-entitlement-runtime-proof-values.d.ts"
+    },
+    "./billing-entitlement-proof": {
+      "import": "./dist/billing-entitlement-proof.js",
+      "types": "./dist/billing-entitlement-proof.d.ts"
+    },
+    "./billing-entitlement-values": {
+      "import": "./dist/billing-entitlement-values.js",
+      "types": "./dist/billing-entitlement-values.d.ts"
+    },
+    "./billing-account-runtime-boundary": {
+      "import": "./dist/billing-account-runtime-boundary.js",
+      "types": "./dist/billing-account-runtime-boundary.d.ts"
+    },
+    "./billing-account-runtime-boundary-proof": {
+      "import": "./dist/billing-account-runtime-boundary-proof.js",
+      "types": "./dist/billing-account-runtime-boundary-proof.d.ts"
+    },
+    "./billing-account-runtime-boundary-values": {
+      "import": "./dist/billing-account-runtime-boundary-values.js",
+      "types": "./dist/billing-account-runtime-boundary-values.d.ts"
+    },
+    "./billing-support-admin-boundary": {
+      "import": "./dist/billing-support-admin-boundary.js",
+      "types": "./dist/billing-support-admin-boundary.d.ts"
+    },
+    "./billing-support-admin-boundary-proof": {
+      "import": "./dist/billing-support-admin-boundary-proof.js",
+      "types": "./dist/billing-support-admin-boundary-proof.d.ts"
+    },
+    "./billing-support-admin-boundary-values": {
+      "import": "./dist/billing-support-admin-boundary-values.js",
+      "types": "./dist/billing-support-admin-boundary-values.d.ts"
+    },
     "./billing-support-admin-status-proof": {
       "import": "./dist/billing-support-admin-status-proof.js",
       "types": "./dist/billing-support-admin-status-proof.d.ts"

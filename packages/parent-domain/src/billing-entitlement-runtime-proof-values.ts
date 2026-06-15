@@ -1,1 +1,44 @@
-export * from '@ocentra-parent/billing-domain/billing-entitlement-runtime-proof-values';
+import * as Domain from '@ocentra-parent/billing-domain/billing-entitlement-runtime-proof-values';
+
+export const BillingEntitlementRuntimeSchemaVersionSchema =
+  Domain.BillingEntitlementRuntimeSchemaVersionSchema;
+export const BillingEntitlementRuntimeSnapshotStateSchema =
+  Domain.BillingEntitlementRuntimeSnapshotStateSchema;
+export const BillingEntitlementRuntimeSourceSchema =
+  Domain.BillingEntitlementRuntimeSourceSchema;
+export const BillingEntitlementRuntimeOperationSchema =
+  Domain.BillingEntitlementRuntimeOperationSchema;
+export const BillingEntitlementRuntimeConsumptionStateSchema =
+  Domain.BillingEntitlementRuntimeConsumptionStateSchema;
+export const BillingEntitlementRuntimeProviderExecutionClaimSchema =
+  Domain.BillingEntitlementRuntimeProviderExecutionClaimSchema;
+export const BillingEntitlementRuntimeProviderContactClaimSchema =
+  Domain.BillingEntitlementRuntimeProviderContactClaimSchema;
+export const BillingEntitlementRuntimeRefundCreditClaimSchema =
+  Domain.BillingEntitlementRuntimeRefundCreditClaimSchema;
+export const BillingEntitlementRuntimeProductionBillingClaimSchema =
+  Domain.BillingEntitlementRuntimeProductionBillingClaimSchema;
+export const BillingEntitlementRuntimePortalUiClaimSchema =
+  Domain.BillingEntitlementRuntimePortalUiClaimSchema;
+export const BillingEntitlementRuntimeChildCustodyClaimSchema =
+  Domain.BillingEntitlementRuntimeChildCustodyClaimSchema;
+export const BillingEntitlementRuntimeNonClaimSchema =
+  Domain.BillingEntitlementRuntimeNonClaimSchema;
+export const BillingEntitlementRuntimeBoundaryIdSchema =
+  Domain.BillingEntitlementRuntimeBoundaryIdSchema;
+export const BillingEntitlementRuntimeAuditReferenceSchema =
+  Domain.BillingEntitlementRuntimeAuditReferenceSchema;
+
+export type BillingEntitlementRuntimeSnapshotState =
+  Domain.BillingEntitlementRuntimeSnapshotState;
+export type BillingEntitlementRuntimeOperation =
+  Domain.BillingEntitlementRuntimeOperation;
+export type BillingEntitlementRuntimeConsumptionState =
+  Domain.BillingEntitlementRuntimeConsumptionState;
+export type BillingEntitlementRuntimeNonClaim =
+  Domain.BillingEntitlementRuntimeNonClaim;
+
+export const summarizeBillingEntitlementRuntimeSnapshotStates =
+  Domain.summarizeBillingEntitlementRuntimeSnapshotStates;
+export const summarizeBillingEntitlementRuntimeConsumptionStates =
+  Domain.summarizeBillingEntitlementRuntimeConsumptionStates;

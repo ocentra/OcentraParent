@@ -91,6 +91,101 @@ pub enum EntitlementManualReviewState {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EntitlementSnapshotSignatureState {
+    #[serde(rename = "trusted")]
+    Trusted,
+    #[serde(rename = "missing")]
+    Missing,
+    #[serde(rename = "invalid")]
+    Invalid,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EntitlementSnapshotFreshnessState {
+    #[serde(rename = "fresh")]
+    Fresh,
+    #[serde(rename = "stale")]
+    Stale,
+    #[serde(rename = "expired")]
+    Expired,
+    #[serde(rename = "revoked")]
+    Revoked,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EntitlementSnapshotBindingState {
+    #[serde(rename = "matched")]
+    Matched,
+    #[serde(rename = "mismatched")]
+    Mismatched,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EntitlementDeviceTrustRequirementState {
+    #[serde(rename = "required")]
+    Required,
+    #[serde(rename = "not-required")]
+    NotRequired,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EntitlementDeviceTrustState {
+    #[serde(rename = "present")]
+    Present,
+    #[serde(rename = "missing")]
+    Missing,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EntitlementPackageBuildState {
+    #[serde(rename = "valid")]
+    Valid,
+    #[serde(rename = "invalid")]
+    Invalid,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EntitlementCapabilityRejectionReason {
+    #[serde(rename = "missing-signature")]
+    MissingSignature,
+    #[serde(rename = "invalid-signature")]
+    InvalidSignature,
+    #[serde(rename = "stale-snapshot")]
+    StaleSnapshot,
+    #[serde(rename = "expired-snapshot")]
+    ExpiredSnapshot,
+    #[serde(rename = "revoked-snapshot")]
+    RevokedSnapshot,
+    #[serde(rename = "wrong-household")]
+    WrongHousehold,
+    #[serde(rename = "wrong-device")]
+    WrongDevice,
+    #[serde(rename = "missing-device-trust")]
+    MissingDeviceTrust,
+    #[serde(rename = "invalid-package-build")]
+    InvalidPackageBuild,
+    #[serde(rename = "incomplete-family-setup")]
+    IncompleteFamilySetup,
+    #[serde(rename = "payment-dispute")]
+    PaymentDispute,
+    #[serde(rename = "parent-portal-only-scope")]
+    ParentPortalOnlyScope,
+    #[serde(rename = "inactive-subscription")]
+    InactiveSubscription,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EntitlementSnapshotContext {
+    pub signature_state: EntitlementSnapshotSignatureState,
+    pub freshness_state: EntitlementSnapshotFreshnessState,
+    pub household_binding_state: EntitlementSnapshotBindingState,
+    pub device_binding_state: EntitlementSnapshotBindingState,
+    pub device_trust_requirement_state: EntitlementDeviceTrustRequirementState,
+    pub device_trust_state: EntitlementDeviceTrustState,
+    pub package_build_state: EntitlementPackageBuildState,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EntitlementCapabilityInput {
     pub capability: EntitlementCapability,
     pub subscription_state: SubscriptionState,
@@ -98,6 +193,7 @@ pub struct EntitlementCapabilityInput {
     pub family_setup_state: FamilySetupState,
     pub policy_state: EntitlementPolicyState,
     pub capability_scope: EntitlementCapabilityScope,
+    pub snapshot_context: EntitlementSnapshotContext,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -105,6 +201,7 @@ pub struct EntitlementDecision {
     pub capability: EntitlementCapability,
     pub access_state: EntitlementCapabilityAccessState,
     pub manual_review_state: EntitlementManualReviewState,
+    pub rejection_reason: Option<EntitlementCapabilityRejectionReason>,
 }
 
 macro_rules! entitlement_text_id {
@@ -203,11 +300,8 @@ impl DomainEvent for EntitlementCapabilityDecisionRecordedEvent {
 }
 
 pub fn evaluate_entitlement_capability(input: EntitlementCapabilityInput) -> EntitlementDecision {
-    let allowed = input.family_setup_state == FamilySetupState::Complete
-        && input.policy_state == EntitlementPolicyState::Clean
-        && input.capability_scope == EntitlementCapabilityScope::LocalChildRuntime
-        && (input.subscription_state == SubscriptionState::Active
-            || input.offline_grace_state == OfflineGraceState::Active);
+    let rejection_reason = entitlement_rejection_reason(&input);
+    let allowed = rejection_reason.is_none();
 
     EntitlementDecision {
         capability: input.capability,
@@ -221,6 +315,7 @@ pub fn evaluate_entitlement_capability(input: EntitlementCapabilityInput) -> Ent
         } else {
             EntitlementManualReviewState::Required
         },
+        rejection_reason,
     }
 }
 
@@ -257,4 +352,74 @@ fn entitlement_decision_ref(evaluation_id: &EntitlementEvaluationId) -> String {
     let mut value = String::from(ENTITLEMENT_DECISION_PREFIX);
     value.push_str(evaluation_id.as_str());
     value
+}
+
+fn entitlement_rejection_reason(
+    input: &EntitlementCapabilityInput,
+) -> Option<EntitlementCapabilityRejectionReason> {
+    match input.snapshot_context.signature_state {
+        EntitlementSnapshotSignatureState::Missing => {
+            return Some(EntitlementCapabilityRejectionReason::MissingSignature);
+        }
+        EntitlementSnapshotSignatureState::Invalid => {
+            return Some(EntitlementCapabilityRejectionReason::InvalidSignature);
+        }
+        EntitlementSnapshotSignatureState::Trusted => {}
+    }
+
+    match input.snapshot_context.freshness_state {
+        EntitlementSnapshotFreshnessState::Stale => {
+            return Some(EntitlementCapabilityRejectionReason::StaleSnapshot);
+        }
+        EntitlementSnapshotFreshnessState::Expired => {
+            return Some(EntitlementCapabilityRejectionReason::ExpiredSnapshot);
+        }
+        EntitlementSnapshotFreshnessState::Revoked => {
+            return Some(EntitlementCapabilityRejectionReason::RevokedSnapshot);
+        }
+        EntitlementSnapshotFreshnessState::Fresh => {}
+    }
+
+    if input.snapshot_context.household_binding_state
+        == EntitlementSnapshotBindingState::Mismatched
+    {
+        return Some(EntitlementCapabilityRejectionReason::WrongHousehold);
+    }
+
+    if input.snapshot_context.device_binding_state
+        == EntitlementSnapshotBindingState::Mismatched
+    {
+        return Some(EntitlementCapabilityRejectionReason::WrongDevice);
+    }
+
+    if input.snapshot_context.device_trust_requirement_state
+        == EntitlementDeviceTrustRequirementState::Required
+        && input.snapshot_context.device_trust_state == EntitlementDeviceTrustState::Missing
+    {
+        return Some(EntitlementCapabilityRejectionReason::MissingDeviceTrust);
+    }
+
+    if input.snapshot_context.package_build_state == EntitlementPackageBuildState::Invalid {
+        return Some(EntitlementCapabilityRejectionReason::InvalidPackageBuild);
+    }
+
+    if input.family_setup_state == FamilySetupState::Incomplete {
+        return Some(EntitlementCapabilityRejectionReason::IncompleteFamilySetup);
+    }
+
+    if input.policy_state == EntitlementPolicyState::PaymentDispute {
+        return Some(EntitlementCapabilityRejectionReason::PaymentDispute);
+    }
+
+    if input.capability_scope == EntitlementCapabilityScope::ParentPortalOnly {
+        return Some(EntitlementCapabilityRejectionReason::ParentPortalOnlyScope);
+    }
+
+    if input.subscription_state == SubscriptionState::Inactive
+        && input.offline_grace_state == OfflineGraceState::Inactive
+    {
+        return Some(EntitlementCapabilityRejectionReason::InactiveSubscription);
+    }
+
+    None
 }

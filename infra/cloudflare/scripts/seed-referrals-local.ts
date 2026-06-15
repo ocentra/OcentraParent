@@ -1,9 +1,14 @@
 #!/usr/bin/env node
 
-import { failWithBlocker } from "./manual-required.js";
+import { LOCAL_REFERRALS } from "../src/fixtures.js";
 
-failWithBlocker(
-  "infra/cloudflare/scripts/seed-referrals-local.ts",
-  "referral-seed-flow-not-implemented",
-  "Implement local referral fixtures and abuse-review cases before using referral seeding.",
+console.log(
+  JSON.stringify(
+    {
+      generatedAt: "2026-06-14T00:00:00.000Z",
+      referrals: LOCAL_REFERRALS,
+    },
+    null,
+    2,
+  ),
 );

@@ -4,15 +4,18 @@ import {
   BillingAccountRuntimeEntitlementSigningBoundarySchema,
   BillingAccountRuntimeOperationRowSchema,
   BillingAccountRuntimeStatusRowSchema,
-  summarizeBillingAccountRuntimeOperations,
-  summarizeBillingAccountRuntimeStatuses,
 } from '../../src/billing-account-runtime-boundary';
 import { BillingAccountRuntimeBoundaryProofReadModel } from '../../src/billing-account-runtime-boundary-proof';
+import {
+  summarizeBillingAccountRuntimeOperations,
+  summarizeBillingAccountRuntimeStatuses,
+} from '../../src/billing-account-runtime-boundary-values';
 
 describe('billing account runtime boundary', () => {
   acceptsBillingAccountRuntimeBoundaryProof();
   rejectsUnavailableAccountRowsWithoutFailureState();
   rejectsAvailableRuntimeRowsFromUnavailableSources();
+  rejectsProviderLifecycleMismatches();
   rejectsEntitlementSigningGapsWithoutManualRequiredContext();
   rejectsRuntimeOperationOverclaims();
   rejectsProofWithoutSignedChildConsumptionClaim();
@@ -21,6 +24,8 @@ describe('billing account runtime boundary', () => {
 function acceptsBillingAccountRuntimeBoundaryProof(): void {
   it('accepts account runtime proof with signed child snapshot consumption and no provider secrets or portal UI claim', () => {
     const proof = BillingAccountRuntimeBoundaryProofSchema.parse(BillingAccountRuntimeBoundaryProofReadModel);
+    const activeRow = requiredAccountStatusRow('active');
+    const manualReviewRow = requiredAccountStatusRow('manual-review');
 
     expect(summarizeBillingAccountRuntimeStatuses(proof.accountStatusRows)).toEqual({
       trialing: 0,
@@ -52,6 +57,18 @@ function acceptsBillingAccountRuntimeBoundaryProof(): void {
     );
     expect(proof.childDeviceConsumptionClaim).toBe('signed-snapshot-consumption-contract');
     expect(proof.entitlementSigningBoundary.failureState).toEqual(requiredFailure('validation-failed'));
+    expect(activeRow.providerMode).toBe('stripe-hosted');
+    expect(activeRow.nextRenewalAt).toBe('2026-07-14T00:00:00.000Z');
+    expect(activeRow.manualInvoiceState).toEqual({
+      visible: false,
+      invoiceState: null,
+    });
+    expect(manualReviewRow.providerMode).toBe('manual-invoice');
+    expect(manualReviewRow.nextRenewalAt).toBeNull();
+    expect(manualReviewRow.manualInvoiceState).toEqual({
+      visible: true,
+      invoiceState: 'manual-support-required',
+    });
   });
 }
 
@@ -76,6 +93,35 @@ function rejectsAvailableRuntimeRowsFromUnavailableSources(): void {
       BillingAccountRuntimeStatusRowSchema.safeParse({
         ...backendUnavailableRow,
         backendRuntimeState: 'available',
+      }).success
+    ).toBe(false);
+  });
+}
+
+function rejectsProviderLifecycleMismatches(): void {
+  it('rejects manual invoice and Stripe-hosted rows that advertise the wrong renewal or manual invoice state', () => {
+    const activeRow = requiredAccountStatusRow('active');
+    const manualReviewRow = requiredAccountStatusRow('manual-review');
+
+    expect(
+      BillingAccountRuntimeStatusRowSchema.safeParse({
+        ...activeRow,
+        nextRenewalAt: null,
+      }).success
+    ).toBe(false);
+    expect(
+      BillingAccountRuntimeStatusRowSchema.safeParse({
+        ...activeRow,
+        manualInvoiceState: {
+          visible: true,
+          invoiceState: 'manual-support-required',
+        },
+      }).success
+    ).toBe(false);
+    expect(
+      BillingAccountRuntimeStatusRowSchema.safeParse({
+        ...manualReviewRow,
+        nextRenewalAt: '2026-07-14T00:00:00.000Z',
       }).success
     ).toBe(false);
   });
@@ -136,7 +182,13 @@ function rejectsProofWithoutSignedChildConsumptionClaim(): void {
   });
 }
 
-function requiredAccountStatusRow(accountStatus: 'backend-unavailable' | 'provider-unavailable') {
+function requiredAccountStatusRow(
+  accountStatus:
+    | 'active'
+    | 'backend-unavailable'
+    | 'provider-unavailable'
+    | 'manual-review'
+) {
   const row = BillingAccountRuntimeBoundaryProofReadModel.accountStatusRows.find(
     (entry) => entry.accountStatus === accountStatus
   );
