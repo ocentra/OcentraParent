@@ -35,6 +35,10 @@ const sourceProofs = [
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/24-notification-preference-preflight-proof.json'
   ),
   sourceProof(
+    'notification-preference-status-handoff',
+    'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/54-notification-preference-status-handoff-proof.json'
+  ),
+  sourceProof(
     'notification-local-outbox-readiness',
     'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/42-notification-local-outbox-readiness-proof.json'
   ),

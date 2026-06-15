@@ -349,6 +349,17 @@ expose location or device-status features. Parents expect this category.
   frequency controls, quiet-hours timer runtime, provider delivery, receipt
   runtime, credentials, adapter dispatch, child-device delivery,
   physical-device proof, and production durable outbox storage unclaimed.
+- WP26/WP33 tracking notification preference status handoff proof now exists
+  through
+  `node scripts/test/tracking-notification-preference-status-handoff-proof.mjs`.
+  It maps preference preflight rows into V3 notification preference and
+  quiet-hours status entries while preserving provider attempt, provider
+  preference, evidence, policy decision, notification status, reason, and
+  quiet-hours refs. It keeps parent notification preference UI/history UI,
+  preference mutation runtime, quiet-hours timer runtime, provider delivery,
+  receipt runtime, credentials, cloud routing, child-device delivery,
+  physical-device proof, authority, retry workers, production durable outbox
+  storage, adapter dispatch, and product-ready notification behavior unclaimed.
 - WP26 tracking notification parent-surface history intent proof now exists
   through
   `node scripts/test/tracking-notification-parent-surface-history-proof.mjs`.

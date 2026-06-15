@@ -46,6 +46,7 @@ Proof root: `output/tracking-plan-proof/26-alert-severity-and-notification-model
 - `27-notification-parent-surface-hosted-ui-proof.json`
 - `28-notification-local-outbox-readiness-proof.json`
 - `29-provider-delivery-artifact-gate-proof.json`
+- `31-notification-preference-status-handoff-proof.json`
 
 ## AI Worker Checklist
 
@@ -110,6 +111,17 @@ while keeping parent notification preference UI/history UI, frequency controls,
 quiet-hours timer runtime, provider delivery, receipt runtime, credentials,
 adapter dispatch, child-device delivery, physical-device proof, and durable
 outbox storage unclaimed.
+Tracking notification preference status handoff proof now maps those preference
+preflight rows into V3 notification preference and quiet-hours status entries
+through
+`node scripts/test/tracking-notification-preference-status-handoff-proof.mjs`.
+The proof preserves provider attempt, provider preference, evidence, policy
+decision, notification status, reason, and quiet-hours refs while keeping parent
+notification preference UI/history UI, preference mutation runtime,
+quiet-hours timer runtime, provider delivery, receipt runtime, credentials,
+cloud routing, child-device delivery, physical-device proof, authority proof,
+retry workers, production durable outbox storage, adapter dispatch, and
+product-ready notification behavior unclaimed.
 Tracking notification parent-surface history intent proof now joins the
 provider-notification, receipt boundary, and preference preflight proof rows
 through
@@ -145,6 +157,9 @@ This workpack can be assigned independently, implemented against the owning doma
 - packages/parent-domain/src/tracking-notification-preference-preflight-proof.ts
 - packages/parent-domain/tests/tracking-notification-preference-preflight-proof.test.ts
 - scripts/test/tracking-notification-preference-preflight-proof.mjs
+- packages/parent-domain/src/tracking-notification-preference-status-handoff.ts
+- packages/parent-domain/tests/tracking-notification-preference-status-handoff.test.ts
+- scripts/test/tracking-notification-preference-status-handoff-proof.mjs
 - `output/tracking-plan-proof/26-alert-severity-and-notification-model/`
 - Implementation paths listed by the worker before editing.
 
@@ -338,3 +353,33 @@ test:tracking-plan-hosted-ui-proof` passed.
       durable outbox storage, child-device delivery, physical-device proof,
       authority proof, and product-ready tracking remain proof-gated until real
       provider-runtime artifacts exist.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: parent-domain tracking notification preference status
+      handoff proof/test, proof script, owning tracking feature doc,
+      implementation checklist, this workpack doc, WP33 proof-gate doc,
+      generated WP26/WP33 status handoff proof artifacts, and refreshed closure
+      proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-notification-preference-status-handoff-proof.mjs`
+      passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/26-alert-severity-and-notification-model/31-notification-preference-status-handoff-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/54-notification-preference-status-handoff-proof.json`,
+      `output/tracking-plan-proof/tracking-notification-preference-status-handoff-proof/proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
+      `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
+      `test-results/tracking-notification-preference-status-handoff-proof/proof.json`,
+      and `test-results/tracking-product-readiness-closure-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, this workpack doc, and WP33 proof-gate doc updated. Central
+      `docs/product-capability-checklist.md` update is queued through the hub
+      doc delta instead of editing the shared checklist directly.
+- [x] Known gaps/manual-required states: parent notification preference UI,
+      parent notification history UI, preference mutation runtime,
+      quiet-hours timer runtime, provider delivery, receipt runtime,
+      credentials, cloud routing, child-device delivery, physical-device proof,
+      authority proof, retry workers, production durable outbox storage,
+      adapter dispatch, and product-ready notification behavior remain
+      proof-gated.

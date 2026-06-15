@@ -100,6 +100,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `../30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/hosted-policy-tracking-child-check-in.png`
 - Notification preference preflight proof:
   `24-notification-preference-preflight-proof.json`
+- Notification preference status handoff proof:
+  `54-notification-preference-status-handoff-proof.json`
 - Hosted notification parent-surface proof:
   `35-notification-parent-surface-hosted-ui-proof.json`
 - Hosted parent action readiness proof:
@@ -122,8 +124,13 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   authority manual-required proof, physical-device artifact gate, and
   provider-delivery artifact gate:
   `46-product-readiness-closure-proof.json`
+- Refreshed tracking product-readiness closure proof also consumes the
+  notification preference status handoff gate:
+  `54-notification-preference-status-handoff-proof.json`
 - Tracking escalation-runtime readiness blocker proof:
   `53-escalation-runtime-readiness-blocker-proof.json`
+- Tracking notification preference status handoff proof:
+  `54-notification-preference-status-handoff-proof.json`
 
 ## Merge Blockers
 
@@ -936,3 +943,34 @@ test:tracking-plan-hosted-ui-proof` passed.
       delivery, physical-device behavior, authority enrollment, provider
       delivery, production workers, and product-ready tracking remain
       proof-gated.
+- [x] Workpack id and branch:
+      `codex/tracking-plan-full-continuation-a`.
+- [x] Touched files: tracking notification preference status handoff
+      proof/test, focused proof script, product-readiness closure proof model,
+      closure harness, owning tracking feature doc, implementation checklist,
+      WP26, this proof-gate doc, generated status handoff proof artifacts, and
+      refreshed closure proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-notification-preference-status-handoff-proof.mjs`
+      passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`
+      passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/26-alert-severity-and-notification-model/31-notification-preference-status-handoff-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/54-notification-preference-status-handoff-proof.json`,
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/46-product-readiness-closure-proof.json`,
+      `output/tracking-plan-proof/tracking-notification-preference-status-handoff-proof/proof.json`,
+      `output/tracking-plan-proof/tracking-product-readiness-closure-proof/proof.json`,
+      `test-results/tracking-notification-preference-status-handoff-proof/proof.json`,
+      and `test-results/tracking-product-readiness-closure-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP26, and this proof-gate doc updated. Central
+      `docs/product-capability-checklist.md` update remains hub/primary
+      sequenced through doc delta instead of editing the shared checklist
+      directly.
+- [x] Known gaps/manual-required states: closure now also requires the
+      notification preference status handoff proof ref, but parent notification
+      preference UI/history UI, preference mutation runtime, quiet-hours timer
+      runtime, provider delivery/receipt runtime, credentials, cloud routing,
+      child-device delivery, physical-device proof, authority proof,
+      production workers, production durable outbox storage, adapter dispatch,
+      and product-ready notification behavior remain proof-gated.
