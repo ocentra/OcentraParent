@@ -78,6 +78,40 @@ agent-service route into logging-core is mapped or implemented
 snapshot endpoint is not documented as the primary log store
 ```
 
+## WP09 Log Control, Retention, and Bridge Lifecycle
+
+Expected focused commands:
+
+```bash
+npm run build --workspace @ocentra-parent/logging-domain
+npm run test --workspace @ocentra-parent/logging-domain -- log-decision
+npm run test --workspace @ocentra-parent/logging-domain -- wipe
+npm run test --workspace @ocentra-parent/logging-domain -- retention
+npm run test --workspace @ocentra-parent/logging-domain -- bridge
+```
+
+If scripts are implemented:
+
+```bash
+npm run logs:wipe -- --scope=parent-test
+npm run logs:retention -- --scope=parent-codex --keep=10
+```
+
+Expected lifecycle coverage:
+
+```text
+error/warn always stored
+info/debug/log controlled by environment/source/file/run selection
+console and storage decisions can differ
+fresh-run wipe deletes selected scope/run/suite/file only
+retention keeps configured number of recent sessions/files
+bridge health check fails loudly when missing unless explicitly skipped
+run-start records run metadata and can wipe selected scope
+stale run info is rejected or warned
+local bridge is default
+tunnel mode is optional and condition-gated
+```
+
 ## WP04 Rust Logging Core Crate
 
 Expected focused commands:
@@ -122,31 +156,6 @@ NDJSON is ingested
 query command returns the latest failed run
 codex evidence command returns a compact evidence packet
 ```
-
-## WP06 Validation and Enforcement
-
-Expected focused commands:
-
-```bash
-npm run validate:logging
-npm run test:logging-evidence
-node scripts/check-logging-domain-parity.mjs
-node scripts/check-local-evidence-wrapper.mjs
-node scripts/check-dev-log-routing.mjs
-node scripts/check-logging-exports.mjs
-```
-
-Expected negative checks:
-
-```text
-missing bridge script fails
-missing required export fails
-missing agent wrapper fails
-portal dev-log route without receiver fails
-invalid bridge payload is rejected without corrupting stored logs
-```
-
-Use temporary fixtures or script-internal fixtures. Do not mutate the real branch for negative checks.
 
 ## WP07 MCP Query Interface
 
@@ -201,3 +210,53 @@ agent-service path emits queryable or fixture-proven structured rows
 checks reject new raw console logging in touched logging surfaces
 checks reject ad hoc JSON writers outside logging-domain/logging-core
 ```
+
+## WP10 Proof Trace Pipeline
+
+Expected focused commands depend on final test ownership, but must include equivalents of:
+
+```bash
+npm run test --workspace @ocentra-parent/logging-domain -- proof-trace
+npm run test:e2e --workspace @ocentra-parent/portal -- proof-trace
+npm run logs:query -- proof-trace <proof-id>
+npm run mcp:logging -- --smoke proof-trace
+```
+
+Expected proof-trace coverage:
+
+```text
+proof mode can be enabled for one run/test
+proof mode can be disabled after the run/test
+proof rows include proof_id and correlation_id
+ordered trace query matches expected steps
+missing/out-of-order trace query reports gaps
+Playwright or equivalent smoke proves a click-to-result path
+proof artifact records matched/missing/out-of-order steps
+retention/wipe cleans stale proof traces
+```
+
+## WP06 Validation and Enforcement
+
+Expected focused commands:
+
+```bash
+npm run validate:logging
+npm run test:logging-evidence
+node scripts/check-logging-domain-parity.mjs
+node scripts/check-local-evidence-wrapper.mjs
+node scripts/check-dev-log-routing.mjs
+node scripts/check-logging-exports.mjs
+```
+
+Expected negative checks:
+
+```text
+missing bridge script fails
+missing required export fails
+missing agent wrapper fails
+portal dev-log route without receiver fails
+invalid bridge payload is rejected without corrupting stored logs
+proof trace mode cannot stay globally enabled after tests
+```
+
+Use temporary fixtures or script-internal fixtures. Do not mutate the real branch for negative checks.
