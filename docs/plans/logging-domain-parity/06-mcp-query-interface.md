@@ -15,36 +15,6 @@ Codex asks for latest failures / logs / diagnostics
 
 This keeps the original intent intact: compact, high-density, deterministic evidence instead of terminal dumps or lossy LLM log summaries.
 
-## Existing-parent MCP audit requirement
-
-Before implementing new MCP code, check whether OcentraParent already has an MCP system from earlier roadmap work.
-
-Current remote inspection found no obvious parent MCP implementation:
-
-```text
-repo search for mcp / Model Context Protocol / modelcontextprotocol returned no matches
-root package scripts show no mcp script
-packages/logging-domain package scripts show only build/type-check/lint/test
-common config paths were absent: .mcp.json, mcp.json, .cursor/mcp.json
-likely paths were absent: packages/mcp-domain, packages/mcp-server, apps/mcp, apps/mcp-server, scripts/dev/mcp-server.mjs, scripts/dev/mcp-logging-server.mjs
-```
-
-Codex must still confirm locally because branch-local files or generated files can be missed by remote search. Run:
-
-```bash
-git grep -ni "mcp\|model context protocol\|modelcontextprotocol" -- .
-find . -iname '*mcp*' -o -iname '*modelcontext*'
-```
-
-Decision rule:
-
-```text
-If an existing parent MCP server/tooling exists: upgrade/adapt it for logging queries.
-If no existing parent MCP server/tooling exists: implement the logging MCP server described here.
-```
-
-Do not create a second MCP system if a usable parent MCP framework already exists.
-
 ## Reference behavior from games
 
 The games logging-domain README says the dev/test pipeline uses NDJSON plus DuckDB for centralized ingestion and MCP querying. It also says DuckDB files and ingest manifests allow MCP tools and CLI scripts to perform high-performance queries without scanning raw files every time.
@@ -63,9 +33,9 @@ Parent should implement the same class of interface for logging-domain parity, a
 
 ## Required parent MCP server
 
-Add or upgrade a local MCP server for parent logging evidence.
+Add a local MCP server for parent logging evidence.
 
-Suggested location if no parent MCP framework exists:
+Suggested location:
 
 ```text
 packages/logging-domain/src/mcp/
@@ -110,11 +80,13 @@ get_run_diagnostics
 get_artifact_slice
 ```
 
-## Tool semantics
-
 ### `get_errors`
 
+Purpose:
+
+```text
 Return recent error-level logs for a scope.
+```
 
 Input:
 
@@ -126,7 +98,11 @@ limit?: number, default 50, max 200
 
 ### `get_recent_logs`
 
+Purpose:
+
+```text
 Return recent logs for general debugging.
+```
 
 Input:
 
@@ -139,7 +115,11 @@ since?
 
 ### `get_logs_by_source`
 
+Purpose:
+
+```text
 Filter by source, e.g. agent-service, portal, codex, validation.
+```
 
 Input:
 
@@ -151,7 +131,11 @@ limit?
 
 ### `get_logs_by_context`
 
+Purpose:
+
+```text
 Filter by module/context name.
+```
 
 Input:
 
@@ -163,7 +147,11 @@ limit?
 
 ### `query_logs`
 
+Purpose:
+
+```text
 Flexible log query with scope, level, source, context, run_id, command_id, text search, and time range.
+```
 
 Input:
 
@@ -182,7 +170,11 @@ limit?
 
 ### `get_log_stats`
 
+Purpose:
+
+```text
 Return counts by level, source, context, run status, and diagnostic kind.
+```
 
 Input:
 
@@ -194,7 +186,11 @@ to?
 
 ### `get_latest_failures`
 
+Purpose:
+
+```text
 Return compact failed validation runs from agent_runs and agent_diagnostics.
+```
 
 Input:
 
@@ -205,7 +201,11 @@ limit?: default 10
 
 ### `get_run_diagnostics`
 
+Purpose:
+
+```text
 Return diagnostics for one run_id without raw log spam.
+```
 
 Input:
 
@@ -218,7 +218,11 @@ limit?: default 100
 
 ### `get_artifact_slice`
 
+Purpose:
+
+```text
 Return a bounded line slice from a local artifact.
+```
 
 Input:
 
@@ -308,7 +312,6 @@ Use artifact slices only when compact diagnostics are insufficient.
 ## Acceptance criteria
 
 ```text
-Existing parent MCP framework was searched and either reused or explicitly found absent.
 MCP server starts locally.
 MCP tools query DuckDB for parent scopes.
 get_latest_failures returns compact failed validation rows.
