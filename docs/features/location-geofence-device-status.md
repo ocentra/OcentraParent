@@ -265,6 +265,14 @@ expose location or device-status features. Parents expect this category.
   runtime, child-device delivery, durable escalation storage, physical-device
   proof, authority proof, emergency auto-contact policy, and product-ready
   escalation until real runtime artifacts exist.
+- WP27/WP33 escalation-runtime artifact gate proof now exists through
+  `node scripts/test/tracking-escalation-runtime-artifact-gate-proof.mjs`.
+  It consumes the escalation-runtime readiness blocker proof, classifies the
+  required runtime artifacts as present or missing, writes WP27/WP33 artifacts,
+  and keeps production escalation worker, quiet-hours timer, provider runtime,
+  parent notification history runtime, child-device delivery, durable storage,
+  emergency auto-contact, physical-device, authority, and product-ready claims
+  false.
 - WP33 tracking product-readiness closure proof now exists through
   `node scripts/test/tracking-product-readiness-closure-proof.mjs`. It cites the
   current pre-device, Android emulator, iOS simulator, WSL/local, hosted UI
@@ -922,6 +930,13 @@ accessibility beyond the hosted parent route are proved.
       provider delivery, receipt runtime, live location runtime,
       physical-device, authority, production timeout worker, or adapter dispatch
       proof.
+- [x] Escalation runtime artifact gate. This consumes the existing
+      escalation-runtime readiness blocker proof, classifies required
+      escalation runtime artifacts as present or missing, and keeps production
+      escalation worker, quiet-hours timer, provider runtime, parent
+      notification history runtime, child-device delivery, durable storage,
+      emergency auto-contact, physical-device, authority, and product-ready
+      claims false.
 - [x] Tracking alert intents map to provider-status boundary evidence with
       evidence refs, policy decision refs, notification status refs, reason refs,
       and minimal/authenticated-drill-in payload boundaries. This is not

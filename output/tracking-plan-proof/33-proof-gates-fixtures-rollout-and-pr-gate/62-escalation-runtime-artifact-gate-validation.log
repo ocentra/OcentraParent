@@ -1,0 +1,3 @@
+node scripts/test/tracking-escalation-runtime-readiness-blocker-proof.mjs
+cmd /c npm run build --workspace @ocentra-parent/parent-domain
+cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-escalation-runtime-artifact-gate-proof
