@@ -380,6 +380,14 @@ expose location or device-status features. Parents expect this category.
   assistant enforcement, child-device runtime, provider delivery, notification
   receipt ingestion, authority, physical-device, production, and product-ready
   claims false.
+- WP32 hosted storage default boundary proof now exists through
+  `node scripts/test/tracking-hosted-storage-default-boundary-proof.mjs`. It
+  keeps tracking journal, SQLite read-model, parent export, AI context, and
+  remote-sync custody local, parent-owned, or remote-disabled by default, and
+  keeps Ocentra-hosted default storage, raw location remote upload, SQLite
+  snapshot remote upload, remote sync, remote AI, portal UI, service mutation,
+  platform runtime, device delivery, authority, production, and product-ready
+  claims false.
 - WP32 report/export read-model proof now exists through
   `node scripts/test/tracking-report-export-read-model-proof.mjs`. It derives
   redacted report export, retention audit export, family dashboard summary, and
@@ -709,6 +717,13 @@ accessibility beyond the hosted parent route are proved.
       proof; the rows require provider-route proof refs, report/policy consumer
       proof refs, stored journal refs, and stored read-model row refs before AI
       report/policy use.
+- [x] WP32 hosted storage default boundary proof for journal, SQLite
+      read-model, parent export, AI context, and remote-sync custody defaults.
+      This is not Ocentra-hosted default storage, raw location remote upload,
+      SQLite snapshot remote upload, remote sync, remote AI, portal UI, service
+      mutation, platform runtime, child-device delivery/runtime execution,
+      provider delivery, notification receipt ingestion, authority,
+      physical-device, production, or product-complete proof.
 - [x] WP32 report/export read-model proof for redacted report export,
       retention audit export, family dashboard summary, and policy drill-in
       export packet rows, plus narrow hosted parent-route rendering of those
