@@ -631,6 +631,10 @@ tracking-status-panel` passed; `cmd /c npm run build --workspace
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/18-service-data-ui-proof.json`,
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/20-service-data-ui-proof.json`,
       and `test-results/tracking-plan-service-data-ui-proof/proof.json`.
+- [x] Service-backed citation matrix recorded in the same proof artifacts,
+      covering the read-model command/event/payload, live citation fields,
+      active evidence refs, tombstone deleted-evidence refs, and no-product
+      claim boundaries used by the hosted service-data coverage card.
 - [x] Product doc/checklist updates: owning feature doc, implementation
       checklist, WP30, and WP32 updated; central capability row delta queued
       through the hub instead of editing `docs/product-capability-checklist.md`.

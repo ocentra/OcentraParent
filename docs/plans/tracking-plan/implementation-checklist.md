@@ -785,7 +785,8 @@ Every implementation workpack must update, or explicitly justify not updating:
       including a visible local service-state proof artifact reference, local
       durable settings persistence proof is recorded, and hosted React
       service-data coverage from the parsed tracking read model is rendered and
-      proved. Hosted parent portal shell screenshots now cover the overview and
+      proved with a service-backed citation matrix for active/deleted evidence
+      refs and no-claim boundaries. Hosted parent portal shell screenshots now cover the overview and
       devices route context around the tracking surface, but actual
       child-device delivery/runtime execution, physical-device proof, authority,
       provider delivery, product-ready writable retention execution, full
