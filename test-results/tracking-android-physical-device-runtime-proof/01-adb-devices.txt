@@ -1,0 +1,4 @@
+List of devices attached
+192.168.2.45:5555      device product:star2qltecs model:SM_G965W device:star2qltecs transport_id:2
+emulator-5554          device product:sdk_slim_x86_64 model:Android_SDK_built_for_x86_64 device:emulator64_x86_64 transport_id:3
+

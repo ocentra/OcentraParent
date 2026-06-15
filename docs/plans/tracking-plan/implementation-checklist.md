@@ -117,7 +117,7 @@ Every checked item must cite one or more proof artifacts.
       `output/tracking-plan-proof/08-android-foreground-location-adapter/`;
       WP09 emulator background permission plus Android app Settings route
       attempt artifact, foreground-service-backed background-activity sample, and
-      local-geofence enter/exit proof now records declared and granted
+      local-geofence enter/exit/dwell proof now records declared and granted
       `ACCESS_BACKGROUND_LOCATION`, app UI background permission text, app
       details Settings route-attempt activity/window artifacts, app-owned background sample storage with
       provider/timestamp/accuracy, app-owned local geofence transition rows,
@@ -132,14 +132,20 @@ Every checked item must cite one or more proof artifacts.
       separate `LocationManager.addProximityAlert` registration metadata plus
       separate Android system proximity broadcast counters that remain distinct
       from app-owned local listener transition counters,
-      and an outside/inside/outside emulator `geo fix` route under
+      and an outside/inside/inside-dwell/outside emulator `geo fix` route under
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`;
       WP08/WP09 parent-domain manual-required proof rows also exist under
       `output/tracking-plan-proof/08-android-foreground-location-adapter/` and
       `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`;
       Android system geofence delivery remains unclaimed unless the system
-      proximity broadcast counter is nonzero; dwell transition delivery and
-      physical-device proof remain required before this can be checked. WP33
+      proximity broadcast counter is nonzero; Android system dwell transition
+      delivery and physical location/geofence proof remain required before this
+      can be checked. A Samsung S9 physical-device runtime proof now records
+      package install, foreground-service `ServiceRecord`, battery/connectivity
+      dumps, UI/keyguard screenshot, and logcat artifacts under
+      `test-results/tracking-android-physical-device-runtime-proof/` without
+      claiming physical location samples, physical geofence transitions,
+      authority, production, or product-ready Android tracking. WP33
       physical-device artifact gate proof now writes a named proof root and
       manual validation runbook at
       `output/tracking-plan-proof/tracking-physical-device-artifact-gate-proof/`
@@ -177,7 +183,7 @@ Every checked item must cite one or more proof artifacts.
       coordinate proof export, background
       location permission grant state, Android app Settings route-attempt artifact,
       foreground-service-backed background-activity sample storage, emulator
-      local-geofence enter/exit rows, active geofence-limit representation,
+      local-geofence enter/exit/dwell rows, active geofence-limit representation,
       UI tree, headless screenshot inspection,
       logcat, battery, and connectivity dumps are captured without claiming
       Android system geofencing, dwell transitions, notification delivery,
@@ -189,12 +195,21 @@ Every checked item must cite one or more proof artifacts.
       `test-results/tracking-child-runtime-android-emulator-readiness-bridge-proof/proof.json`.
 - [x] Android emulator artifact inventory proof verifies existing adb runtime
       outputs, foreground/background permission UI artifacts, app-reported
-      location evidence, local geofence transition evidence, device-status
+      location evidence, local geofence transition and app-owned dwell evidence, device-status
       proof, and validation log as required local emulator artifacts, then
       carries those counts into product-readiness closure and real-runtime
       handoff without claiming Android system geofence delivery or
       physical-device readiness. Artifact:
       `test-results/tracking-android-emulator-artifact-inventory-proof/proof.json`.
+- [x] Android physical-device runtime proof verifies a Samsung S9 over Wi-Fi ADB
+      (`192.168.2.45:5555`) with debug APK install, launch attempt,
+      foreground-service `ServiceRecord`, device metadata, battery/connectivity
+      dumps, UI/keyguard screenshot, and logcat evidence. This is physical
+      package/service/status proof only; physical location sample delivery,
+      physical geofence/dwell delivery, Android system geofence delivery,
+      authority enrollment, production workers, and product-ready Android
+      tracking remain unclaimed. Artifact:
+      `test-results/tracking-android-physical-device-runtime-proof/proof.json`.
 - [x] WSL/local replay proof records WSL2/Ubuntu, linked-worktree Git mapping,
       contract build output, service read-model proof, and Rust core tracking
       read-model tests. Artifact:
@@ -565,9 +580,9 @@ permission grant, app-reported current `LocationManager`
 provider/timestamp/accuracy/source metadata plus raw coordinate proof export,
 background location permission grant state, Android app Settings route-attempt artifact,
 foreground-service-backed background-activity sample storage, app-owned
-GPS-listener local-geofence enter/exit rows, active geofence-limit
+GPS-listener local-geofence enter/exit/dwell rows, active geofence-limit
 representation, status scaffold behavior, and fused foreground sample metadata
-only; Android system geofencing, dwell transitions,
+only; Android system geofencing, Android system dwell transitions,
 notification delivery, physical-device, and authority claims remain
 manual-required.
 WP08/WP09 additionally have parent-domain manual-required proof from
@@ -696,7 +711,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       current `LocationManager` sample metadata plus raw coordinate proof export,
       background location permission grant state, Android app Settings page
       route-attempt artifact, foreground-service-backed background-activity sample storage,
-      local-geofence enter/exit rows, active geofence-limit representation,
+      local-geofence enter/exit/dwell rows, active geofence-limit representation,
       `LocationManager.addProximityAlert` registration metadata,
       Google Play Services fused foreground sample metadata,
       battery/connectivity status proof, and WP10 degraded status-gap bridge exists at P3 local-dev tier;
@@ -732,7 +747,7 @@ Every implementation workpack must update, or explicitly justify not updating:
 - [ ] Android background/geofence proof is not complete. The emulator proof now
       records background permission grant state, Android app Settings page
       route-attempt artifact, foreground-service-backed background-activity sample storage,
-      local-geofence enter/exit rows, and active geofence-limit representation,
+      local-geofence enter/exit/dwell rows, and active geofence-limit representation,
       plus system geofence blocker proof over the observed zero system
       proximity broadcast counters with explicit missing runtime-artifact
       accounting, but Android system geofencing, dwell transitions,
@@ -936,7 +951,7 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/29-child-runtime-product-readiness-blocker-proof.json`,
       that blocker proof now also consumes the Android emulator readiness bridge
       and records package launch, foreground-service, local emulator geofence
-      count, and missing child-runtime artifact accounting,
+      and dwell counts, and missing child-runtime artifact accounting,
       and WP30/WP33 child-runtime artifact gate proof now verifies the exact
       required real child-device artifact names in
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/30-child-runtime-artifact-gate-proof.json`

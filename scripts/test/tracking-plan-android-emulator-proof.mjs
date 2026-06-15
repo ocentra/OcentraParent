@@ -144,6 +144,9 @@ function assertFocusedProofStrength(proof) {
   ) {
     failures.push('local geofence enter/exit transition rows were not observed');
   }
+  if (proof.runtime.geofenceTransitions.dwellCount <= 0) {
+    failures.push('app-owned local geofence dwell row was not observed');
+  }
   if (!proof.runtime.geofenceTransitions.systemProximityRegistered) {
     failures.push('Android LocationManager addProximityAlert registration metadata was not observed');
   }
@@ -434,6 +437,19 @@ async function driveEmulatorGeofenceTransitions(tools, serial, permissionState) 
       `inside-geofence-enter-${attempt}`,
       (prefs) => prefs.enterCount > 0
     );
+    await delay(5_000);
+    await seedEmulatorGeofenceLocation(tools, serial, {
+      label: `inside-geofence-dwell-${attempt}`,
+      artifact: '16-geofence-transition-route.txt',
+      longitude: '-122.084',
+      latitude: '37.422',
+    });
+    const dwelled = await waitForGeofenceState(
+      tools,
+      serial,
+      `inside-geofence-dwell-${attempt}`,
+      (prefs) => prefs.dwellCount > 0
+    );
     await seedEmulatorGeofenceLocation(tools, serial, {
       label: `outside-geofence-exit-${attempt}`,
       artifact: '16-geofence-transition-route.txt',
@@ -446,7 +462,7 @@ async function driveEmulatorGeofenceTransitions(tools, serial, permissionState) 
       `outside-geofence-exit-${attempt}`,
       (prefs) => prefs.exitCount > 0
     );
-    if (entered && exited) {
+    if (entered && dwelled && exited) {
       return;
     }
   }
@@ -471,7 +487,7 @@ async function waitForGeofenceState(tools, serial, label, predicate) {
     const prefs = await readGeofenceTransitionPrefs(tools, serial);
     await appendText(
       path.join(resultDir, '16-geofence-transition-route.txt'),
-      `POLL ${label} attempt ${attempt} transitionCount=${prefs.parsed.transitionCount} enterCount=${prefs.parsed.enterCount} exitCount=${prefs.parsed.exitCount} insideState=${String(prefs.parsed.insideState)}\n`
+      `POLL ${label} attempt ${attempt} transitionCount=${prefs.parsed.transitionCount} enterCount=${prefs.parsed.enterCount} exitCount=${prefs.parsed.exitCount} dwellCount=${prefs.parsed.dwellCount} insideState=${String(prefs.parsed.insideState)}\n`
     );
     if (predicate(prefs.parsed)) {
       return true;
@@ -566,7 +582,7 @@ async function ensureDevice(tools) {
     return explicitSerial;
   }
 
-  const existing = await findReadyDevice(tools);
+  const existing = await findReadyEmulatorDevice(tools);
   if (existing !== null) {
     await waitForBoot(tools, existing);
     return existing;
@@ -604,9 +620,9 @@ function emulatorArgs(avd) {
   return ['-avd', avd, '-no-window', '-no-snapshot-save', '-no-audio', '-no-boot-anim', '-gpu', 'swiftshader_indirect'];
 }
 
-async function findReadyDevice(tools) {
+async function findReadyEmulatorDevice(tools) {
   const devices = await adbDevices(tools);
-  return devices.find((device) => device.state === 'device')?.serial ?? null;
+  return devices.find((device) => device.state === 'device' && device.serial.startsWith('emulator-'))?.serial ?? null;
 }
 
 async function waitForNewEmulatorDevice(tools) {
@@ -832,6 +848,8 @@ function parseUiState(uiDump) {
     backgroundGeofenceTransitionCount: parseNumberTextField(text, 'backgroundGeofenceTransitionCount'),
     backgroundGeofenceEnterCount: parseNumberTextField(text, 'backgroundGeofenceEnterCount'),
     backgroundGeofenceExitCount: parseNumberTextField(text, 'backgroundGeofenceExitCount'),
+    backgroundGeofenceDwellCount: parseNumberTextField(text, 'backgroundGeofenceDwellCount'),
+    backgroundGeofenceDwellSource: parseTextField(text, 'backgroundGeofenceDwellSource'),
     backgroundGeofenceLastTransition: parseTextField(text, 'backgroundGeofenceLastTransition'),
     backgroundGeofenceSource: parseTextField(text, 'backgroundGeofenceSource'),
     backgroundLocationSampleStateText: text.includes('background-location-sample-observed-emulator-foreground-service')
@@ -931,6 +949,10 @@ function parseGeofenceTransitionPrefs(raw) {
     systemProximityLastTransitionEpochMillis: parseXmlLong(raw, 'systemProximityLastTransitionEpochMillis'),
     hasInsideState: parseXmlBoolean(raw, 'hasInsideState'),
     insideState: parseXmlBoolean(raw, 'insideState'),
+    dwellCount: parseXmlInt(raw, 'dwellCount'),
+    dwellLastObservedEpochMillis: parseXmlLong(raw, 'dwellLastObservedEpochMillis'),
+    dwellInsideStartedEpochMillis: parseXmlLong(raw, 'dwellInsideStartedEpochMillis'),
+    dwellSource: parseXmlString(raw, 'dwellSource'),
     transitionCount: parseXmlInt(raw, 'transitionCount'),
     enterCount: parseXmlInt(raw, 'enterCount'),
     exitCount: parseXmlInt(raw, 'exitCount'),
@@ -1450,7 +1472,9 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
       runtime.ui.fusedForegroundLocationLongitude !== null &&
       runtime.ui.fusedForegroundLocationSampleSource === 'google-play-services-fused-last-known');
   const geofenceEnterExitObserved =
-    runtime.geofenceTransitions.enterCount > 0 && runtime.geofenceTransitions.exitCount > 0;
+    runtime.geofenceTransitions.enterCount > 0 &&
+    runtime.geofenceTransitions.exitCount > 0 &&
+    runtime.geofenceTransitions.dwellCount > 0;
   const activeGeofenceLimitObserved =
     runtime.activeGeofenceLimit.observed && runtime.activeGeofenceLimit.withinDocumentedLimit;
   const systemProximityRegistrationObserved = runtime.geofenceTransitions.systemProximityRegistered;
@@ -1585,49 +1609,49 @@ function workpackProofState(permissionState, runtime, foregroundPermissionUx, ba
         activeGeofenceLimitObserved &&
         systemProximityRegistrationObserved &&
         backgroundDegradedStatusObserved
-          ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, Android LocationManager addProximityAlert registration, separate Android system proximity broadcast counters, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed; Android system geofence delivery remains unclaimed unless the separate system counter is nonzero, and dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+          ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit/dwell rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, Android LocationManager addProximityAlert registration, separate Android system proximity broadcast counters, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed; Android system geofence delivery remains unclaimed unless the separate system counter is nonzero, and Android system dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
           : backgroundSettingsPage.observed &&
               permissionState.backgroundLocationPermissionGranted &&
               geofenceEnterExitObserved &&
               backgroundSampleObserved &&
               activeGeofenceLimitObserved &&
               backgroundDegradedStatusObserved
-            ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+            ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit/dwell rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed; Android system geofencing, Android system dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
             : backgroundSettingsPage.observed &&
                 permissionState.backgroundLocationPermissionGranted &&
                 geofenceEnterExitObserved &&
                 backgroundSampleObserved &&
                 activeGeofenceLimitObserved
-              ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, and app-owned active geofence count within the Android documented per-app/per-device-user limit were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+              ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit/dwell rows, and app-owned active geofence count within the Android documented per-app/per-device-user limit were observed; Android system geofencing, Android system dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
               : backgroundSettingsPage.observed &&
                   permissionState.backgroundLocationPermissionGranted &&
                   geofenceEnterExitObserved &&
                   backgroundSampleObserved
-                ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed; Android system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+                ? 'Android app settings page routing, background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit/dwell rows were observed; Android system geofencing, Android system dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
                 : permissionState.backgroundLocationPermissionGranted &&
                     geofenceEnterExitObserved &&
                     backgroundSampleObserved &&
                     activeGeofenceLimitObserved &&
                     systemProximityRegistrationObserved &&
                     backgroundDegradedStatusObserved
-                  ? 'Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, Android LocationManager addProximityAlert registration, separate Android system proximity broadcast counters, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed through app-owned proof storage. This ATD emulator image does not expose an Android Settings activity, so Android app settings page routing remains unclaimed; Android system geofence delivery remains unclaimed unless the separate system counter is nonzero, and dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+                  ? 'Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit/dwell rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, Android LocationManager addProximityAlert registration, separate Android system proximity broadcast counters, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed through app-owned proof storage. This ATD emulator image does not expose an Android Settings activity, so Android app settings page routing remains unclaimed; Android system geofence delivery remains unclaimed unless the separate system counter is nonzero, and Android system dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
                   : permissionState.backgroundLocationPermissionGranted &&
                       geofenceEnterExitObserved &&
                       backgroundSampleObserved &&
                       activeGeofenceLimitObserved &&
                       backgroundDegradedStatusObserved
-                    ? 'Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed through app-owned proof storage. Android app settings page routing, system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+                    ? 'Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit/dwell rows, app-owned active geofence count within the Android documented per-app/per-device-user limit, and WP10 low-power/app-restart/pending-upload/manual-required status-gap bridge were observed through app-owned proof storage. Android app settings page routing, system geofencing, Android system dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
                     : permissionState.backgroundLocationPermissionGranted &&
                         geofenceEnterExitObserved &&
                         backgroundSampleObserved &&
                         activeGeofenceLimitObserved
-                      ? 'Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit transition rows, and app-owned active geofence count within the Android documented per-app/per-device-user limit were observed through app-owned proof storage. Android app settings page routing, system geofencing, dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+                      ? 'Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, emulator LocationManager GPS-listener local-geofence enter/exit/dwell rows, and app-owned active geofence count within the Android documented per-app/per-device-user limit were observed through app-owned proof storage. Android app settings page routing, system geofencing, Android system dwell, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
                       : permissionState.backgroundLocationPermissionGranted &&
                           geofenceEnterExitObserved &&
                           backgroundSampleObserved
-                        ? 'Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
+                        ? 'Background location permission grant, emulator foreground-service LocationManager GPS-listener background-activity sample storage, and emulator LocationManager GPS-listener local-geofence enter/exit/dwell rows were observed through app-owned proof storage; Android system geofencing, Android system dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, production upload workers, and product-ready tracking remain unclaimed.'
                         : permissionState.backgroundLocationPermissionGranted && geofenceEnterExitObserved
-                          ? 'Background location permission grant and emulator LocationManager GPS-listener local-geofence enter/exit transition rows were observed through app-owned proof storage; background sample collection, Android system geofencing, dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, and product-ready tracking remain unclaimed.'
+                          ? 'Background location permission grant and emulator LocationManager GPS-listener local-geofence enter/exit/dwell rows were observed through app-owned proof storage; background sample collection, Android system geofencing, Android system dwell, Android settings-page flow, physical-device behavior, authority, provider delivery, and product-ready tracking remain unclaimed.'
                           : permissionState.backgroundLocationPermissionGranted
                             ? 'Background location permission grant state was observed on the emulator package, but no background location sample, geofence transition, physical-device behavior, authority, or product-ready tracking is claimed.'
                             : permissionState.backgroundLocationPermissionRequested
@@ -1793,6 +1817,10 @@ function geofenceProof(proof) {
     geofenceTransitionCount: geofenceTransitions.transitionCount,
     geofenceEnterCount: geofenceTransitions.enterCount,
     geofenceExitCount: geofenceTransitions.exitCount,
+    geofenceDwellCount: geofenceTransitions.dwellCount,
+    geofenceDwellSource: geofenceTransitions.dwellSource,
+    geofenceDwellLastObservedAtEpochMillis: geofenceTransitions.dwellLastObservedEpochMillis,
+    geofenceDwellInsideStartedAtEpochMillis: geofenceTransitions.dwellInsideStartedEpochMillis,
     geofenceLastTransition: geofenceTransitions.lastTransition,
     geofenceSource: geofenceTransitions.source,
     geofenceRegistered: geofenceTransitions.registered,
@@ -1812,8 +1840,8 @@ function geofenceProof(proof) {
     activeGeofenceLimitBoundary: activeGeofenceLimit.proofBoundary,
     backgroundDegradedStatusProof: backgroundDegradedStatus,
     geofenceTransitionBoundary:
-      geofenceTransitions.enterCount > 0 && geofenceTransitions.exitCount > 0
-        ? 'emulator-location-manager-gps-listener-local-geofence-enter-exit-only'
+      geofenceTransitions.enterCount > 0 && geofenceTransitions.exitCount > 0 && geofenceTransitions.dwellCount > 0
+        ? 'emulator-location-manager-gps-listener-local-geofence-enter-exit-dwell-only'
         : 'no-emulator-geofence-transition-observed',
     missingProofReason: proof.workpackProof['09-android-background-location-and-geofence-adapter'].reason,
     device: proof.device,
@@ -1849,7 +1877,7 @@ function backgroundDegradedStatusProof() {
     pendingUploadClaimState: statusGapProof.pendingUpload?.claimState ?? null,
     manualRequiredClaimState: statusGapProof.manualRequired?.claimState ?? null,
     proofBoundary:
-      'WP10 parent-domain Android status-gap proof covers low-power degradation, app restart auditability, pending-upload auditability, and manual-required platform rows; it does not prove Android system geofence delivery or physical-device background behavior.',
+      'WP10 parent-domain Android status-gap proof covers low-power degradation, app restart auditability, pending-upload auditability, and manual-required platform rows; it does not prove Android system geofence delivery, Android system dwell, or physical-device background behavior.',
     nonClaims: backgroundDegradedStatusNonClaims(),
   };
 }
@@ -1940,6 +1968,8 @@ This proof was generated by \`npm run test:tracking-plan-android-emulator-proof\
 - Background geofence transition count: ${String(proof.runtime.geofenceTransitions.transitionCount)}.
 - Background geofence enter count: ${String(proof.runtime.geofenceTransitions.enterCount)}.
 - Background geofence exit count: ${String(proof.runtime.geofenceTransitions.exitCount)}.
+- Background geofence app-owned dwell count: ${String(proof.runtime.geofenceTransitions.dwellCount)}.
+- Background geofence app-owned dwell source: ${proof.runtime.geofenceTransitions.dwellSource ?? 'not-observed'}.
 - Background geofence source: ${proof.runtime.geofenceTransitions.source ?? 'not-observed'}.
 - Android system proximity broadcast transition count: ${String(proof.runtime.geofenceTransitions.systemProximityTransitionCount)}.
 - Android system proximity broadcast source: ${proof.runtime.geofenceTransitions.systemProximityRegistrationSource ?? 'not-observed'}.

@@ -69,6 +69,7 @@ async function buildProof() {
     packageLaunchObserved: androidProof.runtime.activity.packageFocused,
     foregroundServiceObserved: androidProof.runtime.service.isForeground,
     localGeofenceTransitionCount: androidProof.runtime.geofenceTransitions.transitionCount,
+    localGeofenceDwellCount: androidProof.runtime.geofenceTransitions.dwellCount,
     systemProximityRegistered: androidProof.runtime.geofenceTransitions.systemProximityRegistered,
     systemProximityTransitionCount: androidProof.runtime.geofenceTransitions.systemProximityTransitionCount,
     artifactRows: await artifactRows(proofModule.RequiredTrackingAndroidEmulatorArtifactRefs),
@@ -132,6 +133,11 @@ function assertProof(proof) {
       `Android emulator artifact inventory lost local geofence transition evidence: ${JSON.stringify(proof.summary)}`
     );
   }
+  if (proof.summary.localGeofenceDwellCount < 1) {
+    throw new Error(
+      `Android emulator artifact inventory lost local geofence dwell evidence: ${JSON.stringify(proof.summary)}`
+    );
+  }
   if (
     proof.productClaims.androidSystemGeofenceDeliveryClaimed ||
     proof.productClaims.physicalDeviceProofClaimed ||
@@ -171,6 +177,7 @@ function sourceSnapshot(proof) {
     `- permissionUiArtifactCount: ${proof.summary.permissionUiArtifactCount}`,
     `- runtimeArtifactCount: ${proof.summary.runtimeArtifactCount}`,
     `- localGeofenceTransitionCount: ${proof.summary.localGeofenceTransitionCount}`,
+    `- localGeofenceDwellCount: ${proof.summary.localGeofenceDwellCount}`,
     `- systemProximityTransitionCount: ${proof.summary.systemProximityTransitionCount}`,
     '- does not prove Android physical-device background behavior, Android system geofence delivery, authority enrollment, production runtime, or product readiness',
     '- proof module: packages/parent-domain/src/tracking-android-emulator-artifact-inventory-proof.ts',

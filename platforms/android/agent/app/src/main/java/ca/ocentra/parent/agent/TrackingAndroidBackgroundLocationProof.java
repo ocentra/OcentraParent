@@ -18,6 +18,8 @@ public final class TrackingAndroidBackgroundLocationProof {
     public static final String FIELD_BACKGROUND_GEOFENCE_TRANSITION_COUNT = "backgroundGeofenceTransitionCount";
     public static final String FIELD_BACKGROUND_GEOFENCE_ENTER_COUNT = "backgroundGeofenceEnterCount";
     public static final String FIELD_BACKGROUND_GEOFENCE_EXIT_COUNT = "backgroundGeofenceExitCount";
+    public static final String FIELD_BACKGROUND_GEOFENCE_DWELL_COUNT = "backgroundGeofenceDwellCount";
+    public static final String FIELD_BACKGROUND_GEOFENCE_DWELL_SOURCE = "backgroundGeofenceDwellSource";
     public static final String FIELD_BACKGROUND_GEOFENCE_LAST_TRANSITION = "backgroundGeofenceLastTransition";
     public static final String FIELD_BACKGROUND_GEOFENCE_SOURCE = "backgroundGeofenceSource";
     public static final String BACKGROUND_LOCATION_PERMISSION_GRANTED = "background-location-permission-granted";
@@ -30,6 +32,7 @@ public final class TrackingAndroidBackgroundLocationProof {
     private static final double EMULATOR_GEOFENCE_LATITUDE = 37.422;
     private static final double EMULATOR_GEOFENCE_LONGITUDE = -122.084;
     private static final float EMULATOR_GEOFENCE_RADIUS_METERS = 120.0f;
+    private static final long EMULATOR_LOCAL_DWELL_THRESHOLD_MILLIS = 4_000L;
     private static final long EMULATOR_GEOFENCE_EXPIRATION_MILLIS = 60_000L;
     private static LocationListener emulatorProofListener;
 
@@ -134,6 +137,11 @@ public final class TrackingAndroidBackgroundLocationProof {
         );
         boolean hasInsideState = prefs.getBoolean(TrackingAndroidGeofenceTransitionReceiver.FIELD_HAS_INSIDE_STATE, false);
         boolean previousInside = prefs.getBoolean(TrackingAndroidGeofenceTransitionReceiver.FIELD_INSIDE_STATE, inside);
+        long observedAtEpochMillis = System.currentTimeMillis();
+        long insideStartedEpochMillis = prefs.getLong(
+            TrackingAndroidGeofenceTransitionReceiver.FIELD_DWELL_INSIDE_STARTED_EPOCH_MILLIS,
+            0L
+        );
         android.content.SharedPreferences.Editor editor = prefs.edit()
             .putBoolean(TrackingAndroidGeofenceTransitionReceiver.FIELD_REGISTERED, true)
             .putString(
@@ -142,6 +150,17 @@ public final class TrackingAndroidBackgroundLocationProof {
             )
             .putBoolean(TrackingAndroidGeofenceTransitionReceiver.FIELD_HAS_INSIDE_STATE, true)
             .putBoolean(TrackingAndroidGeofenceTransitionReceiver.FIELD_INSIDE_STATE, inside);
+        if (inside && (!hasInsideState || !previousInside || insideStartedEpochMillis == 0L)) {
+            insideStartedEpochMillis = observedAtEpochMillis;
+            editor.putLong(
+                TrackingAndroidGeofenceTransitionReceiver.FIELD_DWELL_INSIDE_STARTED_EPOCH_MILLIS,
+                insideStartedEpochMillis
+            );
+        }
+        if (!inside) {
+            insideStartedEpochMillis = 0L;
+            editor.putLong(TrackingAndroidGeofenceTransitionReceiver.FIELD_DWELL_INSIDE_STARTED_EPOCH_MILLIS, 0L);
+        }
         if (hasInsideState && previousInside != inside) {
             boolean entering = inside;
             String transition = entering
@@ -159,7 +178,28 @@ public final class TrackingAndroidBackgroundLocationProof {
                 .putString(TrackingAndroidGeofenceTransitionReceiver.FIELD_LAST_TRANSITION, transition)
                 .putLong(
                     TrackingAndroidGeofenceTransitionReceiver.FIELD_LAST_TRANSITION_EPOCH_MILLIS,
-                    System.currentTimeMillis()
+                    observedAtEpochMillis
+                );
+        }
+        if (
+            inside &&
+            insideStartedEpochMillis > 0L &&
+            observedAtEpochMillis - insideStartedEpochMillis >= EMULATOR_LOCAL_DWELL_THRESHOLD_MILLIS
+        ) {
+            int dwellCount = prefs.getInt(TrackingAndroidGeofenceTransitionReceiver.FIELD_DWELL_COUNT, 0) + 1;
+            editor
+                .putInt(TrackingAndroidGeofenceTransitionReceiver.FIELD_DWELL_COUNT, dwellCount)
+                .putString(
+                    TrackingAndroidGeofenceTransitionReceiver.FIELD_DWELL_SOURCE,
+                    TrackingAndroidGeofenceTransitionReceiver.SOURCE_ANDROID_LOCATION_LISTENER_LOCAL_DWELL
+                )
+                .putString(
+                    TrackingAndroidGeofenceTransitionReceiver.FIELD_LAST_TRANSITION,
+                    TrackingAndroidGeofenceTransitionReceiver.TRANSITION_DWELL
+                )
+                .putLong(
+                    TrackingAndroidGeofenceTransitionReceiver.FIELD_DWELL_LAST_OBSERVED_EPOCH_MILLIS,
+                    observedAtEpochMillis
                 );
         }
         editor.apply();
@@ -199,6 +239,14 @@ public final class TrackingAndroidBackgroundLocationProof {
         status.putInt(
             FIELD_BACKGROUND_GEOFENCE_EXIT_COUNT,
             prefs.getInt(TrackingAndroidGeofenceTransitionReceiver.FIELD_EXIT_COUNT, 0)
+        );
+        status.putInt(
+            FIELD_BACKGROUND_GEOFENCE_DWELL_COUNT,
+            prefs.getInt(TrackingAndroidGeofenceTransitionReceiver.FIELD_DWELL_COUNT, 0)
+        );
+        status.putString(
+            FIELD_BACKGROUND_GEOFENCE_DWELL_SOURCE,
+            prefs.getString(TrackingAndroidGeofenceTransitionReceiver.FIELD_DWELL_SOURCE, "not-observed")
         );
         status.putString(
             FIELD_BACKGROUND_GEOFENCE_LAST_TRANSITION,

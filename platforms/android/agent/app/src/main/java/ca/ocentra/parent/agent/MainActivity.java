@@ -399,6 +399,18 @@ public final class MainActivity extends Activity {
                 TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_EXIT_COUNT
             ) +
             "\n" +
+            TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_DWELL_COUNT +
+            ":" +
+            backgroundLocationProof.getInt(
+                TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_DWELL_COUNT
+            ) +
+            "\n" +
+            TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_DWELL_SOURCE +
+            ":" +
+            backgroundLocationProof.getString(
+                TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_DWELL_SOURCE
+            ) +
+            "\n" +
             TrackingAndroidBackgroundLocationProof.FIELD_BACKGROUND_GEOFENCE_LAST_TRANSITION +
             ":" +
             backgroundLocationProof.getString(

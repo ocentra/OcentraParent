@@ -17,6 +17,7 @@ describe('tracking Android emulator artifact inventory proof', () => {
     expect(proof.summary.missingArtifactCount).toBe(0);
     expect(proof.summary.permissionUiArtifactCount).toBe(3);
     expect(proof.summary.localGeofenceTransitionCount).toBe(3);
+    expect(proof.summary.localGeofenceDwellCount).toBe(1);
     expect(proof.productClaims.androidEmulatorArtifactInventoryComplete).toBe(true);
     expect(proof.productClaims.androidSystemGeofenceDeliveryClaimed).toBe(false);
     expect(proof.productClaims.physicalDeviceProofClaimed).toBe(false);
@@ -75,6 +76,7 @@ function input() {
     packageLaunchObserved: true,
     foregroundServiceObserved: true,
     localGeofenceTransitionCount: 3,
+    localGeofenceDwellCount: 1,
     systemProximityRegistered: true,
     systemProximityTransitionCount: 0,
     artifactRows: artifactRows(),

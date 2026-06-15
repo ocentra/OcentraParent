@@ -54,7 +54,7 @@
         "category": "adb-runtime-output",
         "required": true,
         "present": true,
-        "byteSize": 45018
+        "byteSize": 46006
       },
       {
         "artifactRef": "test-results/tracking-plan-android-emulator-proof/01-adb-install.txt",
@@ -96,7 +96,7 @@
         "category": "permission-ui",
         "required": true,
         "present": true,
-        "byteSize": 1806
+        "byteSize": 1921
       },
       {
         "artifactRef": "output/tracking-plan-proof/08-android-foreground-location-adapter/01-device-metadata.json",
@@ -117,21 +117,21 @@
         "category": "geofence-runtime",
         "required": true,
         "present": true,
-        "byteSize": 11049
+        "byteSize": 11395
       },
       {
         "artifactRef": "output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/04-device-status-proof.json",
         "category": "device-status",
         "required": true,
         "present": true,
-        "byteSize": 17091
+        "byteSize": 17103
       },
       {
         "artifactRef": "output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/16-validation-commands.log",
         "category": "validation-log",
         "required": true,
         "present": true,
-        "byteSize": 9386
+        "byteSize": 9821
       }
     ],
     "foregroundPermissionGranted": true,
@@ -141,6 +141,7 @@
     "packageLaunchObserved": true,
     "foregroundServiceObserved": true,
     "localGeofenceTransitionCount": 4,
+    "localGeofenceDwellCount": 10,
     "systemProximityRegistered": true,
     "systemProximityTransitionCount": 0,
     "emulatorArtifactInventoryComplete": true,
