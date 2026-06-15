@@ -73,6 +73,7 @@ mod social_dashboard_read_model;
 mod social_parent_notification_delivery_read_model;
 mod social_source_custody_mutation;
 mod tracking_read_model;
+mod tracking_read_model_payload;
 mod tracking_retention_settings_write_command;
 mod transport;
 mod windows_adapter_artifact_gate;
@@ -148,6 +149,7 @@ pub use social_dashboard_read_model::*;
 pub use social_parent_notification_delivery_read_model::*;
 pub use social_source_custody_mutation::*;
 pub use tracking_read_model::*;
+pub use tracking_read_model_payload::*;
 pub use tracking_retention_settings_write_command::*;
 pub use transport::*;
 pub use windows_adapter_artifact_gate::*;
@@ -305,6 +307,8 @@ mod social_parent_notification_delivery_read_model_tests;
 mod social_source_custody_mutation_tests;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tracking_read_model_payload_tests;
 #[cfg(test)]
 mod tracking_read_model_tests;
 #[cfg(test)]

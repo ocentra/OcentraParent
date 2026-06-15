@@ -1,6 +1,7 @@
 use ocentra_parent_agent_core::apply_tracking_retention_settings_write;
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogLevel,
+    constants, default_tracking_retention_settings_write_request, AgentCommandEnvelope,
+    AgentEventEnvelope, AgentEventName, LogFieldValue, LogLevel,
     TrackingRetentionSettingsWriteRequest, TrackingRetentionSettingsWriteResult,
     AGENT_PROTOCOL_SCHEMA_VERSION,
 };
@@ -81,9 +82,9 @@ fn parse_write_request(
     {
         Some(LogFieldValue::String(text)) => match serde_json::from_str(text) {
             Ok(request) => (request, true),
-            Err(_) => (default_write_request(), false),
+            Err(_) => (default_tracking_retention_settings_write_request(), false),
         },
-        _ => (default_write_request(), false),
+        _ => (default_tracking_retention_settings_write_request(), false),
     }
 }
 
@@ -92,26 +93,6 @@ fn write_state(accepted: bool) -> String {
         constants::tracking_retention_settings_write::WRITE_STATE_ACCEPTED.to_string()
     } else {
         constants::tracking_retention_settings_write::WRITE_STATE_REJECTED.to_string()
-    }
-}
-
-fn default_write_request() -> TrackingRetentionSettingsWriteRequest {
-    TrackingRetentionSettingsWriteRequest {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        command_id: constants::tracking_retention_settings_write::COMMAND_ID.to_string(),
-        settings_kind: constants::tracking_retention_settings_write::SETTINGS_KIND_RETENTION_WINDOW
-            .to_string(),
-        requested_retention_window_hours: Some(168),
-        requested_delete_after_alert_resolved: false,
-        requested_parent_export: false,
-        requested_remote_sync_enabled: false,
-        requested_remote_ai_enabled: false,
-        source_writer_intent_refs: vec![
-            constants::tracking_retention_settings_write::WRITER_INTENT_REF.to_string(),
-        ],
-        source_read_model_proof_refs: vec![
-            constants::tracking_retention_settings_write::READ_MODEL_PROOF_REF.to_string(),
-        ],
     }
 }
 
@@ -235,7 +216,7 @@ mod tests {
         fields_from_pairs(vec![(
             constants::field::ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_REQUEST,
             LogFieldValue::String(
-                serde_json::to_string(&default_write_request())
+                serde_json::to_string(&default_tracking_retention_settings_write_request())
                     .expect(constants::error::AGENT_EVENT_SERIALIZES),
             ),
         )])

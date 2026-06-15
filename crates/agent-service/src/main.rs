@@ -282,9 +282,6 @@ mod screen_settings_runtime_tests;
 mod screen_settings_store;
 mod snapshot;
 mod time;
-mod tracking_read_model_payload;
-#[cfg(test)]
-mod tracking_read_model_payload_tests;
 #[cfg(test)]
 mod tracking_read_model_service_tests;
 mod websocket;

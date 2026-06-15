@@ -17,6 +17,9 @@ UI/UX requirements.
 - [Tracking And Eventing Real Test Matrix](event-driven-runtime-test-matrix.md)
 - [Tracking Plan Implementation Checklist](implementation-checklist.md)
 - [Pasted Content Coverage Audit](pasted-content-coverage-audit.md)
+- [Repo Organization Goal](repo-organization-goal.md)
+- [Repo Organization Movement Map](repo-organization-movement-map.md)
+- [Repo Domain Organization Cleanup Plan](../../architecture/repo-domain-organization-cleanup-plan.md)
 
 The `v0-5` filenames follow the planning draft. They are not a roadmap
 completion claim. The owning feature remains
@@ -397,6 +400,24 @@ linked worktree can replay the narrow tracking read-model proof stack through
 WSL with an explicit Git mapping. It does not prove Android/iOS background
 delivery, mobile permission grants, enrolled-device authority, hosted full UI
 accessibility, notification/provider delivery, or production pilot readiness.
+
+## Organization Cleanup Is A First-Class Tracking Gate
+
+Tracking is also the first proof slice for the repo-wide domain/protocol/runtime
+organization cleanup in
+[Repo Domain Organization Cleanup Plan](../../architecture/repo-domain-organization-cleanup-plan.md).
+The A lane should keep tracking work on
+`codex/tracking-plan-full-continuation-a`, organize tracking before adding more
+feature behavior, and avoid PR-ready claims until the branch has a meaningful
+canonical-boundary cleanup with validation. A should start by reading the
+organization plan and producing a movement map, not by writing code. The cleanup
+target is contract-first ownership, not folder cosmetics: shared contracts in
+domain packages and protocol crates, reusable Rust logic in the correct crate,
+portal code as a consumer/projection layer, feature/package/crate-owned tests,
+feature-owned proof roots, and proof/tests that validate real canonical
+boundaries instead of duplicate local lookalikes. If tests, proofs, scripts, or
+contracts move, this tracking plan, the affected workpack docs, and checklist
+paths must move with them.
 
 ## Parallel Coordination Rules
 
