@@ -1,22 +1,43 @@
-# Test and Proof Expectations
+<!-- agent-capsule -->
 
-Status: reset.
+> Agent Capsule
+> Plan: `v0-8-enforcement-control-plan`
+> Doc: `V0.8 Enforcement Control Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
-## Purpose
-This file tracks the required execution flow. It does not store proof artifacts.
+<!-- /agent-capsule -->
 
-## Required flow
-- [ ] Code written.
-- [ ] Tests written.
-- [ ] Compile and validate passed.
-- [ ] Tests passed.
-- [ ] Full crate or package validation passed.
-- [ ] Proof collected in the designated local artifact path.
-- [ ] Proof pointer recorded outside the plan folder.
+# V0.8 Enforcement Control Test Proof Expectations
 
-## Proof storage
-Proof artifacts live in the designated local artifact path for the workpack or crate, not in this plan folder.
+## Proof root
 
-## Failure conditions
-- Do not mark DONE or PR_READY until the code, tests, validation, and proof flow are complete.
-- Do not store proof inventories inside the plan folder.
+```text
+output/v0-8-enforcement-control-plan-proof/<workpack-file-stem>/
+```
+
+## Common commands
+
+```bash
+npm run build --workspace @ocentra-parent/enforcement-domain
+npm run test --workspace @ocentra-parent/enforcement-domain
+cargo test -p ocentra-parent-agent-protocol enforcement
+cargo test -p ocentra-parent-agent-service enforcement
+npm run test --workspace @ocentra-parent/portal -- enforcement
+npm run lint:architecture -- --files packages/enforcement-domain packages/policy-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/v0-8-enforcement-control-plan
+```
+
+## Required negative states
+
+```text
+policy missing -> no effect-ready claim
+parent authority missing -> no effect-ready claim
+device authority missing -> no effect-ready claim
+platform unsupported -> manual-required
+observe-only and dry-run cannot be treated as active effect
+rollback/manual override missing -> no ready claim
+audit missing -> no ready claim
+```
