@@ -8,14 +8,14 @@
 
 ## Ordered workpacks
 
-- [ ] Close `workpacks/01-policy-source-of-truth.md` with typed source-of-truth and versioning proof.
-- [ ] Close `workpacks/07-schedule-time-budget-conflict-model.md` with timezone/DST and conflict precedence proof.
-- [ ] Close `workpacks/02-parent-authoring-preview.md` with preview, conflict, and mobile/accessibility proof.
-- [ ] Close `workpacks/03-domain-policy-compilers.md` with deterministic compiler contracts and handoffs.
-- [ ] Close `workpacks/08-policy-event-model.md` with event family, idempotency, and replay proof.
-- [ ] Close `workpacks/04-delivery-ack-audit.md` with per-device/domain delivery and audit proof.
-- [ ] Close `workpacks/05-ask-parent-overrides.md` with approval, expiry, replay, and assistant-preview proof.
-- [ ] Close `workpacks/06-rollout-proof-and-route-gate.md` with route sync and no-overclaim proof.
+- [x] Close `workpacks/01-policy-source-of-truth.md` with typed source-of-truth and versioning proof.
+- [x] Close `workpacks/07-schedule-time-budget-conflict-model.md` with timezone/DST and conflict precedence proof.
+- [x] Close `workpacks/02-parent-authoring-preview.md` with preview, conflict, and mobile/accessibility proof.
+- [x] Close `workpacks/03-domain-policy-compilers.md` with deterministic compiler contracts and handoffs.
+- [x] Close `workpacks/08-policy-event-model.md` with event family, idempotency, and replay proof.
+- [x] Close `workpacks/04-delivery-ack-audit.md` with per-device/domain delivery and audit proof.
+- [x] Close `workpacks/05-ask-parent-overrides.md` with approval, expiry, replay, and assistant-preview proof.
+- [x] Close `workpacks/06-rollout-proof-and-route-gate.md` with route sync and no-overclaim proof.
 
 ## Decision routes and failure conditions
 
@@ -31,4 +31,4 @@
 
 ## State
 
-- This plan is execution-grade architecture; implementation is still open until the proof set closes.
+- This plan is execution-grade architecture; implementation and proof are closed, and PR coordination remains centralized with the coordinator.

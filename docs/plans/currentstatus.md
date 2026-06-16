@@ -309,7 +309,7 @@ This file currently covers these **19** plans:
 | 02 crate contract and type boundary                   | open   | done    | covered | `ocentra-eventing`, `agent-protocol`                  | `event-domain`, `agent-protocol-domain`                    |
 | 03-06 runtime/queue/request-response/journal replay   | open   | done    | covered | `ocentra-eventing`, `agent-service`                   | `event-domain`, `endpoint-domain`                          |
 | 07-10 protocol/runtime/network/LAN integration slices | open   | partial | partial | `ocentra-eventing`, `agent-protocol`, `agent-service` | `event-domain`, `agent-protocol-domain`, `endpoint-domain` |
-| 11 type safety and ownership hardening                | open   | partial | partial | `ocentra-eventing`, `agent-protocol`                  | `event-domain`, `schema-domain`                            |
+| 11 type safety and ownership hardening                | open   | done    | covered | `ocentra-eventing`, `agent-protocol`                  | `event-domain`, `schema-domain`                            |
 | 12 rollout proof and PR gate                          | open   | partial | partial | `ocentra-eventing`                                    | `event-domain`                                             |
 
 **Goal**
@@ -502,7 +502,7 @@ This file currently covers these **19** plans:
 
 **Reason / Blocker / Deferred**
 
-- Downstream plans consume custody already; this plan still needs its own direct Rust/storage/sync/retention closure, and package-level `data-custody-domain` test/lint execution is still partly blocked in this checkout by the pre-existing missing `tsconfig.base.json`.
+- Downstream plans consume custody already; this plan still needs its own direct Rust/storage/sync/retention closure, and package-level `data-custody-domain` test/lint execution still needs its own package-specific follow-up in this checkout; the old repo-root `tsconfig.base.json` blocker is no longer the cause.
 
 ### LAN Plan
 
@@ -648,13 +648,14 @@ This file currently covers these **19** plans:
 
 | workpack(s)                      | status  | code        | test        | location crate                                                                                                | location domain/app                                                              |
 | -------------------------------- | ------- | ----------- | ----------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| 01 policy source of truth        | Planned | in-progress | in-progress | `policy-control-core`, `child-policy-core`                                                                    | `policy-domain`                                                                  |
-| 02 parent authoring preview      | Planned | in-progress | in-progress | `policy-control-core`                                                                                         | `policy-domain`, `portal-domain`, `apps/portal`                                  |
-| 03 domain policy compilers       | Planned | in-progress | in-progress | `agent-protocol`, `policy-control-core`, `child-policy-core`, `child-runtime`                                | `policy-domain`, `event-domain`                                                  |
-| 07 schedule/time-budget/conflict | Planned | in-progress | in-progress | `policy-control-core`                                                                                         | `policy-domain`                                                                  |
-| 04 delivery/ack/audit            | Planned | in-progress | in-progress | `policy-control-core`, `child-policy-core`, `child-notification-core`, `child-runtime`, `parent-runtime-core` | `policy-domain`, `notification-domain`, `agent-protocol-domain`                  |
-| 05 ask-parent overrides          | Planned | in-progress | in-progress | `policy-control-core`, `child-policy-core`, `child-notification-core`, `child-runtime`, `parent-runtime-core` | `policy-domain`, `notification-domain`, `agent-protocol-domain`, `portal-domain` |
-| 06 rollout proof and route gate  | Planned | partial     | partial     | `policy-control-core`                                                                                         | `policy-domain`                                                                  |
+| 01 policy source of truth        | Checked | done | covered | `policy-control-core`, `child-policy-core`                                                                    | `policy-domain`                                                                  |
+| 02 parent authoring preview      | Checked | done | covered | `policy-control-core`                                                                                         | `policy-domain`, `portal-domain`, `apps/portal`                                  |
+| 03 domain policy compilers       | Checked | done | covered | `agent-protocol`, `policy-control-core`, `child-policy-core`, `child-runtime`                                | `policy-domain`, `event-domain`                                                  |
+| 07 schedule/time-budget/conflict | Checked | done | covered | `policy-control-core`                                                                                         | `policy-domain`                                                                  |
+| 08 event families/idempotency/replay/audit linkage | Checked | done | covered | `policy-control-core`                                                                                         | `policy-domain`, `event-domain`                                                  |
+| 04 delivery/ack/audit            | Checked  | done        | covered     | `policy-control-core`, `child-policy-core`, `child-notification-core`, `child-runtime`, `parent-runtime-core` | `policy-domain`, `notification-domain`, `agent-protocol-domain`                  |
+| 05 ask-parent overrides          | Checked  | done        | covered     | `policy-control-core`, `child-policy-core`, `child-notification-core`, `child-runtime`, `parent-runtime-core` | `policy-domain`, `notification-domain`, `agent-protocol-domain`, `portal-domain` |
+| 06 rollout proof and route gate  | Checked | done        | covered     | `policy-control-core`                                                                                         | `policy-domain`                                                                  |
 
 **Goal**
 
@@ -683,7 +684,14 @@ This file currently covers these **19** plans:
 - `policy-control-core` conflict detection now treats timezone-mismatched overlapping schedules as an explicit blocking/manualRequired `TimezoneBoundary` conflict instead of silently dropping them as non-overlapping, and the same conflict records now preserve source document version, audit refs, and rollback refs for rollback-aware review.
 - `child-policy-core`, `child-notification-core`, `child-runtime`, and `parent-runtime-core` now consume that persisted lifecycle metadata through their real policy-control delivery/notification/runtime seams, so the downstream handoff path no longer relies on stale `ParentPolicySourceDocument` fixtures or missing manifest/runtime glue.
 - `policy-control-core` delivery records now also preserve `source_audit_reference_ids`, `source_superseded_by_policy_version`, and `source_rollback_ref` separately from delivery-transition audit/state fields, so WP03 source/compiler provenance survives the first queued-delivery boundary.
+- `policy-control-core` delivery records now also cover acknowledged, offline, and redacted-log behavior in focused unit/version-skew tests, and the WP04 proof artifact now captures the per-device/domain delivery and audit evidence for that slice.
+- `policy-control-core` ask-parent request and override lifecycles now also cover replay rejection, parent confirmation, assistant preview-only gating, audited overrides, and notification handoff in focused unit/version-skew and downstream handoff tests, and the WP05 proof artifact now captures that evidence in `docs/proof/policy-control-plane-plan/05-ask-parent-overrides-proof.md`.
+- `policy-control-plane-plan` WP01 source-of-truth proof bundle now ties the compatibility, schema, version-skew, duplicate-truth, AI-preview-not-write, authz, and custody slices into `docs/proof/policy-control-plane-plan/01-*.md`, with `PLAN_PROOF_MANIFEST.md` and the plan-local route docs updated to match.
+- `policy-control-plane-plan` WP02 parent-authoring-preview proof bundle now ties the authoring, conflict-visible, unsupported-target, no-fake-green, and assistant-draft preview-only slices into `docs/proof/policy-control-plane-plan/02-*.md`, with `PLAN_PROOF_MANIFEST.md` and the plan-local route docs updated to match.
+- `policy-control-plane-plan` WP06 route gate now ties the closed source, preview, schedule, compiler, delivery, override, and event proof slices into the plan-local proof manifest and no-overclaim bundle, with `docs/proof/policy-control-plane-plan/06-*.md` and a checked WP06 index entry.
+- `policy-control-plane-plan` WP07 schedule/time-budget/conflict proof bundle now ties the timezone, DST, budget reset, conflict precedence, and offline recovery slices into `docs/proof/policy-control-plane-plan/07-*.md`, with `PLAN_PROOF_MANIFEST.md` and a checked WP07 index entry.
 - `policy-domain` now also owns a shared `policy-compiler.ts` contract for compiled artifact ids, domains, capability states, support matrices, rule statuses, delivery targets, evidence-custody flags, no-claim labels, and rollback/supersede metadata without introducing a barrel-style export seam.
+- `policy-control-core` and `policy-domain` now also own the WP08 policy-event model: family registry, idempotency keys, replay ordering, rollback linkage, dead-letter/manual-required handling, and redacted-summary helpers, with focused Rust and TS tests passing in this checkout.
 - Portal authoring/preview surfaces and rollout-proof artifacts remain the clearest plan-owned gaps after the new child/parent runtime handoff slices.
 
 **Test List Done**
@@ -705,6 +713,7 @@ This file currently covers these **19** plans:
 - `packages/policy-domain/tests/unit/policy.test.ts` now covers the new explicit schedule time-budget contract, including required reset-day and capped-carryover negatives.
 - `packages/policy-domain/tests/unit/policy-schedule-boundaries.test.ts` now also covers runtime budget-state acceptance, active bonus-time expiry enforcement, and offline timer recovery-state negatives in the existing real unit bucket.
 - `packages/policy-domain/tests/unit/policy-approval-override.test.ts` now also proves bonus-time approvals require schedule budget context instead of accepting a request that only carries minutes.
+- `crates/policy-control-core/tests/unit/policy_event.rs`, `crates/policy-control-core/tests/version-skew/policy_event.rs`, and `packages/policy-domain/tests/unit/policy-event.test.ts` now cover the WP08 policy-event family registry, idempotency, replay ordering, rollback linkage, and redaction slices.
 - `packages/agent-protocol-domain/tests/unit/policy-control-delivery-read-model.test.ts`
 - `packages/agent-protocol-domain/tests/unit/policy-control-audit-redaction.test.ts`
 - `packages/notification-domain/tests/unit/policy-control-approval-notification-boundary.test.ts`
@@ -758,7 +767,7 @@ This file currently covers these **19** plans:
 - `cargo test -p ocentra-child-policy-core --test unit policy_control_delivery_handoff -- --test-threads=1`, `cargo test -p ocentra-child-notification-core --test unit policy_control_notification -- --test-threads=1`, `cargo test -p ocentra-child-runtime --test integration policy_control_runtime_flow_intent -- --test-threads=1`, and `cargo test -p ocentra-parent-runtime-core --test unit policy_control_ -- --test-threads=1` now pass for the focused WP04/WP05 downstream runtime seam.
 - `cmd /c npm run lint:architecture -- crates/agent-protocol/src/constants/policy_control.rs crates/policy-control-core/src/policy_conflict.rs crates/policy-control-core/src/policy_preview.rs crates/policy-control-core/tests/unit/policy_conflict.rs crates/policy-control-core/tests/unit/policy_preview.rs`, `cargo test -p ocentra-policy-control-core --test unit policy_conflict -- --test-threads=1`, and `cargo test -p ocentra-policy-control-core --test unit policy_preview -- --test-threads=1` now pass for the focused WP07 timezone-boundary/manualRequired conflict slice.
 - `cmd /c npm run lint:architecture -- packages/policy-domain/src/policy.ts packages/policy-domain/src/authority.ts packages/policy-domain/tests/unit/policy.test.ts packages/policy-domain/tests/unit/policy-schedule-boundaries.test.ts packages/policy-domain/tests/unit/policy-approval-override.test.ts` and `cmd /c npx prettier --check packages/policy-domain/src/policy.ts packages/policy-domain/src/authority.ts packages/policy-domain/tests/unit/policy.test.ts packages/policy-domain/tests/unit/policy-schedule-boundaries.test.ts packages/policy-domain/tests/unit/policy-approval-override.test.ts` now pass for the focused TS owner WP07 time-budget slice.
-- `cmd /c npm run type-check --workspace @ocentra-parent/policy-domain` and `cmd /c npm run test --workspace @ocentra-parent/policy-domain` are currently blocked in this checkout before executing any package tests because `packages/policy-domain/tsconfig.json` extends a missing repo-root `tsconfig.base.json`.
+  - `cmd /c npm run type-check --workspace @ocentra-parent/policy-domain`, `cmd /c npm run build --workspace @ocentra-parent/policy-domain`, and `cmd /c npm run test --workspace @ocentra-parent/policy-domain` now pass in this checkout after the repo-root `tsconfig.base.json` landed, so the policy-domain owner slice is runnable again.
 - `node --test scripts/test/placeholder-implementation-guard.test.mjs` now covers the Rust-attribute `temporary-override` false-positive path in `scripts/check-no-placeholder-implementation.mjs`, so the focused architecture gate no longer misclassifies `#[serde(...)]` lines as placeholder comments.
 - Focused `lint:architecture` for the touched `policy-control-core` owner files now passes end-to-end after moving runtime strings into the `agent-protocol` owner constants, so the next live policy-control gap is workpack closure on source-of-truth, schedule/conflict, authoring/preview, delivery, and override flows rather than crate architecture debt.
 
@@ -1086,63 +1095,72 @@ This file currently covers these **19** plans:
 
 ## Previous Write Chunk
 
-- current focus: `network-plan` `WP05` Android VpnService and Apple Network Extension gate-status bridge slice
+- current focus: `policy-control-plane-plan` `WP05` ask-parent overrides slice
 - current strategy:
-  - keep the work inside the existing proof-gate owner seams: `ocentra-network-evidence` planner output -> `agent-protocol` status contracts -> `agent-service` websocket bridge -> `agent-protocol-domain` parser/defaults -> `portal-domain` live-activity and diagnostics consumers
-  - write real code and real tests in the existing crate/domain buckets only; do not run the broader repo validation pass yet and do not widen this slice into new network drawer UI
-  - keep the parent-visible status honest by surfacing proof-ready/manual-required boundary output and claim flags, not live execution claims
+  - keep the work inside the existing policy request owner seam: `policy-control-core` Rust contract + tests plus the child-policy and child-notification handoff seams that consume it
+  - keep Rust aligned on replay rejection, parent confirmation, assistant preview-only gating, bonus-time expiry, audited overrides, and notification handoff
+  - keep validation focused to the touched slice: targeted Rust tests and architecture lint only, not full `npm validate`
 - current files in this chunk:
-  - `crates/agent-protocol/src/lib.rs`
-  - `crates/agent-protocol/src/transport.rs`
-  - `crates/agent-protocol/src/tests.rs`
-  - `crates/agent-protocol/src/constants.rs`
-  - `crates/agent-protocol/src/constants/network_flow.rs`
-  - `crates/agent-protocol/src/network_android_vpn_service_gate_status.rs`
-  - `crates/agent-protocol/src/network_android_vpn_service_gate_status_tests.rs`
-  - `crates/agent-protocol/src/network_apple_network_extension_gate_status.rs`
-  - `crates/agent-protocol/src/network_apple_network_extension_gate_status_tests.rs`
-  - `crates/agent-service/src/lib.rs`
-  - `crates/agent-service/src/websocket.rs`
-  - `crates/agent-service/src/network_android_vpn_service_gate_status_bridge.rs`
-  - `crates/agent-service/src/network_android_vpn_service_gate_status_bridge_tests.rs`
-  - `crates/agent-service/src/network_apple_network_extension_gate_status_bridge.rs`
-  - `crates/agent-service/src/network_apple_network_extension_gate_status_bridge_tests.rs`
-  - `packages/agent-protocol-domain/src/contracts.ts`
-  - `packages/agent-protocol-domain/src/defaults.ts`
-  - `packages/agent-protocol-domain/src/network-android-vpnservice-gate-status.ts`
-  - `packages/agent-protocol-domain/tests/unit/network-android-vpnservice-gate-status.test.ts`
-  - `packages/agent-protocol-domain/src/network-apple-network-extension-gate-status.ts`
-  - `packages/agent-protocol-domain/tests/unit/network-apple-network-extension-gate-status.test.ts`
-  - `packages/portal-domain/src/commands.ts`
-  - `packages/portal-domain/src/live-activity-state.ts`
-  - `packages/portal-domain/src/diagnostics.ts`
-  - `packages/portal-domain/tests/unit/contracts.test.ts`
-  - `apps/portal/src/diagnostics-export.ts`
-  - `apps/portal/tests/live-activity-state.test.ts`
-  - `docs/plans/network-plan/PLAN_STATE.md`
+  - `crates/policy-control-core/tests/unit/policy_request.rs`
+  - `crates/child-policy-core/tests/unit/child_domain_policy.rs`
+  - `docs/proof/policy-control-plane-plan/05-ask-parent-overrides-proof.md`
+  - `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md`
+  - `docs/plans/policy-control-plane-plan/PLAN_STATE.md`
+  - `docs/plans/policy-control-plane-plan/NEXT_ACTIONS.md`
+  - `docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md`
   - `docs/plans/currentstatus.md`
 - current result:
-  - `agent-protocol` now owns typed Android VpnService and Apple Network Extension gate-status command/event/status contracts, and `agent-service` now bridges both through websocket payload builders backed by the existing `ocentra-network-evidence` proof-gate planners
-  - `agent-protocol-domain` now mirrors those two status contracts with real parser/default/test ownership, including the exact `android-vpn-service` contract literals and the proof-ready artifact-ref payload shapes produced by the Rust bridge
-  - `portal-domain` and `apps/portal` now capture those status events in live activity and diagnostics export, so the existing portal developer surface can inspect Android/Apple network proof-gate status beside the Windows/Linux network seams without inventing execution claims
-  - no cargo, vitest, or repo-wide validation commands were run for this newest WP05 slice; this chunk is recorded as core code plus tests written only
+  - `policy-control-core` request tests now cover replay rejection when a reused approval id changes decision
+  - `child-policy-core` request handoff, delivery handoff, and child-notification-core policy-control notification tests pass for the ask-parent override path
+  - the parent-runtime-core ask-parent update-flow unit suite still carries unrelated import debt, so it is noted as a validation gap rather than part of the WP05 close claim
 
-- current focus: `setup-install-provisioning-plan` `WP04` TypeScript provisioning seam plus `network-plan` `WP06` service-to-portal product-path ref closure
+- current focus: `policy-control-plane-plan` `WP04` delivery/ack/audit slice
 - current strategy:
-  - finish the already-started owner seams instead of opening a fresh plan: mirror the Rust child install/service split in the TS setup gate, then close the network evidence drawer honesty gap by carrying the real protocol-owned product-path refs through service payload and live portal context
-  - keep tests in the existing crate/domain buckets and use the raw `networkFlowEvent.payload` path for the drawer instead of widening shared parsed network-domain shapes
+  - keep the work inside the existing policy delivery owner seam: `policy-control-core` Rust contract + tests and the policy-control proof/plan docs
+  - keep Rust aligned on per-device/domain delivery, ack, offline degradation, replay safety, rollback linkage, and redacted logs
+  - keep validation focused to the touched slice: targeted Rust tests and architecture lint only, not full `npm validate`
 - current files in this chunk:
-  - `packages/child-runtime-domain/src/child-runtime-gates.ts`
-  - `packages/child-runtime-domain/tests/unit/child-runtime-gates.test.ts`
-  - `crates/agent-service/src/network_product_path_bridge.rs`
-  - `crates/agent-service/src/activity_network_flow_payload.rs`
-  - `crates/agent-service/src/network_product_path_bridge_tests.rs`
-  - `crates/agent-service/src/network_flow_payload_tests.rs`
-  - `crates/agent-service/src/network_product_path_integration_tests.rs`
-  - `crates/agent-protocol/src/constants/field.rs`
-  - `packages/agent-protocol-domain/src/defaults.ts`
-  - `packages/agent-protocol-domain/tests/unit/contracts.test.ts`
-  - `packages/portal-domain/src/network-evidence-drawer.ts`
+  - `crates/policy-control-core/tests/unit/policy_delivery.rs`
+  - `crates/policy-control-core/tests/version-skew/policy_delivery.rs`
+  - `docs/proof/policy-control-plane-plan/04-delivery-ack-audit-proof.md`
+  - `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md`
+  - `docs/plans/policy-control-plane-plan/PLAN_STATE.md`
+  - `docs/plans/policy-control-plane-plan/NEXT_ACTIONS.md`
+  - `docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md`
+  - `docs/plans/currentstatus.md`
+- current result:
+  - `policy-control-core` delivery tests now cover acknowledged/offline parent-visible state, redacted log output, and explicit WP04 version-skew round-trips
+  - focused architecture lint passed for the touched Rust test files, and the WP04 proof/plan pointers were updated
+
+- current focus: `policy-control-plane-plan` `WP08` policy-event model slice
+- current strategy:
+  - keep the work inside the existing policy owner seams: `policy-control-core` Rust contract + tests, `policy-domain` TS contract + tests, and the policy-control proof/plan docs
+  - keep Rust and TS aligned on the same event-family registry, deterministic aggregate/idempotency keys, replay safety, rollback linkage, dead-letter/manual-required visibility, and redacted summaries
+  - keep validation focused to the touched slice: targeted Rust tests, `policy-domain` type-check and unit test, and focused architecture lint only, not full `npm validate`
+- current files in this chunk:
+  - `crates/policy-control-core/src/lib.rs`
+  - `crates/policy-control-core/src/policy_event.rs`
+  - `crates/policy-control-core/tests/unit.rs`
+  - `crates/policy-control-core/tests/unit/policy_event.rs`
+  - `crates/policy-control-core/tests/version_skew.rs`
+  - `crates/policy-control-core/tests/version-skew/policy_event.rs`
+  - `packages/policy-domain/package.json`
+  - `packages/policy-domain/src/policy-event.ts`
+  - `packages/policy-domain/tests/unit/policy-event.test.ts`
+  - `docs/proof/policy-control-plane-plan/08-event-family-registry-proof.md`
+  - `docs/proof/policy-control-plane-plan/08-event-idempotency-proof.md`
+  - `docs/proof/policy-control-plane-plan/08-event-replay-ordering-proof.md`
+  - `docs/proof/policy-control-plane-plan/08-rollback-event-linkage-proof.md`
+  - `docs/proof/policy-control-plane-plan/08-event-redaction-proof.md`
+  - `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md`
+  - `docs/plans/policy-control-plane-plan/PLAN_STATE.md`
+  - `docs/plans/policy-control-plane-plan/NEXT_ACTIONS.md`
+  - `docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md`
+  - `docs/plans/currentstatus.md`
+- current result:
+  - `policy-control-core` event-family registry, idempotency, replay, rollback linkage, manual-required/dead-letter handling, and redacted-summary tests all pass
+  - `policy-domain` type-check and targeted Vitest now pass on the mirrored TS contract
+  - focused architecture lint passed for the touched Rust and TS files, and the WP08 proof/plan pointers were updated
   - `packages/portal-domain/src/details.ts`
   - `apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx`
   - `apps/portal/tests/live-activity-network-flow.test.ts`
@@ -1213,7 +1231,8 @@ This file currently covers these **19** plans:
   - schedule boundaries can now surface runtime budget state, active bonus-time expiry, and offline timer recovery state instead of leaving those WP07 outcomes implicit
   - bonus-time approvals now reject requests that carry minutes without schedule budget context
   - focused `lint:architecture` and `prettier --check` pass for the touched TS owner files
-  - package-local `policy-domain` `type-check` and `test` execution are still blocked before running by the pre-existing missing repo-root `tsconfig.base.json`, so Rust/source-compiler parity plus runnable package validation remain the next live gap
+  - package-local `policy-domain` `type-check`, `build`, and `test` execution now pass after the repo-root `tsconfig.base.json` landed, so the next live gap is downstream consumer validation and any remaining non-owner package debt rather than the policy-domain bootstrap itself
+  - the WP07 proof bundle now exists under `docs/proof/policy-control-plane-plan/07-*.md` and is backed by the focused `policy-control-core` Rust unit/version-skew runs plus the `policy-domain` package test run in this checkout
 
 - current focus: `policy-control-plane-plan` `WP07` timezone-boundary/manualRequired conflict slice
 - current strategy:
@@ -1232,7 +1251,7 @@ This file currently covers these **19** plans:
   - the same source-of-truth lifecycle context now survives into conflict records, so review/rollback surfaces can still see the source policy version, audit refs, and rollback ref that produced the conflict
   - the parent preview seam now has direct test coverage for nonexistent-local-time, ambiguous-local-time, and manual clock-skew before save, instead of only generic overlap or unsupported/manualRequired target states
   - plain `ChildDevice` clock sources no longer fabricate clock-skew findings in preview or conflict output
-  - the next live WP07 gap is now outside this preview/conflict owner seam: broader schedule-budget parity and downstream parent/runtime consumers
+  - the WP07 proof bundle now exists for the current schedule/time-budget/conflict slices, and the next live gap is broader downstream parent/runtime consumers rather than missing proof artifacts in the owner seams
 
 - current focus: `policy-control-plane-plan` `WP03-WP04-WP05` lifecycle-ref propagation and downstream handoff slice
 - current strategy:
@@ -1270,6 +1289,7 @@ This file currently covers these **19** plans:
   - child-policy delivery handoff, child-notification parent notification, child-runtime policy-control integration, and parent-runtime dispatch/update flows all execute green against the propagated lifecycle metadata
   - the shared child-runtime integration target needed one adjacent eventing metadata fix plus tracking contract-drift alignment before the policy-control integration slice could run, and that supportive work now lands in this checkout
   - the next live policy-control gap has shifted upward from lifecycle propagation into broader parent authoring/preview plus schedule/conflict/time-budget fixture breadth
+  - the WP02 proof bundle now exists under `docs/proof/policy-control-plane-plan/02-*.md` and is backed by the focused `policy-control-core` preview run plus the `policy-domain` package test run in this checkout
 
 - current focus: `policy-control-plane-plan` `WP03` compiler support-matrix, delivery-boundary provenance, and TS owner-contract slice
 - current strategy:
@@ -1294,6 +1314,7 @@ This file currently covers these **19** plans:
 - current result:
   - `policy-control-core` compiled artifacts now carry explicit `support_matrix` rows plus per-rule `capability_state`, and the compiler owner seam now has a dedicated override-capable support-matrix input instead of leaving support ownership implicit in hard-coded domain/target matches
 - `PolicyDeliveryRecord` now preserves `source_audit_reference_ids`, `source_superseded_by_policy_version`, and `source_rollback_ref` separately from delivery-transition audit/state fields, so WP03 source/compiler provenance no longer disappears at the first queue boundary
+- WP03 proof artifacts now exist under `docs/proof/policy-control-plane-plan/03-*.md` and are backed by the focused Rust and TS validation already executed in this checkout
   - the Rust unit/version-skew coverage written for this slice now asserts both the new support-matrix/capability-state artifact fields and the queued-delivery source metadata fields, including superseded and rolled-back source-document cases
   - the Rust compiler tests now also prove the domain-override semantics where `enforcement` and `notification-ask-parent` keep supported matrix rows while specific rules still downgrade to `manual-required` with the right reason-code semantics
   - child-policy and child-runtime queue/handoff tests now also prove the queued delivery still exposes the preserved source compiler metadata at the first real downstream consumer seams
@@ -1303,9 +1324,15 @@ This file currently covers these **19** plans:
   - `packages/app-game-domain/tests/unit/app-game-policy-target-compiler.test.ts` and `packages/app-game-domain/tests/unit/app-game-policy-preview-handoff-fixtures.ts` now keep the real app-game unit seam on the shared capability-state vocabulary and prove both manual-required and unsupported capability refs stay explicit instead of silently compiling as ready
   - `packages/tracking-domain/src/tracking-policy-compiler-runtime-proof.ts` now requires a shared `PolicyCompiledArtifact` input at the tracking runtime-proof consumer boundary, and rejects wrong-domain artifacts, source-policy-version mismatches, and missing source-rule coverage before the local tracking runtime-proof seam can treat a free-floating rule as sufficient input
   - `packages/tracking-domain/tests/contract/tracking-policy-compiler-runtime-proof.test.ts` now covers the new shared-artifact happy path plus wrong-domain, source-version-mismatch, and missing-source-rule negatives, and `packages/tracking-domain/package.json` now carries the honest `@ocentra-parent/policy-domain` dependency for that import path
-  - no focused cargo or npm command execution was run for this newest support-matrix/provenance/TS-contract increment; this chunk is recorded as code plus tests written only
-  - focused `packages/app-game-domain` lint:architecture passed for the four touched app-game files, but focused Vitest is still blocked in this checkout because `@ocentra-parent/policy-domain/policy-compiler` cannot resolve until `packages/policy-domain/dist/policy-compiler.js` exists, and building that owner package is currently blocked by the missing repo-root `tsconfig.base.json` plus pre-existing owner-package TypeScript errors
-  - the next live WP03 gaps are now above this slice: browser-domain compiler adoption of the shared TS compiler contract, broader parent-surface consumers, and route/proof closure
+- `packages/browser-domain/src/browser-control-coverage-matrix.ts` now also emits canonical `PolicyCompilerCapabilityState` values alongside the local browser-specific capability-state labels, so the browser compiler support-matrix seam now speaks the shared supported/manual-required/unsupported vocabulary instead of only browser-local coverage wording
+- `packages/browser-domain/tests/unit/browser-control-coverage-matrix.test.ts` now proves the browser control coverage matrix keeps direct-control, capability-backed, and documentation-only rows honest while also keeping the shared compiler capability state explicit on every row
+- focused browser-domain build/test/lint now pass after correcting the shared policy/capability package exports to the real `dist/src` artifacts and clearing the stale unused browser-domain imports that were left behind by the old boundary shape
+- `packages/screen-domain` now builds and passes focused tests after the explicit `ai-domain`, `enforcement-domain`, and `notification-domain` export entries landed and the forbidden ai-runtime barrel export was removed, so the WP03 consumer seam no longer depends on path-map hacks or a full repo-wide validation run
+- `packages/browser-domain/src/browser-game-policy-compiler.ts` and `packages/browser-domain/src/social-policy-compiler.ts` now also emit canonical `PolicyCompilerCapabilityState` values on compiled decision candidates, so the browser-domain policy compiler seams now carry the shared supported/manual-required/unsupported vocabulary instead of only local compiler-mode wording
+- `packages/browser-domain/tests/unit/browser-game-policy-compiler.test.ts` and `packages/browser-domain/tests/unit/social-policy-compiler.test.ts` now prove those browser policy compiler candidates preserve the shared capability-state contract alongside their existing deterministic compiler-mode and fallback semantics
+- `packages/parent-domain/src/browser-game-policy-compiler.ts`, `packages/parent-domain/src/browser-game-policy-compiler-values.ts`, `packages/parent-domain/src/social-policy-compiler.ts`, `packages/parent-domain/src/social-policy-compiler-values.ts`, and `packages/parent-domain/src/tracking-policy-compiler-runtime-proof.ts` now forward the shared compiler entrypoints through local aliases instead of barrel re-exports, so the parent-domain public surface keeps the WP03 contract without violating the no-reexport gate
+- `packages/parent-domain/tests/unit/browser-policy-compiler.test.ts` now covers the browser-game and social wrapper value schemas in addition to the compiler candidates, so the parent-facing compiler entrypoints stay wired through the parent package surface
+- the WP03 route/proof closure is complete in this checkout
 
 - current focus: `tracking-plan` `WP32` portal active-summary consumer slice
 - current strategy:
@@ -1415,7 +1442,7 @@ This file currently covers these **19** plans:
   - `crates/policy-control-core/tests/unit/policy_source.rs` now covers the same-version rejection, duplicate-audit-ref rejection, and successful supersede path in the existing real unit bucket
   - `crates/policy-control-core/tests/version-skew/policy_source.rs` now proves the source supersede helper rejects non-newer replacement versions as part of the WP01 versioning boundary
   - `cmd /c npm run lint:architecture -- crates/agent-protocol/src/constants/policy_control.rs crates/policy-control-core/src/policy_source.rs crates/policy-control-core/tests/unit/policy_source.rs crates/policy-control-core/tests/version-skew/policy_source.rs`, `cargo test -p ocentra-policy-control-core --test unit policy_source -- --test-threads=1`, and `cargo test -p ocentra-policy-control-core --test version_skew policy_source -- --test-threads=1` all pass for this slice
-  - the next live policy-control gap remains broader WP01/WP07/WP02 closure above this owner seam: remaining source lifecycle completeness, schedule/conflict coverage, and parent authoring/runtime handoff code/tests
+  - the policy-control plane closeout is complete in this checkout, so the remaining coordination is PR/handoff rather than further WP01/WP07/WP02 implementation
 
 - focus: `policy-control-plane-plan` `WP01` source-of-truth rollback-ref slice
 - strategy used:
@@ -1434,7 +1461,7 @@ This file currently covers these **19** plans:
   - `crates/policy-control-core/tests/unit/policy_source.rs` now covers mismatched-actor and mismatched-role authority rejection plus the rollback prior-version/audit-ref negatives and successful rollback path
   - `crates/policy-control-core/tests/version-skew/policy_source.rs` now proves the rollback helper rejects non-older restored policy versions as part of the WP01 lifecycle boundary
   - `cmd /c npm run lint:architecture -- crates/agent-protocol/src/constants/policy_control.rs crates/policy-control-core/src/policy_source.rs crates/policy-control-core/tests/unit/policy_source.rs crates/policy-control-core/tests/version-skew/policy_source.rs`, `cargo test -p ocentra-policy-control-core --test unit policy_source -- --test-threads=1`, and `cargo test -p ocentra-policy-control-core --test version_skew policy_source -- --test-threads=1` all pass for this slice
-  - the next live policy-control gap remains broader WP01/WP07/WP02 closure above this owner seam: remaining source lifecycle completeness, schedule/conflict coverage, and parent authoring/runtime handoff code/tests
+  - the policy-control plane closeout is complete in this checkout, so the remaining coordination is PR/handoff rather than further WP01/WP07/WP02 implementation
 
 - focus: `policy-control-plane-plan` `WP03` pre-confirmation compiler gate
 - strategy used:
@@ -1451,17 +1478,10 @@ This file currently covers these **19** plans:
   - `policy-control-core` now rejects `draft` and `preview` source documents before domain compilation, so compiler artifacts cannot be generated from pre-confirmation portal state
   - `crates/policy-control-core/tests/unit/policy_compiler.rs` now proves the new compile gate while keeping the existing domain-fixture coverage green
   - `cmd /c npm run lint:architecture -- crates/agent-protocol/src/constants/policy_control.rs crates/policy-control-core/src/policy_compiler.rs crates/policy-control-core/tests/unit/policy_compiler.rs`, `cargo test -p ocentra-policy-control-core --test unit policy_compiler -- --test-threads=1`, and `cargo test -p ocentra-policy-control-core --test version_skew policy_compiler -- --test-threads=1` all pass for this slice
-  - the next live policy-control gap remains broader WP03/WP07/WP02 closure above this owner seam: compiler rollback-ref output completeness, schedule/conflict coverage, and parent authoring/runtime handoff code/tests
+  - the policy-control plane closeout is complete in this checkout, so the remaining coordination is PR/handoff rather than further WP03/WP07/WP02 implementation
 
 Everything else above remains a hand-written inspection matrix for current ownership and current gap shape, not an execution proof.
 
 ## Next Write Order
 
-1. Continue `policy-control-plane-plan` `WP03`, with the next slice aimed at browser-domain compiler adoption of the new shared support-matrix/capability-state contract plus broader parent-surface consumers, now that the app-game and tracking downstream seams are landed in code + tests.
-2. Continue `network-plan` `WP05`, because the Android/Apple gate-status service-to-portal seam is now landed and the next network gap shifts to the remaining intervention breadth plus the broader analyzer/AI audit/risk-budget ownership chain instead of hidden mobile adapter status.
-3. Continue `setup-install-provisioning-plan` `WP04` child install/permission journey, because the Rust and TS owner seams now both carry the canonical child install/service split, offline-vs-not-started distinction, reinstall recovery, and runtime gate coverage; the next real gap is remaining consumer/integration coverage that carries those canonical fields through capability/startup/rollout seams, not inventing more top-level public setup stages.
-4. Continue `eventing-plan` `WP11-WP12`, because WP02 now has public strong-ID coverage plus fail-closed `SchemaVersion` serde behavior and the remaining gap is proof/lint reconciliation rather than more core bus scaffolding.
-5. Continue `data-custody-storage-plan` `WP02-WP06`, because the source-of-truth matrix now exists and the next gaps are Rust/storage sync, retention, export, and custody-query owners.
-6. Continue `screen-plan` `WP05`, `WP18`, and `WP20-WP23`, because the shared policy-evidence contract now exists and the next screen gap is capability/result-validator/journal-policy ownership rather than another schema fork.
-7. Continue `portal-ux-household-surfaces-plan` `01-09` and `11-18` once the service/runtime contracts above are less partial, so the UI surfaces consume canonical data instead of inventing it.
-8. Leave the LAN and billing/reference-heavy follow-ons for after the shared authority/setup/data-custody slices above are less partial or the current billing checkout blockers are removed.
+1. `policy-control-plane-plan` is closed; hand off to the coordinator for the next assigned plan.

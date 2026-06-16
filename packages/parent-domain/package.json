@@ -633,6 +633,10 @@
       "import": "./dist/social-policy-compiler.js",
       "types": "./dist/social-policy-compiler.d.ts"
     },
+    "./tracking-policy-compiler-runtime-proof": {
+      "import": "./dist/tracking-policy-compiler-runtime-proof.js",
+      "types": "./dist/tracking-policy-compiler-runtime-proof.d.ts"
+    },
     "./local-ai": {
       "import": "./dist/local-ai.js",
       "types": "./dist/local-ai.d.ts"
