@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -92,9 +93,10 @@ pub(super) fn test_event_for_type_with_aggregate_and_idempotency(
 ) -> TestEvent {
     TestEvent {
         label: label.to_string(),
-        aggregate_key: AggregateKey::parse(aggregate_key).expect("aggregate key parses"),
-        idempotency_key: IdempotencyKey::parse(idempotency_key).expect("idempotency key parses"),
-        event_type: EventType::parse(event_type).expect("event type parses"),
+        aggregate_key: AggregateKey::parse(aggregate_key).expect_value("aggregate key parses"),
+        idempotency_key: IdempotencyKey::parse(idempotency_key)
+            .expect_value("idempotency key parses"),
+        event_type: EventType::parse(event_type).expect_value("event type parses"),
     }
 }
 
@@ -104,21 +106,21 @@ pub(super) fn metadata(target: &str) -> EventMetadata {
 
 pub(super) fn metadata_with_event_id(target: &str, event_id: &str) -> EventMetadata {
     EventMetadata::from_parts(
-        crate::EventId::parse(event_id).expect("event id parses"),
-        CorrelationId::parse(TEST_CORRELATION_ID).expect("correlation id parses"),
+        crate::EventId::parse(event_id).expect_value("event id parses"),
+        CorrelationId::parse(TEST_CORRELATION_ID).expect_value("correlation id parses"),
         source(),
-        RecordedAt::parse(TEST_OBSERVED_AT).expect("recorded at parses"),
-        Some(TargetHandler::parse(target).expect("target handler parses")),
+        RecordedAt::parse(TEST_OBSERVED_AT).expect_value("recorded at parses"),
+        Some(TargetHandler::parse(target).expect_value("target handler parses")),
     )
 }
 
 fn source() -> EventSource {
     EventSource::new(
-        EventCustody::parse(TEST_CUSTODY).expect("event custody parses"),
-        RuntimeRole::parse(TEST_RUNTIME_ROLE).expect("runtime role parses"),
-        SourceService::parse(TEST_SOURCE_SERVICE).expect("source service parses"),
-        SourceComponent::parse(TEST_SOURCE_COMPONENT).expect("source component parses"),
-        RuntimeInstanceId::parse(TEST_INSTANCE).expect("runtime instance parses"),
+        EventCustody::parse(TEST_CUSTODY).expect_value("event custody parses"),
+        RuntimeRole::parse(TEST_RUNTIME_ROLE).expect_value("runtime role parses"),
+        SourceService::parse(TEST_SOURCE_SERVICE).expect_value("source service parses"),
+        SourceComponent::parse(TEST_SOURCE_COMPONENT).expect_value("source component parses"),
+        RuntimeInstanceId::parse(TEST_INSTANCE).expect_value("runtime instance parses"),
     )
 }
 
@@ -128,8 +130,8 @@ pub(super) fn subscriber(id: &str, target: &str) -> EventSubscriber {
 
 pub(super) fn subscriber_for_event(id: &str, target: &str, event_type: &str) -> EventSubscriber {
     EventSubscriber::new(
-        SubscriberId::parse(id).expect("subscriber id parses"),
-        EventType::parse(event_type).expect("event type parses"),
-        TargetHandler::parse(target).expect("target handler parses"),
+        SubscriberId::parse(id).expect_value("subscriber id parses"),
+        EventType::parse(event_type).expect_value("event type parses"),
+        TargetHandler::parse(target).expect_value("target handler parses"),
     )
 }

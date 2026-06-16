@@ -7,10 +7,10 @@ use super::fixtures::{
 };
 use crate::bus::reports::DeadLetterReason;
 use crate::bus::EventBus;
-use crate::queue::policy::EventQueuePolicy;
-use crate::request::RequestOptions;
 use crate::error::EventingError;
+use crate::queue::policy::EventQueuePolicy;
 use crate::request::EventResponseContract;
+use crate::request::RequestOptions;
 
 const IN_MEMORY_RETENTION_PROBE_COUNT: usize = 4097;
 const EXPECTED_IN_MEMORY_RETENTION_LIMIT: usize = 4096;
@@ -113,7 +113,8 @@ struct SlowMetricsRequest {
 impl SlowMetricsRequest {
     fn new() -> Self {
         Self {
-            request_id: crate::RequestId::parse("metrics-request-1").expect_value("request id parses"),
+            request_id: crate::RequestId::parse("metrics-request-1")
+                .expect_value("request id parses"),
         }
     }
 }

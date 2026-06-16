@@ -1,4 +1,4 @@
-use ocentra_eventing::SourceComponent;
+use ocentra_eventing::ids::SourceComponent;
 use ocentra_parent_agent_protocol::constants;
 
 use super::prove_network_runtime_remote_delivery_cross_process_replay;

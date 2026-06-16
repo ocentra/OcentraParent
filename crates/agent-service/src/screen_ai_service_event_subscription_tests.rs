@@ -1,4 +1,4 @@
-use ocentra_eventing::{EventBus, HandlerOutcome};
+use ocentra_eventing::{bus::reports::HandlerOutcome, bus::EventBus};
 use ocentra_parent_agent_core::ScreenRuntimePhase;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceRef, ActivityReadModelState, ActivityScreenReadModelRow,

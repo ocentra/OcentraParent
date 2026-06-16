@@ -17,6 +17,7 @@ use ocentra_parent_agent_protocol::{
     BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUpdateKind, BrowserPolicyUpdateRequest,
     BrowserPolicyUrlTargetType, BrowserPolicyValue, LogFieldValue,
 };
+use serde::de::DeserializeOwned;
 
 pub(crate) fn parse_browser_policy_request(
     command: &AgentCommandEnvelope,
@@ -625,7 +626,7 @@ fn require_field(
 
 fn parse_patch_value<T>(patch: &BrowserPolicyPatch) -> Result<T, BrowserPolicyRejectionReason>
 where
-    T: serde::de::DeserializeOwned,
+    T: DeserializeOwned,
 {
     serde_json::from_value(patch.value.clone())
         .map_err(|_| BrowserPolicyRejectionReason::InvalidEnumValue)

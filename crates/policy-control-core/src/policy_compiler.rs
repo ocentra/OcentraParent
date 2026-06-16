@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
-use ocentra_eventing::{EventingError, SchemaVersion};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::SchemaVersion;
 use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 
@@ -323,68 +324,212 @@ fn no_claim_labels_for_domain(_domain: PolicyCompilerDomain) -> Vec<String> {
 fn default_support_matrix_for_domain(domain: PolicyCompilerDomain) -> PolicyCompilerSupportMatrix {
     let rows = match domain {
         PolicyCompilerDomain::AppGame => vec![
-            support_matrix_row(PolicyTargetKind::ChildProfile, PolicyCompilerCapabilityState::Unsupported),
-            support_matrix_row(PolicyTargetKind::Device, PolicyCompilerCapabilityState::Unsupported),
-            support_matrix_row(PolicyTargetKind::App, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Site, PolicyCompilerCapabilityState::ManualRequired),
-            support_matrix_row(PolicyTargetKind::Category, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Resource, PolicyCompilerCapabilityState::Unsupported),
+            support_matrix_row(
+                PolicyTargetKind::ChildProfile,
+                PolicyCompilerCapabilityState::Unsupported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Device,
+                PolicyCompilerCapabilityState::Unsupported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::App,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Site,
+                PolicyCompilerCapabilityState::ManualRequired,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Category,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Resource,
+                PolicyCompilerCapabilityState::Unsupported,
+            ),
         ],
         PolicyCompilerDomain::Browser => vec![
-            support_matrix_row(PolicyTargetKind::ChildProfile, PolicyCompilerCapabilityState::ManualRequired),
-            support_matrix_row(PolicyTargetKind::Device, PolicyCompilerCapabilityState::ManualRequired),
-            support_matrix_row(PolicyTargetKind::App, PolicyCompilerCapabilityState::Unsupported),
-            support_matrix_row(PolicyTargetKind::Site, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Category, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Resource, PolicyCompilerCapabilityState::ManualRequired),
+            support_matrix_row(
+                PolicyTargetKind::ChildProfile,
+                PolicyCompilerCapabilityState::ManualRequired,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Device,
+                PolicyCompilerCapabilityState::ManualRequired,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::App,
+                PolicyCompilerCapabilityState::Unsupported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Site,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Category,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Resource,
+                PolicyCompilerCapabilityState::ManualRequired,
+            ),
         ],
         PolicyCompilerDomain::Network => vec![
-            support_matrix_row(PolicyTargetKind::ChildProfile, PolicyCompilerCapabilityState::Unsupported),
-            support_matrix_row(PolicyTargetKind::Device, PolicyCompilerCapabilityState::Unsupported),
-            support_matrix_row(PolicyTargetKind::App, PolicyCompilerCapabilityState::Unsupported),
-            support_matrix_row(PolicyTargetKind::Site, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Category, PolicyCompilerCapabilityState::ManualRequired),
-            support_matrix_row(PolicyTargetKind::Resource, PolicyCompilerCapabilityState::Supported),
+            support_matrix_row(
+                PolicyTargetKind::ChildProfile,
+                PolicyCompilerCapabilityState::Unsupported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Device,
+                PolicyCompilerCapabilityState::Unsupported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::App,
+                PolicyCompilerCapabilityState::Unsupported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Site,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Category,
+                PolicyCompilerCapabilityState::ManualRequired,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Resource,
+                PolicyCompilerCapabilityState::Supported,
+            ),
         ],
         PolicyCompilerDomain::Tracking => vec![
-            support_matrix_row(PolicyTargetKind::ChildProfile, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Device, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::App, PolicyCompilerCapabilityState::Unsupported),
-            support_matrix_row(PolicyTargetKind::Site, PolicyCompilerCapabilityState::Unsupported),
-            support_matrix_row(PolicyTargetKind::Category, PolicyCompilerCapabilityState::Unsupported),
-            support_matrix_row(PolicyTargetKind::Resource, PolicyCompilerCapabilityState::Supported),
+            support_matrix_row(
+                PolicyTargetKind::ChildProfile,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Device,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::App,
+                PolicyCompilerCapabilityState::Unsupported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Site,
+                PolicyCompilerCapabilityState::Unsupported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Category,
+                PolicyCompilerCapabilityState::Unsupported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Resource,
+                PolicyCompilerCapabilityState::Supported,
+            ),
         ],
         PolicyCompilerDomain::Screen => vec![
-            support_matrix_row(PolicyTargetKind::ChildProfile, PolicyCompilerCapabilityState::Unsupported),
-            support_matrix_row(PolicyTargetKind::Device, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::App, PolicyCompilerCapabilityState::ManualRequired),
-            support_matrix_row(PolicyTargetKind::Site, PolicyCompilerCapabilityState::ManualRequired),
-            support_matrix_row(PolicyTargetKind::Category, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Resource, PolicyCompilerCapabilityState::Unsupported),
+            support_matrix_row(
+                PolicyTargetKind::ChildProfile,
+                PolicyCompilerCapabilityState::Unsupported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Device,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::App,
+                PolicyCompilerCapabilityState::ManualRequired,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Site,
+                PolicyCompilerCapabilityState::ManualRequired,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Category,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Resource,
+                PolicyCompilerCapabilityState::Unsupported,
+            ),
         ],
         PolicyCompilerDomain::Ai => vec![
-            support_matrix_row(PolicyTargetKind::ChildProfile, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Device, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::App, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Site, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Category, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Resource, PolicyCompilerCapabilityState::Supported),
+            support_matrix_row(
+                PolicyTargetKind::ChildProfile,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Device,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::App,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Site,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Category,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Resource,
+                PolicyCompilerCapabilityState::Supported,
+            ),
         ],
         PolicyCompilerDomain::Enforcement => vec![
-            support_matrix_row(PolicyTargetKind::ChildProfile, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Device, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::App, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Site, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Category, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Resource, PolicyCompilerCapabilityState::Supported),
+            support_matrix_row(
+                PolicyTargetKind::ChildProfile,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Device,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::App,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Site,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Category,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Resource,
+                PolicyCompilerCapabilityState::Supported,
+            ),
         ],
         PolicyCompilerDomain::NotificationAskParent => vec![
-            support_matrix_row(PolicyTargetKind::ChildProfile, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Device, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::App, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Site, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Category, PolicyCompilerCapabilityState::Supported),
-            support_matrix_row(PolicyTargetKind::Resource, PolicyCompilerCapabilityState::Supported),
+            support_matrix_row(
+                PolicyTargetKind::ChildProfile,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Device,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::App,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Site,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Category,
+                PolicyCompilerCapabilityState::Supported,
+            ),
+            support_matrix_row(
+                PolicyTargetKind::Resource,
+                PolicyCompilerCapabilityState::Supported,
+            ),
         ],
     };
 
@@ -508,8 +653,7 @@ fn capability_state_for_rule(
     target_kind: PolicyTargetKind,
     action: PolicyRuleAction,
 ) -> Result<PolicyCompilerCapabilityState, EventingError> {
-    let matrix_capability_state =
-        support_matrix_capability_state(support_matrix, target_kind)?;
+    let matrix_capability_state = support_matrix_capability_state(support_matrix, target_kind)?;
 
     match domain {
         PolicyCompilerDomain::Enforcement => Ok(
@@ -520,8 +664,12 @@ fn capability_state_for_rule(
             },
         ),
         PolicyCompilerDomain::NotificationAskParent => Ok(match matrix_capability_state {
-            PolicyCompilerCapabilityState::Unsupported => PolicyCompilerCapabilityState::Unsupported,
-            PolicyCompilerCapabilityState::ManualRequired => PolicyCompilerCapabilityState::ManualRequired,
+            PolicyCompilerCapabilityState::Unsupported => {
+                PolicyCompilerCapabilityState::Unsupported
+            }
+            PolicyCompilerCapabilityState::ManualRequired => {
+                PolicyCompilerCapabilityState::ManualRequired
+            }
             PolicyCompilerCapabilityState::Supported => {
                 if action == PolicyRuleAction::AskParent {
                     PolicyCompilerCapabilityState::Supported

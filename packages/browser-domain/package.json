@@ -26,6 +26,7 @@
     "@ocentra-parent/evidence-domain": "file:../evidence-domain",
     "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/notification-domain": "file:../notification-domain",
+    "@ocentra-parent/policy-domain": "file:../policy-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

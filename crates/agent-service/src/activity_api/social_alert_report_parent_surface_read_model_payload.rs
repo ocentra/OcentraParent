@@ -1,10 +1,12 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventMetadata,
-    EventResponseContract, EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey,
-    RecordedAt, RequestEvent, RequestId, RequestOptions, RuntimeInstanceId, SchemaVersion,
-    SourceComponent, SourceService, SubscriberId, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::DomainEvent,
+    envelope::EventContract, envelope::EventMetadata, envelope::EventSource, error::EventingError,
+    ids::AggregateKey, ids::CorrelationId, ids::EventType, ids::IdempotencyKey, ids::RecordedAt,
+    ids::RequestId, ids::RuntimeInstanceId, ids::SchemaVersion, ids::SourceComponent,
+    ids::SourceService, ids::SubscriberId, ids::TargetHandler, request::EventResponseContract,
+    request::RequestEvent, request::RequestOptions,
 };
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
@@ -273,13 +275,13 @@ fn status_handoff_metadata(
     target_handler: &str,
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
-        ocentra_eventing::EventId::generated(),
+        ocentra_eventing::ids::EventId::generated(),
         CorrelationId::parse(parent_surface_correlation_id(requested_at))?,
         EventSource::new(
-            ocentra_eventing::EventCustody::parse(
+            ocentra_eventing::ids::EventCustody::parse(
                 constants::eventing_source::CUSTODY_LOCAL_QUERY_STORE,
             )?,
-            ocentra_eventing::RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)?,
+            ocentra_eventing::ids::RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)?,
             SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
             SourceComponent::parse(constants::browser::RUNTIME_COMPONENT_BROWSER_SPINE)?,
             RuntimeInstanceId::parse(constants::browser::RUNTIME_INSTANCE_LOCAL_BROWSER_RUNTIME)?,

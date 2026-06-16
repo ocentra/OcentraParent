@@ -12,7 +12,7 @@
 - [ ] Close `workpacks/07-schedule-time-budget-conflict-model.md` with timezone/DST and conflict precedence proof.
 - [ ] Close `workpacks/02-parent-authoring-preview.md` with preview, conflict, and mobile/accessibility proof.
 - [ ] Close `workpacks/03-domain-policy-compilers.md` with deterministic compiler contracts and handoffs.
-- [ ] Close `workpacks/08-policy-event-model.md` with event family, idempotency, and replay proof.
+- [x] Close `workpacks/08-policy-event-model.md` with event family, idempotency, and replay proof.
 - [ ] Close `workpacks/04-delivery-ack-audit.md` with per-device/domain delivery and audit proof.
 - [ ] Close `workpacks/05-ask-parent-overrides.md` with approval, expiry, replay, and assistant-preview proof.
 - [ ] Close `workpacks/06-rollout-proof-and-route-gate.md` with route sync and no-overclaim proof.

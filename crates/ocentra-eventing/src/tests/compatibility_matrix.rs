@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use crate::{EventCompatibilityMatrix, EventCompatibilityStatus};
 
 const CLASS_CONTRACTS: &str = "class-backed-contracts";
@@ -53,21 +54,21 @@ fn compatibility_matrix_marks_deviations_and_manual_required_scope() {
     assert_eq!(
         matrix
             .entry(REPUBLISH_OVERRIDE)
-            .expect("republish entry")
+            .expect_value("republish entry")
             .status(),
         EventCompatibilityStatus::IntentionalDeviation
     );
     assert_eq!(
         matrix
             .entry(DISPOSAL_CALLBACKS)
-            .expect("disposal entry")
+            .expect_value("disposal entry")
             .status(),
         EventCompatibilityStatus::IntentionalDeviation
     );
     assert_eq!(
         matrix
             .entry(BROKER_DELIVERY)
-            .expect("broker entry")
+            .expect_value("broker entry")
             .status(),
         EventCompatibilityStatus::ManualRequired
     );

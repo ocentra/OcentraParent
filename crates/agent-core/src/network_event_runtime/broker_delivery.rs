@@ -1,8 +1,10 @@
 use ocentra_eventing::{
-    decide_event_delivery_route, EventDeliveryBackpressurePolicy, EventDeliveryDecisionError,
-    EventDeliveryDecisionInput, EventDeliveryDecisionProof, EventDeliveryDecisionState,
-    EventDeliveryRouteKind, EventDeliverySubscriberFilter, EventNamespace, EventType,
-    EventingError, SourceComponent, SubscriberId, TargetHandler,
+    delivery::decide_event_delivery_route, delivery::EventDeliveryBackpressurePolicy,
+    delivery::EventDeliveryDecisionError, delivery::EventDeliveryDecisionInput,
+    delivery::EventDeliveryDecisionProof, delivery::EventDeliveryDecisionState,
+    delivery::EventDeliveryRouteKind, delivery::EventDeliverySubscriberFilter,
+    error::EventingError, ids::EventNamespace, ids::EventType, ids::SourceComponent,
+    ids::SubscriberId, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
@@ -175,12 +177,12 @@ fn component_ref(value: &str) -> Result<Option<SourceComponent>, EventingError> 
 }
 
 fn decode_payloads(
-    stored_events: &[ocentra_eventing::StoredEventEnvelope],
+    stored_events: &[ocentra_eventing::envelope::StoredEventEnvelope],
 ) -> Result<Vec<NetworkRuntimeEventPayload>, EventingError> {
     stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::EventEnvelope<NetworkRuntimeEventPayload> =
+            let envelope: ocentra_eventing::envelope::EventEnvelope<NetworkRuntimeEventPayload> =
                 event.decode()?;
             Ok(envelope.payload)
         })
@@ -188,7 +190,7 @@ fn decode_payloads(
 }
 
 fn count_event_type(
-    stored_events: &[ocentra_eventing::StoredEventEnvelope],
+    stored_events: &[ocentra_eventing::envelope::StoredEventEnvelope],
     event_type: &str,
 ) -> usize {
     stored_events

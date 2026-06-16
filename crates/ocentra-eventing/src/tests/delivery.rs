@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use crate::{
     decide_event_delivery_route, EventDeliveryBackpressurePolicy, EventDeliveryDecisionError,
     EventDeliveryDecisionInput, EventDeliveryDecisionState, EventDeliveryRequiredArtifact,
@@ -13,7 +14,7 @@ const OTHER_EVENT: &str = "screen.evidence.observed";
 #[test]
 fn delivery_decision_allows_local_first_route_with_filter_and_backpressure() {
     let proof = decide_event_delivery_route(local_input(EventDeliveryRouteKind::LocalInProcess))
-        .expect("local in-process event route should be ready");
+        .expect_value("local in-process event route should be ready");
 
     assert_eq!(proof.route_kind, EventDeliveryRouteKind::LocalInProcess);
     assert_eq!(
@@ -45,7 +46,9 @@ fn delivery_decision_marks_external_transport_manual_required_without_required_a
         route_kind: EventDeliveryRouteKind::ExternalTransport,
         ..local_input(EventDeliveryRouteKind::LocalInProcess)
     })
-    .expect("external transport route decision should be reportable when artifacts are missing");
+    .expect_value(
+        "external transport route decision should be reportable when artifacts are missing",
+    );
 
     assert_eq!(
         proof.decision_state,
@@ -87,7 +90,7 @@ fn delivery_decision_marks_external_relay_manual_required_for_relay_artifacts() 
         transport_config_ref: component("transport-config-proof-45"),
         ..local_input(EventDeliveryRouteKind::LocalInProcess)
     })
-    .expect("external relay route should require relay specific artifacts");
+    .expect_value("external relay route should require relay specific artifacts");
 
     assert_eq!(
         proof.decision_state,
@@ -106,7 +109,7 @@ fn delivery_decision_marks_external_relay_manual_required_for_relay_artifacts() 
 #[test]
 fn delivery_decision_preserves_satisfied_external_transport_requirements_without_live_transport() {
     let proof = decide_event_delivery_route(external_transport_requirements_satisfied_input())
-        .expect(
+        .expect_value(
             "complete external transport requirements should be distinguishable from live delivery",
         );
 
@@ -119,7 +122,7 @@ fn delivery_decision_preserves_satisfied_external_transport_requirements_without
         proof
             .retention_policy_ref
             .as_ref()
-            .expect("retention ref exists")
+            .expect_value("retention ref exists")
             .as_str(),
         "retention-policy-proof-45"
     );
@@ -226,9 +229,9 @@ fn external_transport_requirements_satisfied_input() -> EventDeliveryDecisionInp
 fn subscriber_filter() -> EventDeliverySubscriberFilter {
     EventDeliverySubscriberFilter {
         subscriber_id: SubscriberId::parse("network-read-model-subscriber")
-            .expect("subscriber id parses"),
+            .expect_value("subscriber id parses"),
         target_handler: TargetHandler::parse("network-read-model-projector")
-            .expect("target handler parses"),
+            .expect_value("target handler parses"),
         event_namespace: event_namespace(),
         accepted_event_types: vec![
             event_type(NETWORK_FLOW_EVENT),
@@ -263,15 +266,15 @@ fn external_transport_requirements() -> Vec<EventDeliveryRequiredArtifact> {
 }
 
 fn event_namespace() -> EventNamespace {
-    EventNamespace::parse(NETWORK_NAMESPACE).expect("namespace parses")
+    EventNamespace::parse(NETWORK_NAMESPACE).expect_value("namespace parses")
 }
 
 fn event_type(value: &str) -> EventType {
-    EventType::parse(value).expect("event type parses")
+    EventType::parse(value).expect_value("event type parses")
 }
 
 fn source_component(value: &str) -> SourceComponent {
-    SourceComponent::parse(value).expect("source component parses")
+    SourceComponent::parse(value).expect_value("source component parses")
 }
 
 fn component(value: &str) -> Option<SourceComponent> {

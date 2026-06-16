@@ -1,4 +1,4 @@
-﻿use std::{
+use std::{
     collections::BTreeMap,
     future::Future,
     pin::Pin,
@@ -8,8 +8,9 @@
     },
 };
 
-use crate::{ExpectValue, 
-    DomainEvent, EventType, EventingError, StoredEventEnvelope, SubscriberId, TargetHandler,
+use crate::{
+    DomainEvent, EventType, EventingError, ExpectValue, StoredEventEnvelope, SubscriberId,
+    TargetHandler,
 };
 
 use super::{EventContext, EventPublisher, QueueDrainReport};
@@ -138,9 +139,7 @@ pub(super) fn insert_subscriber(
         .iter()
         .any(|subscriber| subscriber.id == record.id)
     {
-        return Err(EventingError::DuplicateSubscriber {
-            subscriber_id,
-        });
+        return Err(EventingError::DuplicateSubscriber { subscriber_id });
     }
     subscribers.push(record);
     Ok(())
@@ -163,4 +162,3 @@ pub(super) fn remove_subscriber(
     }
     removed
 }
-

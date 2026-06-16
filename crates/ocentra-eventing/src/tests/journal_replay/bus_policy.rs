@@ -1,4 +1,6 @@
+use crate::ExpectValue;
 use crate::{EventNamespace, JournalPolicy, JournalSelector};
+use std::sync::Arc;
 
 use super::{
     super::fixtures::{
@@ -23,13 +25,13 @@ async fn assert_before_dispatch_selected_type() {
         JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type(
             TEST_EVENT_TYPE,
         )])),
-        before_log.clone(),
+        Arc::clone(&before_log),
     );
-    subscribe_log_handler(&before_bus, before_log.clone()).await;
+    subscribe_log_handler(&before_bus, Arc::clone(&before_log)).await;
     before_bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("before dispatch publish");
+        .expect_value("before dispatch publish");
     assert_eq!(
         snapshot(&before_log),
         vec![
@@ -45,14 +47,14 @@ async fn assert_after_dispatch_selected_namespace() {
         JournalPolicy::after_dispatch(JournalSelector::Namespaces(vec![EventNamespace::parse(
             "eventing",
         )
-        .expect("namespace parses")])),
-        after_log.clone(),
+        .expect_value("namespace parses")])),
+        Arc::clone(&after_log),
     );
-    subscribe_log_handler(&after_bus, after_log.clone()).await;
+    subscribe_log_handler(&after_bus, Arc::clone(&after_log)).await;
     after_bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("after dispatch publish");
+        .expect_value("after dispatch publish");
     assert_eq!(
         snapshot(&after_log),
         vec![
@@ -68,20 +70,20 @@ async fn assert_before_and_after_dispatch_allowlist() {
         JournalPolicy::before_and_after_dispatch(JournalSelector::ContractAllowlist(vec![
             event_type(TEST_EVENT_TYPE),
         ])),
-        both_log.clone(),
+        Arc::clone(&both_log),
     );
-    subscribe_log_handler(&both_bus, both_log.clone()).await;
+    subscribe_log_handler(&both_bus, Arc::clone(&both_log)).await;
     both_bus
         .publish(
             test_event_for_type(TEST_LABEL, OTHER_EVENT_TYPE),
             metadata(TEST_TARGET),
         )
         .await
-        .expect("unselected publish");
+        .expect_value("unselected publish");
     both_bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("selected publish");
+        .expect_value("selected publish");
     assert_eq!(
         snapshot(&both_log),
         vec![

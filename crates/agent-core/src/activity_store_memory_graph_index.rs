@@ -18,7 +18,7 @@ pub(crate) fn refresh_activity_memory_graph_index(
         generated_at,
     );
     for row in rows {
-        builder.ingest(row);
+        builder.ingest(&row);
     }
     let read_model = builder.into_read_model();
     persist_read_model(connection, &read_model, source_event_count)

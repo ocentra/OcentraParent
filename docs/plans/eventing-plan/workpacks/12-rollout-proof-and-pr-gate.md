@@ -28,6 +28,18 @@ Expected tests/proof:
 - `eventing.rollout.consumer-claim-negative`
 - `eventing.rollout.pr-done-report`
 
+Proof artifacts:
+
+- `output/eventing-plan-proof/rollout-proof/proof-summary.json`
+- `test-results/eventing-rollout-proof/proof.json`
+- `output/eventing-plan-proof/rollout-proof/pr-done-report.md`
+- `output/eventing-plan-proof/rollout-proof/command-logs/`
+
+Validation commands:
+
+- `node scripts/test/eventing-rollout-proof.mjs`
+- `git diff --check -- docs/proof/eventing-plan docs/plans/eventing-plan`
+
 Failure conditions:
 
 - Do not close a workpack from green compile alone.

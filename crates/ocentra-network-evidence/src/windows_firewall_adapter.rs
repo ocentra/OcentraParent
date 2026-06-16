@@ -168,6 +168,11 @@ pub fn plan_network_windows_firewall_adapter_proof(
     let boundary_reasons = boundary_reasons(&input, missing_required_artifacts.is_empty());
     let proof_state = proof_state(input.dry_run, input.capability_state, &boundary_reasons);
     let adapter_apply_authorized = proof_state == NetworkWindowsFirewallProofState::ApplyReady;
+    let policy_evidence_grade = input.policy_mapping.evidence_grade;
+    let requested_action = input.requested_action;
+    let target_kind = input.target_kind;
+    let capability_state = input.capability_state;
+    drop(input);
 
     Ok(NetworkWindowsFirewallAdapterProof {
         firewall_adapter_plan_ref: normalized.firewall_adapter_plan_ref,
@@ -175,13 +180,13 @@ pub fn plan_network_windows_firewall_adapter_proof(
         parent_rule_ref: normalized.parent_rule_ref,
         evidence_refs: normalized.evidence_refs,
         local_ai_result_ref: normalized.local_ai_result_ref,
-        evidence_grade: input.policy_mapping.evidence_grade,
-        requested_action: input.requested_action,
+        evidence_grade: policy_evidence_grade,
+        requested_action,
         windows_os_scope_ref: normalized.windows_os_scope_ref,
-        target_kind: input.target_kind,
+        target_kind,
         target_ref: normalized.target_ref,
         firewall_rule_ref: normalized.firewall_rule_ref,
-        capability_state: input.capability_state,
+        capability_state,
         proof_state,
         boundary_reasons,
         missing_required_artifacts,

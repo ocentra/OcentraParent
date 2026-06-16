@@ -125,7 +125,7 @@ fn assert_active_override_minutes(
         .as_ref()
         .expect("temporary override");
 
-    assert_eq!(resolution.request.resolved_approval_id.is_some(), true);
+    assert!(resolution.request.resolved_approval_id.is_some());
     assert_eq!(temporary_override.state, PolicyOverrideState::Active);
     assert_eq!(
         temporary_override

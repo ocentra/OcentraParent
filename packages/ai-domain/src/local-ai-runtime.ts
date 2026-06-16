@@ -13,8 +13,6 @@ import {
   LocalAiUnavailableReasonSchema,
 } from './local-ai-primitives';
 
-export * from '@ocentra-parent/ai-domain/local-ai-model-artifacts';
-
 export const LocalAiProviderPrivacyModeSchema = withParser(Schema.Literal('local-only'));
 
 export const LocalAiAdapterBoundarySchema = withParser(

@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use std::sync::{Arc, Mutex};
 
 use serde::{Deserialize, Serialize};
@@ -78,17 +79,17 @@ async fn family_subscriber_receives_typed_enum_variants_without_downcast() {
                     DecisionFamilyEvent::Approved(payload) => {
                         approved_seen
                             .lock()
-                            .expect("received lock")
+                            .expect_value("received lock")
                             .push(payload.label.clone());
                     }
-                    DecisionFamilyEvent::Rejected(_) => panic!("approved subscriber saw rejection"),
+                    DecisionFamilyEvent::Rejected(_) => std::process::abort(),
                 }
                 Ok(())
             }
         },
     )
     .await
-    .expect("approved family subscriber registers");
+    .expect_value("approved family subscriber registers");
 
     let rejected_seen = Arc::clone(&received);
     bus.subscribe::<DecisionFamilyEvent, _, _>(
@@ -97,11 +98,11 @@ async fn family_subscriber_receives_typed_enum_variants_without_downcast() {
             let rejected_seen = Arc::clone(&rejected_seen);
             async move {
                 match context.payload() {
-                    DecisionFamilyEvent::Approved(_) => panic!("rejected subscriber saw approval"),
+                    DecisionFamilyEvent::Approved(_) => std::process::abort(),
                     DecisionFamilyEvent::Rejected(payload) => {
                         rejected_seen
                             .lock()
-                            .expect("received lock")
+                            .expect_value("received lock")
                             .push(payload.label.clone());
                     }
                 }
@@ -110,17 +111,17 @@ async fn family_subscriber_receives_typed_enum_variants_without_downcast() {
         },
     )
     .await
-    .expect("rejected family subscriber registers");
+    .expect_value("rejected family subscriber registers");
 
     bus.publish(approved_event(), family_metadata())
         .await
-        .expect("approved variant publishes");
+        .expect_value("approved variant publishes");
     bus.publish(rejected_event(), family_metadata())
         .await
-        .expect("rejected variant publishes");
+        .expect_value("rejected variant publishes");
 
     assert_eq!(
-        received.lock().expect("received lock").as_slice(),
+        received.lock().expect_value("received lock").as_slice(),
         [APPROVED_LABEL.to_string(), REJECTED_LABEL.to_string()]
     );
 }
@@ -128,11 +129,11 @@ async fn family_subscriber_receives_typed_enum_variants_without_downcast() {
 #[test]
 fn family_variant_stored_decode_rejects_contract_variant_mismatch() {
     let envelope = EventEnvelope::from_event(approved_event(), family_metadata())
-        .expect("approved envelope builds");
-    let mut stored = envelope.store().expect("approved envelope stores");
+        .expect_value("approved envelope builds");
+    let mut stored = envelope.store().expect_value("approved envelope stores");
     stored.contract = EventContract::new(
-        EventType::parse(REJECTED_EVENT_TYPE).expect("rejected event type parses"),
-        SchemaVersion::new(1).expect("schema version parses"),
+        EventType::parse(REJECTED_EVENT_TYPE).expect_value("rejected event type parses"),
+        SchemaVersion::new(1).expect_value("schema version parses"),
     );
 
     assert!(matches!(
@@ -146,10 +147,10 @@ fn family_variants_register_as_distinct_contract_descriptors() {
     let mut registry = EventContractRegistry::new();
     registry
         .register_event(&approved_event())
-        .expect("approved family variant registers");
+        .expect_value("approved family variant registers");
     registry
         .register_event(&rejected_event())
-        .expect("rejected family variant registers");
+        .expect_value("rejected family variant registers");
 
     let event_types = registry
         .descriptors()
@@ -167,16 +168,18 @@ fn family_variants_register_as_distinct_contract_descriptors() {
 fn approved_event() -> DecisionFamilyEvent {
     DecisionFamilyEvent::Approved(DecisionPayload {
         label: APPROVED_LABEL.to_string(),
-        aggregate_key: AggregateKey::parse(FAMILY_AGGREGATE).expect("aggregate parses"),
-        idempotency_key: IdempotencyKey::parse(APPROVED_IDEMPOTENCY).expect("idempotency parses"),
+        aggregate_key: AggregateKey::parse(FAMILY_AGGREGATE).expect_value("aggregate parses"),
+        idempotency_key: IdempotencyKey::parse(APPROVED_IDEMPOTENCY)
+            .expect_value("idempotency parses"),
     })
 }
 
 fn rejected_event() -> DecisionFamilyEvent {
     DecisionFamilyEvent::Rejected(DecisionPayload {
         label: REJECTED_LABEL.to_string(),
-        aggregate_key: AggregateKey::parse(FAMILY_AGGREGATE).expect("aggregate parses"),
-        idempotency_key: IdempotencyKey::parse(REJECTED_IDEMPOTENCY).expect("idempotency parses"),
+        aggregate_key: AggregateKey::parse(FAMILY_AGGREGATE).expect_value("aggregate parses"),
+        idempotency_key: IdempotencyKey::parse(REJECTED_IDEMPOTENCY)
+            .expect_value("idempotency parses"),
     })
 }
 
@@ -188,24 +191,24 @@ fn decision_payload(event: &DecisionFamilyEvent) -> &DecisionPayload {
 
 fn family_metadata() -> EventMetadata {
     EventMetadata::from_parts(
-        crate::EventId::parse(FAMILY_EVENT_ID).expect("event id parses"),
-        CorrelationId::parse(FAMILY_CORRELATION).expect("correlation parses"),
+        crate::EventId::parse(FAMILY_EVENT_ID).expect_value("event id parses"),
+        CorrelationId::parse(FAMILY_CORRELATION).expect_value("correlation parses"),
         EventSource::new(
-            EventCustody::parse(FAMILY_CUSTODY).expect("event custody parses"),
-            RuntimeRole::parse(FAMILY_RUNTIME_ROLE).expect("runtime role parses"),
-            SourceService::parse(FAMILY_SOURCE_SERVICE).expect("source service parses"),
-            SourceComponent::parse(FAMILY_SOURCE_COMPONENT).expect("source component parses"),
-            RuntimeInstanceId::parse(FAMILY_INSTANCE).expect("runtime instance parses"),
+            EventCustody::parse(FAMILY_CUSTODY).expect_value("event custody parses"),
+            RuntimeRole::parse(FAMILY_RUNTIME_ROLE).expect_value("runtime role parses"),
+            SourceService::parse(FAMILY_SOURCE_SERVICE).expect_value("source service parses"),
+            SourceComponent::parse(FAMILY_SOURCE_COMPONENT).expect_value("source component parses"),
+            RuntimeInstanceId::parse(FAMILY_INSTANCE).expect_value("runtime instance parses"),
         ),
-        RecordedAt::parse(FAMILY_OBSERVED_AT).expect("recorded at parses"),
-        Some(TargetHandler::parse(FAMILY_TARGET).expect("target handler parses")),
+        RecordedAt::parse(FAMILY_OBSERVED_AT).expect_value("recorded at parses"),
+        Some(TargetHandler::parse(FAMILY_TARGET).expect_value("target handler parses")),
     )
 }
 
 fn family_subscriber(id: &str, event_type: &str) -> EventSubscriber {
     EventSubscriber::new(
-        SubscriberId::parse(id).expect("subscriber id parses"),
-        EventType::parse(event_type).expect("event type parses"),
-        TargetHandler::parse(FAMILY_TARGET).expect("target handler parses"),
+        SubscriberId::parse(id).expect_value("subscriber id parses"),
+        EventType::parse(event_type).expect_value("event type parses"),
+        TargetHandler::parse(FAMILY_TARGET).expect_value("target handler parses"),
     )
 }

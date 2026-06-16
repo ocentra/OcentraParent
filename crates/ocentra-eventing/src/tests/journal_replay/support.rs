@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use std::{
     future::Future,
     path::PathBuf,
@@ -24,24 +25,24 @@ pub(super) async fn subscribe_log_handler(bus: &EventBus, log: Arc<Mutex<Vec<Str
         let log = Arc::clone(&log);
         async move {
             log.lock()
-                .expect("recording log")
+                .expect_value("recording log")
                 .push(String::from("handler"));
             Ok(())
         }
     })
     .await
-    .expect("subscriber registers");
+    .expect_value("subscriber registers");
 }
 
 pub(super) fn stored_event(event: TestEvent) -> StoredEventEnvelope {
     EventEnvelope::from_event(event, metadata(TEST_TARGET))
-        .expect("envelope builds")
+        .expect_value("envelope builds")
         .store()
-        .expect("stored envelope builds")
+        .expect_value("stored envelope builds")
 }
 
 pub(super) fn event_type(value: &str) -> EventType {
-    EventType::parse(value).expect("event type parses")
+    EventType::parse(value).expect_value("event type parses")
 }
 
 pub(super) fn shared_log() -> Arc<Mutex<Vec<String>>> {
@@ -49,7 +50,7 @@ pub(super) fn shared_log() -> Arc<Mutex<Vec<String>>> {
 }
 
 pub(super) fn snapshot(log: &Arc<Mutex<Vec<String>>>) -> Vec<String> {
-    log.lock().expect("recording log").clone()
+    log.lock().expect_value("recording log").clone()
 }
 
 pub(super) fn journal_path(label: &str) -> PathBuf {
@@ -63,7 +64,7 @@ pub(super) fn journal_path(label: &str) -> PathBuf {
 pub(super) async fn read_lines(path: &PathBuf) -> Vec<String> {
     tokio::fs::read_to_string(path)
         .await
-        .expect("journal file reads")
+        .expect_value("journal file reads")
         .lines()
         .map(String::from)
         .collect()
@@ -74,15 +75,15 @@ pub(super) async fn write_lines(path: &PathBuf, lines: &[String]) {
     content.push('\n');
     tokio::fs::write(path, content)
         .await
-        .expect("journal file writes");
+        .expect_value("journal file writes");
 }
 
 pub(super) async fn tamper_first_journal_payload_label(path: &PathBuf, label: &str) {
     let mut lines = read_lines(path).await;
     let mut entry: serde_json::Value =
-        serde_json::from_str(&lines[0]).expect("journal line decodes as value");
+        serde_json::from_str(&lines[0]).expect_value("journal line decodes as value");
     entry["envelope"]["payload"]["label"] = serde_json::Value::String(label.to_string());
-    lines[0] = serde_json::to_string(&entry).expect("journal value encodes");
+    lines[0] = serde_json::to_string(&entry).expect_value("journal value encodes");
     write_lines(path, &lines).await;
 }
 
@@ -100,7 +101,7 @@ impl EventJournal for RecordingJournal {
         envelope: &'a StoredEventEnvelope,
     ) -> Pin<Box<dyn Future<Output = Result<JournalAppend, EventingError>> + Send + 'a>> {
         Box::pin(async move {
-            let mut log = self.log.lock().expect("recording log");
+            let mut log = self.log.lock().expect_value("recording log");
             log.push(format!("journal:{}", envelope.contract.event_type.as_str()));
             Ok(JournalAppend {
                 sequence: log.len() as u64,

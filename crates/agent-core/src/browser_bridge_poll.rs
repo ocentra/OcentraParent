@@ -91,20 +91,20 @@ impl BrowserBridgePollError {
 }
 
 pub fn poll_chromium_bridge(
-    config: BrowserBridgePollConfig,
+    config: &BrowserBridgePollConfig,
     observed_at: &str,
     fresh_until: &str,
 ) -> Result<BrowserBridgePollSnapshot, BrowserBridgePollError> {
     if !config.endpoint.ip().is_loopback() {
         return Err(BrowserBridgePollError::NonLoopbackEndpoint);
     }
-    validate_bridge_custody(&config, observed_at)?;
+    validate_bridge_custody(config, observed_at)?;
 
     let version_body =
         read_devtools_body(&config.endpoint, constants::browser::HTTP_GET_JSON_VERSION)?;
     let list_body = read_devtools_body(&config.endpoint, constants::browser::HTTP_GET_JSON_LIST)?;
     let browser_version = parse_browser_version(&version_body)?;
-    let events = parse_target_events(&config, &list_body, observed_at, fresh_until)?;
+    let events = parse_target_events(config, &list_body, observed_at, fresh_until)?;
 
     Ok(BrowserBridgePollSnapshot {
         browser_version,
@@ -115,7 +115,7 @@ pub fn poll_chromium_bridge(
 
 fn parse_browser_version(body: &str) -> Result<Option<String>, BrowserBridgePollError> {
     let value: Value =
-        serde_json::from_str(body).map_err(|_| BrowserBridgePollError::InvalidJson)?;
+        serde_json::from_str(body).map_err(|_error| BrowserBridgePollError::InvalidJson)?;
     if !value.is_object() {
         return Err(BrowserBridgePollError::InvalidTargetPayload);
     }
@@ -132,7 +132,7 @@ fn parse_target_events(
     fresh_until: &str,
 ) -> Result<Vec<ActivityEvent>, BrowserBridgePollError> {
     let value: Value =
-        serde_json::from_str(body).map_err(|_| BrowserBridgePollError::InvalidJson)?;
+        serde_json::from_str(body).map_err(|_error| BrowserBridgePollError::InvalidJson)?;
     let Some(targets) = value.as_array() else {
         return Err(BrowserBridgePollError::InvalidTargetPayload);
     };
@@ -188,7 +188,7 @@ fn target_event(
     };
     browser_tab_observation_event(observation, observed_at, fresh_until, index)
         .map(Some)
-        .map_err(|_| BrowserBridgePollError::InvalidTargetPayload)
+        .map_err(|_error| BrowserBridgePollError::InvalidTargetPayload)
 }
 
 fn validate_bridge_custody(

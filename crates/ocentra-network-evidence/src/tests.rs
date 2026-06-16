@@ -1,3 +1,5 @@
+#![allow(clippy::expect_used, clippy::panic)]
+
 use crate::{
     dns_query_frame_fixture, dns_query_pcap_fixture, dns_query_replay_expected,
     dns_response_payload_fixture, icmp_echo_frame_fixture, parse_dns_message, parse_network_packet,

@@ -18,7 +18,7 @@ import {
   AgentTimestampSchema,
   AgentWebSocketUrlSchema,
   SerializedAgentMessageSchema,
-} from '@ocentra-parent/evidence-domain/primitives';
+} from '@ocentra-parent/event-domain/primitives';
 import {
   AgentLanBrowserRuntimeCommandNameLiteral,
   AgentLanBrowserRuntimeEventNameLiteral,
@@ -63,7 +63,7 @@ export {
   type AgentTimestamp,
   type AgentWebSocketUrl,
   type SerializedAgentMessage,
-} from '@ocentra-parent/evidence-domain/primitives';
+} from '@ocentra-parent/event-domain/primitives';
 export {
   AgentBrowserRuntimeCapabilityStatus,
   AgentBrowserRuntimeCapabilityStatusSchema,

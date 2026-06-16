@@ -1,6 +1,10 @@
-use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventContract, EventCustody, EventEnvelope,
-    EventMetadata, EventSource, EventType, EventingError, IdempotencyKey, RecordedAt,
+use ocentra_eventing::envelope::{
+    DomainEvent, EventContract, EventEnvelope, EventMetadata, EventSource,
+};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
+use ocentra_eventing::ids::{
+    AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey, RecordedAt,
     RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService, TargetHandler,
 };
 use serde::{Deserialize, Serialize};
@@ -49,7 +53,10 @@ fn event_contract_serde_rejects_zero_schema_version() {
         "schema_version": 0
     }));
 
-    let error = result.expect_err("zero schema version must fail");
+    let error = match result {
+        Ok(_) => std::process::abort(),
+        Err(error) => error,
+    };
     assert!(error
         .to_string()
         .contains("event schema version must be nonzero"));
@@ -63,10 +70,10 @@ fn live_and_stored_envelopes_preserve_contract_and_metadata() {
         },
         metadata(),
     )
-    .expect("live envelope builds");
-    let stored = live.store().expect("stored envelope builds");
+    .expect_value("live envelope builds");
+    let stored = live.store().expect_value("stored envelope builds");
     let decoded: EventEnvelope<EnvelopeBoundaryEvent> =
-        stored.decode().expect("stored envelope decodes");
+        stored.decode().expect_value("stored envelope decodes");
 
     assert_eq!(stored.contract.event_type.as_str(), TEST_EVENT_TYPE);
     assert_eq!(stored.contract.schema_version.value(), 1);
@@ -76,7 +83,7 @@ fn live_and_stored_envelopes_preserve_contract_and_metadata() {
         stored
             .target_handler
             .as_ref()
-            .expect("target handler stored")
+            .expect_value("target handler stored")
             .as_str(),
         TEST_TARGET
     );
@@ -92,22 +99,26 @@ fn stored_decode_contract_mismatch_reports_event_type_and_schema_version_context
         },
         metadata(),
     )
-    .expect("live envelope builds");
-    let mut stored = live.store().expect("stored envelope builds");
-    stored.contract.event_type = EventType::parse(OTHER_EVENT_TYPE).expect("other event parses");
-    stored.contract.schema_version = SchemaVersion::new(2).expect("received schema version parses");
+    .expect_value("live envelope builds");
+    let mut stored = live.store().expect_value("stored envelope builds");
+    stored.contract.event_type =
+        EventType::parse(OTHER_EVENT_TYPE).expect_value("other event parses");
+    stored.contract.schema_version =
+        SchemaVersion::new(2).expect_value("received schema version parses");
 
     let error = stored
         .decode::<EnvelopeBoundaryEvent>()
-        .expect_err("contract mismatch must fail closed");
+        .expect_err_value("contract mismatch must fail closed");
 
     assert_eq!(
         error,
         EventingError::ContractMismatch {
-            expected: EventType::parse(TEST_EVENT_TYPE).expect("expected event parses"),
-            received: EventType::parse(OTHER_EVENT_TYPE).expect("received event parses"),
-            expected_schema_version: SchemaVersion::new(1).expect("expected schema version parses"),
-            received_schema_version: SchemaVersion::new(2).expect("received schema version parses"),
+            expected: EventType::parse(TEST_EVENT_TYPE).expect_value("expected event parses"),
+            received: EventType::parse(OTHER_EVENT_TYPE).expect_value("received event parses"),
+            expected_schema_version: SchemaVersion::new(1)
+                .expect_value("expected schema version parses"),
+            received_schema_version: SchemaVersion::new(2)
+                .expect_value("received schema version parses"),
         }
     );
     assert_eq!(
@@ -118,16 +129,16 @@ fn stored_decode_contract_mismatch_reports_event_type_and_schema_version_context
 
 fn metadata() -> EventMetadata {
     EventMetadata::from_parts(
-        ocentra_eventing::EventId::parse(TEST_EVENT_ID).expect("event id parses"),
-        CorrelationId::parse(TEST_CORRELATION_ID).expect("correlation id parses"),
+        EventId::parse(TEST_EVENT_ID).expect_value("event id parses"),
+        CorrelationId::parse(TEST_CORRELATION_ID).expect_value("correlation id parses"),
         EventSource::new(
-            EventCustody::parse(TEST_CUSTODY).expect("custody parses"),
-            RuntimeRole::parse(TEST_RUNTIME_ROLE).expect("runtime role parses"),
-            SourceService::parse(TEST_SOURCE_SERVICE).expect("source service parses"),
-            SourceComponent::parse(TEST_SOURCE_COMPONENT).expect("source component parses"),
-            RuntimeInstanceId::parse(TEST_RUNTIME_INSTANCE).expect("runtime instance parses"),
+            EventCustody::parse(TEST_CUSTODY).expect_value("custody parses"),
+            RuntimeRole::parse(TEST_RUNTIME_ROLE).expect_value("runtime role parses"),
+            SourceService::parse(TEST_SOURCE_SERVICE).expect_value("source service parses"),
+            SourceComponent::parse(TEST_SOURCE_COMPONENT).expect_value("source component parses"),
+            RuntimeInstanceId::parse(TEST_RUNTIME_INSTANCE).expect_value("runtime instance parses"),
         ),
-        RecordedAt::parse(TEST_OBSERVED_AT).expect("observed at parses"),
-        Some(TargetHandler::parse(TEST_TARGET).expect("target handler parses")),
+        RecordedAt::parse(TEST_OBSERVED_AT).expect_value("observed at parses"),
+        Some(TargetHandler::parse(TEST_TARGET).expect_value("target handler parses")),
     )
 }

@@ -16,6 +16,26 @@ pub struct PolicyDryRunEvaluationInput {
 }
 
 pub fn evaluate_policy_dry_run(input: PolicyDryRunEvaluationInput) -> PolicyDecision {
+    let PolicyDryRunEvaluationInput {
+        decision_id,
+        evaluated_at,
+        observed_target,
+        observed_target_aliases,
+        parent_rules,
+        local_ai_result,
+        evidence_references,
+        expires_at,
+    } = input;
+    let input = PolicyDryRunEvaluationInput {
+        decision_id,
+        evaluated_at,
+        observed_target,
+        observed_target_aliases,
+        parent_rules,
+        local_ai_result,
+        evidence_references,
+        expires_at,
+    };
     let evidence_references = decision_evidence_references(&input);
     let local_ai_result_id = input
         .local_ai_result

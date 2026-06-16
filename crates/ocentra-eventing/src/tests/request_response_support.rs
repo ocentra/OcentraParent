@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -51,7 +52,7 @@ pub(super) struct InvalidContractRequestEvent {
 impl InvalidContractRequestEvent {
     pub(super) fn new() -> Self {
         Self {
-            request_id: RequestId::parse(REQUEST_ID).expect("request id parses"),
+            request_id: RequestId::parse(REQUEST_ID).expect_value("request id parses"),
         }
     }
 }
@@ -134,7 +135,7 @@ impl DomainEvent for TestResultEvent {
 pub(super) fn test_request(label: &str) -> TestRequestEvent {
     TestRequestEvent {
         label: label.to_string(),
-        request_id: RequestId::parse(REQUEST_ID).expect("request id parses"),
+        request_id: RequestId::parse(REQUEST_ID).expect_value("request id parses"),
     }
 }
 

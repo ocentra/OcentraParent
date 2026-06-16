@@ -1,6 +1,7 @@
 use ocentra_eventing::{
-    EventCustody, EventId, EventMetadata, EventSource, EventingError, RecordedAt,
-    RuntimeInstanceId, RuntimeRole, SourceComponent, SourceService, TargetHandler,
+    envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::EventCustody,
+    ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId, ids::RuntimeRole, ids::SourceComponent,
+    ids::SourceService, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
 
@@ -16,7 +17,7 @@ pub(crate) fn bridge_event_metadata(
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),
-        ocentra_eventing::CorrelationId::parse(bridge_aggregate_key(&input.correlation_id))?,
+        ocentra_eventing::ids::CorrelationId::parse(bridge_aggregate_key(&input.correlation_id))?,
         bridge_event_source(phase)?,
         RecordedAt::parse(&input.observed_at)?,
         Some(TargetHandler::parse(phase.target_handler())?),

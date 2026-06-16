@@ -168,6 +168,9 @@ pub fn plan_network_windows_wfp_gate(
         &boundary_reasons,
     );
     let wfp_lab_proof_ready = gate_state == NetworkWindowsWfpGateState::LabProofReady;
+    let policy_evidence_grade = input.policy_mapping.evidence_grade;
+    let capability_state = input.capability_state;
+    drop(input);
 
     Ok(NetworkWindowsWfpGateProof {
         wfp_gate_ref: normalized.wfp_gate_ref,
@@ -175,11 +178,11 @@ pub fn plan_network_windows_wfp_gate(
         parent_rule_ref: normalized.parent_rule_ref,
         evidence_refs: normalized.evidence_refs,
         local_ai_result_ref: normalized.local_ai_result_ref,
-        evidence_grade: input.policy_mapping.evidence_grade,
+        evidence_grade: policy_evidence_grade,
         target_ref: normalized.target_ref,
         wfp_provider_ref: normalized.wfp_provider_ref,
         wfp_layer_ref: normalized.wfp_layer_ref,
-        capability_state: input.capability_state,
+        capability_state,
         gate_state,
         boundary_reasons,
         missing_required_artifacts,

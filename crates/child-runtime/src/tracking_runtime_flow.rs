@@ -4,9 +4,11 @@ use std::{
 };
 
 use ocentra_eventing::{
-    CorrelationId, EventBus, EventCustody, EventId, EventMetadata, EventSource, EventSubscriber,
-    EventType, EventingError, RecordedAt, RequestCompletionReport, RuntimeInstanceId, RuntimeRole,
-    SourceComponent, SourceService, SubscriberId, SubscriptionReport, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
+    envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::CorrelationId,
+    ids::EventCustody, ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId,
+    ids::RuntimeRole, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
+    ids::TargetHandler, request::RequestCompletionReport,
 };
 use ocentra_parent_agent_protocol::{
     constants, ParentNotificationRequestedEvent, TrackingAiAnalysisRequestedEvent,
@@ -108,7 +110,7 @@ impl TrackingRuntimeEventFlow {
         self.report()
     }
 
-    pub async fn metrics_snapshot(&self) -> ocentra_eventing::EventMetricsSnapshot {
+    pub async fn metrics_snapshot(&self) -> ocentra_eventing::bus::reports::EventMetricsSnapshot {
         self.bus.metrics_snapshot().await
     }
 

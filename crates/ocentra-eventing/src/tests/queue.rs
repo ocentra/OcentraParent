@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use std::{sync::Arc, time::Duration};
 
 use std::{future::Future, pin::Pin, sync::Mutex as StdMutex};
@@ -17,12 +18,12 @@ use crate::{
 #[tokio::test]
 async fn no_subscriber_queue_drains_after_subscriber_registers() {
     let bus = EventBus::with_queue_policy(
-        EventQueuePolicy::no_subscriber_queue(2).expect("queue policy is valid"),
+        EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid"),
     );
     let queued_report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("no-subscriber publish queues");
+        .expect_value("no-subscriber publish queues");
     let handled = Arc::new(Mutex::new(Vec::new()));
     let handled_clone = Arc::clone(&handled);
     let subscription = bus
@@ -34,11 +35,11 @@ async fn no_subscriber_queue_drains_after_subscriber_registers() {
             }
         })
         .await
-        .expect("subscriber registers and drains queue");
+        .expect_value("subscriber registers and drains queue");
     let empty_drain = bus
         .drain_queued(DispatchMode::Sequential)
         .await
-        .expect("queue is already drained");
+        .expect_value("queue is already drained");
 
     assert_eq!(
         queued_report.queue_report.disposition,
@@ -58,14 +59,14 @@ async fn no_subscriber_queue_drains_after_subscriber_registers() {
 #[tokio::test]
 async fn subscriber_auto_drain_only_drains_matching_event_type() {
     let bus = EventBus::with_queue_policy(
-        EventQueuePolicy::no_subscriber_queue(4).expect("queue policy is valid"),
+        EventQueuePolicy::no_subscriber_queue(4).expect_value("queue policy is valid"),
     );
     bus.publish(
         test_event_with_idempotency("primary queued", "queue-scope-primary-key"),
         metadata_with_event_id(TEST_TARGET, "queue-scope-primary-event"),
     )
     .await
-    .expect("primary event queues");
+    .expect_value("primary event queues");
     bus.publish(
         test_event_for_type_with_aggregate_and_idempotency(
             "other queued",
@@ -76,7 +77,7 @@ async fn subscriber_auto_drain_only_drains_matching_event_type() {
         metadata_with_event_id(OTHER_TARGET, "queue-scope-other-event"),
     )
     .await
-    .expect("other event queues");
+    .expect_value("other event queues");
 
     let handled_other = Arc::new(Mutex::new(Vec::new()));
     let handled_other_clone = Arc::clone(&handled_other);
@@ -92,7 +93,7 @@ async fn subscriber_auto_drain_only_drains_matching_event_type() {
             },
         )
         .await
-        .expect("other subscriber drains only matching queued event");
+        .expect_value("other subscriber drains only matching queued event");
     let metrics_after_other = bus.metrics_snapshot().await;
 
     assert_eq!(other_subscription.drain_report.queued_before, 1);
@@ -114,7 +115,7 @@ async fn subscriber_auto_drain_only_drains_matching_event_type() {
         }
     })
     .await
-    .expect("primary subscriber drains remaining primary queued event");
+    .expect_value("primary subscriber drains remaining primary queued event");
 
     assert_eq!(
         handled_primary.lock().await.as_slice(),
@@ -126,25 +127,25 @@ async fn subscriber_auto_drain_only_drains_matching_event_type() {
 #[tokio::test]
 async fn bounded_queue_overflow_dead_letters_oldest_event_and_keeps_newest() {
     let bus = EventBus::with_queue_policy(
-        EventQueuePolicy::no_subscriber_queue(1).expect("queue policy is valid"),
+        EventQueuePolicy::no_subscriber_queue(1).expect_value("queue policy is valid"),
     );
     bus.publish(
         test_event_with_idempotency("first", "queue-overflow-first"),
         metadata_with_event_id(TEST_TARGET, "queue-overflow-event-1"),
     )
     .await
-    .expect("first event queues");
+    .expect_value("first event queues");
     let report = bus
         .publish(
             test_event_with_idempotency("second", "queue-overflow-second"),
             metadata_with_event_id(TEST_TARGET, "queue-overflow-event-2"),
         )
         .await
-        .expect("overflow drops oldest and queues newest");
+        .expect_value("overflow drops oldest and queues newest");
     let dead_letters = bus.dead_letters().await;
     let dead_letter_event = dead_letters[0].as_event();
     let expected_dead_letter_type =
-        crate::dead_letter_recorded_event_type().expect("dead-letter event type parses");
+        crate::dead_letter_recorded_event_type().expect_value("dead-letter event type parses");
 
     assert_eq!(
         report.queue_report.disposition,
@@ -164,7 +165,7 @@ async fn bounded_queue_overflow_dead_letters_oldest_event_and_keeps_newest() {
     assert_eq!(
         dead_letter_event
             .contract()
-            .expect("dead-letter event contract exists")
+            .expect_value("dead-letter event contract exists")
             .event_type,
         expected_dead_letter_type
     );
@@ -179,30 +180,30 @@ async fn bounded_queue_overflow_dead_letters_oldest_event_and_keeps_newest() {
         }
     })
     .await
-    .expect("subscriber drains newest queued event");
+    .expect_value("subscriber drains newest queued event");
     assert_eq!(handled.lock().await.as_slice(), &["second".to_string()]);
 }
 
 #[tokio::test]
 async fn queued_event_expires_before_dispatch_when_ttl_elapsed() {
     let policy = EventQueuePolicy::no_subscriber_queue(2)
-        .expect("queue policy is valid")
+        .expect_value("queue policy is valid")
         .with_ttl(Duration::from_millis(5))
-        .expect("ttl policy is valid");
+        .expect_value("ttl policy is valid");
     let bus = EventBus::with_queue_policy(policy);
     bus.publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("event queues");
+        .expect_value("event queues");
     tokio::time::sleep(Duration::from_millis(20)).await;
     bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), |_| async {
         Ok(())
     })
     .await
-    .expect("subscriber registration drains expired queue");
+    .expect_value("subscriber registration drains expired queue");
     let drain = bus
         .drain_queued(DispatchMode::Sequential)
         .await
-        .expect("queue stays empty");
+        .expect_value("queue stays empty");
     let dead_letters = bus.dead_letters().await;
 
     assert_eq!(drain.queued_before, 0);
@@ -214,7 +215,7 @@ async fn queued_event_expires_before_dispatch_when_ttl_elapsed() {
 #[tokio::test]
 async fn idempotency_registry_rejects_queued_and_completed_duplicates() {
     let policy = EventQueuePolicy::no_subscriber_queue(2)
-        .expect("queue policy is valid")
+        .expect_value("queue policy is valid")
         .with_idempotency_registry();
     let bus = EventBus::with_queue_policy(policy);
     bus.publish(
@@ -222,7 +223,7 @@ async fn idempotency_registry_rejects_queued_and_completed_duplicates() {
         metadata_with_event_id(TEST_TARGET, "idempotency-queued-event-1"),
     )
     .await
-    .expect("first event queues");
+    .expect_value("first event queues");
 
     let queued_duplicate = bus
         .publish(
@@ -239,7 +240,7 @@ async fn idempotency_registry_rejects_queued_and_completed_duplicates() {
         Ok(())
     })
     .await
-    .expect("subscriber drains queued event");
+    .expect_value("subscriber drains queued event");
 
     let completed_duplicate = bus
         .publish(
@@ -267,7 +268,7 @@ async fn in_flight_duplicate_guard_rejects_concurrent_event_id() {
         }
     })
     .await
-    .expect("subscriber registers");
+    .expect_value("subscriber registers");
 
     let first_bus = bus.clone();
     let first = tokio::spawn(async move {
@@ -287,8 +288,8 @@ async fn in_flight_duplicate_guard_rejects_concurrent_event_id() {
         .await;
     let first_report = first
         .await
-        .expect("first task joins")
-        .expect("first publish completes");
+        .expect_value("first task joins")
+        .expect_value("first publish completes");
 
     assert!(matches!(
         duplicate,
@@ -299,7 +300,7 @@ async fn in_flight_duplicate_guard_rejects_concurrent_event_id() {
 
 #[tokio::test]
 async fn failed_subscribe_drain_preserves_queued_event_for_retry() {
-    let policy = EventQueuePolicy::no_subscriber_queue(2).expect("queue policy is valid");
+    let policy = EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid");
     let journal = Arc::new(FailingJournal::fail_once_on(1));
     let bus = EventBus::with_journal_and_queue_policy(
         JournalPolicy::before_and_after_dispatch(JournalSelector::All),
@@ -311,7 +312,7 @@ async fn failed_subscribe_drain_preserves_queued_event_for_retry() {
         metadata_with_event_id(TEST_TARGET, "drain-preserve-event-1"),
     )
     .await
-    .expect("event queues");
+    .expect_value("event queues");
 
     let failed_subscribe = bus
         .subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), |_| async {
@@ -333,14 +334,14 @@ async fn failed_subscribe_drain_preserves_queued_event_for_retry() {
         }
     })
     .await
-    .expect("retry subscriber drains preserved event");
+    .expect_value("retry subscriber drains preserved event");
 
     assert_eq!(handled.lock().await.as_slice(), &[TEST_LABEL.to_string()]);
 }
 
 #[tokio::test]
 async fn after_dispatch_journal_failure_does_not_replay_handler_work() {
-    let policy = EventQueuePolicy::no_subscriber_queue(2).expect("queue policy is valid");
+    let policy = EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid");
     let journal = Arc::new(FailingJournal::fail_once_on(2));
     let bus = EventBus::with_journal_and_queue_policy(
         JournalPolicy::before_and_after_dispatch(JournalSelector::All),
@@ -352,7 +353,7 @@ async fn after_dispatch_journal_failure_does_not_replay_handler_work() {
         metadata_with_event_id(TEST_TARGET, "drain-after-dispatch-event"),
     )
     .await
-    .expect("event queues");
+    .expect_value("event queues");
 
     let handled = Arc::new(Mutex::new(Vec::new()));
     let handled_clone = Arc::clone(&handled);
@@ -381,7 +382,7 @@ async fn after_dispatch_journal_failure_does_not_replay_handler_work() {
             }
         })
         .await
-        .expect("retry subscriber registers without replaying completed work");
+        .expect_value("retry subscriber registers without replaying completed work");
 
     assert_eq!(handled.lock().await.as_slice(), &[TEST_LABEL.to_string()]);
     assert!(retry_handled.lock().await.is_empty());
@@ -410,7 +411,7 @@ impl EventJournal for FailingJournal {
     ) -> Pin<Box<dyn Future<Output = Result<JournalAppend, EventingError>> + Send + 'a>> {
         Box::pin(async move {
             let call = {
-                let mut calls = self.calls.lock().expect("failing journal lock");
+                let mut calls = self.calls.lock().expect_value("failing journal lock");
                 *calls += 1;
                 *calls
             };
@@ -425,7 +426,7 @@ impl EventJournal for FailingJournal {
                 previous_hash: None,
                 current_hash: Some(
                     crate::JournalHash::parse(format!("journal-hash-{call}"))
-                        .expect("journal hash parses"),
+                        .expect_value("journal hash parses"),
                 ),
             })
         })

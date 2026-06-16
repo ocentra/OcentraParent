@@ -4,6 +4,7 @@ use ocentra_parent_agent_protocol::{
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE,
 };
+use serde::de::DeserializeOwned;
 
 use super::social_parent_notification_delivery_read_model_payload::{
     request_social_parent_notification_delivery_read_model_from_service,
@@ -153,7 +154,7 @@ async fn social_report_writer_event_request_feeds_parent_notification_projection
 
 fn string_payload<T>(payload: &ocentra_parent_agent_protocol::LogFields, field: &str) -> T
 where
-    T: serde::de::DeserializeOwned,
+    T: DeserializeOwned,
 {
     match &payload[field] {
         LogFieldValue::String(text) => {

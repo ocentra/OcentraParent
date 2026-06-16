@@ -1,4 +1,4 @@
-﻿use serde::Serialize;
+use serde::Serialize;
 use sha2::{Digest, Sha256};
 
 use crate::{EventingError, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
@@ -27,8 +27,8 @@ pub(super) fn hash_entry(
         phase,
         envelope,
     };
-    let bytes = serde_json::to_vec(&input)
-        .map_err(|error| EventingError::journal_encode(&error))?;
+    let bytes =
+        serde_json::to_vec(&input).map_err(|error| EventingError::journal_encode(&error))?;
     let digest = Sha256::digest(&bytes);
     JournalHash::parse(format!("{JOURNAL_HASH_PREFIX}{:x}", digest))
 }
@@ -74,4 +74,3 @@ pub(crate) fn verify_hash_chain_entry(
         )),
     }
 }
-

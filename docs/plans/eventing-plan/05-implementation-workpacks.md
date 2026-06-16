@@ -180,49 +180,49 @@ tier and must not be marked complete until focused product proofs exist.
 
 ## Main Gates
 
-- [ ] Eventing plan folder exists.
-- [ ] Ocentra Games eventing semantics are indexed.
-- [ ] Pasted planning inputs are indexed.
-- [ ] Reusable `crates/ocentra-eventing` exists.
-- [ ] Workspace includes `crates/ocentra-eventing`.
-- [ ] Core event types, runtime newtypes, and validation errors are
+- [x] Eventing plan folder exists.
+- [x] Ocentra Games eventing semantics are indexed.
+- [x] Pasted planning inputs are indexed.
+- [x] Reusable `crates/ocentra-eventing` exists.
+- [x] Workspace includes `crates/ocentra-eventing`.
+- [x] Core event types, runtime newtypes, and validation errors are
       implemented.
-- [ ] `EventContract`, `DomainEvent`, typed live `EventEnvelope<E>`, and
+- [x] `EventContract`, `DomainEvent`, typed live `EventEnvelope<E>`, and
       `StoredEventEnvelope` are implemented.
-- [ ] Live handlers receive typed `EventContext<E>`, not `serde_json::Value`.
-- [ ] Request completion response types are bound through
+- [x] Live handlers receive typed `EventContext<E>`, not `serde_json::Value`.
+- [x] Request completion response types are bound through
       `RequestEvent::Response` and validate through `EventResponseContract`.
-- [ ] Event payload mutation and unproved interior-mutability fields are
+- [x] Event payload mutation and unproved interior-mutability fields are
       rejected by API shape, audit, and tests.
-- [ ] Unity/TypeScript lineage compatibility suite passes.
-- [ ] Event topology manifest identifies publishers, subscribers, event-family
+- [x] Unity/TypeScript lineage compatibility suite passes.
+- [x] Event topology manifest identifies publishers, subscribers, event-family
       variants, no-publisher, no-subscriber, and accepted one-sided events.
-- [ ] Manual clock controls TTL, retry, deadline, queue expiry, and local
+- [x] Manual clock controls TTL, retry, deadline, queue expiry, and local
       request timeout tests.
-- [ ] No event payload carries deferred/completion handles, cancellation
+- [x] No event payload carries deferred/completion handles, cancellation
       handles, file/socket/task handles, service pointers, or cleanup callbacks.
-- [ ] Bus ownership is explicit; no hidden global singleton is exposed by the
+- [x] Bus ownership is explicit; no hidden global singleton is exposed by the
       reusable crate.
-- [ ] Sequential, concurrent, and aggregate-ordered dispatch are implemented.
-- [ ] Queue, retry, timeout, TTL, dead-letter, and idempotency are implemented.
-- [ ] Registrar lifecycle is implemented.
-- [ ] Request/response local completion is implemented.
-- [ ] NDJSON journal and replay are implemented.
-- [ ] Testkit is implemented without mocks/fakes/stubs/spies.
-- [ ] `cargo test -p ocentra-eventing` passes.
-- [ ] `cargo clippy -p ocentra-eventing --all-targets -- -D warnings` passes.
-- [ ] Parent protocol event constants exist before Parent runtime consumes them.
-- [ ] Parent/controller and child-agent Rust runtimes both use the shared crate
+- [x] Sequential, concurrent, and aggregate-ordered dispatch are implemented.
+- [x] Queue, retry, timeout, TTL, dead-letter, and idempotency are implemented.
+- [x] Registrar lifecycle is implemented.
+- [x] Request/response local completion is implemented.
+- [x] NDJSON journal and replay are implemented.
+- [x] Testkit is implemented without mocks/fakes/stubs/spies.
+- [x] `cargo test -p ocentra-eventing` passes.
+- [x] `cargo clippy -p ocentra-eventing --all-targets -- -D warnings` passes.
+- [x] Parent protocol event constants exist before Parent runtime consumes them.
+- [x] Parent/controller and child-agent Rust runtimes both use the shared crate
       through typed contracts.
-- [ ] Vite/TypeScript UI has no business-event publishing path.
-- [ ] Network plan Workpack 10 is updated from plan dependency to implementation
+- [x] Vite/TypeScript UI has no business-event publishing path.
+- [x] Network plan Workpack 10 is updated from plan dependency to implementation
       proof.
-- [ ] Household mesh bridge is implemented as consumer-layer transport and
+- [x] Household mesh bridge is implemented as consumer-layer transport and
       validation, not as a shared LAN event bus.
-- [ ] Mesh bridge selected-event export/import proof exists.
-- [ ] Cross-device AI claim/lease/idempotency proof exists.
-- [ ] Provider-result validation proof exists before policy consumption.
-- [ ] Provider-cannot-publish-policy/enforcement proof exists.
+- [x] Mesh bridge selected-event export/import proof exists.
+- [x] Cross-device AI claim/lease/idempotency proof exists.
+- [x] Provider-result validation proof exists before policy consumption.
+- [x] Provider-cannot-publish-policy/enforcement proof exists.
 
 ## Merge-Blocking Failures
 

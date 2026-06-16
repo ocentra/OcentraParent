@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
 import {
   BrowserGamePolicyCompilerInputSchema,
   BrowserGamePolicyDecisionCandidateSchema,
@@ -31,6 +32,7 @@ function compilesDecisionCandidate() {
 
   expect(decision.compileRequestId).toBe(input.compileRequestId);
   expect(decision.targetKind).toBe('cloud-gaming-session');
+  expect(decision.compilerCapabilityState).toBe(PolicyCompilerCapabilityState.Supported);
   expect(decision.finalPolicyDecisionClaimed).toBe(false);
   expect(decision.runtimeGateExecutedClaimed).toBe(false);
   expect(decision.enforcementClaimed).toBe(false);
@@ -64,6 +66,9 @@ function acceptsFallbacks() {
   expect(BrowserGamePolicyDecisionCandidateSchema.safeParse(timeLimit).success).toBe(true);
   expect(BrowserGamePolicyDecisionCandidateSchema.safeParse(manualReview).success).toBe(true);
   expect(BrowserGamePolicyDecisionCandidateSchema.safeParse(unknown).success).toBe(true);
+  expect(askParent.compilerCapabilityState).toBe(PolicyCompilerCapabilityState.Supported);
+  expect(manualReview.compilerCapabilityState).toBe(PolicyCompilerCapabilityState.ManualRequired);
+  expect(unknown.compilerCapabilityState).toBe(PolicyCompilerCapabilityState.Unsupported);
 }
 
 function rejectsInputClaims() {

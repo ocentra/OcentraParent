@@ -1,5 +1,7 @@
 use ocentra_child_runtime::TrackingRuntimeEventFlow;
-use ocentra_eventing::{DomainEvent, EventBus, EventingError, RequestCompletionOutcome};
+use ocentra_eventing::{
+    bus::EventBus, envelope::DomainEvent, error::EventingError, request::RequestCompletionOutcome,
+};
 use ocentra_parent_agent_protocol::{
     constants, default_tracking_config_update_request, AgentRoute,
     ParentTrackingConfigUpdatedEvent, TrackingChildCheckInDeliveryState,

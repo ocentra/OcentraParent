@@ -32,3 +32,8 @@ Failure conditions:
 - Do not claim remote relay, mobile parity, or cloud delivery here.
 - Do not trust provider/peer claims without account/device authority proof.
 - Do not bypass local validation before republishing imported events.
+
+Proof:
+
+- `output/eventing-plan-proof/12-household-mesh-consumer/proof-summary.json`
+- `test-results/eventing-household-mesh-consumer-proof/proof.json`

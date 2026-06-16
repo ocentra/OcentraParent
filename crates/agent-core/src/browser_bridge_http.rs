@@ -14,16 +14,17 @@ pub fn read_devtools_body(
     request_line: &str,
 ) -> Result<String, BrowserBridgePollError> {
     let timeout = Duration::from_millis(constants::browser::DEVTOOLS_TIMEOUT_MS);
-    let mut stream = TcpStream::connect_timeout(endpoint, timeout).map_err(map_io_error)?;
+    let mut stream =
+        TcpStream::connect_timeout(endpoint, timeout).map_err(|error| map_io_error(&error))?;
     stream
         .set_read_timeout(Some(timeout))
-        .map_err(map_io_error)?;
+        .map_err(|error| map_io_error(&error))?;
     stream
         .set_write_timeout(Some(timeout))
-        .map_err(map_io_error)?;
+        .map_err(|error| map_io_error(&error))?;
     stream
         .write_all(devtools_request(request_line).as_bytes())
-        .map_err(map_io_error)?;
+        .map_err(|error| map_io_error(&error))?;
 
     let mut response = Vec::new();
     let mut buffer = [0; 4096];
@@ -54,7 +55,7 @@ pub fn read_devtools_body(
         }
     }
     let response =
-        str::from_utf8(&response).map_err(|_| BrowserBridgePollError::InvalidHttpResponse)?;
+        str::from_utf8(&response).map_err(|_error| BrowserBridgePollError::InvalidHttpResponse)?;
     http_response_body(response)
 }
 
@@ -83,7 +84,7 @@ fn http_response_body(response: &str) -> Result<String, BrowserBridgePollError> 
 
 fn complete_http_response_body(response: &[u8]) -> Result<Option<String>, BrowserBridgePollError> {
     let response_text =
-        str::from_utf8(response).map_err(|_| BrowserBridgePollError::InvalidHttpResponse)?;
+        str::from_utf8(response).map_err(|_error| BrowserBridgePollError::InvalidHttpResponse)?;
     if !response_text.starts_with(constants::browser::HTTP_OK_PREFIX) {
         return Err(BrowserBridgePollError::InvalidHttpResponse);
     }
@@ -106,7 +107,7 @@ fn complete_http_response_body(response: &[u8]) -> Result<Option<String>, Browse
         .ok_or(BrowserBridgePollError::InvalidHttpResponse)?;
     String::from_utf8(body.to_vec())
         .map(Some)
-        .map_err(|_| BrowserBridgePollError::InvalidHttpResponse)
+        .map_err(|_error| BrowserBridgePollError::InvalidHttpResponse)
 }
 
 fn content_length(headers: &str) -> Option<usize> {
@@ -118,7 +119,7 @@ fn content_length(headers: &str) -> Option<usize> {
     })
 }
 
-fn map_io_error(error: std::io::Error) -> BrowserBridgePollError {
+fn map_io_error(error: &std::io::Error) -> BrowserBridgePollError {
     if matches!(error.kind(), ErrorKind::TimedOut | ErrorKind::WouldBlock) {
         return BrowserBridgePollError::Timeout;
     }

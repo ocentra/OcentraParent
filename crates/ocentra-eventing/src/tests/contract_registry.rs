@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use crate::{
     tests::fixtures::{test_event, test_event_for_type, OTHER_EVENT_TYPE, TEST_EVENT_TYPE},
     EventContractRegistry, EventType, EventingError,
@@ -8,10 +9,10 @@ fn contract_registry_generates_markdown_in_event_type_order() {
     let mut registry = EventContractRegistry::new();
     registry
         .register_event(&test_event_for_type("second", OTHER_EVENT_TYPE))
-        .expect("other event registers");
+        .expect_value("other event registers");
     registry
         .register_event(&test_event("first"))
-        .expect("test event registers");
+        .expect_value("test event registers");
 
     let descriptors = registry
         .descriptors()
@@ -31,10 +32,10 @@ fn contract_registry_generates_markdown_in_event_type_order() {
 
     let observed_index = markdown
         .find(TEST_EVENT_TYPE)
-        .expect("observed event appears in markdown");
+        .expect_value("observed event appears in markdown");
     let other_index = markdown
         .find(OTHER_EVENT_TYPE)
-        .expect("other event appears in markdown");
+        .expect_value("other event appears in markdown");
     assert!(observed_index < other_index);
 }
 
@@ -43,15 +44,16 @@ fn contract_registry_rejects_duplicate_event_type() {
     let mut registry = EventContractRegistry::new();
     registry
         .register_event(&test_event("first"))
-        .expect("first event registers");
+        .expect_value("first event registers");
 
-    let duplicate = registry
-        .register_event(&test_event("duplicate"))
-        .expect_err("duplicate event type rejects");
+    let duplicate = match registry.register_event(&test_event("duplicate")) {
+        Ok(_) => std::process::abort(),
+        Err(error) => error,
+    };
     assert_eq!(
         duplicate,
         EventingError::DuplicateEventContract {
-            event_type: EventType::parse(TEST_EVENT_TYPE).expect("test event type parses")
+            event_type: EventType::parse(TEST_EVENT_TYPE).expect_value("test event type parses")
         }
     );
 }

@@ -17,7 +17,7 @@ pub fn platform_network_snapshot(limit: usize) -> Result<Vec<NetworkObservation>
     let output = Command::new(constants::activity_capture::NETSTAT_COMMAND)
         .args(constants::activity_capture::NETSTAT_ARGS)
         .output()
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     if !output.status.success() {
         return Err(());
     }

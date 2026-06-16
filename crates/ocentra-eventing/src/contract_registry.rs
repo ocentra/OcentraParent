@@ -1,4 +1,4 @@
-﻿use std::{
+use std::{
     any::type_name,
     collections::{btree_map::Entry, BTreeMap},
 };
@@ -120,5 +120,3 @@ impl EventContractRegistryDocumentation {
 fn escape_markdown_cell(value: &str) -> String {
     value.replace(CELL_ESCAPE_TARGET, CELL_ESCAPE_REPLACEMENT)
 }
-
-

@@ -8,6 +8,10 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import {
+  PolicyCompilerCapabilityState,
+  PolicyCompilerCapabilityStateSchema,
+} from '@ocentra-parent/policy-domain/policy-compiler';
+import {
   BrowserGamePolicyActionCandidateSchema,
   BrowserGamePolicyAnalysisRefsSchema,
   BrowserGamePolicyCompileRequestIdSchema,
@@ -76,6 +80,7 @@ const BrowserGamePolicyDecisionCandidateBaseSchema = Schema.Struct({
   reasonCodes: BrowserGamePolicyReasonCodesSchema,
   confidence: BrowserGamePolicyConfidenceSchema,
   compilerMode: BrowserGamePolicyCompilerModeSchema,
+  compilerCapabilityState: PolicyCompilerCapabilityStateSchema,
   fallbackUsed: Schema.Boolean,
   parentApprovalRequired: Schema.Boolean,
   finalPolicyDecisionClaimed: Schema.Boolean,
@@ -145,6 +150,7 @@ export function compileBrowserGamePolicyCandidate(
     compilerMode: input.compilerMode,
     fallbackUsed: parsed.fallbackUsed,
     parentApprovalRequired: parsed.parentApprovalRequired,
+    compilerCapabilityState: compilerCapabilityStateForMode(input.compilerMode),
     finalPolicyDecisionClaimed: false,
     runtimeGateExecutedClaimed: false,
     uiRenderedClaimed: false,
@@ -224,6 +230,17 @@ function browserGamePolicyCompilerInputClaimsAuthority(value: Infer<typeof Brows
     value.nativeGameControlClaimed ||
     value.cloudFrameAnalysisClaimed
   );
+}
+
+function compilerCapabilityStateForMode(mode: Infer<typeof BrowserGamePolicyCompilerModeSchema>) {
+  switch (mode) {
+    case 'contract-only':
+      return PolicyCompilerCapabilityState.Supported;
+    case 'manual-required':
+      return PolicyCompilerCapabilityState.ManualRequired;
+    case 'unavailable':
+      return PolicyCompilerCapabilityState.Unsupported;
+  }
 }
 
 function browserGamePolicyDecisionCandidateClaimsAuthority(

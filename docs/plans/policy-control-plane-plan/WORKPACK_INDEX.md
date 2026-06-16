@@ -9,4 +9,4 @@
 | [05-ask-parent-overrides](workpacks/05-ask-parent-overrides.md)                 | Ask-parent, bonus time, overrides, approvals. | Planned |
 | [06-rollout-proof-and-route-gate](workpacks/06-rollout-proof-and-route-gate.md) | Proof pack, route sync, and no-overclaim gate. | Planned |
 | [07-schedule-time-budget-conflict-model](workpacks/07-schedule-time-budget-conflict-model.md) | Timezone/DST, budgets, and conflict precedence. | Planned |
-| [08-policy-event-model](workpacks/08-policy-event-model.md)                     | Event families, idempotency, replay, and audit linkage. | Planned |
+| [08-policy-event-model](workpacks/08-policy-event-model.md)                     | Event families, idempotency, replay, and audit linkage. | Checked |

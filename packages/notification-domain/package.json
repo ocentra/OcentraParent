@@ -9,6 +9,10 @@
       "import": "./dist/*.js",
       "types": "./dist/*.d.ts"
     },
+    "./v0-8-notification-provider-status-boundary": {
+      "import": "./dist/v0-8-notification-provider-status-boundary.js",
+      "types": "./dist/v0-8-notification-provider-status-boundary.d.ts"
+    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"

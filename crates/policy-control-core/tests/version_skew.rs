@@ -1,3 +1,5 @@
+#![allow(clippy::expect_used, clippy::panic)]
+
 #[path = "version-skew/policy_source.rs"]
 mod policy_source;
 
@@ -9,6 +11,9 @@ mod policy_compiler;
 
 #[path = "version-skew/policy_delivery.rs"]
 mod policy_delivery;
+
+#[path = "version-skew/policy_event.rs"]
+mod policy_event;
 
 #[path = "version-skew/policy_preview.rs"]
 mod policy_preview;

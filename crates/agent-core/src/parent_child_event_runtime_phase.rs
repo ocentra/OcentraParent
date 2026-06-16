@@ -1,4 +1,4 @@
-use ocentra_eventing::{EventCustody, RuntimeRole};
+use ocentra_eventing::{ids::EventCustody, ids::RuntimeRole};
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
@@ -122,8 +122,10 @@ impl ParentChildRuntimePhase {
         } else {
             constants::eventing_source::ROLE_CONTROLLER
         };
-        RuntimeRole::parse(value)
-            .expect(constants::eventing_source::ERROR_RUNTIME_ROLE_CONSTANT_PARSES)
+        match RuntimeRole::parse(value) {
+            Ok(role) => role,
+            Err(_) => std::process::abort(),
+        }
     }
 
     pub(crate) fn custody(self) -> EventCustody {
@@ -132,8 +134,10 @@ impl ParentChildRuntimePhase {
         } else {
             constants::eventing_source::CUSTODY_COORDINATOR_CACHE
         };
-        EventCustody::parse(value)
-            .expect(constants::eventing_source::ERROR_EVENT_CUSTODY_CONSTANT_PARSES)
+        match EventCustody::parse(value) {
+            Ok(custody) => custody,
+            Err(_) => std::process::abort(),
+        }
     }
 
     pub(crate) fn is_child_agent_phase(self) -> bool {

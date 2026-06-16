@@ -1,4 +1,4 @@
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_parent_agent_protocol::{
     child_tracking_config_updated_event_from_parent, constants,
     default_tracking_config_update_request,

@@ -3,12 +3,18 @@ use std::{
     time::Duration,
 };
 
-use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventContract, EventCustody, EventMetadata,
-    EventResponseContract, EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey,
-    RecordedAt, RequestEvent, RequestId, RequestOptions, RuntimeInstanceId, RuntimeRole,
-    SchemaVersion, SourceComponent, SourceService, SubscriberId, TargetHandler,
+use ocentra_eventing::bus::{subscriber::EventSubscriber, EventBus};
+use ocentra_eventing::envelope::{
+    DomainEvent, EventContract, EventMetadata, EventSource,
 };
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_eventing::ids::{
+    AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey, RecordedAt,
+    RequestId, RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService,
+    SubscriberId, TargetHandler,
+};
+use ocentra_eventing::request::{EventResponseContract, RequestEvent, RequestOptions};
 use serde::{Deserialize, Serialize};
 
 const FIRE_AND_FORGET_EVENT_TYPE: &str = "eventing.integration.fire-and-forget";
@@ -37,12 +43,6 @@ const RESPONSE_TIMEOUT_MILLIS: u64 = 50;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 struct IntegrationPayloadRef(String);
-
-impl IntegrationPayloadRef {
-    fn parse(value: &'static str) -> Self {
-        Self(value.to_owned())
-    }
-}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 struct FireAndForgetEvent {
@@ -101,7 +101,7 @@ impl EventResponseContract for AwaitableResponseEvent {}
 
 #[tokio::test]
 async fn publish_and_wait_dispatches_typed_fire_and_forget_event() {
-    let bus = ocentra_eventing::EventBus::new();
+    let bus = EventBus::new();
     let observed_payload = Arc::new(Mutex::new(None));
     let captured_payload = Arc::clone(&observed_payload);
 
@@ -110,50 +110,50 @@ async fn publish_and_wait_dispatches_typed_fire_and_forget_event() {
         async move {
             captured_payload
                 .lock()
-                .expect(PARSE_EXPECTATION)
+                .expect_value(PARSE_EXPECTATION)
                 .replace(context.payload().payload_ref.clone());
             Ok(())
         }
     })
     .await
-    .expect(PARSE_EXPECTATION);
+    .expect_value(PARSE_EXPECTATION);
 
     let report = bus
         .publish_and_wait(fire_and_forget_event(), metadata())
         .await
-        .expect(PARSE_EXPECTATION);
+        .expect_value(PARSE_EXPECTATION);
 
     assert_eq!(report.handled_count, 1);
     assert_eq!(
-        observed_payload.lock().expect(PARSE_EXPECTATION).clone(),
+        observed_payload.lock().expect_value(PARSE_EXPECTATION).clone(),
         Some(IntegrationPayloadRef::parse(FIRE_AND_FORGET_PAYLOAD_REF))
     );
 }
 
 #[tokio::test]
 async fn publish_request_waits_for_typed_subscriber_response() {
-    let bus = ocentra_eventing::EventBus::new();
+    let bus = EventBus::new();
 
     bus.subscribe::<AwaitableRequestEvent, _, _>(request_subscriber(), |context| async move {
         context.complete_request(awaitable_response_event()).await?;
         Ok(())
     })
     .await
-    .expect(PARSE_EXPECTATION);
+    .expect_value(PARSE_EXPECTATION);
 
     let report = bus
         .publish_request(
             awaitable_request_event(),
             metadata(),
             RequestOptions::with_timeout(Duration::from_millis(RESPONSE_TIMEOUT_MILLIS))
-                .expect(PARSE_EXPECTATION),
+                .expect_value(PARSE_EXPECTATION),
         )
         .await
-        .expect(PARSE_EXPECTATION);
+        .expect_value(PARSE_EXPECTATION);
 
     assert_eq!(
         report.request_id,
-        RequestId::parse(REQUEST_ID).expect(PARSE_EXPECTATION)
+        RequestId::parse(REQUEST_ID).expect_value(PARSE_EXPECTATION)
     );
     assert_eq!(report.response, awaitable_response_event());
     assert_eq!(report.publish_report.handled_count, 1);
@@ -161,20 +161,20 @@ async fn publish_request_waits_for_typed_subscriber_response() {
 
 fn fire_and_forget_event() -> FireAndForgetEvent {
     FireAndForgetEvent {
-        payload_ref: IntegrationPayloadRef::parse(FIRE_AND_FORGET_PAYLOAD_REF),
+        payload_ref: IntegrationPayloadRef(FIRE_AND_FORGET_PAYLOAD_REF.to_owned()),
     }
 }
 
 fn awaitable_request_event() -> AwaitableRequestEvent {
     AwaitableRequestEvent {
-        request_id: RequestId::parse(REQUEST_ID).expect(PARSE_EXPECTATION),
-        payload_ref: IntegrationPayloadRef::parse(REQUEST_PAYLOAD_REF),
+        request_id: RequestId::parse(REQUEST_ID).expect_value(PARSE_EXPECTATION),
+        payload_ref: IntegrationPayloadRef(REQUEST_PAYLOAD_REF.to_owned()),
     }
 }
 
 fn awaitable_response_event() -> AwaitableResponseEvent {
     AwaitableResponseEvent {
-        payload_ref: IntegrationPayloadRef::parse(RESPONSE_PAYLOAD_REF),
+        payload_ref: IntegrationPayloadRef(RESPONSE_PAYLOAD_REF.to_owned()),
         accepted: true,
     }
 }
@@ -189,25 +189,25 @@ fn request_subscriber() -> EventSubscriber {
 
 fn subscriber(id: &'static str, event_type: &'static str) -> EventSubscriber {
     EventSubscriber::new(
-        SubscriberId::parse(id).expect(PARSE_EXPECTATION),
-        EventType::parse(event_type).expect(PARSE_EXPECTATION),
-        TargetHandler::parse(TARGET_HANDLER).expect(PARSE_EXPECTATION),
+        SubscriberId::parse(id).expect_value(PARSE_EXPECTATION),
+        EventType::parse(event_type).expect_value(PARSE_EXPECTATION),
+        TargetHandler::parse(TARGET_HANDLER).expect_value(PARSE_EXPECTATION),
     )
 }
 
 fn metadata() -> EventMetadata {
     EventMetadata::from_parts(
-        ocentra_eventing::EventId::parse(EVENT_ID).expect(PARSE_EXPECTATION),
-        CorrelationId::parse(CORRELATION_ID).expect(PARSE_EXPECTATION),
+        EventId::parse(EVENT_ID).expect_value(PARSE_EXPECTATION),
+        CorrelationId::parse(CORRELATION_ID).expect_value(PARSE_EXPECTATION),
         EventSource::new(
-            EventCustody::parse(EVENT_CUSTODY).expect(PARSE_EXPECTATION),
-            RuntimeRole::parse(RUNTIME_ROLE).expect(PARSE_EXPECTATION),
-            SourceService::parse(SOURCE_SERVICE).expect(PARSE_EXPECTATION),
-            SourceComponent::parse(SOURCE_COMPONENT).expect(PARSE_EXPECTATION),
-            RuntimeInstanceId::parse(RUNTIME_INSTANCE_ID).expect(PARSE_EXPECTATION),
+            EventCustody::parse(EVENT_CUSTODY).expect_value(PARSE_EXPECTATION),
+            RuntimeRole::parse(RUNTIME_ROLE).expect_value(PARSE_EXPECTATION),
+            SourceService::parse(SOURCE_SERVICE).expect_value(PARSE_EXPECTATION),
+            SourceComponent::parse(SOURCE_COMPONENT).expect_value(PARSE_EXPECTATION),
+            RuntimeInstanceId::parse(RUNTIME_INSTANCE_ID).expect_value(PARSE_EXPECTATION),
         ),
-        RecordedAt::parse(OBSERVED_AT).expect(PARSE_EXPECTATION),
-        Some(TargetHandler::parse(TARGET_HANDLER).expect(PARSE_EXPECTATION)),
+        RecordedAt::parse(OBSERVED_AT).expect_value(PARSE_EXPECTATION),
+        Some(TargetHandler::parse(TARGET_HANDLER).expect_value(PARSE_EXPECTATION)),
     )
 }
 

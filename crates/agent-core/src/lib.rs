@@ -1,3 +1,14 @@
+#![cfg_attr(
+    test,
+    allow(
+        clippy::expect_used,
+        clippy::map_err_ignore,
+        clippy::needless_pass_by_value,
+        clippy::panic,
+        clippy::redundant_clone,
+        clippy::unwrap_used
+    )
+)]
 #![forbid(unsafe_code)]
 
 mod activity_store;

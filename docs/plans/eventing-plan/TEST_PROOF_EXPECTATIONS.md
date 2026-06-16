@@ -1,18 +1,18 @@
 # Test and Proof Expectations
 
-Status: reset.
+Status: complete.
 
 ## Purpose
 This file tracks the required execution flow. It does not store proof artifacts.
 
 ## Required flow
-- [ ] Code written.
-- [ ] Tests written.
-- [ ] Compile and validate passed.
-- [ ] Tests passed.
-- [ ] Full crate or package validation passed.
-- [ ] Proof collected in the designated local artifact path.
-- [ ] Proof pointer recorded outside the plan folder.
+- [x] Code written.
+- [x] Tests written.
+- [x] Compile and validate passed.
+- [x] Tests passed.
+- [x] Full crate or package validation passed.
+- [x] Proof collected in the designated local artifact path.
+- [x] Proof pointer recorded outside the plan folder.
 
 ## Proof storage
 Proof artifacts live in the designated local artifact path for the workpack or crate, not in this plan folder.

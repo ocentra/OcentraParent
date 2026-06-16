@@ -1,17 +1,17 @@
 use ocentra_child_policy_core::policy_control_delivery_handoff::{
     apply_policy_control_delivery_handoff, queue_policy_control_delivery_handoff,
 };
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
     PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliverySequence,
     PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
-    compile_domain_policy_artifact, parent_policy_source_schema_version, ParentPolicyActorRole,
-    supersede_parent_policy_source_document, ParentPolicyDocumentId, ParentPolicyRule,
-    ParentPolicySourceDocument, PolicyActorId, PolicyAuditReferenceId, PolicyChildProfileId,
-    PolicyConsumerDomain, PolicyDeviceId, PolicyHouseholdId, PolicyReasonCode,
-    PolicyRetentionMetadata, PolicyRuleAction, PolicyRuleId, PolicyRuleTarget,
+    compile_domain_policy_artifact, parent_policy_source_schema_version,
+    supersede_parent_policy_source_document, ParentPolicyActorRole, ParentPolicyDocumentId,
+    ParentPolicyRule, ParentPolicySourceDocument, PolicyActorId, PolicyAuditReferenceId,
+    PolicyChildProfileId, PolicyConsumerDomain, PolicyDeviceId, PolicyHouseholdId,
+    PolicyReasonCode, PolicyRetentionMetadata, PolicyRuleAction, PolicyRuleId, PolicyRuleTarget,
     PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
     PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
     PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
@@ -106,11 +106,8 @@ fn sample_delivery_target() -> PolicyDeliveryTarget {
 fn queued_delivery_from_source(
     source: &ParentPolicySourceDocument,
 ) -> ocentra_policy_control_core::policy_delivery::PolicyDeliveryRecord {
-    let compiled = compile_domain_policy_artifact(
-        source,
-        PolicyConsumerDomain::Tracking,
-    )
-    .expect("compiled domain policy artifact");
+    let compiled = compile_domain_policy_artifact(source, PolicyConsumerDomain::Tracking)
+        .expect("compiled domain policy artifact");
 
     queue_policy_control_delivery_handoff(
         &compiled,
@@ -169,7 +166,10 @@ fn delivery_queue_preserves_source_artifact_metadata() {
 
     let queued = queued_delivery_from_source(&source);
 
-    assert_eq!(queued.source_audit_reference_ids, source.audit_reference_ids);
+    assert_eq!(
+        queued.source_audit_reference_ids,
+        source.audit_reference_ids
+    );
     assert_eq!(
         queued
             .source_superseded_by_policy_version
@@ -178,7 +178,10 @@ fn delivery_queue_preserves_source_artifact_metadata() {
         8
     );
     assert!(queued.source_rollback_ref.is_none());
-    assert_eq!(queued.audit_reference_ids, vec![audit_ref("audit-policy-queued")]);
+    assert_eq!(
+        queued.audit_reference_ids,
+        vec![audit_ref("audit-policy-queued")]
+    );
     assert!(queued.superseded_by_policy_version.is_none());
 }
 

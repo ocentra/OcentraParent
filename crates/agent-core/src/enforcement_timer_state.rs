@@ -36,6 +36,18 @@ pub fn restart_recovered_timer_outcome(
     state: &EnforcementActiveTimerState,
     ids: EnforcementTimerTransitionIds,
 ) -> EnforcementBoundaryOutcome {
+    let EnforcementTimerTransitionIds {
+        result_id,
+        audit_event_id,
+        timer_event_id,
+        observed_at,
+    } = ids;
+    let ids = EnforcementTimerTransitionIds {
+        result_id,
+        audit_event_id,
+        timer_event_id,
+        observed_at,
+    };
     transition_outcome(
         state,
         ids,
@@ -50,6 +62,18 @@ pub fn cancelled_timer_outcome(
     ids: EnforcementTimerTransitionIds,
     parent_override: ParentActionReference,
 ) -> EnforcementBoundaryOutcome {
+    let EnforcementTimerTransitionIds {
+        result_id,
+        audit_event_id,
+        timer_event_id,
+        observed_at,
+    } = ids;
+    let ids = EnforcementTimerTransitionIds {
+        result_id,
+        audit_event_id,
+        timer_event_id,
+        observed_at,
+    };
     transition_outcome(
         state,
         ids,
@@ -64,6 +88,18 @@ pub fn expired_timer_outcome(
     ids: EnforcementTimerTransitionIds,
     adapter_outcome: crate::enforcement_adapter::EnforcementAdapterOutcome,
 ) -> EnforcementBoundaryOutcome {
+    let EnforcementTimerTransitionIds {
+        result_id,
+        audit_event_id,
+        timer_event_id,
+        observed_at,
+    } = ids;
+    let ids = EnforcementTimerTransitionIds {
+        result_id,
+        audit_event_id,
+        timer_event_id,
+        observed_at,
+    };
     transition_outcome_with_result(
         state,
         ids,
@@ -133,6 +169,34 @@ fn transition_outcome_with_result(
     status: EnforcementResultStatus,
     result_override: TransitionResultOverride,
 ) -> EnforcementBoundaryOutcome {
+    let EnforcementTimerTransitionIds {
+        result_id,
+        audit_event_id,
+        timer_event_id,
+        observed_at,
+    } = ids;
+    let ids = EnforcementTimerTransitionIds {
+        result_id,
+        audit_event_id,
+        timer_event_id,
+        observed_at,
+    };
+    let TransitionResultOverride {
+        adapter_result_code,
+        rollback_state,
+        unavailable_reason,
+        failed_reason,
+        rollback_token,
+        parent_override,
+    } = result_override;
+    let result_override = TransitionResultOverride {
+        adapter_result_code,
+        rollback_state,
+        unavailable_reason,
+        failed_reason,
+        rollback_token,
+        parent_override,
+    };
     let parent_override = result_override.parent_override.clone();
     let action = transition_action(&state.action, parent_override.clone());
     let result = transition_result(&action, &ids, status, &result_override);

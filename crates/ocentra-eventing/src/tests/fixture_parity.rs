@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use serde::Deserialize;
 
 use crate::{
@@ -62,31 +63,31 @@ fn rust_newtypes_accept_shared_valid_parity_fixture() {
 
     assert_eq!(
         EventType::parse(valid.event_type)
-            .expect("event type parses")
+            .expect_value("event type parses")
             .as_str(),
         "network.domain.observed"
     );
     assert_eq!(
         EventNamespace::parse(valid.event_namespace)
-            .expect("event namespace parses")
+            .expect_value("event namespace parses")
             .as_str(),
         "network"
     );
-    EventId::parse(valid.event_id).expect("event id parses");
-    CorrelationId::parse(valid.correlation_id).expect("correlation id parses");
-    RequestId::parse(valid.request_id).expect("request id parses");
-    JournalHash::parse(valid.journal_hash).expect("journal hash parses");
-    AggregateKey::parse(valid.aggregate_key).expect("aggregate key parses");
-    IdempotencyKey::parse(valid.idempotency_key).expect("idempotency key parses");
-    SubscriberId::parse(valid.subscriber_id).expect("subscriber id parses");
-    TargetHandler::parse(valid.target_handler).expect("target handler parses");
-    SourceService::parse(valid.source_service).expect("source service parses");
-    SourceComponent::parse(valid.source_component).expect("source component parses");
-    RuntimeInstanceId::parse(valid.runtime_instance_id).expect("runtime instance parses");
-    RecordedAt::parse(valid.recorded_at).expect("recorded at parses");
+    EventId::parse(valid.event_id).expect_value("event id parses");
+    CorrelationId::parse(valid.correlation_id).expect_value("correlation id parses");
+    RequestId::parse(valid.request_id).expect_value("request id parses");
+    JournalHash::parse(valid.journal_hash).expect_value("journal hash parses");
+    AggregateKey::parse(valid.aggregate_key).expect_value("aggregate key parses");
+    IdempotencyKey::parse(valid.idempotency_key).expect_value("idempotency key parses");
+    SubscriberId::parse(valid.subscriber_id).expect_value("subscriber id parses");
+    TargetHandler::parse(valid.target_handler).expect_value("target handler parses");
+    SourceService::parse(valid.source_service).expect_value("source service parses");
+    SourceComponent::parse(valid.source_component).expect_value("source component parses");
+    RuntimeInstanceId::parse(valid.runtime_instance_id).expect_value("runtime instance parses");
+    RecordedAt::parse(valid.recorded_at).expect_value("recorded at parses");
     assert_eq!(
         SchemaVersion::new(valid.schema_version)
-            .expect("schema version parses")
+            .expect_value("schema version parses")
             .value(),
         1
     );
@@ -111,7 +112,7 @@ fn rust_schema_version_rejects_shared_invalid_versions() {
 }
 
 fn fixture() -> ParityFixture {
-    serde_json::from_str(PARITY_FIXTURE).expect("parity fixture parses")
+    serde_json::from_str(PARITY_FIXTURE).expect_value("parity fixture parses")
 }
 
 fn rejects_text_scalar(field: &str, value: String) -> bool {

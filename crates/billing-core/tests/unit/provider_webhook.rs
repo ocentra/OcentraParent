@@ -338,8 +338,8 @@ fn provider_webhook_event_flow_records_decision_and_projects_entitlement_transit
 
 #[test]
 fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
-    let aggregate_id = BillingAggregateId::parse("billing-household-default")
-        .expect("billing aggregate");
+    let aggregate_id =
+        BillingAggregateId::parse("billing-household-default").expect("billing aggregate");
     let fresh_received = BillingProviderWebhookReceivedEvent {
         aggregate_id: aggregate_id.clone(),
         provider_event: provider_event_with(
@@ -390,7 +390,10 @@ fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
             .expect("replayed decision idempotency key")
             .as_str()
     );
-    assert_eq!(fresh_transition.transition_id, replayed_transition.transition_id);
+    assert_eq!(
+        fresh_transition.transition_id,
+        replayed_transition.transition_id
+    );
     assert_eq!(
         fresh_transition
             .idempotency_key()

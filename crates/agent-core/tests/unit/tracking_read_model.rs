@@ -1,3 +1,5 @@
+#![allow(clippy::expect_used, clippy::panic)]
+
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
     ActivitySubjectKind, LogFieldValue, LogFields, TrackingEvidenceRef, TrackingReadModel,

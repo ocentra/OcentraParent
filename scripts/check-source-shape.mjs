@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { join, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
@@ -308,7 +308,8 @@ export function collectSourceShapeFindings(root = repoRoot) {
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const { findings, warnings } = collectSourceShapeReport();
+  const root = process.argv[2] ? resolve(repoRoot, process.argv[2]) : repoRoot;
+  const { findings, warnings } = collectSourceShapeReport(root);
   if (warnings.length > 0) {
     console.log('Source shape warnings: files/functions are near their size limits.');
     for (const warning of warnings) {

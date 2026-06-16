@@ -129,7 +129,7 @@ fn flow_packet_from_frame(
     let Some(transport) = parsed.transport else {
         return Ok(None);
     };
-    let (source_port, destination_port, protocol) = transport_flow_tuple(transport);
+    let (source_port, destination_port, protocol) = transport_flow_tuple(&transport);
 
     Ok(Some(NetworkFlowPacket {
         source_ip: ipv4.source_ip,
@@ -142,19 +142,19 @@ fn flow_packet_from_frame(
     }))
 }
 
-fn transport_flow_tuple(transport: TransportPacketMetadata) -> (u16, u16, NetworkFlowProtocol) {
+fn transport_flow_tuple(transport: &TransportPacketMetadata) -> (u16, u16, NetworkFlowProtocol) {
     match transport {
         TransportPacketMetadata::Udp {
             source_port,
             destination_port,
             payload_len: _,
-        } => (source_port, destination_port, NetworkFlowProtocol::Udp),
+        } => (*source_port, *destination_port, NetworkFlowProtocol::Udp),
         TransportPacketMetadata::Tcp {
             source_port,
             destination_port,
             header_len: _,
             payload_len: _,
-        } => (source_port, destination_port, NetworkFlowProtocol::Tcp),
+        } => (*source_port, *destination_port, NetworkFlowProtocol::Tcp),
         TransportPacketMetadata::Icmp {
             icmp_type: _,
             code: _,
@@ -163,7 +163,7 @@ fn transport_flow_tuple(transport: TransportPacketMetadata) -> (u16, u16, Networ
         TransportPacketMetadata::Other {
             protocol,
             payload_len: _,
-        } => (0, 0, NetworkFlowProtocol::Other(protocol)),
+        } => (0, 0, NetworkFlowProtocol::Other(*protocol)),
     }
 }
 

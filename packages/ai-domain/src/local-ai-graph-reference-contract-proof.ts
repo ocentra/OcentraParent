@@ -81,7 +81,10 @@ function graphReferencesSelected(
 ): Infer<typeof LocalAiGraphReferenceSchema>[] {
   const evidenceIds = selectedEvidenceIds(input);
   return graphReferences.filter((reference) =>
-    reference.sourceEvidenceReferences.every((source) => evidenceIds.has(source.evidenceReferenceId))
+    reference.sourceEvidenceReferences.every(
+      (source: Infer<typeof LocalAiGraphReferenceSchema>['sourceEvidenceReferences'][number]) =>
+        evidenceIds.has(source.evidenceReferenceId)
+    )
   );
 }
 

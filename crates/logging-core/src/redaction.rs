@@ -7,7 +7,10 @@ pub fn redact_fields(fields: &LogFields) -> LogFields {
         .iter()
         .map(|(key, value)| {
             if is_secret_key(key) {
-                (key.clone(), LogFieldValue::String(REDACTED_VALUE.to_owned()))
+                (
+                    key.clone(),
+                    LogFieldValue::String(REDACTED_VALUE.to_owned()),
+                )
             } else {
                 (key.clone(), value.clone())
             }

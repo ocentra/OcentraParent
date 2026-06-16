@@ -1,4 +1,4 @@
-﻿use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use crate::{
     AggregateKey, CausationId, CorrelationId, EventClockInstant, EventCustody, EventId, EventType,
@@ -265,5 +265,3 @@ impl StoredEventEnvelope {
         self.deadline.is_some_and(|deadline| now >= deadline)
     }
 }
-
-

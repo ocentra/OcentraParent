@@ -5,9 +5,9 @@ import {
   brandedNonEmptyStringSchema,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { LocalAiEvaluationInputSchema } from '@ocentra-parent/ai-domain/local-ai';
+import { LocalAiEvaluationInputSchema } from './local-ai';
 import { LocalAiPromptVersionSchema } from './local-ai-primitives';
-import { LocalModelRuntimeStatusSchema, type LocalModelRuntimeStatus } from '@ocentra-parent/ai-domain/local-ai-runtime';
+import { LocalModelRuntimeStatusSchema, type LocalModelRuntimeStatus } from './local-ai-runtime';
 import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
 
 export const LocalAiTextLlmAdapterRequestIdSchema = brandedNonEmptyStringSchema('LocalAiTextLlmAdapterRequestId');

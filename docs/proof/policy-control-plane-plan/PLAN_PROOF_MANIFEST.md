@@ -14,6 +14,22 @@
 - logs/ (command output and transport-level traces)
 - screenshots/ or traces/ (UI and runtime proof when applicable)
 
+## WP03 proof bundle
+
+- docs/proof/policy-control-plane-plan/03-domain-compiler-matrix-proof.md
+- docs/proof/policy-control-plane-plan/03-domain-fixture-proof.md
+- docs/proof/policy-control-plane-plan/03-unsupported-manual-required-proof.md
+- docs/proof/policy-control-plane-plan/03-version-compat-proof.md
+- docs/proof/policy-control-plane-plan/03-deterministic-output-proof.md
+
+## WP08 proof bundle
+
+- docs/proof/policy-control-plane-plan/08-event-family-registry-proof.md
+- docs/proof/policy-control-plane-plan/08-event-idempotency-proof.md
+- docs/proof/policy-control-plane-plan/08-event-replay-ordering-proof.md
+- docs/proof/policy-control-plane-plan/08-rollback-event-linkage-proof.md
+- docs/proof/policy-control-plane-plan/08-event-redaction-proof.md
+
 ## Required test families for closed slice
 
 - E2E: parent policy authoring and rollout paths

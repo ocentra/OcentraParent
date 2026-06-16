@@ -1,21 +1,31 @@
 import { describe, expect, it } from 'vitest';
 import { PolicyAuthoritySource, PolicyAuthorityState, resolvePolicyAuthority } from '../../src/authority';
-import { PolicyDecisionHandoffState } from '../../src/policy';
+import {
+  PolicyDecisionHandoffState,
+  type LocalAiResultReferenceId,
+  type PolicyDecisionId,
+  type PolicyReasonCode,
+  type PolicyRuleId,
+} from '../../src/policy';
+import {
+  ParentEvidenceReferenceIdSchema,
+  type ParentTimestamp,
+} from '@ocentra-parent/family-domain/reference-primitives';
 
 const policyDecision = {
   schemaVersion: 'v0.6',
-  decisionId: 'decision-1',
+  decisionId: 'decision-1' as PolicyDecisionId,
   action: 'ask-parent',
-  reasonCodes: ['tracking-signal-review'],
+  reasonCodes: ['tracking-signal-review' as PolicyReasonCode],
   evidenceReferences: [
     {
-      evidenceReferenceId: 'evidence-1',
+      evidenceReferenceId: 'evidence-1' as typeof ParentEvidenceReferenceIdSchema.Type,
       kind: 'activity-event',
-      observedAt: '2026-06-12T10:00:00.000Z',
+      observedAt: '2026-06-12T10:00:00.000Z' as ParentTimestamp,
     },
   ],
-  ruleIds: ['rule-1'],
-  localAiResultId: 'ai-result-1',
+  ruleIds: ['rule-1' as PolicyRuleId],
+  localAiResultId: 'ai-result-1' as LocalAiResultReferenceId,
   dryRun: false,
   enforcementHandoffState: PolicyDecisionHandoffState.Pending,
   expiresAt: null,

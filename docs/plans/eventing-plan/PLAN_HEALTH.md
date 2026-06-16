@@ -23,13 +23,14 @@ This file records documentation health and consistency checks for the plan. It i
 - Current snapshot: `current-eventing-snapshot.md`
 - Implementation checklist present: true
 - Workpacks indexed: 12 route workpacks
+- Proof manifests now exist for slice 01 envelope/version, slice 02 ordering/replay, and slice 03 consumer boundary.
 
 ## Consistency warnings
 
-- Previous generated index said there was no workpack route. That was stale because the detailed workpack plan lived in `05-implementation-workpacks.md`. The plan now has 12 focused route workpacks under `workpacks/`.
+- Previous generated index said there was no workpack route. That was stale because the detailed workpack plan lived in `05-implementation-workpacks.md`.
 - Checklist counts still come from the large implementation checklist. Before DONE/PR_READY, verify the assigned route workpack and exact checklist rows match the current proof.
-- The reusable crate and TS mirror pass their direct test suites, but the plan proof pack is still blocked by workspace clippy lints (`expect_used`, `clone_on_ref_ptr`, `needless_pass_by_value`) in `ocentra-eventing`, including library and test targets.
-- Do not treat `cargo test` passing as plan closure while the proof pack and rollout gate are still red.
+- The reusable crate and TS mirror pass their direct test suites, and the eventing slice proof manifests now exist for the envelope/version, replay, and consumer-boundary gates.
+- Do not treat `cargo test` passing as plan closure by itself; the rollout gate is closed, and the proof report is the source of record.
 
 ## Required hygiene before PR_READY
 
@@ -38,6 +39,10 @@ This file records documentation health and consistency checks for the plan. It i
 - Update `PLAN_STATE.md`/`NEXT_ACTIONS.md` if the current state changed.
 - Update feature/product docs if a product claim, gap, or proof changed.
 - Do not use a stale checked row to override an open assigned workpack or hub instruction.
+
+## Current rollout note
+
+- The rollout/reconciliation path in WP12 is complete, and the proof checklist is fully reconciled.
 
 ## Agent Route Walkthrough
 
@@ -56,8 +61,8 @@ This file records documentation health and consistency checks for the plan. It i
 
 ### State
 
-- Current state: route and schema hygiene are present, but implementation/closure proof remains incomplete until checklist and workpack evidence are updated.
-- Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned before any DONE/PR_READY claim.
+- Current state: route and schema hygiene are present, implementation/closure proof is complete, and the route docs are synchronized.
+- Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned for future regressions, not for additional closure work.
 
 ### Decision routes and failure controls
 

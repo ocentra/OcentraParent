@@ -36,7 +36,7 @@ pub(crate) fn managed_browser_profile_store(
         now: crate::time::timestamp_now(),
     };
 
-    create_or_repair_managed_browser_profile_store(config)
+    create_or_repair_managed_browser_profile_store(&config)
         .map_err(|_| constants::value::MANAGED_BROWSER_PROFILE_DIR_MISSING)
 }
 

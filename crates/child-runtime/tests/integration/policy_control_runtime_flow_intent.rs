@@ -3,7 +3,7 @@ use ocentra_child_runtime::policy_control_runtime_flow::{
     expire_policy_control_request_handoff, queue_policy_control_delivery_handoff,
     register_policy_control_request_handoff, resolve_policy_control_request_handoff,
 };
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
     PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliverySequence, PolicyDeliveryState,
     PolicyDeliveryTarget, PolicyDeliveryTransition,
@@ -281,7 +281,10 @@ fn resolved_request_can_queue_and_apply_delivery_without_losing_audit_refs() {
         queued.delivery.source_audit_reference_ids,
         vec![audit_ref("audit-policy-confirmed")]
     );
-    assert!(queued.delivery.source_superseded_by_policy_version.is_none());
+    assert!(queued
+        .delivery
+        .source_superseded_by_policy_version
+        .is_none());
     assert!(queued.delivery.source_rollback_ref.is_none());
 
     let applied = apply_policy_control_delivery_handoff(

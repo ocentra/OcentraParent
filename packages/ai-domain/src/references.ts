@@ -10,7 +10,7 @@ import {
   LocalAiMemoryReferenceIdSchema,
   LocalAiMemoryReferenceKindSchema,
   LocalAiTimestampSchema,
-} from '@ocentra-parent/evidence-domain/primitives';
+} from './primitives';
 
 export const LocalAiObservationReferenceSchema = withParser(
   Schema.Struct({

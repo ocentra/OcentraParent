@@ -31,7 +31,7 @@ pub(crate) fn app_game_evidence_claim_journal_event(
             event_kind: ActivityEventKind::DeviceIdleStateObserved,
             row_kind: APP_GAME_JOURNAL_ROW_KIND_EVIDENCE_CLAIM,
             row_json: &serde_json::to_string(row)
-                .map_err(|_| AppGameJournalSqliteIngestError::Json)?,
+                .map_err(|_error| AppGameJournalSqliteIngestError::Json)?,
             classification_state: Some(&row.classification_state),
             subject_id: APP_GAME_JOURNAL_EVIDENCE_CLAIM_SUBJECT_ID.to_string(),
             display_name: Some(row.display_name.clone()),
@@ -55,7 +55,7 @@ pub(crate) fn app_game_identity_journal_event(
             event_kind: ActivityEventKind::DeviceIdleStateObserved,
             row_kind: APP_GAME_JOURNAL_ROW_KIND_IDENTITY,
             row_json: &serde_json::to_string(row)
-                .map_err(|_| AppGameJournalSqliteIngestError::Json)?,
+                .map_err(|_error| AppGameJournalSqliteIngestError::Json)?,
             classification_state: Some(&row.classification_state),
             subject_id: APP_GAME_JOURNAL_IDENTITY_SUBJECT_ID.to_string(),
             display_name: Some(row.display_label.clone()),
@@ -79,7 +79,7 @@ pub(crate) fn app_game_approval_authority_journal_event(
             event_kind: ActivityEventKind::EnforcementAuditRecorded,
             row_kind: APP_GAME_JOURNAL_ROW_KIND_APPROVAL_AUTHORITY,
             row_json: &serde_json::to_string(row)
-                .map_err(|_| AppGameJournalSqliteIngestError::Json)?,
+                .map_err(|_error| AppGameJournalSqliteIngestError::Json)?,
             classification_state: None,
             subject_id: APP_GAME_JOURNAL_AUTHORITY_SUBJECT_ID.to_string(),
             display_name: Some(row.authority_state.clone()),
@@ -103,7 +103,7 @@ pub(crate) fn app_game_approval_action_result_journal_event(
             event_kind: ActivityEventKind::EnforcementAuditRecorded,
             row_kind: APP_GAME_JOURNAL_ROW_KIND_APPROVAL_ACTION_RESULT,
             row_json: &serde_json::to_string(row)
-                .map_err(|_| AppGameJournalSqliteIngestError::Json)?,
+                .map_err(|_error| AppGameJournalSqliteIngestError::Json)?,
             classification_state: None,
             subject_id: APP_GAME_JOURNAL_AUTHORITY_SUBJECT_ID.to_string(),
             display_name: Some(row.result_status.clone()),
@@ -127,7 +127,7 @@ pub(crate) fn app_game_platform_authority_matrix_journal_event(
             event_kind: ActivityEventKind::EnforcementAuditRecorded,
             row_kind: APP_GAME_JOURNAL_ROW_KIND_PLATFORM_AUTHORITY_MATRIX,
             row_json: &serde_json::to_string(row)
-                .map_err(|_| AppGameJournalSqliteIngestError::Json)?,
+                .map_err(|_error| AppGameJournalSqliteIngestError::Json)?,
             classification_state: None,
             subject_id: APP_GAME_JOURNAL_AUTHORITY_SUBJECT_ID.to_string(),
             display_name: Some(row.matrix_id.clone()),
@@ -151,7 +151,7 @@ pub(crate) fn app_game_ai_classifier_result_journal_event(
             event_kind: ActivityEventKind::DeviceIdleStateObserved,
             row_kind: APP_GAME_JOURNAL_ROW_KIND_AI_CLASSIFIER_RESULT,
             row_json: &serde_json::to_string(row)
-                .map_err(|_| AppGameJournalSqliteIngestError::Json)?,
+                .map_err(|_error| AppGameJournalSqliteIngestError::Json)?,
             classification_state: Some(&row.classifier_state),
             subject_id: APP_GAME_JOURNAL_CLASSIFIER_SUBJECT_ID.to_string(),
             display_name: Some(row.candidate_label.clone()),

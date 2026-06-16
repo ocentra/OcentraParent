@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use ocentra_eventing::ReplayRecord;
+use ocentra_eventing::replay::ReplayRecord;
 use ocentra_parent_agent_protocol::constants;
 
 use super::prove_network_runtime_remote_delivery_status;
@@ -125,11 +125,14 @@ fn assert_receipt_ledger_matches_projection(
         return Err(NetworkRuntimeRemoteDeliveryReceiptLedgerError::ReceiptProjectionMismatch);
     }
     for (index, (record, receipt)) in records.iter().zip(receipts.iter()).enumerate() {
-        let expected_sequence = u64::try_from(index)
-            .map(|value| value.saturating_add(1))
-            .map_err(|_| {
-                NetworkRuntimeRemoteDeliveryReceiptLedgerError::ReceiptProjectionMismatch
-            })?;
+        let expected_sequence = match u64::try_from(index) {
+            Ok(value) => value.saturating_add(1),
+            Err(_) => {
+                return Err(
+                    NetworkRuntimeRemoteDeliveryReceiptLedgerError::ReceiptProjectionMismatch,
+                )
+            }
+        };
         if record.sequence != expected_sequence
             || receipt.sequence != record.sequence
             || receipt.event_id != record.envelope.event_id

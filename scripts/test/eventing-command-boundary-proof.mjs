@@ -45,7 +45,14 @@ async function main() {
       'tests/transport-lan-target.test.ts',
     ])
   );
-  await runCommand('node', ['scripts/check-source-shape.mjs']);
+  for (const sourceShapeRoot of [
+    'apps/portal',
+    'packages/portal-domain',
+    'packages/agent-protocol-domain',
+    'crates/agent-service',
+  ]) {
+    await runCommand('node', ['scripts/check-source-shape.mjs', sourceShapeRoot]);
+  }
 
   await assertSourceContracts();
 

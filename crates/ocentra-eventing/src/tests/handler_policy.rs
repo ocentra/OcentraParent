@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use std::{
     sync::{
         atomic::{AtomicUsize, Ordering},
@@ -14,7 +15,7 @@ use crate::{EventBus, EventRecorder, EventingError, HandlerExecutionPolicy, Hand
 #[tokio::test]
 async fn retry_policy_retries_failed_attempt_and_reports_trace_fields() {
     let bus = EventBus::with_handler_policy(
-        HandlerExecutionPolicy::new(None, 2).expect("retry policy is valid"),
+        HandlerExecutionPolicy::new(None, 2).expect_value("retry policy is valid"),
     );
     let attempts = Arc::new(AtomicUsize::new(0));
     let attempts_clone = Arc::clone(&attempts);
@@ -30,12 +31,12 @@ async fn retry_policy_retries_failed_attempt_and_reports_trace_fields() {
         }
     })
     .await
-    .expect("subscriber registers");
+    .expect_value("subscriber registers");
 
     let report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("publish succeeds after retry");
+        .expect_value("publish succeeds after retry");
     let handler_report = &report.handler_reports[0];
 
     assert_eq!(handler_report.outcome, HandlerOutcome::Handled);
@@ -54,7 +55,7 @@ async fn retry_policy_retries_failed_attempt_and_reports_trace_fields() {
 async fn timeout_policy_retries_then_dead_letters_final_timeout() {
     let bus = EventBus::with_handler_policy(
         HandlerExecutionPolicy::new(Some(Duration::from_millis(5)), 2)
-            .expect("timeout retry policy is valid"),
+            .expect_value("timeout retry policy is valid"),
     );
     let attempts = Arc::new(AtomicUsize::new(0));
     let attempts_clone = Arc::clone(&attempts);
@@ -67,12 +68,12 @@ async fn timeout_policy_retries_then_dead_letters_final_timeout() {
         }
     })
     .await
-    .expect("subscriber registers");
+    .expect_value("subscriber registers");
 
     let report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("publish survives timeout");
+        .expect_value("publish survives timeout");
     let dead_letters = bus.dead_letters().await;
 
     assert_eq!(report.handler_reports[0].outcome, HandlerOutcome::TimedOut);
@@ -82,7 +83,7 @@ async fn timeout_policy_retries_then_dead_letters_final_timeout() {
         dead_letters[0]
             .subscriber_id
             .as_ref()
-            .expect("handler dead letter has subscriber")
+            .expect_value("handler dead letter has subscriber")
             .as_str(),
         TEST_SUBSCRIBER
     );
@@ -95,18 +96,18 @@ async fn event_recorder_uses_real_subscription_and_can_unsubscribe() {
     let recorder =
         EventRecorder::<TestEvent>::attach(&bus, subscriber(TEST_SUBSCRIBER, TEST_TARGET))
             .await
-            .expect("recorder attaches through real bus");
+            .expect_value("recorder attaches through real bus");
 
     let first_report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("publish records event");
+        .expect_value("publish records event");
     let recorded = recorder.recorded().await;
     assert!(recorder.unsubscribe());
     let second_report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("publish after unsubscribe succeeds");
+        .expect_value("publish after unsubscribe succeeds");
 
     assert_eq!(first_report.handled_count, 1);
     assert_eq!(recorded.len(), 1);

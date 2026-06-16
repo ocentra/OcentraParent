@@ -4,12 +4,12 @@ pub mod bus;
 pub mod clock;
 pub mod compatibility;
 pub mod compatibility_markdown;
-pub mod expect_value;
 pub mod contract_registry;
 pub mod delivery;
 pub mod envelope;
 pub mod error;
 pub mod execution;
+pub mod expect_value;
 pub mod ids;
 pub mod journal;
 pub mod queue;
@@ -19,9 +19,6 @@ pub mod request;
 pub mod testkit;
 pub mod topology;
 
-use bus::{
-    DispatchMode, EventBus, EventBusClearReport, EventBusShutdownReport, ShutdownMode,
-};
 use bus::publisher::{EventContext, EventPublisher};
 use bus::reports::{
     dead_letter_recorded_event_type, DeadLetter, DeadLetterEvent, DeadLetterReason,
@@ -29,14 +26,12 @@ use bus::reports::{
     HandlerReport, PublishReport, QueueDrainReport,
 };
 use bus::subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport, UnsubscribeReport};
+use bus::{DispatchMode, EventBus, EventBusClearReport, EventBusShutdownReport, ShutdownMode};
 use clock::{
     EventClock, EventClockInstant, EventClockSleep, ManualEventClock, SharedEventClock,
     SystemEventClock,
 };
-use compatibility::{
-    EventCompatibilityEntry, EventCompatibilityMatrix, EventCompatibilityStatus,
-};
-use expect_value::ExpectValue;
+use compatibility::{EventCompatibilityEntry, EventCompatibilityMatrix, EventCompatibilityStatus};
 use contract_registry::{
     EventContractDescriptor, EventContractRegistry, EventContractRegistryDocumentation,
 };
@@ -51,17 +46,18 @@ use envelope::{
 };
 use error::EventingError;
 use execution::HandlerExecutionPolicy;
+use expect_value::ExpectValue;
 use ids::{
     AggregateKey, CausationId, CorrelationId, EventCustody, EventId, EventNamespace, EventType,
     IdempotencyKey, JournalHash, RecordedAt, RequestId, RuntimeInstanceId, RuntimeRole,
     SchemaVersion, SourceComponent, SourceService, SubscriberId, TargetHandler,
 };
-use journal::{EventJournal, JournalAppend, SharedEventJournal};
 use journal::ndjson::{
     JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalEntry,
     NdjsonJournalOptions,
 };
 use journal::policy::{JournalDispatchPhase, JournalMode, JournalPolicy, JournalSelector};
+use journal::{EventJournal, JournalAppend, SharedEventJournal};
 use queue::policy::{
     EventQueuePolicy, NoSubscriberQueuePolicy, QueueDisposition, QueueOverflowPolicy, QueueReport,
 };

@@ -104,18 +104,22 @@ export const PolicyCompilerTargetSchema = withParser(
   })
 );
 
+const PolicyCompilerRuleBaseSchema = Schema.Struct({
+  ruleId: PolicyRuleIdSchema,
+  target: PolicyCompilerTargetSchema,
+  action: PolicyActionSchema,
+  scheduleId: Schema.Union(PolicyScheduleIdSchema, Schema.Null),
+  capabilityState: PolicyCompilerCapabilityStateSchema,
+  status: PolicyCompilerRuleStatusSchema,
+  reasonCode: Schema.Union(PolicyReasonCodeSchema, Schema.Null),
+});
+
+type PolicyCompilerRuleCandidate = Infer<typeof PolicyCompilerRuleBaseSchema>;
+
 export const PolicyCompilerRuleSchema = withParser(
-  Schema.Struct({
-    ruleId: PolicyRuleIdSchema,
-    target: PolicyCompilerTargetSchema,
-    action: PolicyActionSchema,
-    scheduleId: Schema.Union(PolicyScheduleIdSchema, Schema.Null),
-    capabilityState: PolicyCompilerCapabilityStateSchema,
-    status: PolicyCompilerRuleStatusSchema,
-    reasonCode: Schema.Union(PolicyReasonCodeSchema, Schema.Null),
-  }).pipe(
+  PolicyCompilerRuleBaseSchema.pipe(
     Schema.filter(
-      (rule) =>
+      (rule: PolicyCompilerRuleCandidate) =>
         (hasAlignedRuleCapabilityStateAndStatus(rule) && hasAlignedRuleStatusAndReasonCode(rule)) ||
         'Expected compiler rule capabilityState, status, and reasonCode to stay aligned'
     )
@@ -150,8 +154,7 @@ export const PolicyCompilerDeliveryTargetSchema = withParser(
   }).pipe(
     Schema.filter(
       (target) =>
-        target.childProfileIds.length > 0 &&
-        target.deviceIds.length > 0 &&
+        (target.childProfileIds.length > 0 && target.deviceIds.length > 0) ||
         'Expected compiler delivery targets to cite child profiles and devices'
     )
   )
@@ -302,7 +305,7 @@ function hasExactlyRequiredNoClaimLabels(labels: readonly PolicyCompilerNoClaimL
   return required.size === 0;
 }
 
-function hasAlignedRuleCapabilityStateAndStatus(rule: PolicyCompilerRule): boolean {
+function hasAlignedRuleCapabilityStateAndStatus(rule: PolicyCompilerRuleCandidate): boolean {
   return rule.status === expectedRuleStatusForCapabilityState(rule.capabilityState);
 }
 
@@ -319,7 +322,7 @@ function expectedRuleStatusForCapabilityState(
   }
 }
 
-function hasAlignedRuleStatusAndReasonCode(rule: PolicyCompilerRule): boolean {
+function hasAlignedRuleStatusAndReasonCode(rule: PolicyCompilerRuleCandidate): boolean {
   return (
     (rule.status === PolicyCompilerRuleStatusLiteral.Ready && rule.reasonCode === null) ||
     ((rule.status === PolicyCompilerRuleStatusLiteral.ManualRequired ||

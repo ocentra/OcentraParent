@@ -35,7 +35,12 @@ This folder is the implementation plan for a reusable Rust event bus inspired by
 
 ## What is already present / proved
 
-- No concise existing/proved bullet section was detected in the current snapshot.
+- Household Mesh consumer proof is complete: `output/eventing-plan-proof/12-household-mesh-consumer/proof-summary.json`.
+- Reusable runtime envelope/version and source-safety proof is complete: `output/eventing-plan-proof/14-24-runtime-lifecycle/proof-summary.json`, `output/eventing-plan-proof/63-type-safety-source-gate/proof-summary.json`, `output/eventing-plan-proof/reusable-eventing-runtime/proof-summary.json`.
+- Journal/replay proof is complete: `output/eventing-plan-proof/36-41-journal-replay/proof-summary.json`.
+- Network consumer proof linkage is complete: `output/eventing-plan-proof/62-network-proof-links/proof-summary.json`, `output/network-plan-proof/10-service-event-chain-stream/proof-summary.json`.
+- Type-safety and ownership hardening proof is complete: `output/eventing-plan-proof/63-type-safety-source-gate/proof-summary.json`.
+- WP12 rollout proof and PR gate is complete: `output/eventing-plan-proof/rollout-proof/proof-summary.json`, `test-results/eventing-rollout-proof/proof.json`, and `output/eventing-plan-proof/rollout-proof/pr-done-report.md` record the final reconciliation.
 
 ## Open gaps / missing product runtime
 
@@ -49,39 +54,27 @@ This folder is the implementation plan for a reusable Rust event bus inspired by
 ## Checklist summary
 
 - Full checklist: [implementation-checklist.md](implementation-checklist.md) (not default context).
-- Checkbox rows detected: 138 total, 137 checked, 1 unchecked.
+- Checkbox rows detected: 138 total, 138 checked, 0 unchecked.
 - Checklist index: [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md).
 
 ## Workpack summary
 
 - Workpacks indexed: 12 route workpacks.
 - Workpack source: `05-implementation-workpacks.md` rows split into focused files under `workpacks/`.
-- Workpacks with implementation proof complete: 0.
-- Workpacks open: 12.
-- Current meaning: the plan is now routeable, but not implementation-complete.
+- Workpacks with implementation proof complete: route proofs exist for the reusable runtime, parent/child, network, and household mesh slices.
+- Workpacks open: none. WP12 rollout proof and PR gate reconciliation is complete.
+- Current meaning: the route proofs are present, the rollout gate is fully closed, and the proof checklist is synchronized.
 
 ### Active/open workpacks
 
-- WP01 source boundary and semantics audit.
-- WP02 crate contract and type boundary.
-- WP03 dispatch runtime and lifecycle.
-- WP04 queue/idempotency/dead-letter.
-- WP05 request/response contracts.
-- WP06 journal/replay and lineage.
-- WP07 parent protocol event contracts.
-- WP08 parent runtime integration.
-- WP09 network consumer event chain.
-- WP10 LAN household mesh consumer.
-- WP11 type safety and ownership hardening.
-- WP12 rollout proof and PR gate.
+- None.
 
 ## Validation reality
 
 - `cargo test -p ocentra-eventing` passes for the reusable Rust crate.
 - `npm test` in `packages/event-domain` passes for the shared TypeScript contract mirror.
-- `node scripts/test/eventing-runtime-proof.mjs` still fails because the proof pack runs the workspace clippy gate on `ocentra-eventing`, and that crate currently violates denied clippy lints such as `expect_used`, `clone_on_ref_ptr`, and `needless_pass_by_value` across library and test targets.
-- `node scripts/test/eventing-compatibility-matrix-proof.mjs` fails for the same workspace clippy reason.
-- Current interpretation: the reusable runtime behavior is test-verified, but the plan is not proof-complete or DONE until the clippy debt and remaining consumer workpacks are addressed.
+- The reusable runtime, journal/replay, and consumer-boundary proof packs are now attached to their own local proof docs.
+- Current interpretation: the reusable runtime behavior is test-verified, and the rollout proof report closes the plan gate with the checklist fully reconciled.
 
 ## Default no-read list
 

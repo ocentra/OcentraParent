@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, LogFieldValue, ParentEvidenceReferenceKind,
-    PolicyAction, PolicyDecisionHandoffState, PolicyPreviewReadModelRow,
-    PolicyPreviewTargetState, PolicyTarget, PolicyTargetType,
+    PolicyAction, PolicyDecisionHandoffState, PolicyPreviewReadModelRow, PolicyPreviewTargetState,
+    PolicyTarget, PolicyTargetType,
 };
 
 use super::{
@@ -164,7 +164,9 @@ fn policy_preview_read_model_marks_unsupported_browser_targets_as_not_ready() {
     let mut event = browser_event();
     event.fields.insert(
         constants::field::CAPABILITY_STATUS.to_string(),
-        LogFieldValue::String(constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER.to_string()),
+        LogFieldValue::String(
+            constants::browser::CAPABILITY_STATUS_UNSUPPORTED_BROWSER.to_string(),
+        ),
     );
     event.fields.insert(
         constants::field::DEGRADED_REASON.to_string(),

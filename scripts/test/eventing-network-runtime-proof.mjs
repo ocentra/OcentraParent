@@ -37,7 +37,7 @@ async function main() {
 
   await runCommand('cargo', ['test', '-p', 'ocentra-eventing']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-core', 'network_event_runtime']);
-  await runCommand('node', ['scripts/check-source-shape.mjs']);
+  await runCommand('node', ['scripts/check-source-shape.mjs', 'crates/ocentra-eventing']);
 
   await assertSourceContracts();
 

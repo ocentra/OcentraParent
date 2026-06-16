@@ -6,10 +6,9 @@
 //! onboarding, recovery, and provisioning contracts. Binary updater mechanics
 //! remain in the updater crate.
 
-use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
-};
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use ocentra_family_identity_core::{
     authorize_household_action, authorize_session_token_action, authorize_setup_invite,
     evaluate_recovery_operation, DeviceOwnershipScope, DeviceTrustState, HouseholdAuthorityInput,

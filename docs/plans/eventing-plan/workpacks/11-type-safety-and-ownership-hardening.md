@@ -34,3 +34,10 @@ Failure conditions:
 - Do not accept stringly typed event families or IDs.
 - Do not hide mutation behind serde/json escape hatches.
 - Do not use TypeScript fixtures as proof of Rust runtime behavior without Rust validation.
+
+Proof:
+
+- `output/eventing-plan-proof/63-type-safety-source-gate/proof-summary.json`
+- `output/eventing-plan-proof/66-76-source-safety/proof-summary.json`
+- `output/eventing-plan-proof/67-lock-await/proof-summary.json`
+- `output/eventing-plan-proof/68-fixture-parity/proof-summary.json`

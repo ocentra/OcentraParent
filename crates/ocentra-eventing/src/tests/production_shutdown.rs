@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use std::{sync::Arc, time::Duration};
 
 use serde::{Deserialize, Serialize};
@@ -22,20 +23,20 @@ const SHUTDOWN_REQUEST_IDEMPOTENCY: &str = "eventing-shutdown-idempotency";
 #[tokio::test]
 async fn production_shutdown_drain_dispatches_queue_and_dead_letters_remaining() {
     let bus = EventBus::with_queue_policy(
-        EventQueuePolicy::no_subscriber_queue(4).expect("queue policy is valid"),
+        EventQueuePolicy::no_subscriber_queue(4).expect_value("queue policy is valid"),
     );
     bus.publish(
         test_event_with_idempotency(TEST_LABEL, "shutdown-drain-dispatch"),
         metadata_with_event_id(TEST_TARGET, "shutdown-drain-event-1"),
     )
     .await
-    .expect("first queued event queues");
+    .expect_value("first queued event queues");
     bus.publish(
         test_event_for_type("unmatched", OTHER_EVENT_TYPE),
         metadata_with_event_id(OTHER_TARGET, "shutdown-drain-event-2"),
     )
     .await
-    .expect("second queued event queues");
+    .expect_value("second queued event queues");
 
     let handled = Arc::new(Mutex::new(Vec::new()));
     let handled_clone = Arc::clone(&handled);
@@ -50,12 +51,12 @@ async fn production_shutdown_drain_dispatches_queue_and_dead_letters_remaining()
         },
     )
     .await
-    .expect("subscriber registers before drain shutdown");
+    .expect_value("subscriber registers before drain shutdown");
 
     let report = bus
         .shutdown(ShutdownMode::Drain)
         .await
-        .expect("shutdown drain succeeds");
+        .expect_value("shutdown drain succeeds");
     let dead_letters = bus.dead_letters().await;
     let publish_after_shutdown = bus
         .publish(test_event("after-shutdown"), metadata(TEST_TARGET))
@@ -91,19 +92,19 @@ async fn production_shutdown_drain_dispatches_queue_and_dead_letters_remaining()
 #[tokio::test]
 async fn production_shutdown_dead_letters_queued_without_dispatch() {
     let bus = EventBus::with_queue_policy(
-        EventQueuePolicy::no_subscriber_queue(2).expect("queue policy is valid"),
+        EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid"),
     );
     bus.publish(
         test_event_with_idempotency(TEST_LABEL, "shutdown-dead-letter"),
         metadata(TEST_TARGET),
     )
     .await
-    .expect("event queues");
+    .expect_value("event queues");
 
     let report = bus
         .shutdown(ShutdownMode::DeadLetterQueued)
         .await
-        .expect("dead-letter shutdown succeeds");
+        .expect_value("dead-letter shutdown succeeds");
     let dead_letters = bus.dead_letters().await;
 
     assert_eq!(report.queued_event_count, 1);
@@ -137,7 +138,7 @@ async fn production_shutdown_waits_for_active_dispatch_before_clearing_state() {
         },
     )
     .await
-    .expect("subscriber registers");
+    .expect_value("subscriber registers");
 
     let publish_bus = bus.clone();
     let publish = tokio::spawn(async move {
@@ -154,12 +155,12 @@ async fn production_shutdown_waits_for_active_dispatch_before_clearing_state() {
     release_handler.notify_waiters();
     let report = shutdown
         .await
-        .expect("shutdown task joins")
-        .expect("shutdown succeeds after active dispatch");
+        .expect_value("shutdown task joins")
+        .expect_value("shutdown succeeds after active dispatch");
     let publish_report = publish
         .await
-        .expect("publish task joins")
-        .expect("publish completes before shutdown cleanup");
+        .expect_value("publish task joins")
+        .expect_value("publish completes before shutdown cleanup");
 
     assert_eq!(report.in_flight_dispatch_count, 1);
     assert_eq!(report.subscription_count, 1);
@@ -175,19 +176,19 @@ async fn production_shutdown_waits_for_active_dispatch_before_clearing_state() {
 #[tokio::test]
 async fn test_only_shutdown_drop_reports_dropped_queued_work() {
     let bus = EventBus::with_queue_policy(
-        EventQueuePolicy::no_subscriber_queue(2).expect("queue policy is valid"),
+        EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid"),
     );
     bus.publish(
         test_event_with_idempotency(TEST_LABEL, "shutdown-drop-test-only"),
         metadata(TEST_TARGET),
     )
     .await
-    .expect("event queues");
+    .expect_value("event queues");
 
     let report = bus
         .shutdown(ShutdownMode::DropQueuedForTestOnly)
         .await
-        .expect("test-only drop shutdown succeeds");
+        .expect_value("test-only drop shutdown succeeds");
     let dead_letters = bus.dead_letters().await;
 
     assert_eq!(report.queued_event_count, 1);
@@ -216,7 +217,7 @@ async fn production_shutdown_cancels_pending_request_completion() {
         },
     )
     .await
-    .expect("request subscriber registers");
+    .expect_value("request subscriber registers");
 
     let request_bus = bus.clone();
     let request = tokio::spawn(async move {
@@ -225,7 +226,7 @@ async fn production_shutdown_cancels_pending_request_completion() {
                 ShutdownRequestEvent::new(),
                 metadata(TEST_TARGET),
                 RequestOptions::with_timeout(Duration::from_secs(60))
-                    .expect("request timeout is valid"),
+                    .expect_value("request timeout is valid"),
             )
             .await
     });
@@ -234,12 +235,12 @@ async fn production_shutdown_cancels_pending_request_completion() {
     let report = bus
         .shutdown(ShutdownMode::Drain)
         .await
-        .expect("shutdown cancels pending request");
-    let result = request.await.expect("request task joins");
+        .expect_value("shutdown cancels pending request");
+    let result = request.await.expect_value("request task joins");
     let second_shutdown = bus
         .shutdown(ShutdownMode::Drain)
         .await
-        .expect("second shutdown reports idempotently");
+        .expect_value("second shutdown reports idempotently");
 
     assert_eq!(report.pending_request_count, 1);
     assert!(matches!(result, Err(EventingError::RequestTimedOut { .. })));
@@ -255,7 +256,7 @@ struct ShutdownRequestEvent {
 impl ShutdownRequestEvent {
     fn new() -> Self {
         Self {
-            request_id: RequestId::parse(SHUTDOWN_REQUEST_ID).expect("request id parses"),
+            request_id: RequestId::parse(SHUTDOWN_REQUEST_ID).expect_value("request id parses"),
         }
     }
 }

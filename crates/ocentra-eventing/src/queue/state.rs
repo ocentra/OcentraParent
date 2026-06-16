@@ -1,4 +1,4 @@
-﻿use std::{
+use std::{
     collections::{BTreeSet, VecDeque},
     sync::{Arc, Mutex},
     time::Duration,
@@ -38,7 +38,12 @@ impl EventQueue {
     }
 
     pub(crate) fn report(&self, disposition: QueueDisposition) -> QueueReport {
-        let queued_count = self.state.lock().expect_value("event queue lock").queued.len();
+        let queued_count = self
+            .state
+            .lock()
+            .expect_value("event queue lock")
+            .queued
+            .len();
         QueueReport {
             disposition,
             queued_count,
@@ -72,9 +77,7 @@ impl EventQueue {
             NoSubscriberQueuePolicy::DeadLetter => Ok(NoSubscriberQueueDecision::DeadLetter(
                 self.report(QueueDisposition::DeadLetteredNoSubscriber),
                 DeadLetterReason::NoSubscriber,
-                EventingError::NoSubscriber {
-                    event_type,
-                },
+                EventingError::NoSubscriber { event_type },
             )),
             NoSubscriberQueuePolicy::Queue => self.try_enqueue(stored, now),
         }
@@ -359,9 +362,3 @@ fn trim_completed_keys(state: &mut EventQueueState) {
         }
     }
 }
-
-
-
-
-
-

@@ -6,10 +6,9 @@
 //! grace policy, and payment-result contract consumption. Payment providers
 //! stay outside child runtime business logic.
 
-use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
-};
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use serde::{Deserialize, Serialize};
 
 pub const CRATE_NAME: &str = "ocentra-entitlement-core";
@@ -380,15 +379,12 @@ fn entitlement_rejection_reason(
         EntitlementSnapshotFreshnessState::Fresh => {}
     }
 
-    if input.snapshot_context.household_binding_state
-        == EntitlementSnapshotBindingState::Mismatched
+    if input.snapshot_context.household_binding_state == EntitlementSnapshotBindingState::Mismatched
     {
         return Some(EntitlementCapabilityRejectionReason::WrongHousehold);
     }
 
-    if input.snapshot_context.device_binding_state
-        == EntitlementSnapshotBindingState::Mismatched
-    {
+    if input.snapshot_context.device_binding_state == EntitlementSnapshotBindingState::Mismatched {
         return Some(EntitlementCapabilityRejectionReason::WrongDevice);
     }
 

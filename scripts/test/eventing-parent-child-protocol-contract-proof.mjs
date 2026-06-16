@@ -18,7 +18,7 @@ async function main() {
 
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'parent_controller']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'child_agent']);
-  await runCommand('node', ['scripts/check-source-shape.mjs']);
+  await runCommand('node', ['scripts/check-source-shape.mjs', 'crates/ocentra-eventing']);
   await assertSourceContracts();
 
   const proof = {

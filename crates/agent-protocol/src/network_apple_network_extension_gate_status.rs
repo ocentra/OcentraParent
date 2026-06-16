@@ -84,8 +84,7 @@ impl Default for NetworkAppleNetworkExtensionGateStatus {
             platform: NetworkAppleNetworkExtensionPlatformStatus::Ios,
             bundle_ref: String::new(),
             network_extension_ref: String::new(),
-            capability_state:
-                NetworkAppleNetworkExtensionGateCapabilityStatusState::ManualRequired,
+            capability_state: NetworkAppleNetworkExtensionGateCapabilityStatusState::ManualRequired,
             gate_state: NetworkAppleNetworkExtensionGateStatusState::ManualRequired,
             boundary_reasons: Vec::new(),
             missing_required_artifacts: Vec::new(),

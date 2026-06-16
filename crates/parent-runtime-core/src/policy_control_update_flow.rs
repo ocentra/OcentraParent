@@ -1,4 +1,4 @@
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_authority::{
     resolve_policy_evaluation_request, PolicyDecisionResolvedEvent, PolicyEvaluationRequestedEvent,
 };

@@ -1,21 +1,22 @@
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::SchemaVersion;
 use ocentra_parent_agent_protocol::constants::policy_control;
 use ocentra_policy_control_core::policy_source::{
-    compile_domain_policy_artifact, latest_policy_audit_event,
+    assess_policy_source_compatibility, compile_domain_policy_artifact, latest_policy_audit_event,
     mark_parent_policy_source_document_active, parent_policy_source_schema_version,
     policy_enforcement_result_artifact, register_parent_policy_source_document,
     register_parent_policy_source_document_with_authority, rollback_parent_policy_source_document,
     supersede_parent_policy_source_document, ParentPolicyActorRole, ParentPolicyDocumentId,
     ParentPolicyRule, ParentPolicySourceDocument, PolicyActorId, PolicyAuditReferenceId,
-    PolicyChildProfileId, PolicyConsumerDomain, PolicyDeviceId, PolicyEnforcementResultState,
-    PolicyHouseholdId, PolicyReasonCode, PolicyRetentionMetadata, PolicyRollbackRef,
-    PolicyRuleAction, PolicyRuleId, PolicyRuleTarget, PolicyScheduleBudgetCarryoverMode,
-    PolicyScheduleBudgetCarryoverRule, PolicyScheduleBudgetResetKind,
-    PolicyScheduleBudgetResetRule, PolicyScheduleClockSource, PolicyScheduleDay, PolicyScheduleId,
-    PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget, PolicyScheduleWindow,
-    PolicySourceActorAuthority, PolicySourceActorState, PolicySourceDocumentStatus,
-    PolicySourceWriteSurface, PolicyTargetKind, PolicyTargetReferenceId, PolicyTimezoneName,
-    PolicyVersion,
+    PolicyChildProfileId, PolicyConsumerDomain, PolicyDeviceId, PolicyDocumentCompatibilityState,
+    PolicyEnforcementResultState, PolicyHouseholdId, PolicyReasonCode, PolicyRetentionMetadata,
+    PolicyRollbackRef, PolicyRuleAction, PolicyRuleId, PolicyRuleTarget,
+    PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
+    PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
+    PolicyScheduleDay, PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
+    PolicyScheduleWindow, PolicySourceActorAuthority, PolicySourceActorState,
+    PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
+    PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
 };
 
 fn expect_invalid_value(error: EventingError, expected_field: &'static str, expected_value: &str) {
@@ -122,6 +123,95 @@ fn sample_policy_rollback_ref() -> PolicyRollbackRef {
             .expect("policy source document id"),
         restored_policy_version: PolicyVersion::new(1).expect("policy version"),
     }
+}
+
+#[test]
+fn source_compatibility_reports_equal_schema_and_policy_versions_as_compatible() {
+    let source = sample_policy_source_document();
+
+    let report =
+        assess_policy_source_compatibility(&source, source.schema_version, source.policy_version)
+            .expect("compatible policy source compatibility report");
+
+    assert_eq!(report.source_schema_version, source.schema_version);
+    assert_eq!(report.supported_schema_version, source.schema_version);
+    assert_eq!(report.source_policy_version, source.policy_version);
+    assert_eq!(
+        report.minimum_supported_policy_version,
+        source.policy_version
+    );
+    assert_eq!(
+        report.schema_state,
+        PolicyDocumentCompatibilityState::Compatible
+    );
+    assert_eq!(
+        report.policy_version_state,
+        PolicyDocumentCompatibilityState::Compatible
+    );
+}
+
+#[test]
+fn source_compatibility_requires_migration_for_older_schema_and_policy_versions() {
+    let source = sample_policy_source_document();
+    let supported_schema_version =
+        SchemaVersion::new(source.schema_version.value() + 1).expect("supported schema version");
+    let minimum_supported_policy_version = PolicyVersion::new(source.policy_version.value() + 1)
+        .expect("minimum supported policy version");
+
+    let report = assess_policy_source_compatibility(
+        &source,
+        supported_schema_version,
+        minimum_supported_policy_version,
+    )
+    .expect("migration-required policy source compatibility report");
+
+    assert_eq!(report.source_schema_version, source.schema_version);
+    assert_eq!(report.supported_schema_version, supported_schema_version);
+    assert_eq!(report.source_policy_version, source.policy_version);
+    assert_eq!(
+        report.minimum_supported_policy_version,
+        minimum_supported_policy_version
+    );
+    assert_eq!(
+        report.schema_state,
+        PolicyDocumentCompatibilityState::MigrationRequired
+    );
+    assert_eq!(
+        report.policy_version_state,
+        PolicyDocumentCompatibilityState::MigrationRequired
+    );
+}
+
+#[test]
+fn source_compatibility_marks_newer_schema_as_unsupported_and_policy_version_as_compatible() {
+    let mut source = sample_policy_source_document();
+    source.schema_version =
+        SchemaVersion::new(source.schema_version.value() + 1).expect("newer source schema version");
+    let supported_schema_version =
+        parent_policy_source_schema_version().expect("supported policy source schema version");
+
+    let report = assess_policy_source_compatibility(
+        &source,
+        supported_schema_version,
+        source.policy_version,
+    )
+    .expect("unsupported schema policy source compatibility report");
+
+    assert_eq!(report.source_schema_version, source.schema_version);
+    assert_eq!(report.supported_schema_version, supported_schema_version);
+    assert_eq!(report.source_policy_version, source.policy_version);
+    assert_eq!(
+        report.minimum_supported_policy_version,
+        source.policy_version
+    );
+    assert_eq!(
+        report.schema_state,
+        PolicyDocumentCompatibilityState::Unsupported
+    );
+    assert_eq!(
+        report.policy_version_state,
+        PolicyDocumentCompatibilityState::Compatible
+    );
 }
 
 #[test]

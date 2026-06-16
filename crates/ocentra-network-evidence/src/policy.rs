@@ -57,32 +57,40 @@ pub enum NetworkEvidencePolicyMappingError {
 pub fn map_network_evidence_grade_to_policy(
     input: NetworkEvidencePolicyMappingInput,
 ) -> Result<NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingError> {
-    let policy_decision_ref = normalize_ref(&input.policy_decision_ref)
+    let NetworkEvidencePolicyMappingInput {
+        policy_decision_ref,
+        parent_rule_ref,
+        evidence_refs,
+        local_ai_result_ref,
+        evidence_grade,
+        requested_action,
+        adapter_capability_proof_ref,
+    } = input;
+    let policy_decision_ref = normalize_ref(&policy_decision_ref)
         .ok_or(NetworkEvidencePolicyMappingError::EmptyPolicyDecisionRef)?;
-    let parent_rule_ref = normalize_ref(&input.parent_rule_ref)
+    let parent_rule_ref = normalize_ref(&parent_rule_ref)
         .ok_or(NetworkEvidencePolicyMappingError::EmptyParentRuleRef)?;
     let evidence_refs = normalized_refs(
-        &input.evidence_refs,
+        &evidence_refs,
         NetworkEvidencePolicyMappingError::EmptyEvidenceRef,
     )?;
     let local_ai_result_ref = normalized_optional_ref(
-        input.local_ai_result_ref.as_deref(),
+        local_ai_result_ref.as_deref(),
         NetworkEvidencePolicyMappingError::EmptyLocalAiResultRef,
     )?;
     let adapter_capability_proof_ref = normalized_optional_ref(
-        input.adapter_capability_proof_ref.as_deref(),
+        adapter_capability_proof_ref.as_deref(),
         NetworkEvidencePolicyMappingError::EmptyAdapterCapabilityProofRef,
     )?;
-    let (mode, mapped_action) =
-        mapped_mode_and_action(input.evidence_grade, input.requested_action);
+    let (mode, mapped_action) = mapped_mode_and_action(evidence_grade, requested_action);
 
     Ok(NetworkEvidencePolicyMapping {
         policy_decision_ref,
         parent_rule_ref,
         evidence_refs,
         local_ai_result_ref,
-        evidence_grade: input.evidence_grade,
-        requested_action: input.requested_action,
+        evidence_grade,
+        requested_action,
         mapped_action,
         mode,
         adapter_capability_proof_ref,

@@ -17,7 +17,7 @@ async function main() {
   await mkdir(rowOutputDir, { recursive: true });
 
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'network']);
-  await runCommand('node', ['scripts/check-source-shape.mjs']);
+  await runCommand('node', ['scripts/check-source-shape.mjs', 'crates/ocentra-eventing']);
   await assertSourceContracts();
 
   const proof = {

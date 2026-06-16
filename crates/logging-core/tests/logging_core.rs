@@ -1,7 +1,8 @@
 use std::{
     collections::BTreeMap,
+    env,
     error::Error,
-    env, fs,
+    fs,
     path::PathBuf,
     sync::{Mutex, OnceLock},
     time::{SystemTime, UNIX_EPOCH},
@@ -54,8 +55,14 @@ fn artifact_writer_writes_text_and_hashes_content() {
 #[test]
 fn redaction_replaces_secret_like_fields() {
     let mut fields = LogFields::new();
-    fields.insert("apiToken".to_owned(), LogFieldValue::String("top-secret".to_owned()));
-    fields.insert("safe".to_owned(), LogFieldValue::String("visible".to_owned()));
+    fields.insert(
+        "apiToken".to_owned(),
+        LogFieldValue::String("top-secret".to_owned()),
+    );
+    fields.insert(
+        "safe".to_owned(),
+        LogFieldValue::String("visible".to_owned()),
+    );
 
     let redacted = redact_fields(&fields);
 
@@ -166,8 +173,8 @@ fn parent_log_event_serializes_expected_level_and_source_impl() -> Result<(), Bo
 }
 
 fn typescript_fixture_deserializes_into_parent_log_event_impl() -> Result<(), Box<dyn Error>> {
-    let fixture =
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../packages/logging-domain/fixtures/dev-log-entry.json");
+    let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../packages/logging-domain/fixtures/dev-log-entry.json");
     let payload = fs::read_to_string(fixture)?;
     let event: ParentLogEvent = serde_json::from_str(&payload)?;
     assert_eq!(event.source, LogSource::AgentService);

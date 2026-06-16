@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use std::{sync::Arc, sync::Mutex as StdMutex, time::Duration};
 
 use tokio::sync::{Barrier, Mutex};
@@ -30,7 +31,7 @@ async fn ordered_dispatch_serializes_same_aggregate_transitions() {
         }
     })
     .await
-    .expect("subscriber registers");
+    .expect_value("subscriber registers");
 
     let first = bus.publish_with_mode(
         test_event("first"),
@@ -45,12 +46,14 @@ async fn ordered_dispatch_serializes_same_aggregate_transitions() {
     let (first_report, second_report) = tokio::join!(first, second);
 
     assert_eq!(
-        first_report.expect("first publish succeeds").handled_count,
+        first_report
+            .expect_value("first publish succeeds")
+            .handled_count,
         1
     );
     assert_eq!(
         second_report
-            .expect("second publish succeeds")
+            .expect_value("second publish succeeds")
             .handled_count,
         1
     );
@@ -79,7 +82,7 @@ async fn ordered_dispatch_allows_different_aggregates_to_run_concurrently() {
         }
     })
     .await
-    .expect("subscriber registers");
+    .expect_value("subscriber registers");
 
     let first = bus.publish_with_mode(
         test_event_with_aggregate("first", "aggregate-a"),
@@ -91,14 +94,27 @@ async fn ordered_dispatch_allows_different_aggregates_to_run_concurrently() {
         metadata_with_event_id(TEST_TARGET, "ordered-different-aggregate-event-2"),
         DispatchMode::OrderedByAggregateKey,
     );
-    let result = tokio::time::timeout(Duration::from_secs(1), async {
-        tokio::join!(first, second)
-    })
+    let result = tokio::time::timeout(
+        Duration::from_secs(1),
+        Box::pin(async { tokio::join!(first, second) }),
+    )
     .await
-    .expect("different aggregate publishes complete without serial deadlock");
+    .expect_value("different aggregate publishes complete without serial deadlock");
 
-    assert_eq!(result.0.expect("first publish succeeds").handled_count, 1);
-    assert_eq!(result.1.expect("second publish succeeds").handled_count, 1);
+    assert_eq!(
+        result
+            .0
+            .expect_value("first publish succeeds")
+            .handled_count,
+        1
+    );
+    assert_eq!(
+        result
+            .1
+            .expect_value("second publish succeeds")
+            .handled_count,
+        1
+    );
     assert_eq!(bus.clear_for_test().await.aggregate_gate_count, 0);
 }
 
@@ -121,7 +137,7 @@ async fn nested_publish_uses_context_publisher_without_deadlock() {
         },
     )
     .await
-    .expect("publisher subscriber registers");
+    .expect_value("publisher subscriber registers");
     bus.subscribe::<TestEvent, _, _>(
         subscriber_for_event(OTHER_SUBSCRIBER, OTHER_TARGET, OTHER_EVENT_TYPE),
         move |context| {
@@ -133,12 +149,12 @@ async fn nested_publish_uses_context_publisher_without_deadlock() {
         },
     )
     .await
-    .expect("nested subscriber registers");
+    .expect_value("nested subscriber registers");
 
     let report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("outer publish succeeds");
+        .expect_value("outer publish succeeds");
 
     assert_eq!(report.handled_count, 1);
     assert_eq!(handled.lock().await.as_slice(), &["nested".to_string()]);
@@ -152,7 +168,7 @@ async fn detached_publish_returns_observable_report() {
         Ok(())
     })
     .await
-    .expect("subscriber registers");
+    .expect_value("subscriber registers");
 
     let report = bus
         .publish_detached(
@@ -161,8 +177,8 @@ async fn detached_publish_returns_observable_report() {
             DispatchMode::Sequential,
         )
         .await
-        .expect("detached task completes")
-        .expect("detached publish succeeds");
+        .expect_value("detached task completes")
+        .expect_value("detached publish succeeds");
 
     assert_eq!(report.subscriber_count, 1);
     assert_eq!(report.handled_count, 1);
@@ -177,17 +193,17 @@ async fn sync_subscriber_adapter_uses_typed_dispatch_path() {
         .subscribe_sync::<TestEvent, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |context| {
             handled_clone
                 .lock()
-                .expect("sync handled lock")
+                .expect_value("sync handled lock")
                 .push(context.payload().label.clone());
             Ok(())
         })
         .await
-        .expect("sync subscriber registers");
+        .expect_value("sync subscriber registers");
 
     let report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("publish reaches sync subscriber");
+        .expect_value("publish reaches sync subscriber");
 
     assert_eq!(
         subscription.event_type.as_str(),
@@ -196,7 +212,7 @@ async fn sync_subscriber_adapter_uses_typed_dispatch_path() {
     assert_eq!(report.subscriber_count, 1);
     assert_eq!(report.handled_count, 1);
     assert_eq!(
-        handled.lock().expect("sync handled lock").as_slice(),
+        handled.lock().expect_value("sync handled lock").as_slice(),
         &[TEST_LABEL.to_string()]
     );
 }
@@ -205,17 +221,17 @@ async fn sync_subscriber_adapter_uses_typed_dispatch_path() {
 async fn panicking_handler_isolated_as_dead_letter_report() {
     let bus = EventBus::new();
     bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), |_| async {
-        panic!("eventing test panic");
+        std::panic::resume_unwind(Box::new("eventing test panic"));
         #[allow(unreachable_code)]
         Ok(())
     })
     .await
-    .expect("subscriber registers");
+    .expect_value("subscriber registers");
 
     let report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("publish survives handler panic");
+        .expect_value("publish survives handler panic");
     let dead_letters = bus.dead_letters().await;
 
     assert_eq!(report.handler_reports[0].outcome, HandlerOutcome::Panicked);
@@ -225,7 +241,7 @@ async fn panicking_handler_isolated_as_dead_letter_report() {
         dead_letters[0]
             .subscriber_id
             .as_ref()
-            .expect("handler dead letter has subscriber")
+            .expect_value("handler dead letter has subscriber")
             .as_str(),
         TEST_SUBSCRIBER
     );
@@ -248,17 +264,17 @@ async fn subscription_handle_drop_unsubscribes_handler() {
             },
         )
         .await
-        .expect("subscriber registers with handle");
+        .expect_value("subscriber registers with handle");
 
     let report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("first publish succeeds");
+        .expect_value("first publish succeeds");
     drop(handle);
     let second_report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("second publish succeeds");
+        .expect_value("second publish succeeds");
 
     assert_eq!(report.handled_count, 1);
     assert_eq!(second_report.subscriber_count, 0);
@@ -274,13 +290,13 @@ async fn registrar_dispose_removes_all_owned_subscriptions() {
             Ok(())
         })
         .await
-        .expect("registrar subscribes");
+        .expect_value("registrar subscribes");
 
     let dispose_report = registrar.dispose();
     let publish_report = bus
         .publish(test_event(TEST_LABEL), metadata(TEST_TARGET))
         .await
-        .expect("publish after dispose succeeds");
+        .expect_value("publish after dispose succeeds");
     let subscribe_after_dispose = registrar
         .subscribe::<TestEvent, _, _>(
             &bus,

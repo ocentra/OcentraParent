@@ -1,6 +1,6 @@
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 #[cfg(test)]
-use ocentra_eventing::{ReplayMode, SourceComponent};
+use ocentra_eventing::{ids::SourceComponent, replay::ReplayMode};
 
 #[cfg(test)]
 use super::remote_delivery_status::NetworkRuntimeRemoteDeliveryStatusReport;

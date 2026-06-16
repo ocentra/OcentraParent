@@ -1,11 +1,16 @@
-use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
-};
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use ocentra_evidence::PrivatePayloadState;
+use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
+
+#[allow(clippy::panic)]
+fn parse_or_panic<T, E>(result: Result<T, E>, message: &'static str) -> T {
+    result.unwrap_or_else(|_| panic!("{}", message))
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
@@ -33,18 +38,24 @@ impl ChildDomainEventType {
     }
 
     pub fn ai_analysis_completed() -> Self {
-        Self::parse(constants::child_domain_runtime::AI_ANALYSIS_COMPLETED_EVENT_TYPE)
-            .expect(constants::child_domain_runtime::AI_ANALYSIS_COMPLETED_EVENT_TYPE)
+        parse_or_panic(
+            Self::parse(constants::child_domain_runtime::AI_ANALYSIS_COMPLETED_EVENT_TYPE),
+            constants::child_domain_runtime::AI_ANALYSIS_COMPLETED_EVENT_TYPE,
+        )
     }
 
     pub fn policy_violation_detected() -> Self {
-        Self::parse(constants::child_domain_runtime::POLICY_VIOLATION_DETECTED_EVENT_TYPE)
-            .expect(constants::child_domain_runtime::POLICY_VIOLATION_DETECTED_EVENT_TYPE)
+        parse_or_panic(
+            Self::parse(constants::child_domain_runtime::POLICY_VIOLATION_DETECTED_EVENT_TYPE),
+            constants::child_domain_runtime::POLICY_VIOLATION_DETECTED_EVENT_TYPE,
+        )
     }
 
     pub fn notification_requested() -> Self {
-        Self::parse(constants::child_domain_runtime::NOTIFICATION_REQUESTED_EVENT_TYPE)
-            .expect(constants::child_domain_runtime::NOTIFICATION_REQUESTED_EVENT_TYPE)
+        parse_or_panic(
+            Self::parse(constants::child_domain_runtime::NOTIFICATION_REQUESTED_EVENT_TYPE),
+            constants::child_domain_runtime::NOTIFICATION_REQUESTED_EVENT_TYPE,
+        )
     }
 }
 
@@ -309,7 +320,7 @@ impl ChildRuntimeDomain {
     }
 
     fn event_type(self, value: &'static str) -> ChildDomainEventType {
-        ChildDomainEventType::parse(value).expect(value)
+        parse_or_panic(ChildDomainEventType::parse(value), value)
     }
 }
 
@@ -336,7 +347,7 @@ impl<'de> Deserialize<'de> for ChildRuntimeDomain {
             constants::child_domain_runtime::DOMAIN_NETWORK => Ok(Self::Network),
             constants::child_domain_runtime::DOMAIN_SCREEN => Ok(Self::Screen),
             constants::child_domain_runtime::DOMAIN_SCREEN_LIVE_VIEW => Ok(Self::ScreenLiveView),
-            _ => Err(serde::de::Error::unknown_variant(
+            _ => Err(D::Error::unknown_variant(
                 value.as_str(),
                 &[
                     constants::child_domain_runtime::DOMAIN_APP,
@@ -393,7 +404,7 @@ pub enum ChildDomainObservedSignal {
 impl ChildDomainObservedSignal {
     pub fn into_observed_state(self) -> ChildDomainObservedState {
         let value = self.as_contract_text();
-        ChildDomainObservedState::parse(value).expect(value)
+        parse_or_panic(ChildDomainObservedState::parse(value), value)
     }
 
     fn as_contract_text(self) -> &'static str {
@@ -734,18 +745,24 @@ impl DomainEvent for ChildDomainNotificationRequestedEvent {
 }
 
 pub fn child_domain_child_device_id() -> ChildDomainChildDeviceId {
-    ChildDomainChildDeviceId::parse(constants::child_domain_runtime::DEFAULT_CHILD_DEVICE_ID)
-        .expect(constants::child_domain_runtime::DEFAULT_CHILD_DEVICE_ID)
+    parse_or_panic(
+        ChildDomainChildDeviceId::parse(constants::child_domain_runtime::DEFAULT_CHILD_DEVICE_ID),
+        constants::child_domain_runtime::DEFAULT_CHILD_DEVICE_ID,
+    )
 }
 
 pub fn child_domain_child_profile_id() -> ChildDomainChildProfileId {
-    ChildDomainChildProfileId::parse(constants::child_domain_runtime::DEFAULT_CHILD_PROFILE_ID)
-        .expect(constants::child_domain_runtime::DEFAULT_CHILD_PROFILE_ID)
+    parse_or_panic(
+        ChildDomainChildProfileId::parse(constants::child_domain_runtime::DEFAULT_CHILD_PROFILE_ID),
+        constants::child_domain_runtime::DEFAULT_CHILD_PROFILE_ID,
+    )
 }
 
 pub fn child_domain_observed_at() -> ChildDomainObservedAt {
-    ChildDomainObservedAt::parse(constants::child_domain_runtime::DEFAULT_OBSERVED_AT)
-        .expect(constants::child_domain_runtime::DEFAULT_OBSERVED_AT)
+    parse_or_panic(
+        ChildDomainObservedAt::parse(constants::child_domain_runtime::DEFAULT_OBSERVED_AT),
+        constants::child_domain_runtime::DEFAULT_OBSERVED_AT,
+    )
 }
 
 pub fn child_domain_observed_state(value: ChildDomainObservedSignal) -> ChildDomainObservedState {
@@ -756,26 +773,26 @@ pub fn child_domain_analysis_purpose(
     value: ChildDomainAnalysisPurposeKind,
 ) -> ChildDomainAnalysisPurpose {
     let value = value.as_contract_text();
-    ChildDomainAnalysisPurpose::parse(value).expect(value)
+    parse_or_panic(ChildDomainAnalysisPurpose::parse(value), value)
 }
 
 pub fn child_domain_policy_rule_ref(value: ChildDomainPolicyRuleKind) -> ChildDomainPolicyRuleRef {
     let value = value.as_contract_text();
-    ChildDomainPolicyRuleRef::parse(value).expect(value)
+    parse_or_panic(ChildDomainPolicyRuleRef::parse(value), value)
 }
 
 pub fn child_domain_policy_severity(
     value: ChildDomainPolicySeverityKind,
 ) -> ChildDomainPolicySeverity {
     let value = value.as_contract_text();
-    ChildDomainPolicySeverity::parse(value).expect(value)
+    parse_or_panic(ChildDomainPolicySeverity::parse(value), value)
 }
 
 pub fn child_domain_notification_channel(
     value: ChildDomainNotificationChannelKind,
 ) -> ChildDomainNotificationChannel {
     let value = value.as_contract_text();
-    ChildDomainNotificationChannel::parse(value).expect(value)
+    parse_or_panic(ChildDomainNotificationChannel::parse(value), value)
 }
 
 pub fn child_domain_observation_id(
@@ -783,7 +800,10 @@ pub fn child_domain_observation_id(
     suffix: ChildDomainRefSuffix,
 ) -> ChildDomainObservationId {
     let suffix_text = suffix.as_contract_text();
-    ChildDomainObservationId::parse(child_domain_ref_text(domain, suffix_text)).expect(suffix_text)
+    parse_or_panic(
+        ChildDomainObservationId::parse(child_domain_ref_text(domain, suffix_text)),
+        suffix_text,
+    )
 }
 
 pub fn child_domain_subject_ref(
@@ -791,7 +811,10 @@ pub fn child_domain_subject_ref(
     suffix: ChildDomainRefSuffix,
 ) -> ChildDomainSubjectRef {
     let suffix_text = suffix.as_contract_text();
-    ChildDomainSubjectRef::parse(child_domain_ref_text(domain, suffix_text)).expect(suffix_text)
+    parse_or_panic(
+        ChildDomainSubjectRef::parse(child_domain_ref_text(domain, suffix_text)),
+        suffix_text,
+    )
 }
 
 pub fn child_domain_evidence_ref(
@@ -799,7 +822,10 @@ pub fn child_domain_evidence_ref(
     suffix: ChildDomainRefSuffix,
 ) -> ChildDomainEvidenceRef {
     let suffix_text = suffix.as_contract_text();
-    ChildDomainEvidenceRef::parse(child_domain_ref_text(domain, suffix_text)).expect(suffix_text)
+    parse_or_panic(
+        ChildDomainEvidenceRef::parse(child_domain_ref_text(domain, suffix_text)),
+        suffix_text,
+    )
 }
 
 pub fn child_domain_ai_request_id(
@@ -807,7 +833,10 @@ pub fn child_domain_ai_request_id(
     suffix: ChildDomainRefSuffix,
 ) -> ChildDomainAiRequestId {
     let suffix_text = suffix.as_contract_text();
-    ChildDomainAiRequestId::parse(child_domain_ref_text(domain, suffix_text)).expect(suffix_text)
+    parse_or_panic(
+        ChildDomainAiRequestId::parse(child_domain_ref_text(domain, suffix_text)),
+        suffix_text,
+    )
 }
 
 pub fn child_domain_policy_request_id(
@@ -815,8 +844,10 @@ pub fn child_domain_policy_request_id(
     suffix: ChildDomainRefSuffix,
 ) -> ChildDomainPolicyRequestId {
     let suffix_text = suffix.as_contract_text();
-    ChildDomainPolicyRequestId::parse(child_domain_ref_text(domain, suffix_text))
-        .expect(suffix_text)
+    parse_or_panic(
+        ChildDomainPolicyRequestId::parse(child_domain_ref_text(domain, suffix_text)),
+        suffix_text,
+    )
 }
 
 pub fn child_domain_fact_ref_from_observation_id(
@@ -834,8 +865,10 @@ pub fn child_domain_observation_id_from_subject_ref(
         domain.observed_event_type().as_str(),
         &[subject_ref.as_str(), observed_state.as_str()],
     );
-    ChildDomainObservationId::parse(value)
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED)
+    parse_or_panic(
+        ChildDomainObservationId::parse(value),
+        constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+    )
 }
 
 pub fn child_domain_evidence_ref_from_observation_id(
@@ -846,8 +879,10 @@ pub fn child_domain_evidence_ref_from_observation_id(
         domain.evidence_recorded_event_type().as_str(),
         &[observation_id.as_str()],
     );
-    ChildDomainEvidenceRef::parse(value)
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED)
+    parse_or_panic(
+        ChildDomainEvidenceRef::parse(value),
+        constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+    )
 }
 
 pub fn child_domain_ai_request_id_from_evidence_ref(
@@ -858,8 +893,10 @@ pub fn child_domain_ai_request_id_from_evidence_ref(
         domain.ai_analysis_requested_event_type().as_str(),
         &[evidence_ref.as_str()],
     );
-    ChildDomainAiRequestId::parse(value)
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED)
+    parse_or_panic(
+        ChildDomainAiRequestId::parse(value),
+        constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+    )
 }
 
 pub fn child_domain_fact_ref_from_ai_request_id(
@@ -876,13 +913,17 @@ pub fn child_domain_policy_request_id_from_fact_ref(
         domain.policy_evaluation_requested_event_type().as_str(),
         &[fact_ref.as_str()],
     );
-    ChildDomainPolicyRequestId::parse(value)
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED)
+    parse_or_panic(
+        ChildDomainPolicyRequestId::parse(value),
+        constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+    )
 }
 
 fn child_domain_fact_ref_text(value: &str) -> ChildDomainFactRef {
-    ChildDomainFactRef::parse(value.to_owned())
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED)
+    parse_or_panic(
+        ChildDomainFactRef::parse(value.to_owned()),
+        constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+    )
 }
 
 fn child_domain_derived_identifier_text(prefix: &str, segments: &[&str]) -> String {
@@ -899,8 +940,10 @@ pub fn child_domain_policy_violation_id(
     suffix: ChildDomainRefSuffix,
 ) -> ChildDomainPolicyViolationId {
     let suffix_text = suffix.as_contract_text();
-    ChildDomainPolicyViolationId::parse(child_domain_ref_text(domain, suffix_text))
-        .expect(suffix_text)
+    parse_or_panic(
+        ChildDomainPolicyViolationId::parse(child_domain_ref_text(domain, suffix_text)),
+        suffix_text,
+    )
 }
 
 pub fn child_domain_notification_id(
@@ -908,7 +951,10 @@ pub fn child_domain_notification_id(
     suffix: ChildDomainRefSuffix,
 ) -> ChildDomainNotificationId {
     let suffix_text = suffix.as_contract_text();
-    ChildDomainNotificationId::parse(child_domain_ref_text(domain, suffix_text)).expect(suffix_text)
+    parse_or_panic(
+        ChildDomainNotificationId::parse(child_domain_ref_text(domain, suffix_text)),
+        suffix_text,
+    )
 }
 
 pub fn child_domain_policy_violation_id_from_policy_request_id(
@@ -918,8 +964,10 @@ pub fn child_domain_policy_violation_id_from_policy_request_id(
         constants::child_domain_runtime::POLICY_VIOLATION_DETECTED_EVENT_TYPE,
         &[policy_request_id.as_str()],
     );
-    ChildDomainPolicyViolationId::parse(value)
-        .expect(constants::child_domain_runtime::POLICY_VIOLATION_DETECTED_EVENT_TYPE)
+    parse_or_panic(
+        ChildDomainPolicyViolationId::parse(value),
+        constants::child_domain_runtime::POLICY_VIOLATION_DETECTED_EVENT_TYPE,
+    )
 }
 
 pub fn child_domain_notification_id_from_policy_violation_id(
@@ -929,8 +977,10 @@ pub fn child_domain_notification_id_from_policy_violation_id(
         constants::child_domain_runtime::NOTIFICATION_REQUESTED_EVENT_TYPE,
         &[policy_violation_id.as_str()],
     );
-    ChildDomainNotificationId::parse(value)
-        .expect(constants::child_domain_runtime::NOTIFICATION_REQUESTED_EVENT_TYPE)
+    parse_or_panic(
+        ChildDomainNotificationId::parse(value),
+        constants::child_domain_runtime::NOTIFICATION_REQUESTED_EVENT_TYPE,
+    )
 }
 
 fn canonical_child_domain_evidence_refs(

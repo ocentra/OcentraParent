@@ -112,9 +112,9 @@ impl BrowserManagedLaunchError {
 }
 
 pub fn load_managed_browser_profile_store(
-    config: BrowserManagedProfileStoreConfig,
+    config: &BrowserManagedProfileStoreConfig,
 ) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
-    let paths = managed_profile_store_paths(&config)?;
+    let paths = managed_profile_store_paths(config)?;
     let stored_entry = read_profile_store_entry(&paths.metadata_path)?;
     let created_at = stored_entry
         .as_ref()
@@ -123,7 +123,7 @@ pub fn load_managed_browser_profile_store(
 
     if !paths.profile_dir.is_dir() {
         return Ok(profile_store_record(
-            &config,
+            config,
             paths,
             ProfileStoreRecordInput {
                 created_at,
@@ -140,7 +140,7 @@ pub fn load_managed_browser_profile_store(
 
     if stored_entry.is_none() {
         return Ok(profile_store_record(
-            &config,
+            config,
             paths,
             ProfileStoreRecordInput {
                 created_at,
@@ -156,7 +156,7 @@ pub fn load_managed_browser_profile_store(
     }
 
     Ok(profile_store_record(
-        &config,
+        config,
         paths,
         ProfileStoreRecordInput {
             created_at,
@@ -170,14 +170,14 @@ pub fn load_managed_browser_profile_store(
 }
 
 pub fn create_or_repair_managed_browser_profile_store(
-    config: BrowserManagedProfileStoreConfig,
+    config: &BrowserManagedProfileStoreConfig,
 ) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
-    let paths = managed_profile_store_paths(&config)?;
+    let paths = managed_profile_store_paths(config)?;
     let profile_existed = paths.profile_dir.is_dir();
     fs::create_dir_all(&config.profile_root_dir)
-        .map_err(|_| BrowserManagedProfileStoreError::Io)?;
+        .map_err(|_error| BrowserManagedProfileStoreError::Io)?;
     let stored_entry = read_profile_store_entry(&paths.metadata_path).unwrap_or(None);
-    fs::create_dir_all(&paths.profile_dir).map_err(|_| BrowserManagedProfileStoreError::Io)?;
+    fs::create_dir_all(&paths.profile_dir).map_err(|_error| BrowserManagedProfileStoreError::Io)?;
     let created_at = stored_entry
         .as_ref()
         .map(|entry| entry.created_at.clone())
@@ -198,7 +198,7 @@ pub fn create_or_repair_managed_browser_profile_store(
         .as_ref()
         .map(|_| constants::browser::PROFILE_STORE_REASON_REPAIRED.to_string());
     let record = profile_store_record(
-        &config,
+        config,
         paths,
         ProfileStoreRecordInput {
             created_at,
@@ -214,21 +214,22 @@ pub fn create_or_repair_managed_browser_profile_store(
 }
 
 pub fn delete_managed_browser_profile_store(
-    config: BrowserManagedProfileStoreConfig,
+    config: &BrowserManagedProfileStoreConfig,
 ) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
-    let paths = managed_profile_store_paths(&config)?;
+    let paths = managed_profile_store_paths(config)?;
     fs::create_dir_all(&config.profile_root_dir)
-        .map_err(|_| BrowserManagedProfileStoreError::Io)?;
+        .map_err(|_error| BrowserManagedProfileStoreError::Io)?;
     let stored_entry = read_profile_store_entry(&paths.metadata_path).unwrap_or(None);
     if paths.profile_dir.exists() {
-        fs::remove_dir_all(&paths.profile_dir).map_err(|_| BrowserManagedProfileStoreError::Io)?;
+        fs::remove_dir_all(&paths.profile_dir)
+            .map_err(|_error| BrowserManagedProfileStoreError::Io)?;
     }
     let created_at = stored_entry
         .as_ref()
         .map(|entry| entry.created_at.clone())
         .unwrap_or_else(|| config.now.clone());
     let record = profile_store_record(
-        &config,
+        config,
         paths,
         ProfileStoreRecordInput {
             created_at,
@@ -250,10 +251,10 @@ pub fn reserve_managed_browser_bridge_port(
         constants::browser::DEVTOOLS_PORT_UNRESERVED,
     );
     let listener = TcpListener::bind(endpoint)
-        .map_err(|_| BrowserManagedLaunchError::BridgePortUnavailable)?;
+        .map_err(|_error| BrowserManagedLaunchError::BridgePortUnavailable)?;
     let reserved_endpoint = listener
         .local_addr()
-        .map_err(|_| BrowserManagedLaunchError::BridgePortUnavailable)?;
+        .map_err(|_error| BrowserManagedLaunchError::BridgePortUnavailable)?;
     if !reserved_endpoint.ip().is_loopback()
         || reserved_endpoint.port() == constants::browser::DEVTOOLS_PORT_UNRESERVED
     {
@@ -322,7 +323,7 @@ pub fn launch_managed_browser(
     let child = Command::new(&plan.executable_path)
         .args(&plan.args)
         .spawn()
-        .map_err(|_| BrowserManagedLaunchError::Io)?;
+        .map_err(|_error| BrowserManagedLaunchError::Io)?;
 
     Ok(BrowserManagedLaunch {
         process_id: child.id(),
@@ -428,7 +429,7 @@ fn read_profile_store_entry(
     match fs::read_to_string(metadata_path) {
         Ok(contents) => serde_json::from_str(&contents)
             .map(Some)
-            .map_err(|_| BrowserManagedProfileStoreError::MetadataCorrupt),
+            .map_err(|_error| BrowserManagedProfileStoreError::MetadataCorrupt),
         Err(error) if error.kind() == ErrorKind::NotFound => Ok(None),
         Err(_) => Err(BrowserManagedProfileStoreError::Io),
     }
@@ -438,9 +439,9 @@ fn write_profile_store_entry(
     metadata_path: &Path,
     entry: &BrowserManagedProfileStoreEntry,
 ) -> Result<(), BrowserManagedProfileStoreError> {
-    let contents =
-        serde_json::to_string_pretty(entry).map_err(|_| BrowserManagedProfileStoreError::Io)?;
-    fs::write(metadata_path, contents).map_err(|_| BrowserManagedProfileStoreError::Io)
+    let contents = serde_json::to_string_pretty(entry)
+        .map_err(|_error| BrowserManagedProfileStoreError::Io)?;
+    fs::write(metadata_path, contents).map_err(|_error| BrowserManagedProfileStoreError::Io)
 }
 
 fn profile_id_contains_path_separator(profile_id: &str) -> bool {

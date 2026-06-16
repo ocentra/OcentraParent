@@ -1,4 +1,4 @@
-﻿use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex};
 
 use tokio::sync::Notify;
 
@@ -12,7 +12,10 @@ pub(super) struct ActiveDispatchTracker {
 
 impl ActiveDispatchTracker {
     pub(super) fn enter(&self) -> ActiveDispatchGuard {
-        *self.state.lock().expect_value("active dispatch tracker lock") += 1;
+        *self
+            .state
+            .lock()
+            .expect_value("active dispatch tracker lock") += 1;
         ActiveDispatchGuard {
             tracker: self.clone(),
             active: true,
@@ -20,7 +23,10 @@ impl ActiveDispatchTracker {
     }
 
     pub(super) fn active_count(&self) -> usize {
-        *self.state.lock().expect_value("active dispatch tracker lock")
+        *self
+            .state
+            .lock()
+            .expect_value("active dispatch tracker lock")
     }
 
     pub(super) async fn wait_for_idle(&self) {
@@ -55,6 +61,3 @@ impl Drop for ActiveDispatchGuard {
         }
     }
 }
-
-
-

@@ -14,6 +14,22 @@ pub fn foreground_window_observation_event(
     observation: ForegroundWindowObservation,
     observed_at: &str,
 ) -> ActivityEvent {
+    let ForegroundWindowObservation {
+        status,
+        pid,
+        app_name,
+        process_path,
+        title,
+        window_id,
+    } = observation;
+    let observation = ForegroundWindowObservation {
+        status,
+        pid,
+        app_name,
+        process_path,
+        title,
+        window_id,
+    };
     let mut fields = base_fields(&observation);
     insert_optional_number(&mut fields, constants::field::PID, observation.pid);
     insert_optional_text(

@@ -4,6 +4,10 @@ import {
   withParser,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
+import {
+  PolicyCompilerCapabilityState,
+  PolicyCompilerCapabilityStateSchema,
+} from '@ocentra-parent/policy-domain/policy-compiler';
 
 import { BrowserControlFieldIdSchema } from './browser-control-identifiers';
 import {
@@ -37,6 +41,7 @@ export const BrowserControlCoverageEntrySchema = withParser(
     writesTo: Schema.Array(BrowserControlSchemaKnownWritesToPathSchema),
     policyShape: Schema.Union(NonEmptyStringSchema, Schema.Null),
     capabilityState: Schema.Union(BrowserControlCapabilityStateSchema, Schema.Null),
+    compilerCapabilityState: PolicyCompilerCapabilityStateSchema,
     notes: NonEmptyStringSchema,
   })
 );
@@ -795,6 +800,7 @@ function entry(
     writesTo,
     policyShape,
     capabilityState,
+    compilerCapabilityState: compilerCapabilityStateForEntry(coverageStatus, capabilityState),
     notes,
   };
 }
@@ -831,5 +837,35 @@ function section(
 
 function field(value: string) {
   return BrowserControlFieldIdSchema.parse(value);
+}
+
+function compilerCapabilityStateForEntry(
+  coverageStatus: BrowserControlCoverageStatus,
+  capabilityState:
+    | 'supported'
+    | 'unsupported'
+    | 'degraded'
+    | 'unavailable'
+    | 'unknown'
+    | 'ready'
+    | 'manual-required'
+    | null
+) {
+  if (
+    coverageStatus === 'documentation-only' ||
+    coverageStatus === 'future-gap' ||
+    coverageStatus === 'unavailable'
+  ) {
+    return PolicyCompilerCapabilityState.Unsupported;
+  }
+  if (coverageStatus === 'manual-required') {
+    return PolicyCompilerCapabilityState.ManualRequired;
+  }
+  if (coverageStatus === 'represented-through-capability') {
+    return capabilityState === 'manual-required'
+      ? PolicyCompilerCapabilityState.ManualRequired
+      : PolicyCompilerCapabilityState.Supported;
+  }
+  return PolicyCompilerCapabilityState.Supported;
 }
 

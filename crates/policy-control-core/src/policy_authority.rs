@@ -1,4 +1,5 @@
 #![forbid(unsafe_code)]
+#![allow(clippy::expect_used)]
 
 //! Cross-domain policy-control ownership.
 //!
@@ -6,12 +7,12 @@
 //! consume before child-side enforcement. Feature domains still own their
 //! evidence interpretation; enforcement crates own adapter execution.
 
-use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
-};
-pub use ocentra_evidence::EvidenceReferenceState;
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use serde::{Deserialize, Serialize};
+
+pub type EvidenceReferenceState = ocentra_evidence::EvidenceReferenceState;
 
 pub const CRATE_NAME: &str = "ocentra-policy-control-core";
 const POLICY_CONTROL_SCHEMA_VERSION: u16 = 1;

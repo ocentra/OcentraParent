@@ -1,10 +1,12 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventBus, EventContract, EventContractRegistry,
-    EventResponseContract, EventSubscriber, EventTopologyManifest, EventTopologyPublisher,
-    EventTopologySubscriber, EventType, EventingError, IdempotencyKey, RequestEvent, RequestId,
-    RequestOptions, SchemaVersion, SourceComponent, SubscriberId, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::EventBus, contract_registry::EventContractRegistry,
+    envelope::DomainEvent, envelope::EventContract, error::EventingError, ids::AggregateKey,
+    ids::EventType, ids::IdempotencyKey, ids::RequestId, ids::SchemaVersion, ids::SourceComponent,
+    ids::SubscriberId, ids::TargetHandler, request::EventResponseContract, request::RequestEvent,
+    request::RequestOptions, topology::EventTopologyManifest, topology::EventTopologyPublisher,
+    topology::EventTopologySubscriber,
 };
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
@@ -17,9 +19,10 @@ use super::{browser_aggregate_key, browser_event_metadata};
 
 #[derive(Clone, Debug)]
 pub struct BrowserRuntimeActionIntentHandoffReport {
-    pub request_report: ocentra_eventing::RequestReport<BrowserRuntimeActionIntentHandoffResponse>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub request_report:
+        ocentra_eventing::request::RequestReport<BrowserRuntimeActionIntentHandoffResponse>,
+    pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
+    pub dead_letters: Vec<ocentra_eventing::bus::reports::DeadLetter>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -221,7 +224,7 @@ pub fn browser_runtime_action_intent_handoff_topology_manifest(
 }
 
 fn candidate_refs(
-    event: &ocentra_eventing::StoredEventEnvelope,
+    event: &ocentra_eventing::envelope::StoredEventEnvelope,
 ) -> Option<ActionIntentHandoffRefs> {
     let decoded = event.decode::<BrowserRuntimeEventPayload>().ok()?;
     candidate_refs_from_payload(&decoded.payload)

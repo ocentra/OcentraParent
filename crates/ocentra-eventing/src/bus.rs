@@ -1,4 +1,4 @@
-﻿use std::{
+use std::{
     collections::BTreeMap,
     future::{ready, Future},
     sync::{Arc, Mutex},
@@ -7,9 +7,9 @@
 use tokio::sync::{RwLock, Semaphore};
 
 use crate::{
-    ExpectValue,
-    AggregateKey, DomainEvent, EventQueue, EventType, EventingError, HandlerExecutionPolicy,
-    JournalPolicy, RequestRegistry, SharedEventClock, SharedEventJournal, StoredEventEnvelope,
+    AggregateKey, DomainEvent, EventQueue, EventType, EventingError, ExpectValue,
+    HandlerExecutionPolicy, JournalPolicy, RequestRegistry, SharedEventClock, SharedEventJournal,
+    StoredEventEnvelope,
 };
 
 mod active_dispatch;
@@ -30,7 +30,8 @@ use active_dispatch::ActiveDispatchTracker;
 
 use publisher::{EventContext, EventPublisher};
 use reports::{
-    DeadLetter, EventMetricsSnapshot, HandlerOutcome, HandlerReport, PublishReport, QueueDrainReport,
+    DeadLetter, EventMetricsSnapshot, HandlerOutcome, HandlerReport, PublishReport,
+    QueueDrainReport,
 };
 use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport};
 
@@ -199,7 +200,8 @@ impl EventBus {
     }
 
     fn ensure_active(&self) -> Result<(), EventingError> {
-        if *self.shutdown.lock().expect_value("event bus shutdown lock") != EventBusLifecycleState::Active
+        if *self.shutdown.lock().expect_value("event bus shutdown lock")
+            != EventBusLifecycleState::Active
         {
             return Err(EventingError::BusShutdown);
         }
@@ -218,7 +220,8 @@ impl EventBus {
     }
 
     fn mark_shutdown(&self) {
-        *self.shutdown.lock().expect_value("event bus shutdown lock") = EventBusLifecycleState::Shutdown;
+        *self.shutdown.lock().expect_value("event bus shutdown lock") =
+            EventBusLifecycleState::Shutdown;
     }
 
     fn rollback_shutdown(&self) {
@@ -245,4 +248,3 @@ fn empty_queue_drain_report() -> QueueDrainReport {
         dispatch_reports: Vec::new(),
     }
 }
-

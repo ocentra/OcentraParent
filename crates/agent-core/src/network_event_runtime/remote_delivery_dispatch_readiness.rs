@@ -1,4 +1,4 @@
-use ocentra_eventing::EventDeliveryDecisionProof;
+use ocentra_eventing::delivery::EventDeliveryDecisionProof;
 use ocentra_parent_agent_protocol::constants;
 
 use super::prove_network_runtime_remote_delivery_outbox_handoff;

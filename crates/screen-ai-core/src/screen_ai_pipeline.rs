@@ -7,8 +7,8 @@
 //! model output advisory until policy consumes validated evidence.
 
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
+    envelope::DomainEvent, envelope::EventContract, error::EventingError, ids::AggregateKey,
+    ids::EventType, ids::IdempotencyKey, SchemaVersion,
 };
 use ocentra_evidence::EvidenceReferenceState;
 use serde::{Deserialize, Serialize};

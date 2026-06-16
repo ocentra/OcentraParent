@@ -447,6 +447,9 @@ export function deriveSetupChildServiceStateFromAppState(
       return SetupChildServiceState.Revoked;
     case SetupChildAppReadinessState.ReinstallRequired:
       return SetupChildServiceState.NotStarted;
+    default: {
+      return SetupChildServiceState.NotStarted;
+    }
   }
 }
 

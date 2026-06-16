@@ -67,8 +67,9 @@ pub(crate) fn app_game_journal_sqlite_read_model(
     let mut statement = connection.prepare(constants::sqlite::SELECT_APP_GAME_JOURNAL_ACTIVITY)?;
     let rows = statement.query_map(params![limit as i64], stored_row_from_sqlite)?;
     for row in rows {
+        let row = row?;
         project_stored_row(
-            row?,
+            &row,
             &mut model,
             &mut seen_runtime_processes,
             &mut seen_foreground_processes,
@@ -85,7 +86,7 @@ fn stored_row_from_sqlite(row: &Row<'_>) -> rusqlite::Result<StoredAppGameJourna
 }
 
 fn project_stored_row(
-    row: StoredAppGameJournalRow,
+    row: &StoredAppGameJournalRow,
     model: &mut AppGameServiceReadModel,
     seen_runtime_processes: &mut Vec<String>,
     seen_foreground_processes: &mut Vec<String>,

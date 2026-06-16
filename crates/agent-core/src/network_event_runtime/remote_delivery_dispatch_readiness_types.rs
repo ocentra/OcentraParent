@@ -1,5 +1,6 @@
 use ocentra_eventing::{
-    EventDeliveryRequiredArtifact, EventDeliveryRouteKind, EventingError, SourceComponent,
+    delivery::EventDeliveryRequiredArtifact, delivery::EventDeliveryRouteKind,
+    error::EventingError, ids::SourceComponent,
 };
 
 use super::{

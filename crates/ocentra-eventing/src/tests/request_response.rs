@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use std::{future, sync::Arc, time::Duration};
 
 use tokio::sync::Mutex;
@@ -24,16 +25,17 @@ async fn publish_request_resolves_associated_response_type() {
         },
     )
     .await
-    .expect("request subscriber registers");
+    .expect_value("request subscriber registers");
 
     let report = bus
         .publish_request(
             test_request("resolve-associated-response"),
             metadata(TEST_TARGET),
-            RequestOptions::with_timeout(Duration::from_millis(50)).expect("request options valid"),
+            RequestOptions::with_timeout(Duration::from_millis(50))
+                .expect_value("request options valid"),
         )
         .await
-        .expect("request resolves");
+        .expect_value("request resolves");
 
     assert_eq!(report.request_id.as_str(), REQUEST_ID);
     assert_eq!(report.response.decision, "approved");
@@ -43,37 +45,37 @@ async fn publish_request_resolves_associated_response_type() {
 #[test]
 fn request_terminal_retention_uses_completion_order_not_request_id_sort_order() {
     let registry = RequestRegistry::default();
-    let oldest = RequestId::parse("request-z-oldest").expect("oldest request id parses");
+    let oldest = RequestId::parse("request-z-oldest").expect_value("oldest request id parses");
     registry
         .register(oldest.clone())
-        .expect("oldest request registers");
+        .expect_value("oldest request registers");
     registry
         .complete(oldest.clone(), TestResponse::approved())
-        .expect("oldest request completes");
+        .expect_value("oldest request completes");
 
-    let first_new = RequestId::parse("request-a-0000").expect("first new request id parses");
+    let first_new = RequestId::parse("request-a-0000").expect_value("first new request id parses");
     for index in 0..(REQUEST_TERMINAL_RETENTION_PROBE_COUNT - 1) {
         let request_id =
-            RequestId::parse(format!("request-a-{index:04}")).expect("new request id parses");
+            RequestId::parse(format!("request-a-{index:04}")).expect_value("new request id parses");
         registry
             .register(request_id.clone())
-            .expect("new request registers");
+            .expect_value("new request registers");
         registry
             .complete(request_id, TestResponse::approved())
-            .expect("new request completes");
+            .expect_value("new request completes");
     }
 
     assert_eq!(
         registry
             .complete(oldest, TestResponse::approved())
-            .expect("evicted oldest reports late")
+            .expect_value("evicted oldest reports late")
             .outcome,
         RequestCompletionOutcome::Late
     );
     assert_eq!(
         registry
             .complete(first_new, TestResponse::approved())
-            .expect("newer low-sorted request remains retained")
+            .expect_value("newer low-sorted request remains retained")
             .outcome,
         RequestCompletionOutcome::Duplicate
     );
@@ -98,16 +100,17 @@ async fn invalid_response_validation_does_not_settle_request() {
         },
     )
     .await
-    .expect("request subscriber registers");
+    .expect_value("request subscriber registers");
 
     let report = bus
         .publish_request(
             test_request("validate-before-settle"),
             metadata(TEST_TARGET),
-            RequestOptions::with_timeout(Duration::from_millis(50)).expect("request options valid"),
+            RequestOptions::with_timeout(Duration::from_millis(50))
+                .expect_value("request options valid"),
         )
         .await
-        .expect("request resolves after valid response");
+        .expect_value("request resolves after valid response");
 
     assert!(*invalid_rejected.lock().await);
     assert_eq!(report.response.decision, "approved");
@@ -128,7 +131,7 @@ async fn request_timeout_reports_late_response_without_mutating_result() {
                     let report = context
                         .complete_request(TestResponse::approved())
                         .await
-                        .expect("late completion reports");
+                        .expect_value("late completion reports");
                     outcomes.lock().await.push(report.outcome);
                 });
                 Ok(())
@@ -136,13 +139,14 @@ async fn request_timeout_reports_late_response_without_mutating_result() {
         },
     )
     .await
-    .expect("request subscriber registers");
+    .expect_value("request subscriber registers");
 
     let result = bus
         .publish_request(
             test_request("timeout"),
             metadata(TEST_TARGET),
-            RequestOptions::with_timeout(Duration::from_millis(5)).expect("request options valid"),
+            RequestOptions::with_timeout(Duration::from_millis(5))
+                .expect_value("request options valid"),
         )
         .await;
     tokio::time::sleep(Duration::from_millis(50)).await;
@@ -172,13 +176,14 @@ async fn request_timeout_covers_slow_handler_dispatch() {
         },
     )
     .await
-    .expect("request subscriber registers");
+    .expect_value("request subscriber registers");
 
     let result = bus
         .publish_request(
             test_request("slow-handler-timeout"),
             metadata(TEST_TARGET),
-            RequestOptions::with_timeout(Duration::from_millis(5)).expect("request options valid"),
+            RequestOptions::with_timeout(Duration::from_millis(5))
+                .expect_value("request options valid"),
         )
         .await;
     tokio::time::sleep(Duration::from_millis(75)).await;
@@ -199,13 +204,14 @@ async fn request_timeout_aborts_never_completing_publish_and_releases_in_flight(
         |_context| async move { future::pending::<Result<(), EventingError>>().await },
     )
     .await
-    .expect("request subscriber registers");
+    .expect_value("request subscriber registers");
 
     let result = bus
         .publish_request(
             test_request("never-completing-handler-timeout"),
             metadata_with_event_id(TEST_TARGET, "request-never-completing-event"),
-            RequestOptions::with_timeout(Duration::from_millis(5)).expect("request options valid"),
+            RequestOptions::with_timeout(Duration::from_millis(5))
+                .expect_value("request options valid"),
         )
         .await;
 
@@ -223,7 +229,8 @@ async fn publish_request_cancels_registry_entry_when_publish_fails() {
         .publish_request(
             InvalidContractRequestEvent::new(),
             metadata(TEST_TARGET),
-            RequestOptions::with_timeout(Duration::from_millis(50)).expect("request options valid"),
+            RequestOptions::with_timeout(Duration::from_millis(50))
+                .expect_value("request options valid"),
         )
         .await;
     assert!(matches!(failed, Err(EventingError::InvalidVersion)));
@@ -236,15 +243,16 @@ async fn publish_request_cancels_registry_entry_when_publish_fails() {
         },
     )
     .await
-    .expect("request subscriber registers");
+    .expect_value("request subscriber registers");
     let report = bus
         .publish_request(
             test_request("retry-after-publish-failure"),
             metadata(TEST_TARGET),
-            RequestOptions::with_timeout(Duration::from_millis(50)).expect("request options valid"),
+            RequestOptions::with_timeout(Duration::from_millis(50))
+                .expect_value("request options valid"),
         )
         .await
-        .expect("request id can be reused after failed publish");
+        .expect_value("request id can be reused after failed publish");
 
     assert_eq!(report.response.decision, "approved");
 }
@@ -270,16 +278,17 @@ async fn double_completion_is_ignored_and_reported() {
         },
     )
     .await
-    .expect("request subscriber registers");
+    .expect_value("request subscriber registers");
 
     let report = bus
         .publish_request(
             test_request("double-completion"),
             metadata(TEST_TARGET),
-            RequestOptions::with_timeout(Duration::from_millis(50)).expect("request options valid"),
+            RequestOptions::with_timeout(Duration::from_millis(50))
+                .expect_value("request options valid"),
         )
         .await
-        .expect("first request completion resolves");
+        .expect_value("first request completion resolves");
 
     assert_eq!(report.response.decision, "approved");
     assert_eq!(
@@ -309,16 +318,17 @@ async fn durable_result_event_pattern_remains_separate_from_local_completion() {
         },
     )
     .await
-    .expect("request subscriber registers");
+    .expect_value("request subscriber registers");
 
     let report = bus
         .publish_request(
             test_request("durable-result-event"),
             metadata(TEST_TARGET),
-            RequestOptions::with_timeout(Duration::from_millis(50)).expect("request options valid"),
+            RequestOptions::with_timeout(Duration::from_millis(50))
+                .expect_value("request options valid"),
         )
         .await
-        .expect("request resolves");
+        .expect_value("request resolves");
     let journal = bus.journal().await;
 
     assert_eq!(report.response.decision, "approved");

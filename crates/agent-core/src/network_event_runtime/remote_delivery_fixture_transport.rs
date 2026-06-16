@@ -114,9 +114,9 @@ fn build_fixture_transport_report(
 
 fn fixture_record(
     candidate: &NetworkRuntimeRemoteDeliveryOutboxCandidate,
-    fixture_transport_ref: &ocentra_eventing::SourceComponent,
-    fixture_dispatch_attempt_ref: &ocentra_eventing::SourceComponent,
-    fixture_ack_ref: &ocentra_eventing::SourceComponent,
+    fixture_transport_ref: &ocentra_eventing::ids::SourceComponent,
+    fixture_dispatch_attempt_ref: &ocentra_eventing::ids::SourceComponent,
+    fixture_ack_ref: &ocentra_eventing::ids::SourceComponent,
 ) -> NetworkRuntimeRemoteDeliveryFixtureTransportRecord {
     NetworkRuntimeRemoteDeliveryFixtureTransportRecord {
         sequence: candidate.sequence,

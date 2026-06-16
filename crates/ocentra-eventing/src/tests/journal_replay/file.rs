@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use crate::{
     EventJournal, EventingError, NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions,
 };
@@ -16,14 +17,14 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
     let first = stored_event(test_event(TEST_LABEL));
     let second = stored_event(test_event_for_type("second event", OTHER_EVENT_TYPE));
 
-    let first_append = journal.append(&first).await.expect("first append");
-    let second_append = journal.append(&second).await.expect("second append");
+    let first_append = journal.append(&first).await.expect_value("first append");
+    let second_append = journal.append(&second).await.expect_value("second append");
 
     let lines = read_lines(&path).await;
     let first_entry: NdjsonJournalEntry =
-        serde_json::from_str(&lines[0]).expect("first line decodes");
+        serde_json::from_str(&lines[0]).expect_value("first line decodes");
     let second_entry: NdjsonJournalEntry =
-        serde_json::from_str(&lines[1]).expect("second line decodes");
+        serde_json::from_str(&lines[1]).expect_value("second line decodes");
 
     assert_eq!(lines.len(), 2);
     assert_eq!(first_append.sequence, 1);
@@ -45,15 +46,18 @@ async fn ndjson_journal_reopen_continues_sequence_and_hash_chain() {
     let path = journal_path("reopen-hash-chain");
     let first_journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
     let first = stored_event(test_event(TEST_LABEL));
-    let first_append = first_journal.append(&first).await.expect("first append");
+    let first_append = first_journal
+        .append(&first)
+        .await
+        .expect_value("first append");
     drop(first_journal);
 
     let reopened = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
     let second = stored_event(test_event_for_type("second event", OTHER_EVENT_TYPE));
-    let second_append = reopened.append(&second).await.expect("second append");
+    let second_append = reopened.append(&second).await.expect_value("second append");
     let lines = read_lines(&path).await;
     let second_entry: NdjsonJournalEntry =
-        serde_json::from_str(&lines[1]).expect("second line decodes");
+        serde_json::from_str(&lines[1]).expect_value("second line decodes");
 
     assert_eq!(lines.len(), 2);
     assert_eq!(first_append.sequence, 1);
@@ -71,14 +75,14 @@ async fn ndjson_journal_reopen_rejects_tampered_hash_chain_payload() {
     first_journal
         .append(&stored_event(test_event(TEST_LABEL)))
         .await
-        .expect("first append");
+        .expect_value("first append");
     first_journal
         .append(&stored_event(test_event_for_type(
             "second event",
             OTHER_EVENT_TYPE,
         )))
         .await
-        .expect("second append");
+        .expect_value("second append");
     drop(first_journal);
     tamper_first_journal_payload_label(&path, "tampered event").await;
     let reopened = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
@@ -94,7 +98,7 @@ async fn ndjson_journal_reopen_rejects_tampered_hash_chain_payload() {
         Err(EventingError::JournalCorruptLine { line: 1, reason }) => {
             assert!(reason.contains("current hash mismatch"));
         }
-        other => panic!("expected corrupt hash-chain line, received {other:?}"),
+        _other => std::process::abort(),
     }
     cleanup(&path).await;
 }
@@ -111,19 +115,19 @@ async fn concurrent_ndjson_appends_do_not_hold_state_lock_across_file_write() {
                     &format!("parallel event {index}"),
                     OTHER_EVENT_TYPE,
                 ));
-                journal.append(&event).await.expect("append succeeds")
+                journal.append(&event).await.expect_value("append succeeds")
             })
         })
         .collect::<Vec<_>>();
 
     for handle in handles {
-        handle.await.expect("append task joins");
+        handle.await.expect_value("append task joins");
     }
 
     let lines = read_lines(&path).await;
     let entries = lines
         .iter()
-        .map(|line| serde_json::from_str::<NdjsonJournalEntry>(line).expect("line decodes"))
+        .map(|line| serde_json::from_str::<NdjsonJournalEntry>(line).expect_value("line decodes"))
         .collect::<Vec<_>>();
 
     assert_eq!(entries.len(), 4);

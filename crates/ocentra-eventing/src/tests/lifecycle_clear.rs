@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use std::{sync::Arc, time::Duration};
 
 use serde::{Deserialize, Serialize};
@@ -21,33 +22,34 @@ const CLEAR_REQUEST_IDEMPOTENCY: &str = "eventing-lifecycle-clear-idempotency";
 
 #[tokio::test]
 async fn clear_for_test_reports_and_resets_local_bus_state() {
-    let queue_policy = EventQueuePolicy::no_subscriber_queue(4).expect("queue policy is valid");
+    let queue_policy =
+        EventQueuePolicy::no_subscriber_queue(4).expect_value("queue policy is valid");
     let bus = EventBus::with_policies(HandlerExecutionPolicy::default(), queue_policy);
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
         subscriber(TEST_SUBSCRIBER, TEST_TARGET),
         |_| async { Ok(()) },
     )
     .await
-    .expect("subscriber registers");
+    .expect_value("subscriber registers");
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
         subscriber_for_event(OTHER_SUBSCRIBER, OTHER_TARGET, OTHER_EVENT_TYPE),
         |_| async { Err(EventingError::empty_value("lifecycle_clear_failure")) },
     )
     .await
-    .expect("failing subscriber registers");
+    .expect_value("failing subscriber registers");
     bus.publish(
         test_event_with_idempotency("queued", "lifecycle-clear-queued"),
         metadata_with_event_id(OTHER_TARGET, "lifecycle-clear-event-1"),
     )
     .await
-    .expect("wrong target queues event");
+    .expect_value("wrong target queues event");
     bus.publish_with_mode(
         test_event_for_type("failed", OTHER_EVENT_TYPE),
         metadata_with_event_id(OTHER_TARGET, "lifecycle-clear-event-2"),
         DispatchMode::OrderedByAggregateKey,
     )
     .await
-    .expect("failed handler becomes dead letter");
+    .expect_value("failed handler becomes dead letter");
 
     let clear_report = bus.clear_for_test().await;
     let dead_letters_after_clear = bus.dead_letters().await;
@@ -57,14 +59,14 @@ async fn clear_for_test_reports_and_resets_local_bus_state() {
         |_| async { Ok(()) },
     )
     .await
-    .expect("subscriber can re-register after test clear");
+    .expect_value("subscriber can re-register after test clear");
     let publish_after_clear = bus
         .publish(
             test_event_with_idempotency("after-clear", "lifecycle-clear-after"),
             metadata(TEST_TARGET),
         )
         .await
-        .expect("publish after clear succeeds");
+        .expect_value("publish after clear succeeds");
 
     assert_eq!(clear_report.subscription_count, 2);
     assert_eq!(clear_report.stored_journal_count, 2);
@@ -98,7 +100,7 @@ async fn clear_for_test_cancels_pending_request_completion() {
         },
     )
     .await
-    .expect("request subscriber registers");
+    .expect_value("request subscriber registers");
     let request_bus = bus.clone();
     let request = tokio::spawn(async move {
         request_bus
@@ -106,14 +108,14 @@ async fn clear_for_test_cancels_pending_request_completion() {
                 ClearRequestEvent::new(),
                 metadata(TEST_TARGET),
                 RequestOptions::with_timeout(Duration::from_secs(60))
-                    .expect("request timeout is valid"),
+                    .expect_value("request timeout is valid"),
             )
             .await
     });
 
     handler_seen.notified().await;
     let clear_report = bus.clear_for_test().await;
-    let result = request.await.expect("request task joins");
+    let result = request.await.expect_value("request task joins");
 
     assert_eq!(clear_report.pending_request_count, 1);
     assert!(matches!(result, Err(EventingError::RequestTimedOut { .. })));
@@ -127,7 +129,7 @@ struct ClearRequestEvent {
 impl ClearRequestEvent {
     fn new() -> Self {
         Self {
-            request_id: RequestId::parse(CLEAR_REQUEST_ID).expect("request id parses"),
+            request_id: RequestId::parse(CLEAR_REQUEST_ID).expect_value("request id parses"),
         }
     }
 }

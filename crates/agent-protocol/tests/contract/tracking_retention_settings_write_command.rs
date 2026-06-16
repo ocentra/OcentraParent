@@ -1,4 +1,5 @@
-use ocentra_eventing::{DomainEvent, EventResponseContract, RequestEvent};
+use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::request::{EventResponseContract, RequestEvent};
 use ocentra_parent_agent_protocol::{
     constants, tracking_durable_settings_store_ref, tracking_local_service_state_snapshot_ref,
     tracking_mutation_proof_ref, tracking_read_model_proof_ref, tracking_retention_accepted_at,

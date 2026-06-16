@@ -1,3 +1,4 @@
+use crate::ExpectValue;
 use crate::{
     tests::fixtures::{test_event_for_type, OTHER_EVENT_TYPE, TEST_EVENT_TYPE},
     EventContractRegistry, EventNamespace, EventTopologyFamilyVariant, EventTopologyManifest,
@@ -17,8 +18,8 @@ const FAMILY_ID: &str = "eventing.topology.family";
 #[test]
 fn topology_manifest_classifies_covered_orphan_and_accepted_states() {
     let registry = topology_registry();
-    let accepted_event =
-        EventType::parse(ACCEPTED_NO_PUBLISHER_EVENT_TYPE).expect("accepted event type parses");
+    let accepted_event = EventType::parse(ACCEPTED_NO_PUBLISHER_EVENT_TYPE)
+        .expect_value("accepted event type parses");
 
     let manifest = EventTopologyManifest::from_registry(
         &registry,
@@ -119,41 +120,42 @@ fn topology_registry() -> EventContractRegistry {
     let mut registry = EventContractRegistry::new();
     registry
         .register_event(&test_event_for_type("covered", TEST_EVENT_TYPE))
-        .expect("covered registers");
+        .expect_value("covered registers");
     registry
         .register_event(&test_event_for_type("other", OTHER_EVENT_TYPE))
-        .expect("other registers");
+        .expect_value("other registers");
     registry
         .register_event(&test_event_for_type(
             "accepted",
             ACCEPTED_NO_PUBLISHER_EVENT_TYPE,
         ))
-        .expect("accepted registers");
+        .expect_value("accepted registers");
     registry
         .register_event(&test_event_for_type("orphan", NO_SUBSCRIBER_EVENT_TYPE))
-        .expect("orphan registers");
+        .expect_value("orphan registers");
     registry
 }
 
 fn publisher(event_type: &str, component: &str) -> EventTopologyPublisher {
     EventTopologyPublisher {
-        event_type: EventType::parse(event_type).expect("publisher event type parses"),
-        source_component: SourceComponent::parse(component).expect("publisher component parses"),
+        event_type: EventType::parse(event_type).expect_value("publisher event type parses"),
+        source_component: SourceComponent::parse(component)
+            .expect_value("publisher component parses"),
     }
 }
 
 fn subscriber(event_type: &str, subscriber_id: &str) -> EventTopologySubscriber {
     EventTopologySubscriber {
-        event_type: EventType::parse(event_type).expect("subscriber event type parses"),
-        subscriber_id: SubscriberId::parse(subscriber_id).expect("subscriber id parses"),
-        target_handler: TargetHandler::parse(TOPOLOGY_TARGET).expect("target parses"),
+        event_type: EventType::parse(event_type).expect_value("subscriber event type parses"),
+        subscriber_id: SubscriberId::parse(subscriber_id).expect_value("subscriber id parses"),
+        target_handler: TargetHandler::parse(TOPOLOGY_TARGET).expect_value("target parses"),
     }
 }
 
 fn family_variant(event_type: &str) -> EventTopologyFamilyVariant {
     EventTopologyFamilyVariant {
-        family: EventNamespace::parse(FAMILY_ID).expect("family parses"),
-        event_type: EventType::parse(event_type).expect("family event type parses"),
+        family: EventNamespace::parse(FAMILY_ID).expect_value("family parses"),
+        event_type: EventType::parse(event_type).expect_value("family event type parses"),
     }
 }
 
@@ -165,5 +167,5 @@ fn entry<'a>(
         .entries()
         .iter()
         .find(|entry| entry.contract.event_type.as_str() == event_type)
-        .expect("topology entry exists")
+        .expect_value("topology entry exists")
 }

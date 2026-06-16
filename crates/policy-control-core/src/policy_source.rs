@@ -2,7 +2,8 @@
 
 use std::collections::BTreeSet;
 
-use ocentra_eventing::{EventingError, SchemaVersion};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::SchemaVersion;
 use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 
@@ -1149,7 +1150,7 @@ fn assert_utc_timestamp(field: &'static str, value: &str) -> Result<(), Eventing
 fn parse_time_component(field: &'static str, value: &str) -> Result<u8, EventingError> {
     value
         .parse::<u8>()
-        .map_err(|_| EventingError::InvalidValue {
+        .map_err(|_error| EventingError::InvalidValue {
             field,
             value: value.to_string(),
         })

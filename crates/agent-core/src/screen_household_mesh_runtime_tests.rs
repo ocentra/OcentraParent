@@ -176,7 +176,9 @@ fn decode_payloads(report: &ScreenHouseholdMeshReport) -> Vec<ScreenHouseholdMes
         .stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::EventEnvelope<ScreenHouseholdMeshEventPayload> = event
+            let envelope: ocentra_eventing::envelope::EventEnvelope<
+                ScreenHouseholdMeshEventPayload,
+            > = event
                 .decode()
                 .expect(constants::screen_flow::ERROR_SCREEN_MESH_PAYLOAD_DECODES);
             envelope.payload

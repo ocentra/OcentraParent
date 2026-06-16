@@ -1,4 +1,4 @@
-﻿use crate::{EventClockInstant, EventType, EventingError, QueueDisposition, StoredEventEnvelope};
+use crate::{EventClockInstant, EventType, EventingError, QueueDisposition, StoredEventEnvelope};
 
 use super::{
     publish::DispatchStoredError,
@@ -122,6 +122,3 @@ fn queued_expiration(
     }
     None
 }
-
-
-

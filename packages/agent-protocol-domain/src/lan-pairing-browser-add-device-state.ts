@@ -1,5 +1,5 @@
 import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { AgentDeviceIdSchema, AgentPeerIdSchema, AgentProtocolSchemaVersion, AgentTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
+import { AgentDeviceIdSchema, AgentPeerIdSchema, AgentProtocolSchemaVersion, AgentTimestampSchema } from '@ocentra-parent/event-domain/primitives';
 import { AgentLanDiscoverySourceMatrixSchema } from './lan-discovery-source-matrix';
 import { AgentLanSignedDiscoveryRelaySpineSchema } from './lan-signed-discovery-relay-spine';
 import {

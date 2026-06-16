@@ -5,16 +5,16 @@ use ocentra_policy_control_core::policy_delivery::{
     PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
-    compile_domain_policy_artifact, parent_policy_source_schema_version, ParentPolicyActorRole,
+    compile_domain_policy_artifact, parent_policy_source_schema_version,
     rollback_parent_policy_source_document, supersede_parent_policy_source_document,
-    ParentPolicyDocumentId, ParentPolicyRule, ParentPolicySourceDocument, PolicyActorId,
-    PolicyAuditReferenceId, PolicyChildProfileId, PolicyConsumerDomain, PolicyDeviceId,
-    PolicyHouseholdId, PolicyReasonCode, PolicyRetentionMetadata, PolicyRollbackRef,
-    PolicyRuleAction, PolicyRuleId, PolicyRuleTarget, PolicyScheduleBudgetCarryoverMode,
-    PolicyScheduleBudgetCarryoverRule, PolicyScheduleBudgetResetKind,
-    PolicyScheduleBudgetResetRule, PolicyScheduleClockSource, PolicyScheduleId,
-    PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget, PolicyScheduleWindow,
-    PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
+    ParentPolicyActorRole, ParentPolicyDocumentId, ParentPolicyRule, ParentPolicySourceDocument,
+    PolicyActorId, PolicyAuditReferenceId, PolicyChildProfileId, PolicyConsumerDomain,
+    PolicyDeviceId, PolicyHouseholdId, PolicyReasonCode, PolicyRetentionMetadata,
+    PolicyRollbackRef, PolicyRuleAction, PolicyRuleId, PolicyRuleTarget,
+    PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
+    PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
+    PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
+    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
     PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
 };
 
@@ -182,11 +182,9 @@ fn queued_delivery_preserves_source_lifecycle_metadata_separately_from_delivery_
         audit_ref("audit-policy-superseded"),
     )
     .expect("superseded policy source document");
-    let superseded_compiled = compile_domain_policy_artifact(
-        &superseded_source,
-        PolicyConsumerDomain::Tracking,
-    )
-    .expect("compiled superseded artifact");
+    let superseded_compiled =
+        compile_domain_policy_artifact(&superseded_source, PolicyConsumerDomain::Tracking)
+            .expect("compiled superseded artifact");
     let superseded_delivery = queue_policy_delivery(
         &superseded_compiled,
         sample_delivery_target(),
@@ -221,11 +219,9 @@ fn queued_delivery_preserves_source_lifecycle_metadata_separately_from_delivery_
         audit_ref("audit-policy-rolled-back"),
     )
     .expect("rolled-back policy source document");
-    let rolled_back_compiled = compile_domain_policy_artifact(
-        &rolled_back_source,
-        PolicyConsumerDomain::Tracking,
-    )
-    .expect("compiled rolled-back artifact");
+    let rolled_back_compiled =
+        compile_domain_policy_artifact(&rolled_back_source, PolicyConsumerDomain::Tracking)
+            .expect("compiled rolled-back artifact");
     let rolled_back_delivery = queue_policy_delivery(
         &rolled_back_compiled,
         sample_delivery_target(),

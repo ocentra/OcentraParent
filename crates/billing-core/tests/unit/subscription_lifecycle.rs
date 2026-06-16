@@ -241,8 +241,10 @@ fn remaining_lifecycle_edges_preserve_manual_review_and_write_rules() {
             event_kind,
             ..provider_event(lifecycle_state, BillingProviderSignatureState::Verified)
         });
-        let transition =
-            project_billing_entitlement_transition(decision.clone(), BillingEntitlementScope::Household);
+        let transition = project_billing_entitlement_transition(
+            decision.clone(),
+            BillingEntitlementScope::Household,
+        );
 
         assert_eq!(
             decision.decision_state,

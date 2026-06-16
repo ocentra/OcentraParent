@@ -31,7 +31,8 @@ pub fn resolve_log_scope() -> String {
 
 pub fn sanitize_segment(segment: &str) -> io::Result<String> {
     let trimmed = segment.trim();
-    let has_forbidden_separator = trimmed.contains('/') || trimmed.contains('\\') || trimmed.contains(':');
+    let has_forbidden_separator =
+        trimmed.contains('/') || trimmed.contains('\\') || trimmed.contains(':');
     if trimmed.is_empty() || trimmed == "." || trimmed == ".." || has_forbidden_separator {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
@@ -73,5 +74,7 @@ fn find_repo_root() -> io::Result<Option<PathBuf>> {
 }
 
 fn has_repo_markers(path: &Path) -> bool {
-    path.join(".git").exists() || path.join("Cargo.toml").exists() || path.join("package.json").exists()
+    path.join(".git").exists()
+        || path.join("Cargo.toml").exists()
+        || path.join("package.json").exists()
 }

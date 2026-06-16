@@ -1,10 +1,10 @@
-﻿use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use tokio::{
     fs::File,
     io::{AsyncBufReadExt, BufReader},
 };
 
-use crate::journal::verify_hash_chain_entry;
+use crate::journal::hash_chain::verify_hash_chain_entry;
 use crate::{
     CorrelationId, EventType, EventingError, JournalDispatchPhase, JournalHash, NdjsonEventJournal,
     NdjsonJournalEntry, StoredEventEnvelope,
@@ -174,4 +174,3 @@ impl NdjsonEventJournal {
         })
     }
 }
-

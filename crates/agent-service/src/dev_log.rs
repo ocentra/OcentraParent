@@ -1,12 +1,12 @@
 use ocentra_parent_agent_protocol::{LogFieldValue as ProtocolLogFieldValue, LogFields};
+#[cfg(test)]
+use ocentra_parent_logging_core::dev_log::resolve_compat_dev_log_path;
 use ocentra_parent_logging_core::{
     dev_log::DevLogger,
     field::{LogFieldValue, LogFields as CoreLogFields},
     level::LogLevel,
     source::LogSource,
 };
-#[cfg(test)]
-use ocentra_parent_logging_core::dev_log::resolve_compat_dev_log_path;
 #[cfg(test)]
 use std::path::PathBuf;
 
@@ -63,12 +63,13 @@ fn into_core_field_value(value: ProtocolLogFieldValue) -> LogFieldValue {
 
 #[cfg(test)]
 mod tests {
-    use super::{dev_log_path, write_agent_debug, write_agent_error, write_agent_info, write_agent_warn};
+    use super::{
+        dev_log_path, write_agent_debug, write_agent_error, write_agent_info, write_agent_warn,
+    };
     use ocentra_parent_agent_protocol::{constants, LogFields};
     use ocentra_parent_logging_core::path::{LOG_ROOT_ENV, LOG_SCOPE_ENV};
     use std::{
-        env,
-        fs,
+        env, fs,
         path::PathBuf,
         sync::{Mutex, OnceLock},
         time::{SystemTime, UNIX_EPOCH},
@@ -99,10 +100,7 @@ mod tests {
 
         env::remove_var(constants::env_var::DEV_LOG_DIR);
 
-        assert_eq!(
-            path,
-            temp_dir.join("agent-service-2026-06-15.ndjson")
-        );
+        assert_eq!(path, temp_dir.join("agent-service-2026-06-15.ndjson"));
     }
 
     #[test]

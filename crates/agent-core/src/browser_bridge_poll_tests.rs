@@ -14,7 +14,7 @@ fn poll_chromium_bridge_maps_page_targets_to_browser_activity_events() {
     let config = bridge_config(endpoint);
 
     let snapshot = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -60,7 +60,7 @@ fn poll_chromium_bridge_preserves_adapter_tab_and_window_ids() {
     let config = bridge_config(endpoint);
 
     let snapshot = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -86,7 +86,7 @@ fn poll_chromium_bridge_reports_empty_page_target_discovery() {
     let config = bridge_config(endpoint);
 
     let snapshot = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -105,7 +105,7 @@ fn poll_chromium_bridge_accepts_keep_alive_devtools_response_with_content_length
     let config = bridge_config(endpoint);
 
     let snapshot = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )

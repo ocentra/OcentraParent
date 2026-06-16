@@ -1,4 +1,4 @@
-use ocentra_eventing::{ReplayReadReport, StoredEventEnvelope};
+use ocentra_eventing::{envelope::StoredEventEnvelope, replay::ReplayReadReport};
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime_state::NetworkInterventionState;
