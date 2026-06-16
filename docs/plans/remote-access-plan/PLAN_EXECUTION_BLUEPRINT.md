@@ -1,22 +1,56 @@
-# Execution Blueprint
+<!-- agent-capsule -->
 
-Status: reset.
+> Agent Capsule
+> Plan: `remote-access-plan`
+> Doc: `Remote Access Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: remote access readiness or PR readiness.
 
-## Execution objective
-Define the work flow from code to proof.
+<!-- /agent-capsule -->
 
-## Execution stages
-1. Implement or update code.
-2. Write or update tests.
-3. Compile and validate the touched code.
-4. Run the tests.
-5. Run full crate or package validation.
-6. Collect proof in the designated local artifact path.
-7. Record the proof pointer outside the plan folder.
-8. Mark the workpack PR-ready.
+# Remote Access Plan Execution Blueprint
 
-## Proof storage
-Proof artifacts live in the designated local artifact path for the workpack or crate, not in this plan folder.
+## Execution rule
 
-## Reset state
-This blueprint has been reset. Rebuild checklist items and proof pointers as work is rerun.
+Remote access is high-risk. Do not claim live view/control readiness from UI-only proof, LAN-only proof, or mocked sessions.
+
+Use this loop:
+
+```text
+AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+```
+
+## Deterministic proof root
+
+```text
+output/remote-access-plan-proof/<workpack-file-stem>/
+```
+
+## Focused commands
+
+```bash
+npm run build --workspace @ocentra-parent/screen-domain
+npm run test --workspace @ocentra-parent/screen-domain
+cargo test -p ocentra-parent-agent-protocol remote
+cargo test -p ocentra-parent-agent-service remote
+npm run test --workspace @ocentra-parent/portal -- remote
+npm run lint:architecture -- --files packages/screen-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/remote-access-plan
+```
+
+If a command/test path does not exist, record the blocker and keep rows open.
+
+## Universal proof files
+
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
+
+## No-claim boundaries
+
+Do not claim remote view/control/session/grant readiness unless the selected proof root proves account authority, device trust handoff, explicit parent approval, session expiry, revocation, audit, and degraded states.
