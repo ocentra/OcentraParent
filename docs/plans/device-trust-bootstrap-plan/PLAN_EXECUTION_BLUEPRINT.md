@@ -1,25 +1,50 @@
-# Execution Blueprint
+<!-- agent-capsule -->
 
-Status: architecture-open.
+> Agent Capsule
+> Plan: `device-trust-bootstrap-plan`
+> Doc: `Device Trust Bootstrap Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: implementation completion or PR readiness.
 
-## Execution objective
-Define the trust bootstrap work from research to proof without mixing it into account, billing, policy, or remote-access implementation.
+<!-- /agent-capsule -->
 
-## Execution stages
+# Device Trust Bootstrap Plan Execution Blueprint
 
-| Stage | Output | Proof expectation |
-| --- | --- | --- |
-| 1. Trust model | Write the trust source-of-truth model and decision records. | Trust state table and route-sync note. |
-| 2. Local sealing | Define the platform-backed secret sealing boundary. | Platform matrix and wrong-device negative cases. |
-| 3. Parent step-up | Define passkey, biometric, and OS-native step-up for high-risk actions. | Step-up ceremony and replay/expiry negatives. |
-| 4. QR approval | Define desktop-to-phone approval with a short-lived action-bound challenge. | One-time approval, replay rejection, and audit recording. |
-| 5. Entitlement and recovery | Define signed entitlement snapshots, encrypted recovery bundles, reset, and re-pair. | Signature, revocation, wrong-household, and re-pair proof. |
-| 6. Anti-tamper | Define child tamper and uninstall boundaries and the revocation response. | Tamper detection and no-child-control negatives. |
-| 7. Dependency adoption | Evaluate the external crates and platform dependencies. | Adopt / research-only / reject record. |
-| 8. Route gate | Sync adjacent plan routes, feature routes, and proof indexes. | Diff check and route consistency proof. |
+## Execution rule
 
-## Proof storage
-Proof artifacts live in the designated local artifact path or crate-local proof folder, not in this plan folder.
+Use this loop:
 
-## Reset state
-This blueprint begins as a planning scaffold. Rebuild checklist items and proof pointers as each workpack is executed.
+```text
+AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+```
+
+## Proof root
+
+```text
+output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/
+```
+
+## Focused commands
+
+```bash
+cargo test -p ocentra-parent-agent-protocol device_trust
+cargo test -p ocentra-parent-agent-service device_trust
+npm run test --workspace @ocentra-parent/portal -- trust
+npm run lint:architecture -- --files crates/agent-protocol crates/agent-service packages/family-domain packages/parent-domain apps/portal docs/plans/device-trust-bootstrap-plan
+```
+
+## Proof files
+
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
+
+## DONE rule
+
+One workpack is DONE only after focused commands or blockers are recorded and proof artifacts exist under that workpack root.
