@@ -1,73 +1,141 @@
-# Workpack 03: Session Token Lifecycle
+<!-- agent-capsule -->
 
-Goal: define session, token, refresh, expiry, replay, revocation, and clock-skew expectations.
+> Agent Capsule
+> Plan: `account-identity-family-plan`
+> Doc: `WP03 Session Token Lifecycle`
+> Kind: assigned implementation workpack.
+> Read when: selected by WORKPACK_INDEX.md or explicit assignment.
+> Stop rule: do not open sibling workpacks; do not implement provider decision, invite/recovery, UI, payment, or policy work here.
+> Proves: session and credential lifecycle only after tests/proof pass.
+> Does not prove: provider selection, household role model, invite/recovery readiness, or product login readiness.
+> Proof rule: before DONE, write all WP03 proof artifacts and command log.
 
-Expected shape:
+<!-- /agent-capsule -->
 
-- Short-lived user sessions with explicit refresh behavior.
-- Device/service credentials are separate from browser user sessions.
-- Pairing, invite, and recovery tokens are single-purpose, scoped, expiring, and revocable.
-- Logout and global revoke invalidate future privileged actions.
-- Token verification produces redacted audit events.
+# WP03 Session Token Lifecycle
 
-Expected proof:
+## Goal
 
-- Expiry boundary and clock-skew tests.
-- Replay and duplicate-submit tests.
-- Revocation and logout tests.
-- Token misuse logging and alert expectations.
+Define browser sessions, refresh, logout, revocation, expiry, replay resistance, state-changing request safety, and credential class separation.
 
-Failure: treating a valid login token as sufficient for device, policy, remote, or export authority.
+## Required inputs
 
-## Execution Detail
+```text
+workpacks/01-auth-provider-decision.md
+workpacks/02-identity-household-role-model.md
+RESEARCH_AND_DECISIONS.md
+packages/family-domain/src/session-lifecycle.ts
+packages/family-domain/src/household-authority.ts
+packages/family-domain/tests/unit/session-lifecycle.test.ts
+```
 
-Minimum context:
+## Credential classes
 
-- `workpacks/01-auth-provider-decision.md`
-- `packages/family-domain/src/household-authority.ts`
-- `packages/family-domain/src/setup-lifecycle.ts`
+These must be separate and not interchangeable:
 
-Required lifecycle:
+```text
+browser user session
+parent trusted-device credential
+child-device agent credential
+invite token
+recovery token
+controller lease
+remote capability grant
+support/admin session
+```
 
-- Login/session creation.
-- Session refresh.
-- Logout.
-- Global revocation.
-- Device credential issuance.
-- Invite token issuance.
-- Recovery token issuance.
-- Controller lease issuance.
-- Expiry and clock-skew handling.
+## Required lifecycle
 
-Rules:
+```text
+login/session creation
+session refresh
+refresh rotation or equivalent replay-safe transition
+logout
+global revoke
+session expiry
+clock-skew tolerance
+sensitive action freshness check
+device credential issuance boundary
+redacted session audit event
+```
 
-- Browser session, device credential, pairing token, invite token, recovery token, and controller lease are separate.
-- All privileged actions need session freshness and role/device authority.
-- Token payloads must avoid child sensitive data.
+## Expected source changes
 
-Expected tests/proof names:
+Likely paths:
 
-- `account-identity.session.credential-type-matrix`
-- `account-identity.session.login-created`
-- `account-identity.session.refresh-rotates`
-- `account-identity.session.refresh-revoked-denied`
-- `account-identity.session.logout-invalidates`
-- `account-identity.session.global-revoke-invalidates`
-- `account-identity.session.expiry-boundary`
-- `account-identity.session.clock-skew`
-- `account-identity.session.replay-rejected`
-- `account-identity.session.stolen-token-denied`
-- `account-identity.session.device-token-not-user-token`
-- `account-identity.session.invite-token-not-session`
-- `account-identity.session.recovery-token-not-session`
-- `account-identity.session.remote-grant-not-user-session`
-- `account-identity.session.freshness-required-for-sensitive-action`
-- `account-identity.session.redacted-audit-log`
+```text
+packages/family-domain/src/session-lifecycle.ts
+packages/family-domain/src/household-authority.ts
+packages/family-domain/tests/unit/session-lifecycle.test.ts
+packages/family-domain/tests/unit/household-authority.test.ts
+```
 
-Proof artifact expectations:
+## Required proof root
 
-- `03-credential-type-matrix.md`
-- `03-token-expiry-replay-proof.md`
-- `03-refresh-revocation-proof.md`
-- `03-session-freshness-proof.md`
-- `03-token-redaction-proof.md`
+```text
+output/account-identity-family-plan-proof/03-session-token-lifecycle/
+```
+
+Required artifacts:
+
+```text
+00-credential-type-matrix.md
+01-session-lifecycle-proof.md
+02-token-expiry-replay-proof.md
+03-refresh-revocation-proof.md
+04-session-freshness-proof.md
+05-csrf-origin-proof.md
+06-token-redaction-proof.md
+16-validation-commands.log
+```
+
+## Acceptance criteria
+
+- [ ] Credential type matrix exists.
+- [ ] Browser session lifecycle is defined/tested.
+- [ ] Refresh rotation or equivalent replay-safe transition is defined/tested.
+- [ ] Logout and global revoke are defined/tested.
+- [ ] Expiry and clock-skew are defined/tested.
+- [ ] Reuse/stale-token negative cases are covered.
+- [ ] Device, invite, recovery, controller-lease, and remote-grant credentials are not accepted as browser sessions.
+- [ ] Sensitive actions require freshness.
+- [ ] State-changing browser request safety proof or blocker exists.
+- [ ] Session audit logs are redacted.
+- [ ] Focused commands pass or blockers are recorded.
+
+## Focused commands
+
+```bash
+npm run build --workspace @ocentra-parent/family-domain
+npm run test --workspace @ocentra-parent/family-domain -- session
+npm run test --workspace @ocentra-parent/family-domain -- token
+npm run lint:architecture -- --files packages/family-domain
+```
+
+## Negative cases
+
+- Expired session denied.
+- Revoked session denied.
+- Old refresh credential denied after rotation or equivalent lifecycle step.
+- Device credential cannot be used as browser user session.
+- Invite token cannot be used as user session.
+- Recovery token cannot be used as user session.
+- Controller lease cannot be used as user session.
+- Sensitive action denied when freshness is missing.
+- State-changing browser request without the required safety signal is denied or explicitly blocked from claim.
+
+## Manual-required gaps
+
+Provider implementation remains tied to WP01. Device trust/step-up proof remains tied to device-trust-bootstrap-plan.
+
+## Fill before DONE
+
+```text
+Workpack id and branch:
+Credential/session changes:
+Touched files:
+Validation commands and results:
+Proof artifacts:
+Known gaps/manual-required states:
+No-claim boundaries:
+```

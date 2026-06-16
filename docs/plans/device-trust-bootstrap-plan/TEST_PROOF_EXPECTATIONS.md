@@ -1,38 +1,54 @@
-# Test and Proof Expectations
+<!-- agent-capsule -->
 
-Status: architecture-open.
+> Agent Capsule
+> Plan: `device-trust-bootstrap-plan`
+> Doc: `Device Trust Bootstrap Plan Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
-## Purpose
-This file tracks the validation shape for each workpack. It does not store proof artifacts.
+<!-- /agent-capsule -->
 
-## Required flow
-- [ ] Write or update the trust model doc for the selected slice.
-- [ ] Write or update tests or proof harnesses for the selected slice.
-- [ ] Run the lightest compile, lint, or validation check that covers the touched boundary.
-- [ ] Run the targeted tests or proof harness.
-- [ ] Run the broader package or route validation required by the touched risk.
-- [ ] Collect proof in the designated local artifact path or crate-local proof folder.
-- [ ] Record the proof pointer outside the plan folder.
+# Device Trust Bootstrap Plan Test Proof Expectations
 
-## Expectations by workpack
+## Proof root
 
-| Workpack | Expected validation | Proof target | Notes |
-| --- | --- | --- | --- |
-| 01-device-trust-source-of-truth | Trust state table checks, boundary review, route sync check. | `docs/proof/device-trust-bootstrap-plan/01-*` | No login-versus-trust conflation. |
-| 02-local-key-sealing | Platform store round-trip tests and wrong-user / wrong-device negatives. | `docs/proof/device-trust-bootstrap-plan/02-*` | No plaintext trust keys. |
-| 03-parent-step-up-auth | Step-up ceremony tests and replay / expiry negatives. | `docs/proof/device-trust-bootstrap-plan/03-*` | Use native OS prompts or passkeys. |
-| 04-phone-qr-approval-bridge | QR challenge binding tests and one-time approval negatives. | `docs/proof/device-trust-bootstrap-plan/04-*` | Desktop-bound and action-bound. |
-| 05-entitlement-device-license | Signature, expiry, revocation, and offline-grace tests. | `docs/proof/device-trust-bootstrap-plan/05-*` | License alone never unlocks behavior. |
-| 06-recovery-reset-re-pair | Encrypted bundle, wrong-household, wrong-key, and re-pair tests. | `docs/proof/device-trust-bootstrap-plan/06-*` | Recovery is not account login. |
-| 07-child-tamper-uninstall | Tamper detection, uninstall authorization, and revocation tests. | `docs/proof/device-trust-bootstrap-plan/07-*` | Child cannot self-authorize trust removal. |
-| 08-open-source-dependency-adoption | License, maintenance, security, platform, and replaceability review. | `docs/proof/device-trust-bootstrap-plan/08-*` | Adopt, research-only, or reject must be explicit. |
-| 09-cross-plan-route-gate | Plan-index and feature-route sync checks plus diff hygiene. | `docs/proof/device-trust-bootstrap-plan/09-*` | No route drift. |
+```text
+output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/
+```
 
-## Proof storage
+## Common commands
 
-Proof artifacts live in the designated local artifact path for the workpack or crate, not in this plan folder.
+```bash
+cargo test -p ocentra-parent-agent-protocol device_trust
+cargo test -p ocentra-parent-agent-service device_trust
+npm run test --workspace @ocentra-parent/portal -- trust
+npm run lint:architecture -- --files crates/agent-protocol crates/agent-service packages/family-domain packages/parent-domain apps/portal docs/plans/device-trust-bootstrap-plan
+```
 
-## Failure conditions
+## Required proof states
 
-- Do not mark DONE or PR_READY until the selected workpack's validation, negative cases, and proof pointer are complete.
-- Do not store proof inventories inside the plan folder.
+```text
+trust source-of-truth
+local key custody
+parent approval step
+phone approval bridge
+entitlement snapshot
+recovery/reset/re-pair
+child-device removal/tamper state
+dependency adoption review
+route gate
+```
+
+## Required negative states
+
+```text
+login alone not trust proof
+license alone not unlock proof
+wrong household/device blocked
+revoked/expired state visible
+manual-required state visible
+mock proof not product proof
+```

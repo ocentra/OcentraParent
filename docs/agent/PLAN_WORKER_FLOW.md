@@ -23,6 +23,8 @@ test/proof expectations, and failure conditions. Do not turn plan docs into code
 recipes. A short snippet is allowed only when it defines a public contract or
 artifact shape more precisely than prose.
 
+If a plan/workpack is not execution-ready, apply [PLAN_EXECUTION_STANDARD.md](PLAN_EXECUTION_STANDARD.md) before implementation. Missing proof roots, missing commands, missing negative cases, or missing no-claim boundaries are blockers, not things for an agent to infer.
+
 ## Minimum read path
 
 1. `docs/PLAN_INDEX.md`.
@@ -34,8 +36,9 @@ artifact shape more precisely than prose.
 7. `CHECKLIST_INDEX.md` only for the rows/section referenced by the workpack.
 8. Feature/expectation docs named by the plan or workpack only.
 9. Selected plan's `TEST_PROOF_EXPECTATIONS.md` for local required tests/proof.
-10. `docs/agent/TEST_PROOF_DECISION_MATRIX.md` only after local expectations
-    identify a global risk surface needing escalation.
+10. Selected plan's `PROOF_INDEX.md` for proof root and artifact naming.
+11. `docs/agent/PLAN_EXECUTION_STANDARD.md` only if the selected workpack lacks required execution fields.
+12. `docs/agent/TEST_PROOF_DECISION_MATRIX.md` only after local expectations identify a global risk surface needing escalation.
 
 ## Plan selection tree
 
@@ -86,6 +89,8 @@ the consumer plan before that.
   scope expansion and must be recorded in the workpack/proof note.
 - `TEST_PROOF_EXPECTATIONS.md` is mandatory before DONE/PR_READY; missing
   expected tests keep the row open.
+- `PROOF_INDEX.md` is mandatory before DONE/PR_READY; missing proof roots keep
+  the row open.
 - Fenced examples in plan docs are contract/artifact/command examples unless the
   document says they define a public contract shape. They are not instructions
   to copy implementation code.

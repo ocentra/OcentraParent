@@ -1,29 +1,76 @@
-# Test and Proof Expectations
+<!-- agent-capsule -->
 
-Status: reset.
+> Agent Capsule
+> Plan: `cloudflare-control-plane-plan`
+> Doc: `Cloudflare Control Plane Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: runtime completion without matching artifacts.
 
-## Purpose
+<!-- /agent-capsule -->
 
-This file tracks the required execution flow for the shared Cloudflare module. It does not store proof artifacts.
+# Cloudflare Control Plane Test Proof Expectations
 
-## Required flow
+## General rule
 
-- [ ] Select one workpack and its proof path under `docs/proof/cloudflare-control-plane-plan/`.
-- [ ] Update the module docs, scaffold, or blockers for that workpack.
-- [ ] For WP08 or WP10, map every required test file and assertion ID from `REQUIRED_TEST_ASSERTION_MATRIX.md` to proof or an exact blocker.
-- [ ] Record real validation commands or exact missing-runtime blockers.
-- [ ] Capture at least one negative case and one rollback or teardown note.
-- [ ] Keep runtime claims separate from placeholder or scaffold existence.
-- [ ] Keep spec completeness separate from runtime readiness.
-- [ ] Sync route docs, workpack docs, and proof pointers.
-- [ ] Keep payment blocked until WP12 handoff proof exists.
+Use focused commands first. Broader validation is allowed only after focused commands pass or a precise blocker is recorded.
+
+If a required Cloudflare module/test path does not exist yet, write a blocker artifact and leave the checklist row open.
+
+## Common command set
+
+Use the subset relevant to the selected workpack:
+
+```bash
+npm --prefix infra/cloudflare run build
+npm --prefix infra/cloudflare run type-check
+npm --prefix infra/cloudflare run test
+npm --prefix infra/cloudflare run test:unit
+npm --prefix infra/cloudflare run test:integration
+npm --prefix infra/cloudflare run test:security
+npm --prefix infra/cloudflare run test:property
+npm run lint:architecture -- --files infra/cloudflare docs/plans/cloudflare-control-plane-plan
+```
+
+## Expected coverage by workpack
+
+| Workpack | Expected proof focus |
+| --- | --- |
+| WP00 | games keep/adapt/strip map, game-only concern rejection, parent-safe module boundary |
+| WP01 | module tree, package scripts, scaffold-only/no-claim labels, no consumer semantics |
+| WP02 | wrangler envs, D1/DO/KV/R2/Queue binding names, secret custody, dev/prod separation |
+| WP03 | worker entrypoint, env validation, request-size guard, origin/CORS behavior, kill-switch, scheduled hook shape |
+| WP04 | route manifest, route groups, domain contract ownership, no ad hoc route strings |
+| WP05 | auth/admin/support/webhook states, adapter boundary, signature/provider blockers |
+| WP06 | DO/D1/KV/R2/Queue ownership, idempotency/cache/ledger/queue separation |
+| WP07 | local dev, seed, fixture, teardown, emulator/miniflare/wrangler blockers |
+| WP08 | test runner, exact assertion matrix, unit/integration/security/property/e2e family mapping |
+| WP09 | portal-to-worker smoke, redacted request/response proof, no child private payloads |
+| WP10 | security/property/fuzz/observability baseline with parent-only scope |
+| WP11 | deploy/promotion/rollback/env separation/secret custody proof |
+| WP12 | payment handoff assumptions, blockers, no-claim boundaries |
+
+## Required negative states
+
+```text
+game-only code not copied
+placeholder route not runtime proof
+missing binding fails clearly
+private/admin/support route lacks owner proof
+provider/webhook assumption blocked until provider proof
+D1/KV/R2/Queue claim has clear owner and purpose
+payment remains blocked until WP12 handoff proof exists
+production deployment claim requires WP11 proof
+```
 
 ## Proof storage
 
-Proof artifacts live under `docs/proof/cloudflare-control-plane-plan/`, not in this plan folder.
+Proof artifacts live under:
 
-## Failure conditions
+```text
+output/cloudflare-control-plane-plan-proof/<workpack-id>/
+```
 
-- Do not mark DONE or PR_READY until code, tests, validation, and proof flow are complete for the selected slice.
-- Do not treat placeholder test files, placeholder scripts, or placeholder wrangler configs as runtime proof.
-- Do not treat a complete assertion matrix as payment handoff or runtime proof.
+Do not write new proof artifacts under `docs/proof/cloudflare-control-plane-plan/` unless preserving old references; new work should use `output/` proof roots.

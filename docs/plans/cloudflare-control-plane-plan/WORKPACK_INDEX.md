@@ -1,19 +1,58 @@
-# Workpack Index
+<!-- agent-capsule -->
 
-| Workpack | Purpose | Status |
-| --- | --- | --- |
-| [00-games-infra-parity-extraction](workpacks/00-games-infra-parity-extraction.md) | Extract the games module pattern and reduce it for Parent. | Planned |
-| [01-cloudflare-module-scaffold](workpacks/01-cloudflare-module-scaffold.md) | Create the repo-local module tree and no-claim scaffold. | Planned |
-| [02-wrangler-env-bindings](workpacks/02-wrangler-env-bindings.md) | Define Wrangler envs, bindings, vars, and secret custody. | Planned |
-| [03-worker-entrypoint-runtime-guards](workpacks/03-worker-entrypoint-runtime-guards.md) | Freeze env validation, CORS, request-size, kill-switch, and scheduled hook behavior. | Planned |
-| [04-route-manifest-and-domain-contracts](workpacks/04-route-manifest-and-domain-contracts.md) | Define route groups and contract ownership. | Planned |
-| [05-auth-admin-support-boundary](workpacks/05-auth-admin-support-boundary.md) | Define auth states and private/admin/webhook trust gates. | Planned |
-| [06-storage-do-d1-kv-r2-queue-bindings](workpacks/06-storage-do-d1-kv-r2-queue-bindings.md) | Freeze storage and coordination ownership. | Planned |
-| [07-local-dev-seeding-and-fixtures](workpacks/07-local-dev-seeding-and-fixtures.md) | Define local dev, fixtures, and seed flows. | Planned |
-| [08-testing-runner-and-test-pyramid](workpacks/08-testing-runner-and-test-pyramid.md) | Define the Cloudflare test runner shape and required test families. | Spec-complete / implementation-open |
-| [09-portal-to-worker-e2e-smoke](workpacks/09-portal-to-worker-e2e-smoke.md) | Define first consumer smoke and portal handoff proof. | Planned |
-| [10-security-fuzz-property-observability](workpacks/10-security-fuzz-property-observability.md) | Reduce games security tooling to the Parent baseline. | Spec-complete / implementation-open |
-| [11-deployment-and-environment-promotion](workpacks/11-deployment-and-environment-promotion.md) | Define environment promotion, deploy, and rollback flow. | Planned |
-| [12-payment-plan-handoff-gate](workpacks/12-payment-plan-handoff-gate.md) | Gate payment on real Cloudflare control-plane assumptions. | Planned |
+> Agent Capsule
+> Plan: `cloudflare-control-plane-plan`
+> Doc: `Cloudflare Control Plane Workpack Index`
+> Kind: workpack selector.
+> Read when: after PLAN_STATE.md and NEXT_ACTIONS.md.
+> Stop rule: open exactly one selected workpack; do not read every workpack.
+> Proves: workpack routing only.
+> Does not prove: Cloudflare runtime readiness, payment readiness, account readiness, or PR readiness.
+> Proof rule: update counts/status only after matching proof artifacts exist.
 
-Each workpack must name its proof path under `docs/proof/cloudflare-control-plane-plan/` and the exact blocker if runtime work is not ready.
+<!-- /agent-capsule -->
+
+# Cloudflare Control Plane Workpack Index
+
+Choose one workpack. Do not open all workpacks.
+
+| Status | Workpack | Boxes | Primary source docs | Proof root |
+| --- | --- | ---: | --- | --- |
+| open | [WP00 Games Infra Parity Extraction](workpacks/00-games-infra-parity-extraction.md) | 0/8 | `GAMES_INFRA_PARITY_MAP.md` | `output/cloudflare-control-plane-plan-proof/00-games-infra-parity-extraction/` |
+| open | [WP01 Cloudflare Module Scaffold](workpacks/01-cloudflare-module-scaffold.md) | 0/10 | `MODULE_BOUNDARY.md` | `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/` |
+| open | [WP02 Wrangler Env Bindings](workpacks/02-wrangler-env-bindings.md) | 0/10 | `WRANGLER_ENV_BINDINGS.md` | `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/` |
+| open | [WP03 Worker Entrypoint Runtime Guards](workpacks/03-worker-entrypoint-runtime-guards.md) | 0/11 | `WORKER_ENTRYPOINT_MODEL.md` | `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/` |
+| open | [WP04 Route Manifest And Domain Contracts](workpacks/04-route-manifest-and-domain-contracts.md) | 0/11 | `ROUTE_MANIFEST_MODEL.md` | `output/cloudflare-control-plane-plan-proof/04-route-manifest-and-domain-contracts/` |
+| open | [WP05 Auth Admin Support Boundary](workpacks/05-auth-admin-support-boundary.md) | 0/11 | `AUTH_BOUNDARY_MODEL.md` | `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/` |
+| open | [WP06 Storage DO D1 KV R2 Queue Bindings](workpacks/06-storage-do-d1-kv-r2-queue-bindings.md) | 0/11 | `STORAGE_BINDINGS_MODEL.md` | `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/` |
+| open | [WP07 Local Dev Seeding And Fixtures](workpacks/07-local-dev-seeding-and-fixtures.md) | 0/10 | `LOCAL_DEV_SEEDING_MODEL.md` | `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/` |
+| open | [WP08 Testing Runner And Test Pyramid](workpacks/08-testing-runner-and-test-pyramid.md) | 0/12 | `REQUIRED_TEST_ASSERTION_MATRIX.md` | `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/` |
+| open | [WP09 Portal To Worker E2E Smoke](workpacks/09-portal-to-worker-e2e-smoke.md) | 0/10 | `PORTAL_WORKER_SMOKE_MODEL.md` | `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/` |
+| open | [WP10 Security Fuzz Property Observability](workpacks/10-security-fuzz-property-observability.md) | 0/12 | `SECURITY_TEST_BASELINE.md` | `output/cloudflare-control-plane-plan-proof/10-security-fuzz-property-observability/` |
+| open | [WP11 Deployment And Environment Promotion](workpacks/11-deployment-and-environment-promotion.md) | 0/10 | `DEPLOYMENT_PROMOTION_MODEL.md` | `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/` |
+| open | [WP12 Payment Plan Handoff Gate](workpacks/12-payment-plan-handoff-gate.md) | 0/10 | prior proof roots | `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/` |
+
+## Default execution order
+
+```text
+WP00 -> WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09 -> WP10 -> WP11 -> WP12
+```
+
+## Dependency rules
+
+```text
+WP00 prevents copying game-only concerns into Parent.
+WP01/WP02 establish module and binding scaffold.
+WP03/WP04 establish entrypoint and routes.
+WP05 blocks private/admin/support/webhook readiness claims.
+WP06 blocks storage/coordination/queue claims.
+WP07/WP08 establish local dev and test proof.
+WP09 is the first consumer smoke.
+WP10 hardens negative/security/observability coverage.
+WP11 establishes deployment promotion.
+WP12 is last and gates payment runtime assumptions.
+```
+
+## Do not select
+
+Do not implement payment semantics, account provider decisions, device trust, setup UI, or portal shell UX in this plan.

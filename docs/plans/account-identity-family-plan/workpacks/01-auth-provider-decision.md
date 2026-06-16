@@ -1,56 +1,137 @@
-# Workpack 01: Auth Provider Decision
+<!-- agent-capsule -->
 
-Goal: decide the identity provider architecture and custody boundary before login/user work spreads across setup, portal, or backend docs.
+> Agent Capsule
+> Plan: `account-identity-family-plan`
+> Doc: `WP01 Auth Provider Decision`
+> Kind: assigned implementation/research workpack.
+> Read when: selected by WORKPACK_INDEX.md or explicit assignment.
+> Stop rule: do not implement runtime account/session flows until this provider/custody decision is accepted or blocked with proof.
+> Proves: provider/custody decision only after proof artifacts exist.
+> Does not prove: login implementation, session security, household authority, or product readiness.
+> Proof rule: before DONE, write all WP01 proof artifacts and command log.
 
-Expected shape:
+<!-- /agent-capsule -->
 
-- Cloudflare-first custody with D1 for family metadata, Durable Objects for short-lived coordination, KV for non-authoritative hints, and R2 only for explicitly encrypted artifacts if later approved.
-- Firebase Auth may be used only as an external identity provider/token issuer if it stays adapter-only.
-- Auth.js or other app-owned auth is acceptable only if it does not move family product data out of Cloudflare-owned custody.
+# WP01 Auth Provider Decision
 
-Expected proof:
+## Goal
 
-- Source-backed decision record.
-- Rejected-option notes.
-- Custody boundary proof.
-- Dev-mode negative proof.
+Decide the identity-provider architecture and custody boundary before login/user work spreads across setup, portal, Cloudflare, payment, or backend docs.
 
-Failure: choosing an auth provider or provider adapter that becomes the owner of household membership, child profiles, devices, invites, or recovery state.
+## Required inputs
 
-## Execution Detail
+```text
+AGENTS.md
+PLAN_STATE.md
+RESEARCH_AND_DECISIONS.md
+docs/features/family-setup-device-roles.md
+docs/expectations/family-setup.md
+docs/expectations/cloud.md
+docs/expectations/platforms.md
+packages/family-domain/package.json
+```
 
-Minimum context:
+Use official provider docs only for current API/security facts.
 
-- `docs/features/family-setup-device-roles.md`
-- `docs/expectations/family-setup.md`
-- `docs/expectations/cloud.md`
-- `docs/expectations/platforms.md`
-- current official provider docs for the final API behavior
+## Target decision
 
-Decision record must answer:
+Write a source-backed decision that answers:
 
-- Is Firebase Auth only an identity provider, or does it own any parent product data?
-- Does Cloudflare D1/DO state own users, households, roles, and sessions after token verification?
-- What migration path exists if Firebase is used first and later replaced?
-- What data can the identity provider see?
-- What MFA/passkey/email-link/password capabilities are required at MVP versus later?
+```text
+Is Firebase Auth used? If yes, what exactly does it own?
+Is Auth.js used? If yes, what session strategy and adapter boundary are allowed?
+Does Cloudflare D1/DO state own users, households, roles, and sessions after token verification?
+What data can the identity provider see?
+What data is forbidden in custom claims or IdP profile fields?
+How are provider outage/degraded states represented?
+How can the provider be replaced later without migrating family product truth out of Ocentra storage?
+What MVP and later auth methods are allowed: email link, password, OAuth, MFA, passkey, device step-up?
+```
 
-Expected tests/proof names:
+## Expected source/doc changes
 
-- `account-identity.provider.decision-record`
-- `account-identity.provider.cloudflare-state-owner`
-- `account-identity.provider.firebase-idp-only`
-- `account-identity.provider.no-firebase-product-data`
-- `account-identity.provider.custom-claims-minimized`
-- `account-identity.provider.dev-mode-not-production`
-- `account-identity.provider.token-verification-boundary`
-- `account-identity.provider.provider-outage-degraded`
-- `account-identity.provider.migration-path`
-- `account-identity.provider.rejected-options`
+Likely docs-only in this workpack:
 
-Proof artifact expectations:
+```text
+docs/plans/account-identity-family-plan/RESEARCH_AND_DECISIONS.md
+docs/plans/account-identity-family-plan/PLAN_STATE.md
+docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md
+```
 
-- `01-provider-decision-record.md`
-- `01-provider-rejected-options.md`
-- `01-provider-custody-boundary-proof.md`
-- `01-dev-mode-negative-proof.md`
+If implementation starts here, keep it to provider adapter boundaries only:
+
+```text
+packages/family-domain/src/session-lifecycle.ts
+packages/family-domain/src/household-authority.ts
+packages/family-domain/tests/unit/*provider*.test.ts
+```
+
+## Required proof root
+
+```text
+output/account-identity-family-plan-proof/01-auth-provider-decision/
+```
+
+Required artifacts:
+
+```text
+00-provider-decision-record.md
+01-provider-rejected-options.md
+02-provider-custody-boundary-proof.md
+03-custom-claims-data-minimization-proof.md
+04-provider-outage-degraded-proof.md
+05-migration-path-proof.md
+16-validation-commands.log
+```
+
+## Acceptance criteria
+
+- [ ] Provider decision is source-backed and explicit.
+- [ ] Cloudflare D1/DO/KV/R2 custody split is accepted or blocked.
+- [ ] Firebase/Auth.js/other provider role is accepted/rejected/staged.
+- [ ] Identity provider cannot own household membership, child profiles, devices, invites, recovery, policy authority, child evidence, or product readiness.
+- [ ] Custom claims are access hints only and have a size/data-minimization rule.
+- [ ] Dev-mode bypass cannot satisfy production proof.
+- [ ] Provider outage has degraded/manual-required behavior.
+- [ ] Replacement/migration path exists.
+- [ ] Proof artifacts and command log exist.
+- [ ] Checklist rows updated only after proof.
+
+## Focused commands
+
+```bash
+node -e "console.log('provider-decision-docs-only')"
+npm run lint:architecture -- --files docs/plans/account-identity-family-plan
+```
+
+If provider boundary code changes:
+
+```bash
+npm run build --workspace @ocentra-parent/family-domain
+npm run test --workspace @ocentra-parent/family-domain -- provider
+```
+
+## Negative cases
+
+- Provider owns family product data.
+- Custom claims contain household/member/child/device product data.
+- Provider outage makes privileged flows look available.
+- Dev-mode provider bypass is accepted in production proof.
+- Provider-specific user id is treated as household authority.
+
+## Manual-required gaps
+
+Implementation remains open until WP02/WP03 convert this decision into family-domain contracts and tests.
+
+## Fill before DONE
+
+```text
+Workpack id and branch:
+Decision outcome:
+Rejected options:
+Touched files:
+Validation commands and results:
+Proof artifacts:
+Known gaps/manual-required states:
+No-claim boundaries:
+```

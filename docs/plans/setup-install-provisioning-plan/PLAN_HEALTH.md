@@ -1,27 +1,92 @@
-# Plan Health
+<!-- agent-capsule -->
 
-Health: execution-grade route exists; implementation and proof depth are still missing.
+> Agent Capsule
+> Plan: `setup-install-provisioning-plan`
+> Doc: `Setup Install Provisioning Plan Health`
+> Kind: consistency and readiness check.
+> Read when: before claiming the plan is complete, stale, blocked, or PR-ready.
+> Stop rule: do not use this as implementation instructions; use assigned workpacks.
+> Proves: plan consistency only.
+> Does not prove: source implementation or validation completion.
 
-Known risks: route drift with existing portal/LAN/package plans, public site collecting more data than intended, account decisions buried in website work, parent and child bootstrap flows collapsing into one claim, and install success claimed without platform proof.
+<!-- /agent-capsule -->
 
-## High-Information-Density Gate
+# Setup Install Provisioning Plan Health
 
-### Scope and ownership
+## Current health
 
-- Scope and ownership: this file governs documentation routing, state, and proof expectations for `setup-install-provisioning-plan`.
-- Ownership path: this plan is coordinated via `setup-install-provisioning-plan/AGENTS.md`, `setup-install-provisioning-plan/PLAN_STATE.md`, and `setup-install-provisioning-plan/NEXT_ACTIONS.md` plus selected workpack files.
+```text
+route docs: present and upgraded
+workpack index: present and upgraded
+checklist index: present and upgraded
+proof index: present and upgraded
+research/decision map: present
+workpacks: mostly upgraded; WP05 retained from existing detailed version after safety-filter write block
+implementation: not started by this plan route
+source proof: not generated yet
+PR-ready: false
+```
 
-### State
+## Consistency checks
 
-- Current state: route and schema hygiene are present, but implementation/closure proof remains incomplete until checklist and workpack evidence are updated.
-- Current action: keep this file and `setup-install-provisioning-plan/PLAN_STATE.md` aligned before any DONE/PR_READY claim.
+Before reporting broad progress, verify:
 
-### Decision routes and failure controls
+```text
+AGENTS.md routes to PLAN_STATE.md, NEXT_ACTIONS.md, WORKPACK_INDEX.md.
+WORKPACK_INDEX.md lists every executable workpack.
+CHECKLIST_INDEX.md has rows for every workpack.
+PROOF_INDEX.md has proof roots and required artifacts for every workpack.
+TEST_PROOF_EXPECTATIONS.md has focused commands and negative states for every workpack.
+Each workpack has required inputs, expected outputs, proof root, acceptance criteria, commands or command blockers, negative states, gaps, and Fill-before-DONE section.
+```
 
-- Decision route: follow this plan's AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
-- Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
+## Known healthy boundaries
 
-### Proof mapping
+This plan intentionally separates:
 
-- Required proof before READY: explicit links from workpack checklist rows, proof artifacts named in this file, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
-- At minimum, align the following docs before READY: `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, and the assigned plan workpacks.
+```text
+public family website
+registration/account handoff
+parent bootstrap/install journey
+child bootstrap/install/permission journey
+pairing/readiness/recovery journey
+first-run setup UI state machine
+rollout proof gate
+```
+
+Do not collapse those boundaries.
+
+## Known incomplete areas
+
+The plan is not implementation-complete until these are done:
+
+```text
+WP01 public site boundary proof
+WP02 registration/account handoff proof
+WP03 parent install journey proof
+WP04 child install/permission journey proof
+WP05 pairing/readiness/recovery proof
+WP07 first-run setup UI/state proof
+WP06 rollout proof and route gate
+```
+
+## Rejection conditions
+
+The plan is unhealthy if:
+
+```text
+public website collects private activity data
+registration/login implementation is owned here instead of account identity
+parent package/signing/update readiness is claimed without runtime distribution proof
+child runtime/package/permission readiness is claimed without owner proof
+pairing readiness is claimed without LAN/device-trust handoff proof
+setup complete is claimed without readiness matrix
+missing/degraded/manual-required states are hidden
+policy/eventing plan files are edited while active lanes own them
+```
+
+## PR-ready rule
+
+The whole plan is PR-ready only when WP06 consumes or blocks every earlier proof root and updates PLAN_STATE.
+
+A partial PR may be ready only when one selected workpack is closed with proof artifacts, command logs, and remaining open workpacks listed.

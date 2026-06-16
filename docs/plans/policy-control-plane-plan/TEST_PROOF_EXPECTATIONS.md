@@ -1,22 +1,43 @@
-# Test and Proof Expectations
+<!-- agent-capsule -->
 
-Status: reset.
+> Agent Capsule
+> Plan: `policy-control-plane-plan`
+> Doc: `Policy Control Plane Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
-## Purpose
-This file tracks the required execution flow. It does not store proof artifacts.
+<!-- /agent-capsule -->
 
-## Required flow
-- [ ] Code written.
-- [ ] Tests written.
-- [ ] Compile and validate passed.
-- [ ] Tests passed.
-- [ ] Full crate or package validation passed.
-- [ ] Proof collected in the designated local artifact path.
-- [ ] Proof pointer recorded outside the plan folder.
+# Policy Control Plane Test Proof Expectations
 
-## Proof storage
-Proof artifacts live in the designated local artifact path for the workpack or crate, not in this plan folder.
+## Proof root
 
-## Failure conditions
-- Do not mark DONE or PR_READY until the code, tests, validation, and proof flow are complete.
-- Do not store proof inventories inside the plan folder.
+```text
+output/policy-control-plane-plan-proof/<workpack-file-stem>/
+```
+
+## Common commands
+
+```bash
+npm run build --workspace @ocentra-parent/policy-domain
+npm run test --workspace @ocentra-parent/policy-domain
+cargo test -p ocentra-parent-policy-control-core
+cargo test -p ocentra-parent-agent-protocol policy
+npm run test --workspace @ocentra-parent/portal -- policy
+npm run lint:architecture -- --files packages/policy-domain crates/policy-control-core packages/agent-protocol-domain crates/agent-protocol apps/portal docs/plans/policy-control-plane-plan
+```
+
+## Required states
+
+```text
+source of truth
+schedule/timezone/DST
+approval/override
+manual-required
+policy authority
+read-model proof
+negative cases
+```

@@ -1,22 +1,42 @@
-# Test and Proof Expectations
+<!-- agent-capsule -->
 
-Status: reset.
+> Agent Capsule
+> Plan: `lan-plan`
+> Doc: `LAN Plan Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
 
-## Purpose
-This file tracks the required execution flow. It does not store proof artifacts.
+<!-- /agent-capsule -->
 
-## Required flow
-- [ ] Code written.
-- [ ] Tests written.
-- [ ] Compile and validate passed.
-- [ ] Tests passed.
-- [ ] Full crate or package validation passed.
-- [ ] Proof collected in the designated local artifact path.
-- [ ] Proof pointer recorded outside the plan folder.
+# LAN Plan Test Proof Expectations
 
-## Proof storage
-Proof artifacts live in the designated local artifact path for the workpack or crate, not in this plan folder.
+## Proof root
 
-## Failure conditions
-- Do not mark DONE or PR_READY until the code, tests, validation, and proof flow are complete.
-- Do not store proof inventories inside the plan folder.
+```text
+output/lan-plan-proof/<workpack-file-stem>/
+```
+
+## Common commands
+
+```bash
+npm run build --workspace @ocentra-parent/lan-domain
+npm run test --workspace @ocentra-parent/lan-domain
+cargo test -p ocentra-parent-agent-protocol lan
+cargo test -p ocentra-parent-agent-service lan
+npm run test --workspace @ocentra-parent/portal -- lan
+npm run lint:architecture -- --files packages/lan-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/lan-plan
+```
+
+## Required negative states
+
+```text
+unsupported route visible
+stale state visible
+offline state visible
+wrong household/device state visible
+manual-required state visible
+single-machine proof not used for multi-device claim
+```

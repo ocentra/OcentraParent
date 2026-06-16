@@ -1,22 +1,52 @@
-# Execution Blueprint
+<!-- agent-capsule -->
 
-Status: reset.
+> Agent Capsule
+> Plan: `lan-plan`
+> Doc: `LAN Plan Execution Blueprint`
+> Kind: implementation sequence and handoff protocol.
+> Read when: a worker needs exact execution order, DONE rules, or handoff sequencing.
+> Stop rule: choose one workpack; do not implement multiple workpacks unless explicitly assigned.
+> Proves: execution routing only.
+> Does not prove: implementation completion or PR readiness.
 
-## Execution objective
-Define the work flow from code to proof.
+<!-- /agent-capsule -->
 
-## Execution stages
-1. Implement or update code.
-2. Write or update tests.
-3. Compile and validate the touched code.
-4. Run the tests.
-5. Run full crate or package validation.
-6. Collect proof in the designated local artifact path.
-7. Record the proof pointer outside the plan folder.
-8. Mark the workpack PR-ready.
+# LAN Plan Execution Blueprint
 
-## Proof storage
-Proof artifacts live in the designated local artifact path for the workpack or crate, not in this plan folder.
+## Execution rule
 
-## Reset state
-This blueprint has been reset. Rebuild checklist items and proof pointers as work is rerun.
+Use this loop:
+
+```text
+AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+```
+
+## Proof root
+
+```text
+output/lan-plan-proof/<workpack-file-stem>/
+```
+
+## Focused commands
+
+```bash
+npm run build --workspace @ocentra-parent/lan-domain
+npm run test --workspace @ocentra-parent/lan-domain
+cargo test -p ocentra-parent-agent-protocol lan
+cargo test -p ocentra-parent-agent-service lan
+npm run test --workspace @ocentra-parent/portal -- lan
+npm run lint:architecture -- --files packages/lan-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/lan-plan
+```
+
+## Proof files
+
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
+
+## DONE rule
+
+One workpack is DONE only after focused commands or blockers are recorded and proof artifacts exist under that workpack root.

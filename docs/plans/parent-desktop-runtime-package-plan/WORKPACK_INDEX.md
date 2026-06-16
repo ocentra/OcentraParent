@@ -1,17 +1,56 @@
-# Workpack Index
+<!-- agent-capsule -->
 
-| Workpack                                                                                            | Purpose                                                                   | Status  |
-| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------- |
-| [01-parent-client-scope-and-route-boundary](workpacks/01-parent-client-scope-and-route-boundary.md) | Canonical scope correction and setup handoff contract.                    | Planned |
-| [02-parent-web-portal-distribution](workpacks/02-parent-web-portal-distribution.md)                 | Parent web portal build, route, auth, cache, and env separation.          | Planned |
-| [03-parent-desktop-shell-package](workpacks/03-parent-desktop-shell-package.md)                     | Parent desktop shell/package, local service bridge, and launch smoke.     | Planned |
-| [04-parent-android-package](workpacks/04-parent-android-package.md)                                 | Parent Android package, device install, and store/manual-required states. | Planned |
-| [05-parent-ios-package](workpacks/05-parent-ios-package.md)                                         | Parent iOS package, device install, and store/manual-required states.     | Planned |
-| [06-parent-local-service-route-bridge](workpacks/06-parent-local-service-route-bridge.md)           | Parent client route bridge and local-service boundary.                    | Planned |
-| [07-parent-client-signing-store-matrix](workpacks/07-parent-client-signing-store-matrix.md)         | Signing, notarization, and store state matrix by artifact.                | Planned |
-| [08-parent-client-update-rollback](workpacks/08-parent-client-update-rollback.md)                   | Update channel, rollback path, checksum, and SBOM proof.                  | Planned |
-| [09-parent-client-launch-smoke-matrix](workpacks/09-parent-client-launch-smoke-matrix.md)           | Launch smoke matrix and manual-required gaps by artifact.                 | Planned |
-| [10-setup-handoff-contracts](workpacks/10-setup-handoff-contracts.md)                               | Setup handoff request/response contract.                                  | Planned |
-| [11-proof-ci-release-gate](workpacks/11-proof-ci-release-gate.md)                                   | Proof storage, route sync, CI gate, and PR-ready closure.                 | Planned |
+> Agent Capsule
+> Plan: `parent-client-runtime-distribution-plan`
+> Doc: `Parent Client Runtime Distribution Workpack Index`
+> Kind: workpack selector.
+> Read when: after PLAN_STATE.md and NEXT_ACTIONS.md.
+> Stop rule: open exactly one selected workpack; do not read every workpack.
+> Proves: workpack routing only.
+> Does not prove: package readiness, signing readiness, store readiness, setup readiness, or PR readiness.
+> Proof rule: update counts/status only after matching proof artifacts exist.
 
-Legacy desktop-only workpacks remain in the folder for compatibility but are superseded by this 11-pack route. Do not route new work to them unless resolving historical proof.
+<!-- /agent-capsule -->
+
+# Parent Client Runtime Distribution Workpack Index
+
+The folder path remains `parent-desktop-runtime-package-plan`, but the canonical scope is parent client runtime distribution: web, desktop, Android parent, and iOS parent. Child agent runtime distribution belongs to `child-agent-runtime-distribution-plan`.
+
+| Status | Workpack | Boxes | Proof root |
+| --- | --- | ---: | --- |
+| open | [WP01 Parent Client Scope And Route Boundary](workpacks/01-parent-client-scope-and-route-boundary.md) | 0/10 | `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/` |
+| open | [WP02 Parent Web Portal Distribution](workpacks/02-parent-web-portal-distribution.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/` |
+| open | [WP03 Parent Desktop Shell Package](workpacks/03-parent-desktop-shell-package.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/03-parent-desktop-shell-package/` |
+| open | [WP04 Parent Android Package](workpacks/04-parent-android-package.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/04-parent-android-package/` |
+| open | [WP05 Parent iOS Package](workpacks/05-parent-ios-package.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/05-parent-ios-package/` |
+| open | [WP06 Parent Local Service Route Bridge](workpacks/06-parent-local-service-route-bridge.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/` |
+| open | [WP07 Parent Client Signing Store Matrix](workpacks/07-parent-client-signing-store-matrix.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/07-parent-client-signing-store-matrix/` |
+| open | [WP08 Parent Client Update Rollback](workpacks/08-parent-client-update-rollback.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/` |
+| open | [WP09 Parent Client Launch Smoke Matrix](workpacks/09-parent-client-launch-smoke-matrix.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/` |
+| open | [WP10 Setup Handoff Contracts](workpacks/10-setup-handoff-contracts.md) | 0/10 | `output/parent-client-runtime-distribution-plan-proof/10-setup-handoff-contracts/` |
+| open | [WP11 Proof CI Release Gate](workpacks/11-proof-ci-release-gate.md) | 0/14 | `output/parent-client-runtime-distribution-plan-proof/11-proof-ci-release-gate/` |
+
+## Default execution order
+
+```text
+WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09 -> WP10 -> WP11
+```
+
+## Dependency rules
+
+```text
+WP01 fixes scope and route boundary before package work.
+WP02 handles web portal distribution.
+WP03 handles desktop shell/package only.
+WP04/WP05 handle parent mobile package claims separately.
+WP06 handles local service route bridge without claiming setup completion.
+WP07 handles signing/store/notarization matrix before release claims.
+WP08 handles update/rollback/checksum/SBOM.
+WP09 handles launch smoke by artifact/platform.
+WP10 handles setup handoff contract only.
+WP11 is last and consumes all previous proof roots.
+```
+
+## Do not select
+
+Do not implement child agent runtime distribution, setup journey state machine, device trust, account identity, or portal shell UX in this plan.
