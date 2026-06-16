@@ -1,17 +1,44 @@
-# Proof Index
+<!-- agent-capsule -->
 
-Status: planned.
+> Agent Capsule
+> Plan: `device-trust-bootstrap-plan`
+> Doc: `Device Trust Bootstrap Plan Proof Index`
+> Kind: proof artifact router.
+> Read when: selected workpack needs proof paths or PR_READY/DONE proof validation.
+> Stop rule: use only the proof root for the selected workpack.
+> Proves: proof location routing only.
+> Does not prove: implementation completion by itself.
+> Proof rule: proof artifacts are valid only after focused commands run or precise blockers are recorded.
 
-Proof is not stored in this plan folder. The index below points to the designated local artifact path or crate-local proof folder for each workpack.
+<!-- /agent-capsule -->
 
-| Workpack | Proof family | Expected artifact path | Status |
-| --- | --- | --- | --- |
-| 01-device-trust-source-of-truth | Trust model, boundary, and route-sync proof | `docs/proof/device-trust-bootstrap-plan/01-*` | Planned |
-| 02-local-key-sealing | Platform sealing and negative-case proof | `docs/proof/device-trust-bootstrap-plan/02-*` | Planned |
-| 03-parent-step-up-auth | Step-up ceremony and replay proof | `docs/proof/device-trust-bootstrap-plan/03-*` | Planned |
-| 04-phone-qr-approval-bridge | QR approval and replay proof | `docs/proof/device-trust-bootstrap-plan/04-*` | Planned |
-| 05-entitlement-device-license | Signed entitlement and revocation proof | `docs/proof/device-trust-bootstrap-plan/05-*` | Planned |
-| 06-recovery-reset-re-pair | Encrypted recovery and re-pair proof | `docs/proof/device-trust-bootstrap-plan/06-*` | Planned |
-| 07-child-tamper-uninstall | Tamper and uninstall proof | `docs/proof/device-trust-bootstrap-plan/07-*` | Planned |
-| 08-open-source-dependency-adoption | Dependency review proof | `docs/proof/device-trust-bootstrap-plan/08-*` | Planned |
-| 09-cross-plan-route-gate | Route and index sync proof | `docs/proof/device-trust-bootstrap-plan/09-*` | Planned |
+# Device Trust Bootstrap Plan Proof Index
+
+## Proof root
+
+```text
+output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/
+```
+
+## Required universal proof files
+
+```text
+00-scope-summary.md
+01-negative-case-proof.md
+02-no-claim-boundary.md
+16-validation-commands.log
+```
+
+## Command log format
+
+```text
+command: <exact command>
+exit: <code>
+result: pass | fail | blocked
+artifact: <path or n/a>
+notes: <short note>
+```
+
+## Legacy note
+
+Older `docs/proof/device-trust-bootstrap-plan/*` references are legacy pointers. New work should use `output/device-trust-bootstrap-plan-proof/`.
