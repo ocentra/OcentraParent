@@ -17,7 +17,12 @@ Purpose: define encrypted recovery bundles, reset, revoke, and re-pair flows.
 
 ## Proof target
 
-- `docs/proof/device-trust-bootstrap-plan/06-*`
+- `output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/`
+
+## Current audit state
+
+- No proof root currently exists on disk for this workpack.
+- Recovery authorization and handoff rules exist in `packages/family-domain`, but encrypted recovery bundle handling and re-pair runtime proof are still missing.
 
 ## Negative cases
 

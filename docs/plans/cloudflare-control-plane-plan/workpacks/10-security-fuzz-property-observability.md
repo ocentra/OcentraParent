@@ -22,7 +22,7 @@ Reduce the games security and external-tool surface to the Parent-required basel
 - `infra/cloudflare/tests/fuzz/`
 - [REQUIRED_TEST_ASSERTION_MATRIX.md](../REQUIRED_TEST_ASSERTION_MATRIX.md)
 - [SECURITY_PRIVACY_OBSERVABILITY.md](../SECURITY_PRIVACY_OBSERVABILITY.md)
-- `docs/proof/cloudflare-control-plane-plan/wp10-security-fuzz-property-observability/`
+- `output/cloudflare-control-plane-plan-proof/10-security-fuzz-property-observability/`
 
 ## Acceptance
 
@@ -39,7 +39,10 @@ Reduce the games security and external-tool surface to the Parent-required basel
 
 ## Validation
 
-- Docs or scaffold validation: `npm run format:check`
+- `npm --prefix infra/cloudflare run test:security`
+- `npm --prefix infra/cloudflare run test:property`
+- `npm --prefix infra/cloudflare run test:fuzz`
+- `npm --prefix infra/cloudflare run test:integration`
 
 ## Negative cases
 

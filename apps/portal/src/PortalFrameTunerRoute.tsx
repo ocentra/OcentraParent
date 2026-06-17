@@ -13,8 +13,8 @@ import {
   resetPortalParentPortalContent,
   resetPortalParentPortalSurface,
   setPortalFrameLayoutValue,
-  type PortalFrameLayout,
-} from './portal-frame-layout';
+} from './portal-frame-layout-state';
+import type { PortalFrameLayout } from './portal-frame-layout-types';
 import type { ParentPortalSvgControls } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
 
 type PortalFrameTunerRouteProps = {

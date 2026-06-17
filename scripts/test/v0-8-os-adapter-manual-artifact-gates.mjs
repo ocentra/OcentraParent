@@ -13,20 +13,20 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/enforcement-domain',
       '--',
       'v0-8-os-adapter-manual-artifact-gates',
     ])
   );
 
   const { V08OsAdapterManualArtifactGateReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-os-adapter-manual-artifact-gates.js');
+    await import('@ocentra-parent/enforcement-domain/v0-8-os-adapter-manual-artifact-gates');
   const proofMatrix = JSON.parse(await readFile(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json')));
   const summary = summarizeReadModel(V08OsAdapterManualArtifactGateReadModel);
 
@@ -41,8 +41,8 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/parent-domain/src/v0-8-os-adapter-manual-artifact-gates.ts',
-      tsContractTest: 'packages/parent-domain/tests/v0-8-os-adapter-manual-artifact-gates.test.ts',
+      tsContract: 'packages/enforcement-domain/src/v0-8-os-adapter-manual-artifact-gates.ts',
+      tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-os-adapter-manual-artifact-gates.test.ts',
       proofHarness: 'scripts/test/v0-8-os-adapter-manual-artifact-gates.mjs',
       proofMatrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/v0-8-os-adapter-manual-artifact-gates-2026-05-30.md',

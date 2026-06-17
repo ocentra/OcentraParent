@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const portalPort = resolvePortalPort(process.env['OCENTRA_PARENT_PORTAL_PORT']);
+const runTrackingHostedUiProof = process.env['TRACKING_PLAN_HOSTED_UI_PROOF'] === '1';
 
 export default defineConfig({
   expect: {
@@ -18,6 +19,7 @@ export default defineConfig({
     ? [['list'], ['html', { open: 'never', outputFolder: '../../playwright-report/portal' }]]
     : 'list',
   testDir: './e2e',
+  testIgnore: runTrackingHostedUiProof ? [] : ['tracking-hosted-ui-proof.spec.ts'],
   timeout: 30000,
   use: {
     baseURL: `http://127.0.0.1:${portalPort}`,

@@ -22,11 +22,15 @@ This file records documentation health and consistency checks for the plan. It i
 - Preserved full README: `README_FULL_ORIGINAL.md`
 - Current snapshot: `current-tracking-snapshot.md`
 - Implementation checklist present: true
-- Workpacks indexed: 33
+- Workpacks on disk: 39
+- Older generated index coverage: 33
 
 ## Consistency warnings
 
-- No high-level checklist/workpack contradiction detected by the generated health check. Still verify the assigned workpack and checklist rows before DONE/PR_READY.
+- `WORKPACK_INDEX.md` previously omitted `WP34-WP39`; treat them as active on-disk workpacks.
+- `WP25`, `WP27`, `WP28`, `WP29`, and `WP33` require audit reopen even though their checkbox rows are fully checked.
+- Proof regeneration is not currently healthy: the gap-map proof depends on a missing closure artifact, and the claim-audit proof depends on a broken `@ocentra-parent/parent-domain` build.
+- Source ownership drift exists in older plan text that still points to `packages/activity-domain` instead of the current `packages/tracking-domain` ownership surface.
 
 ## Required hygiene before PR_READY
 
@@ -35,6 +39,7 @@ This file records documentation health and consistency checks for the plan. It i
 - Update `PLAN_STATE.md`/`NEXT_ACTIONS.md` if the current state changed.
 - Update feature/product docs if a product claim, gap, or proof changed.
 - Do not use a stale checked row to override an open assigned workpack or hub instruction.
+- Do not treat an omitted on-disk workpack as out of scope just because an older generated index skipped it.
 
 ## Agent Route Walkthrough
 

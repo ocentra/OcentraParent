@@ -166,7 +166,7 @@ fn parse_dns_name(
             .ok_or(NetworkReplayError::DnsLabelOutOfBounds)?;
         labels.push(
             std::str::from_utf8(label)
-                .map_err(|_| NetworkReplayError::DnsLabelNotUtf8)?
+                .map_err(|_error| NetworkReplayError::DnsLabelNotUtf8)?
                 .to_ascii_lowercase(),
         );
         cursor = label_end;

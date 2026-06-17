@@ -13,9 +13,16 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
   await runCommand(
-    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', 'enforcement-policy-dispatch'])
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/enforcement-domain',
+      '--',
+      'enforcement-policy-dispatch',
+    ])
   );
   await runCommand(
     ...npmCommand([
@@ -32,7 +39,7 @@ async function main() {
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'enforcement_policy_dispatch']);
 
   const { EnforcementPolicyDispatchReadModel } =
-    await import('../../packages/parent-domain/dist/enforcement-policy-dispatch.js');
+    await import('../../packages/enforcement-domain/dist/src/enforcement-policy-dispatch.js');
   const summary = summarizeReadModel(EnforcementPolicyDispatchReadModel);
 
   assertReadModel(EnforcementPolicyDispatchReadModel, summary);
@@ -45,10 +52,10 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/parent-domain/src/enforcement-policy-dispatch.ts',
-      tsContractTest: 'packages/parent-domain/tests/enforcement-policy-dispatch.test.ts',
+      tsContract: 'packages/enforcement-domain/src/enforcement-policy-dispatch.ts',
+      tsContractTest: 'packages/enforcement-domain/tests/unit/enforcement-policy-dispatch.test.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-policy-dispatch-adapter.ts',
-      tsProtocolAdapterTest: 'packages/agent-protocol-domain/tests/enforcement-policy-dispatch-adapter.test.ts',
+      tsProtocolAdapterTest: 'packages/agent-protocol-domain/tests/unit/enforcement-policy-dispatch-adapter.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_policy_dispatch.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_policy_dispatch_tests.rs',
       rustCoreValidator: 'crates/agent-core/src/enforcement_policy_dispatch.rs',
@@ -61,11 +68,12 @@ async function main() {
     },
     counts: summary,
     claimsProved: [
-      'Parent-authored policy dispatch intents are schema-backed before service/runtime use',
-      'Service read model validates actor, target device, policy decision, schedule, evidence refs, route/source state, adapter capability, and proof level before dispatch-ready states',
-      'Capability matrix distinguishes implemented, report-only, manual-required, and scaffold states for the first policy-dispatch vertical',
+      'Parent-authored policy dispatch intents are schema-backed in enforcement-domain before service/runtime use',
+      'Service read model validates actor, target device, stable policy decision refs, schedule refs, evidence refs, route/source state, adapter capability, and proof level before dispatch-ready states',
+      'Capability matrix preserves ask-parent dry-run-only, report-only, manual-required, stale-policy rejection, missing-source rejection, and scaffold states without upgrading them into adapter execution',
+      'Malformed or missing policy decision references are rejected by the enforcement-domain and Rust-core validation path before dispatch-ready states',
       'Owned-process and app/game time-limit rows are dispatch-ready only with evidence refs and child reason codes',
-      'Network/domain blocking and tamper/uninstall stay manual-required or scaffold, not product-complete claims',
+      'Network/domain blocking, source-not-ready rows, and tamper/uninstall stay manual-required, rejected, or scaffold, not product-complete claims',
       'WebSocket protocol adapter parses the service-backed policy-dispatch read model',
     ],
     claimsNotProved: [
@@ -90,9 +98,12 @@ function summarizeReadModel(readModel) {
     byProofLevel: countBy(readModel.entries.map((entry) => entry.matrixRow.proofLevel)),
     byOutcomeState: countBy(readModel.entries.map((entry) => entry.matrixRow.outcomeState)),
     byApprovalState: countBy(readModel.entries.map((entry) => entry.approvalState)),
+    byRequestedParentAction: countBy(readModel.entries.map((entry) => entry.intent.requestedParentAction)),
+    byRejectionReason: countBy(readModel.entries.map((entry) => entry.matrixRow.rejectionReason)),
     byTimerState: countBy(readModel.entries.map((entry) => entry.timerState)),
     bySourceState: countBy(readModel.entries.map((entry) => entry.intent.sourceState)),
     dispatchReady: readModel.entries.filter((entry) => entry.matrixRow.outcomeState === 'dispatch-ready').length,
+    dryRunOnly: readModel.entries.filter((entry) => entry.matrixRow.outcomeState === 'dry-run-only').length,
     manualRequired: readModel.entries.filter((entry) => entry.matrixRow.outcomeState === 'manual-required').length,
     reportOnly: readModel.entries.filter((entry) => entry.matrixRow.outcomeState === 'report-only').length,
     rejected: readModel.entries.filter((entry) => entry.matrixRow.outcomeState === 'rejected').length,
@@ -101,19 +112,25 @@ function summarizeReadModel(readModel) {
 
 function assertReadModel(readModel, summary) {
   assertEqual(readModel.readModelId, 'v0-8-enforcement-policy-dispatch', 'read model id');
-  assertEqual(summary.entries, 5, 'entry count');
+  assertEqual(summary.entries, 8, 'entry count');
   assertEqual(summary.byProofLevel.implemented, 2, 'implemented proof count');
+  assertEqual(summary.byProofLevel.scaffold, 4, 'scaffold proof count');
   assertEqual(summary.byProofLevel['report-only'], 1, 'report-only proof count');
   assertEqual(summary.byProofLevel['manual-required'], 1, 'manual-required proof count');
-  assertEqual(summary.byProofLevel.scaffold, 1, 'scaffold proof count');
   assertEqual(summary.dispatchReady, 2, 'dispatch-ready count');
+  assertEqual(summary.dryRunOnly, 1, 'dry-run-only count');
   assertEqual(summary.reportOnly, 1, 'report-only count');
   assertEqual(summary.manualRequired, 1, 'manual-required count');
-  assertEqual(summary.rejected, 1, 'rejected count');
+  assertEqual(summary.rejected, 3, 'rejected count');
   assertEqual(summary.byTimerState['restart-recovered'], 1, 'restart recovered timer count');
   assertEqual(summary.byTimerState['recovery-needed'], 1, 'recovery needed timer count');
-  assertEqual(summary.bySourceState.ready, 4, 'ready source count');
+  assertEqual(summary.bySourceState.ready, 5, 'ready source count');
+  assertEqual(summary.bySourceState.stale, 1, 'stale source count');
+  assertEqual(summary.bySourceState.missing, 1, 'missing source count');
   assertEqual(summary.bySourceState.unavailable, 1, 'unavailable source count');
+  assertEqual(summary.byRequestedParentAction['ask-parent'], 1, 'ask-parent count');
+  assertEqual(summary.byRejectionReason['stale-policy-version'], 1, 'stale rejection count');
+  assertEqual(summary.byRejectionReason['source-not-ready'], 1, 'source-not-ready rejection count');
 
   assertEntry(readModel, 'dispatch-owned-process-time-limit', {
     proofLevel: 'implemented',
@@ -127,11 +144,38 @@ function assertReadModel(readModel, summary) {
     evidenceReferenceId: 'evidence-app-game-session-summary',
     childReasonCode: 'child-reason-parent-approval-bonus-time',
   });
+  assertEntry(readModel, 'dispatch-ask-parent-dry-run', {
+    proofLevel: 'scaffold',
+    outcomeState: 'dry-run-only',
+    evidenceReferenceId: 'evidence-app-game-session-summary',
+    childReasonCode: 'child-reason-ask-parent-review-required',
+    requestedParentAction: 'ask-parent',
+    requestedPolicyAction: 'ask-parent',
+    dryRun: true,
+    approvalState: 'pending',
+    sourceState: 'ready',
+  });
   assertEntry(readModel, 'dispatch-network-domain-manual-required', {
     proofLevel: 'manual-required',
     outcomeState: 'manual-required',
     evidenceReferenceId: 'evidence-network-flow-domain-summary',
     childReasonCode: 'child-reason-adapter-manual-required',
+  });
+  assertEntry(readModel, 'dispatch-stale-policy-version-rejected', {
+    proofLevel: 'scaffold',
+    outcomeState: 'rejected',
+    evidenceReferenceId: 'evidence-policy-decision-stale',
+    childReasonCode: 'child-reason-policy-version-stale',
+    rejectionReason: 'stale-policy-version',
+    sourceState: 'stale',
+  });
+  assertEntry(readModel, 'dispatch-missing-source-rejected', {
+    proofLevel: 'scaffold',
+    outcomeState: 'rejected',
+    evidenceReferenceId: 'evidence-policy-source-missing',
+    childReasonCode: 'child-reason-source-not-ready',
+    rejectionReason: 'source-not-ready',
+    sourceState: 'missing',
   });
   assertEntry(readModel, 'dispatch-tamper-alert-scaffold', {
     proofLevel: 'scaffold',
@@ -143,6 +187,7 @@ function assertReadModel(readModel, summary) {
   proofLabels.push('v0.8.policy-dispatch.contract-boundary');
   proofLabels.push('v0.8.policy-dispatch.service-read-model');
   proofLabels.push('v0.8.policy-dispatch.capability-matrix');
+  proofLabels.push('v0.8.policy-dispatch.ask-parent-and-stale-rejections');
   proofLabels.push('v0.8.policy-dispatch.timer-approval-audit-reasons');
   proofLabels.push('v0.8.policy-dispatch.no-claim-upgrade');
 }
@@ -160,6 +205,24 @@ function assertEntry(readModel, intentId, expected) {
     `${intentId} evidence ref`
   );
   assertEqual(entry.childReasonCode, expected.childReasonCode, `${intentId} child reason`);
+  if (expected.rejectionReason !== undefined) {
+    assertEqual(entry.matrixRow.rejectionReason, expected.rejectionReason, `${intentId} rejection reason`);
+  }
+  if (expected.requestedParentAction !== undefined) {
+    assertEqual(entry.intent.requestedParentAction, expected.requestedParentAction, `${intentId} parent action`);
+  }
+  if (expected.requestedPolicyAction !== undefined) {
+    assertEqual(entry.intent.requestedPolicyAction, expected.requestedPolicyAction, `${intentId} policy action`);
+  }
+  if (expected.dryRun !== undefined) {
+    assertEqual(entry.intent.dryRun, expected.dryRun, `${intentId} dry-run flag`);
+  }
+  if (expected.approvalState !== undefined) {
+    assertEqual(entry.approvalState, expected.approvalState, `${intentId} approval state`);
+  }
+  if (expected.sourceState !== undefined) {
+    assertEqual(entry.intent.sourceState, expected.sourceState, `${intentId} source state`);
+  }
 }
 
 function countBy(values) {

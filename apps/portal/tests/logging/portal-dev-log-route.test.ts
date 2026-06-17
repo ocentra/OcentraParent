@@ -1,11 +1,7 @@
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
-import {
-  DevLogBridge,
-  DevLogMessage,
-  type LogFields,
-} from '@ocentra-parent/logging-domain/contracts';
+import { DevLogBridge, DevLogEndpoint, DevLogMessage, type LogFields } from '@ocentra-parent/logging-domain/contracts';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import {
   resolvePortalDevLogBridgeUrl,
@@ -114,6 +110,48 @@ describe('portal dev log routing', () => {
     });
     expect(payload[0]?.log.file_path).toContain('dev-logger.ts');
     expect(JSON.parse(payload[0]?.log.data ?? '{}')).toMatchObject(fields);
+  });
+
+  it('sendPortalDevLog: falls back to the same-origin compatibility endpoint when the bridge is unavailable', async () => {
+    let receivedBody = '';
+    const server = createServer((request, response) => {
+      if (request.url === DevLogEndpoint.Write) {
+        request.setEncoding('utf8');
+        request.on('data', (chunk) => {
+          receivedBody += chunk;
+        });
+        request.on('end', () => {
+          response.statusCode = 204;
+          response.end();
+        });
+        return;
+      }
+
+      response.statusCode = 404;
+      response.end();
+    });
+    servers.push(server);
+
+    await new Promise<void>((resolve) => {
+      server.listen(0, '127.0.0.1', () => resolve());
+    });
+    const address = server.address() as AddressInfo;
+    const runtime = {
+      location: {
+        origin: `http://127.0.0.1:${address.port}`,
+      },
+    } as Record<string, unknown>;
+    const fields: LogFields = { agentWebSocketUrl: 'ws://127.0.0.1:4477/api/dev/ws' };
+
+    const sent = await sendPortalDevLog(DevLogMessage.PortalStarted, fields, 'http://127.0.0.1:1', runtime);
+
+    expect(sent).toBe(true);
+    expect(JSON.parse(receivedBody)).toMatchObject({
+      schemaVersion: 1,
+      source: 'portal',
+      message: 'Portal dev runtime started.',
+      fields,
+    });
   });
 
   it('sendPortalDevLog: returns false when the bridge is unavailable', async () => {

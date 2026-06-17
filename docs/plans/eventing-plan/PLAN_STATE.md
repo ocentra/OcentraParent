@@ -33,9 +33,35 @@ This folder is the implementation plan for a reusable Rust event bus inspired by
 
 - Snapshot: [current-eventing-snapshot.md](current-eventing-snapshot.md)
 
-## What is already present / proved
+## What is implemented / exercised in this checkout
 
-- No concise existing/proved bullet section was detected in the current snapshot.
+- `crates/ocentra-eventing` exists and the focused crate harnesses currently
+  pass: `unit`, `contract`, `journal_replay`, `integration`, and
+  `version_skew`.
+- `packages/event-domain` mirror tests and `type-check` pass in this checkout.
+- Focused downstream contract mirrors also pass:
+  `@ocentra-parent/agent-protocol-domain`
+  `network-runtime-events.test.ts` plus `contracts.test.ts`, and
+  `cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet`.
+- A fresh WP13 regression proof now exists at
+  `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json`
+  plus `test-results/eventing-test-folder-layout-regression-audit/proof.json`.
+- A fresh WP12 route-proof bundle is restored locally at
+  `docs/proof/eventing-plan/`, `output/eventing-plan-proof/rollout-proof/`, and
+  `test-results/eventing-rollout-proof/`.
+- A scoped 2026-06-17 WP11 regeneration pass now restores the eventing proof
+  roots at `output/eventing-plan-proof/63-type-safety-source-gate/`,
+  `66-76-source-safety/`, `67-lock-await/`, and `68-fixture-parity/`.
+- Package-wide
+  `npm run type-check --workspace @ocentra-parent/agent-protocol-domain`
+  now passes again after the scoped WP11 source-boundary hardening in
+  `src/contracts.ts`, `src/policy-control-audit-redaction.ts`, and
+  `src/policy-control-delivery-read-model.ts`.
+- Focused
+  `policy-control-audit-redaction.test.ts`,
+  `policy-control-delivery-read-model.test.ts`, `contracts.test.ts`, and the
+  touched-file `npm run lint:architecture -- --files ...` gate now pass for the
+  WP11 follow-up.
 
 ## Open gaps / missing product runtime
 
@@ -45,43 +71,66 @@ This folder is the implementation plan for a reusable Rust event bus inspired by
 - Network AI classification, policy decisions, enforcement commands, adapter side effects, audit storage, and portal rendering remain network/service/UI consumer work, not event bus responsibilities.
 - External transport delivery currently proves local queue/idempotency/dead-letter semantics and route-decision requirements only. A live transport/relay delivery implementation remains a separate workpack.
 - The NDJSON journal is the reusable append/replay proof layer. Production durability requirements such as fsync policy, SQLite projections, remote replication, or retention/deletion enforcement remain consumer/platform decisions.
+- The fresh regression audit work itself is locally proved: no eventing test
+  modules remain under `crates/ocentra-eventing/src/`, the focused crate suites
+  still pass, and the proof root is recorded under
+  `output/eventing-plan-proof/13-test-folder-layout-regression-audit/`.
 
 ## Checklist summary
 
 - Full checklist: [implementation-checklist.md](implementation-checklist.md) (not default context).
-- Checkbox rows detected: 138 total, 137 checked, 1 unchecked.
 - Checklist index: [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md).
+- Historical checklist rows remain marked complete in
+  `implementation-checklist.md`, but those checkmarks are not current proof
+  truth for this checkout.
+- `CHECKLIST_INDEX.md` is the current tracker for the recent WP11/WP12/WP13
+  local proof closure and the remaining WP10 open work.
 
 ## Workpack summary
 
-- Workpacks indexed: 12 route workpacks.
+- Workpacks indexed: 13 route workpacks.
 - Workpack source: `05-implementation-workpacks.md` rows split into focused files under `workpacks/`.
-- Workpacks with implementation proof complete: 0.
-- Workpacks open: 12.
-- Current meaning: the plan is now routeable, but not implementation-complete.
+- Historical route docs describe prior closure for WP01-WP11, but the cited
+  proof bundle is not present in this checkout.
+- Workpacks open in truth: WP10 consumer-boundary handoff only.
+- Current meaning: implementation surfaces exist across the crate and its
+  mirrors, WP11/WP12/WP13 are locally proved, but the plan remains open because
+  WP10 still lacks complete proof.
 
 ### Active/open workpacks
 
-- WP01 source boundary and semantics audit.
-- WP02 crate contract and type boundary.
-- WP03 dispatch runtime and lifecycle.
-- WP04 queue/idempotency/dead-letter.
-- WP05 request/response contracts.
-- WP06 journal/replay and lineage.
-- WP07 parent protocol event contracts.
-- WP08 parent runtime integration.
-- WP09 network consumer event chain.
-- WP10 LAN household mesh consumer.
-- WP11 type safety and ownership hardening.
-- WP12 rollout proof and PR gate.
+- [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
 
 ## Validation reality
 
-- `cargo test -p ocentra-eventing` passes for the reusable Rust crate.
-- `npm test` in `packages/event-domain` passes for the shared TypeScript contract mirror.
-- `node scripts/test/eventing-runtime-proof.mjs` still fails because the proof pack runs the workspace clippy gate on `ocentra-eventing`, and that crate currently violates denied clippy lints such as `expect_used`, `clone_on_ref_ptr`, and `needless_pass_by_value` across library and test targets.
-- `node scripts/test/eventing-compatibility-matrix-proof.mjs` fails for the same workspace clippy reason.
-- Current interpretation: the reusable runtime behavior is test-verified, but the plan is not proof-complete or DONE until the clippy debt and remaining consumer workpacks are addressed.
+- Focused reusable crate validation passes in this checkout:
+  `cargo test -p ocentra-eventing --test unit`,
+  `--test contract`, `--test journal_replay`, `--test integration`, and
+  `--test version_skew`, plus
+  `cargo lint-architecture crates/ocentra-eventing/src crates/ocentra-eventing/tests`.
+- Post-WP13 cleanup validation also passes:
+  `cargo test -p ocentra-eventing --tests`, with the resulting proof recorded
+  at
+  `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json`.
+- WP12 route-proof validation is restored locally through
+  `node scripts/test/eventing-rollout-proof.mjs`, with the resulting proof
+  bundle recorded under `output/eventing-plan-proof/rollout-proof/`.
+- Shared TypeScript contract mirror validation passes in this checkout:
+  `npm run test --workspace @ocentra-parent/event-domain` and
+  `npm run type-check --workspace @ocentra-parent/event-domain`.
+- Focused downstream mirror validation also passes:
+  `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-runtime-events.test.ts contracts.test.ts`
+  and `cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet`.
+- Scoped WP11 proof regeneration now passes through the reusable eventing
+  surface and writes proof artifacts under
+  `output/eventing-plan-proof/63-type-safety-source-gate/`,
+  `66-76-source-safety/`, `67-lock-await/`, and `68-fixture-parity/`.
+- `npm run type-check --workspace @ocentra-parent/agent-protocol-domain` now
+  passes again, and the focused policy-control/contract tests plus touched-file
+  architecture gate pass for the scoped WP11 source files.
+- Current interpretation: the reusable runtime behavior is partially exercised,
+  WP11/WP12/WP13 are locally proved, but the plan remains open because WP10
+  still lacks its local proof roots and consumer-plan handoff verification.
 
 ## Default no-read list
 

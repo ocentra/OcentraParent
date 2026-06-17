@@ -20,7 +20,7 @@ Define development and production Wrangler config, binding names, and secret cus
 - `infra/cloudflare/wrangler.toml`
 - `infra/cloudflare/wrangler.production.toml`
 - `infra/cloudflare/.dev.vars.example`
-- `docs/proof/cloudflare-control-plane-plan/wp02-wrangler-env-bindings/`
+- `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/`
 
 ## Acceptance
 
@@ -36,7 +36,9 @@ Define development and production Wrangler config, binding names, and secret cus
 
 ## Validation
 
-- Docs or scaffold validation: `npm run format:check`
+- Scoped validation: `npm --prefix infra/cloudflare run test:unit`
+- Scoped validation: `npm --prefix infra/cloudflare run lint`
+- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare`
 
 ## Negative cases
 

@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { runNpmCommand } from './run-npm-command.mjs';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const proofMode = 'tracking-android-emulator-artifact-inventory-proof';
@@ -29,16 +29,16 @@ async function main() {
   await mkdir(wp10Root, { recursive: true });
   await mkdir(wp33Root, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   run('cmd', [
     '/c',
     'npm',
-    'run',
-    'test',
+    'exec',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-android-emulator-artifact-inventory-proof',
+    'vitest',
+    'run',
+    'tests/contract/tracking-android-emulator-artifact-inventory-proof.test.ts',
   ]);
 
   const proof = await buildProof();
@@ -50,7 +50,9 @@ async function main() {
 }
 
 async function buildProof() {
-  const proofModule = await importDist('tracking-android-emulator-artifact-inventory-proof.js');
+  const proofModule = await importSource(
+    'packages/tracking-domain/src/tracking-android-emulator-artifact-inventory-proof.ts'
+  );
   const androidProof = await readJson(sourceAndroidEmulatorProofRef);
   const readModel = proofModule.buildTrackingAndroidEmulatorArtifactInventoryProof(generatedAt, {
     sourceAndroidEmulatorProofRef,
@@ -181,8 +183,8 @@ function sourceSnapshot(proof) {
     `- localGeofenceDwellCount: ${proof.summary.localGeofenceDwellCount}`,
     `- systemProximityTransitionCount: ${proof.summary.systemProximityTransitionCount}`,
     '- does not prove Android physical-device background behavior, Android system geofence delivery, authority enrollment, production runtime, or product readiness',
-    '- proof module: packages/parent-domain/src/tracking-android-emulator-artifact-inventory-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-android-emulator-artifact-inventory-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-android-emulator-artifact-inventory-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-android-emulator-artifact-inventory-proof.test.ts',
     '- proof harness: scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs',
     '',
   ].join('\n');
@@ -219,8 +221,8 @@ function validationLog() {
   return `${commands.map((entry) => `${entry.command} exit=${entry.status}`).join('\n')}\n`;
 }
 
-async function importDist(fileName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
+async function importSource(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }
 
 async function readJson(path) {

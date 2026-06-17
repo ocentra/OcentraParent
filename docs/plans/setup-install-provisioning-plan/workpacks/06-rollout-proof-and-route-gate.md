@@ -145,12 +145,12 @@ Any adjacent plan not yet updated must be listed in `04-manual-required-gap-regi
 ## Fill before DONE / PR_READY
 
 ```text
-Workpack id and branch:
-Prior proof roots consumed:
-Route-sync status:
-Touched files:
-Validation commands and results:
-Proof artifacts:
-Manual-required gaps:
-No-claim boundaries:
+Workpack id and branch: WP06 Rollout Proof And Route Gate / codex/tracking-plan-full-continuation-a
+Prior proof roots consumed: WP01, WP02, WP03, WP04, and WP05 consumed directly; WP07 remains recorded as the missing-root blocker in the rollout blocker pack.
+Route-sync status: route ownership is documented, but whole-plan readiness stays blocked because sibling owner proofs, the WP03 parent-domain validation blocker, and one required workpack proof root are still open.
+Touched files: output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/00-rollout-proof-pack.md, output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/01-route-sync-proof.md, output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/02-platform-readiness-matrix.md, output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/03-public-private-boundary-proof.md, output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/04-manual-required-gap-register.md, output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/05-product-status-safe-wording-proof.md, output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/16-validation-commands.log, docs/plans/setup-install-provisioning-plan/workpacks/06-rollout-proof-and-route-gate.md, docs/plans/setup-install-provisioning-plan/PLAN_STATE.md, docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md, docs/plans/setup-install-provisioning-plan/CHECKLIST_INDEX.md
+Validation commands and results: `Get-ChildItem -Recurse -File output/setup-install-provisioning-plan-proof` PASS; `npm run lint:architecture -- --files docs/plans/setup-install-provisioning-plan` PASS; dependency-owner route scan over setup-install plan docs PASS.
+Proof artifacts: output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/00-rollout-proof-pack.md, output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/01-route-sync-proof.md, output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/02-platform-readiness-matrix.md, output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/03-public-private-boundary-proof.md, output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/04-manual-required-gap-register.md, output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/05-product-status-safe-wording-proof.md, output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/16-validation-commands.log
+Manual-required gaps: WP03 proof root exists but its focused parent-domain build/test validation is blocked by broader unrelated parent-domain compile failures; WP07 proof root is still absent; account/provider/session, runtime distribution, LAN/device-trust, portal shell, data custody, policy baseline, and payment proofs remain owned by sibling plans.
+No-claim boundaries: no PR_READY claim, no production onboarding claim, no installer readiness claim, no first-run readiness claim, and no sibling implementation claim from aggregation alone.
 ```

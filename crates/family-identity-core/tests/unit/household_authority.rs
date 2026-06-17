@@ -266,20 +266,26 @@ fn expired_or_revoked_controller_lease_is_denied() {
 
 #[test]
 fn revoked_or_untrusted_device_is_denied_even_for_parent() {
-    let decision = authorize_household_action(HouseholdAuthorityInput {
-        device_trust_state: DeviceTrustState::Revoked,
-        action: HouseholdAuthorityAction::ViewChildStatus,
-        ..trusted_parent_input(HouseholdAuthorityAction::ViewChildStatus)
-    });
+    for device_trust_state in [
+        DeviceTrustState::Pending,
+        DeviceTrustState::Revoked,
+        DeviceTrustState::Disabled,
+    ] {
+        let decision = authorize_household_action(HouseholdAuthorityInput {
+            device_trust_state,
+            action: HouseholdAuthorityAction::ViewChildStatus,
+            ..trusted_parent_input(HouseholdAuthorityAction::ViewChildStatus)
+        });
 
-    assert_eq!(
-        decision.authorization_state,
-        HouseholdAuthorizationState::Rejected
-    );
-    assert_eq!(
-        decision.failure_reason,
-        Some(HouseholdAuthorizationFailureReason::DeviceNotTrusted)
-    );
+        assert_eq!(
+            decision.authorization_state,
+            HouseholdAuthorizationState::Rejected
+        );
+        assert_eq!(
+            decision.failure_reason,
+            Some(HouseholdAuthorizationFailureReason::DeviceNotTrusted)
+        );
+    }
 }
 
 #[test]

@@ -397,7 +397,9 @@ describe("billing api contract", () => {
     assert.equal(accountsContract.actorRole, "support");
     assert.equal(
       accountsContract.manualActionsPending,
-      accountsContract.results.filter((row) => row.manualRequired).length,
+      accountsContract.results.filter(
+        (row: (typeof accountsContract.results)[number]) => row.manualRequired,
+      ).length,
     );
     assert.equal(
       accountsContract.nonClaims.includes("no-child-activity-custody"),

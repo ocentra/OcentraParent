@@ -13,13 +13,13 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/enforcement-domain',
       '--',
       'v0-8-enforcement-product-control-spine',
     ])
@@ -39,7 +39,7 @@ async function main() {
   );
 
   const { V08EnforcementProductControlSpineReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-enforcement-product-control-spine.js');
+    await import('@ocentra-parent/enforcement-domain/v0-8-enforcement-product-control-spine');
   const summary = summarizeReadModel(V08EnforcementProductControlSpineReadModel);
 
   assertReadModel(V08EnforcementProductControlSpineReadModel, summary);
@@ -52,8 +52,8 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/parent-domain/src/v0-8-enforcement-product-control-spine.ts',
-      tsContractTest: 'packages/parent-domain/tests/v0-8-enforcement-product-control-spine.test.ts',
+      tsContract: 'packages/enforcement-domain/src/v0-8-enforcement-product-control-spine.ts',
+      tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-enforcement-product-control-spine.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_product_control_spine.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_product_control_spine_tests.rs',
       rustServiceCommand: 'agent.enforcement.product-control-spine.get',
@@ -65,7 +65,7 @@ async function main() {
       rustServiceApiTest:
         'crates/agent-service/src/enforcement_os_adapter_product_proof_read_model_tests/product_control_api_tests.rs',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-product-control-adapter.ts',
-      tsProtocolAdapterTest: 'packages/agent-protocol-domain/tests/enforcement-product-control-adapter.test.ts',
+      tsProtocolAdapterTest: 'packages/agent-protocol-domain/tests/unit/enforcement-product-control-adapter.test.ts',
       proofHarness: 'scripts/test/v0-8-enforcement-product-control-spine.mjs',
     },
     counts: summary,

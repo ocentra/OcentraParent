@@ -2,7 +2,9 @@ import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { spawn } from 'node:child_process';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const outputDir = join(repoRoot, 'test-results', 'child-android-protocol-package-lifecycle-proof');
@@ -15,14 +17,14 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runNpm(['run', 'build:contracts']);
   await runNpm([
-    'run',
-    'test',
+    'exec',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/child-runtime-domain',
     '--',
-    'tests/child-android-lifecycle-proof.test.ts',
+    'vitest',
+    'run',
+    'tests/unit/child-android-lifecycle-proof.test.ts',
   ]);
   await runNpm(['run', 'release:package:android']);
 
@@ -42,8 +44,8 @@ async function main() {
     evidence: {
       sourceProof,
       packageArtifacts,
-      contract: 'packages/parent-domain/src/child-android-lifecycle-proof.ts',
-      contractTest: 'packages/parent-domain/tests/child-android-lifecycle-proof.test.ts',
+      contract: 'packages/child-runtime-domain/src/child-android-lifecycle-proof.ts',
+      contractTest: 'packages/child-runtime-domain/tests/unit/child-android-lifecycle-proof.test.ts',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/child-android-protocol-package-lifecycle-proof-2026-05-31.md',
       output: relativePath(proofPath),
@@ -222,9 +224,9 @@ function buildRuntimeReadModel(packageArtifacts) {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await import('@ocentra-parent/child-runtime-domain/child-android-lifecycle-proof');
+  const module = await importTsModule('packages/child-runtime-domain/src/child-android-lifecycle-proof.ts');
   const parsed = module.ChildAndroidLifecycleReadModelSchema.parse(readModel);
-  proofLabels.push('parent-domain.child-android-lifecycle-proof-parse');
+  proofLabels.push('child-runtime-domain.child-android-lifecycle-proof-parse');
   return parsed;
 }
 
@@ -262,18 +264,19 @@ async function assertProofMatrix() {
 
 async function assertScriptWiring() {
   const packageJson = JSON.parse(await readRepoFile('package.json'));
-  const parentDomainPackage = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
+  const childRuntimeDomainPackage = JSON.parse(await readRepoFile('packages/child-runtime-domain/package.json'));
   const script = packageJson.scripts['test:child-android-protocol-package-lifecycle-proof'];
   if (script !== 'node scripts/test/child-android-protocol-package-lifecycle-proof.mjs') {
     throw new Error('Missing root test:child-android-protocol-package-lifecycle-proof script.');
   }
-  if (!parentDomainPackage.exports['./child-android-lifecycle-proof']) {
-    throw new Error('Missing parent-domain child-android-lifecycle-proof export.');
+  if (!childRuntimeDomainPackage.exports['./*']) {
+    throw new Error('Missing child-runtime-domain wildcard export.');
   }
   proofLabels.push('package-scripts.child-android-lifecycle-proof');
   return {
     rootScript: 'test:child-android-protocol-package-lifecycle-proof',
-    parentDomainExport: './child-android-lifecycle-proof',
+    childRuntimeDomainExport: './*',
+    sourceContract: 'packages/child-runtime-domain/src/child-android-lifecycle-proof.ts',
   };
 }
 
@@ -422,6 +425,10 @@ async function runCommand(commandName, args) {
     );
     child.once('error', reject);
   });
+}
+
+async function importTsModule(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }
 
 async function gitHead() {

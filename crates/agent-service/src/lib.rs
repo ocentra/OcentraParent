@@ -72,7 +72,7 @@ mod browser_runtime_stream_request;
 mod browser_runtime_stream_tests;
 #[cfg(test)]
 mod browser_runtime_tests;
-mod dev_log;
+pub mod dev_log;
 mod enforcement_api;
 #[cfg_attr(not(test), allow(dead_code))]
 mod enforcement_browser_domain_adapter_app_control_proof_states;

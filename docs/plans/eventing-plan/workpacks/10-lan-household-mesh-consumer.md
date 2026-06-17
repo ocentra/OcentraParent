@@ -32,3 +32,12 @@ Failure conditions:
 - Do not claim remote relay, mobile parity, or cloud delivery here.
 - Do not trust provider/peer claims without account/device authority proof.
 - Do not bypass local validation before republishing imported events.
+
+Expected proof artifacts:
+
+- `output/eventing-plan-proof/12-household-mesh-consumer/proof-summary.json`
+- `test-results/eventing-household-mesh-consumer-proof/proof.json`
+
+These paths are currently absent in this checkout. Keep WP10 open until they
+are restored or regenerated and the owning LAN/remote-access workpack reference
+is re-verified.

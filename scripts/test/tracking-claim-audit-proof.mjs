@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { runNpmCommand } from './run-npm-command.mjs';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofMode = 'tracking-claim-audit-proof';
@@ -19,14 +19,13 @@ async function main() {
   await mkdir(namedProofRoot, { recursive: true });
   await mkdir(output33, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   run('cmd', [
     '/c',
     'npm',
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
     'tracking-claim-audit-proof',
   ]);
@@ -113,8 +112,7 @@ function assertProof(proof) {
     'claim audit acceptance notes must keep claim approval false'
   );
   assert.ok(fullProductUiRow, 'claim audit needs full product UI runtime row');
-  assert.equal(fullProductUiRow.presentArtifacts.length, 5, 'expected five local product UI artifacts');
-  assert.equal(fullProductUiRow.missingArtifacts.length, 4, 'expected four hard product UI runtime gaps');
+  assert.equal(fullProductUiRow.requiredArtifacts.length, 9, 'expected nine full product UI runtime artifacts');
   assert.equal(fullProductUiRow.fullProductUiClaimed, false, 'full product UI remains unclaimed');
   assert.equal(fullProductUiRow.productClaimReady, false, 'full product UI row is not product-ready');
   assert.ok(
@@ -153,8 +151,8 @@ function sourceSnapshot(proof) {
     `- acceptanceCriteriaCount: ${proof.summary.acceptanceCriteriaCount}`,
     `- manualValidationCommandCount: ${proof.summary.manualValidationCommandCount}`,
     `- artifactAcceptanceNoteCount: ${proof.summary.artifactAcceptanceNoteCount}`,
-    '- proof module: packages/parent-domain/src/tracking-claim-audit-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-claim-audit-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-claim-audit-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-claim-audit-proof.test.ts',
     '- proof harness: scripts/test/tracking-claim-audit-proof.mjs',
     '',
   ].join('\n');
@@ -165,7 +163,7 @@ function validationLog() {
 }
 
 function importDist(name) {
-  return import(pathToFileURL(path.join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return tsImport(pathToFileURL(path.join(repoRoot, 'packages', 'tracking-domain', 'src', name.replace(/\.js$/u, '.ts'))).href, import.meta.url);
 }
 
 function run(command, args) {

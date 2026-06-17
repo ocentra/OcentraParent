@@ -3,7 +3,6 @@ import path from 'node:path';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { collectBrowserFailures } from './browser-failures';
 
-test.skip(process.env['TRACKING_PLAN_HOSTED_UI_PROOF'] !== '1', 'Dedicated tracking hosted UI proof only.');
 test.setTimeout(120_000);
 
 const portalShellReadyTimeoutMs = 90_000;
@@ -403,7 +402,7 @@ async function captureParentPortalShellScreenshots(page: Page): Promise<{
   await assertAndCaptureParentPortalShellRoute(page, {
     route: '#/devices',
     screenshotPath: parentDevicesShellScreenshotPath,
-    expectedSvgText: ['SELECTED DEVICE CONTEXT', 'SELECTED DEVICE', 'SOURCE', 'CONTROL', 'ROUTE'],
+    expectedSvgText: ['SELECTED DEVICE CONTEXT', 'SELECTED DEVICE', 'SOURCE', 'CONTROL', 'Info', 'Pair', 'Update', 'Capability'],
   });
   return {
     routes: [

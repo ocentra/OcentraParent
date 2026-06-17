@@ -3,6 +3,7 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runNpmCommand } from './run-npm-command.mjs';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const proofMode = 'tracking-android-system-geofence-blocker-proof';
@@ -23,16 +24,13 @@ async function main() {
   await mkdir(output09, { recursive: true });
   await mkdir(output33, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-android-system-geofence-blocker-proof',
+    'tests/contract/tracking-android-system-geofence-blocker-proof.test.ts',
   ]);
 
   const androidEmulatorProof = JSON.parse(await readFile(androidEmulatorProofPath, 'utf8'));
@@ -45,10 +43,11 @@ async function main() {
 }
 
 async function buildProof(androidEmulatorProof) {
-  const proofModule = await import(
+  const proofModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-android-system-geofence-blocker-proof.js')
-    ).href
+      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-android-system-geofence-blocker-proof.ts')
+    ).href,
+    import.meta.url
   );
   return {
     ...proofModule.buildTrackingAndroidSystemGeofenceBlockerProof(

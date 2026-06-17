@@ -23,28 +23,20 @@ This file is the short resume list for the next worker. It is derived from open 
 3. Open that workpack and exact checklist rows only.
 4. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are updated and validation is listed.
 
-## Highest-open workpacks by unchecked boxes
+## Audit-priority next actions
 
-- [WP01 Source Index And Repo Reconciliation](workpacks/01-source-index-and-repo-reconciliation.md): 11 open of 11 boxes.
-- [WP09 Android Background Location And Geofence Adapter](workpacks/09-android-background-location-and-geofence-adapter.md): 11 open of 14 boxes.
-- [WP02 Current Tracking Snapshot And Gap Map](workpacks/02-current-tracking-snapshot-and-gap-map.md): 10 open of 10 boxes.
-- [WP08 Android Foreground Location Adapter](workpacks/08-android-foreground-location-adapter.md): 10 open of 13 boxes.
-- [WP10 Android Battery Connectivity And Status Adapter](workpacks/10-android-battery-connectivity-and-status-adapter.md): 6 open of 13 boxes.
-- [WP11 iOS Core Location Foreground Adapter](workpacks/11-ios-core-location-foreground-adapter.md): 6 open of 15 boxes.
-- [WP12 iOS Background Region Significant-Change Adapter](workpacks/12-ios-background-region-significant-change-adapter.md): 6 open of 15 boxes.
-- [WP15 Geofence Transition Engine](workpacks/15-geofence-transition-engine.md): 6 open of 11 boxes.
-- [WP16 Expected-Place Schedule Engine](workpacks/16-expected-place-schedule-engine.md): 6 open of 11 boxes.
-- [WP17 Parent Acknowledgement And Exception Model](workpacks/17-parent-acknowledgement-and-exception-model.md): 6 open of 11 boxes.
-- [WP18 Child Check-In Flow](workpacks/18-child-check-in-flow.md): 6 open of 11 boxes.
-- [WP20 Google Places And POI Provider Adapter](workpacks/20-google-places-and-poi-provider-adapter.md): 6 open of 12 boxes.
-- [WP03 Contract Boundary And Effect Schemas](workpacks/03-contract-boundary-and-effect-schemas.md): 5 open of 11 boxes.
-- [WP07 Retention And Custody Model](workpacks/07-retention-and-custody-model.md): 5 open of 23 boxes.
-- [WP13 Desktop Location And Presence Hint Model](workpacks/13-desktop-location-and-presence-hint-model.md): 5 open of 11 boxes.
-- [WP19 Nearby-Place Provider Abstraction](workpacks/19-nearby-place-provider-abstraction.md): 5 open of 11 boxes.
-- [WP23 AI Location Safety Analysis Contracts](workpacks/23-ai-location-safety-analysis-contracts.md): 5 open of 11 boxes.
-- [WP24 AI Provider Routing](workpacks/24-ai-provider-routing.md): 5 open of 11 boxes.
-- [WP26 Alert Severity And Notification Model](workpacks/26-alert-severity-and-notification-model.md): 5 open of 23 boxes.
-- [WP31 Platform Extension Checklists And Proof Routing](workpacks/31-platform-extension-checklists-and-proof-routing.md): 5 open of 24 boxes.
+- [WP01 Source Index And Repo Reconciliation](workpacks/01-source-index-and-repo-reconciliation.md): source ownership drift must stay aligned with `packages/tracking-domain`, `crates/tracking-core`, and the current proof scripts.
+- [WP02 Current Tracking Snapshot And Gap Map](workpacks/02-current-tracking-snapshot-and-gap-map.md): rerun only after the closure artifact is regenerated from a restored pre-device/runtime/service/mobile proof chain.
+- [WP33 Proof Gates Fixtures Rollout And PR Gate](workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md): checked state is false green until proof scripts rerun cleanly.
+- [WP34 Tracking Event Contracts And Protocol Constants](workpacks/34-tracking-event-contracts-and-protocol-constants.md) through [WP39 Tracking Portal Event Read-Model Proof](workpacks/39-tracking-portal-event-read-model-proof.md): these on-disk workpacks must be treated as active scope, not omitted backlog.
+- [WP25 Policy Compiler For Tracking Rules](workpacks/25-policy-compiler-for-tracking-rules.md), [WP27 Escalation Engine](workpacks/27-escalation-engine.md), [WP28 Temporary Live Tracking Mode](workpacks/28-temporary-live-tracking-mode.md), and [WP29 Missing-Device Mode](workpacks/29-missing-device-mode.md): reopen because box closure is ahead of proof truth.
+
+## First implementation/proof blockers
+
+- Restore the missing pre-device/runtime/service/mobile proof inputs required by `tracking-plan-pre-device-proof.mjs` and `tracking-product-readiness-closure-proof.mjs`.
+- Remove forbidden Rust public re-exports in `crates/tracking-core/src/lib.rs` and `crates/agent-protocol/src/tracking/mod.rs`.
+- Restore `@ocentra-parent/parent-domain` build health before treating the remaining parent-domain-based tracking proof scripts as authoritative.
+- Regenerate `tracking-plan-pre-device-proof`, then `tracking-product-readiness-closure-proof`, then `tracking-source-reconciliation-gap-map-proof`.
 
 ## PR readiness guard
 
@@ -57,3 +49,5 @@ Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), pr
 - [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
 - [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
 - [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
+- [ ] Do not trust prior checked rows until the audit-reopened workpacks and proof chain rerun cleanly.
+- [ ] Do not treat `tracking-claim-audit-proof.mjs` as the active blocker anymore; it now reruns cleanly from `tracking-domain` and the blocker has moved to missing upstream proof artifacts.

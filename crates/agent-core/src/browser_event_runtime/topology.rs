@@ -1,10 +1,12 @@
+use ocentra_eventing::{
+    contract_registry::EventContractRegistry, error::EventingError, ids::SourceComponent,
+    ids::SubscriberId, ids::TargetHandler, topology::EventTopologyManifest,
+    topology::EventTopologyPublisher, topology::EventTopologySubscriber,
+};
 #[cfg(test)]
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, IdempotencyKey, SchemaVersion,
-};
-use ocentra_eventing::{
-    EventContractRegistry, EventTopologyManifest, EventTopologyPublisher, EventTopologySubscriber,
-    EventingError, SourceComponent, SubscriberId, TargetHandler,
+    envelope::DomainEvent, envelope::EventContract, ids::AggregateKey, ids::EventType,
+    ids::IdempotencyKey, ids::SchemaVersion,
 };
 use ocentra_parent_agent_protocol::constants;
 #[cfg(test)]

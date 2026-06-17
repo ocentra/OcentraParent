@@ -1,3 +1,5 @@
+#![allow(clippy::panic)]
+
 use serde::{Deserialize, Serialize};
 
 use super::{
@@ -141,62 +143,111 @@ pub fn default_tracking_retention_settings_write_request() -> TrackingRetentionS
 
 pub fn tracking_retention_command_id() -> TrackingRetentionCommandId {
     TrackingRetentionCommandId::parse(constants::tracking_retention_settings_write::COMMAND_ID)
-        .expect(constants::tracking_retention_settings_write::COMMAND_ID)
+        .unwrap_or_else(|_| {
+            panic!(
+                "{}",
+                constants::tracking_retention_settings_write::COMMAND_ID
+            )
+        })
 }
 
 pub fn tracking_retention_settings_kind() -> TrackingRetentionSettingsKind {
     TrackingRetentionSettingsKind::parse(
         constants::tracking_retention_settings_write::SETTINGS_KIND_RETENTION_WINDOW,
     )
-    .expect(constants::tracking_retention_settings_write::SETTINGS_KIND_RETENTION_WINDOW)
+    .unwrap_or_else(|_| {
+        panic!(
+            "{}",
+            constants::tracking_retention_settings_write::SETTINGS_KIND_RETENTION_WINDOW
+        )
+    })
 }
 
 pub fn tracking_retention_write_state_accepted() -> TrackingRetentionWriteState {
     TrackingRetentionWriteState::parse(
         constants::tracking_retention_settings_write::WRITE_STATE_ACCEPTED,
     )
-    .expect(constants::tracking_retention_settings_write::WRITE_STATE_ACCEPTED)
+    .unwrap_or_else(|_| {
+        panic!(
+            "{}",
+            constants::tracking_retention_settings_write::WRITE_STATE_ACCEPTED
+        )
+    })
 }
 
 pub fn tracking_retention_write_state_rejected() -> TrackingRetentionWriteState {
     TrackingRetentionWriteState::parse(
         constants::tracking_retention_settings_write::WRITE_STATE_REJECTED,
     )
-    .expect(constants::tracking_retention_settings_write::WRITE_STATE_REJECTED)
+    .unwrap_or_else(|_| {
+        panic!(
+            "{}",
+            constants::tracking_retention_settings_write::WRITE_STATE_REJECTED
+        )
+    })
 }
 
 pub fn tracking_retention_accepted_at() -> TrackingAcceptedAt {
     TrackingAcceptedAt::parse(constants::tracking_retention_settings_write::ACCEPTED_AT)
-        .expect(constants::tracking_retention_settings_write::ACCEPTED_AT)
+        .unwrap_or_else(|_| {
+            panic!(
+                "{}",
+                constants::tracking_retention_settings_write::ACCEPTED_AT
+            )
+        })
 }
 
 pub fn tracking_writer_intent_ref() -> TrackingWriterIntentRef {
     TrackingWriterIntentRef::parse(constants::tracking_retention_settings_write::WRITER_INTENT_REF)
-        .expect(constants::tracking_retention_settings_write::WRITER_INTENT_REF)
+        .unwrap_or_else(|_| {
+            panic!(
+                "{}",
+                constants::tracking_retention_settings_write::WRITER_INTENT_REF
+            )
+        })
 }
 
 pub fn tracking_read_model_proof_ref(value: &'static str) -> TrackingReadModelProofRef {
-    TrackingReadModelProofRef::parse(value)
-        .expect(constants::tracking_retention_settings_write::READ_MODEL_PROOF_REF)
+    TrackingReadModelProofRef::parse(value).unwrap_or_else(|_| {
+        panic!(
+            "{}",
+            constants::tracking_retention_settings_write::READ_MODEL_PROOF_REF
+        )
+    })
 }
 
 pub fn tracking_mutation_proof_ref() -> TrackingMutationProofRef {
     TrackingMutationProofRef::parse(
         constants::tracking_retention_settings_write::MUTATION_PROOF_REF,
     )
-    .expect(constants::tracking_retention_settings_write::MUTATION_PROOF_REF)
+    .unwrap_or_else(|_| {
+        panic!(
+            "{}",
+            constants::tracking_retention_settings_write::MUTATION_PROOF_REF
+        )
+    })
 }
 
 pub fn tracking_local_service_state_snapshot_ref() -> TrackingLocalServiceStateSnapshotRef {
     TrackingLocalServiceStateSnapshotRef::parse(
         constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF,
     )
-    .expect(constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF)
+    .unwrap_or_else(|_| {
+        panic!(
+            "{}",
+            constants::tracking_retention_settings_write::LOCAL_SERVICE_STATE_SNAPSHOT_REF
+        )
+    })
 }
 
 pub fn tracking_durable_settings_store_ref() -> TrackingDurableSettingsStoreRef {
     TrackingDurableSettingsStoreRef::parse(
         constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF,
     )
-    .expect(constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF)
+    .unwrap_or_else(|_| {
+        panic!(
+            "{}",
+            constants::tracking_retention_settings_write::DURABLE_SETTINGS_STORE_REF
+        )
+    })
 }

@@ -12,8 +12,8 @@ use crate::{
     BrowserRuntimeInput, BrowserRuntimePhase, BrowserRuntimeReport,
 };
 use ocentra_eventing::{
-    EventDeliveryDecisionState, EventDeliveryRequiredArtifact, EventDeliveryRouteKind,
-    EventTopologyStatus,
+    delivery::EventDeliveryDecisionState, delivery::EventDeliveryRequiredArtifact,
+    delivery::EventDeliveryRouteKind, topology::EventTopologyStatus,
 };
 use ocentra_parent_agent_protocol::constants;
 

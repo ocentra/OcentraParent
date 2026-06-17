@@ -28,6 +28,7 @@ cargo test -p ocentra-parent-agent-protocol enforcement
 cargo test -p ocentra-parent-agent-service enforcement
 npm run test --workspace @ocentra-parent/portal -- enforcement
 npm run lint:architecture -- --files packages/enforcement-domain packages/policy-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/v0-8-enforcement-control-plan
+node scripts/test/v0-8-enforcement-control-plan-proof.mjs
 ```
 
 ## Required negative states

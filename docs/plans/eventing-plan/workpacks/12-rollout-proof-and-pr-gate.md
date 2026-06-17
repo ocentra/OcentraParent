@@ -19,6 +19,8 @@ Expected outcome:
 - `PLAN_STATE.md`, `NEXT_ACTIONS.md`, `WORKPACK_INDEX.md`, `PLAN_HEALTH.md`, feature docs, and product checklist are synchronized only for claims with proof.
 - PR/DONE report names the selected workpack, source rows, checklist rows, proof artifacts, validation commands, skipped risks, and remaining gaps.
 - Consumer-plan claims are not moved by eventing proof unless consumer proof exists.
+- If any expected proof root is absent, the route stays open and the blocker is
+  recorded instead of inferred closed from historical docs.
 
 Expected tests/proof:
 
@@ -27,6 +29,22 @@ Expected tests/proof:
 - `eventing.rollout.checklist-proof-reconciliation`
 - `eventing.rollout.consumer-claim-negative`
 - `eventing.rollout.pr-done-report`
+
+Expected proof artifacts:
+
+- `output/eventing-plan-proof/rollout-proof/proof-summary.json`
+- `test-results/eventing-rollout-proof/proof.json`
+- `output/eventing-plan-proof/rollout-proof/pr-done-report.md`
+- `output/eventing-plan-proof/rollout-proof/command-logs/`
+
+These paths are the required local route-proof bundle for WP12. In this
+checkout they document current reconciled truth only: WP12 and WP13 are locally
+proved, WP11 is now locally proved as well, and WP10 remains open.
+
+Validation commands:
+
+- `node scripts/test/eventing-rollout-proof.mjs`
+- `git diff --check -- docs/proof/eventing-plan docs/plans/eventing-plan`
 
 Failure conditions:
 

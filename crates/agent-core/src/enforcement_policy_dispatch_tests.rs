@@ -14,7 +14,44 @@ use ocentra_parent_agent_protocol::{
 use crate::validate_enforcement_policy_dispatch_read_model;
 
 #[test]
-fn validates_dispatch_ready_manual_report_only_and_recovery_states() {
+fn validates_dispatch_ready_dry_run_manual_report_only_rejected_and_recovery_states() {
+    let mut dry_run_entry = entry(
+        dispatch::TEST_SUFFIX_DRY_RUN_ONLY,
+        EnforcementPolicyDispatchOutcomeState::DryRunOnly,
+        EnforcementCapabilityState::Supported,
+        EnforcementPolicyDispatchRejectionReason::None,
+        EnforcementPolicyDispatchTimerState::NotRequired,
+    );
+    dry_run_entry.intent.requested_policy_action = PolicyAction::AskParent;
+    dry_run_entry.intent.requested_parent_action = V08EnforcementProductControlParentAction::AskParent;
+    dry_run_entry.intent.dry_run = true;
+    dry_run_entry.matrix_row.proof_level = EnforcementPolicyDispatchProofLevel::Scaffold;
+    dry_run_entry.matrix_row.child_reason_code = dispatch::CHILD_REASON_ASK_PARENT_REVIEW.to_string();
+    dry_run_entry.child_reason_code = dispatch::CHILD_REASON_ASK_PARENT_REVIEW.to_string();
+    dry_run_entry.reason_codes = vec![dispatch::CHILD_REASON_ASK_PARENT_REVIEW.to_string()];
+    dry_run_entry.approval_state = EnforcementPolicyDispatchApprovalState::Pending;
+    dry_run_entry.dispatched_at = None;
+    dry_run_entry.next_check_at = None;
+
+    let mut rejected_stale_entry = entry(
+        dispatch::TEST_SUFFIX_STALE_POLICY_VERSION,
+        EnforcementPolicyDispatchOutcomeState::Rejected,
+        EnforcementCapabilityState::Supported,
+        EnforcementPolicyDispatchRejectionReason::StalePolicyVersion,
+        EnforcementPolicyDispatchTimerState::NotRequired,
+    );
+    rejected_stale_entry.matrix_row.proof_level = EnforcementPolicyDispatchProofLevel::Scaffold;
+    rejected_stale_entry.matrix_row.source_state = EnforcementPolicyDispatchSourceState::Stale;
+    rejected_stale_entry.intent.source_state = EnforcementPolicyDispatchSourceState::Stale;
+    rejected_stale_entry.matrix_row.child_reason_code =
+        dispatch::CHILD_REASON_STALE_POLICY_VERSION.to_string();
+    rejected_stale_entry.child_reason_code =
+        dispatch::CHILD_REASON_STALE_POLICY_VERSION.to_string();
+    rejected_stale_entry.reason_codes =
+        vec![dispatch::CHILD_REASON_STALE_POLICY_VERSION.to_string()];
+    rejected_stale_entry.dispatched_at = None;
+    rejected_stale_entry.next_check_at = None;
+
     let read_model = read_model(vec![
         entry(
             dispatch::TEST_SUFFIX_DISPATCH_READY,
@@ -23,6 +60,7 @@ fn validates_dispatch_ready_manual_report_only_and_recovery_states() {
             EnforcementPolicyDispatchRejectionReason::None,
             EnforcementPolicyDispatchTimerState::Active,
         ),
+        dry_run_entry,
         entry(
             dispatch::TEST_SUFFIX_MANUAL_REQUIRED,
             EnforcementPolicyDispatchOutcomeState::ManualRequired,
@@ -37,13 +75,16 @@ fn validates_dispatch_ready_manual_report_only_and_recovery_states() {
             EnforcementPolicyDispatchRejectionReason::None,
             EnforcementPolicyDispatchTimerState::RecoveryNeeded,
         ),
+        rejected_stale_entry,
     ]);
 
     let validation = validate_enforcement_policy_dispatch_read_model(&read_model).unwrap();
 
     assert_eq!(validation.dispatch_ready_count, 1);
+    assert_eq!(validation.dry_run_only_count, 1);
     assert_eq!(validation.manual_required_count, 1);
     assert_eq!(validation.report_only_count, 1);
+    assert_eq!(validation.rejected_count, 1);
     assert_eq!(validation.recovery_needed_count, 1);
 }
 
@@ -82,6 +123,65 @@ fn rejects_missing_evidence_before_dispatch() {
     assert_eq!(
         rejection,
         EnforcementPolicyDispatchRejectionReason::MissingEvidence
+    );
+}
+
+#[test]
+fn rejects_stale_policy_version_before_dispatch() {
+    let mut read_model = read_model(vec![entry(
+        dispatch::TEST_SUFFIX_STALE_POLICY_VERSION,
+        EnforcementPolicyDispatchOutcomeState::DispatchReady,
+        EnforcementCapabilityState::Supported,
+        EnforcementPolicyDispatchRejectionReason::None,
+        EnforcementPolicyDispatchTimerState::Active,
+    )]);
+    read_model.entries[0].intent.policy_version =
+        dispatch::POLICY_VERSION_V0_8_DISPATCH_STALE.to_string();
+
+    let rejection = validate_enforcement_policy_dispatch_read_model(&read_model).unwrap_err();
+
+    assert_eq!(
+        rejection,
+        EnforcementPolicyDispatchRejectionReason::StalePolicyVersion
+    );
+}
+
+#[test]
+fn rejects_missing_policy_decision_reference_before_dispatch() {
+    let mut read_model = read_model(vec![entry(
+        dispatch::TEST_SUFFIX_MISSING_POLICY_DECISION,
+        EnforcementPolicyDispatchOutcomeState::DispatchReady,
+        EnforcementCapabilityState::Supported,
+        EnforcementPolicyDispatchRejectionReason::None,
+        EnforcementPolicyDispatchTimerState::Active,
+    )]);
+    read_model.entries[0].intent.policy_decision_ref.clear();
+
+    let rejection = validate_enforcement_policy_dispatch_read_model(&read_model).unwrap_err();
+
+    assert_eq!(
+        rejection,
+        EnforcementPolicyDispatchRejectionReason::MissingPolicyDecision
+    );
+}
+
+#[test]
+fn rejects_malformed_policy_decision_reference_before_dispatch() {
+    let mut read_model = read_model(vec![entry(
+        dispatch::TEST_SUFFIX_MALFORMED_POLICY_DECISION,
+        EnforcementPolicyDispatchOutcomeState::DispatchReady,
+        EnforcementCapabilityState::Supported,
+        EnforcementPolicyDispatchRejectionReason::None,
+        EnforcementPolicyDispatchTimerState::Active,
+    )]);
+    read_model.entries[0].intent.policy_decision_ref =
+        dispatch::TEST_MALFORMED_POLICY_DECISION_REF.to_string();
+
+    let rejection = validate_enforcement_policy_dispatch_read_model(&read_model).unwrap_err();
+
+    assert_eq!(
+        rejection,
+        EnforcementPolicyDispatchRejectionReason::MissingPolicyDecision
     );
 }
 

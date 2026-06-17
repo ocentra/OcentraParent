@@ -18,13 +18,13 @@ Use this index to select exactly one workpack.
 
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
-| open | [WP01 Family Web Info Site](workpacks/01-family-web-info-site.md) | 0/12 | `RESEARCH_AND_DECISIONS.md`, `docs/expectations/family-setup.md` | `output/setup-install-provisioning-plan-proof/01-family-web-info-site/` |
-| open | [WP02 Registration Login Entry](workpacks/02-registration-login-entry.md) | 0/12 | `account-identity-family-plan/AGENTS.md`, `docs/expectations/family-setup.md` | `output/setup-install-provisioning-plan-proof/02-registration-login-entry/` |
-| open | [WP03 Parent Install Journey](workpacks/03-parent-install-journey.md) | 0/13 | `docs/expectations/release-installer.md`, `parent-desktop-runtime-package-plan/AGENTS.md` | `output/setup-install-provisioning-plan-proof/03-parent-install-journey/` |
-| open | [WP04 Child Install Permission Journey](workpacks/04-child-install-permission-journey.md) | 0/14 | `docs/expectations/platforms.md`, `child-agent-runtime-distribution-plan/AGENTS.md` | `output/setup-install-provisioning-plan-proof/04-child-install-permission-journey/` |
-| open | [WP05 Pairing Readiness Recovery](workpacks/05-pairing-readiness-recovery.md) | 0/13 | `docs/expectations/lan-pairing.md`, `lan-plan/AGENTS.md` | `output/setup-install-provisioning-plan-proof/05-pairing-readiness-recovery/` |
-| open | [WP07 First-Run Setup UI And State Machine](workpacks/07-first-run-setup-ui-and-state-machine.md) | 0/14 | `docs/expectations/family-setup.md`, `docs/expectations/portal.md` | `output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/` |
-| open | [WP06 Rollout Proof And Route Gate](workpacks/06-rollout-proof-and-route-gate.md) | 0/15 | all prior workpack proof roots | `output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/` |
+| done | [WP01 Family Web Info Site](workpacks/01-family-web-info-site.md) | 12/12 | `RESEARCH_AND_DECISIONS.md`, `docs/expectations/family-setup.md` | `output/setup-install-provisioning-plan-proof/01-family-web-info-site/` |
+| done | [WP02 Registration Login Entry](workpacks/02-registration-login-entry.md) | 12/12 | `account-identity-family-plan/AGENTS.md`, `docs/expectations/family-setup.md` | `output/setup-install-provisioning-plan-proof/02-registration-login-entry/` |
+| done | [WP03 Parent Install Journey](workpacks/03-parent-install-journey.md) | 13/13 | `docs/expectations/release-installer.md`, `parent-desktop-runtime-package-plan/AGENTS.md` | `output/setup-install-provisioning-plan-proof/03-parent-install-journey/` |
+| done | [WP04 Child Install Permission Journey](workpacks/04-child-install-permission-journey.md) | 14/14 | `docs/expectations/platforms.md`, `child-agent-runtime-distribution-plan/AGENTS.md` | `output/setup-install-provisioning-plan-proof/04-child-install-permission-journey/` |
+| done | [WP05 Pairing Readiness Recovery](workpacks/05-pairing-readiness-recovery.md) | 13/13 | `docs/expectations/lan-pairing.md`, `lan-plan/AGENTS.md` | `output/setup-install-provisioning-plan-proof/05-pairing-readiness-recovery/` |
+| done | [WP07 First-Run Setup UI And State Machine](workpacks/07-first-run-setup-ui-and-state-machine.md) | 14/14 | `docs/expectations/family-setup.md`, `docs/expectations/portal.md` | `output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/` |
+| done | [WP06 Rollout Proof And Route Gate](workpacks/06-rollout-proof-and-route-gate.md) | 15/15 | all prior workpack proof roots | `output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/` |
 
 ## Default execution order
 

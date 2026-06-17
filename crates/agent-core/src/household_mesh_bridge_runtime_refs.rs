@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::constants;
 
 use crate::{
-    household_mesh_bridge_runtime_phase::HouseholdMeshBridgePhase, HouseholdMeshBridgeEnvelopeState,
+    household_mesh_bridge_runtime_phase::HouseholdMeshBridgePhase,
+    HouseholdMeshBridgeEnvelopeState, HouseholdMeshLocalEventKind,
 };
 
 pub(crate) fn bridge_aggregate_key(correlation_id: &str) -> String {
@@ -13,10 +14,24 @@ pub(crate) fn bridge_aggregate_key(correlation_id: &str) -> String {
 pub(crate) fn bridge_message_type_for_local_event(event_type: &str) -> Option<&'static str> {
     match event_type {
         constants::screen_flow::EVENT_SCREEN_MESH_OFFER_PUBLISHED => {
-            Some(constants::household_mesh::MESSAGE_AI_WORK_OFFER)
+            Some(constants::household_mesh::LAN_MESSAGE_AI_WORK_OFFER)
         }
         constants::screen_flow::EVENT_SCREEN_MESH_PROVIDER_RESULT_RETURNED => {
-            Some(constants::household_mesh::MESSAGE_AI_WORK_RESULT)
+            Some(constants::household_mesh::LAN_MESSAGE_AI_RESULT_RETURN)
+        }
+        _ => None,
+    }
+}
+
+pub(crate) fn bridge_local_event_kind_for_local_event(
+    event_type: &str,
+) -> Option<HouseholdMeshLocalEventKind> {
+    match event_type {
+        constants::screen_flow::EVENT_SCREEN_MESH_OFFER_PUBLISHED => {
+            Some(HouseholdMeshLocalEventKind::AiWorkOffer)
+        }
+        constants::screen_flow::EVENT_SCREEN_MESH_PROVIDER_RESULT_RETURNED => {
+            Some(HouseholdMeshLocalEventKind::AiResultReturn)
         }
         _ => None,
     }

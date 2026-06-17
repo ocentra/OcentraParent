@@ -9,7 +9,7 @@ import {
   AgentPeerSchema,
   AgentProtocolSchemaVersion,
   AgentTimestampSchema,
-} from '@ocentra-parent/evidence-domain/primitives';
+} from '@ocentra-parent/event-domain/primitives';
 import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
 const PolicyControlDeliveryCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
@@ -79,79 +79,106 @@ export const AgentPolicyControlDeliveryBlockedReasonSchema = withParser(
     'superseded-policy'
   )
 );
+const AgentPolicyControlDeliveryDomainStateBaseSchema = Schema.Struct({
+  schemaVersion: Schema.Literal(PolicyControlDeliveryReadModelSchemaVersion),
+  domainId: AgentPolicyControlDeliveryDomainSchema,
+  deliveryState: Schema.Literal(
+    'pending',
+    'delivered',
+    'acknowledged',
+    'applied',
+    'degraded',
+    'manual-required',
+    'rejected',
+    'rolled-back',
+    'superseded',
+    'expired-before-delivery',
+    'blocked'
+  ),
+  auditRefs: Schema.Array(NonEmptyStringSchema).pipe(
+    Schema.filter((value) => value.length > 0 || 'Expected per-domain audit refs')
+  ),
+  lastAckEventId: NullablePolicyControlDeliveryTextSchema,
+  lastAppliedEventId: NullablePolicyControlDeliveryTextSchema,
+});
+
+type PolicyControlDeliveryReadModelDomainStateCandidate = Infer<typeof AgentPolicyControlDeliveryDomainStateBaseSchema>;
+
 export const AgentPolicyControlDeliveryDomainStateSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(PolicyControlDeliveryReadModelSchemaVersion),
-    domainId: AgentPolicyControlDeliveryDomainSchema,
-    deliveryState: Schema.Literal(
-      'pending',
-      'delivered',
-      'acknowledged',
-      'applied',
-      'degraded',
-      'manual-required',
-      'rejected',
-      'rolled-back',
-      'superseded',
-      'expired-before-delivery',
-      'blocked'
-    ),
-    auditRefs: Schema.Array(NonEmptyStringSchema).pipe(
-      Schema.filter((value) => value.length > 0 || 'Expected per-domain audit refs')
-    ),
-    lastAckEventId: NullablePolicyControlDeliveryTextSchema,
-    lastAppliedEventId: NullablePolicyControlDeliveryTextSchema,
-  }).pipe(Schema.filter(validateDomainState))
+  AgentPolicyControlDeliveryDomainStateBaseSchema.pipe(
+    Schema.filter(
+      (state: PolicyControlDeliveryReadModelDomainStateCandidate) =>
+        validateDomainState(state) || 'Expected per-domain delivery states to keep acknowledgement/apply refs aligned'
+    )
+  )
 );
+
+const PolicyControlDeliveryReadModelRowBaseSchema = Schema.Struct({
+  schemaVersion: Schema.Literal(PolicyControlDeliveryReadModelSchemaVersion),
+  deliveryRowId: NonEmptyStringSchema,
+  policyVersionRef: NonEmptyStringSchema,
+  childDeviceId: NonEmptyStringSchema,
+  generatedAt: NonEmptyStringSchema,
+  parentVisibleState: AgentPolicyControlDeliveryParentVisibleStateSchema,
+  intentState: AgentPolicyControlDeliveryIntentStateSchema,
+  transportState: AgentPolicyControlDeliveryTransportStateSchema,
+  acknowledgementRequired: Schema.Boolean,
+  ackState: AgentPolicyControlDeliveryAckStateSchema,
+  applyState: AgentPolicyControlDeliveryApplyStateSchema,
+  blockedReason: Schema.Union(AgentPolicyControlDeliveryBlockedReasonSchema, Schema.Null),
+  latestAuditEventId: NullablePolicyControlDeliveryTextSchema,
+  auditRefs: Schema.Array(NonEmptyStringSchema).pipe(
+    Schema.filter((value) => value.length > 0 || 'Expected delivery audit refs')
+  ),
+  retryScheduleRefs: Schema.Array(NonEmptyStringSchema),
+  manualProofRequirements: Schema.Array(NonEmptyStringSchema),
+  domainStates: Schema.Array(AgentPolicyControlDeliveryDomainStateSchema).pipe(
+    Schema.filter((value) => value.length > 0 || 'Expected per-domain delivery states')
+  ),
+});
+
+type PolicyControlDeliveryReadModelRowCandidate = Infer<typeof PolicyControlDeliveryReadModelRowBaseSchema>;
 
 export const PolicyControlDeliveryReadModelRowSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(PolicyControlDeliveryReadModelSchemaVersion),
-    deliveryRowId: NonEmptyStringSchema,
-    policyVersionRef: NonEmptyStringSchema,
-    childDeviceId: NonEmptyStringSchema,
-    generatedAt: NonEmptyStringSchema,
-    parentVisibleState: AgentPolicyControlDeliveryParentVisibleStateSchema,
-    intentState: AgentPolicyControlDeliveryIntentStateSchema,
-    transportState: AgentPolicyControlDeliveryTransportStateSchema,
-    acknowledgementRequired: Schema.Boolean,
-    ackState: AgentPolicyControlDeliveryAckStateSchema,
-    applyState: AgentPolicyControlDeliveryApplyStateSchema,
-    blockedReason: Schema.Union(AgentPolicyControlDeliveryBlockedReasonSchema, Schema.Null),
-    latestAuditEventId: NullablePolicyControlDeliveryTextSchema,
-    auditRefs: Schema.Array(NonEmptyStringSchema).pipe(
-      Schema.filter((value) => value.length > 0 || 'Expected delivery audit refs')
-    ),
-    retryScheduleRefs: Schema.Array(NonEmptyStringSchema),
-    manualProofRequirements: Schema.Array(NonEmptyStringSchema),
-    domainStates: Schema.Array(AgentPolicyControlDeliveryDomainStateSchema).pipe(
-      Schema.filter((value) => value.length > 0 || 'Expected per-domain delivery states')
-    ),
-  }).pipe(Schema.filter(validateRowState))
+  PolicyControlDeliveryReadModelRowBaseSchema.pipe(
+    Schema.filter(
+      (row: PolicyControlDeliveryReadModelRowCandidate) =>
+        validateRowState(row) || 'Expected delivery rows to keep parent-visible, ack, apply, and manual states honest'
+    )
+  )
 );
 
+const PolicyControlDeliveryReadModelSnapshotBaseSchema = Schema.Struct({
+  schemaVersion: Schema.Literal(PolicyControlDeliveryReadModelSchemaVersion),
+  readModelId: NonEmptyStringSchema,
+  generatedAt: NonEmptyStringSchema,
+  rows: Schema.Array(PolicyControlDeliveryReadModelRowSchema).pipe(
+    Schema.filter((value) => value.length > 0 || 'Expected at least one delivery row')
+  ),
+  pendingCount: PolicyControlDeliveryCountSchema,
+  acknowledgedCount: PolicyControlDeliveryCountSchema,
+  degradedCount: PolicyControlDeliveryCountSchema,
+  manualRequiredCount: PolicyControlDeliveryCountSchema,
+  appliedCount: PolicyControlDeliveryCountSchema,
+  partiallyAppliedCount: PolicyControlDeliveryCountSchema,
+  rejectedCount: PolicyControlDeliveryCountSchema,
+  rolledBackCount: PolicyControlDeliveryCountSchema,
+  supersededCount: PolicyControlDeliveryCountSchema,
+  expiredBeforeDeliveryCount: PolicyControlDeliveryCountSchema,
+  parentVisibleState: AgentPolicyControlDeliveryParentVisibleStateSchema,
+  activationBlocked: Schema.Boolean,
+  nonClaims: Schema.Array(NonEmptyStringSchema),
+});
+
+type PolicyControlDeliveryReadModelSnapshotCandidate = Infer<typeof PolicyControlDeliveryReadModelSnapshotBaseSchema>;
+
 export const PolicyControlDeliveryReadModelSnapshotSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(PolicyControlDeliveryReadModelSchemaVersion),
-    readModelId: NonEmptyStringSchema,
-    generatedAt: NonEmptyStringSchema,
-    rows: Schema.Array(PolicyControlDeliveryReadModelRowSchema).pipe(
-      Schema.filter((value) => value.length > 0 || 'Expected at least one delivery row')
-    ),
-    pendingCount: PolicyControlDeliveryCountSchema,
-    acknowledgedCount: PolicyControlDeliveryCountSchema,
-    degradedCount: PolicyControlDeliveryCountSchema,
-    manualRequiredCount: PolicyControlDeliveryCountSchema,
-    appliedCount: PolicyControlDeliveryCountSchema,
-    partiallyAppliedCount: PolicyControlDeliveryCountSchema,
-    rejectedCount: PolicyControlDeliveryCountSchema,
-    rolledBackCount: PolicyControlDeliveryCountSchema,
-    supersededCount: PolicyControlDeliveryCountSchema,
-    expiredBeforeDeliveryCount: PolicyControlDeliveryCountSchema,
-    parentVisibleState: AgentPolicyControlDeliveryParentVisibleStateSchema,
-    activationBlocked: Schema.Boolean,
-    nonClaims: Schema.Array(NonEmptyStringSchema),
-  }).pipe(Schema.filter(validateSnapshotState))
+  PolicyControlDeliveryReadModelSnapshotBaseSchema.pipe(
+    Schema.filter(
+      (snapshot: PolicyControlDeliveryReadModelSnapshotCandidate) =>
+        validateSnapshotState(snapshot) || 'Expected delivery snapshot counts and severity ordering to match its rows'
+    )
+  )
 );
 
 export const PolicyControlDeliveryReadModelEventEnvelopeSchema = withParser(
@@ -230,7 +257,7 @@ export function parseAgentPolicyControlDeliveryReadModelEvent(event: {
   };
 }
 
-function validateDomainState(state: PolicyControlDeliveryReadModelDomainState): true | string {
+function validateDomainState(state: PolicyControlDeliveryReadModelDomainStateCandidate): true | string {
   if (state.deliveryState === 'acknowledged' && state.lastAckEventId === null) {
     return 'Acknowledged domain rows require an acknowledgement event id';
   }
@@ -240,7 +267,7 @@ function validateDomainState(state: PolicyControlDeliveryReadModelDomainState): 
   return true;
 }
 
-function validateRowState(row: PolicyControlDeliveryReadModelRow): true | string {
+function validateRowState(row: PolicyControlDeliveryReadModelRowCandidate): true | string {
   if (row.acknowledgementRequired && row.ackState === 'not-required') {
     return 'Acknowledgement-required rows must not use not-required ack state';
   }
@@ -280,7 +307,7 @@ function validateRowState(row: PolicyControlDeliveryReadModelRow): true | string
   return true;
 }
 
-function validateSnapshotState(snapshot: PolicyControlDeliveryReadModelSnapshot): true | string {
+function validateSnapshotState(snapshot: PolicyControlDeliveryReadModelSnapshotCandidate): true | string {
   if (snapshot.pendingCount !== countRows(snapshot.rows, 'pending')) {
     return 'Pending count must match pending rows';
   }
@@ -320,7 +347,7 @@ function validateSnapshotState(snapshot: PolicyControlDeliveryReadModelSnapshot)
   return true;
 }
 
-function hasMixedDomainOutcome(states: readonly PolicyControlDeliveryReadModelDomainState[]): boolean {
+function hasMixedDomainOutcome(states: readonly PolicyControlDeliveryReadModelDomainStateCandidate[]): boolean {
   const applied = states.some((state) => state.deliveryState === 'applied');
   const blocked = states.some((state) =>
     state.deliveryState === 'degraded' || state.deliveryState === 'manual-required' || state.deliveryState === 'blocked'
@@ -329,13 +356,15 @@ function hasMixedDomainOutcome(states: readonly PolicyControlDeliveryReadModelDo
 }
 
 function countRows(
-  rows: readonly PolicyControlDeliveryReadModelRow[],
-  state: PolicyControlDeliveryReadModelRow['parentVisibleState']
+  rows: readonly PolicyControlDeliveryReadModelRowCandidate[],
+  state: PolicyControlDeliveryReadModelRowCandidate['parentVisibleState']
 ): number {
   return rows.filter((row) => row.parentVisibleState === state).length;
 }
 
-function deriveSnapshotState(snapshot: PolicyControlDeliveryReadModelSnapshot): PolicyControlDeliveryReadModelSnapshot['parentVisibleState'] {
+function deriveSnapshotState(
+  snapshot: PolicyControlDeliveryReadModelSnapshotCandidate
+): PolicyControlDeliveryReadModelSnapshotCandidate['parentVisibleState'] {
   if (snapshot.manualRequiredCount > 0) return 'manual-required';
   if (snapshot.degradedCount > 0) return 'degraded';
   if (snapshot.partiallyAppliedCount > 0) return 'partially-applied';

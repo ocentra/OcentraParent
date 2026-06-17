@@ -17,7 +17,18 @@ Purpose: define parent step-up auth with passkeys, biometrics, and OS-native app
 
 ## Proof target
 
-- `docs/proof/device-trust-bootstrap-plan/03-*`
+- `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/`
+
+## Test layout
+
+- `test/device-trust-bootstrap-plan/contract/parent-step-up-auth.test.mjs`
+- `test/device-trust-bootstrap-plan/unit/local-key-sealing.test.mjs`
+- `test/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs`
+
+## Current audit state
+
+- No proof root currently exists on disk for this workpack.
+- Current plan-local tests for this slice are document assertions; passkey/WebAuthn and OS-native step-up runtime proof are still missing.
 
 ## Negative cases
 

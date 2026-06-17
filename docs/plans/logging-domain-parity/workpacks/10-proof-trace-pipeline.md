@@ -155,3 +155,34 @@ Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
 ```
+
+## Current audit note
+
+Focused checks observed in this checkout:
+
+```text
+- cmd /c npx vitest run apps/portal/tests/logging/portal-proof-trace-pipeline.test.ts apps/portal/tests/logging/portal-proof-trace.test.ts apps/portal/tests/logging/portal-dev-log-route.test.ts -> pass
+- npm run mcp:logging -- --smoke proof-trace -> fail with "No proof trace rows found for scope \"parent-portal\"" in a clean workspace
+```
+
+What this actually proves:
+
+```text
+- the portal proof-trace path is implemented and passes when the Vitest flow seeds its own structured log data
+- CLI/MCP proof-trace query helpers exist in source
+```
+
+What this does not yet prove:
+
+```text
+- output/logging-domain-parity-proof/10-proof-trace-pipeline/ exists in this checkout
+- test-results/logging-domain-parity-proof-trace/ exists in this checkout
+- the advertised standalone MCP proof-trace smoke works without pre-seeded portal proof data
+```
+
+Required next step for truthful closeout:
+
+```text
+- recreate the missing proof root or remove the completion claim
+- make the standalone proof-trace smoke self-seeding, or narrow the docs so WP10 proof is explicitly routed through the portal Vitest flow instead
+```

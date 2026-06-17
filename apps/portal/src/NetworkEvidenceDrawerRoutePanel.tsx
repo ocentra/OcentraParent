@@ -23,7 +23,7 @@ export function NetworkEvidenceDrawerRoutePanel({
   readonly liveActivity: PortalLiveActivityState;
 }): ReactElement {
   const summary = networkEvidenceDrawerSummary(liveActivity.networkFlowReadModel, {
-    networkFlowEventPayload: liveActivity.networkFlowEvent?.payload,
+    networkFlowEventPayload: liveActivity.networkFlowEvent?.payload ?? null,
     policyPreviewReadModel: liveActivity.policyPreviewReadModel,
     networkRuntimeEventChainStream: liveActivity.networkRuntimeEventChainStream,
   });

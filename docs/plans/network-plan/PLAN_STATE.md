@@ -33,20 +33,48 @@ This folder is the single working plan location for child-device network evidenc
 
 - Snapshot: [current-network-snapshot.md](current-network-snapshot.md)
 
-## What is already present / proved
+## Audit truth snapshot
 
-- `ocentra-network-evidence` already owns real Android VpnService and Apple Network Extension gate planners with crate-owned tests for proof-ready versus manual-required boundary behavior.
-- `agent-protocol`, `agent-service`, `agent-protocol-domain`, `portal-domain`, and `apps/portal` now surface Android VpnService and Apple Network Extension gate-status command/event paths through the existing live-activity and diagnostics seams without claiming live adapter execution.
+Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a` found:
 
-## Open gaps / missing product runtime
+- the canonical TypeScript source package is `packages/network-domain`, not the `packages/activity-domain` paths still named elsewhere in this plan;
+- real network code exists across `packages/network-domain`, `crates/agent-protocol`, `crates/agent-core`, `crates/agent-service`, `crates/ocentra-network-evidence`, and `apps/portal`;
+- `docs/proof/network-plan/` is missing in this checkout;
+- `output/network-plan-proof/` is absent in this checkout;
+- `implementation-checklist.md` shows 127/128 checked boxes, but that count is not a truthful completion signal while source paths, proof routing, and workpack state are out of sync.
 
+## What is already present in source
+
+- `packages/network-domain` owns real TypeScript network flow, network contract, and network-control catalog implementations with unit tests.
+- `crates/agent-protocol` owns real Rust network contracts, status payload shapes, constants, and protocol tests.
+- `crates/agent-core` owns real network capture, ActivityStore network rows, runtime chain, queue, replay, and remote-delivery proof logic with tests.
+- `crates/agent-service` owns real network payload, digest, runtime-delivery, product-path, remote-delivery, and platform-gate bridge code with tests.
+- `crates/ocentra-network-evidence` owns real packet, DNS, domain, classifier, cascade, adapter-gate, performance, and platform-claim proof logic with tests.
+- `apps/portal` owns real service-backed network read-model parsing, drawer projection, refresh routing, and e2e proof fixtures.
+
+## Open gaps / truth boundaries
+
+### Real dependency blockers
+
+- Cross-plan rows that depend on browser exact-URL evidence, screen-summary fallback, AI runtime ownership, eventing semantics, LAN/family-hub delivery, or enforcement authority remain dependent on their owning plans.
+- No current proof manifest or committed proof bundle ties the scattered TS, Rust, script, and portal surfaces back to this plan's workpacks.
+
+### External platform constraints
+
+- Real macOS and iOS proof is not expected from this Windows host. Those rows remain external-platform constraints until a Mac host produces the required device, entitlement, and runtime artifacts.
+
+### Avoidable local execution gaps on this host
+
+- Windows proof is expected where a row needs it; current gaps are proof-generation and row-tracking gaps, not a host limitation.
+- Android tooling is present and an AVD exists, but no device is attached right now and the remembered Samsung Wi-Fi ADB endpoint did not answer during the audit refresh.
+- WSL is installed but stopped, and Docker Desktop's binary exists while the Linux engine is currently unavailable; Linux proof through WSL and/or Docker is therefore feasible but not currently active.
+- `docs/proof/network-plan/` and `output/network-plan-proof/` must be regenerated or the plan rows must stop claiming them.
 - Production live packet capture driver support and live raw artifact creation.
 - Router/log import implementation proof.
-- Live broker/family-hub transport, provider delivery, child-device delivery, remote acknowledgement handling, and remote delete/export propagation.
 - Local AI model execution or remote provider execution.
 - Full policy engine execution and notification provider delivery.
 - Live host DNS/WFP/VPN/NetworkExtension/Linux adapter mutation, packet blocking, process termination execution, and host filtering. Windows Firewall has only a bounded reversible TEST-NET lab execution proof; production enforcement and persistent policy-driven firewall rules remain open.
-- Physical-device proof beyond the named Android target, Device Owner or other authority-enrolled proof, and any platform adapter execution proof where a platform claim needs it.
+- Device Owner or other authority-enrolled Android proof where a platform claim needs it.
 - Parent-facing rule UX and broader risk-budget/performance/platform UI beyond the current service-backed network drawer.
 - Production SLO validation, external audit or penetration-test execution, deployment execution, and full support-material authoring.
 
@@ -54,6 +82,7 @@ This folder is the single working plan location for child-device network evidenc
 
 - Full checklist: [implementation-checklist.md](implementation-checklist.md) (not default context).
 - Checkbox rows detected: 128 total, 127 checked, 1 unchecked.
+- Current audit rule: do not treat the checkbox count as plan truth while the proof roots are missing and the workpacks remain open.
 - Checklist index: [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md).
 
 ## Workpack summary
@@ -94,13 +123,11 @@ This folder is the single working plan location for child-device network evidenc
   - do not mark this plan complete from checklist deltas alone.
 - Before any checked update, attach:
   - a real test run log (or explicit known blocker) from the assigned implementation boundary,
-  - a proof manifest under docs/proof/network-plan/.
-- Required proof manifest names:
-  - docs/proof/network-plan/slice-01-\*.md
-  - docs/proof/network-plan/slice-02-\*.md
-  - docs/proof/network-plan/slice-03-\*.md
-  - each proof file must include commands, pass/fail,
-    negative-cases, and manual-required notes.
+  - a proof manifest under `docs/proof/network-plan/`.
+- Current audit truth:
+  - `docs/proof/network-plan/` is missing in this checkout, so the HID proof-manifest route is currently stale;
+  - do not mark any slice complete until that route is rebuilt or explicitly replaced by a new proof index plus real committed artifacts;
+  - each rebuilt proof file must include commands, pass/fail, negative cases, and manual-required notes.
 - Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.
 
 ## HID execution blueprint

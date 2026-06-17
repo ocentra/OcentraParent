@@ -14,7 +14,7 @@ import {
 } from '@ocentra-parent/family-domain/reference-primitives';
 import { V08BroadOsAdapterProofReadModel } from './v0-8-broad-os-adapter-proof';
 import { V08BrowserDomainAdapterProofReadModel } from '@ocentra-parent/browser-domain/v0-8-browser-domain-adapter-proof';
-import { V08OsAdapterManualArtifactGateReadModel } from '@ocentra-parent/enforcement-domain/v0-8-os-adapter-manual-artifact-gates';
+import { V08OsAdapterManualArtifactGateReadModel } from './v0-8-os-adapter-manual-artifact-gates';
 
 export const V08BroadOsAdapterRuntimeProofReadModelIdSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterRuntimeProofReadModelId');
 export const V08BroadOsAdapterRuntimeProofEntryIdSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterRuntimeProofEntryId');

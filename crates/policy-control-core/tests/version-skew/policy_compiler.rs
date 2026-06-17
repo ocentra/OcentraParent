@@ -329,7 +329,10 @@ fn sample_browser_support_matrix() -> PolicyCompilerSupportMatrix {
                 PolicyTargetKind::Device,
                 PolicyCompilerCapabilityState::Unsupported,
             ),
-            support_matrix_row(PolicyTargetKind::App, PolicyCompilerCapabilityState::Supported),
+            support_matrix_row(
+                PolicyTargetKind::App,
+                PolicyCompilerCapabilityState::Supported,
+            ),
             support_matrix_row(
                 PolicyTargetKind::Site,
                 PolicyCompilerCapabilityState::ManualRequired,
@@ -506,7 +509,7 @@ fn screen_compiler_serialization_preserves_status_strings() {
 
 #[test]
 fn domain_override_serialization_preserves_rule_capability_reason_pairs() {
-    let source = sample_policy_source_document(5);
+    let source = sample_screen_status_source_document(5);
     let enforcement = compile_enforcement_policy_hints(&source, source.policy_version)
         .expect("enforcement policy artifact");
     let enforcement_payload =
@@ -548,12 +551,18 @@ fn domain_override_serialization_preserves_rule_capability_reason_pairs() {
         notification_payload["rules"][0]["capability_state"],
         "manual-required"
     );
-    assert_eq!(notification_payload["rules"][0]["status"], "manual-required");
+    assert_eq!(
+        notification_payload["rules"][0]["status"],
+        "manual-required"
+    );
     assert_eq!(
         notification_payload["rules"][0]["reason_code"],
         policy_control::compiler::REASON_MANUAL_REQUIRED_TARGET
     );
-    assert_eq!(notification_payload["rules"][3]["capability_state"], "supported");
+    assert_eq!(
+        notification_payload["rules"][3]["capability_state"],
+        "supported"
+    );
     assert_eq!(notification_payload["rules"][3]["status"], "ready");
     assert!(notification_payload["rules"][3]["reason_code"].is_null());
 }
@@ -570,7 +579,7 @@ fn compiler_rejects_consumer_version_mismatch() {
 
 #[test]
 fn compiled_artifact_round_trips_explicit_support_matrix_payload() {
-    let source = sample_policy_source_document(5);
+    let source = sample_screen_status_source_document(5);
     let artifact = compile_domain_policy_with_support_matrix(
         &source,
         source.policy_version,
@@ -580,8 +589,14 @@ fn compiled_artifact_round_trips_explicit_support_matrix_payload() {
     .expect("browser policy artifact with explicit support matrix");
     let payload = serde_json::to_value(&artifact).expect("compiled artifact payload");
 
-    assert_eq!(payload["support_matrix"]["rows"][0]["target_kind"], "child-profile");
-    assert_eq!(payload["support_matrix"]["rows"][2]["capability_state"], "supported");
+    assert_eq!(
+        payload["support_matrix"]["rows"][0]["target_kind"],
+        "child-profile"
+    );
+    assert_eq!(
+        payload["support_matrix"]["rows"][2]["capability_state"],
+        "supported"
+    );
     assert_eq!(payload["rules"][0]["capability_state"], "supported");
     assert_eq!(payload["rules"][1]["capability_state"], "manual-required");
     assert_eq!(payload["rules"][2]["capability_state"], "unsupported");

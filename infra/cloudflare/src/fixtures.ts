@@ -179,7 +179,7 @@ export interface BillingCancellationSummary {
   cancellationState: "scheduled-period-end" | "already-in-grace" | "manual-review-required";
   currentPlanId: string;
   retainsPaidAccessUntil: string;
-  parentVisibleState: "available" | "grace" | "manual-review";
+  parentVisibleState: "available" | "grace" | "manual-review" | "stale" | "unavailable";
   auditReference: string;
 }
 
@@ -807,7 +807,7 @@ function disputeRowsForAccount(account: BillingAccountFixture): ReadonlyArray<Ad
         manualRequired: true,
         auditReference: `${account.auditReference}:dispute-opened`,
         updatedAt: account.updatedAt,
-      },
+      } as AdminBillingDisputeSummary,
     ];
   }
 
@@ -823,7 +823,7 @@ function disputeRowsForAccount(account: BillingAccountFixture): ReadonlyArray<Ad
         manualRequired: true,
         auditReference: `${account.auditReference}:dispute-lost`,
         updatedAt: account.updatedAt,
-      },
+      } as AdminBillingDisputeSummary,
     ];
   }
 
@@ -840,7 +840,7 @@ function auditEventRowsForAccount(account: BillingAccountFixture): ReadonlyArray
       familyRef: account.familyRef,
       auditReference: account.auditReference,
       createdAt: account.updatedAt,
-    },
+    } as BillingAuditEventSummary,
     {
       eventId: `${account.auditReference}:invoice-visible`,
       eventType: "billing.invoice.visible",
@@ -849,7 +849,7 @@ function auditEventRowsForAccount(account: BillingAccountFixture): ReadonlyArray
       familyRef: account.familyRef,
       auditReference: `${account.auditReference}:invoice`,
       createdAt: account.updatedAt,
-    },
+    } as BillingAuditEventSummary,
   ];
 }
 

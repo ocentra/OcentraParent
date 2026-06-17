@@ -1,6 +1,8 @@
 use std::time::Duration;
 
-use ocentra_eventing::{DeadLetterReason, EventingError, QueueDisposition};
+use ocentra_eventing::{
+    bus::reports::DeadLetterReason, error::EventingError, queue::policy::QueueDisposition,
+};
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
@@ -167,14 +169,15 @@ fn complete_domain_observation() -> NetworkObservation {
 }
 
 fn decode_stored_payloads(
-    stored_events: &[ocentra_eventing::StoredEventEnvelope],
+    stored_events: &[ocentra_eventing::envelope::StoredEventEnvelope],
 ) -> Vec<NetworkRuntimeEventPayload> {
     stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::EventEnvelope<NetworkRuntimeEventPayload> = event
-                .decode()
-                .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES);
+            let envelope: ocentra_eventing::envelope::EventEnvelope<NetworkRuntimeEventPayload> =
+                event
+                    .decode()
+                    .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES);
             envelope.payload
         })
         .collect()

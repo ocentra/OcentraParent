@@ -171,3 +171,37 @@ Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
 ```
+
+## Current audit note
+
+Focused checks observed in this checkout:
+
+```text
+- npm run validate:logging -> pass
+- npm run test:logging-evidence -> pass
+```
+
+What this actually proves:
+
+```text
+- the validation scripts exist and run
+- local evidence smoke works for controlled pass/fail runs
+- dev-log routing static checks pass
+- logging export shape checks pass
+```
+
+What this does not yet prove:
+
+```text
+- output/logging-domain-parity-proof/06-validation-and-enforcement/ exists in this checkout
+- test-results/logging-domain-parity-validation/ exists in this checkout
+- the validation layer detects missing proof roots or stale done claims
+- the workpack completion claim is backed by on-disk proof artifacts
+```
+
+Required next step for truthful closeout:
+
+```text
+- recreate the missing proof root or remove the completion claim
+- extend enforcement if this workpack is meant to guarantee proof-inventory honesty rather than only source-shape/script existence
+```

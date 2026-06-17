@@ -21,7 +21,7 @@ Define the region matrix, provider availability, currency and tax launch gating,
 
 - [REGIONAL_PAYMENT_MARKET_MATRIX.md](../REGIONAL_PAYMENT_MARKET_MATRIX.md)
 - [PAYMENT_PROVIDER_STRATEGY.md](../PAYMENT_PROVIDER_STRATEGY.md)
-- `docs/proof/payment-subscription-plan/wp09-regional-payment-rollout/`
+- `output/payment-subscription-plan-proof/09-regional-payment-rollout/`
 
 ## Acceptance
 
@@ -42,7 +42,7 @@ Define the region matrix, provider availability, currency and tax launch gating,
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
 - Required proof families: `payment-region.canada-us`, `payment-region.india`, `payment-region.pakistan`, `payment-region.china`, `payment-region.uae-dubai`, `payment-region.eu-uk`, `payment-region.southeast-asia`, `payment-region.manual-enterprise`, `payment-region.local-methods`, `payment-region.subscription-support`, `payment-region.manual-required-gaps`
-- Proof bundle: `docs/proof/payment-subscription-plan/09-regional-payment-matrix.md`, `docs/proof/payment-subscription-plan/09-india-razorpay-proof.md`, `docs/proof/payment-subscription-plan/09-pakistan-manual-required-proof.md`, `docs/proof/payment-subscription-plan/09-china-wallet-proof.md`, `docs/proof/payment-subscription-plan/09-uae-provider-proof.md`
+- Proof bundle: `output/payment-subscription-plan-proof/09-regional-payment-rollout/09-regional-payment-matrix.md`, `output/payment-subscription-plan-proof/09-regional-payment-rollout/09-india-razorpay-proof.md`, `output/payment-subscription-plan-proof/09-regional-payment-rollout/09-pakistan-manual-required-proof.md`, `output/payment-subscription-plan-proof/09-regional-payment-rollout/09-china-wallet-proof.md`, `output/payment-subscription-plan-proof/09-regional-payment-rollout/09-uae-provider-proof.md`
 
 ## Negative cases
 

@@ -5,9 +5,11 @@ use ocentra_child_runtime::{
     publish_parent_tracking_config_updated_event, TrackingConfigUpdateEventFlowReport,
 };
 use ocentra_eventing::{
-    CorrelationId, EventBus, EventCustody, EventId, EventMetadata, EventSource, EventSubscriber,
-    EventType, EventingError, RecordedAt, RequestOptions, RequestReport, RuntimeInstanceId,
-    RuntimeRole, SourceComponent, SourceService, SubscriberId, SubscriptionReport, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
+    envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::CorrelationId,
+    ids::EventCustody, ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId,
+    ids::RuntimeRole, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
+    ids::TargetHandler, request::RequestOptions, request::RequestReport,
 };
 use ocentra_parent_agent_protocol::{
     constants, tracking_config_audit_entry_committed_event, tracking_config_change_approved_event,

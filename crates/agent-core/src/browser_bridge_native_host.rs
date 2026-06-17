@@ -82,7 +82,7 @@ fn validate_payload_schema(
     frame: &BrowserNativeHostFrame<'_>,
 ) -> Result<(), BrowserNativeHostFrameError> {
     let payload = serde_json::from_str::<Value>(frame.payload_json)
-        .map_err(|_| BrowserNativeHostFrameError::InvalidJson)?;
+        .map_err(|_error| BrowserNativeHostFrameError::InvalidJson)?;
 
     if payload_field_matches_u64(
         &payload,

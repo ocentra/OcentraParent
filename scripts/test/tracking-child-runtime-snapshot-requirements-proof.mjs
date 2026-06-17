@@ -4,6 +4,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { runNpmCommand } from './run-npm-command.mjs';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces');
@@ -21,23 +22,18 @@ const commands = [];
 await main();
 
 async function main() {
-  await runNpm(['--workspace', '@ocentra-parent/parent-domain', 'run', 'build']);
   await runNpm([
     'exec',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
     'vitest',
     'run',
-    'tests/tracking-child-runtime-snapshot-requirements-proof.test.ts',
-    'tests/tracking-child-runtime-execution-readiness-proof.test.ts',
+    'tests/contract/tracking-child-runtime-snapshot-requirements-proof.test.ts',
+    'tests/contract/tracking-child-runtime-execution-readiness-proof.test.ts',
   ]);
 
-  const snapshotProof = await import(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-child-runtime-snapshot-requirements-proof.js')
-    )
-  );
+  const snapshotProof = await importSource('packages/tracking-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts');
   const checkedAt = new Date().toISOString();
   const commit = await gitHead();
   const sourceReadinessProof = JSON.parse(await readFile(sourceReadinessProofPath, 'utf8'));
@@ -46,8 +42,8 @@ async function main() {
       generatedAt: '2026-06-07T15:05:00.000Z',
       snapshotRequirementsId: 'tracking-child-runtime-snapshot-requirements-proof',
       sourceContractRefs: [
-        'packages/parent-domain/src/tracking-child-runtime-execution-readiness-proof.ts',
-        'packages/parent-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts',
+        'packages/tracking-domain/src/tracking-child-runtime-execution-readiness-proof.ts',
+        'packages/tracking-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts',
         'docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md',
       ],
     },
@@ -152,8 +148,8 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- status: proved',
     '- consumes: output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/27-child-runtime-execution-readiness-proof.json',
     '- proves requirement refs for delivery-envelope, execution-result, visible-snapshot, parent-receipt, and runtime-observation rows',
-    '- proof module: packages/parent-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-child-runtime-snapshot-requirements-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-child-runtime-snapshot-requirements-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-child-runtime-snapshot-requirements-proof.test.ts',
     '- proof harness: scripts/test/tracking-child-runtime-snapshot-requirements-proof.mjs',
     '',
   ].join('\n');
@@ -211,4 +207,8 @@ async function gitHead() {
 
 async function writeJson(path, value) {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+}
+
+function importSource(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }

@@ -1,6 +1,6 @@
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_family_identity_core::{DeviceOwnershipScope, DeviceTrustState, HouseholdMembership};
-use ocentra_provisioning_core::{
+use ocentra_provisioning_core::provisioning_install::{
     evaluate_provisioning_readiness, plan_provisioning_actions, provisioning_action_planned_event,
     provisioning_readiness_evaluated_event, AccountReadinessState, ChildAppReadinessState,
     ChildInstallState, ChildRuntimeReadinessState, ChildServiceState, DataCustodySyncState,

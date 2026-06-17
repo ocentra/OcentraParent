@@ -9,7 +9,7 @@ const commands = [];
 const proofPacks = [
   complete(
     '03-contract-boundary-and-effect-schemas',
-    'TypeScript Effect Schema tracking spine exists in activity-domain and parent-domain.'
+    'TypeScript Effect Schema tracking spine exists in tracking-domain with direct policy/runtime entrypoints.'
   ),
   complete(
     '04-location-evidence-model',
@@ -105,11 +105,27 @@ const proofPacks = [
 await main();
 
 async function main() {
-  await runNpmWorkspace('@ocentra-parent/tracking-domain', ['run', 'build']);
-  await runNpmWorkspace('@ocentra-parent/tracking-domain', ['run', 'test', '--', 'tracking']);
-  await runNpmWorkspace('@ocentra-parent/parent-domain', ['run', 'build']);
-  await runNpmWorkspace('@ocentra-parent/parent-domain', ['run', 'test', '--', 'tracking-location-policy']);
-  await runNpm(['run', 'lint:schema-boundaries']);
+  await runNpm([
+    'exec',
+    '--workspace',
+    '@ocentra-parent/tracking-domain',
+    '--',
+    'vitest',
+    'run',
+    'tests/unit/tracking.test.ts',
+    'tests/contract/tracking-location-policy.test.ts',
+    'tests/unit/tracking-event-contracts.test.ts',
+    'tests/unit/tracking-evidence-quality-gate.test.ts',
+    'tests/unit/tracking-local-place-store.test.ts',
+  ]);
+  await runNpm([
+    'run',
+    'lint:architecture',
+    '--',
+    '--files',
+    'packages/tracking-domain/src/tracking.ts',
+    'packages/tracking-domain/src/tracking-location-policy.ts',
+  ]);
 
   const commit = await gitHead();
   const checkedAt = new Date().toISOString();
@@ -153,10 +169,13 @@ function sourceSnapshot(pack, commit, checkedAt) {
     `- commit: ${commit}`,
     `- proofState: ${pack.proofState}`,
     `- summary: ${pack.summary}`,
-    '- activity contracts: packages/tracking-domain/src/tracking.ts',
-    '- parent contracts: packages/parent-domain/src/tracking-location-policy.ts',
-    '- activity tests: packages/tracking-domain/tests/unit/tracking.test.ts',
-    '- parent tests: packages/parent-domain/tests/tracking-location-policy.test.ts',
+    '- tracking contracts: packages/tracking-domain/src/tracking.ts',
+    '- policy contracts: packages/tracking-domain/src/tracking-location-policy.ts',
+    '- focused tests: packages/tracking-domain/tests/unit/tracking.test.ts',
+    '- focused tests: packages/tracking-domain/tests/contract/tracking-location-policy.test.ts',
+    '- focused tests: packages/tracking-domain/tests/unit/tracking-event-contracts.test.ts',
+    '- focused tests: packages/tracking-domain/tests/unit/tracking-evidence-quality-gate.test.ts',
+    '- focused tests: packages/tracking-domain/tests/unit/tracking-local-place-store.test.ts',
     '',
   ].join('\n');
 }
@@ -165,9 +184,9 @@ function contractProofLog(pack) {
   return [
     `workpack=${pack.workpackId}`,
     `proofState=${pack.proofState}`,
-    'activity-domain tracking tests passed',
-    'parent-domain tracking-location-policy tests passed',
-    'schema-boundary guard passed',
+    'tracking-domain focused contract and runtime tests passed',
+    'tracking-domain policy contract tests passed',
+    'focused architecture gate passed for tracking entrypoints',
     pack.summary,
     '',
   ].join('\n');
@@ -176,7 +195,7 @@ function contractProofLog(pack) {
 function securityProofLog(pack) {
   return [
     `workpack=${pack.workpackId}`,
-    'No Zod, manual brands, test doubles, app string literals, or schema-boundary violations were introduced.',
+    'No Zod, manual brands, test doubles, app string literals, or forbidden entrypoint re-exports were introduced in the touched tracking-domain files.',
     'Negative tests reject precise coordinates from LAN/Wi-Fi/IP/manual/unknown hint-only tracking sources.',
     'AI location analysis contracts use evidence only and cannot trigger alerts directly or become final authority.',
     'Remote AI data is disabled unless the route is parent-approved remote.',

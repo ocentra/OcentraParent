@@ -3,6 +3,7 @@ use ocentra_parent_agent_protocol::{
     AgentPeerRole, AgentRoute, LogFieldValue, LogFields, SocialSourceCustodyMutationSnapshot,
     AGENT_PROTOCOL_SCHEMA_VERSION, SOCIAL_SOURCE_CUSTODY_MUTATION_STATE_APPLIED,
 };
+use serde::de::DeserializeOwned;
 
 use super::social_source_custody_mutation_payload::{
     social_source_custody_mutation_from_command, social_source_custody_mutation_payload,
@@ -53,7 +54,7 @@ fn command_envelope() -> AgentCommandEnvelope {
 
 fn string_payload<T>(payload: &ocentra_parent_agent_protocol::LogFields, field: &str) -> T
 where
-    T: serde::de::DeserializeOwned,
+    T: DeserializeOwned,
 {
     match &payload[field] {
         LogFieldValue::String(text) => {

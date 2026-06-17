@@ -23,7 +23,7 @@ Define the normalized adapter contract across Stripe, Razorpay, PayPal, store bi
 - [PAYMENT_PROVIDER_STRATEGY.md](../PAYMENT_PROVIDER_STRATEGY.md)
 - [MOBILE_STORE_BILLING_ADAPTERS.md](../MOBILE_STORE_BILLING_ADAPTERS.md)
 - [BILLING_API_BOUNDARY.md](../BILLING_API_BOUNDARY.md)
-- `docs/proof/payment-subscription-plan/wp08-provider-adapter-portability/`
+- `output/payment-subscription-plan-proof/08-provider-adapter-portability/`
 
 ## Acceptance
 
@@ -46,7 +46,7 @@ Define the normalized adapter contract across Stripe, Razorpay, PayPal, store bi
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
 - Required proof families: `payment-provider.adapter-interface`, `payment-provider.stripe-adapter-contract`, `payment-provider.razorpay-adapter-contract`, `payment-provider.paypal-adapter-contract`, `payment-provider.apple-store-adapter-contract`, `payment-provider.google-play-adapter-contract`, `payment-provider.manual-invoice-adapter-contract`, `payment-provider.normalized-event-contract`, `payment-provider.provider-lock-escape`, `payment-provider.no-direct-product-provider-reads`
-- Proof bundle: `docs/proof/payment-subscription-plan/08-provider-adapter-contract-proof.md`, `docs/proof/payment-subscription-plan/08-normalized-event-proof.md`, `docs/proof/payment-subscription-plan/08-provider-lock-escape-proof.md`
+- Proof bundle: `output/payment-subscription-plan-proof/08-provider-adapter-portability/08-provider-adapter-contract-proof.md`, `output/payment-subscription-plan-proof/08-provider-adapter-portability/08-normalized-event-proof.md`, `output/payment-subscription-plan-proof/08-provider-adapter-portability/08-provider-lock-escape-proof.md`
 
 ## Negative cases
 

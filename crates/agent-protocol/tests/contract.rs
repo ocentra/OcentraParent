@@ -1,3 +1,5 @@
+#![allow(clippy::expect_used, clippy::panic)]
+
 #[path = "contract/app_game_adapter_dispatch_preflight.rs"]
 mod app_game_adapter_dispatch_preflight;
 #[path = "contract/app_game_adapter_dispatch_result.rs"]

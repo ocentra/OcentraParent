@@ -30,23 +30,39 @@ output/eventing-plan-proof/<workpack-file-stem>/
 ## Focused commands
 
 ```bash
-cargo test -p ocentra-parent-eventing-core
-cargo test -p ocentra-parent-agent-protocol event
-npm run build --workspace @ocentra-parent/event-domain
+cargo test -p ocentra-eventing --test unit
+cargo test -p ocentra-eventing --test contract
+cargo test -p ocentra-eventing --test journal_replay
+cargo test -p ocentra-eventing --test integration
+cargo test -p ocentra-eventing --test version_skew
 npm run test --workspace @ocentra-parent/event-domain
-npm run lint:architecture -- --files crates/eventing-core crates/agent-protocol packages/event-domain docs/plans/eventing-plan
+npm run type-check --workspace @ocentra-parent/event-domain
+cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-runtime-events.test.ts contracts.test.ts
+cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet
+npm run lint:architecture -- --files crates/ocentra-eventing crates/agent-protocol packages/event-domain docs/plans/eventing-plan
 ```
 
 If a command/test path does not exist, record the blocker and keep rows open.
 
-## Proof files
+## Proof references
 
 ```text
-00-scope-summary.md
-01-negative-case-proof.md
-02-no-claim-boundary.md
-16-validation-commands.log
+docs/proof/eventing-plan/slice-01-envelope-version.md
+docs/proof/eventing-plan/slice-02-ordering-replay.md
+docs/proof/eventing-plan/slice-03-consumer-boundary.md
 ```
+
+## Rollout proof bundle
+
+```text
+output/eventing-plan-proof/rollout-proof/proof-summary.json
+test-results/eventing-rollout-proof/proof.json
+output/eventing-plan-proof/rollout-proof/pr-done-report.md
+output/eventing-plan-proof/rollout-proof/command-logs/
+```
+
+If the rollout bundle or the `docs/proof/eventing-plan/` slice files are
+absent, record the blocker and keep WP12 open.
 
 ## DONE rule
 

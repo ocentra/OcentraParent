@@ -250,3 +250,39 @@ Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
 ```
+
+## Current audit note
+
+Focused checks observed in this checkout:
+
+```text
+- npm run mcp:logging -- --list-tools -> pass
+- npm run mcp:logging -- --smoke run-diagnostics -> pass
+- npm run mcp:logging -- --smoke artifact-slice -> pass
+- cmd /c npx vitest run packages/logging-domain/tests/integration/mcp-query-interface.test.ts -> pass
+```
+
+What this actually proves:
+
+```text
+- the MCP server starts locally
+- the tool list is present
+- run-diagnostics and bounded artifact-slice paths work against local evidence
+- the package has at least one dedicated MCP integration test
+```
+
+What this does not yet prove:
+
+```text
+- output/logging-domain-parity-proof/07-mcp-query-interface/ exists in this checkout
+- test-results/logging-domain-parity-mcp/ exists in this checkout
+- the standalone proof-trace smoke path works from a clean workspace
+- negative coverage for unknown scope, path traversal, stale-ingest recovery, and limit-clamp behavior is represented by the named proof inventory
+```
+
+Required next step for truthful closeout:
+
+```text
+- recreate the missing proof root or remove the completion claim
+- either make the proof-trace smoke self-seeding or stop implying that WP07 already proves it as a standalone MCP smoke
+```

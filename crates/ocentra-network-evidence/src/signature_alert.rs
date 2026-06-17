@@ -134,6 +134,17 @@ pub fn ingest_network_signature_alerts(
     let fixture_ref = normalize_ref(&input.fixture_ref)
         .ok_or(NetworkSignatureAlertIngestionError::EmptyFixtureRef)?;
     let records = normalize_records(&ingestion_run_ref, &fixture_ref, &input.rows)?;
+    let NetworkSignatureAlertIngestionInput {
+        ingestion_run_ref,
+        fixture_ref,
+        rows: _,
+        live_suricata_invocation_claimed: _,
+        live_snort_invocation_claimed: _,
+        ips_prevention_claimed: _,
+        policy_authority_claimed: _,
+        adapter_authority_claimed: _,
+        enforcement_command_claimed: _,
+    } = input;
 
     Ok(NetworkSignatureAlertIngestionProof {
         ingestion_run_ref,

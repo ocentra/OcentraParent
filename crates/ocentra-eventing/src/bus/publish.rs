@@ -1,9 +1,9 @@
-﻿use std::sync::Arc;
+use std::sync::Arc;
 use tokio::task::JoinHandle;
 
-use crate::{ExpectValue, 
-    queue::NoSubscriberQueueDecision, DomainEvent, EventEnvelope, EventMetadata, EventingError,
-    JournalDispatchPhase, QueueDisposition, RequestCompletionReport, RequestEvent, RequestId,
+use crate::{
+    DomainEvent, EventEnvelope, EventMetadata, EventingError, ExpectValue, JournalDispatchPhase,
+    NoSubscriberQueueDecision, QueueDisposition, RequestCompletionReport, RequestEvent, RequestId,
     RequestOptions, RequestReport, StoredEventEnvelope,
 };
 
@@ -415,6 +415,3 @@ async fn abort_request_publish(
     publish.abort();
     let _ = publish.await;
 }
-
-
-

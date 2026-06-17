@@ -21,6 +21,39 @@ External auth providers may verify identity but must not own Ocentra household/p
 Account-family authority lives in typed Ocentra contracts and storage.
 ```
 
+## Decision D00: provider role and custody boundary
+
+Accepted:
+
+```text
+Firebase Auth may be used as an external identity provider or token issuer for MVP only if it stays adapter-only and never becomes the family product data store.
+Auth.js may be used only as a session/auth adapter if revocation, token size, custody, and adapter constraints fit Ocentra requirements.
+Cloudflare D1 and Durable Objects own user, account, household, membership, role, child profile, device, invite, recovery, and session metadata after token verification.
+Allowed auth methods for MVP and later include email link, password, OAuth, MFA, passkey, and device step-up, but each method remains an authentication method, not product custody.
+```
+
+Rejected:
+
+```text
+Firebase custom claims or IdP profile fields as household/product truth.
+Auth.js database state as the family authority model.
+Any provider arrangement that requires moving family state out of Cloudflare-owned storage.
+```
+
+Provider visibility:
+
+```text
+The IdP may see only the minimal identity data it needs to authenticate and issue tokens.
+It must not receive household membership, child profiles, device registry rows, invite state, recovery state, policy state, or product readiness data.
+```
+
+Degraded and replaceability:
+
+```text
+Provider outages surface as degraded or manual-required states; they never unlock privileged family flows.
+A later provider swap must keep family truth in Ocentra-owned storage and only swap the external identity adapter.
+```
+
 ## External source anchors
 
 - Cloudflare D1 is Cloudflare's managed serverless database with SQLite SQL semantics and Worker/HTTP API access. Use it as the default relational store for account, household, membership, child profile, device, invite, recovery, and session metadata when Cloudflare runtime is selected: https://developers.cloudflare.com/d1/
@@ -165,6 +198,6 @@ support/admin can act as parent owner
 
 ## Open research questions
 
-- Final provider selection remains open until WP01 accepts or rejects Firebase/Auth.js/other options for MVP.
+- Provider adapter swap details may still change, but the provider role itself is decided: external IdP/token issuer only, never family authority.
 - Exact Cloudflare account auth library choice remains open until Cloudflare-control-plane handoff identifies worker scaffold/auth middleware constraints.
 - Passkey/step-up auth implementation path remains open until device-trust-bootstrap-plan and setup-install-provisioning-plan route sync are available.

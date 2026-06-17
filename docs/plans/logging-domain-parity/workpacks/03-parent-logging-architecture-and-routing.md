@@ -131,6 +131,26 @@ If route depends on WP02 bridge, record blocker instead of faking proof.
 
 This workpack does not complete Rust logging-core. It may create compatibility routing only until WP04 migrates agent-service to the Rust crate.
 
+## Current audit note
+
+Observed current source/test state in this checkout:
+
+```text
+- apps/portal/src/dev-logger.ts already routes portal dev logs through the shared logger/bridge path instead of the legacy endpoint
+- packages/logging-domain/README.md already documents /api/dev/log-snapshot as a snapshot/status endpoint, not the primary local log store
+- crates/agent-service/src/dev_log.rs already delegates to ocentra-parent-logging-core
+- focused checks passed:
+  * cmd /c npx vitest run apps/portal/tests/logging/portal-dev-log-route.test.ts apps/portal/tests/logging/portal-proof-trace.test.ts apps/portal/tests/logging/portal-proof-trace-pipeline.test.ts
+  * cargo test -p ocentra-parent-agent-service dev_log
+```
+
+Remaining blocker for truthful closeout:
+
+```text
+- output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/ is absent in this checkout
+- the workpack completion section is still unfilled, so the docs understate present behavior while plan-level state previously overclaimed other proof-backed completion
+```
+
 ## Fill before DONE or PR-ready
 
 ```text

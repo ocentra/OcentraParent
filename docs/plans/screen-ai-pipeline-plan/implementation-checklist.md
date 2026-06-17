@@ -15,7 +15,7 @@
 
 <!-- /agent-capsule -->
 
-A checkbox may be marked `[x]` only after the matching artifact exists under:
+A checkbox may be marked `[ ]` only after the matching artifact exists under:
 
 ```text
 output/screen-ai-pipeline-proof/

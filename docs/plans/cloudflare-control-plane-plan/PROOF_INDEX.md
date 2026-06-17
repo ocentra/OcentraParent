@@ -80,4 +80,6 @@ PR_READY
 
 unless the selected proof root proves the claim and WP12 aggregates it when broad readiness is claimed.
 
-New proof artifacts should use `output/cloudflare-control-plane-plan-proof/`. Historical `docs/proof/cloudflare-control-plane-plan/` references may remain as legacy pointers but should not be the default for new work.
+Active proof routing for this plan is `output/cloudflare-control-plane-plan-proof/`.
+Legacy `docs/proof/cloudflare-control-plane-plan/` references should be removed
+as touched rather than treated as current proof truth.

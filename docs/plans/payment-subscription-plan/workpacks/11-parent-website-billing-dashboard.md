@@ -23,7 +23,7 @@ Define the parent-facing billing dashboard surface and its self-service actions.
 
 - [PARENT_WEBSITE_BILLING_DASHBOARD.md](../PARENT_WEBSITE_BILLING_DASHBOARD.md)
 - [RESEARCH_AND_UI_GUIDANCE.md](../RESEARCH_AND_UI_GUIDANCE.md)
-- `docs/proof/payment-subscription-plan/wp11-parent-website-billing-dashboard/`
+- `output/payment-subscription-plan-proof/11-parent-website-billing-dashboard/`
 
 ## Acceptance
 
@@ -49,8 +49,8 @@ Define the parent-facing billing dashboard surface and its self-service actions.
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
 - Required proof families: `payment-dashboard.parent-account-visible`, `payment-dashboard.current-plan-visible`, `payment-dashboard.child-device-usage-visible`, `payment-dashboard.referral-credit-visible`, `payment-dashboard.paid-seat-visible`, `payment-dashboard.invoice-visible`, `payment-dashboard.change-plan-visible`, `payment-dashboard.cancel-visible`, `payment-dashboard.billing-portal-link`, `payment-dashboard.license-snapshot-visible`, `payment-dashboard.wrong-household-denied`, `payment-dashboard.no-child-private-data`, `payment-dashboard.targeted-parent-proof-file`
-- Proof bundle: `docs/proof/payment-subscription-plan/11-parent-website-dashboard-proof.md`, `docs/proof/payment-subscription-plan/11-dashboard-wrong-household-negative-proof.md`, `docs/proof/payment-subscription-plan/11-dashboard-no-child-private-data-proof.md`
-- Execution note: `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts` is the targeted parent-surface proof file and is currently missing.
+- Proof bundle: `output/payment-subscription-plan-proof/11-parent-website-billing-dashboard/11-parent-website-dashboard-proof.md`, `output/payment-subscription-plan-proof/11-parent-website-billing-dashboard/11-dashboard-wrong-household-negative-proof.md`, `output/payment-subscription-plan-proof/11-parent-website-billing-dashboard/11-dashboard-no-child-private-data-proof.md`
+- Execution note: `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts` is the targeted parent-surface proof file and already exists, but the current blocker is `@ocentra-parent/parent-domain` build/import failure before that focused proof can run.
 
 ## Negative cases
 

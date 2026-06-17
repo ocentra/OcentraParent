@@ -267,9 +267,10 @@ fn decode_payloads(report: &ScreenRuntimeReport) -> Vec<ScreenRuntimeEventPayloa
         .stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::EventEnvelope<ScreenRuntimeEventPayload> = event
-                .decode()
-                .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES);
+            let envelope: ocentra_eventing::envelope::EventEnvelope<ScreenRuntimeEventPayload> =
+                event
+                    .decode()
+                    .expect(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES);
             envelope.payload
         })
         .collect()

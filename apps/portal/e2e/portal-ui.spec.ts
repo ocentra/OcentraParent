@@ -307,7 +307,9 @@ async function assertDevicesRoute(page: Page): Promise<void> {
       .filter({ hasText: /CONTROL/i })
       .first()
   ).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: /ROUTE/i }).first()).toBeVisible();
+  for (const tabLabel of ['Info', 'Pair', 'Update', 'Capability']) {
+    await expect(surface.locator('text').filter({ hasText: tabLabel }).first()).toBeVisible();
+  }
 }
 
 async function assertCopyButton(page: Page, commandResult: Locator, eventName: string): Promise<void> {

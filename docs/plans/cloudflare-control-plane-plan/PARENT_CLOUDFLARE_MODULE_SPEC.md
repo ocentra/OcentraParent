@@ -1,32 +1,35 @@
 # Parent Cloudflare Module Spec
 
-Purpose: define the minimum repo-local `infra/cloudflare/` scaffold that Parent needs before consumer plans can claim runtime work.
+Purpose: define the current repo-local `infra/cloudflare/` module surface and
+the no-claim boundaries that still gate true completion.
 
 ## Module contract
 
 - Module path: `infra/cloudflare/`
 - Ownership: `cloudflare-control-plane-plan`
 - Consumer plans: payment, portal, support/admin, setup, future entitlement and remote-control consumers
-- Current state allowed in this pass: scaffold-only or manual-required
-- Current state not allowed in this pass: fake runtime claims, fake proof, copied game-only code
+- Current state allowed in this pass: real runtime present, proof-open, and
+  dependency-gated auth or deploy closure
+- Current state not allowed in this pass: fake runtime claims, fake proof,
+  copied game-only code, or empty-folder optics counted as coverage
 
 ## Required files
 
 | Path | Required state in this pass |
 | --- | --- |
-| `infra/cloudflare/package.json` | Exists with script contract; dependencies may remain manual-required. |
-| `infra/cloudflare/wrangler.toml` | Exists with development bindings and placeholders only. |
-| `infra/cloudflare/wrangler.production.toml` | Exists with production names and placeholders only. |
-| `infra/cloudflare/.dev.vars.example` | Exists with placeholder values only. |
-| `infra/cloudflare/src/index.ts` | Exists and fails safe; no payment runtime claim yet. |
-| `infra/cloudflare/src/env.ts` | Exists with binding interface. |
-| `infra/cloudflare/src/routes.ts` | Exists with route manifest skeleton. |
-| `infra/cloudflare/src/auth/` | Exists with verifier interface or exact blocker. |
-| `infra/cloudflare/src/handlers/` and `src/flows/` | Exist as scaffold directories; no copied game handlers. |
-| `infra/cloudflare/src/durable-objects/`, `src/queues/`, `src/storage/`, `src/providers/`, `src/security/`, `src/observability/` | Exist as scaffold directories. |
-| `infra/cloudflare/scripts/` | Exists with placeholder runner and seed scripts or explicit blockers. |
-| `infra/cloudflare/tests/...` | Exists with placeholder docs that map required test files and blockers. |
-| `infra/cloudflare/docs/...` | Exists and points back to this plan for route truth. |
+| `infra/cloudflare/package.json` | Exists with real scoped dev, seed, test, deploy, and lint scripts. |
+| `infra/cloudflare/wrangler.toml` | Exists with explicit development bindings; resource IDs remain placeholder-backed until deployment proof lands. |
+| `infra/cloudflare/wrangler.production.toml` | Exists with explicit production bindings; promotion proof remains open. |
+| `infra/cloudflare/.dev.vars.example` | Exists with concrete secret and signing key names only; no real values. |
+| `infra/cloudflare/src/index.ts` | Exists as the current concentrated worker runtime, not a stub. |
+| `infra/cloudflare/src/env.ts` | Exists with real env and binding validation. |
+| `infra/cloudflare/src/routes.ts` | Exists with a real route manifest and auth metadata. |
+| `infra/cloudflare/src/auth/` | Exists with a real verifier boundary; upstream account and trusted-device authority remain open dependencies. |
+| `infra/cloudflare/src/handlers/` and `src/flows/` | Exist mostly as scaffold directories; they do not count as implementation while runtime remains concentrated elsewhere. |
+| `infra/cloudflare/src/durable-objects/`, `src/queues/`, `src/storage/`, `src/providers/`, `src/security/`, `src/observability/` | Exist, but several remain `README.md` placeholders rather than first-class code modules. |
+| `infra/cloudflare/scripts/` | Exists with real runner and seed scripts. |
+| `infra/cloudflare/tests/...` | Exists with real unit, integration, e2e, contract, security, property, and fuzz files. |
+| `infra/cloudflare/docs/...` | Exists but must stay synchronized with actual module truth and `output/...` proof routing. |
 
 ## Required scripts
 
@@ -59,7 +62,7 @@ If a script cannot run yet, the script file or the plan docs must return an exac
 
 ## No-claim boundaries
 
-- Do not claim payment runtime logic from this scaffold.
+- Do not claim payment handoff from source presence alone.
 - Do not claim shared auth-provider choice until the account plan decides it.
-- Do not claim real queue, D1, or DO behavior without proof.
+- Do not claim real queue, D1, Durable Object, or deploy readiness without proof.
 - Do not claim the module is type-checked, deployed, or tested from scaffold existence alone.

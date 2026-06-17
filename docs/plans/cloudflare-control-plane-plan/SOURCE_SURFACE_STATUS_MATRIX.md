@@ -4,17 +4,18 @@ Purpose: track which shared Cloudflare surfaces exist now versus which remain sc
 
 | Slice | Source path | Exists now? | Current implementation state | Next required action | Manual-required / no-claim state |
 | --- | --- | --- | --- | --- | --- |
-| 01 | `infra/cloudflare/package.json` | Yes | scaffold-only | Replace placeholder scripts with real runnable dependencies and logs. | No runtime claim until commands have proof. |
-| 02 | `infra/cloudflare/wrangler.toml` | Yes | placeholder bindings present | Replace placeholder IDs and names with real dev resources. | No deploy claim. |
-| 02 | `infra/cloudflare/wrangler.production.toml` | Yes | placeholder bindings present | Replace placeholder IDs and names with real production resources and promotion proof. | No production claim. |
-| 02 | `infra/cloudflare/.dev.vars.example` | Yes | placeholder env present | Replace dummy values only in local private vars, never in repo. | No secret claim. |
-| 03 | `infra/cloudflare/src/index.ts` | Yes | safe stub / no-claim runtime | Replace manual-required responses with real handlers without weakening fail-fast guards. | No runtime success claim. |
-| 04 | `infra/cloudflare/src/routes.ts` | Yes | route manifest scaffold present | Bind manifest entries to domain-owned request/response contracts. | No consumer contract proof yet. |
-| 05 | `infra/cloudflare/src/auth/verifier.ts` | Yes | adapter placeholder present | Wire the real account/session provider after ownership decisions land. | `account-auth-adapter-manual-required` until chosen. |
-| 06 | `infra/cloudflare/src/env.ts` | Yes | binding interface scaffold present | Add real validation and binding proofs. | No binding validation claim. |
-| 07 | `infra/cloudflare/scripts/test-runner.ts` | Yes | exact blocker runner present | Replace blocker output with real suite execution and logs. | No test-runner proof yet. |
-| 07 | `infra/cloudflare/scripts/seed-local.ts` | Yes | exact blocker seed placeholder present | Replace blockers with real fixture and teardown flows. | No seed proof yet. |
-| 08 | `infra/cloudflare/tests/` | Yes | placeholder test family files present; exact required assertions now live in `REQUIRED_TEST_ASSERTION_MATRIX.md` | Replace placeholder files with real assertions and artifacts that map back to the assertion IDs. | No test pass claim. |
-| 08 | `infra/cloudflare/docs/TESTING.md` | Yes | module-local pointer doc present | Keep module docs synchronized with runnable suites and blockers. | No runtime proof claim. |
-| 08 | `docs/plans/cloudflare-control-plane-plan/REQUIRED_TEST_ASSERTION_MATRIX.md` | Yes | engineering-spec complete | Future execution must implement every listed file and assertion ID without reducing scope. | Spec complete does not imply runtime passing tests. |
-| 12 | `docs/proof/cloudflare-control-plane-plan/wp12-payment-plan-handoff-gate/payment-handoff-proof.md` | No | missing | Add accepted handoff proof once slices 00-11 are explicit. | Payment remains blocked. |
+| 01 | `infra/cloudflare/package.json` | Yes | real module script contract present | Capture scoped lint and module proof under `output/.../01-cloudflare-module-scaffold/`. | No completion claim until proof exists. |
+| 02 | `infra/cloudflare/wrangler.toml` | Yes | real development binding map with placeholder IDs | Provision real dev resources and capture deploy-safe proof. | No environment-readiness claim. |
+| 02 | `infra/cloudflare/wrangler.production.toml` | Yes | real production binding map with placeholder IDs | Capture promotion and rollback proof against real production resources. | No production-readiness claim. |
+| 02 | `infra/cloudflare/.dev.vars.example` | Yes | concrete secret and binding names present | Keep secrets out of repo and prove local/private wiring separately. | No secret-value claim. |
+| 03 | `infra/cloudflare/src/index.ts` | Yes | implemented worker runtime present | Keep scoped tests green and either refactor or explicitly own the current concentrated source shape. | Auth authority, deploy readiness, and payment handoff remain open. |
+| 04 | `infra/cloudflare/src/routes.ts` | Yes | real route manifest present | Keep routes synchronized with domain-owned contracts and audit metadata. | No consumer-handoff claim without proof. |
+| 05 | `infra/cloudflare/src/auth/verifier.ts` | Yes | real boundary verifier for public, parent, trusted-device, admin, support, webhook, and queue-only routes | Wire the real account/session and trusted-device authority inputs from owning plans. | `account-auth-adapter-manual-required` and trusted-device source remain dependency-gated. |
+| 06 | `infra/cloudflare/src/env.ts` | Yes | real env and binding validation present | Capture validation proof and environment-promotion proof. | No deployability claim from config alone. |
+| 06 | `infra/cloudflare/src/billing-binding-read-model.ts` | Yes | real local binding-backed read/write model present | Prove queue, retry, dead-letter, and analytics boundaries with scoped tests and artifacts. | No operations-readiness claim without proof. |
+| 07 | `infra/cloudflare/scripts/test-runner.ts` | Yes | real suite runner present | Capture command logs and proof bundles for the required test families. | No fake-green claim from script presence. |
+| 07 | `infra/cloudflare/scripts/seed-local.ts` | Yes | real local seed artifact generator present | Capture local start, seed, and teardown proof. | No local-dev completeness claim without proof. |
+| 08 | `infra/cloudflare/tests/` | Yes | real unit, integration, e2e, contract, security, property, and fuzz files exist | Keep scoped suites green and deepen the remaining security/property/fuzz/queue coverage. | Test families are real, but proof and some hardening are still open. |
+| 08 | `infra/cloudflare/docs/TESTING.md` | Yes | stale module-local testing doc | Keep module docs synchronized with runnable suites and real proof roots. | No runtime proof claim from doc text alone. |
+| 08 | `docs/plans/cloudflare-control-plane-plan/REQUIRED_TEST_ASSERTION_MATRIX.md` | Yes | engineering-spec complete | Keep assertion IDs aligned with real suites and close missing hardening cases honestly. | Spec completeness does not imply runtime completeness. |
+| 12 | `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md` | No | missing | Add accepted handoff proof once WP03-WP11 proofs are real and current. | Payment remains blocked until the downstream plan acknowledges the artifact. |

@@ -1,4 +1,4 @@
-﻿use std::{
+use std::{
     collections::BTreeMap,
     future::Future,
     pin::Pin,
@@ -128,7 +128,12 @@ impl ManualEventClock {
 
 impl EventClock for ManualEventClock {
     fn now(&self) -> EventClockInstant {
-        EventClockInstant::from(self.state.lock().expect_value("manual event clock lock").now)
+        EventClockInstant::from(
+            self.state
+                .lock()
+                .expect_value("manual event clock lock")
+                .now,
+        )
     }
 
     fn sleep<'a>(&'a self, duration: Duration) -> EventClockSleep<'a> {
@@ -155,6 +160,3 @@ struct ManualEventClockState {
     now: Duration,
     sleepers: BTreeMap<Duration, Vec<oneshot::Sender<()>>>,
 }
-
-
-

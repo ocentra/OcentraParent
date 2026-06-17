@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { AgentCommand, AgentEvent, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { defaultAgentTrackingRetentionSettingsWriteRequest } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import {

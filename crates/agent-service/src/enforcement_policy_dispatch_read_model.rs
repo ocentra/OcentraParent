@@ -29,8 +29,11 @@ pub(crate) fn v08_enforcement_policy_dispatch_read_model(
 
 fn policy_dispatch_entries(generated_at: &str) -> Vec<EnforcementPolicyDispatchReadModelEntry> {
     let mut entries = implemented_dispatch_entries(generated_at);
+    entries.push(ask_parent_dry_run_dispatch_entry(generated_at));
     entries.push(report_only_dispatch_entry(generated_at));
     entries.push(manual_required_dispatch_entry(generated_at));
+    entries.push(stale_policy_version_rejected_entry(generated_at));
+    entries.push(missing_source_rejected_entry(generated_at));
     entries.push(scaffold_dispatch_entry(generated_at));
     entries
 }
@@ -114,6 +117,32 @@ fn report_only_dispatch_entry(generated_at: &str) -> EnforcementPolicyDispatchRe
     )
 }
 
+fn ask_parent_dry_run_dispatch_entry(generated_at: &str) -> EnforcementPolicyDispatchReadModelEntry {
+    dispatch_entry(
+        generated_at,
+        DispatchEntryInput {
+            intent_id: dispatch::INTENT_ASK_PARENT_DRY_RUN,
+            matrix_id: dispatch::MATRIX_ASK_PARENT_DRY_RUN,
+            surface: V08EnforcementProductControlSurface::WindowsAppTimeLimitLifecycle,
+            adapter_kind: EnforcementAdapterKind::ProcessControl,
+            requested_action: V08EnforcementProductControlParentAction::AskParent,
+            mode: EnforcementMode::ObserveOnly,
+            capability_state: EnforcementCapabilityState::Supported,
+            proof_level: EnforcementPolicyDispatchProofLevel::Scaffold,
+            outcome_state: EnforcementPolicyDispatchOutcomeState::DryRunOnly,
+            rejection_reason: EnforcementPolicyDispatchRejectionReason::None,
+            source_state: EnforcementPolicyDispatchSourceState::Ready,
+            approval_state: EnforcementPolicyDispatchApprovalState::Pending,
+            timer_state: EnforcementPolicyDispatchTimerState::NotRequired,
+            child_reason_code: dispatch::CHILD_REASON_ASK_PARENT_REVIEW,
+            target_type: PolicyTargetType::App,
+            target_value: dispatch::TARGET_ASK_PARENT_REVIEW,
+            evidence_reference_id: dispatch::EVIDENCE_APP_GAME_SESSION_SUMMARY,
+            dry_run: true,
+        },
+    )
+}
+
 fn manual_required_dispatch_entry(generated_at: &str) -> EnforcementPolicyDispatchReadModelEntry {
     dispatch_entry(
         generated_at,
@@ -135,6 +164,58 @@ fn manual_required_dispatch_entry(generated_at: &str) -> EnforcementPolicyDispat
             target_type: PolicyTargetType::Domain,
             target_value: dispatch::TARGET_EXAMPLE_DOMAIN,
             evidence_reference_id: dispatch::EVIDENCE_NETWORK_FLOW_DOMAIN_SUMMARY,
+            dry_run: false,
+        },
+    )
+}
+
+fn stale_policy_version_rejected_entry(generated_at: &str) -> EnforcementPolicyDispatchReadModelEntry {
+    dispatch_entry(
+        generated_at,
+        DispatchEntryInput {
+            intent_id: dispatch::INTENT_STALE_POLICY_VERSION_REJECTED,
+            matrix_id: dispatch::MATRIX_STALE_POLICY_VERSION_REJECTED,
+            surface: V08EnforcementProductControlSurface::WindowsAppTimeLimitLifecycle,
+            adapter_kind: EnforcementAdapterKind::ProcessControl,
+            requested_action: V08EnforcementProductControlParentAction::TimeLimit,
+            mode: EnforcementMode::TimeLimit,
+            capability_state: EnforcementCapabilityState::Supported,
+            proof_level: EnforcementPolicyDispatchProofLevel::Scaffold,
+            outcome_state: EnforcementPolicyDispatchOutcomeState::Rejected,
+            rejection_reason: EnforcementPolicyDispatchRejectionReason::StalePolicyVersion,
+            source_state: EnforcementPolicyDispatchSourceState::Stale,
+            approval_state: EnforcementPolicyDispatchApprovalState::NotRequired,
+            timer_state: EnforcementPolicyDispatchTimerState::NotRequired,
+            child_reason_code: dispatch::CHILD_REASON_STALE_POLICY_VERSION,
+            target_type: PolicyTargetType::App,
+            target_value: dispatch::TARGET_APP_GAME_LAUNCHER,
+            evidence_reference_id: dispatch::EVIDENCE_POLICY_DECISION_STALE,
+            dry_run: false,
+        },
+    )
+}
+
+fn missing_source_rejected_entry(generated_at: &str) -> EnforcementPolicyDispatchReadModelEntry {
+    dispatch_entry(
+        generated_at,
+        DispatchEntryInput {
+            intent_id: dispatch::INTENT_MISSING_SOURCE_REJECTED,
+            matrix_id: dispatch::MATRIX_MISSING_SOURCE_REJECTED,
+            surface: V08EnforcementProductControlSurface::WindowsAppTimeLimitLifecycle,
+            adapter_kind: EnforcementAdapterKind::ProcessControl,
+            requested_action: V08EnforcementProductControlParentAction::TimeLimit,
+            mode: EnforcementMode::TimeLimit,
+            capability_state: EnforcementCapabilityState::Supported,
+            proof_level: EnforcementPolicyDispatchProofLevel::Scaffold,
+            outcome_state: EnforcementPolicyDispatchOutcomeState::Rejected,
+            rejection_reason: EnforcementPolicyDispatchRejectionReason::SourceNotReady,
+            source_state: EnforcementPolicyDispatchSourceState::Missing,
+            approval_state: EnforcementPolicyDispatchApprovalState::NotRequired,
+            timer_state: EnforcementPolicyDispatchTimerState::NotRequired,
+            child_reason_code: dispatch::CHILD_REASON_SOURCE_NOT_READY,
+            target_type: PolicyTargetType::App,
+            target_value: dispatch::TARGET_POLICY_SOURCE_MISSING,
+            evidence_reference_id: dispatch::EVIDENCE_POLICY_SOURCE_MISSING,
             dry_run: false,
         },
     )

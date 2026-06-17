@@ -1,13 +1,14 @@
 # Plan Health
 
-Status: open.
+Status: blocked / not complete.
 
 ## Current health
 
-- Architecture docs are being established.
-- Implementation and proof remain open.
-- No proof artifact exists yet under `docs/proof/device-trust-bootstrap-plan/`.
-- Route sync still needs to be wired into the adjacent plan docs.
+- Architecture docs and route indexes exist, but they were overclaiming completion and proof presence before the audit truth sync.
+- Device-trust tests live under `test/device-trust-bootstrap-plan/` with major category folders, but the current suite is mostly document and route-shape coverage.
+- No proof artifacts currently exist on disk under `output/device-trust-bootstrap-plan-proof/`.
+- WP04 through WP07 had stale legacy `docs/proof/...` pointers before this sync.
+- The plan is not complete at the implementation, proof, or validation level.
 
 ## Health rule
 

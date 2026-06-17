@@ -45,6 +45,8 @@ interface BillingStatusResponse {
 
 interface BillingEntitlementSnapshotResponse {
   snapshot: {
+    planId: string;
+    deviceLimit: number;
     signatureState: string;
     subscriptionStatus: string;
     source: string;
@@ -147,7 +149,7 @@ describe("real payment worker routes", () => {
     assert.equal(updatedReferralsBody.pendingInvites, referralsBody.pendingInvites + 1);
     assert.ok(
       updatedReferralsBody.invites.some(
-        (inviteSummary) =>
+        (inviteSummary: (typeof updatedReferralsBody.invites)[number]) =>
           inviteSummary.invitedIdentifier === "new-family@example.com" &&
           inviteSummary.inviteState === "invite-created",
       ),
@@ -165,7 +167,8 @@ describe("real payment worker routes", () => {
       await readJson<unknown>(adminReferrals.response),
     );
     const adminReferral = adminReferralsBody.results.find(
-      (row) => row.referralCode === updatedReferralsBody.referralCode,
+      (row: (typeof adminReferralsBody.results)[number]) =>
+        row.referralCode === updatedReferralsBody.referralCode,
     );
     assert.equal(adminReferrals.response.status, 200);
     assert.equal(adminReferral?.invitedFamilies, 5);

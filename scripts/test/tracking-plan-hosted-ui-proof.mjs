@@ -1,6 +1,6 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { access, mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -160,8 +160,16 @@ try {
   await mkdir(workpack33, { recursive: true });
   await mkdir(proofResultDir, { recursive: true });
   await seedActivityStore();
-  await runNpm(['run', 'build:contracts']);
-  await runNpmWorkspace('@ocentra-parent/portal', ['run', 'test', '--', 'tracking-status-panel']);
+  await ensureWindowsOptionalNodeDependencies();
+  await runNpm([
+    'exec',
+    '--workspace',
+    '@ocentra-parent/portal',
+    '--',
+    'vitest',
+    'run',
+    'tests/tracking-status-panel.test.ts',
+  ]);
   await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
   await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);
   await ensurePortFree(portalPort, isLikelyParentPortalOccupant, console.log);
@@ -332,6 +340,32 @@ async function runNpm(args, ...rest) {
   const command = process.platform === 'win32' ? 'cmd' : 'npm';
   const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
   await runCommand(command, commandArgs, ...rest);
+}
+
+async function ensureWindowsOptionalNodeDependencies() {
+  if (process.platform !== 'win32') {
+    return;
+  }
+
+  const bindingPackage = '@rolldown/binding-win32-x64-msvc';
+  const bindingPackageJson = path.join(
+    repoRoot,
+    'node_modules',
+    '@rolldown',
+    'binding-win32-x64-msvc',
+    'package.json'
+  );
+
+  try {
+    await access(bindingPackageJson);
+    return;
+  } catch {}
+
+  const rolldownPackageJson = JSON.parse(
+    await readFile(path.join(repoRoot, 'node_modules', 'rolldown', 'package.json'), 'utf8')
+  );
+  const bindingVersion = rolldownPackageJson.optionalDependencies?.[bindingPackage] ?? rolldownPackageJson.version;
+  await runNpm(['install', '--no-save', '--ignore-scripts', `${bindingPackage}@${bindingVersion}`]);
 }
 
 async function runCommand(command, args, options = {}) {

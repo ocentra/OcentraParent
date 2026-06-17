@@ -177,6 +177,10 @@ pub fn plan_network_linux_adapter_gate(
         &boundary_reasons,
     );
     let distro_proof_ready = gate_state == NetworkLinuxAdapterGateState::DistroProofReady;
+    let policy_evidence_grade = input.policy_mapping.evidence_grade;
+    let adapter_kind = input.adapter_kind;
+    let capability_state = input.capability_state;
+    drop(input);
 
     Ok(NetworkLinuxAdapterGateProof {
         linux_adapter_gate_ref: normalized.linux_adapter_gate_ref,
@@ -184,11 +188,11 @@ pub fn plan_network_linux_adapter_gate(
         parent_rule_ref: normalized.parent_rule_ref,
         evidence_refs: normalized.evidence_refs,
         local_ai_result_ref: normalized.local_ai_result_ref,
-        evidence_grade: input.policy_mapping.evidence_grade,
-        adapter_kind: input.adapter_kind,
+        evidence_grade: policy_evidence_grade,
+        adapter_kind,
         distro_ref: normalized.distro_ref,
         kernel_ref: normalized.kernel_ref,
-        capability_state: input.capability_state,
+        capability_state,
         gate_state,
         boundary_reasons,
         missing_required_artifacts,

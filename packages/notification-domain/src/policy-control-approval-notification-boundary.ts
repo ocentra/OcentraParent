@@ -183,8 +183,20 @@ function policyControlApprovalNotificationEntryIsHonest(
   }
 }
 
+type PolicyControlApprovalNotificationBoundaryReadModelCounts = {
+  returned: number;
+  previewOnlyCount: number;
+  pendingParentReviewCount: number;
+  approvedCount: number;
+  deniedCount: number;
+  modifiedCount: number;
+  expiredRequestCount: number;
+  replayRejectedCount: number;
+  entries: readonly PolicyControlApprovalNotificationBoundaryEntry[];
+};
+
 function policyControlApprovalNotificationCountsMatch(
-  readModel: PolicyControlApprovalNotificationBoundaryReadModel
+  readModel: PolicyControlApprovalNotificationBoundaryReadModelCounts
 ): boolean {
   return (
     readModel.returned === readModel.entries.length &&
@@ -235,13 +247,29 @@ export type PolicyControlApprovalNotificationOverrideKind = Infer<
 export type PolicyControlApprovalNotificationBoundaryEntry = Infer<
   typeof PolicyControlApprovalNotificationBoundaryEntrySchema
 >;
-export type PolicyControlApprovalNotificationBoundaryReadModel = Infer<
-  typeof PolicyControlApprovalNotificationBoundaryReadModelSchema
->;
+export type PolicyControlApprovalNotificationBoundaryReadModelShape = {
+  schemaVersion: Infer<typeof ParentContractSchemaVersionSchema>;
+  readModelId: string;
+  generatedAt: string;
+  sourceReadModelIds: readonly string[];
+  returned: number;
+  previewOnlyCount: number;
+  pendingParentReviewCount: number;
+  approvedCount: number;
+  deniedCount: number;
+  modifiedCount: number;
+  expiredRequestCount: number;
+  replayRejectedCount: number;
+  providerDeliveryClaimed: false;
+  policyMutationClaimed: false;
+  enforcementMutationClaimed: false;
+  assistantAutoApprovalClaimed: false;
+  entries: readonly PolicyControlApprovalNotificationBoundaryEntry[];
+};
 
 const generatedAt = '2026-06-13T21:24:00.000Z';
 
-export const PolicyControlApprovalNotificationBoundaryReadModel =
+export const PolicyControlApprovalNotificationBoundarySample =
   PolicyControlApprovalNotificationBoundaryReadModelSchema.parse({
     schemaVersion: ParentContractSchemaVersion.V0_6,
     readModelId: 'policy-control-approval-notification-boundary',

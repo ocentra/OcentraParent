@@ -2,7 +2,9 @@ import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { spawn } from 'node:child_process';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofMode = 'child-android-storage-protocol-capability-proof';
@@ -16,14 +18,14 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runNpm(['run', 'build:contracts']);
   await runNpm([
-    'run',
-    'test',
+    'exec',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/child-runtime-domain',
     '--',
-    'tests/child-android-storage-protocol-proof.test.ts',
+    'vitest',
+    'run',
+    'tests/unit/child-android-storage-protocol-proof.test.ts',
   ]);
   await runNpm(['run', 'release:package:android']);
 
@@ -43,8 +45,8 @@ async function main() {
     evidence: {
       sourceProof,
       packageArtifacts,
-      contract: 'packages/parent-domain/src/child-android-storage-protocol-proof.ts',
-      contractTest: 'packages/parent-domain/tests/child-android-storage-protocol-proof.test.ts',
+      contract: 'packages/child-runtime-domain/src/child-android-storage-protocol-proof.ts',
+      contractTest: 'packages/child-runtime-domain/tests/unit/child-android-storage-protocol-proof.test.ts',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/child-android-storage-protocol-capability-proof-2026-05-31.md',
       output: relativePath(proofPath),
@@ -172,9 +174,9 @@ function buildRuntimeReadModel(packageArtifacts) {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await import('@ocentra-parent/child-runtime-domain/child-android-storage-protocol-proof');
+  const module = await importTsModule('packages/child-runtime-domain/src/child-android-storage-protocol-proof.ts');
   const parsed = module.ChildAndroidStorageProtocolReadModelSchema.parse(readModel);
-  proofLabels.push('parent-domain.child-android-storage-protocol-proof-parse');
+  proofLabels.push('child-runtime-domain.child-android-storage-protocol-proof-parse');
   return parsed;
 }
 
@@ -198,18 +200,19 @@ async function assertProofMatrix() {
 
 async function assertScriptWiring() {
   const packageJson = JSON.parse(await readRepoFile('package.json'));
-  const parentDomainPackage = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
+  const childRuntimeDomainPackage = JSON.parse(await readRepoFile('packages/child-runtime-domain/package.json'));
   const script = packageJson.scripts['test:child-android-storage-protocol-capability-proof'];
   if (script !== `node scripts/test/${proofMode}.mjs`) {
     throw new Error('Missing root test:child-android-storage-protocol-capability-proof script.');
   }
-  if (!parentDomainPackage.exports['./child-android-storage-protocol-proof']) {
-    throw new Error('Missing parent-domain child-android-storage-protocol-proof export.');
+  if (!childRuntimeDomainPackage.exports['./*']) {
+    throw new Error('Missing child-runtime-domain wildcard export.');
   }
   proofLabels.push('package-scripts.child-android-storage-protocol-proof');
   return {
     rootScript: 'test:child-android-storage-protocol-capability-proof',
-    parentDomainExport: './child-android-storage-protocol-proof',
+    childRuntimeDomainExport: './*',
+    sourceContract: 'packages/child-runtime-domain/src/child-android-storage-protocol-proof.ts',
   };
 }
 
@@ -334,6 +337,10 @@ async function runCommand(commandName, args) {
     );
     child.once('error', reject);
   });
+}
+
+async function importTsModule(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }
 
 async function gitHead() {

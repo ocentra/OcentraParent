@@ -21,7 +21,7 @@ Define how provider events become app-owned billing truth, including signature v
 
 - [SUBSCRIPTION_WEBHOOK_LIFECYCLE.md](../SUBSCRIPTION_WEBHOOK_LIFECYCLE.md)
 - [APP_OWNED_BILLING_LEDGER.md](../APP_OWNED_BILLING_LEDGER.md)
-- `docs/proof/payment-subscription-plan/wp03-subscription-webhook-lifecycle/`
+- `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/`
 
 ## Acceptance
 
@@ -44,7 +44,7 @@ Define how provider events become app-owned billing truth, including signature v
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
 - Required proof families: `payment-webhook.stripe-signature-valid`, `payment-webhook.stripe-signature-invalid`, `payment-webhook.razorpay-signature-valid`, `payment-webhook.paypal-webhook-verified`, `payment-webhook.duplicate-event-idempotent`, `payment-webhook.replayed-event-rejected`, `payment-webhook.out-of-order-event-safe`, `payment-webhook.unknown-event-safe`, `payment-webhook.retry-no-double-grant`, `payment-webhook.dead-letter-manual-required`, `payment-webhook.reconciliation-repairs-drift`, `payment-webhook.test-live-separated`
-- Proof bundle: `docs/proof/payment-subscription-plan/03-provider-webhook-proof.md`, `docs/proof/payment-subscription-plan/03-idempotency-replay-proof.md`, `docs/proof/payment-subscription-plan/03-dead-letter-proof.md`, `docs/proof/payment-subscription-plan/03-reconciliation-proof.md`, `docs/proof/payment-subscription-plan/03-test-live-boundary-proof.md`
+- Proof bundle: `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-provider-webhook-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-idempotency-replay-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-dead-letter-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-reconciliation-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-test-live-boundary-proof.md`
 
 ## Negative cases
 

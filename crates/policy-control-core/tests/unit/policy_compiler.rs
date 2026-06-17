@@ -1,11 +1,11 @@
 use ocentra_parent_agent_protocol::constants::policy_control;
 use ocentra_policy_control_core::policy_compiler::{
     compile_ai_policy_context, compile_app_game_policy, compile_browser_policy,
-    compile_domain_policy_with_support_matrix,
-    compile_enforcement_policy_hints, compile_network_policy,
-    compile_notification_ask_parent_policy, compile_screen_policy, compile_tracking_policy,
-    DomainCompiledPolicyArtifact, PolicyCompilerCapabilityState, PolicyCompilerDomain,
-    PolicyCompilerRuleStatus, PolicyCompilerSupportMatrix, PolicyCompilerSupportMatrixRow,
+    compile_domain_policy_with_support_matrix, compile_enforcement_policy_hints,
+    compile_network_policy, compile_notification_ask_parent_policy, compile_screen_policy,
+    compile_tracking_policy, DomainCompiledPolicyArtifact, PolicyCompilerCapabilityState,
+    PolicyCompilerDomain, PolicyCompilerRuleStatus, PolicyCompilerSupportMatrix,
+    PolicyCompilerSupportMatrixRow,
 };
 use ocentra_policy_control_core::policy_source::{
     parent_policy_source_schema_version, rollback_parent_policy_source_document,
@@ -328,7 +328,10 @@ fn sample_browser_support_matrix() -> PolicyCompilerSupportMatrix {
                 PolicyTargetKind::Device,
                 PolicyCompilerCapabilityState::Unsupported,
             ),
-            support_matrix_row(PolicyTargetKind::App, PolicyCompilerCapabilityState::Supported),
+            support_matrix_row(
+                PolicyTargetKind::App,
+                PolicyCompilerCapabilityState::Supported,
+            ),
             support_matrix_row(
                 PolicyTargetKind::Site,
                 PolicyCompilerCapabilityState::ManualRequired,
@@ -701,9 +704,10 @@ fn ai_context_compiler_is_broadly_ready_but_enforcement_hints_stay_manual_requir
         .rules
         .iter()
         .all(|rule| rule.status == PolicyCompilerRuleStatus::ManualRequired));
-    assert!(enforcement.rules.iter().all(|rule| {
-        rule.capability_state == PolicyCompilerCapabilityState::ManualRequired
-    }));
+    assert!(enforcement
+        .rules
+        .iter()
+        .all(|rule| { rule.capability_state == PolicyCompilerCapabilityState::ManualRequired }));
     assert!(enforcement.rules[..3].iter().all(|rule| {
         rule.reason_code
             == Some(compiler_reason(
@@ -788,11 +792,11 @@ fn notification_ask_parent_compiler_keeps_review_rules_ready_and_stays_determini
 
 #[test]
 fn compiler_outputs_stay_deterministic_across_domain_matrix() {
-    type CompilerFn = fn(
-        &ParentPolicySourceDocument,
-        PolicyVersion,
-    )
-        -> Result<DomainCompiledPolicyArtifact, ocentra_eventing::EventingError>;
+    type CompilerFn =
+        fn(
+            &ParentPolicySourceDocument,
+            PolicyVersion,
+        ) -> Result<DomainCompiledPolicyArtifact, ocentra_eventing::error::EventingError>;
 
     let mut source = sample_policy_source_document();
     source.rules.push(ParentPolicyRule {

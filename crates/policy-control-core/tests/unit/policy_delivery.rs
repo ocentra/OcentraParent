@@ -5,16 +5,16 @@ use ocentra_policy_control_core::policy_delivery::{
     PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
-    compile_domain_policy_artifact, parent_policy_source_schema_version, ParentPolicyActorRole,
+    compile_domain_policy_artifact, parent_policy_source_schema_version,
     rollback_parent_policy_source_document, supersede_parent_policy_source_document,
-    ParentPolicyDocumentId, ParentPolicyRule, ParentPolicySourceDocument, PolicyActorId,
-    PolicyAuditReferenceId, PolicyChildProfileId, PolicyConsumerDomain, PolicyDeviceId,
-    PolicyHouseholdId, PolicyReasonCode, PolicyRetentionMetadata, PolicyRollbackRef,
-    PolicyRuleAction, PolicyRuleId, PolicyRuleTarget, PolicyScheduleBudgetCarryoverMode,
-    PolicyScheduleBudgetCarryoverRule, PolicyScheduleBudgetResetKind,
-    PolicyScheduleBudgetResetRule, PolicyScheduleClockSource, PolicyScheduleId,
-    PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget, PolicyScheduleWindow,
-    PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
+    ParentPolicyActorRole, ParentPolicyDocumentId, ParentPolicyRule, ParentPolicySourceDocument,
+    PolicyActorId, PolicyAuditReferenceId, PolicyChildProfileId, PolicyConsumerDomain,
+    PolicyDeviceId, PolicyHouseholdId, PolicyReasonCode, PolicyRetentionMetadata,
+    PolicyRollbackRef, PolicyRuleAction, PolicyRuleId, PolicyRuleTarget,
+    PolicyScheduleBudgetCarryoverMode, PolicyScheduleBudgetCarryoverRule,
+    PolicyScheduleBudgetResetKind, PolicyScheduleBudgetResetRule, PolicyScheduleClockSource,
+    PolicyScheduleId, PolicyScheduleOfflineRecovery, PolicyScheduleTimeBudget,
+    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicySourceWriteSurface, PolicyTargetKind,
     PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
 };
 
@@ -182,11 +182,9 @@ fn queued_delivery_preserves_source_lifecycle_metadata_separately_from_delivery_
         audit_ref("audit-policy-superseded"),
     )
     .expect("superseded policy source document");
-    let superseded_compiled = compile_domain_policy_artifact(
-        &superseded_source,
-        PolicyConsumerDomain::Tracking,
-    )
-    .expect("compiled superseded artifact");
+    let superseded_compiled =
+        compile_domain_policy_artifact(&superseded_source, PolicyConsumerDomain::Tracking)
+            .expect("compiled superseded artifact");
     let superseded_delivery = queue_policy_delivery(
         &superseded_compiled,
         sample_delivery_target(),
@@ -221,11 +219,9 @@ fn queued_delivery_preserves_source_lifecycle_metadata_separately_from_delivery_
         audit_ref("audit-policy-rolled-back"),
     )
     .expect("rolled-back policy source document");
-    let rolled_back_compiled = compile_domain_policy_artifact(
-        &rolled_back_source,
-        PolicyConsumerDomain::Tracking,
-    )
-    .expect("compiled rolled-back artifact");
+    let rolled_back_compiled =
+        compile_domain_policy_artifact(&rolled_back_source, PolicyConsumerDomain::Tracking)
+            .expect("compiled rolled-back artifact");
     let rolled_back_delivery = queue_policy_delivery(
         &rolled_back_compiled,
         sample_delivery_target(),
@@ -299,6 +295,65 @@ fn delivering_state_stays_pending_until_ack_or_apply() {
         PolicyDeliveryParentVisibleState::Pending
     );
     assert!(!delivering.is_active());
+}
+
+#[test]
+fn acknowledged_delivery_stays_pending_and_is_not_active() {
+    let queued = sample_queued_delivery();
+    let acknowledged = apply_policy_delivery_transition(
+        &queued,
+        transition(2, "attempt-acknowledged", PolicyDeliveryState::Acknowledged),
+    )
+    .expect("acknowledge policy delivery")
+    .into_record();
+
+    assert_eq!(acknowledged.state, PolicyDeliveryState::Acknowledged);
+    assert_eq!(
+        acknowledged.parent_visible_state(),
+        PolicyDeliveryParentVisibleState::Pending
+    );
+    assert!(acknowledged.reason_code.is_none());
+    assert!(!acknowledged.is_active());
+}
+
+#[test]
+fn offline_delivery_is_degraded_and_requires_reason_code() {
+    let queued = sample_queued_delivery();
+    let mut offline_transition = transition(2, "attempt-offline", PolicyDeliveryState::Offline);
+    offline_transition.reason_code = Some(reason("network-offline"));
+
+    let offline = apply_policy_delivery_transition(&queued, offline_transition)
+        .expect("mark policy delivery offline")
+        .into_record();
+
+    assert_eq!(offline.state, PolicyDeliveryState::Offline);
+    assert_eq!(
+        offline.parent_visible_state(),
+        PolicyDeliveryParentVisibleState::Degraded
+    );
+    assert_eq!(
+        offline.reason_code,
+        Some(reason("network-offline"))
+    );
+    assert!(!offline.is_active());
+}
+
+#[test]
+fn queued_delivery_redacts_raw_policy_source_payload_from_structured_and_debug_output() {
+    let queued = sample_queued_delivery();
+    let payload = serde_json::to_value(&queued).expect("serialize policy delivery record");
+    let debug = format!("{queued:?}");
+
+    assert!(payload.get("child_profile_ids").is_none());
+    assert!(payload.get("device_ids").is_none());
+    assert!(payload.get("rules").is_none());
+    assert!(payload.get("schedules").is_none());
+    assert!(payload.get("retention").is_none());
+    assert!(payload.get("source_audit_reference_ids").is_some());
+    assert!(payload.get("target").is_some());
+    assert!(!debug.contains("rule-school-night-block"));
+    assert!(!debug.contains("schedule-school-night"));
+    assert!(!debug.contains("school-night"));
 }
 
 #[test]

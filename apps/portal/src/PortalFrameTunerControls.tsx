@@ -7,7 +7,7 @@ import {
   type PortalFrameColorField,
   type PortalFrameNumberField,
 } from '@ocentra-parent/portal-domain/contracts';
-import { valueAt } from './portal-frame-layout';
+import { valueAt } from './portal-frame-layout-state';
 
 type TunerActionButtonProps = {
   readonly active?: boolean;

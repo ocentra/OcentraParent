@@ -17,7 +17,12 @@ Purpose: sync adjacent plan routes, feature routes, and proof gates.
 
 ## Proof target
 
-- `docs/proof/device-trust-bootstrap-plan/09-*`
+- `output/device-trust-bootstrap-plan-proof/09-*`
+
+## Current audit state
+
+- No proof root currently exists on disk for this workpack.
+- Plan-local route tests currently prove document and route alignment only; adjacent plan and feature routes still need truthful proof-backed sync as the runtime workpacks land.
 
 ## Negative cases
 

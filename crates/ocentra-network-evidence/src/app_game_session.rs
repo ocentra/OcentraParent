@@ -121,7 +121,7 @@ pub fn correlate_app_game_foreground_session(
     validate_app_game_session_input(&input)?;
 
     let Some(session) = input.stored_session else {
-        return Ok(missing_session_correlation(input.network_flow_ref));
+        return Ok(missing_session_correlation(&input.network_flow_ref));
     };
 
     if !session.adapter_available {
@@ -223,7 +223,7 @@ fn app_game_session_correlation(
     }
 }
 
-fn missing_session_correlation(network_flow_ref: String) -> NetworkAppGameSessionCorrelation {
+fn missing_session_correlation(network_flow_ref: &str) -> NetworkAppGameSessionCorrelation {
     NetworkAppGameSessionCorrelation {
         state: NetworkAppGameSessionCorrelationState::NoSessionEvidence,
         basis: NetworkAppGameSessionCorrelationBasis::MissingStoredEvidence,
@@ -244,7 +244,7 @@ fn missing_session_correlation(network_flow_ref: String) -> NetworkAppGameSessio
         policy_action_authority: false,
         adapter_action_authorized: false,
         enforcement_command_published: false,
-        evidence_refs: vec![network_flow_ref],
+        evidence_refs: vec![network_flow_ref.to_owned()],
         evidence_grade: NetworkEvidenceGrade::D,
     }
 }

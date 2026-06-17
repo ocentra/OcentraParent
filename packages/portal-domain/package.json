@@ -45,6 +45,10 @@
       "import": "./dist/policy-preview-panel.js",
       "types": "./dist/policy-preview-panel.d.ts"
     },
+    "./setup-first-run-panel": {
+      "import": "./dist/setup-first-run-panel.js",
+      "types": "./dist/setup-first-run-panel.d.ts"
+    },
     "./screen-summary-panel": {
       "import": "./dist/screen-summary-panel.js",
       "types": "./dist/screen-summary-panel.d.ts"
@@ -67,6 +71,7 @@
     "@ocentra-parent/logging-domain": "file:../logging-domain",
     "@ocentra-parent/network-domain": "file:../network-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain",
+    "@ocentra-parent/setup-domain": "file:../setup-domain",
     "@ocentra-parent/text-domain": "file:../text-domain"
   }
 }

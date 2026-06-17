@@ -17,7 +17,7 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 - `infra/cloudflare/scripts/`
 - [LOCAL_DEV_AND_SEEDING_MODEL.md](../LOCAL_DEV_AND_SEEDING_MODEL.md)
-- `docs/proof/cloudflare-control-plane-plan/wp07-local-dev-seeding-and-fixtures/`
+- `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`
 
 ## Acceptance
 
@@ -32,7 +32,8 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 ## Validation
 
-- Docs or scaffold validation: `npm run format:check`
+- `npm --prefix infra/cloudflare run test:unit`
+- `npm --prefix infra/cloudflare run test:integration`
 
 ## Negative cases
 

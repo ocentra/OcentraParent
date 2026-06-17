@@ -1,54 +1,22 @@
-# WP06 No Overclaim Proof
+# WP06 No-Overclaim Proof
 
-- plan: `policy-control-plane-plan`
-- workpack: `06-rollout-proof-and-route-gate`
-- proof id: `policy-rollout.no-overclaim`
-- owner lane: `codex-a`
-- date: `2026-06-16`
+## Positive claims allowed
 
-## Scope
+- Real policy-control contract/source code exists in the plan-owned TypeScript and Rust packages.
+- Focused validation in this checkout is genuine and recorded in `16-validation-commands.log`.
+- The plan route and proof root are now explicit.
+- WP01, WP07, and WP08 now have explicit closeout artifacts backed by owner tests and owner architecture gates.
 
-This proof records the no-overclaim boundary for the policy-control plan. It
-keeps the closed proof slices tied to the route docs and does not invent extra
-completion claims beyond the proven bundle.
+## Claims explicitly disallowed
 
-## Evidence
+- Full plan completion.
+- Workpack completion for WP02, WP03, WP04, or WP05.
+- Feature-complete parent authoring or assistant approval UX.
+- Green architecture for the broader plan slice outside the current core owner scope.
+- Host-local iOS/macOS proof.
 
-- `docs/proof/policy-control-plane-plan/06-rollout-proof-pack.md`
-- `docs/proof/policy-control-plane-plan/06-route-sync-proof.md`
-- `docs/proof/policy-control-plane-plan/06-manual-required-gap-register.md`
-- `docs/plans/policy-control-plane-plan/PLAN_STATE.md`
-- `docs/plans/policy-control-plane-plan/NEXT_ACTIONS.md`
-- `docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md`
-- `docs/plans/currentstatus.md`
+## Blocker taxonomy in force
 
-## Validation
-
-- `rg -n "Planned|Checked|WP01|WP02|WP03|WP04|WP05|WP06|WP07|WP08" docs/plans/policy-control-plane-plan docs/proof/policy-control-plane-plan`
-  - pass
-- `npm run ledger:doctor`
-  - pass
-- `npm run hub:status`
-  - pass
-
-## Proof Map
-
-| Proof id | Evidence |
-| --- | --- |
-| `policy-rollout.no-overclaim` | The plan-local route docs and proof bundle keep the closed state explicit and do not claim READY/DONE beyond the proven bundle. |
-
-## Negative-case evidence
-
-- No completion claim is made beyond the proven bundle.
-- No proof doc invents extra runtime implementation.
-- No checked workpack is silently reclassified as open.
-- No validation command is treated as a substitute for proof.
-
-## Teardown / rollback
-
-- No runtime state was modified.
-- No teardown or rollback was required beyond the local documentation updates.
-
-## Remaining gaps
-
-- None.
+- Real dependency blockers: unfinished portal authoring/approval surfaces, unfinished parent-assistant confirmation/chat integration, and unresolved device-trust/data-custody/enforcement handoffs.
+- External platform constraints: real iOS/macOS proof from this Windows host.
+- Avoidable local execution gaps: missing WP02/WP03/WP04/WP05 proof bundles, stale/deleted WP03 proof artifacts in this checkout, overbroad portal workspace test script, and existing architecture debt in `packages/agent-protocol-domain`.

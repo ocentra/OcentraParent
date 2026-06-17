@@ -166,6 +166,25 @@ pub fn plan_network_action_result_state(
         result_state,
         NetworkActionResultState::Blocked | NetworkActionResultState::Terminated
     );
+    let NetworkActionResultInput {
+        action_result_ref: _action_result_ref,
+        policy_mapping,
+        requested_action,
+        target_kind,
+        target_ref: _,
+        capability_state,
+        adapter_proof_state,
+        adapter_proof_ref: _,
+        apply_artifact_ref: _,
+        result_artifact_ref: _,
+        audit_event_ref: _,
+        dry_run: _,
+        exact_url_claimed: _,
+        decrypted_payload_claimed: _,
+        page_content_claimed: _,
+        host_mutation_claimed: _,
+        enforcement_command_published: _,
+    } = input;
 
     Ok(NetworkActionResultProof {
         action_result_ref: normalized.action_result_ref,
@@ -173,12 +192,12 @@ pub fn plan_network_action_result_state(
         parent_rule_ref: normalized.parent_rule_ref,
         evidence_refs: normalized.evidence_refs,
         local_ai_result_ref: normalized.local_ai_result_ref,
-        evidence_grade: input.policy_mapping.evidence_grade,
-        requested_action: input.requested_action,
-        target_kind: input.target_kind,
+        evidence_grade: policy_mapping.evidence_grade,
+        requested_action,
+        target_kind,
         target_ref: normalized.target_ref,
-        capability_state: input.capability_state,
-        adapter_proof_state: input.adapter_proof_state,
+        capability_state,
+        adapter_proof_state,
         result_state,
         boundary_reasons,
         missing_required_artifacts,

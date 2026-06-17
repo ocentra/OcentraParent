@@ -84,7 +84,7 @@ fn bridge_poll_status(checked_at: String, port: u16) -> BrowserManagedSessionSta
         },
     };
 
-    match poll_chromium_bridge(config, &checked_at, &checked_at) {
+    match poll_chromium_bridge(&config, &checked_at, &checked_at) {
         Ok(snapshot) => {
             if let Err(error) = record_activity_events_to_paths(
                 &activity_journal_path(),

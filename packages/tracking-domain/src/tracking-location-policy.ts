@@ -36,10 +36,36 @@ import {
   TrackingPolicyRuleIdSchema,
   TrackingPolicySchemaVersion,
   TrackingPolicyTargetKindSchema,
+  TrackingPlatformProofRouteStateSchema,
   TrackingProviderCapabilityStateSchema,
   TrackingProviderRouteIdSchema,
 } from './tracking-location-policy-primitives';
 import { TrackingPlatformProofRouteSchema } from './tracking-location-policy-platform-proof';
+import {
+  evaluateTrackingAcknowledgementImpact,
+  resolveTrackingChildCheckIn,
+} from './tracking-location-policy-runtime';
+import type {
+  TrackingAcknowledgementImpact,
+  TrackingChildCheckInResolution,
+} from './tracking-location-policy-runtime';
+import type {
+  TrackingAcknowledgement,
+  TrackingAiProviderRoute,
+  TrackingAlertIntent,
+  TrackingChildCheckInRequest,
+  TrackingChildCheckInResponse,
+  TrackingEscalationChain,
+  TrackingEvidenceTrace,
+  TrackingLocationAiAnalysisInput,
+  TrackingLocationAiAnalysisResult,
+  TrackingLocationPolicyReadModel,
+  TrackingMissingDeviceCase,
+  TrackingPlatformProofRoute,
+  TrackingPolicyDecision,
+  TrackingPolicyRule,
+  TrackingTemporaryLiveTrackingGrant,
+} from './tracking-location-policy-types';
 const TrackingPolicyConfidenceSchema = Schema.Number.pipe(Schema.between(0, 1));
 const TrackingPolicyDurationSecondsSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 export const TrackingEvidenceTraceSchema = withParser(
@@ -261,10 +287,57 @@ export const TrackingLocationPolicyReadModelSchema = withParser(
   })
 );
 
-export * from './tracking-location-policy-primitives';
-export * from './tracking-location-policy-platform-proof';
-export * from './tracking-location-policy-runtime';
-export type * from './tracking-location-policy-types';
+export {
+  TrackingPolicySchemaVersion,
+  TrackingPolicyRuleIdSchema,
+  TrackingPolicyDecisionIdSchema,
+  TrackingAlertIdSchema,
+  TrackingAcknowledgementIdSchema,
+  TrackingCheckInIdSchema,
+  TrackingAiAnalysisIdSchema,
+  TrackingProviderRouteIdSchema,
+  TrackingEscalationIdSchema,
+  TrackingLiveTrackingGrantIdSchema,
+  TrackingMissingDeviceCaseIdSchema,
+  TrackingPolicyReasonCodeSchema,
+  TrackingPolicyAuditRefSchema,
+  TrackingPolicyTargetKindSchema,
+  TrackingPolicyActionSchema,
+  TrackingAlertSeveritySchema,
+  TrackingAcknowledgementStateSchema,
+  TrackingCheckInRequestStateSchema,
+  TrackingCheckInResponseKindSchema,
+  TrackingAiLocationRiskLevelSchema,
+  TrackingAiProviderModeSchema,
+  TrackingProviderCapabilityStateSchema,
+  TrackingEscalationStateSchema,
+  TrackingLiveTrackingGrantStateSchema,
+  TrackingMissingDeviceStateSchema,
+  TrackingPlatformProofRouteStateSchema,
+  TrackingPlatformProofRouteSchema,
+  evaluateTrackingAcknowledgementImpact,
+  resolveTrackingChildCheckIn,
+};
+
+export type {
+  TrackingEvidenceTrace,
+  TrackingPolicyRule,
+  TrackingPolicyDecision,
+  TrackingAcknowledgement,
+  TrackingChildCheckInRequest,
+  TrackingChildCheckInResponse,
+  TrackingLocationAiAnalysisInput,
+  TrackingLocationAiAnalysisResult,
+  TrackingAiProviderRoute,
+  TrackingAlertIntent,
+  TrackingEscalationChain,
+  TrackingTemporaryLiveTrackingGrant,
+  TrackingMissingDeviceCase,
+  TrackingPlatformProofRoute,
+  TrackingLocationPolicyReadModel,
+  TrackingAcknowledgementImpact,
+  TrackingChildCheckInResolution,
+};
 
 function trackingAcknowledgementPreservesCriticalAlerts(acknowledgement: {
   readonly state: string;

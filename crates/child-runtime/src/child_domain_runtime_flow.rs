@@ -1,9 +1,11 @@
 use std::sync::{Arc, Mutex};
 
 use ocentra_eventing::{
-    CorrelationId, EventBus, EventCustody, EventId, EventMetadata, EventSource, EventSubscriber,
-    EventType, EventingError, RecordedAt, RuntimeInstanceId, RuntimeRole, SourceComponent,
-    SourceService, SubscriberId, SubscriptionReport, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
+    envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::CorrelationId,
+    ids::EventCustody, ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId,
+    ids::RuntimeRole, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
+    ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::{
     child_domain_policy_evaluation_requested_from_ai_result_event_if_required, constants,
@@ -86,7 +88,7 @@ impl ChildDomainRuntimeEventFlow {
         self.report()
     }
 
-    pub async fn metrics_snapshot(&self) -> ocentra_eventing::EventMetricsSnapshot {
+    pub async fn metrics_snapshot(&self) -> ocentra_eventing::bus::reports::EventMetricsSnapshot {
         self.bus.metrics_snapshot().await
     }
 

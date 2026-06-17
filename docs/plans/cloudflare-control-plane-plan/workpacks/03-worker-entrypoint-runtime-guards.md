@@ -16,7 +16,7 @@ Freeze the shared guard chain for env validation, CORS, request-size limits, kil
 ## Output files
 
 - `infra/cloudflare/src/index.ts`
-- `docs/proof/cloudflare-control-plane-plan/wp03-worker-entrypoint-runtime-guards/`
+- `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/`
 
 ## Acceptance
 
@@ -34,7 +34,9 @@ Freeze the shared guard chain for env validation, CORS, request-size limits, kil
 
 ## Validation
 
-- Docs or scaffold validation: `npm run format:check`
+- Scoped validation: `npm --prefix infra/cloudflare run test:unit`
+- Scoped validation: `npm --prefix infra/cloudflare run test:integration`
+- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/index.ts`
 
 ## Negative cases
 

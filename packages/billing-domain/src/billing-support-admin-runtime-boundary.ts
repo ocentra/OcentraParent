@@ -7,7 +7,7 @@ import {
 import {
   BillingAuditReferenceSchema,
   NonNegativeBillingCountSchema,
-} from './billing-entitlement-values';
+} from './billing-entitlement-values.js';
 
 export const BillingSupportAdminRequestIdSchema = brandedNonEmptyStringSchema(
   'BillingSupportAdminRequestId'

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Create the repo-local `infra/cloudflare/` scaffold and file tree without overclaiming runtime readiness.
+Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming runtime completion.
 
 ## First-touch surface
 
@@ -18,13 +18,13 @@ Create the repo-local `infra/cloudflare/` scaffold and file tree without overcla
 
 - `infra/cloudflare/`
 - [SOURCE_SURFACE_STATUS_MATRIX.md](../SOURCE_SURFACE_STATUS_MATRIX.md)
-- `docs/proof/cloudflare-control-plane-plan/wp01-cloudflare-module-scaffold/`
+- `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/`
 
 ## Acceptance
 
 - The module tree exists.
 - Package scripts are explicit.
-- Source and test placeholders are marked scaffold-only.
+- The concentrated runtime surface versus placeholder subdirectories is explicit.
 
 ## Proof IDs
 
@@ -33,12 +33,13 @@ Create the repo-local `infra/cloudflare/` scaffold and file tree without overcla
 
 ## Validation
 
-- Docs or scaffold validation: `npm run format:check`
+- Scoped validation: `npm --prefix infra/cloudflare run lint`
+- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare`
 
 ## Negative cases
 
-- Reject fake “implemented” claims from empty files.
+- Reject fake `implemented` claims from empty files or README-only directories.
 
 ## Failure conditions
 
-- Do not claim runtime code or tests from scaffold existence alone.
+- Do not claim module completion from directory existence alone.

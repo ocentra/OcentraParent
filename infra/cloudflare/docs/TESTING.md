@@ -12,6 +12,7 @@ Required test families:
 
 Current state:
 
-- placeholder test files exist for each family
-- `scripts/test-runner.ts` returns an exact blocker
-- no passing test claim is allowed from placeholder files alone
+- runnable test files exist for each family
+- `scripts/test-runner.ts` executes real scoped suites through `tsx`
+- local Wrangler-backed runtime coverage exists inside the integration family
+- passing claims still require scoped command logs and proof artifacts under `output/cloudflare-control-plane-plan-proof/`

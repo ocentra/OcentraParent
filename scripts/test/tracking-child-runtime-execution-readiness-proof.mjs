@@ -4,6 +4,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { runNpmCommand } from './run-npm-command.mjs';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces');
@@ -21,23 +22,18 @@ const commands = [];
 await main();
 
 async function main() {
-  await runNpm(['--workspace', '@ocentra-parent/parent-domain', 'run', 'build']);
   await runNpm([
     'exec',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
     'vitest',
     'run',
-    'tests/tracking-child-runtime-execution-readiness-proof.test.ts',
-    'tests/tracking-child-runtime-delivery-boundary-proof.test.ts',
+    'tests/contract/tracking-child-runtime-execution-readiness-proof.test.ts',
+    'tests/contract/tracking-child-runtime-delivery-boundary-proof.test.ts',
   ]);
 
-  const readinessProof = await import(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-child-runtime-execution-readiness-proof.js')
-    )
-  );
+  const readinessProof = await importSource('packages/tracking-domain/src/tracking-child-runtime-execution-readiness-proof.ts');
   const checkedAt = new Date().toISOString();
   const commit = await gitHead();
   const sourceBoundaryProof = JSON.parse(await readFile(sourceBoundaryProofPath, 'utf8'));
@@ -46,8 +42,8 @@ async function main() {
       generatedAt: '2026-06-07T14:45:00.000Z',
       readinessId: 'tracking-child-runtime-execution-readiness-proof',
       sourceContractRefs: [
-        'packages/parent-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
-        'packages/parent-domain/src/tracking-child-runtime-execution-readiness-proof.ts',
+        'packages/tracking-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
+        'packages/tracking-domain/src/tracking-child-runtime-execution-readiness-proof.ts',
         'docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md',
       ],
     },
@@ -162,8 +158,8 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- status: proved',
     '- consumes: output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/26-child-runtime-delivery-boundary-proof.json',
     '- proves delivery-envelope, execution-result, visible-snapshot, parent-receipt, and runtime-observation requirement refs',
-    '- proof module: packages/parent-domain/src/tracking-child-runtime-execution-readiness-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-child-runtime-execution-readiness-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-child-runtime-execution-readiness-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-child-runtime-execution-readiness-proof.test.ts',
     '- proof harness: scripts/test/tracking-child-runtime-execution-readiness-proof.mjs',
     '',
   ].join('\n');
@@ -217,4 +213,8 @@ async function gitHead() {
     });
   });
   return stdout.trim();
+}
+
+function importSource(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }

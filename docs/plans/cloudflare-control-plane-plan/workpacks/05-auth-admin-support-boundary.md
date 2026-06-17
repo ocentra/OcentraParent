@@ -17,7 +17,7 @@ Define the auth-state model and adapter interface for parent, admin, support, we
 
 - `infra/cloudflare/src/auth/`
 - [AUTH_BOUNDARY_MODEL.md](../AUTH_BOUNDARY_MODEL.md)
-- `docs/proof/cloudflare-control-plane-plan/wp05-auth-admin-support-boundary/`
+- `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/`
 
 ## Acceptance
 
@@ -33,7 +33,10 @@ Define the auth-state model and adapter interface for parent, admin, support, we
 
 ## Validation
 
-- Docs or scaffold validation: `npm run format:check`
+- Scoped validation: `npm --prefix infra/cloudflare run test:unit`
+- Scoped validation: `npm --prefix infra/cloudflare run test:security`
+- Scoped validation: `npm --prefix infra/cloudflare run test:integration`
+- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/auth`
 
 ## Negative cases
 

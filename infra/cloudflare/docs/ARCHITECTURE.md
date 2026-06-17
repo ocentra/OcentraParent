@@ -1,15 +1,17 @@
 # Parent Cloudflare Architecture
 
-This module is the shared Cloudflare control-plane scaffold for Parent.
+This module is the shared Cloudflare control-plane runtime for Parent.
 
 Current state:
 
-- repo-local scaffold exists
+- repo-local module exists
 - safe worker entrypoint exists
 - route manifest exists
-- auth boundary exists as an adapter placeholder
-- storage bindings exist as interface declarations
-- runtime handlers, real auth wiring, and proof do not exist yet
+- real billing/control-plane handlers exist
+- real local binding-backed read model and fixtures exist
+- real unit, integration, e2e, contract, security, property, and fuzz suites exist
+- auth provider authority, deploy proof, and payment handoff proof remain open
+- several planned subdirectories are still scaffold-only `README.md` surfaces while runtime stays concentrated in `src/index.ts`, `src/billing-binding-read-model.ts`, and `src/fixtures.ts`
 
 Ownership:
 

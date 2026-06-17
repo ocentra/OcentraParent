@@ -1,7 +1,10 @@
-use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventResponseContract, EventType, EventingError,
-    IdempotencyKey, RequestEvent, RequestId, SchemaVersion,
-};
+#![allow(clippy::panic)]
+
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, RequestId, SchemaVersion};
+use ocentra_eventing::request::{EventResponseContract, RequestEvent};
+use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use super::{
@@ -58,7 +61,7 @@ impl<'de> Deserialize<'de> for TrackingConfigUpdateEventName {
             constants::tracking_config_update::PARENT_EVENT_TYPE => Ok(Self::Parent),
             constants::tracking_config_update::CHILD_EVENT_TYPE => Ok(Self::Child),
             constants::tracking_config_update::APPLIED_EVENT_TYPE => Ok(Self::Applied),
-            _ => Err(serde::de::Error::unknown_variant(
+            _ => Err(D::Error::unknown_variant(
                 value.as_str(),
                 &[
                     constants::tracking_config_update::PARENT_EVENT_TYPE,
@@ -113,9 +116,14 @@ impl TrackingConfigUpdateTarget {
         Self {
             scope: TrackingConfigUpdateTargetScope::ChildDevice,
             device_id: TrackingTargetDeviceId::parse(command.target.device_id.clone())
-                .expect(constants::peer::LOCAL_DEV_AGENT),
+                .unwrap_or_else(|_| panic!("{}", constants::peer::LOCAL_DEV_AGENT)),
             platform: TrackingTargetPlatform::parse(command.target.platform.clone())
-                .expect(constants::tracking_config_update::TARGET_SCOPE_CHILD_DEVICE),
+                .unwrap_or_else(|_| {
+                    panic!(
+                        "{}",
+                        constants::tracking_config_update::TARGET_SCOPE_CHILD_DEVICE
+                    )
+                }),
             route: command.target.route.clone(),
         }
     }
@@ -631,7 +639,12 @@ pub fn tracking_config_portal_read_model_updated_event(
             &audit_event.source_command_id,
             "portal-read-model-updated",
         ))
-        .expect(constants::tracking_config_update::READ_MODEL_UPDATE_KIND_TRACKING_CONFIG_STATE),
+        .unwrap_or_else(|_| {
+            panic!(
+                "{}",
+                constants::tracking_config_update::READ_MODEL_UPDATE_KIND_TRACKING_CONFIG_STATE
+            )
+        }),
         previous_event_ref: audit_event.audit_entry_ref.clone(),
         audit_entry_ref: audit_event.audit_entry_ref.clone(),
         source_command_id: audit_event.source_command_id.clone(),
@@ -649,9 +662,14 @@ pub fn parent_tracking_config_updated_event_from_command(
     ParentTrackingConfigUpdatedEvent {
         source_command_id: request.command_id.clone(),
         source_message_id: TrackingSourceMessageId::parse(command.message_id.clone())
-            .expect(constants::tracking_retention_settings_write::COMMAND_ID),
+            .unwrap_or_else(|_| {
+                panic!(
+                    "{}",
+                    constants::tracking_retention_settings_write::COMMAND_ID
+                )
+            }),
         source_peer_id: TrackingSourcePeerId::parse(command.source.peer_id.clone())
-            .expect(constants::peer::PORTAL_DEV),
+            .unwrap_or_else(|_| panic!("{}", constants::peer::PORTAL_DEV)),
         target: TrackingConfigUpdateTarget::from_command(command),
         config: request,
     }
@@ -718,5 +736,10 @@ fn tracking_config_flow_idempotency_key(
 
 fn tracking_config_accepted_at() -> TrackingAcceptedAt {
     TrackingAcceptedAt::parse(constants::tracking_retention_settings_write::ACCEPTED_AT)
-        .expect(constants::tracking_retention_settings_write::ACCEPTED_AT)
+        .unwrap_or_else(|_| {
+            panic!(
+                "{}",
+                constants::tracking_retention_settings_write::ACCEPTED_AT
+            )
+        })
 }

@@ -1,41 +1,13 @@
-# WP06 Manual Required Gap Register
+# WP06 Manual-Required Gap Register
 
-- plan: `policy-control-plane-plan`
-- workpack: `06-rollout-proof-and-route-gate`
-- proof id: `policy-rollout.manual-required-gap-register`
-- owner lane: `codex-a`
-- date: `2026-06-16`
-
-## Scope
-
-This register keeps the manual-required gaps explicit while the policy-control
-plan route and proof bundle are being synchronized in this checkout.
-
-## Register
-
-| Gap | Owning workpack | Why manual-required | Current handling |
-| --- | --- | --- | --- |
-| Source-of-truth lifecycle closure | `01-policy-source-of-truth` | Source document lifecycle, custody, and authz negatives are still broader than the current proof slice. | Kept explicit in `PLAN_STATE.md` and `NEXT_ACTIONS.md`. |
-| Parent authoring and preview breadth | `02-parent-authoring-preview` | UI and accessibility breadth was tracked as manual-required during closeout. | Kept explicit in `WORKPACK_INDEX.md`. |
-| Domain compiler handoff breadth | `03-domain-policy-compilers` | Remaining downstream consumer coverage was tracked as manual-required during closeout. | Kept explicit in `PLAN_STATE.md`. |
-| Schedule/time-budget/conflict breadth | `07-schedule-time-budget-conflict-model` | The broader schedule/conflict implementation still needs closure. | Kept explicit in `PLAN_STATE.md` and `NEXT_ACTIONS.md`. |
-
-## Validation
-
-- `git diff --check`
-  - pass
-
-## Negative-case evidence
-
-- Manual-required gaps are not hidden behind a DONE label.
-- Open workpacks stay visible in the plan route docs.
-- This register does not turn a gap into a green claim.
-
-## Teardown / rollback
-
-- No runtime state was modified.
-- No teardown or rollback was required beyond the local documentation updates.
-
-## Remaining gaps
-
-- None; the policy-control plan route is closed in this checkout.
+| Area | State | Blocker class | Evidence | Exact next action |
+| --- | --- | --- | --- | --- |
+| WP01 source-of-truth closeout proof | Present | Cleared in current slice | `01-*.md` plus owner test and architecture logs in `16-validation-commands.log` | keep the route synced; do not reopen unless source-truth contract changes |
+| WP02 parent authoring/preview closeout proof | Open | Real dependency blocker | `docs/features/policy-schedules-approvals.md` still marks authoring, conflict, approval, and audit UX incomplete | finish the dependency-owned portal/household surfaces before claiming WP02 |
+| WP03 compiler closeout proof | Open | Avoidable local execution gap | current checkout still has deleted `03-*.md` proof artifacts and no refreshed replacement bundle | review the current compiler/core diff, then rebuild the WP03 proof bundle from the active compiler tests and source/code audit |
+| WP04 delivery/ack/audit closeout proof | Missing | Avoidable local execution gap | no WP04 artifact files under `docs/proof/policy-control-plane-plan/` | assemble delivery and audit proof from owner tests and seam reads |
+| WP05 ask-parent/override closeout proof | Open | Real dependency blocker | `docs/features/parent-assistant-actions.md` still marks parent confirmation, child-agent validation, and portal chat/audit incomplete | finish dependency-owned assistant and portal handoffs before claiming WP05 |
+| WP07 schedule/time-budget/conflict closeout proof | Present | Cleared in current slice | `07-*.md` plus owner test and architecture logs in `16-validation-commands.log` | keep the route synced; do not reopen unless schedule/conflict contract changes |
+| WP08 event-model closeout proof | Present | Cleared in current slice | `08-*.md` plus owner test logs in `16-validation-commands.log` | keep the route synced; do not reopen unless event-model contract changes |
+| Architecture gate | Open outside current core slice | Avoidable local execution gap | `npm run lint:architecture -- --files packages/policy-domain` and `cargo lint-architecture crates/policy-control-core` passed, but the broader plan slice still fails in `packages/agent-protocol-domain` | clear the agent-protocol re-export debt before claiming the broader plan validation route green |
+| iOS/macOS proof | Not run on this host | External platform constraint | Windows host only | schedule real iOS/macOS proof from an appropriate host only if a selected workpack requires it |

@@ -1,5 +1,5 @@
 import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
-import { ActivityNetworkEvidenceGradeSchema } from '@ocentra-parent/network-domain/network-flow';
+import { ActivityNetworkEvidenceGradeSchema } from '@ocentra-parent/network-domain/network-contracts';
 import {
   type Infer,
   NonEmptyStringSchema,

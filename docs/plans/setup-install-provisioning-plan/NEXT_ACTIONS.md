@@ -26,19 +26,27 @@
 
 ## Highest-priority queue
 
-### 1. WP01 Family Web Info Site
+### WP01 Family Web Info Site
 
-Expected result:
+Status:
 
 ```text
-public route map
-no-child-activity-data boundary
-data collection matrix
-download/register/support/privacy/status route expectations
-Cloudflare Pages/Workers deploy shape or blocker
+complete
 ```
 
-### 2. WP02 Registration Login Entry
+Proof root:
+
+```text
+output/setup-install-provisioning-plan-proof/01-family-web-info-site/
+```
+
+Manual-required gap:
+
+```text
+Cloudflare preview/custom domain still depends on the owning deployment decision.
+```
+
+### 1. WP02 Registration Login Entry
 
 Expected result:
 
@@ -49,7 +57,7 @@ expired/revoked/wrong-household invite states
 no child data before household authority
 ```
 
-### 3. WP03 Parent Install Journey
+### 2. WP03 Parent Install Journey
 
 Expected result:
 
@@ -61,7 +69,7 @@ handoff to parent runtime distribution plan
 unsupported/manual-required/update-required states
 ```
 
-### 4. WP04 Child Install Permission Journey
+### 3. WP04 Child Install Permission Journey
 
 Expected result:
 
@@ -73,7 +81,7 @@ child disclosure and degraded/manual-required states
 handoff to app/runtime distribution/device-trust/LAN owners
 ```
 
-### 5. WP05 Pairing Readiness Recovery
+### 4. WP05 Pairing Readiness Recovery
 
 Expected result:
 
@@ -85,7 +93,7 @@ no-fake-ready proof
 redacted pairing/setup logs expectation
 ```
 
-### 6. WP07 First-Run Setup UI And State Machine
+### 5. WP07 First-Run Setup UI And State Machine
 
 Expected result:
 
@@ -97,7 +105,7 @@ source/custody/status labels
 adjacent handoffs visible
 ```
 
-### 7. WP06 Rollout Proof And Route Gate
+### 6. WP06 Rollout Proof And Route Gate
 
 Expected result:
 

@@ -1,4 +1,5 @@
 use ocentra_parent_agent_protocol::constants::household_mesh as mesh;
+use ocentra_parent_agent_protocol::household_mesh as protocol;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HouseholdMeshLocalEventKind {
@@ -22,19 +23,8 @@ pub enum HouseholdMeshLocalEventKind {
     EnforcementCommand,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum HouseholdMeshAuthenticationState {
-    PairedTrustedDevice,
-    Anonymous,
-    StaleOrRevoked,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum HouseholdMeshPolicyAuthority {
-    ChildAgentOnly,
-    ProviderClaimed,
-    ParentUiClaimed,
-}
+pub type HouseholdMeshAuthenticationState = protocol::HouseholdMeshAuthenticationState;
+pub type HouseholdMeshPolicyAuthority = protocol::HouseholdMeshPolicyAuthority;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HouseholdMeshBridgeRejection {
@@ -44,28 +34,14 @@ pub enum HouseholdMeshBridgeRejection {
     PolicyAuthorityEscalation,
     RawPayload,
     MismatchedMessageRef,
+    ReplayedMessage,
+    StaleMessage,
+    FamilyMismatch,
+    WrongTargetDevice,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct HouseholdMeshLanMessage {
-    pub local_event_ref: &'static str,
-    pub lan_message_type: &'static str,
-    pub bridge_state: &'static str,
-    pub authentication_state: HouseholdMeshAuthenticationState,
-    pub policy_authority: HouseholdMeshPolicyAuthority,
-    pub direct_remote_publish_requested: bool,
-    pub raw_payload_included: bool,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct HouseholdMeshLocalRepublish {
-    pub local_event_ref: &'static str,
-    pub lan_message_type: &'static str,
-    pub bridge_state: &'static str,
-    pub policy_authority: HouseholdMeshPolicyAuthority,
-    pub validated_before_republish: bool,
-    pub child_agent_policy_authority_preserved: bool,
-}
+pub type HouseholdMeshLanMessage = protocol::HouseholdMeshTransportEnvelope;
+pub type HouseholdMeshLocalRepublish = protocol::HouseholdMeshLocalRepublish;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HouseholdMeshExportDecision {
@@ -81,6 +57,13 @@ pub enum HouseholdMeshImportDecision {
 
 pub fn export_selected_local_event(
     event_kind: HouseholdMeshLocalEventKind,
+    family_id: &str,
+    target_child_device_id: &str,
+    source_peer_id: &str,
+    message_id: &str,
+    idempotency_key: &str,
+    sent_at_epoch_seconds: u64,
+    stale_after_seconds: u64,
 ) -> HouseholdMeshExportDecision {
     let Some(lan_message_type) = lan_message_type_for(event_kind) else {
         return HouseholdMeshExportDecision::Reject(
@@ -88,18 +71,31 @@ pub fn export_selected_local_event(
         );
     };
     HouseholdMeshExportDecision::Export(HouseholdMeshLanMessage {
-        local_event_ref: local_event_ref(event_kind),
-        lan_message_type,
-        bridge_state: mesh::BRIDGE_STATE_EXPORT_SELECTED,
+        schema_version: mesh::EVENT_SCHEMA_VERSION,
+        message_id: message_id.to_string(),
+        idempotency_key: idempotency_key.to_string(),
+        family_id: family_id.to_string(),
+        target_child_device_id: target_child_device_id.to_string(),
+        source_peer_id: source_peer_id.to_string(),
+        local_event_ref: local_event_ref(event_kind).to_string(),
+        lan_message_type: lan_message_type.to_string(),
+        bridge_state: protocol::HouseholdMeshBridgeState::ExportSelected,
         authentication_state: HouseholdMeshAuthenticationState::PairedTrustedDevice,
         policy_authority: HouseholdMeshPolicyAuthority::ChildAgentOnly,
         direct_remote_publish_requested: false,
         raw_payload_included: false,
+        sent_at_epoch_seconds,
+        stale_after_seconds,
     })
 }
 
 pub fn validate_incoming_lan_message(
     message: HouseholdMeshLanMessage,
+    expected_family_id: &str,
+    expected_target_child_device_id: &str,
+    received_at_epoch_seconds: u64,
+    seen_message_ids: &[&str],
+    seen_idempotency_keys: &[&str],
 ) -> HouseholdMeshImportDecision {
     if message.authentication_state != HouseholdMeshAuthenticationState::PairedTrustedDevice {
         return HouseholdMeshImportDecision::Reject(
@@ -119,21 +115,32 @@ pub fn validate_incoming_lan_message(
     if message.raw_payload_included {
         return HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::RawPayload);
     }
-    if lan_message_type_for_ref(message.local_event_ref) != Some(message.lan_message_type) {
+    if seen_message_ids.contains(&message.message_id.as_str())
+        || seen_idempotency_keys.contains(&message.idempotency_key.as_str())
+    {
+        return HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::ReplayedMessage);
+    }
+    if message.is_stale_at(received_at_epoch_seconds) {
+        return HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::StaleMessage);
+    }
+    if message.family_id != expected_family_id {
+        return HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::FamilyMismatch);
+    }
+    if message.target_child_device_id != expected_target_child_device_id {
+        return HouseholdMeshImportDecision::Reject(
+            HouseholdMeshBridgeRejection::WrongTargetDevice,
+        );
+    }
+    if lan_message_type_for_ref(&message.local_event_ref) != Some(message.lan_message_type.as_str()) {
         return if is_selected_local_event_ref(message.local_event_ref) {
             HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::MismatchedMessageRef)
         } else {
             HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::UnselectedLocalEvent)
         };
     }
-    HouseholdMeshImportDecision::Republish(HouseholdMeshLocalRepublish {
-        local_event_ref: message.local_event_ref,
-        lan_message_type: message.lan_message_type,
-        bridge_state: mesh::BRIDGE_STATE_LOCAL_REPUBLISH_REQUIRED,
-        policy_authority: HouseholdMeshPolicyAuthority::ChildAgentOnly,
-        validated_before_republish: true,
-        child_agent_policy_authority_preserved: true,
-    })
+    HouseholdMeshImportDecision::Republish(HouseholdMeshLocalRepublish::from_validated_message(
+        &message,
+    ))
 }
 
 pub fn local_event_ref(event_kind: HouseholdMeshLocalEventKind) -> &'static str {
@@ -204,7 +211,7 @@ fn lan_message_type_for(event_kind: HouseholdMeshLocalEventKind) -> Option<&'sta
     })
 }
 
-fn lan_message_type_for_ref(local_event_ref: &'static str) -> Option<&'static str> {
+fn lan_message_type_for_ref(local_event_ref: &str) -> Option<&'static str> {
     match local_event_ref {
         mesh::LOCAL_EVENT_DEVICE_DISCOVERY => Some(mesh::LAN_MESSAGE_DEVICE_DISCOVERY),
         mesh::LOCAL_EVENT_PROVIDER_ADVERTISEMENT => Some(mesh::LAN_MESSAGE_PROVIDER_ADVERTISEMENT),
@@ -229,36 +236,8 @@ fn lan_message_type_for_ref(local_event_ref: &'static str) -> Option<&'static st
     }
 }
 
-fn is_selected_local_event_ref(local_event_ref: &'static str) -> bool {
+fn is_selected_local_event_ref(local_event_ref: &str) -> bool {
     lan_message_type_for_ref(local_event_ref).is_some()
-}
-
-impl HouseholdMeshAuthenticationState {
-    pub fn as_str(self) -> &'static str {
-        match self {
-            HouseholdMeshAuthenticationState::PairedTrustedDevice => {
-                mesh::AUTHENTICATION_PAIRED_TRUSTED_DEVICE
-            }
-            HouseholdMeshAuthenticationState::Anonymous => mesh::AUTHENTICATION_ANONYMOUS,
-            HouseholdMeshAuthenticationState::StaleOrRevoked => {
-                mesh::AUTHENTICATION_STALE_OR_REVOKED
-            }
-        }
-    }
-}
-
-impl HouseholdMeshPolicyAuthority {
-    pub fn as_str(self) -> &'static str {
-        match self {
-            HouseholdMeshPolicyAuthority::ChildAgentOnly => mesh::POLICY_AUTHORITY_CHILD_AGENT_ONLY,
-            HouseholdMeshPolicyAuthority::ProviderClaimed => {
-                mesh::POLICY_AUTHORITY_PROVIDER_CLAIMED
-            }
-            HouseholdMeshPolicyAuthority::ParentUiClaimed => {
-                mesh::POLICY_AUTHORITY_PARENT_UI_CLAIMED
-            }
-        }
-    }
 }
 
 impl HouseholdMeshBridgeRejection {
@@ -279,6 +258,12 @@ impl HouseholdMeshBridgeRejection {
             HouseholdMeshBridgeRejection::RawPayload => mesh::REJECTION_RAW_PAYLOAD,
             HouseholdMeshBridgeRejection::MismatchedMessageRef => {
                 mesh::REJECTION_MISMATCHED_MESSAGE_REF
+            }
+            HouseholdMeshBridgeRejection::ReplayedMessage => mesh::REJECTION_REPLAYED_MESSAGE,
+            HouseholdMeshBridgeRejection::StaleMessage => mesh::REJECTION_STALE_MESSAGE,
+            HouseholdMeshBridgeRejection::FamilyMismatch => mesh::REJECTION_FAMILY_MISMATCH,
+            HouseholdMeshBridgeRejection::WrongTargetDevice => {
+                mesh::REJECTION_WRONG_TARGET_DEVICE
             }
         }
     }

@@ -17,7 +17,7 @@ import {
   LocalAiMemoryReferenceSchema,
   LocalAiObservationReferenceSchema,
 } from './local-ai-references';
-import { LocalAiModelRequestMetadataSchema, LocalModelRuntimeStatusSchema } from '@ocentra-parent/ai-domain/local-ai-runtime';
+import { LocalAiModelRequestMetadataSchema, LocalModelRuntimeStatusSchema } from './local-ai-runtime';
 
 export const LocalAiEvaluationInputSchema = withParser(
   Schema.Struct({

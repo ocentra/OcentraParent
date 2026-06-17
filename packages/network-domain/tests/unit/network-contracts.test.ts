@@ -7,7 +7,7 @@ import {
   ActivityNetworkEvidenceGradeSchema,
   ActivityNetworkFlowEvidenceSchema,
   ActivityNetworkPolicyActionSchema,
-} from '../../src/network-flow';
+} from '../../src/network-contracts';
 
 const EvidenceRef = {
   evidenceId: 'journal-entry-network-contract-1',

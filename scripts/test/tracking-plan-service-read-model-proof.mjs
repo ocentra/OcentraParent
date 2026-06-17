@@ -1,6 +1,8 @@
 import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof');
@@ -15,17 +17,35 @@ const commands = [];
 await main();
 
 async function main() {
-  await runNpmWorkspace('@ocentra-parent/text-domain', ['run', 'build']);
-  await runNpmWorkspace('@ocentra-parent/agent-protocol-domain', ['run', 'build']);
-  await runNpmWorkspace('@ocentra-parent/agent-protocol-domain', [
-    'run',
-    'test',
+  await runNpm([
+    'exec',
+    '--workspace',
+    '@ocentra-parent/agent-protocol-domain',
     '--',
-    'tracking-read-model',
-    'contracts',
+    'vitest',
+    'run',
+    'tests/unit/contracts.test.ts',
+    'tests/unit/tracking-read-model.test.ts',
   ]);
-  await runNpmWorkspace('@ocentra-parent/portal-domain', ['run', 'test', '--', 'contracts']);
-  await runNpmWorkspace('@ocentra-parent/portal', ['run', 'test', '--', 'tracking-status-panel']);
+  await runNpm([
+    'exec',
+    '--workspace',
+    '@ocentra-parent/portal-domain',
+    '--',
+    'vitest',
+    'run',
+    'tests/unit/contracts.test.ts',
+    'tests/unit/tracking-status-panel.test.ts',
+  ]);
+  await runNpm([
+    'exec',
+    '--workspace',
+    '@ocentra-parent/portal',
+    '--',
+    'vitest',
+    'run',
+    'tests/tracking-status-panel.test.ts',
+  ]);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'tracking_read_model']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-core', 'tracking_read_model']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'tracking_read_model']);
@@ -264,7 +284,7 @@ async function main() {
 
 async function loadTrackingReadModelContract() {
   const { AgentCommand, AgentEvent, AgentProtocolDefaults } =
-    await import('@ocentra-parent/agent-protocol-domain/contracts');
+    await importTsModule('packages/agent-protocol-domain/src/contracts.ts');
 
   return {
     command: AgentCommand.ActivityTrackingReadModelGet,
@@ -304,4 +324,8 @@ async function gitHead() {
     child.once('error', reject);
   });
   return chunks.join('').trim();
+}
+
+async function importTsModule(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }

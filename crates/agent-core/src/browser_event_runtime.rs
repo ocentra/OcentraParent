@@ -1,8 +1,9 @@
 use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventCustody, EventId,
-    EventMetadata, EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey,
-    RecordedAt, RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId,
-    TargetHandler,
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::DomainEvent,
+    envelope::EventContract, envelope::EventMetadata, envelope::EventSource, error::EventingError,
+    ids::AggregateKey, ids::CorrelationId, ids::EventCustody, ids::EventId, ids::EventType,
+    ids::IdempotencyKey, ids::RecordedAt, ids::RuntimeInstanceId, ids::SchemaVersion,
+    ids::SourceComponent, ids::SourceService, ids::SubscriberId, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
@@ -257,9 +258,9 @@ impl DomainEvent for BrowserRuntimeEventPayload {
 
 #[derive(Clone, Debug)]
 pub struct BrowserRuntimeReport {
-    pub publish_reports: Vec<ocentra_eventing::PublishReport>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub publish_reports: Vec<ocentra_eventing::bus::reports::PublishReport>,
+    pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
+    pub dead_letters: Vec<ocentra_eventing::bus::reports::DeadLetter>,
 }
 
 impl BrowserRuntimeReport {
@@ -385,8 +386,10 @@ fn event_custody(input: &BrowserRuntimeInput) -> EventCustody {
     } else {
         constants::eventing_source::CUSTODY_UNAVAILABLE
     };
-    EventCustody::parse(value)
-        .expect(constants::eventing_source::ERROR_EVENT_CUSTODY_CONSTANT_PARSES)
+    match EventCustody::parse(value) {
+        Ok(custody) => custody,
+        Err(_) => std::process::abort(),
+    }
 }
 
 fn browser_aggregate_key(source_ref: &str) -> String {

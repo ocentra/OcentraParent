@@ -1,0 +1,22 @@
+import { type Infer, Schema } from '@ocentra-parent/schema-domain/effect';
+export declare const LocalAiModelArtifactRefSchema: Schema.brand<Schema.filter<Schema.filter<typeof Schema.String>>, "LocalAiModelArtifactRef">;
+export declare const LocalAiModelManifestRefSchema: Schema.brand<Schema.filter<Schema.filter<typeof Schema.String>>, "LocalAiModelManifestRef">;
+export declare const LocalAiModelSourcePolicySchema: import("@ocentra-parent/schema-domain/effect").ParsedSchema<Schema.Literal<["bundled", "parent-installed", "local-cache", "unavailable"]>>;
+export declare const LocalAiModelCacheStateSchema: import("@ocentra-parent/schema-domain/effect").ParsedSchema<Schema.Literal<["unavailable", "not-cached", "cache-ready", "cache-degraded", "cache-corrupted", "storage-error"]>>;
+export declare const LocalAiModelCacheHealthSchema: import("@ocentra-parent/schema-domain/effect").ParsedSchema<Schema.Literal<["healthy", "degraded", "unavailable", "download-disabled", "corrupted", "storage-error"]>>;
+export declare const LocalAiModelManifestIntegrityStateSchema: import("@ocentra-parent/schema-domain/effect").ParsedSchema<Schema.Literal<["unavailable", "unchecked", "verified", "manifest-missing", "checksum-mismatch", "signature-invalid", "corrupted"]>>;
+export declare const LocalAiModelDownloadStatusSchema: import("@ocentra-parent/schema-domain/effect").ParsedSchema<Schema.Literal<["download-disabled", "download-not-requested", "download-in-progress", "download-complete", "download-failed"]>>;
+export declare const LocalAiModelCacheUnavailableReasonSchema: import("@ocentra-parent/schema-domain/effect").ParsedSchema<Schema.Literal<["model-source-unconfigured", "artifact-not-installed", "manifest-unavailable", "download-disabled", "cache-storage-unavailable", "integrity-unverified", "corruption-detected"]>>;
+export declare const LocalAiModelCacheStorageErrorCodeSchema: import("@ocentra-parent/schema-domain/effect").ParsedSchema<Schema.Literal<["cache-root-unavailable", "manifest-read-failed", "artifact-read-failed", "metadata-write-disabled", "storage-permission-denied", "quota-unavailable"]>>;
+export declare const LocalAiModelCacheCorruptionReasonCodeSchema: import("@ocentra-parent/schema-domain/effect").ParsedSchema<Schema.Literal<["manifest-missing", "checksum-mismatch", "signature-invalid", "artifact-missing", "manifest-artifact-mismatch", "unknown-integrity"]>>;
+export type LocalAiModelArtifactRef = typeof LocalAiModelArtifactRefSchema.Type;
+export type LocalAiModelManifestRef = typeof LocalAiModelManifestRefSchema.Type;
+export type LocalAiModelSourcePolicy = Infer<typeof LocalAiModelSourcePolicySchema>;
+export type LocalAiModelCacheState = Infer<typeof LocalAiModelCacheStateSchema>;
+export type LocalAiModelCacheHealth = Infer<typeof LocalAiModelCacheHealthSchema>;
+export type LocalAiModelManifestIntegrityState = Infer<typeof LocalAiModelManifestIntegrityStateSchema>;
+export type LocalAiModelDownloadStatus = Infer<typeof LocalAiModelDownloadStatusSchema>;
+export type LocalAiModelCacheUnavailableReason = Infer<typeof LocalAiModelCacheUnavailableReasonSchema>;
+export type LocalAiModelCacheStorageErrorCode = Infer<typeof LocalAiModelCacheStorageErrorCodeSchema>;
+export type LocalAiModelCacheCorruptionReasonCode = Infer<typeof LocalAiModelCacheCorruptionReasonCodeSchema>;
+//# sourceMappingURL=local-ai-model-artifact-primitives.d.ts.map

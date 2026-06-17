@@ -20,6 +20,7 @@ Consume the shared Cloudflare plan handoff before any payment runtime slice star
 - [../../cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md](../../cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md)
 - [../../cloudflare-control-plane-plan/TESTING_STRATEGY.md](../../cloudflare-control-plane-plan/TESTING_STRATEGY.md)
 - [../../cloudflare-control-plane-plan/REQUIRED_TEST_ASSERTION_MATRIX.md](../../cloudflare-control-plane-plan/REQUIRED_TEST_ASSERTION_MATRIX.md)
+- `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
 - [../REQUIRED_TEST_ASSERTION_MATRIX.md](../REQUIRED_TEST_ASSERTION_MATRIX.md)
 
 ## Output files
@@ -28,7 +29,7 @@ Consume the shared Cloudflare plan handoff before any payment runtime slice star
 - [NEXT_ACTIONS.md](../NEXT_ACTIONS.md)
 - [PLAN_EXECUTION_BLUEPRINT.md](../PLAN_EXECUTION_BLUEPRINT.md)
 - [SOURCE_SURFACE_STATUS_MATRIX.md](../SOURCE_SURFACE_STATUS_MATRIX.md)
-- `docs/proof/payment-subscription-plan/wp00-cloudflare-control-plane-handoff/`
+- `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/`
 
 ## Acceptance
 
@@ -56,7 +57,8 @@ Consume the shared Cloudflare plan handoff before any payment runtime slice star
 ## Validation
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
-- Proof bundle: `docs/proof/payment-subscription-plan/wp00-cloudflare-control-plane-handoff/cloudflare-handoff-proof.md`
+- Upstream handoff artifact: `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
+- Proof bundle: `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/cloudflare-handoff-proof.md`
 
 ## Negative cases
 

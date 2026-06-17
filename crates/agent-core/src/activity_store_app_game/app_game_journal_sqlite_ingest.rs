@@ -63,7 +63,7 @@ pub(crate) fn app_game_inventory_journal_event(
     validate_inventory_row(row)?;
     let fields = fields_for_row(
         APP_GAME_JOURNAL_ROW_KIND_INVENTORY,
-        &serde_json::to_string(row).map_err(|_| AppGameJournalSqliteIngestError::Json)?,
+        &serde_json::to_string(row).map_err(|_error| AppGameJournalSqliteIngestError::Json)?,
         None,
     );
     Ok(activity_event(ActivityEventInput {
@@ -89,7 +89,7 @@ pub(crate) fn app_game_runtime_journal_event(
     validate_runtime_row(row)?;
     let mut fields = fields_for_row(
         APP_GAME_JOURNAL_ROW_KIND_RUNTIME,
-        &serde_json::to_string(row).map_err(|_| AppGameJournalSqliteIngestError::Json)?,
+        &serde_json::to_string(row).map_err(|_error| AppGameJournalSqliteIngestError::Json)?,
         Some(&row.classification_state),
     );
     insert_number(&mut fields, constants::field::PID, row.process_id);
@@ -132,7 +132,7 @@ pub(crate) fn app_game_foreground_journal_event(
     validate_foreground_row(row)?;
     let mut fields = fields_for_row(
         APP_GAME_JOURNAL_ROW_KIND_FOREGROUND,
-        &serde_json::to_string(row).map_err(|_| AppGameJournalSqliteIngestError::Json)?,
+        &serde_json::to_string(row).map_err(|_error| AppGameJournalSqliteIngestError::Json)?,
         Some(&row.classification_state),
     );
     insert_number(&mut fields, constants::field::PID, row.process_id);
@@ -179,7 +179,7 @@ pub(crate) fn app_game_launcher_journal_event(
     validate_launcher_row(row)?;
     let fields = fields_for_row(
         APP_GAME_JOURNAL_ROW_KIND_LAUNCHER,
-        &serde_json::to_string(row).map_err(|_| AppGameJournalSqliteIngestError::Json)?,
+        &serde_json::to_string(row).map_err(|_error| AppGameJournalSqliteIngestError::Json)?,
         Some(&row.classification_state),
     );
     Ok(activity_event(ActivityEventInput {

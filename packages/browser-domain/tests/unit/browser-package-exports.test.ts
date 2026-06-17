@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -31,21 +31,24 @@ const BrowserDomainBrowserPlanExportPaths = [
   './browser-social-unmanaged-bypass-detector',
 ] as const;
 
-const PackageJsonPath = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'package.json');
+const PackageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const PackageJsonPath = resolve(PackageRoot, 'package.json');
 
 describe('browser-domain browser plan package exports', () => {
   it('exposes browser-plan AI and social contracts as public package subpaths', () => {
-    const packageJson = JSON.parse(readFileSync(PackageJsonPath, 'utf8')) as { readonly exports?: unknown };
+    const packageJson = JSON.parse(readFileSync(PackageJsonPath, 'utf8')) as {
+      readonly exports?: Record<string, unknown>;
+    };
 
     expect(packageJson.exports).toBeTypeOf('object');
-    const exportsObject = packageJson.exports as Record<(typeof BrowserDomainBrowserPlanExportPaths)[number], unknown>;
+    expect(packageJson.exports?.['./*']).toEqual({
+      import: './dist/*.js',
+      types: './dist/*.d.ts',
+    });
 
     for (const exportPath of BrowserDomainBrowserPlanExportPaths) {
       const moduleName = exportPath.slice(2);
-      expect(exportsObject[exportPath]).toEqual({
-        import: `./dist/${moduleName}.js`,
-        types: `./dist/${moduleName}.d.ts`,
-      });
+      expect(existsSync(resolve(PackageRoot, 'src', `${moduleName}.ts`))).toBe(true);
     }
   });
 });

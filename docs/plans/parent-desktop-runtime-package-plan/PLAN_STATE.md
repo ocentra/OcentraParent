@@ -11,6 +11,7 @@ Evidence from the repo:
 - `release:package:parent-android` and `release:package:parent-ios` already exist for parent mobile packaging.
 - `test:parent-mobile-shell-runtime-proof`, `test:parent-mobile-package-source-artifact-proof`, `test:parent-desktop-release-support-proof`, `test:parent-mobile-service-bridge`, and `test:parent-mobile-controller-observer-handoff` already exist as proof anchors.
 - The repo already differentiates parent client surfaces from child runtime work, but the plan naming still read as desktop-only before this correction.
+- The plan-local route docs now keep canonical parent-client scope, route bridge, setup handoff, and child-runtime exclusions separate.
 
 Current parent direction:
 
@@ -22,7 +23,6 @@ Current parent direction:
 
 Open gaps:
 
-- Canonical name correction still needs to be reflected in the plan index and route docs.
 - Parent client artifact matrix is missing from the old desktop-only plan.
 - Signing/store/notarization states are not explicit per artifact.
 - Update/rollback model is not explicit per artifact.

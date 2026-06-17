@@ -13,13 +13,13 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/enforcement-domain',
       '--',
       'v0-8-integrity-alert-status-bridge',
     ])
@@ -38,7 +38,7 @@ async function main() {
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'integrity_alert_status_bridge']);
 
   const { V08IntegrityAlertStatusBridgeReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-integrity-alert-status-bridge.js');
+    await import('@ocentra-parent/enforcement-domain/v0-8-integrity-alert-status-bridge');
   const summary = summarizeReadModel(V08IntegrityAlertStatusBridgeReadModel);
 
   assertReadModel(V08IntegrityAlertStatusBridgeReadModel, summary);
@@ -51,11 +51,11 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/parent-domain/src/v0-8-integrity-alert-status-bridge.ts',
-      tsContractTest: 'packages/parent-domain/tests/v0-8-integrity-alert-status-bridge.test.ts',
+      tsContract: 'packages/enforcement-domain/src/v0-8-integrity-alert-status-bridge.ts',
+      tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-integrity-alert-status-bridge.test.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-supported-adapter-runtime-proof-adapter.ts',
       tsProtocolAdapterTest:
-        'packages/agent-protocol-domain/tests/enforcement-supported-adapter-runtime-proof-adapter.test.ts',
+        'packages/agent-protocol-domain/tests/unit/enforcement-supported-adapter-runtime-proof-adapter.test.ts',
       rustProtocol: 'crates/agent-protocol/src/integrity_alert_status_bridge.rs',
       rustProtocolTest: 'crates/agent-protocol/src/integrity_alert_status_bridge_tests.rs',
       rustServiceReadModel: 'crates/agent-service/src/enforcement_api/integrity_alert_status_bridge_read_model.rs',

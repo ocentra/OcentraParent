@@ -209,9 +209,10 @@ fn decode_payloads(report: &NetworkRuntimeReport) -> Vec<NetworkRuntimeEventPayl
         .stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::EventEnvelope<NetworkRuntimeEventPayload> = event
-                .decode()
-                .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES);
+            let envelope: ocentra_eventing::envelope::EventEnvelope<NetworkRuntimeEventPayload> =
+                event
+                    .decode()
+                    .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES);
             envelope.payload
         })
         .collect()

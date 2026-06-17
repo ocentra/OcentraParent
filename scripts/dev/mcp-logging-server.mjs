@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
 import {
   getArtifactSlice,
   getErrors,
@@ -174,6 +177,44 @@ const TOOLS = [
   },
 ];
 
+const proofTraceSmokeScript = fileURLToPath(new URL('./logging-proof-trace-smoke.mjs', import.meta.url));
+
+function optionValue(argv, flag) {
+  const exactIndex = argv.indexOf(flag);
+  if (exactIndex !== -1) {
+    return argv[exactIndex + 1] ?? null;
+  }
+  const prefix = `${flag}=`;
+  const inline = argv.find((value) => value.startsWith(prefix));
+  return inline == null ? null : inline.slice(prefix.length);
+}
+
+function runProofTraceSmoke(argv) {
+  const smokeRoot = optionValue(argv, '--smoke-root');
+  const childArgs = ['--import', 'tsx', proofTraceSmokeScript];
+  if (smokeRoot != null && smokeRoot.trim().length > 0) {
+    childArgs.push(`--root=${smokeRoot}`, '--keep-root');
+  }
+
+  const result = spawnSync(process.execPath, childArgs, {
+    cwd: process.cwd(),
+    env: process.env,
+    encoding: 'utf8',
+    windowsHide: true,
+  });
+  if (result.status !== 0) {
+    throw new Error(
+      `proof-trace smoke failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`.trim()
+    );
+  }
+
+  const output = result.stdout.trim();
+  if (output.length === 0) {
+    throw new Error('proof-trace smoke did not produce any output.');
+  }
+  return JSON.parse(output);
+}
+
 async function callTool(name, argumentsValue = {}) {
   switch (name) {
     case 'get_errors':
@@ -250,16 +291,7 @@ async function runCli(argv) {
       return true;
     }
     if (target === 'proof-trace') {
-      process.stdout.write(
-        `${JSON.stringify(
-          await callTool('query_proof_trace', {
-            scope: 'parent-portal',
-            limit: 20,
-          }),
-          null,
-          2
-        )}\n`
-      );
+      process.stdout.write(`${JSON.stringify(runProofTraceSmoke(argv), null, 2)}\n`);
       return true;
     }
     throw new Error(`Unknown smoke target: ${target}`);

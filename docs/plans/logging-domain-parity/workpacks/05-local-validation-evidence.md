@@ -165,3 +165,18 @@ Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
 ```
+
+## Current audit note
+
+The local evidence wrapper surface is present in the current source tree,
+including `scripts/dev/agent-run.mjs`, `scripts/dev/agent-query.mjs`,
+`scripts/dev/codex-evidence.mjs`, and shared query/evidence helpers under
+`scripts/dev/lib/`. During the June 16, 2026 audit, the cheap focused checks
+`npm run validate:logging` and `npm run test:logging-evidence` both passed,
+showing the slice is at least partially wired.
+
+The appended completion block remained stale because the named proof root
+`output/logging-domain-parity-proof/05-local-validation-evidence/` is absent in
+this checkout, and this audit pass did not recreate the original proof pack.
+Treat WP05 as source-present with focused validation signal, but not fully
+proved complete.

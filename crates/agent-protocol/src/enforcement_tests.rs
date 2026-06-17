@@ -165,7 +165,16 @@ fn unsupported_status_values_do_not_deserialize() {
 
     let parsed = serde_json::from_value::<EnforcementResult>(payload);
 
-    assert!(parsed.is_err());
+    match parsed {
+        Ok(result) => panic!("expected invalid enforcement status to fail, got {result:?}"),
+        Err(error) => {
+            let message = error.to_string();
+            assert!(
+                message.contains("blocked-by-label"),
+                "expected invalid status error to mention blocked-by-label, got {message}"
+            );
+        }
+    }
 }
 
 #[test]
@@ -211,7 +220,7 @@ fn parent_approval_and_override_serialize_as_audit_references() {
         unavailable_status: None,
         policy_version: policy::TEST_POLICY_VERSION.to_string(),
         evidence_references: vec![evidence()],
-        actor: intent.actor.clone(),
+        actor: intent.actor,
         parent_override: action.parent_approval.clone(),
         journal_sequence: Some(enforcement::TEST_JOURNAL_SEQUENCE.to_string()),
         observed_at: policy::TEST_EVALUATED_AT.to_string(),
@@ -328,7 +337,7 @@ fn active_timer_state_serializes_action_result_audit_and_timer() {
         unavailable_status: None,
         policy_version: policy::TEST_POLICY_VERSION.to_string(),
         evidence_references: vec![evidence()],
-        actor: intent.actor.clone(),
+        actor: intent.actor,
         parent_override: action.parent_approval.clone(),
         journal_sequence: Some(enforcement::TEST_JOURNAL_SEQUENCE.to_string()),
         observed_at: policy::TEST_EVALUATED_AT.to_string(),

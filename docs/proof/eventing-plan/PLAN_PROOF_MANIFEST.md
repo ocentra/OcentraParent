@@ -1,47 +1,39 @@
-﻿# Proof Manifest - eventing-plan
+# Eventing Plan Proof Manifest
 
-- plan route: docs/plans/eventing-plan/PLAN_STATE.md
-- assigned workpack: one or more entries from docs/plans/eventing-plan/PLAN_EXECUTION_BLUEPRINT.md slice-to-workpack binding
-- owner: active execution lane owner (AI/Developer)
-- test boundary: unit/integration/e2e/security/non-functional as defined in plan HID floor
+This manifest restores the local WP12 route-proof bundle for `eventing-plan`.
+It documents current proof-backed status only. It does not claim full plan
+completion, `PR_READY`, or closure of consumer-owned workpacks.
 
-## Required proof bundle
+## Current route-proof status
 
-- docs/proof/eventing-plan/slice-01-envelope-version.md
-- docs/proof/eventing-plan/slice-02-ordering-replay.md
-- docs/proof/eventing-plan/slice-03-consumer-boundary.md
-- tests/ or explicit test run transcript (`.log`, `.junit`, or Playwright report)
-- logs/ (command output and transport-level traces)
-- screenshots/ or traces/ (UI and runtime proof when applicable)
+- WP12 route-proof bundle is restored in this checkout.
+- WP13 test-folder-layout regression audit is locally proved.
+- Remaining open workpacks in truth are:
+  - WP10 LAN Household Mesh Consumer
+- WP11 Type Safety And Ownership Hardening is now locally proved through the
+  restored proof roots, package-wide `@ocentra-parent/agent-protocol-domain`
+  type-check, focused policy-control/contract tests, and the touched-file
+  architecture gate.
 
-## Required test families for closed slice
+## Proof docs
 
-- E2E: restart/replay recovery
-- Integration: ordering, dead-letter, and consumer parity
-- Non-functional: throughput/queue stability under load
-- Security: version skew and schema abuse probes
-- Unit: envelope/version parsing
+- [slice-01-envelope-version.md](slice-01-envelope-version.md)
+- [slice-02-ordering-replay.md](slice-02-ordering-replay.md)
+- [slice-03-consumer-boundary.md](slice-03-consumer-boundary.md)
 
-## Run log template
+## Validation used for this bundle
 
-- date: YYYY-MM-DD
-- command: ...
-- test-set: unit/integration/e2e/security
-- result: pass | fail
-- failure: ... and correction made
-- follow-up command(s): ...
+- `cargo test -p ocentra-eventing --tests`
+- `cargo lint-architecture crates/ocentra-eventing/src crates/ocentra-eventing/tests`
+- `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-runtime-events.test.ts contracts.test.ts`
+- `cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet`
+- `npm run type-check --workspace @ocentra-parent/agent-protocol-domain`
+- `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- policy-control-audit-redaction.test.ts policy-control-delivery-read-model.test.ts contracts.test.ts`
+- `npm run lint:architecture -- --files packages/agent-protocol-domain/src/contracts.ts packages/agent-protocol-domain/src/policy-control-audit-redaction.ts packages/agent-protocol-domain/src/policy-control-delivery-read-model.ts`
+- `node scripts/test/eventing-rollout-proof.mjs`
 
-## Negative-case evidence required
+## Remaining gaps
 
-- authN/authZ boundary failures
-- replay/idempotency and stale-timing failures
-- stale/ordering/fault-path failures
-- manual-required state and bypass limitations
-- rollback/teardown evidence for each failure path
-
-## Slice close gate
-
-1. Test run attached for the slice
-2. At least one negative-case proof captured
-3. Teardown/rollback evidence included
-4. Cross-layer proof references updated in `PLAN_EXECUTION_BLUEPRINT.md`
+- No claim that WP10 household mesh proof is complete. The expected local proof
+  roots for that slice are still absent in this checkout.
+- No claim that the full eventing plan is done, rollout-ready, or PR-ready.

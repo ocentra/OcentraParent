@@ -17,7 +17,12 @@ Purpose: define signed entitlement snapshots and device-bound license unlock.
 
 ## Proof target
 
-- `docs/proof/device-trust-bootstrap-plan/05-*`
+- `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/`
+
+## Current audit state
+
+- No proof root currently exists on disk for this workpack.
+- Billing entitlement contracts exist elsewhere in the repo, but a device-trust-bound entitlement runtime is still missing.
 
 ## Negative cases
 

@@ -1,6 +1,6 @@
 # Required Test Assertion Matrix
 
-Status: spec-complete / execution-pending.
+Status: spec-complete / implementation-present / proof-pending.
 
 Purpose: define the exact Cloudflare test assertions the next execution agent
 must implement. This is the source of truth for test scope. A future worker may
@@ -17,7 +17,8 @@ listed here.
 - One broad umbrella test does not replace multiple required files unless this
   document is updated first.
 - Spec completeness and runtime readiness are different states:
-  - this matrix can be complete while `infra/cloudflare/` remains scaffold-only;
+  - this matrix can be complete while `infra/cloudflare/` already contains real
+    runtime and test surfaces but proof artifacts remain incomplete;
   - payment remains blocked until runtime proof exists under WP12.
 
 ## Unit suite

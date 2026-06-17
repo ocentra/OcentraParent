@@ -1,10 +1,11 @@
-﻿use std::{
+use std::{
     marker::PhantomData,
     sync::{Arc, Mutex},
 };
 
-use crate::{ExpectValue, 
-    DomainEvent, EventBus, EventEnvelope, EventSubscriber, EventingError, SubscriptionHandle,
+use crate::{
+    DomainEvent, EventBus, EventEnvelope, EventSubscriber, EventingError, ExpectValue,
+    SubscriptionHandle,
 };
 
 pub struct EventRecorder<E>
@@ -46,11 +47,13 @@ where
     }
 
     pub async fn recorded(&self) -> Vec<EventEnvelope<E>> {
-        self.events.lock().expect_value("event recorder lock").clone()
+        self.events
+            .lock()
+            .expect_value("event recorder lock")
+            .clone()
     }
 
     pub fn unsubscribe(&self) -> bool {
         self.handle.unsubscribe().removed
     }
 }
-

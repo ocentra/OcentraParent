@@ -1,6 +1,6 @@
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
+    envelope::DomainEvent, envelope::EventContract, error::EventingError, ids::AggregateKey,
+    ids::EventType, ids::IdempotencyKey, ids::SchemaVersion,
 };
 use ocentra_policy_control_core::policy_authority::{
     PolicyActionAuthorizationState, PolicyConflictResolutionState, PolicyDecisionResolvedEvent,

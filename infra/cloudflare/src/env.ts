@@ -97,7 +97,7 @@ export function resolveAuthAdapterMode(env: Env): string {
 }
 
 export function getMissingBindings(env: Env): ReadonlyArray<RequiredBindingKey> {
-  return TRACKED_BINDING_KEYS.filter((key) => !env[key]);
+  return REQUIRED_BINDING_KEYS.filter((key) => !env[key]);
 }
 
 export function getBindingHealth(env: Env): Record<TrackedBindingKey, "configured" | "missing"> {

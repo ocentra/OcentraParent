@@ -13,7 +13,7 @@ import {
   PolicyTargetSchema,
   PolicyTimestampSchema,
   parsePolicyScheduleBoundary,
-} from '@ocentra-parent/policy-domain/policy';
+} from './policy';
 
 export const PolicyAuthoritySourceLiteral = {
   ParentPolicy: 'parent-policy',
@@ -446,7 +446,7 @@ export function resolvePolicyApprovalLifecycle(input: unknown): PolicyApprovalRe
         `${resolution.state} approvals cannot point at replayOfApprovalId`
       );
       assertAuthorityContract(
-        resolution.reviewedBy.actorId !== resolution.approval.childProfile.childProfileId,
+        String(resolution.reviewedBy.actorId) !== String(resolution.approval.childProfile.childProfileId),
         'child requests cannot self-approve or self-modify'
       );
       validatePolicyOverrideGrant(resolution.override, resolution.approval, evaluatedAt);

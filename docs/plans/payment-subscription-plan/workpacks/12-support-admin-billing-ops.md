@@ -24,7 +24,7 @@ Define the support and admin billing surface for refunds, disputes, adjustments,
 - [RESEARCH_AND_UI_GUIDANCE.md](../RESEARCH_AND_UI_GUIDANCE.md)
 - [SECURITY_PRIVACY_OBSERVABILITY.md](../SECURITY_PRIVACY_OBSERVABILITY.md)
 - [APP_OWNED_BILLING_LEDGER.md](../APP_OWNED_BILLING_LEDGER.md)
-- `docs/proof/payment-subscription-plan/wp12-support-admin-billing-ops/`
+- `output/payment-subscription-plan-proof/12-support-admin-billing-ops/`
 
 ## Acceptance
 
@@ -47,7 +47,7 @@ Define the support and admin billing surface for refunds, disputes, adjustments,
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
 - Required proof families: `payment-admin.billing-account-search`, `payment-admin.invoice-search`, `payment-admin.refund-action-audited`, `payment-admin.dispute-state-visible`, `payment-admin.manual-invoice-state`, `payment-admin.referral-abuse-visible`, `payment-admin.reconciliation-drift-visible`, `payment-admin.webhook-failure-visible`, `payment-admin.admin-role-required`, `payment-admin.support-role-limited`, `payment-admin.no-child-private-data`, `payment-admin.audit-event-required`
-- Proof bundle: `docs/proof/payment-subscription-plan/12-support-admin-ops-proof.md`, `docs/proof/payment-subscription-plan/12-admin-role-negative-proof.md`, `docs/proof/payment-subscription-plan/12-support-data-minimization-proof.md`, `docs/proof/payment-subscription-plan/12-reconciliation-admin-proof.md`
+- Proof bundle: `output/payment-subscription-plan-proof/12-support-admin-billing-ops/12-support-admin-ops-proof.md`, `output/payment-subscription-plan-proof/12-support-admin-billing-ops/12-admin-role-negative-proof.md`, `output/payment-subscription-plan-proof/12-support-admin-billing-ops/12-support-data-minimization-proof.md`, `output/payment-subscription-plan-proof/12-support-admin-billing-ops/12-reconciliation-admin-proof.md`
 
 ## Negative cases
 

@@ -1,9 +1,11 @@
 use std::{collections::BTreeSet, path::PathBuf};
 
 use ocentra_eventing::{
-    EventBus, EventSubscriber, EventType, EventingError, JournalPolicy, JournalSelector,
-    NdjsonEventJournal, NdjsonJournalOptions, ReplayFilter, ReplayReadReport, ReplayRecord,
-    SourceComponent, StoredEventEnvelope, SubscriberId, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::StoredEventEnvelope,
+    error::EventingError, ids::EventType, ids::SourceComponent, ids::SubscriberId,
+    ids::TargetHandler, journal::ndjson::NdjsonEventJournal, journal::ndjson::NdjsonJournalOptions,
+    journal::policy::JournalPolicy, journal::policy::JournalSelector, replay::ReplayFilter,
+    replay::ReplayReadReport, replay::ReplayRecord,
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
@@ -146,9 +148,10 @@ fn assert_projection_matches(
         return Err(NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch);
     }
     for (index, (stored_event, record)) in stored_events.iter().zip(records.iter()).enumerate() {
-        let expected_sequence = u64::try_from(index)
-            .map(|value| value.saturating_add(1))
-            .map_err(|_| NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch)?;
+        let expected_sequence = match u64::try_from(index) {
+            Ok(value) => value.saturating_add(1),
+            Err(_) => return Err(NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch),
+        };
         if record.sequence != expected_sequence || &record.envelope != stored_event {
             return Err(NetworkRuntimeRemoteEventChainJournalError::ReplayMismatch);
         }
@@ -187,7 +190,7 @@ fn remote_event_chain_journal_path() -> PathBuf {
     file_name.push(constants::delimiter::HYPHEN);
     file_name.push_str(&std::process::id().to_string());
     file_name.push(constants::delimiter::HYPHEN);
-    file_name.push_str(ocentra_eventing::EventId::generated().as_str());
+    file_name.push_str(ocentra_eventing::ids::EventId::generated().as_str());
     file_name.push(constants::delimiter::DOT);
     file_name.push_str(constants::network_flow::TEST_REMOTE_EVENT_CHAIN_JOURNAL_EXTENSION);
     std::env::temp_dir().join(file_name)

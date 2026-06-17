@@ -1,9 +1,9 @@
 import type { AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { ParentPortalContent, ParentPortalRow } from './parent-portal-data';
-import { SERVICE_BACKED_CONTENT } from './parent-portal-service-state-constants';
+import { PARENT_PORTAL_SERVICE_STATE, SERVICE_BACKED_CONTENT } from './parent-portal-service-state-constants';
 import { parentPortalServiceRows } from './parent-portal-service-state-rows';
 
-export { PARENT_PORTAL_SERVICE_STATE } from './parent-portal-service-state-constants';
+export { PARENT_PORTAL_SERVICE_STATE };
 
 export type ParentPortalServiceConnectionState = 'connected' | 'connecting' | 'disconnected' | 'error';
 

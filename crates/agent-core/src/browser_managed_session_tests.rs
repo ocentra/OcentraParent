@@ -109,12 +109,12 @@ fn managed_browser_launch_reports_failed_spawn_without_default_profile_attach() 
 fn managed_browser_profile_store_creates_and_reloads_redacted_metadata() {
     let root = profile_store_root(constants::browser::PROFILE_STORE_TEST_CREATE_SUFFIX);
     let _ = std::fs::remove_dir_all(&root);
-    let first = create_or_repair_managed_browser_profile_store(profile_store_config(
+    let first = create_or_repair_managed_browser_profile_store(&profile_store_config(
         root.clone(),
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     ))
     .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    let second = load_managed_browser_profile_store(profile_store_config(
+    let second = load_managed_browser_profile_store(&profile_store_config(
         root.clone(),
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     ))
@@ -146,7 +146,7 @@ fn managed_browser_profile_store_creates_and_reloads_redacted_metadata() {
 fn managed_browser_profile_store_reports_missing_and_repairs_profile_dir() {
     let root = profile_store_root(constants::browser::PROFILE_STORE_TEST_MISSING_SUFFIX);
     let _ = std::fs::remove_dir_all(&root);
-    let created = create_or_repair_managed_browser_profile_store(profile_store_config(
+    let created = create_or_repair_managed_browser_profile_store(&profile_store_config(
         root.clone(),
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     ))
@@ -154,12 +154,12 @@ fn managed_browser_profile_store_reports_missing_and_repairs_profile_dir() {
     std::fs::remove_dir_all(&created.profile_dir)
         .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
 
-    let missing = load_managed_browser_profile_store(profile_store_config(
+    let missing = load_managed_browser_profile_store(&profile_store_config(
         root.clone(),
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     ))
     .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    let repaired = create_or_repair_managed_browser_profile_store(profile_store_config(
+    let repaired = create_or_repair_managed_browser_profile_store(&profile_store_config(
         root.clone(),
         constants::activity_store::TEST_THIRD_OBSERVED_AT,
     ))
@@ -190,12 +190,12 @@ fn managed_browser_profile_store_reports_missing_and_repairs_profile_dir() {
 fn managed_browser_profile_store_delete_preserves_redacted_metadata() {
     let root = profile_store_root(constants::browser::PROFILE_STORE_TEST_DELETE_SUFFIX);
     let _ = std::fs::remove_dir_all(&root);
-    let created = create_or_repair_managed_browser_profile_store(profile_store_config(
+    let created = create_or_repair_managed_browser_profile_store(&profile_store_config(
         root.clone(),
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     ))
     .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    let deleted = delete_managed_browser_profile_store(profile_store_config(
+    let deleted = delete_managed_browser_profile_store(&profile_store_config(
         root.clone(),
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     ))
@@ -222,7 +222,7 @@ fn managed_browser_profile_store_delete_preserves_redacted_metadata() {
 #[test]
 fn managed_browser_profile_store_rejects_default_and_unowned_paths() {
     let default_profile_error =
-        create_or_repair_managed_browser_profile_store(BrowserManagedProfileStoreConfig {
+        create_or_repair_managed_browser_profile_store(&BrowserManagedProfileStoreConfig {
             profile_root_dir: PathBuf::from(constants::browser::PATH_SEGMENT_USER_DATA)
                 .join(constants::browser::PATH_SEGMENT_DEFAULT),
             profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
@@ -235,7 +235,7 @@ fn managed_browser_profile_store_rejects_default_and_unowned_paths() {
         })
         .expect_err(constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL);
     let unowned_profile_error =
-        create_or_repair_managed_browser_profile_store(BrowserManagedProfileStoreConfig {
+        create_or_repair_managed_browser_profile_store(&BrowserManagedProfileStoreConfig {
             profile_root_dir: profile_store_root(
                 constants::browser::PROFILE_STORE_TEST_REJECT_SUFFIX,
             ),

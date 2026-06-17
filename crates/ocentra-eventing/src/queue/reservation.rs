@@ -1,4 +1,4 @@
-﻿use crate::{EventId, IdempotencyKey};
+use crate::{EventId, IdempotencyKey};
 
 use super::state::EventQueue;
 
@@ -40,4 +40,3 @@ impl Drop for DispatchReservation {
         }
     }
 }
-

@@ -5,6 +5,7 @@ use ocentra_parent_agent_protocol::{
     SOCIAL_ALERT_REPORT_PROVIDER_PREFLIGHT_ADAPTER_REQUIRED,
     SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_REQUIRED,
 };
+use serde::de::DeserializeOwned;
 
 use super::social_alert_report_read_model_payload::{
     social_alert_report_read_model_from_service, social_alert_report_read_model_payload,
@@ -59,7 +60,7 @@ fn social_alert_report_payload_reports_honest_service_rows() {
 
 fn string_payload<T>(payload: &ocentra_parent_agent_protocol::LogFields, field: &str) -> T
 where
-    T: serde::de::DeserializeOwned,
+    T: DeserializeOwned,
 {
     match &payload[field] {
         LogFieldValue::String(text) => {

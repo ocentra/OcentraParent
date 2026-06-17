@@ -176,7 +176,7 @@ describe("binding-backed payment read model", () => {
           familyRef: "family:binding",
           auditReference: "audit:binding-proof",
           createdAt: "2026-06-14T00:00:00.000Z",
-        },
+        } as any,
       ],
     });
 

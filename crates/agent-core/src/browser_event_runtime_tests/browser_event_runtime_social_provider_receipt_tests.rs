@@ -6,7 +6,7 @@ use crate::{
     browser_runtime_social_provider_receipt_status_topology_manifest,
     request_browser_runtime_social_provider_receipt_status_for_input, BrowserRuntimeInput,
 };
-use ocentra_eventing::EventTopologyStatus;
+use ocentra_eventing::topology::EventTopologyStatus;
 use ocentra_parent_agent_protocol::constants;
 
 #[tokio::test]

@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { runNpmCommand } from './run-npm-command.mjs';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const proofMode = 'tracking-ios-simulator-artifact-inventory-proof';
@@ -31,16 +31,16 @@ async function main() {
   await mkdir(wp31Root, { recursive: true });
   await mkdir(wp33Root, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   run('cmd', [
     '/c',
     'npm',
-    'run',
-    'test',
+    'exec',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-ios-simulator-artifact-inventory-proof',
+    'vitest',
+    'run',
+    'tests/contract/tracking-ios-simulator-artifact-inventory-proof.test.ts',
   ]);
 
   const proof = await buildProof();
@@ -52,7 +52,7 @@ async function main() {
 }
 
 async function buildProof() {
-  const proofModule = await importDist('tracking-ios-simulator-artifact-inventory-proof.js');
+  const proofModule = await importSource('packages/tracking-domain/src/tracking-ios-simulator-artifact-inventory-proof.ts');
   const iosSimulatorProof = await readJson(sourceIosSimulatorProofRef);
   const iosManualRequiredProof = await readJson(iosManualRequiredProofRef);
   const iosPrivacyReleaseProof = await readJson(iosPrivacyReleaseProofRef);
@@ -182,8 +182,8 @@ function sourceSnapshot(proof) {
     `- iosManualRequiredRowCount: ${proof.summary.iosManualRequiredRowCount}`,
     `- iosMissingRuntimeArtifactCount: ${proof.summary.iosMissingRuntimeArtifactCount}`,
     '- does not prove iOS Core Location runtime, Always authorization, region delivery, physical-device behavior, authority enrollment, provider delivery, production runtime, or product readiness',
-    '- proof module: packages/parent-domain/src/tracking-ios-simulator-artifact-inventory-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-ios-simulator-artifact-inventory-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-ios-simulator-artifact-inventory-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-ios-simulator-artifact-inventory-proof.test.ts',
     '- proof harness: scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs',
     '',
   ].join('\n');
@@ -225,8 +225,8 @@ function validationLog() {
   return `${commands.map((entry) => `${entry.command} exit=${entry.status}`).join('\n')}\n`;
 }
 
-async function importDist(fileName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
+async function importSource(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }
 
 async function readJson(path) {

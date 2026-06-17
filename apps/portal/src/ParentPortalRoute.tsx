@@ -50,6 +50,7 @@ import {
   shouldRenderBrowserParentExplanationRoute,
 } from './BrowserParentExplanationRoutePanel';
 import { PolicyPreviewRoutePanel, shouldRenderPolicyPreviewRoute } from './PolicyPreviewRoutePanel';
+import { SetupFirstRunRoutePanel, shouldRenderSetupFirstRunRoute } from './SetupFirstRunRoutePanel';
 import {
   shouldRenderSocialAuditExplanationRoute,
   SocialAuditExplanationRoutePanel,
@@ -123,6 +124,7 @@ export function ParentPortalRoute({
         }}
         onAssistantCommand={actions.sendCommand}
       />
+      {shouldRenderSetupFirstRunRoute(route) ? <SetupFirstRunRoutePanel /> : null}
       {shouldRenderTrackingStatusRoute(route) ? (
         <TrackingStatusRoutePanel
           actions={actions}

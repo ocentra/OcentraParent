@@ -30,16 +30,24 @@ unavailable, degraded, manual-required, and not-implemented states.
 
 ## Requirement Checklist
 
-- [ ] Include app/game, managed browser, unmanaged browser, network/domain,
+- [x] Include app/game, managed browser, unmanaged browser, network/domain,
       timers, approvals, integrity, and platform rows.
-- [ ] Write deterministic JSON under `test-results`.
-- [ ] Include commit SHA, command, platform, proof level, and known gaps.
-- [ ] Fail or flag claim upgrades without proof.
-- [ ] Reference the proof in feature docs/checklist when status changes.
+- [x] Write deterministic JSON under `test-results`.
+- [x] Include commit SHA, command, platform, proof level, and known gaps.
+- [x] Fail or flag claim upgrades without proof.
+- [x] Reference the proof in plan proof/checklist routing when status changes.
 
 ## Acceptance And Proof
 
 The proof command is repeatable locally and suitable for PR handoff review.
+
+Current proof command:
+`node scripts/test/v0-8-enforcement-control-plan-proof.mjs`
+
+Current proof artifacts:
+- `test-results/v0-8-enforcement-control-plan-proof/proof.json`
+- `output/v0-8-enforcement-control-plan-proof/18-proof-command-and-matrix/`
+- `docs/proof/v0-8-enforcement-control-plan/slice-03-proof-command-and-matrix.md`
 
 ## Parallel Ownership Notes
 

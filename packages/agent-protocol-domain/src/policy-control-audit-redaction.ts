@@ -73,33 +73,43 @@ export const PolicyControlAuditPayloadSchema = withParser(
   })
 );
 
+const PolicyControlRedactedAuditPayloadBaseSchema = Schema.Struct({
+  schemaVersion: Schema.Literal(PolicyControlRedactedAuditPayloadSchemaVersion),
+  auditEventId: NonEmptyStringSchema,
+  deliveryRowId: NonEmptyStringSchema,
+  policyVersionRef: NonEmptyStringSchema,
+  policyDomain: AgentPolicyControlDeliveryDomainSchema,
+  eventKind: PolicyControlAuditEventKindSchema,
+  parentVisibleState: AgentPolicyControlDeliveryParentVisibleStateSchema,
+  childDeviceId: NonEmptyStringSchema,
+  actorRole: PolicyControlAuditActorRoleSchema,
+  reasonCodes: Schema.Array(NonEmptyStringSchema),
+  auditRefs: Schema.Array(NonEmptyStringSchema).pipe(
+    Schema.filter((value) => value.length > 0 || 'Expected audit refs for redacted policy control audit payload')
+  ),
+  manualProofRequirements: Schema.Array(NonEmptyStringSchema),
+  retryScheduleRefs: Schema.Array(NonEmptyStringSchema),
+  childDisplayName: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.ChildIdentity), Schema.Null),
+  accountLocator: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.AccountIdentity), Schema.Null),
+  policyTargetValue: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.PolicyTarget), Schema.Null),
+  rawUrl: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.RawUrl), Schema.Null),
+  secretToken: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.Secret), Schema.Null),
+  providerDetail: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.ProviderDetail), Schema.Null),
+  protectedFieldKinds: Schema.Array(PolicyControlAuditSensitiveFieldKindSchema),
+  redactedSensitiveFieldCount: PolicyControlAuditCountSchema,
+  redactionApplied: Schema.Boolean,
+});
+
+type PolicyControlRedactedAuditPayloadCandidate = Infer<typeof PolicyControlRedactedAuditPayloadBaseSchema>;
+
 export const PolicyControlRedactedAuditPayloadSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(PolicyControlRedactedAuditPayloadSchemaVersion),
-    auditEventId: NonEmptyStringSchema,
-    deliveryRowId: NonEmptyStringSchema,
-    policyVersionRef: NonEmptyStringSchema,
-    policyDomain: AgentPolicyControlDeliveryDomainSchema,
-    eventKind: PolicyControlAuditEventKindSchema,
-    parentVisibleState: AgentPolicyControlDeliveryParentVisibleStateSchema,
-    childDeviceId: NonEmptyStringSchema,
-    actorRole: PolicyControlAuditActorRoleSchema,
-    reasonCodes: Schema.Array(NonEmptyStringSchema),
-    auditRefs: Schema.Array(NonEmptyStringSchema).pipe(
-      Schema.filter((value) => value.length > 0 || 'Expected audit refs for redacted policy control audit payload')
-    ),
-    manualProofRequirements: Schema.Array(NonEmptyStringSchema),
-    retryScheduleRefs: Schema.Array(NonEmptyStringSchema),
-    childDisplayName: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.ChildIdentity), Schema.Null),
-    accountLocator: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.AccountIdentity), Schema.Null),
-    policyTargetValue: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.PolicyTarget), Schema.Null),
-    rawUrl: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.RawUrl), Schema.Null),
-    secretToken: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.Secret), Schema.Null),
-    providerDetail: Schema.Union(Schema.Literal(PolicyControlAuditRedactionPlaceholder.ProviderDetail), Schema.Null),
-    protectedFieldKinds: Schema.Array(PolicyControlAuditSensitiveFieldKindSchema),
-    redactedSensitiveFieldCount: PolicyControlAuditCountSchema,
-    redactionApplied: Schema.Boolean,
-  }).pipe(Schema.filter(validateRedactedAuditPayload))
+  PolicyControlRedactedAuditPayloadBaseSchema.pipe(
+    Schema.filter(
+      (payload: PolicyControlRedactedAuditPayloadCandidate) =>
+        validateRedactedAuditPayload(payload) ||
+        'Expected redacted policy control audit payloads to keep sensitive fields redacted and counts aligned'
+    )
+  )
 );
 
 export type PolicyControlAuditEventKind = Infer<typeof PolicyControlAuditEventKindSchema>;
@@ -178,7 +188,7 @@ function redactField<TPlaceholder extends string>(
   return placeholder;
 }
 
-function validateRedactedAuditPayload(payload: PolicyControlRedactedAuditPayload): true | string {
+function validateRedactedAuditPayload(payload: PolicyControlRedactedAuditPayloadCandidate): true | string {
   if (payload.redactionApplied !== (payload.redactedSensitiveFieldCount > 0)) {
     return 'Redaction applied flag must match sensitive field count';
   }

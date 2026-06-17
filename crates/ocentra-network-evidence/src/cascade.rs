@@ -69,9 +69,10 @@ pub enum NetworkEvidenceCascadeError {
 pub fn route_network_evidence_cascade(
     input: NetworkEvidenceCascadeInput,
 ) -> Result<NetworkEvidenceCascadeDecision, NetworkEvidenceCascadeError> {
-    validate_cascade_input(&input.sources)?;
+    let NetworkEvidenceCascadeInput { sources } = input;
+    validate_cascade_input(&sources)?;
 
-    let Some(primary) = strongest_source(&input.sources) else {
+    let Some(primary) = strongest_source(&sources) else {
         return Ok(no_source_decision());
     };
 

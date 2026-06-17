@@ -23,7 +23,7 @@ Define the hosted checkout and billing portal boundary so payment actions stay s
 - [BILLING_API_BOUNDARY.md](../BILLING_API_BOUNDARY.md)
 - [CHECKOUT_BILLING_PORTAL_MODEL.md](../CHECKOUT_BILLING_PORTAL_MODEL.md)
 - [PAYMENT_PROVIDER_STRATEGY.md](../PAYMENT_PROVIDER_STRATEGY.md)
-- `docs/proof/payment-subscription-plan/wp02-checkout-billing-portal/`
+- `output/payment-subscription-plan-proof/02-checkout-billing-portal/`
 
 ## Acceptance
 
@@ -44,7 +44,7 @@ Define the hosted checkout and billing portal boundary so payment actions stay s
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
 - Required proof families: `payment-checkout.auth-required`, `payment-checkout.household-role-required`, `payment-checkout.invalid-product-rejected`, `payment-checkout.redirect-allowlist`, `payment-checkout.origin-csrf-negative`, `payment-checkout.bot-abuse-gate`, `payment-checkout.no-desktop-secrets`, `payment-checkout.no-client-secret-exposure`, `payment-checkout.return-success-not-entitlement`, `payment-checkout.cancel-state`
-- Proof bundle: `docs/proof/payment-subscription-plan/02-cloudflare-billing-api-boundary-proof.md`, `docs/proof/payment-subscription-plan/02-hosted-checkout-proof.md`, `docs/proof/payment-subscription-plan/02-billing-portal-proof.md`, `docs/proof/payment-subscription-plan/02-no-client-secret-proof.md`, `docs/proof/payment-subscription-plan/02-redirect-origin-negative-proof.md`
+- Proof bundle: `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-cloudflare-billing-api-boundary-proof.md`, `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-hosted-checkout-proof.md`, `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-billing-portal-proof.md`, `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-no-client-secret-proof.md`, `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-redirect-origin-negative-proof.md`
 
 ## Negative cases
 

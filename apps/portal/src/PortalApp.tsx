@@ -39,11 +39,11 @@ import { PortalUnifiedShell } from './PortalUnifiedChrome';
 import {
   carouselStyle,
   frameContentStyle,
-  frameContentTarget,
   frameHostClassName,
   goldenCardStyle,
-} from './portal-frame-layout';
-import type { PortalFrameContentTargetLayout, PortalFrameLayout } from './portal-frame-layout';
+} from './portal-frame-layout-style';
+import { frameContentTarget } from './portal-frame-layout-state';
+import type { PortalFrameContentTargetLayout, PortalFrameLayout } from './portal-frame-layout-types';
 import { usePortalNetworkActivityRefresh } from './use-portal-network-activity-refresh';
 import { usePortalFrameLayout } from './use-portal-frame-layout';
 

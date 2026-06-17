@@ -23,7 +23,7 @@ Assumes WP01 contracts and WP02 SQLite tables exist.
 The V0.9 LAN spine now wires `crates/agent-service` to a service-backed read
 model that consumes LAN slot/parser fixture states for signed discovery, route
 custody, relay/cache unavailable, manual-proof, and parent-decision fields
-(feature doc checklist row `[x]`). Live B-lane browser proof exists at:
+(feature doc checklist row `[ ]`). Live B-lane browser proof exists at:
 `output/playwright/lan-source-matrix-plan-completion/devices-lan-source-matrix.png`.
 
 What is **not** proved yet:

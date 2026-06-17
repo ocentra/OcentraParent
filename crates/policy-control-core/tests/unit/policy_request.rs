@@ -1,3 +1,4 @@
+use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_request::{
     confirm_assistant_policy_request_preview, expire_child_policy_request,
     policy_request_schema_version, register_child_policy_request, resolve_parent_policy_approval,
@@ -125,7 +126,7 @@ fn assert_active_override_minutes(
         .as_ref()
         .expect("temporary override");
 
-    assert_eq!(resolution.request.resolved_approval_id.is_some(), true);
+    assert!(resolution.request.resolved_approval_id.is_some());
     assert_eq!(temporary_override.state, PolicyOverrideState::Active);
     assert_eq!(
         temporary_override
@@ -163,6 +164,32 @@ fn double_submit_is_idempotent_and_grant_replay_is_override_safe() {
     )
     .expect("same approval id is replay safe");
     assert_eq!(replay, resolved);
+}
+
+#[test]
+fn replay_with_changed_decision_is_rejected() {
+    let request = child_request();
+    let granted_approval = approval(&request, PolicyApprovalDecision::Grant);
+    let resolved = resolve_parent_policy_approval(&request, granted_approval.clone(), None)
+        .expect("grant resolves child request");
+
+    let mut stale_replay = approval(&resolved.request, PolicyApprovalDecision::Deny);
+    stale_replay.approval_id = granted_approval.approval_id;
+
+    let error = resolve_parent_policy_approval(
+        &resolved.request,
+        stale_replay,
+        resolved.temporary_override.as_ref(),
+    )
+    .expect_err("reused approval id with changed decision must be rejected");
+
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_request.approval_id",
+            value: "request-bonus-time-grant".to_string(),
+        }
+    );
 }
 
 #[test]

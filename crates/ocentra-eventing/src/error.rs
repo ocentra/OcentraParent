@@ -1,4 +1,4 @@
-﻿use std::{error::Error, fmt};
+use std::{error::Error, fmt};
 
 use crate::{EventId, EventType, IdempotencyKey, RequestId, SchemaVersion, SubscriberId};
 
@@ -387,4 +387,3 @@ fn fmt_journal_error(error: &EventingError, formatter: &mut fmt::Formatter<'_>) 
 }
 
 impl Error for EventingError {}
-

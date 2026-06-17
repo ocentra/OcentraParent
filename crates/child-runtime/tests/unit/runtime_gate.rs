@@ -6,17 +6,16 @@ use ocentra_entitlement_core::entitlement_access::{
     EntitlementCapability, EntitlementCapabilityInput, EntitlementCapabilityRejectionReason,
     EntitlementCapabilityScope, EntitlementDeviceTrustRequirementState,
     EntitlementDeviceTrustState, EntitlementPackageBuildState, EntitlementPolicyState,
-    EntitlementSnapshotBindingState, EntitlementSnapshotContext,
-    EntitlementSnapshotFreshnessState, EntitlementSnapshotSignatureState, FamilySetupState,
-    OfflineGraceState, SubscriptionState,
+    EntitlementSnapshotBindingState, EntitlementSnapshotContext, EntitlementSnapshotFreshnessState,
+    EntitlementSnapshotSignatureState, FamilySetupState, OfflineGraceState, SubscriptionState,
 };
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_family_identity_core::{
     ActorAccountState, ChildDisclosureState, ChildProfileBindingState, DeviceOwnershipScope,
     DeviceScopeInput, DeviceTrustState, FamilyActorRole, HouseholdMembership,
 };
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
-use ocentra_provisioning_core::{
+use ocentra_provisioning_core::provisioning_install::{
     AccountReadinessState, ChildAppReadinessState, ChildInstallState, ChildServiceState,
     DataCustodySyncState, NetworkReachabilityState, PairingLifecycleState, ParentAppReadinessState,
     ParentDeviceRegistrationState, PermissionReadinessState, PolicyBaselineState,
@@ -75,8 +74,10 @@ fn child_runtime_preflight_blocks_when_entitlement_is_parent_portal_only() {
 #[test]
 fn child_runtime_preflight_blocks_when_entitlement_snapshot_household_binding_is_wrong() {
     let mut input = valid_child_runtime_preflight_input();
-    input.entitlement_input.snapshot_context.household_binding_state =
-        EntitlementSnapshotBindingState::Mismatched;
+    input
+        .entitlement_input
+        .snapshot_context
+        .household_binding_state = EntitlementSnapshotBindingState::Mismatched;
 
     let decision = ocentra_child_runtime::evaluate_child_runtime_preflight(input);
 
@@ -97,8 +98,10 @@ fn child_runtime_preflight_blocks_when_entitlement_snapshot_household_binding_is
 #[test]
 fn child_runtime_preflight_blocks_when_entitlement_snapshot_device_binding_is_wrong() {
     let mut input = valid_child_runtime_preflight_input();
-    input.entitlement_input.snapshot_context.device_binding_state =
-        EntitlementSnapshotBindingState::Mismatched;
+    input
+        .entitlement_input
+        .snapshot_context
+        .device_binding_state = EntitlementSnapshotBindingState::Mismatched;
 
     let decision = ocentra_child_runtime::evaluate_child_runtime_preflight(input);
 

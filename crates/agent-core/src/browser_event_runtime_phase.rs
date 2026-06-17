@@ -1,4 +1,4 @@
-use ocentra_eventing::RuntimeRole;
+use ocentra_eventing::ids::RuntimeRole;
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
@@ -113,7 +113,9 @@ impl BrowserRuntimePhase {
             Self::AuditEntryCommitted => constants::eventing_source::ROLE_AUDIT_WRITER,
             Self::ReadModelProjected => constants::eventing_source::ROLE_READ_MODEL,
         };
-        RuntimeRole::parse(value)
-            .expect(constants::eventing_source::ERROR_RUNTIME_ROLE_CONSTANT_PARSES)
+        match RuntimeRole::parse(value) {
+            Ok(role) => role,
+            Err(_) => std::process::abort(),
+        }
     }
 }

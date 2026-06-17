@@ -22,7 +22,7 @@ Define invoice, tax, refund, dispute, cancellation, and grace behavior as one co
 
 - [INVOICE_TAX_REFUND_DISPUTE_MODEL.md](../INVOICE_TAX_REFUND_DISPUTE_MODEL.md)
 - [APP_OWNED_BILLING_LEDGER.md](../APP_OWNED_BILLING_LEDGER.md)
-- `docs/proof/payment-subscription-plan/wp05-invoice-tax-refund-dispute/`
+- `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/`
 
 ## Acceptance
 
@@ -43,7 +43,7 @@ Define invoice, tax, refund, dispute, cancellation, and grace behavior as one co
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
 - Required proof families: `payment-lifecycle.invoice-visible`, `payment-lifecycle.receipt-visible`, `payment-lifecycle.tax-mode-decision`, `payment-lifecycle.refund-state`, `payment-lifecycle.partial-refund-state`, `payment-lifecycle.refund-failed-state`, `payment-lifecycle.dispute-opened`, `payment-lifecycle.dispute-won`, `payment-lifecycle.dispute-lost`, `payment-lifecycle.chargeback-state`, `payment-lifecycle.failed-renewal-grace`, `payment-lifecycle.cancel-immediate`, `payment-lifecycle.cancel-period-end`, `payment-lifecycle.resume-after-past-due`, `payment-lifecycle.support-admin-audited`, `payment-lifecycle.no-data-delete-on-refund`
-- Proof bundle: `docs/proof/payment-subscription-plan/05-invoice-tax-refund-dispute-matrix.md`, `docs/proof/payment-subscription-plan/05-invoice-dashboard-proof.md`, `docs/proof/payment-subscription-plan/05-refund-dispute-entitlement-proof.md`, `docs/proof/payment-subscription-plan/05-support-admin-audit-proof.md`
+- Proof bundle: `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/05-invoice-tax-refund-dispute-matrix.md`, `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/05-invoice-dashboard-proof.md`, `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/05-refund-dispute-entitlement-proof.md`, `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/05-support-admin-audit-proof.md`
 
 ## Negative cases
 

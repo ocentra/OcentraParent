@@ -1,7 +1,15 @@
 import {
   DevLogBridge,
+  DevLogEndpoint,
+  DevLogHttp,
   DevLogField,
+  DevLogIdPrefix,
   DevLogMessage,
+  LogLevel,
+  LogSource,
+  decodeLogEntryId,
+  decodeLogTimestamp,
+  type DevLogEntry,
   type LogFields,
   type LogMessage,
 } from '@ocentra-parent/logging-domain/contracts';
@@ -62,11 +70,19 @@ export function writePortalProofTraceLog(
   void sendPortalProofTraceLog(message, proofTrace, fields);
 }
 
-export async function sendPortalDevLog(message: LogMessage, fields: LogFields = {}, endpoint = resolvePortalDevLogBridgeUrl()): Promise<boolean> {
-  if (endpoint.length === 0) {
-    return false;
+export async function sendPortalDevLog(
+  message: LogMessage,
+  fields: LogFields = {},
+  endpoint = resolvePortalDevLogBridgeUrl(),
+  runtime: Record<string, unknown> = globalThis as Record<string, unknown>
+): Promise<boolean> {
+  if (endpoint.length > 0) {
+    const sent = await sendPortalLoggerMessage(message, fields, null, endpoint, getStackTrace());
+    if (sent) {
+      return true;
+    }
   }
-  return sendPortalLoggerMessage(message, fields, null, endpoint, getStackTrace());
+  return sendPortalCompatibilityLog(message, fields, runtime);
 }
 
 export function resolvePortalDevLogBridgeUrl(runtime: Record<string, unknown> = globalThis as Record<string, unknown>): string {
@@ -87,12 +103,9 @@ export async function sendPortalProofTraceLog(
   message: LogMessage,
   proofTrace: PortalProofTraceOptions,
   fields: LogFields = {},
-  endpoint = resolvePortalDevLogBridgeUrl()
+  endpoint = resolvePortalDevLogBridgeUrl(),
+  runtime: Record<string, unknown> = globalThis as Record<string, unknown>
 ): Promise<boolean> {
-  if (endpoint.length === 0) {
-    return false;
-  }
-
   const config = resolvePortalProofTraceConfig();
   const effectiveProofId = proofTrace.proofId ?? config.proofId;
   if ((!config.enabled && effectiveProofId == null) || !proofTraceAllowedForPortal(config)) {
@@ -108,13 +121,19 @@ export async function sendPortalProofTraceLog(
         ? { scope: config.scope }
         : {}),
   });
-  return sendPortalLoggerMessage(
-    message,
-    entry.dataFields,
-    entry.runtimeConfig,
-    endpoint,
-    getStackTrace()
-  );
+  if (endpoint.length > 0) {
+    const sent = await sendPortalLoggerMessage(
+      message,
+      entry.dataFields,
+      entry.runtimeConfig,
+      endpoint,
+      getStackTrace()
+    );
+    if (sent) {
+      return true;
+    }
+  }
+  return sendPortalCompatibilityLog(message, entry.dataFields, runtime);
 }
 
 export function resolvePortalProofTraceConfig(
@@ -236,6 +255,56 @@ function firstNonEmptyString(...values: unknown[]): string | null {
 function getPortalEnv(): Record<string, string | undefined> {
   const env = import.meta.env;
   return env != null ? env : {};
+}
+
+function resolvePortalCompatibilityUrl(runtime: Record<string, unknown>): string | null {
+  const location = runtime['location'];
+  if (location === null || typeof location !== 'object') {
+    return null;
+  }
+  const origin = (location as { origin?: unknown }).origin;
+  if (typeof origin !== 'string' || origin.trim().length === 0) {
+    return null;
+  }
+  return `${origin.replace(/\/+$/u, '')}${DevLogEndpoint.Write}`;
+}
+
+async function sendPortalCompatibilityLog(
+  message: LogMessage,
+  fields: LogFields,
+  runtime: Record<string, unknown>
+): Promise<boolean> {
+  const endpoint = resolvePortalCompatibilityUrl(runtime);
+  if (endpoint === null) {
+    return false;
+  }
+
+  const entry = createPortalCompatibilityEntry(message, fields);
+  try {
+    const response = await fetch(endpoint, {
+      method: DevLogHttp.MethodPost,
+      headers: {
+        [DevLogHttp.HeaderContentType]: DevLogHttp.ContentTypeJson,
+      },
+      body: JSON.stringify(entry),
+      credentials: DevLogHttp.CredentialsSameOrigin,
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+function createPortalCompatibilityEntry(message: LogMessage, fields: LogFields): DevLogEntry {
+  return {
+    schemaVersion: 1,
+    id: decodeLogEntryId(`${DevLogIdPrefix.Portal}${globalThis.crypto?.randomUUID?.() ?? Date.now()}`),
+    timestamp: decodeLogTimestamp(new Date().toISOString()),
+    level: LogLevel.Info,
+    source: LogSource.Portal,
+    message,
+    fields,
+  };
 }
 
 async function sendPortalLoggerMessage(

@@ -17,6 +17,7 @@ This index points at the local architecture docs for the device-trust bootstrap 
 | [DECISIONS.md](DECISIONS.md) | Core architecture decisions. |
 | [DEVICE_TRUST_MODEL.md](DEVICE_TRUST_MODEL.md) | Trust authority and state machine. |
 | [LOCAL_KEY_SEALING_MODEL.md](LOCAL_KEY_SEALING_MODEL.md) | Platform key sealing model. |
+| [PLATFORM_KEY_CUSTODY_MATRIX.md](PLATFORM_KEY_CUSTODY_MATRIX.md) | Platform custody matrix for sealed trust keys. |
 | [PARENT_STEP_UP_AUTH_MODEL.md](PARENT_STEP_UP_AUTH_MODEL.md) | Parent step-up auth model. |
 | [PHONE_QR_APPROVAL_MODEL.md](PHONE_QR_APPROVAL_MODEL.md) | QR approval bridge model. |
 | [ENTITLEMENT_DEVICE_LICENSE_MODEL.md](ENTITLEMENT_DEVICE_LICENSE_MODEL.md) | Entitlement and device license model. |

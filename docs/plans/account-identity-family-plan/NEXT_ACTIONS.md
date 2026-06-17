@@ -26,29 +26,29 @@
 
 ## Highest-priority queue
 
+Audit snapshot June 16, 2026: no workpack is auditable complete yet. Proof roots are missing for WP01-WP07, and the recorded WP04 pattern commands do not cover the stale `packages/family-domain/tests/unit/setup-lifecycle.test.ts` path. Re-open the queue from WP01.
+
 ### 1. WP01 Auth Provider Decision
 
 Expected result:
 
 ```text
-source-backed provider decision record
-Cloudflare-owned account/family custody decision
-Firebase/Auth.js boundaries accepted/rejected or explicitly staged
-no product family data in IdP/custom claims
-provider outage and migration path documented
+accepted provider/custody decision with exact D1/DO/KV/R2 ownership split
+explicit IdP/Auth.js adapter boundary
+degraded/manual-required behavior for provider outage
+replacement/migration path
+proof root and command log
 ```
-
-Do this before runtime account/session work.
 
 ### 2. WP02 Identity Household Role Model
 
 Expected result:
 
 ```text
-account user, household, membership, role, child profile, and device authority shapes
-role/action/resource matrix
-support/admin minimized actor state
-cross-family negative proof
+typed account/household/membership/role/device references
+role/action/resource matrix with cross-family denial proof
+observer/support/admin boundaries
+proof root and command log
 ```
 
 ### 3. WP03 Session Token Lifecycle
@@ -57,10 +57,9 @@ Expected result:
 
 ```text
 credential type matrix
-session/refresh/logout/global revoke lifecycle
-device credential and controller lease separation
-expiry, replay, CSRF/origin, stale-token proof
-redacted session audit model
+browser session lifecycle, replay-safe rotation, revoke/logout, expiry/skew handling
+sensitive-action freshness gate
+proof root and command log
 ```
 
 ### 4. WP04 Invites Recovery Lifecycle
@@ -97,7 +96,7 @@ honest source/custody/degraded/manual-required UI labels
 portal tests or explicit missing UI blocker
 ```
 
-### 7. WP06 Security Proof and Route Gate
+### 7. WP06 Security Proof And Route Gate
 
 Expected result:
 

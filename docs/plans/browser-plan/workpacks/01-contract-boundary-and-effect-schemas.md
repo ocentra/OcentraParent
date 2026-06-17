@@ -26,10 +26,11 @@ Browser-game/cloud-gaming contracts are scoped by
 
 ## Where We Are
 
-`packages/activity-domain` already owns browser tab evidence, managed session
-status, read models, and browser intervention schemas. `packages/parent-domain`
-owns browser policy authoring/catalog/update contracts. `packages/agent-protocol-domain`
-owns browser policy command/event adapter contracts.
+The audited TypeScript owner for the active browser-plan contract surface is
+`packages/browser-domain`, which now carries browser AI, social, browser-game,
+policy compiler, and contract-only proof read-model schemas. `packages/agent-protocol-domain`
+still owns the browser policy command/event adapter boundary, and Rust protocol
+parity still routes through `crates/agent-protocol`.
 
 ## Where We Want To Be
 
@@ -56,8 +57,10 @@ owning domain package before Rust protocol or service code claims support.
 
 ## Touched Paths
 
-- `packages/activity-domain/src/browser*.ts`
-- `packages/parent-domain/src/browser-control-*.ts`
+- `packages/browser-domain/src/browser-*.ts`
+- `packages/browser-domain/src/social-*.ts`
+- `packages/browser-domain/src/browser-game-*.ts`
+- `packages/browser-domain/tests/unit/*.test.ts`
 - `packages/agent-protocol-domain/src/browser-policy-adapter.ts`
 - `crates/agent-protocol/src/browser*.rs`
 
@@ -91,6 +94,29 @@ Fill this before reporting `DONE` or PR-ready:
 ## Manual-Required Gaps
 
 No runtime/browser/platform claim is created by contracts alone.
+
+## Audit Addendum - 2026-06-16
+
+This workpack previously described a legacy `packages/activity-domain` and
+`packages/parent-domain` split that no longer matches the current browser-plan
+source surface. The 2026-06-16 repair slice under this workpack instead landed
+in `packages/browser-domain`.
+
+Validated repair scope:
+
+- `packages/browser-domain/src/social-applied-schedule-time-budget-proof.ts`
+  now includes the required `compilerCapabilityState` field for the ready and
+  manual-required social decision candidate fixtures.
+- `packages/browser-domain/tests/unit/browser-package-exports.test.ts` and
+  `packages/browser-domain/tests/unit/browser-plan-package-exports.test.ts` now
+  resolve the package root correctly and assert the package wildcard export
+  contract plus source-module presence instead of reading
+  `packages/browser-domain/tests/package.json`.
+- Focused validation passed with targeted `browser-domain` tests, full
+  `browser-domain` tests, package type-check, and the touched-file architecture
+  gate. Package-wide `npm run lint:architecture -- --files packages/browser-domain`
+  still fails on pre-existing re-export debt outside this slice and remains an
+  open blocker for true WP01 completion.
 
 ## Completion Note - 2026-06-02
 

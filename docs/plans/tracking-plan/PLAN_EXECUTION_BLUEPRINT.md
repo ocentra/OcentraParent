@@ -35,7 +35,12 @@ output/tracking-plan-proof/<workpack-file-stem>/
 
 ## Active-workpack rule
 
-Checked rows in `WORKPACK_INDEX.md` stay closed unless the assignment is audit/regression/reopen.
+Checked rows in `WORKPACK_INDEX.md` stay closed unless the assignment is
+audit/regression/reopen. This plan currently has audit-reopened checked rows:
+`WP25`, `WP27`, `WP28`, `WP29`, and `WP33`.
+
+Treat on-disk `WP34-WP39` as active workpacks even though older generated
+index/state docs omitted them.
 
 Large reference docs under `workpacks/` that have `0/0` boxes are source/reference material, not executable workpacks, unless a selected workpack names them.
 
@@ -46,7 +51,7 @@ Use only commands relevant to the selected workpack, typically from:
 ```bash
 npm run build --workspace @ocentra-parent/tracking-domain
 npm run test --workspace @ocentra-parent/tracking-domain
-cargo test -p ocentra-parent-tracking-core
+cargo test -p ocentra-tracking-core
 cargo test -p ocentra-parent-agent-protocol tracking
 npm run test --workspace @ocentra-parent/portal -- tracking
 npm run lint:architecture -- --files packages/tracking-domain crates/tracking-core packages/agent-protocol-domain crates/agent-protocol apps/portal docs/plans/tracking-plan

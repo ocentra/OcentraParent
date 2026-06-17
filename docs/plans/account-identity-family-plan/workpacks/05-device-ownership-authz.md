@@ -142,12 +142,39 @@ Physical trusted-device proof remains owned by `device-trust-bootstrap-plan`. LA
 
 ## Fill before DONE
 
-```text
-Workpack id and branch:
-Authorization matrix changes:
-Touched files:
-Validation commands and results:
-Proof artifacts:
-Known gaps/manual-required states:
-No-claim boundaries:
-```
+- Workpack id and branch: `WP05 Device Ownership AuthZ`; `codex/tracking-plan-full-continuation-a`.
+- Current status: partial. Only `00-device-authority-matrix.md` and `16-validation-commands.log` exist under `output/account-identity-family-plan-proof/05-device-ownership-authz/`.
+- Contract/source changes in this slice: none in WP05-owned device authority sources; current proof is derived from existing TypeScript, Rust parity, and provisioning-readiness coverage.
+- Touched files:
+  - `docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md`
+  - `docs/plans/account-identity-family-plan/PLAN_STATE.md`
+  - `docs/plans/account-identity-family-plan/WORKPACK_INDEX.md`
+  - `docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/16-validation-commands.log`
+- Validation commands and results:
+  - `command: npm run build --workspace @ocentra-parent/family-domain`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: family-domain builds after direct lifecycle helper repair`
+  - `command: npm run test --workspace @ocentra-parent/family-domain -- tests/unit/household-authority.test.ts tests/unit/session-lifecycle.test.ts tests/unit/token-lifecycle.test.ts`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: direct household/session/token suite passed with 22 tests`
+  - `command: cargo test -p ocentra-family-identity-core`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: Rust parity suite passed with device authority, session, and setup negatives`
+  - `command: cargo test -p ocentra-provisioning-core readiness`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: provisioning consumer suite passed with 29 readiness and family-context tests`
+- Proof artifacts:
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/16-validation-commands.log`
+- Known gaps/manual-required states: `01-revoked-device-negative-proof.md`, `02-wrong-household-negative-proof.md`, `03-controller-lease-proof.md`, `04-remote-capability-proof.md`, `05-export-delete-owner-proof.md`, and `06-billing-owner-proof.md` are still missing; physical trusted-device proof remains owned by `device-trust-bootstrap-plan`; LAN/remote transport execution remains external.
+- No-claim boundaries: do not claim full device-state closure, wrong-household proof completion, remote transport execution, physical trusted-device bootstrap, or WP05 completion.

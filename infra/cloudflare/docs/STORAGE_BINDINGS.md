@@ -1,6 +1,6 @@
 # Storage Bindings
 
-Bindings modeled in this scaffold:
+Bindings modeled in the current module:
 
 - `BILLING_D1`
 - `BILLING_DO`
@@ -12,6 +12,9 @@ Bindings modeled in this scaffold:
 - `BILLING_CONFIG_KV`
 - `BILLING_AUDIT_R2`
 - `ANALYTICS`
+
+These names define the shared binding contract. Real resource IDs, queue wiring,
+and environment ownership still require proof artifacts before deployment claims.
 
 Hard boundary:
 

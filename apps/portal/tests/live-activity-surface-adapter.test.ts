@@ -7,6 +7,7 @@ import {
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { ActivitySurfaceAdapterResult } from '@ocentra-parent/agent-protocol-domain/activity-surface-adapter';
 import { resolveLiveActivityState } from '../src/live-activity-state';
+import { canonicalRuntimeLanAddDeviceReadModel } from './activity-ui-lan-pairing-fixtures';
 
 type AdapterResult = ActivitySurfaceAdapterResult<unknown> | null;
 
@@ -124,7 +125,7 @@ function activityAdapterLanPairingTests(): void {
   it('parses LAN add-device readiness from the real status event payload', () => {
     const state = resolveLiveActivityState([
       payloadEvent(AgentEvent.LanPairingStatusReported, {
-        [AgentProtocolDefaults.Field.LanAddDeviceReadModel]: JSON.stringify(lanAddDeviceReadModel()),
+        [AgentProtocolDefaults.Field.LanAddDeviceReadModel]: JSON.stringify(canonicalRuntimeLanAddDeviceReadModel()),
       }),
     ]);
 
@@ -140,7 +141,7 @@ function activityAdapterLanPairingTests(): void {
         AgentEvent.LanPairingStatusReported,
         {
           [AgentProtocolDefaults.Field.LanAddDeviceReadModel]: JSON.stringify({
-            ...lanAddDeviceReadModel(),
+            ...canonicalRuntimeLanAddDeviceReadModel(),
             addDeviceState: 'manual-required',
           }),
         },
@@ -149,7 +150,7 @@ function activityAdapterLanPairingTests(): void {
       payloadEvent(
         AgentEvent.LanPairingBrowserDiscoveryReported,
         {
-          [AgentProtocolDefaults.Field.LanAddDeviceReadModel]: JSON.stringify(lanAddDeviceReadModel()),
+          [AgentProtocolDefaults.Field.LanAddDeviceReadModel]: JSON.stringify(canonicalRuntimeLanAddDeviceReadModel()),
         },
         '2026-06-01T15:00:04Z'
       ),
@@ -164,19 +165,19 @@ type LiveLanActivityState = ReturnType<typeof resolveLiveActivityState>;
 
 function expectLanReadinessState(state: LiveLanActivityState): void {
   expect(state.lanAddDeviceReadModel?.selectedDeviceReadiness).toMatchObject({
-    selectedChildDeviceId: 'child-android-1',
+    selectedChildDeviceId: 'local-dev-agent',
     reachability: 'online',
-    readyForControl: true,
+    readyForControl: false,
   });
   expect(state.lanAddDeviceReadModel?.scanSummary).toMatchObject({
-    scannedDeviceCount: 1,
+    scannedDeviceCount: 3,
     agentDeviceCount: 1,
   });
 }
 
 function expectLanCanonicalDeviceState(state: LiveLanActivityState): void {
   expect(state.lanAddDeviceReadModel?.addDeviceState).toBe('paired');
-  expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.displayName).toBe('Pixel child');
+  expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.displayName).toBe('GAMEDEV');
   expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.roleBadges).toEqual([
     'child-agent',
     'portal',

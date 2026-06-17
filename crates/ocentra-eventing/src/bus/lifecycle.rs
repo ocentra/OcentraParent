@@ -1,4 +1,4 @@
-use crate::{ExpectValue, DispatchMode, EventingError};
+use crate::{DispatchMode, EventingError, ExpectValue};
 
 use super::{
     reports::{DeadLetter, DeadLetterReason},
@@ -65,7 +65,7 @@ impl EventBus {
         Ok(report)
     }
 
-    async fn dead_letter_shutdown_queue(&self, queued: Vec<crate::queue::QueuedEnvelope>) {
+    async fn dead_letter_shutdown_queue(&self, queued: Vec<crate::QueuedEnvelope>) {
         let dead_letters = queued
             .into_iter()
             .map(|queued| {
@@ -87,7 +87,10 @@ impl EventBus {
     }
 
     fn clear_aggregate_gates_for_shutdown(&self) -> usize {
-        let mut aggregate_gates = self.aggregate_gates.lock().expect_value("aggregate gate lock");
+        let mut aggregate_gates = self
+            .aggregate_gates
+            .lock()
+            .expect_value("aggregate gate lock");
         let aggregate_gate_count = aggregate_gates.len();
         aggregate_gates.clear();
         aggregate_gate_count
@@ -113,7 +116,10 @@ impl EventBus {
             dead_letter_count
         };
         let aggregate_gate_count = {
-            let mut aggregate_gates = self.aggregate_gates.lock().expect_value("aggregate gate lock");
+            let mut aggregate_gates = self
+                .aggregate_gates
+                .lock()
+                .expect_value("aggregate gate lock");
             let aggregate_gate_count = aggregate_gates.len();
             aggregate_gates.clear();
             aggregate_gate_count
@@ -152,4 +158,3 @@ fn empty_shutdown_report(mode: ShutdownMode, already_shutdown: bool) -> EventBus
         timed_out_request_count: 0,
     }
 }
-

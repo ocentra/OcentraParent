@@ -18,7 +18,7 @@ Define deployment commands, environment promotion, and rollback expectations for
 
 - `infra/cloudflare/wrangler.production.toml`
 - [DEPLOYMENT_MODEL.md](../DEPLOYMENT_MODEL.md)
-- `docs/proof/cloudflare-control-plane-plan/wp11-deployment-and-environment-promotion/`
+- `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/`
 
 ## Acceptance
 
@@ -32,7 +32,9 @@ Define deployment commands, environment promotion, and rollback expectations for
 
 ## Validation
 
-- Docs or scaffold validation: `npm run format:check`
+- `npm --prefix infra/cloudflare run deploy:dev`
+- `npm --prefix infra/cloudflare run deploy`
+- post-deploy `/health`, `/public/pricing`, and `/auth/billing/status` smoke in the promoted environment
 
 ## Negative cases
 

@@ -692,8 +692,8 @@ function parsePolicyTimestampMillis(timestamp: string, fieldName: string): numbe
 function parsePolicyLocalTimeMinutes(localTime: string, fieldName: string): number {
   const match = /^(?<hour>[01]\d|2[0-3]):(?<minute>[0-5]\d)$/.exec(localTime);
   assertPolicyContract(match !== null, `${fieldName} must use HH:MM 24-hour local time`);
-  const hour = Number(match.groups?.hour ?? '0');
-  const minute = Number(match.groups?.minute ?? '0');
+  const hour = Number(match.groups?.['hour'] ?? '0');
+  const minute = Number(match.groups?.['minute'] ?? '0');
   return hour * 60 + minute;
 }
 

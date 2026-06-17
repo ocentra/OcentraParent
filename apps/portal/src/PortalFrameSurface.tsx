@@ -5,7 +5,7 @@ import {
   getPictureViewerFrameSpaceForOrientation,
   type PictureViewerFrameSurfaceControls,
 } from '../../../vendor/ocentra-parent-core-ui/Common/PictureViewerFrame/PictureViewerFrameControls';
-import type { PortalFrameContentTargetLayout } from './portal-frame-layout';
+import type { PortalFrameContentTargetLayout } from './portal-frame-layout-types';
 
 type FrameHostSize = {
   readonly height: number;

@@ -1,7 +1,7 @@
-use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventResponseContract, EventType, EventingError,
-    IdempotencyKey, RequestEvent, RequestId, SchemaVersion,
-};
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, RequestId, SchemaVersion};
+use ocentra_eventing::request::{EventResponseContract, RequestEvent};
 use ocentra_evidence::PrivatePayloadState;
 use serde::{Deserialize, Serialize};
 

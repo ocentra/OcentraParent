@@ -53,6 +53,11 @@ rollbackState
 manualRequiredGaps
 ```
 
+## Portal shell UX handoff
+
+The portal shell UX handoff is represented by `launchTarget` in the route bridge contract.
+That handoff stays separate from setup-install completion and does not imply package readiness.
+
 ## Compatibility note
 
 The historical desktop-only workpack tree remains in the folder for legacy proof references. New work should use the parent-client workpacks in `WORKPACK_INDEX.md`.

@@ -6,7 +6,7 @@ Define exactly what `payment-subscription-plan` may assume from the shared Cloud
 
 ## First-touch surface
 
-- `docs/proof/cloudflare-control-plane-plan/wp12-payment-plan-handoff-gate/payment-handoff-proof.md`
+- `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`
 
 ## Read inputs
 
@@ -16,7 +16,7 @@ Define exactly what `payment-subscription-plan` may assume from the shared Cloud
 
 ## Output files
 
-- `docs/proof/cloudflare-control-plane-plan/wp12-payment-plan-handoff-gate/`
+- `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/`
 - [SOURCE_SURFACE_STATUS_MATRIX.md](../SOURCE_SURFACE_STATUS_MATRIX.md)
 
 ## Acceptance
@@ -32,7 +32,7 @@ Define exactly what `payment-subscription-plan` may assume from the shared Cloud
 
 ## Validation
 
-- Docs or scaffold validation: `npm run format:check`
+- Aggregate accepted WP03-WP11 proof roots and record downstream payment assumptions plus blockers
 
 ## Negative cases
 

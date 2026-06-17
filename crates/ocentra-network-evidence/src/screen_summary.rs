@@ -133,6 +133,7 @@ pub fn plan_network_screen_summary_trigger(
     } else {
         None
     };
+    drop(input);
 
     Ok(NetworkScreenSummaryTriggerPlan {
         status,

@@ -1,4 +1,5 @@
 #![forbid(unsafe_code)]
+#![cfg_attr(test, allow(clippy::expect_used))]
 
 mod activity;
 mod activity_capture;
@@ -46,6 +47,7 @@ mod enforcement_product_control_spine;
 mod enforcement_readiness;
 mod enforcement_supported_adapter_runtime_proof;
 mod host_identity;
+pub mod household_mesh;
 mod integrity_alert_status_bridge;
 mod journal;
 mod lan_pairing;
@@ -58,9 +60,9 @@ mod local_ai_runtime;
 mod local_ai_runtime_boundary;
 mod local_ai_runtime_provider_proof;
 mod logging;
-mod network_flow;
 mod network_android_vpn_service_gate_status;
 mod network_apple_network_extension_gate_status;
+mod network_flow;
 mod network_linux_nftables_lab_status;
 mod network_windows_firewall_lab_status;
 mod network_windows_wfp_gate_status;
@@ -135,9 +137,9 @@ pub use local_ai_runtime::*;
 pub use local_ai_runtime_boundary::*;
 pub use local_ai_runtime_provider_proof::*;
 pub use logging::*;
-pub use network_flow::*;
 pub use network_android_vpn_service_gate_status::*;
 pub use network_apple_network_extension_gate_status::*;
+pub use network_flow::*;
 pub use network_linux_nftables_lab_status::*;
 pub use network_windows_firewall_lab_status::*;
 pub use network_windows_wfp_gate_status::*;
@@ -270,11 +272,11 @@ mod local_ai_runtime_tests;
 #[cfg(test)]
 mod local_provider_adapter_readiness_tests;
 #[cfg(test)]
-mod network_flow_tests;
-#[cfg(test)]
 mod network_android_vpn_service_gate_status_tests;
 #[cfg(test)]
 mod network_apple_network_extension_gate_status_tests;
+#[cfg(test)]
+mod network_flow_tests;
 #[cfg(test)]
 mod network_linux_nftables_lab_status_tests;
 #[cfg(test)]

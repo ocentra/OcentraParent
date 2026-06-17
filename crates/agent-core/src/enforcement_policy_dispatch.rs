@@ -8,6 +8,7 @@ use ocentra_parent_agent_protocol::{
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EnforcementPolicyDispatchValidation {
     pub dispatch_ready_count: usize,
+    pub dry_run_only_count: usize,
     pub rejected_count: usize,
     pub manual_required_count: usize,
     pub report_only_count: usize,
@@ -19,6 +20,7 @@ pub fn validate_enforcement_policy_dispatch_read_model(
 ) -> Result<EnforcementPolicyDispatchValidation, EnforcementPolicyDispatchRejectionReason> {
     let mut validation = EnforcementPolicyDispatchValidation {
         dispatch_ready_count: 0,
+        dry_run_only_count: 0,
         rejected_count: 0,
         manual_required_count: 0,
         report_only_count: 0,
@@ -43,10 +45,15 @@ fn validate_entry_identity(
     if entry.intent.device.device_id != dispatch::LOCAL_DEV_AGENT_DEVICE_ID {
         return Err(EnforcementPolicyDispatchRejectionReason::WrongDevice);
     }
-    if entry.intent.policy_decision_id.is_empty() || entry.intent.policy_decision_ref.is_empty() {
+    if !has_dispatch_reference_prefix(&entry.intent.policy_decision_id, dispatch::PREFIX_POLICY)
+        || !has_dispatch_reference_prefix(&entry.intent.policy_decision_ref, dispatch::PREFIX_DECISION)
+    {
         return Err(EnforcementPolicyDispatchRejectionReason::MissingPolicyDecision);
     }
-    if entry.intent.schedule_ref.is_empty() {
+    if entry.intent.policy_version != dispatch::POLICY_VERSION_V0_8_DISPATCH {
+        return Err(EnforcementPolicyDispatchRejectionReason::StalePolicyVersion);
+    }
+    if !has_dispatch_reference_prefix(&entry.intent.schedule_ref, dispatch::PREFIX_SCHEDULE) {
         return Err(EnforcementPolicyDispatchRejectionReason::MissingScheduleOrBudget);
     }
     if entry.intent.evidence_references.is_empty() {
@@ -68,6 +75,11 @@ fn validate_entry_matrix(
     entry: &EnforcementPolicyDispatchReadModelEntry,
 ) -> Result<(), EnforcementPolicyDispatchRejectionReason> {
     if entry.child_reason_code != entry.matrix_row.child_reason_code {
+        return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
+    }
+    if entry.matrix_row.outcome_state == EnforcementPolicyDispatchOutcomeState::DryRunOnly
+        && !entry.intent.dry_run
+    {
         return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
     }
 
@@ -99,6 +111,10 @@ fn validate_entry_matrix(
     Ok(())
 }
 
+fn has_dispatch_reference_prefix(value: &str, prefix: &str) -> bool {
+    value.starts_with(prefix) && value.len() > prefix.len()
+}
+
 fn update_validation_counts(
     validation: &mut EnforcementPolicyDispatchValidation,
     entry: &EnforcementPolicyDispatchReadModelEntry,
@@ -116,8 +132,10 @@ fn update_validation_counts(
         EnforcementPolicyDispatchOutcomeState::ReportOnly => {
             validation.report_only_count += 1;
         }
-        EnforcementPolicyDispatchOutcomeState::DryRunOnly
-        | EnforcementPolicyDispatchOutcomeState::Degraded
+        EnforcementPolicyDispatchOutcomeState::DryRunOnly => {
+            validation.dry_run_only_count += 1;
+        }
+        EnforcementPolicyDispatchOutcomeState::Degraded
         | EnforcementPolicyDispatchOutcomeState::Unavailable => {}
     }
 

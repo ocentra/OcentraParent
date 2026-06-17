@@ -12,5 +12,5 @@ Auth states:
 
 Current blocker:
 
-- the verifier only enforces header presence and role shape
-- the real account/session adapter is still `account-auth-adapter-manual-required`
+- the verifier enforces route-level auth state, bearer/session shape, support/admin role checks, webhook signatures, and internal queue secrets
+- the real account/session authority and trusted-device source are still dependency-gated for later workpacks

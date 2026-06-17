@@ -18,9 +18,9 @@
 
 ```text
 Plan route: upgraded
-Execution-grade workpacks: in progress
-Implementation: not started by this plan route
-Proof artifacts: none recorded by this plan route yet
+Execution-grade workpacks: WP01 has a docs-only proof pack on disk; WP02-WP05 each have partial proof roots on disk; WP07 and WP06 remain open
+Implementation: partial contract implementation exists in family-domain, setup-domain, family-identity-core, and provisioning-core, but account-identity adapter/runtime, custody schema proof, and first-run setup UI remain open
+Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-decision/` is populated; `02` through `05` roots exist with partial artifact sets; `06`, `07`, and `test-results/account-identity-family-plan-*` roots remain absent
 PR-ready: false
 ```
 
@@ -42,6 +42,8 @@ Auth.js or another app-owned auth layer may be used only as an adapter/session l
 - `docs/expectations/family-setup.md` separates parent outcome, child-device outcome, data scope, contract families, validation gates, and non-goals.
 - `docs/expectations/portal.md` says portal sends typed queries/intents to the agent and must not become child-device execution authority.
 - `packages/family-domain/package.json` already exports `session-lifecycle`, `child-profile`, `household-authority`, `setup-lifecycle`, and reference primitives.
+- `packages/setup-domain/src/family-setup-bridge.ts` and `packages/setup-domain/src/registration-entry.ts` already consume the household/invite/recovery contracts.
+- `crates/family-identity-core` and `crates/provisioning-core` already carry Rust parity and downstream provisioning consumers for the same authority/session/setup surfaces.
 
 ## External research anchors
 
@@ -57,15 +59,15 @@ Auth.js or another app-owned auth layer may be used only as an adapter/session l
 ## Open gaps
 
 ```text
-- Provider decision record is not locked.
+- WP02 root currently contains only `03-cross-family-negative-proof.md` and `16-validation-commands.log`; entity-model, role-matrix, membership-state, observer, support-boundary, and audit proof slices are still missing.
+- WP03 root currently contains only `02-token-expiry-replay-proof.md` and `16-validation-commands.log`; credential-matrix, lifecycle, refresh, freshness, request-safety, and redaction proof slices are still missing.
+- WP04 root currently contains only `01-invite-negative-proof.md`, `02-recovery-state-machine-proof.md`, and `16-validation-commands.log`; invite-state, abuse, delete/export-handoff, and support-audit proof slices are still missing.
+- WP05 root currently contains only `00-device-authority-matrix.md` and `16-validation-commands.log`; revoked-device, wrong-household, controller-lease, remote-capability, export/delete-owner, and billing-owner proof slices are still missing.
+- `packages/family-domain/tests/unit/setup-lifecycle.test.ts` was repaired so the direct invite/recovery suite now matches the live schema; broader WP02-WP05 proof reconciliation remains open.
 - No runtime implementation for account identity adapter boundary.
 - No D1/DO/KV account-family schema or migration proof exists.
-- No household membership/role/device authority matrix proof exists.
-- No session/token/refresh/logout/revocation/replay proof exists.
-- No invite/recovery/transfer/deletion handoff proof exists.
 - No first-run family setup UI proof exists.
 - No cross-plan route gate proof exists for setup, Cloudflare, payment, policy, data custody, device trust, LAN, or remote access.
-- No proof artifacts under `output/account-identity-family-plan-proof/` exist yet.
 ```
 
 ## No-claim boundaries
@@ -106,6 +108,7 @@ WP06 is last because it consumes proof from every earlier workpack.
 ## Health rules
 
 - Do not start runtime implementation if WP01 provider/custody decision is open.
+- Do not treat partial proof roots as completed workpacks.
 - Do not add setup UI before WP02/WP03 contract shapes exist or are explicitly stubbed with blockers.
 - Do not let setup, payment, policy, remote, or device-trust plans own account-family authority.
 - Do not use Firebase custom claims for household membership/product data.

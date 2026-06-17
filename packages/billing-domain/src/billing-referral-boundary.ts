@@ -9,7 +9,7 @@ import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-p
 import {
   BillingAuditReferenceSchema,
   NonNegativeBillingCountSchema,
-} from './billing-entitlement-values';
+} from './billing-entitlement-values.js';
 
 export const BillingReferralInviteStateSchema = withParser(
   Schema.Literal(

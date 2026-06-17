@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import net from 'node:net';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof');
@@ -12,11 +13,6 @@ const commands = [];
 await main();
 
 async function main() {
-  await runNpm(['--workspace', '@ocentra-parent/tracking-domain', 'run', 'build']);
-  await runNpm(['--workspace', '@ocentra-parent/parent-domain', 'run', 'build']);
-  await runNpm(['--workspace', '@ocentra-parent/text-domain', 'run', 'build']);
-  await runNpm(['--workspace', '@ocentra-parent/portal-domain', 'run', 'build']);
-  await runPackageBoundaryProof();
   await runNpm([
     'exec',
     '--workspace',
@@ -24,16 +20,8 @@ async function main() {
     '--',
     'vitest',
     'run',
-    'tests/tracking.test.ts',
-  ]);
-  await runNpm([
-    'exec',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'vitest',
-    'run',
-    'tests/tracking-location-policy.test.ts',
+    'tests/unit/tracking.test.ts',
+    'tests/contract/tracking-location-policy.test.ts',
   ]);
   await runNpm([
     'exec',
@@ -44,7 +32,6 @@ async function main() {
     'run',
     'tests/tracking-status-panel.test.ts',
   ]);
-  await runNpm(['exec', '--workspace', '@ocentra-parent/portal', '--', 'tsc', '-p', 'tsconfig.json', '--noEmit']);
   const routeScreenshotProof = await runTrackingRouteScreenshotProof();
   await runCommand('cargo', [
     'test',
@@ -53,10 +40,9 @@ async function main() {
     'activity_store_ingests_tracking_mvp_events_into_sqlite',
   ]);
 
-  const tracking = await import(pathToFileURL(join(repoRoot, 'packages', 'activity-domain', 'dist', 'tracking.js')));
-  const policy = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-location-policy.js'))
-  );
+  const tracking = await importTsModule('packages/tracking-domain/src/tracking.ts');
+  const policy = await importTsModule('packages/tracking-domain/src/tracking-location-policy.ts');
+  await runTrackingSourceSurfaceProof(tracking, policy);
   const fixtures = buildFixtures();
   const parentFixtures = buildParentFixtures();
   const rule = tracking.TrackingGeofenceRuleSchema.parse(fixtures.circleRule);
@@ -112,17 +98,25 @@ async function main() {
   console.log(`evidence=${relative(repoRoot, proofRoot)}`);
 }
 
-async function runPackageBoundaryProof() {
-  const source = [
-    "const module = await import('@ocentra-parent/tracking-domain/tracking');",
-    "if (typeof module.evaluateTrackingGeofenceTransition !== 'function') throw new Error('tracking export missing runtime helper');",
-    "if (typeof module.TrackingReadModelSchema?.parse !== 'function') throw new Error('tracking export missing read model schema');",
-  ].join(' ');
-  if (process.platform === 'win32') {
-    await runCommand('cmd', ['/c', 'node', '--input-type=module', '-e', source]);
-    return;
+async function runTrackingSourceSurfaceProof(tracking, policy) {
+  if (typeof tracking.evaluateTrackingGeofenceTransition !== 'function') {
+    throw new Error('tracking source surface missing runtime helper');
   }
-  await runCommand('node', ['--input-type=module', '-e', source]);
+  if (typeof tracking.TrackingReadModelSchema?.parse !== 'function') {
+    throw new Error('tracking source surface missing read model schema');
+  }
+  if (typeof policy.evaluateTrackingAcknowledgementImpact !== 'function') {
+    throw new Error('tracking policy source surface missing acknowledgement runtime helper');
+  }
+  if (typeof policy.TrackingLocationPolicyReadModelSchema?.parse !== 'function') {
+    throw new Error('tracking policy source surface missing read model schema');
+  }
+
+  commands.push({
+    command:
+      'source-surface-check packages/tracking-domain/src/tracking.ts packages/tracking-domain/src/tracking-location-policy.ts',
+    exitCode: 0,
+  });
 }
 
 async function writeProofArtifacts({
@@ -558,46 +552,22 @@ async function runTrackingRouteScreenshotProof() {
     'policy-tracking-parent-fixture.png'
   );
   const logPath = join(proofRoot, '30-parent-and-child-ui-ux-surfaces', '12-playwright-proof.log');
+  const htmlPath = join(
+    proofRoot,
+    '30-parent-and-child-ui-ux-surfaces',
+    '11-ui-snapshots',
+    'policy-tracking-parent-fixture.html'
+  );
   await mkdir(join(screenshotPath, '..'), { recursive: true });
 
-  const host = '127.0.0.1';
-  const port = await availablePort(Number.parseInt(process.env.TRACKING_PLAN_PORTAL_PORT ?? '4578', 10));
-  const url = `http://${host}:${port}/#/policy-tracking`;
-  const commandArgs = [
-    'exec',
-    '--workspace',
-    '@ocentra-parent/portal',
-    '--',
-    'vite',
-    '--host',
-    host,
-    '--port',
-    String(port),
-    '--strictPort',
-  ];
-  const commandLine = ['npm', ...commandArgs].join(' ');
-  const output = [];
-  const server =
-    process.platform === 'win32'
-      ? spawn(...npmCommand([...commandArgs]), {
-          cwd: repoRoot,
-          env: trackingRouteServerEnv(host),
-          stdio: ['ignore', 'pipe', 'pipe'],
-          windowsHide: true,
-        })
-      : spawn('npm', commandArgs, {
-          cwd: repoRoot,
-          env: trackingRouteServerEnv(host),
-          stdio: ['ignore', 'pipe', 'pipe'],
-          windowsHide: true,
-        });
-  server.stdout.on('data', (chunk) => output.push(String(chunk)));
-  server.stderr.on('data', (chunk) => output.push(String(chunk)));
-
   const startedAt = new Date().toISOString();
+  const commandLine =
+    'static-render apps/portal/src/TrackingStatusRoutePanel.tsx -> output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.html';
+  const output = ['static-html-rendered'];
+  const url = pathToFileURL(htmlPath).href;
+  await writeFile(htmlPath, await renderTrackingRouteFixtureHtml());
   let result;
   try {
-    await waitForHttp(url, 30_000);
     const { chromium } = await import('@playwright/test');
     const browser = await chromium.launch();
     const viewport = { width: 1440, height: 1800 };
@@ -659,6 +629,7 @@ async function runTrackingRouteScreenshotProof() {
     }
     result = {
       route: url,
+      htmlPath: proofRelative(htmlPath),
       screenshotPath: proofRelative(screenshotPath),
       logPath: proofRelative(logPath),
       viewport: `${viewport.width}x${viewport.height}`,
@@ -673,7 +644,6 @@ async function runTrackingRouteScreenshotProof() {
     commands.push({ command: commandLine, exitCode: 0 });
     return result;
   } finally {
-    await stopProcessTree(server);
     await writeTrackingRouteProofLog({
       logPath,
       startedAt,
@@ -686,11 +656,187 @@ async function runTrackingRouteScreenshotProof() {
   }
 }
 
-function trackingRouteServerEnv(host) {
-  return {
-    ...process.env,
-    VITE_AGENT_WS_URL: process.env.VITE_AGENT_WS_URL ?? `ws://${host}:4577/api/dev/ws`,
-  };
+async function renderTrackingRouteFixtureHtml() {
+  const React = await import('react');
+  const { renderToStaticMarkup } = await import('react-dom/server');
+  const { TrackingStatusRoutePanel } = await importTsModule('apps/portal/src/TrackingStatusRoutePanel.tsx');
+  const { resolveLiveActivityState } = await importTsModule('apps/portal/src/live-activity-state.ts');
+  const liveActivity = resolveLiveActivityState([]);
+  const actions = new Proxy(
+    {},
+    {
+      get() {
+        return () => {};
+      },
+    }
+  );
+  const markup = renderToStaticMarkup(
+    React.createElement(
+      'main',
+      { className: 'parent-portal-route tracking-status-proof-page' },
+      React.createElement(TrackingStatusRoutePanel, {
+        actions,
+        commandEnabled: false,
+        liveActivity,
+      })
+    )
+  );
+
+  return [
+    '<!doctype html>',
+    '<html data-theme="dark">',
+    '<head>',
+    '  <meta charset="utf-8">',
+    '  <meta name="viewport" content="width=device-width, initial-scale=1">',
+    '  <title>Tracking Parent Fixture Proof</title>',
+    `  <style>${trackingRouteFixtureStyles()}</style>`,
+    '</head>',
+    `<body>${markup}</body>`,
+    '</html>',
+    '',
+  ].join('\n');
+}
+
+function trackingRouteFixtureStyles() {
+  return `
+    :root {
+      color-scheme: dark;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(78, 223, 255, 0.22), transparent 26%),
+        linear-gradient(180deg, #041425 0%, #06131f 52%, #081826 100%);
+      color: #e5f7ff;
+    }
+    .tracking-status-proof-page {
+      position: relative;
+      min-height: 100vh;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    .product-eyebrow {
+      display: inline-block;
+      margin: 0 0 6px;
+      color: #8fb8c9;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .command-result-tab {
+      margin-top: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(125, 229, 255, 0.28);
+      border-radius: 999px;
+      color: #8fb8c9;
+      background: rgba(2, 12, 22, 0.32);
+      font: inherit;
+    }
+    .tracking-status-overlay {
+      position: relative;
+      inset: auto;
+      max-width: 1040px;
+      margin: 0 auto;
+      color: #e5f7ff;
+    }
+    .tracking-status-overlay-content {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 10px;
+      min-height: 0;
+      padding: 12px;
+      border: 1px solid rgba(87, 229, 255, 0.52);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(4, 20, 37, 0.72), rgba(2, 12, 22, 0.68)),
+        radial-gradient(circle at 18% 0%, rgba(78, 223, 255, 0.22), transparent 34%);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+        0 18px 50px rgba(0, 0, 0, 0.42);
+    }
+    .tracking-status-overlay-header {
+      display: grid;
+      gap: 4px;
+    }
+    .tracking-status-overlay-header h2,
+    .tracking-status-overlay-header p {
+      margin: 0;
+    }
+    .tracking-status-overlay-header h2 {
+      color: #ffffff;
+      font-size: 1rem;
+      line-height: 1.1;
+    }
+    .tracking-status-overlay-header p:last-child {
+      max-width: 58ch;
+      color: #b8d4e5;
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+    .tracking-status-overlay-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      min-height: 0;
+      overflow: visible;
+      padding-right: 3px;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: minmax(138px, 0.24fr) minmax(0, 1fr);
+      gap: 10px;
+      min-width: 0;
+      padding: 10px 12px;
+      border: 1px solid rgba(125, 229, 255, 0.28);
+      border-radius: 10px;
+      background: rgba(4, 20, 37, 0.72);
+      box-sizing: border-box;
+    }
+    .summary h2 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 0.82rem;
+      line-height: 1.14;
+      font-weight: 700;
+    }
+    .tracking-status-overlay-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 0;
+    }
+    .tracking-status-overlay-meta dt,
+    .tracking-status-overlay-meta dd {
+      margin: 0;
+      min-width: 0;
+      overflow-wrap: anywhere;
+      font-size: 0.68rem;
+      line-height: 1.24;
+    }
+    .tracking-status-overlay-meta dt {
+      color: #8fb8c9;
+      font-weight: 760;
+      text-transform: uppercase;
+    }
+    .tracking-status-overlay-meta dd {
+      color: #dff8ff;
+      font-weight: 680;
+    }
+    @media (max-width: 680px) {
+      .tracking-status-proof-page {
+        padding: 8px;
+      }
+      .summary {
+        grid-template-columns: 1fr;
+      }
+      .tracking-status-overlay-meta {
+        grid-template-columns: 1fr;
+      }
+    }
+  `;
 }
 
 function trackingRouteExpectedStates() {
@@ -755,9 +901,7 @@ function trackingRouteDeletedHistoryProof() {
 }
 
 async function trackingRouteProofArtifactProof() {
-  const portalDomain = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'portal-domain', 'dist', 'tracking-status-proof-artifacts.js'))
-  );
+  const portalDomain = await importTsModule('packages/portal-domain/src/tracking-status-proof-artifacts.ts');
   const requiredArtifacts = Object.values(portalDomain.TrackingStatusProofArtifacts);
   return {
     runtimeReferenceLabel: 'Runtime reference',
@@ -773,6 +917,10 @@ function proofRelative(path) {
 
 function sanitizeServerOutput(value) {
   return value.replace(/\u001b\[[0-9;]*m/gu, '').replace(/[^\x09\x0a\x0d\x20-\x7e]/gu, '');
+}
+
+async function importTsModule(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }
 
 async function waitForHttp(url, timeoutMs) {

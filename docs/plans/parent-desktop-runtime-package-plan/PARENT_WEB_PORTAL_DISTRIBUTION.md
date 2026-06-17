@@ -17,6 +17,8 @@ The parent web portal is a distribution target, not just a page. It must prove:
 - environment separation is explicit for preview, staging, and production;
 - UI states distinguish download, launch, and manual-required handoff states.
 
+The hosted portal route is parent-client only and does not claim child-agent execution or setup completion.
+
 ## Boundary
 
 - Owns the hosted parent portal surface.

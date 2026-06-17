@@ -1,4 +1,4 @@
-﻿# Screen AI Pipeline Plan Next Actions
+# Screen AI Pipeline Plan Next Actions
 
 <!-- agent-capsule -->
 
@@ -14,7 +14,7 @@
 
 <!-- /agent-capsule -->
 
-This file is the short resume list for the next worker. It is derived from open workpack/checklist status and does not replace the assigned workpack.
+This file is the short resume list for the next worker. It is derived from the audited checkbox and proof state and does not replace the assigned workpack.
 
 ## How to use
 
@@ -25,17 +25,29 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by unchecked boxes
 
-- [02 - Real Trigger To Capture Gate](workpacks/02-real-trigger-to-capture-gate.md): 4 open of 9 boxes.
-- [10 - Final Rollout And PR Gate](workpacks/10-final-rollout-and-pr-gate.md): 1 open of 8 boxes.
+- [08 - Live Operator Proof Gate](workpacks/08-live-operator-proof-gate.md): 11 open of 11 boxes.
+- [02 - Real Trigger To Capture Gate](workpacks/02-real-trigger-to-capture-gate.md): 9 open of 9 boxes.
+- [10 - Final Rollout And PR Gate](workpacks/10-final-rollout-and-pr-gate.md): 8 open of 8 boxes.
+- [05 - Policy Action Dry-Run Gate](workpacks/05-policy-action-dry-run-gate.md): 7 open of 7 boxes.
+- [07 - Deletion Retention And Custody Gate](workpacks/07-deletion-retention-and-custody-gate.md): 7 open of 7 boxes.
+
+## Audit-first blockers before any new checked status
+
+- Restore retained proof under `output/screen-ai-pipeline-proof/`; the root does not currently exist in this checkout.
+- Add `docs/proof/screen-ai-pipeline-plan/PLAN_PROOF_MANIFEST.md` before any slice-level closure claim; it is currently missing.
+- Reconcile proof artifact shape for the assigned workpack: current docs mix scenario-local `proof-summary.json` artifacts with the richer numbered bundle defined in `pipeline-proof-matrix.md`.
+- Do not ignore the current architecture gate failure on `packages/screen-domain/src/screen-evidence.ts`, `packages/portal-domain/src/contracts.ts`, and `packages/parent-domain/src/local-ai-runtime.ts`.
 
 ## PR readiness guard
 
-A PR-ready slice should close a named workpack or clearly explain the exact remaining rows. Do not create a tiny PR that only updates one proof note while leaving the assigned workpack/checklist state stale.
+A PR-ready slice should close a named workpack or clearly explain the exact remaining rows. Do not create a tiny PR that only updates one proof note while leaving the assigned workpack/checklist state stale or unretained.
 
 Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), proof reference(s), and feature/product docs if product status changed.
 
 ## Actioned completion tracker
 
 - [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
-- [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
-- [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
+- [ ] Pick one assigned workpack and state the exact scenario directory or directories it owns under `output/screen-ai-pipeline-proof/`.
+- [ ] Run real focused validation on Windows, Android, and/or WSL/Linux where the assigned workpack requires it; treat macOS/iOS only as an external-platform constraint from this Windows host.
+- [ ] Retain proof artifacts and a command log before updating any workpack or checklist row.
+- [ ] Record failure conditions, skipped checks, and evidence paths in `PLAN_STATE.md` and `TEST_PROOF_EXPECTATIONS.md` for every claimed progress.

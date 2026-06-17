@@ -20,13 +20,13 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 - `infra/cloudflare/tests/`
 - [TESTING_STRATEGY.md](../TESTING_STRATEGY.md)
 - [REQUIRED_TEST_ASSERTION_MATRIX.md](../REQUIRED_TEST_ASSERTION_MATRIX.md)
-- `docs/proof/cloudflare-control-plane-plan/wp08-testing-runner-and-test-pyramid/`
+- `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/`
 
 ## Acceptance
 
 - Unit, integration, e2e, contract, security, property, and fuzz families are explicit.
 - Every required test file and exact assertion ID is explicit.
-- Placeholder files or blockers are explicit.
+- Real test families, any remaining blockers, and no-claim boundaries are explicit.
 - The runner contract is explicit.
 - Proof output can map executed or blocked assertion IDs back to the matrix.
 
@@ -41,7 +41,14 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 
 ## Validation
 
-- Docs or scaffold validation: `npm run format:check`
+- `npm --prefix infra/cloudflare run test:unit`
+- `npm --prefix infra/cloudflare run test:integration`
+- `npm --prefix infra/cloudflare run test:e2e`
+- `npm --prefix infra/cloudflare run test:contract`
+- `npm --prefix infra/cloudflare run test:security`
+- `npm --prefix infra/cloudflare run test:property`
+- `npm --prefix infra/cloudflare run test:fuzz`
+- `npm --prefix infra/cloudflare run lint`
 
 ## Negative cases
 

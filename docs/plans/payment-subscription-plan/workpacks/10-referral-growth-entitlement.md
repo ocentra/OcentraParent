@@ -23,7 +23,7 @@ Define referral qualification, anti-abuse, credit grant and revoke behavior, and
 - [REFERRAL_ENTITLEMENT_MODEL.md](../REFERRAL_ENTITLEMENT_MODEL.md)
 - [APP_OWNED_REFERRAL_LEDGER.md](../APP_OWNED_REFERRAL_LEDGER.md)
 - [APP_OWNED_ENTITLEMENT_LEDGER.md](../APP_OWNED_ENTITLEMENT_LEDGER.md)
-- `docs/proof/payment-subscription-plan/wp10-referral-growth-entitlement/`
+- `output/payment-subscription-plan-proof/10-referral-growth-entitlement/`
 
 ## Acceptance
 
@@ -49,7 +49,7 @@ Define referral qualification, anti-abuse, credit grant and revoke behavior, and
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
 - Required proof families: `payment-referral.invite-created`, `payment-referral.invite-opened`, `payment-referral.signup-started`, `payment-referral.account-created`, `payment-referral.household-created`, `payment-referral.setup-activated`, `payment-referral.qualified-credit-granted`, `payment-referral.active-referred-parent-required`, `payment-referral.lost-referral-credit-removed`, `payment-referral.referral-grace`, `payment-referral.self-referral-rejected`, `payment-referral.same-household-rejected`, `payment-referral.same-device-farm-rejected`, `payment-referral.same-payment-method-manual-review`, `payment-referral.fraud-review`, `payment-referral.entitlement-recalculated`, `payment-referral.over-limit-grace-visible`, `payment-referral.no-data-delete-on-lost-referral`
-- Proof bundle: `docs/proof/payment-subscription-plan/10-referral-state-machine-proof.md`, `docs/proof/payment-subscription-plan/10-referral-qualification-proof.md`, `docs/proof/payment-subscription-plan/10-referral-abuse-negative-proof.md`, `docs/proof/payment-subscription-plan/10-referral-loss-entitlement-proof.md`, `docs/proof/payment-subscription-plan/10-over-limit-grace-proof.md`
+- Proof bundle: `output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-referral-state-machine-proof.md`, `output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-referral-qualification-proof.md`, `output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-referral-abuse-negative-proof.md`, `output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-referral-loss-entitlement-proof.md`, `output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-over-limit-grace-proof.md`
 
 ## Negative cases
 

@@ -6,7 +6,7 @@ Recommendation: SPEC PASS / IMPLEMENTATION OPEN
 
 This scorecard now measures plan quality as an engineering spec. Runtime truth
 still lives in `PLAN_STATE.md`, `SOURCE_SURFACE_STATUS_MATRIX.md`, and the proof
-artifacts under `docs/proof/cloudflare-control-plane-plan/`.
+artifacts under `output/cloudflare-control-plane-plan-proof/`.
 
 ## Why the spec scores 100
 
@@ -24,13 +24,16 @@ artifacts under `docs/proof/cloudflare-control-plane-plan/`.
 
 ## Why runtime is still blocked
 
-- `infra/cloudflare/` remains scaffold-only.
+- `infra/cloudflare/` is implemented, but the plan and module docs were still
+  overstating scaffold-only state until this truth-sync pass.
 - The auth provider choice remains an `account-identity-family-plan` adapter
   blocker.
-- Test runner, seed flows, and test files are not yet proven by command output.
-- Queue, D1, Durable Object, KV, and optional R2 bindings are documented but
-  not runtime-validated.
-- Portal-to-worker smoke and payment handoff proof remain open.
+- Trusted-device authority consumption remains a `device-trust-bootstrap-plan`
+  dependency.
+- Output proof roots and command logs were missing even though most scoped test
+  families already run.
+- Queue, dead-letter, observability, and deployment proof remain incomplete.
+- Payment handoff proof remains open.
 
 ## Interpretation rule
 

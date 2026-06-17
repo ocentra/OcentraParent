@@ -13,13 +13,13 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/enforcement-domain',
       '--',
       'v0-8-broad-os-adapter-runtime-proof',
     ])
@@ -29,13 +29,13 @@ async function main() {
   await runCommand('node', ['scripts/test/v0-8-os-adapter-manual-artifact-gates.mjs']);
 
   const { V08BroadOsAdapterRuntimeProofReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-broad-os-adapter-runtime-proof.js');
+    await import('@ocentra-parent/enforcement-domain/v0-8-broad-os-adapter-runtime-proof');
   const { V08BroadOsAdapterProofReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-broad-os-adapter-proof.js');
+    await import('@ocentra-parent/enforcement-domain/v0-8-broad-os-adapter-proof');
   const { V08BrowserDomainAdapterProofReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-browser-domain-adapter-proof.js');
+    await import('@ocentra-parent/browser-domain/v0-8-browser-domain-adapter-proof');
   const { V08OsAdapterManualArtifactGateReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-os-adapter-manual-artifact-gates.js');
+    await import('@ocentra-parent/enforcement-domain/v0-8-os-adapter-manual-artifact-gates');
   const proofMatrix = JSON.parse(await readFile(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json')));
   const summary = summarizeReadModel(V08BroadOsAdapterRuntimeProofReadModel);
 
@@ -56,8 +56,8 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/parent-domain/src/v0-8-broad-os-adapter-runtime-proof.ts',
-      tsContractTest: 'packages/parent-domain/tests/v0-8-broad-os-adapter-runtime-proof.test.ts',
+      tsContract: 'packages/enforcement-domain/src/v0-8-broad-os-adapter-runtime-proof.ts',
+      tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-broad-os-adapter-runtime-proof.test.ts',
       proofHarness: 'scripts/test/v0-8-broad-os-adapter-runtime-proof.mjs',
       sourceBroadProof: 'test-results/v0-8-broad-os-adapter-proof/proof.json',
       sourceBrowserDomainProof: 'test-results/v0-8-browser-domain-adapter-proof/proof.json',

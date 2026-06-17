@@ -116,8 +116,8 @@ async function main() {
     foregroundPermissionUx,
     backgroundSettingsPage,
   });
-  assertFocusedProofStrength(proof);
   await writeProofFiles(proof);
+  assertFocusedProofStrength(proof);
 
   console.log('tracking-plan-android-emulator-proof-ok');
   console.log(`evidence=${relativePath(proofPath)}`);

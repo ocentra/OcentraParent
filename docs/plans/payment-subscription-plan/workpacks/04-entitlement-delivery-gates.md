@@ -26,7 +26,7 @@ Define the ledger-to-device gate that turns billing and referral truth into sign
 - [APP_OWNED_REFERRAL_LEDGER.md](../APP_OWNED_REFERRAL_LEDGER.md)
 - [APP_OWNED_ENTITLEMENT_LEDGER.md](../APP_OWNED_ENTITLEMENT_LEDGER.md)
 - [SIGNED_ENTITLEMENT_SNAPSHOT_MODEL.md](../SIGNED_ENTITLEMENT_SNAPSHOT_MODEL.md)
-- `docs/proof/payment-subscription-plan/wp04-entitlement-delivery-gates/`
+- `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/`
 
 ## Acceptance
 
@@ -49,7 +49,7 @@ Define the ledger-to-device gate that turns billing and referral truth into sign
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
 - Required proof families: `payment-entitlement.billing-ledger-source`, `payment-entitlement.referral-ledger-source`, `payment-entitlement.entitlement-ledger-source`, `payment-entitlement.signed-snapshot-issued`, `payment-entitlement.snapshot-signature-invalid-rejected`, `payment-entitlement.local-device-trust-required`, `payment-entitlement.wrong-household-rejected`, `payment-entitlement.wrong-device-rejected`, `payment-entitlement.offline-stale-degraded`, `payment-entitlement.grace-period`, `payment-entitlement.cancel-revokes-paid-feature`, `payment-entitlement.referral-loss-revokes-earned-feature`, `payment-entitlement.safety-feature-not-silently-disabled`
-- Proof bundle: `docs/proof/payment-subscription-plan/04-entitlement-ledger-proof.md`, `docs/proof/payment-subscription-plan/04-signed-snapshot-proof.md`, `docs/proof/payment-subscription-plan/04-local-device-trust-required-proof.md`, `docs/proof/payment-subscription-plan/04-referral-loss-recalculation-proof.md`
+- Proof bundle: `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-entitlement-ledger-proof.md`, `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-signed-snapshot-proof.md`, `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-local-device-trust-required-proof.md`, `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-referral-loss-recalculation-proof.md`
 
 ## Negative cases
 

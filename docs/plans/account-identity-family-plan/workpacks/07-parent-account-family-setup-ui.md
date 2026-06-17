@@ -159,11 +159,11 @@ Real child-device pairing proof remains gated by device-trust/LAN plans. Hosted 
 ## Fill before DONE
 
 ```text
-Workpack id and branch:
-UI/contract changes:
-Touched files:
-Validation commands and results:
-Proof artifacts:
-Known gaps/manual-required states:
-No-claim boundaries:
+Workpack id and branch: WP07 Parent Account Family Setup UI / codex/tracking-plan-full-continuation-a
+UI/contract changes: Blocked. `apps/portal/src` and `apps/portal/tests` do not contain a dedicated account/family setup route or test harness to extend, so no honest first-run setup UI proof can be added without creating a new route contract first.
+Touched files: docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md; docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md
+Validation commands and results: not-run for WP07 UI; portal setup route contract missing
+Proof artifacts: none yet
+Known gaps/manual-required states: Real child-device pairing proof remains gated by device-trust/LAN plans. Hosted account site remains setup-install scope. Child activity evidence remains data-custody scope. Missing exact contract/test path: `apps/portal/tests/account-family-setup.test.ts` or a designated WP07 portal route harness.
+No-claim boundaries: Do not claim first-run UI state machine; do not claim setup UI readiness; do not claim portal tests exist; do not claim WP07 done.
 ```

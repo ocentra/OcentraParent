@@ -62,7 +62,7 @@ All of the following must be true. If any is false, keep the plan state open.
 
 ### Feature doc checklist update
 
-Update `docs/features/family-setup-device-roles.md` to move the following rows from `[ ]` to `[x]` only after proof artifacts exist:
+Update `docs/features/family-setup-device-roles.md` to move the following rows from `[ ]` to `[ ]` only after proof artifacts exist:
 
 - "Household profile contract" → check after WP01 + WP02 proof.
 - "Child profile contract and UI" → check after WP01 + WP04 Playwright proof.

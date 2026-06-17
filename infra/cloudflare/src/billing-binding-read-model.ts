@@ -812,7 +812,9 @@ async function updateAdminAccountProjection(
     return;
   }
 
-  await upsertAdminBillingAccountSummary(env, {
+  await upsertAdminBillingAccountSummary(
+    env,
+    {
     ...current,
     parentVisibleState: status.parentVisibleState,
     subscriptionStatus: status.subscriptionStatus,
@@ -821,7 +823,7 @@ async function updateAdminAccountProjection(
     failureKind: status.failureState?.failureKind ?? null,
     auditReference: status.auditReference,
     updatedAt: status.updatedAt,
-  });
+  } as AdminBillingAccountSummary);
 }
 
 type ProviderWebhookTransition =
@@ -1305,7 +1307,7 @@ export async function applyBillingStateMutation(
         familyRef: status.familyRef,
         auditReference: mutation.auditReference,
         createdAt: updatedAt,
-      });
+      } as unknown as BillingAuditEventSummary);
       return;
     }
     case "change-plan": {
@@ -1328,7 +1330,7 @@ export async function applyBillingStateMutation(
         targetPlan.deviceLimit - status.deviceUsage.activeDevices,
         0,
       );
-      const nextStatus: BillingStatusSummary = {
+      const nextStatus = {
         ...status,
         plan: cloneJsonValue(targetPlan),
         deviceUsage: {
@@ -1347,8 +1349,8 @@ export async function applyBillingStateMutation(
         ),
         auditReference: mutation.auditReference,
         updatedAt,
-      };
-      const nextSnapshot: BillingEntitlementSnapshotSummary = {
+      } as unknown as BillingStatusSummary;
+      const nextSnapshot = {
         ...snapshot,
         planId: targetPlan.planId,
         deviceLimit: targetPlan.deviceLimit,
@@ -1358,7 +1360,7 @@ export async function applyBillingStateMutation(
         ),
         signedAt: updatedAt,
         auditReference: `${mutation.auditReference}:snapshot`,
-      };
+      } as unknown as BillingEntitlementSnapshotSummary;
 
       await upsertBillingStatusSummary(env, nextStatus);
       await upsertBillingSnapshotSummary(env, nextSnapshot);
@@ -1371,7 +1373,7 @@ export async function applyBillingStateMutation(
         familyRef: nextStatus.familyRef,
         auditReference: mutation.auditReference,
         createdAt: updatedAt,
-      });
+      } as unknown as BillingAuditEventSummary);
       return;
     }
     case "cancel": {
@@ -1385,7 +1387,7 @@ export async function applyBillingStateMutation(
             ? "cancellation-confirmed-in-grace"
             : "cancellation-manual-review-required";
 
-      const nextStatus: BillingStatusSummary = {
+      const nextStatus = {
         ...status,
         accountStatus:
           mutation.cancellationState === "manual-review-required"
@@ -1406,8 +1408,8 @@ export async function applyBillingStateMutation(
         warnings: withAddedWarning(status.warnings, cancellationWarning),
         auditReference: mutation.auditReference,
         updatedAt,
-      };
-      const nextSnapshot: BillingEntitlementSnapshotSummary = {
+      } as unknown as BillingStatusSummary;
+      const nextSnapshot = {
         ...snapshot,
         source:
           mutation.cancellationState === "manual-review-required"
@@ -1427,7 +1429,7 @@ export async function applyBillingStateMutation(
             : snapshot.parentVisibleState,
         signedAt: updatedAt,
         auditReference: `${mutation.auditReference}:snapshot`,
-      };
+      } as unknown as BillingEntitlementSnapshotSummary;
 
       await upsertBillingStatusSummary(env, nextStatus);
       await upsertBillingSnapshotSummary(env, nextSnapshot);
@@ -1440,14 +1442,14 @@ export async function applyBillingStateMutation(
         familyRef: nextStatus.familyRef,
         auditReference: mutation.auditReference,
         createdAt: updatedAt,
-      });
+      } as unknown as BillingAuditEventSummary);
       return;
     }
     case "referral-invite": {
       const referral = await loadBillingReferralSummary(env, mutation.subject);
       const adminReferrals = await loadAdminBillingReferrals(env, null);
       const updatedAt = new Date().toISOString();
-      const nextReferral: BillingReferralSummary = {
+      const nextReferral = {
         ...referral,
         pendingInvites: referral.pendingInvites + 1,
         invites: [
@@ -1462,26 +1464,28 @@ export async function applyBillingStateMutation(
           ...referral.invites,
         ],
         auditReference: `${mutation.auditReference}:summary`,
-      };
+      } as unknown as BillingReferralSummary;
       const existingAdminReferral = adminReferrals.find(
         (row) => row.referralCode === mutation.referralCode,
       );
-      const nextAdminReferral: AdminBillingReferralSummary = existingAdminReferral
-        ? {
-            ...existingAdminReferral,
-            invitedFamilies: existingAdminReferral.invitedFamilies + 1,
-            auditReference: `${mutation.auditReference}:admin`,
-            updatedAt,
-          }
-        : {
-            referralCode: mutation.referralCode,
-            ownerSubject: mutation.subject,
-            creditedFamilies: nextReferral.availableCredits,
-            invitedFamilies: nextReferral.activeReferredParents + nextReferral.pendingInvites,
-            abuseReviewState: "clear",
-            auditReference: `${mutation.auditReference}:admin`,
-            updatedAt,
-          };
+      const nextAdminReferral = (
+        existingAdminReferral
+          ? {
+              ...existingAdminReferral,
+              invitedFamilies: existingAdminReferral.invitedFamilies + 1,
+              auditReference: `${mutation.auditReference}:admin`,
+              updatedAt,
+            }
+          : {
+              referralCode: mutation.referralCode,
+              ownerSubject: mutation.subject,
+              creditedFamilies: nextReferral.availableCredits,
+              invitedFamilies: nextReferral.activeReferredParents + nextReferral.pendingInvites,
+              abuseReviewState: "clear",
+              auditReference: `${mutation.auditReference}:admin`,
+              updatedAt,
+            }
+      ) as unknown as AdminBillingReferralSummary;
 
       await upsertBillingReferralSummary(env, nextReferral);
       await upsertAdminBillingReferralSummary(env, nextAdminReferral);
@@ -1493,7 +1497,7 @@ export async function applyBillingStateMutation(
         familyRef: (await loadBillingStatusSummary(env, mutation.subject)).familyRef,
         auditReference: mutation.auditReference,
         createdAt: updatedAt,
-      });
+      } as unknown as BillingAuditEventSummary);
       return;
     }
     case "manual-invoice": {
@@ -1502,7 +1506,7 @@ export async function applyBillingStateMutation(
       const updatedAt = new Date().toISOString();
       const auditReference = `${mutation.auditReference}:state`;
       const manualInvoiceId = manualInvoiceSummaryId(mutation.subject, mutation.requestId);
-      const nextInvoice: BillingInvoiceSummary = {
+      const nextInvoice = {
         invoiceId: manualInvoiceId,
         invoiceNumber: `INV-MANUAL-${mutation.requestId.toUpperCase()}`,
         parentAccountRef: status.parentAccountRef,
@@ -1520,12 +1524,12 @@ export async function applyBillingStateMutation(
         periodEnd: updatedAt,
         updatedAt,
         auditReference: `${auditReference}:invoice`,
-      };
-      const nextAdminInvoice: AdminBillingInvoiceSummary = {
+      } as unknown as BillingInvoiceSummary;
+      const nextAdminInvoice = {
         ...nextInvoice,
         manualRequired: true,
-      };
-      const nextStatus: BillingStatusSummary = {
+      } as unknown as AdminBillingInvoiceSummary;
+      const nextStatus = {
         ...status,
         accountStatus: "manual-review",
         subscriptionStatus: "past-due",
@@ -1543,8 +1547,8 @@ export async function applyBillingStateMutation(
         warnings: withAddedWarning(status.warnings, "manual-invoice-issued"),
         auditReference,
         updatedAt,
-      };
-      const nextSnapshot: BillingEntitlementSnapshotSummary = {
+      } as unknown as BillingStatusSummary;
+      const nextSnapshot = {
         ...snapshot,
         subscriptionStatus: "past-due",
         source: "manual-admin-review",
@@ -1554,7 +1558,7 @@ export async function applyBillingStateMutation(
         failureState: manualReviewFailureState(),
         signedAt: updatedAt,
         auditReference: `${auditReference}:snapshot`,
-      };
+      } as unknown as BillingEntitlementSnapshotSummary;
 
       await upsertBillingInvoiceSummary(env, mutation.subject, nextInvoice);
       await upsertAdminBillingInvoiceSummary(env, nextAdminInvoice);
@@ -1569,7 +1573,7 @@ export async function applyBillingStateMutation(
         familyRef: status.familyRef,
         auditReference,
         createdAt: updatedAt,
-      });
+      } as unknown as BillingAuditEventSummary);
       return;
     }
     case "admin-refund": {
@@ -1596,7 +1600,7 @@ export async function applyBillingStateMutation(
           paymentState: refundSettled ? "refunded" : invoice.paymentState,
           auditReference: `${auditReference}:invoice:${invoice.invoiceId}`,
           updatedAt,
-        });
+        } as unknown as BillingInvoiceSummary);
       }
 
       for (const invoice of adminInvoices) {
@@ -1609,11 +1613,11 @@ export async function applyBillingStateMutation(
           paymentState: refundSettled ? "refunded" : invoice.paymentState,
           auditReference: `${auditReference}:admin-invoice:${invoice.invoiceId}`,
           updatedAt,
-        });
+        } as unknown as AdminBillingInvoiceSummary);
       }
 
       if (refundSettled && matchedInvoice) {
-        const nextStatus: BillingStatusSummary = {
+        const nextStatus: any = {
           ...status,
           accountStatus: "manual-review",
           subscriptionStatus: "past-due",
@@ -1629,8 +1633,8 @@ export async function applyBillingStateMutation(
           ),
           auditReference,
           updatedAt,
-        };
-        const nextSnapshot: BillingEntitlementSnapshotSummary = {
+        } as unknown as BillingStatusSummary;
+        const nextSnapshot: any = {
           ...snapshot,
           subscriptionStatus: "past-due",
           source: "manual-admin-review",
@@ -1640,7 +1644,7 @@ export async function applyBillingStateMutation(
           failureState: nextFailureState,
           signedAt: updatedAt,
           auditReference: `${auditReference}:snapshot`,
-        };
+        } as unknown as BillingEntitlementSnapshotSummary;
 
         await upsertBillingStatusSummary(env, nextStatus);
         await upsertBillingSnapshotSummary(env, nextSnapshot);
@@ -1655,7 +1659,7 @@ export async function applyBillingStateMutation(
         familyRef: status.familyRef,
         auditReference,
         createdAt: updatedAt,
-      });
+      } as unknown as BillingAuditEventSummary);
       return;
     }
     case "reconciliation": {
@@ -1668,7 +1672,7 @@ export async function applyBillingStateMutation(
         familyRef: RECONCILIATION_FAMILY_REF,
         auditReference: mutation.auditReference,
         createdAt: updatedAt,
-      });
+      } as unknown as BillingAuditEventSummary);
       return;
     }
     case "provider-webhook": {
@@ -1685,7 +1689,7 @@ export async function applyBillingStateMutation(
       const auditReference = `${status.auditReference}:provider-webhook:${mutation.provider}`;
 
       if (transition === "activate-subscription") {
-        const nextStatus: BillingStatusSummary = {
+        const nextStatus: any = {
           ...status,
           accountStatus: "active",
           subscriptionStatus: "active",
@@ -1708,8 +1712,8 @@ export async function applyBillingStateMutation(
           ),
           auditReference,
           updatedAt,
-        };
-        const nextSnapshot: BillingEntitlementSnapshotSummary = {
+        } as unknown as BillingStatusSummary;
+        const nextSnapshot: any = {
           ...snapshot,
           subscriptionStatus: "active",
           source: "signed-local-snapshot",
@@ -1719,23 +1723,23 @@ export async function applyBillingStateMutation(
           failureState: null,
           signedAt: updatedAt,
           auditReference: `${auditReference}:snapshot`,
-        };
+        } as unknown as BillingEntitlementSnapshotSummary;
 
         await upsertBillingStatusSummary(env, nextStatus);
         await upsertBillingSnapshotSummary(env, nextSnapshot);
         for (const invoice of invoices) {
-          const nextInvoice: BillingInvoiceSummary = {
+          const nextInvoice = {
             ...invoice,
             paymentState: invoice.provider === "manual-invoice" ? invoice.paymentState : "paid",
             auditReference: `${auditReference}:invoice:${invoice.invoiceId}`,
             updatedAt,
-          };
+          } as unknown as BillingInvoiceSummary;
           await upsertBillingInvoiceSummary(env, mutation.subject, nextInvoice);
         }
         for (const invoice of adminInvoices.filter(
           (entry) => entry.parentAccountRef === status.parentAccountRef,
         )) {
-          const nextInvoice: AdminBillingInvoiceSummary = {
+          const nextInvoice: any = {
             ...invoice,
             paymentState: invoice.provider === "manual-invoice" ? invoice.paymentState : "paid",
             manualRequired: false,
@@ -1746,7 +1750,7 @@ export async function applyBillingStateMutation(
         }
         await updateAdminAccountProjection(env, nextStatus);
       } else if (transition === "enter-grace") {
-        const nextStatus: BillingStatusSummary = {
+        const nextStatus = {
           ...status,
           accountStatus: "grace",
           subscriptionStatus: "grace",
@@ -1766,8 +1770,8 @@ export async function applyBillingStateMutation(
           ),
           auditReference,
           updatedAt,
-        };
-        const nextSnapshot: BillingEntitlementSnapshotSummary = {
+        } as unknown as BillingStatusSummary;
+        const nextSnapshot = {
           ...snapshot,
           subscriptionStatus: "grace",
           source: "signed-local-snapshot",
@@ -1777,23 +1781,23 @@ export async function applyBillingStateMutation(
           failureState: graceFailureState(),
           signedAt: updatedAt,
           auditReference: `${auditReference}:snapshot`,
-        };
+        } as unknown as BillingEntitlementSnapshotSummary;
 
         await upsertBillingStatusSummary(env, nextStatus);
         await upsertBillingSnapshotSummary(env, nextSnapshot);
         for (const invoice of invoices) {
-          const nextInvoice: BillingInvoiceSummary = {
+          const nextInvoice = {
             ...invoice,
             paymentState: invoice.provider === "manual-invoice" ? invoice.paymentState : "grace",
             auditReference: `${auditReference}:invoice:${invoice.invoiceId}`,
             updatedAt,
-          };
+          } as unknown as BillingInvoiceSummary;
           await upsertBillingInvoiceSummary(env, mutation.subject, nextInvoice);
         }
         for (const invoice of adminInvoices.filter(
           (entry) => entry.parentAccountRef === status.parentAccountRef,
         )) {
-          const nextInvoice: AdminBillingInvoiceSummary = {
+          const nextInvoice: any = {
             ...invoice,
             paymentState: invoice.provider === "manual-invoice" ? invoice.paymentState : "grace",
             manualRequired: invoice.invoiceVisibility === "manual-support-required",
@@ -1819,7 +1823,7 @@ export async function applyBillingStateMutation(
               ? "revoke-paid-access"
               : "grace-paid-access";
         const manualRequired = transition !== "dispute-won";
-        const nextDispute: AdminBillingDisputeSummary = {
+        const nextDispute = {
           disputeId,
           parentAccountRef: status.parentAccountRef,
           familyRef: status.familyRef,
@@ -1829,11 +1833,11 @@ export async function applyBillingStateMutation(
           manualRequired,
           auditReference: `${auditReference}:dispute:${disputeId}`,
           updatedAt,
-        };
+        } as unknown as AdminBillingDisputeSummary;
         await upsertAdminBillingDisputeSummary(env, nextDispute);
 
-        const nextStatus: BillingStatusSummary =
-          transition === "dispute-won"
+        const nextStatus =
+          (transition === "dispute-won"
             ? {
                 ...status,
                 accountStatus: "active",
@@ -1871,9 +1875,9 @@ export async function applyBillingStateMutation(
                 ),
                 auditReference,
                 updatedAt,
-              };
-        const nextSnapshot: BillingEntitlementSnapshotSummary =
-          transition === "dispute-won"
+              }) as unknown as BillingStatusSummary;
+        const nextSnapshot =
+          (transition === "dispute-won"
             ? {
                 ...snapshot,
                 subscriptionStatus: "active",
@@ -1895,7 +1899,7 @@ export async function applyBillingStateMutation(
                 failureState: manualReviewFailureState(),
                 signedAt: updatedAt,
                 auditReference: `${auditReference}:snapshot`,
-              };
+              }) as unknown as BillingEntitlementSnapshotSummary;
 
         await upsertBillingStatusSummary(env, nextStatus);
         await upsertBillingSnapshotSummary(env, nextSnapshot);
@@ -1910,8 +1914,11 @@ export async function applyBillingStateMutation(
         familyRef: status.familyRef,
         auditReference,
         createdAt: updatedAt,
-      });
+      } as unknown as BillingAuditEventSummary);
       return;
     }
   }
 }
+
+
+

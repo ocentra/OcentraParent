@@ -1,10 +1,12 @@
 use std::sync::{Arc, Mutex};
 
 use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventCustody, EventId,
-    EventMetadata, EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey,
-    RecordedAt, RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId,
-    SubscriptionReport, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
+    envelope::DomainEvent, envelope::EventContract, envelope::EventMetadata, envelope::EventSource,
+    error::EventingError, ids::AggregateKey, ids::CorrelationId, ids::EventCustody, ids::EventId,
+    ids::EventType, ids::IdempotencyKey, ids::RecordedAt, ids::RuntimeInstanceId,
+    ids::SchemaVersion, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
+    ids::TargetHandler,
 };
 use ocentra_parent_agent_core::ScreenRuntimeReport;
 use ocentra_parent_agent_protocol::{constants, ActivityScreenReadModelRow};
@@ -46,7 +48,7 @@ impl ScreenAiServiceEventRuntime {
         row: ActivityScreenReadModelRow,
         action_ref: impl Into<String>,
         observed_at: &str,
-    ) -> Result<ocentra_eventing::PublishReport, EventingError> {
+    ) -> Result<ocentra_eventing::bus::reports::PublishReport, EventingError> {
         publish_screen_service_row_ready_event(
             &self.bus,
             ScreenAiServiceRowReadyEvent::new(row, action_ref),
@@ -166,7 +168,7 @@ pub(crate) async fn publish_screen_service_row_ready_event(
     bus: &EventBus,
     event: ScreenAiServiceRowReadyEvent,
     observed_at: &str,
-) -> Result<ocentra_eventing::PublishReport, EventingError> {
+) -> Result<ocentra_eventing::bus::reports::PublishReport, EventingError> {
     bus.publish(event, screen_service_row_ready_metadata(observed_at)?)
         .await
 }
@@ -244,7 +246,7 @@ fn screen_service_row_ready_metadata(observed_at: &str) -> Result<EventMetadata,
 fn screen_service_row_ready_source() -> Result<EventSource, EventingError> {
     Ok(EventSource::new(
         EventCustody::parse(constants::child_agent::CUSTODY_CHILD_AGENT_RUNTIME)?,
-        ocentra_eventing::RuntimeRole::parse(constants::eventing_source::ROLE_AGENT)?,
+        ocentra_eventing::ids::RuntimeRole::parse(constants::eventing_source::ROLE_AGENT)?,
         SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
         SourceComponent::parse(
             constants::screen_flow::RUNTIME_COMPONENT_SCREEN_SERVICE_SUBSCRIBER,

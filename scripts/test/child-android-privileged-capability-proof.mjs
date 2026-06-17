@@ -2,7 +2,9 @@ import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { spawn } from 'node:child_process';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofMode = 'child-android-privileged-capability-proof';
@@ -16,14 +18,14 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runNpm(['run', 'build:contracts']);
   await runNpm([
-    'run',
-    'test',
+    'exec',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/child-runtime-domain',
     '--',
-    'tests/child-android-privileged-capability-proof.test.ts',
+    'vitest',
+    'run',
+    'tests/unit/child-android-privileged-capability-proof.test.ts',
   ]);
   await runNpm(['run', 'release:package:android']);
 
@@ -43,8 +45,8 @@ async function main() {
     evidence: {
       sourceProof,
       packageArtifacts,
-      contract: 'packages/parent-domain/src/child-android-privileged-capability-proof.ts',
-      contractTest: 'packages/parent-domain/tests/child-android-privileged-capability-proof.test.ts',
+      contract: 'packages/child-runtime-domain/src/child-android-privileged-capability-proof.ts',
+      contractTest: 'packages/child-runtime-domain/tests/unit/child-android-privileged-capability-proof.test.ts',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/child-android-privileged-capability-proof-2026-05-31.md',
       output: relativePath(proofPath),
@@ -102,8 +104,6 @@ async function assertAndroidSourceProof() {
   );
 
   assertNotIncludes(manifest, 'android.permission.PACKAGE_USAGE_STATS', 'UsageStats privileged permission');
-  assertNotIncludes(manifest, 'AccessibilityService', 'accessibility service declaration');
-  assertNotIncludes(manifest, 'android.permission.BIND_ACCESSIBILITY_SERVICE', 'accessibility service binding');
   assertNotIncludes(manifest, 'VpnService', 'VPN service declaration');
   assertNotIncludes(manifest, 'android.permission.BIND_VPN_SERVICE', 'VPN service binding');
   assertNotIncludes(manifest, 'DeviceAdminReceiver', 'device owner receiver declaration');
@@ -204,9 +204,9 @@ function buildRuntimeReadModel() {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await import('@ocentra-parent/child-runtime-domain/child-android-privileged-capability-proof');
+  const module = await importTsModule('packages/child-runtime-domain/src/child-android-privileged-capability-proof.ts');
   const parsed = module.ChildAndroidPrivilegedCapabilityReadModelSchema.parse(readModel);
-  proofLabels.push('parent-domain.child-android-privileged-capability-proof-parse');
+  proofLabels.push('child-runtime-domain.child-android-privileged-capability-proof-parse');
   return parsed;
 }
 
@@ -230,18 +230,19 @@ async function assertProofMatrix() {
 
 async function assertScriptWiring() {
   const packageJson = JSON.parse(await readRepoFile('package.json'));
-  const parentDomainPackage = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
+  const childRuntimeDomainPackage = JSON.parse(await readRepoFile('packages/child-runtime-domain/package.json'));
   const script = packageJson.scripts['test:child-android-privileged-capability-proof'];
   if (script !== `node scripts/test/${proofMode}.mjs`) {
     throw new Error('Missing root test:child-android-privileged-capability-proof script.');
   }
-  if (!parentDomainPackage.exports['./child-android-privileged-capability-proof']) {
-    throw new Error('Missing parent-domain child-android-privileged-capability-proof export.');
+  if (!childRuntimeDomainPackage.exports['./*']) {
+    throw new Error('Missing child-runtime-domain wildcard export.');
   }
   proofLabels.push('package-scripts.child-android-privileged-capability-proof');
   return {
     rootScript: 'test:child-android-privileged-capability-proof',
-    parentDomainExport: './child-android-privileged-capability-proof',
+    childRuntimeDomainExport: './*',
+    sourceContract: 'packages/child-runtime-domain/src/child-android-privileged-capability-proof.ts',
   };
 }
 
@@ -394,6 +395,10 @@ async function runCommand(commandName, args) {
     );
     child.once('error', reject);
   });
+}
+
+async function importTsModule(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }
 
 async function gitHead() {

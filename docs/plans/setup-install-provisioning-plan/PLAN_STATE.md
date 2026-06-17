@@ -19,8 +19,8 @@
 ```text
 Plan route: upgraded
 Execution-grade workpacks: in progress
-Implementation: not started by this plan route
-Proof artifacts: none recorded by this plan route yet
+Implementation: scoped WP01, WP02, WP04, and WP05 typed source/test/proof validation is green in owned slices; WP03 proof and handoff coverage now exists with setup-domain plus production-domain validation green and an external parent-domain validation blocker; WP07 portal/state-machine implementation, portal-domain tests, portal render tests, and Playwright proof are now green on this branch; broader plan completion remains partial
+Proof artifacts: WP01 proof root is green for the owned public-site/data-boundary slice; WP02 proof root is green for the owned account-entry/handoff slice; WP03 proof root exists for the owned parent-install/handoff slice and records the external parent-domain validation blocker; WP04 proof root is green for the owned child install/permission slice; WP05 proof root is green for the owned pairing slice; WP07 proof root is now present and green for the owned first-run route projection; WP06 blocker-pack proof root exists but is stale relative to the new WP07 proof root and current sibling-owner blocker state
 PR-ready: false
 ```
 
@@ -53,14 +53,13 @@ This plan owns the setup journey/state machine/readiness labels/proof manifest a
 ## Open gaps
 
 ```text
-- No final public family-site route/deploy shape proof exists.
-- No single setup state machine ties account, parent app, child agent, permissions, pairing, recovery, custody, and policy baseline.
-- No platform-specific parent/child install journey matrix has been proven.
-- No parent bootstrap code state machine proof exists.
-- No child pairing/bootstrap code state machine proof exists.
-- No first-run setup UI proof exists.
-- No rollout proof manifest exists under output/setup-install-provisioning-plan-proof/.
-- No route-sync proof exists for account identity, runtime distribution, device trust, LAN, portal UX, data custody, policy, or payment handoffs.
+- WP01 public family-site route/data-boundary proof root now exists, but preview/custom-domain/public-runtime proof is still blocker-only.
+- WP02 registration/login proof root now exists, but live provider/session/household implementation remains owned by `account-identity-family-plan`.
+- WP03 parent install journey proof root now exists, but focused `@ocentra-parent/parent-domain` build/test validation is blocked by broader unrelated compile failures outside the owned parent-install slice, currently concentrated in `billing-account-runtime-boundary*`, `billing-entitlement*`, `network-control-catalog*`, `production-release-public-*`, `production-support-*`, `public-support-contact-status*`, `stateless-report-compiler-status*`, and `parent-owned-local-export-runtime.ts`; signed installers, notarization, store delivery, update/rollback execution, and production publishing remain owned by `parent-desktop-runtime-package-plan`.
+- WP04 child install/permission journey proof root now exists, and the rendered first-run setup proof is now green in WP07, but real child runtime/package/platform execution remains owned by sibling plans.
+- WP05 pairing/readiness/recovery proof root now exists, but pairing/bootstrap redaction proof is still blocker-only.
+- WP06 rollout blocker pack must be refreshed before any aggregate readiness claim, because its current proof pack and gap register still describe WP07 as missing and do not yet consume the newest account/LAN/runtime blocker state.
+- Sibling owner plans still hold unmet account/provider/session, runtime distribution, device trust, LAN, portal UX beyond the owned Start route, data custody, policy, and payment proof.
 ```
 
 ## No-claim boundaries

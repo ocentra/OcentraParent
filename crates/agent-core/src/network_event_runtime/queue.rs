@@ -2,12 +2,13 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    EventBus, EventQueuePolicy, EventSubscriber, EventType, EventingError, QueueDrainReport,
-    SubscriberId, TargetHandler,
+    bus::reports::QueueDrainReport, bus::subscriber::EventSubscriber, bus::EventBus,
+    error::EventingError, ids::EventType, ids::SubscriberId, ids::TargetHandler,
+    queue::policy::EventQueuePolicy,
 };
 
 #[cfg(test)]
-use ocentra_eventing::ManualEventClock;
+use ocentra_eventing::clock::ManualEventClock;
 
 use ocentra_parent_agent_protocol::constants;
 
@@ -18,42 +19,42 @@ use super::{network_event_metadata, NetworkRuntimeEventPayload};
 #[derive(Clone, Debug)]
 #[cfg(test)]
 pub struct NetworkRuntimeQueueDrainReport {
-    pub queued_publish_report: ocentra_eventing::PublishReport,
-    pub drain_report: ocentra_eventing::QueueDrainReport,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub queued_publish_report: ocentra_eventing::bus::reports::PublishReport,
+    pub drain_report: ocentra_eventing::bus::reports::QueueDrainReport,
+    pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
+    pub dead_letters: Vec<ocentra_eventing::bus::reports::DeadLetter>,
 }
 
 #[derive(Clone, Debug)]
 pub struct NetworkRuntimeQueueOverflowReport {
     #[cfg(test)]
-    pub first_publish_report: ocentra_eventing::PublishReport,
+    pub first_publish_report: ocentra_eventing::bus::reports::PublishReport,
     #[cfg(test)]
-    pub overflow_publish_report: ocentra_eventing::PublishReport,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub overflow_publish_report: ocentra_eventing::bus::reports::PublishReport,
+    pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
+    pub dead_letters: Vec<ocentra_eventing::bus::reports::DeadLetter>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg(test)]
 pub struct NetworkRuntimeQueueTtlReport {
-    pub queued_publish_report: ocentra_eventing::PublishReport,
-    pub drain_report: ocentra_eventing::QueueDrainReport,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub queued_publish_report: ocentra_eventing::bus::reports::PublishReport,
+    pub drain_report: ocentra_eventing::bus::reports::QueueDrainReport,
+    pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
+    pub dead_letters: Vec<ocentra_eventing::bus::reports::DeadLetter>,
 }
 
 #[derive(Clone, Debug)]
 pub struct NetworkRuntimeQueueIdempotencyReport {
     #[cfg(test)]
-    pub first_publish_report: ocentra_eventing::PublishReport,
+    pub first_publish_report: ocentra_eventing::bus::reports::PublishReport,
     pub queued_duplicate_error: EventingError,
     #[cfg(test)]
-    pub drain_report: ocentra_eventing::QueueDrainReport,
+    pub drain_report: ocentra_eventing::bus::reports::QueueDrainReport,
     pub completed_duplicate_error: EventingError,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
+    pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
     #[cfg(test)]
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub dead_letters: Vec<ocentra_eventing::bus::reports::DeadLetter>,
 }
 
 #[cfg(test)]
@@ -159,7 +160,7 @@ async fn publish_flow_observation(
     bus: &EventBus,
     observation: &NetworkObservation,
     observed_at: &str,
-) -> Result<ocentra_eventing::PublishReport, EventingError> {
+) -> Result<ocentra_eventing::bus::reports::PublishReport, EventingError> {
     let phase = NetworkRuntimePhase::FlowObserved;
     let payload = NetworkRuntimeEventPayload::from_observation(phase, observation, observed_at);
     let metadata = network_event_metadata(phase, observation, observed_at, phase.target_handler())?;
@@ -181,7 +182,7 @@ async fn subscribe_flow_observer(bus: &EventBus) -> Result<QueueDrainReport, Eve
 }
 
 fn duplicate_publish_error(
-    result: Result<ocentra_eventing::PublishReport, EventingError>,
+    result: Result<ocentra_eventing::bus::reports::PublishReport, EventingError>,
 ) -> Result<EventingError, EventingError> {
     match result {
         Ok(_) => Err(EventingError::InvalidQueuePolicy {

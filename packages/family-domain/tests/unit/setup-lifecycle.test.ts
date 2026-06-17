@@ -37,6 +37,8 @@ function inviteAuthorizationInput(overrides: Record<string, unknown> = {}) {
     inviteState: SetupInviteState.Pending,
     singleUse: true,
     replayState: SetupInviteReplayState.Fresh,
+    abuseState: 'within-limit',
+    responseTimingState: 'uniform',
     ...overrides,
   };
 }
@@ -51,6 +53,8 @@ function recoveryAuthorizationInput(overrides: Record<string, unknown> = {}) {
     identityProofState: RecoveryIdentityProofState.Verified,
     supportChannel: RecoverySupportChannel.SelfServe,
     deleteExportHandoffRequired: false,
+    abuseState: 'within-limit',
+    responseTimingState: 'uniform',
     ...overrides,
   };
 }

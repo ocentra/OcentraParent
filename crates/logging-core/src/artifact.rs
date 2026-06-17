@@ -56,7 +56,12 @@ impl ArtifactWriter {
         let scope = sanitize_segment(scope)?;
         let run_id = sanitize_segment(run_id)?;
         let command_id = sanitize_segment(command_id)?;
-        let mut path = self.root.join(scope).join("artifacts").join(&run_id).join(&command_id);
+        let mut path = self
+            .root
+            .join(scope)
+            .join("artifacts")
+            .join(&run_id)
+            .join(&command_id);
         create_dir_all(&path)?;
         path.push(kind_file_name(&kind));
         write(&path, content.as_bytes())?;

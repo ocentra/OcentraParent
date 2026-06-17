@@ -1,4 +1,6 @@
-use ocentra_eventing::{CorrelationId, EventId, EventType, EventingError, SourceComponent};
+use ocentra_eventing::{
+    error::EventingError, ids::CorrelationId, ids::EventId, ids::EventType, ids::SourceComponent,
+};
 
 use super::{
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError,

@@ -168,3 +168,17 @@ Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
 ```
+
+## Current audit note
+
+`crates/logging-core` is now a real crate with source, tests, fixture parity
+assets, and downstream use from `crates/agent-service/src/dev_log.rs`. The June
+16, 2026 audit re-verified the live delegation path with
+`cargo test -p ocentra-parent-agent-service dev_log`, which passed.
+
+The prior completion block should still not be trusted as durable proof. The
+named proof root
+`output/logging-domain-parity-proof/04-rust-logging-core-crate/` is absent in
+this checkout, and this audit pass did not re-run the full WP04 command set.
+Treat WP04 as source-present with partial live re-check, not as fully proved
+complete.

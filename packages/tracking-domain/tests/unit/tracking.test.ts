@@ -488,7 +488,7 @@ describe('tracking first-target runtime helpers', () => {
           distanceMeters: 140,
           reasonCodes: ['activity-exit-sample'],
         },
-        expectedOutcome: 'left-expected' as const,
+        expectedOutcome: 'left-expected-place' as const,
         expectedReasonCode: 'exited-expected-place-window',
       },
       {

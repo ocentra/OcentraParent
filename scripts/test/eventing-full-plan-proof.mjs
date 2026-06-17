@@ -59,7 +59,7 @@ const directCommands = [
   {
     name: 'source-shape',
     command: 'node',
-    args: ['scripts/check-source-shape.mjs'],
+    args: ['scripts/check-source-shape.mjs', 'crates/ocentra-eventing'],
   },
   {
     name: 'git-diff-check',

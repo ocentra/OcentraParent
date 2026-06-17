@@ -13,13 +13,13 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/enforcement-domain',
       '--',
       'v0-8-enforcement-integrity-runtime-audit',
     ])
@@ -29,7 +29,7 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/enforcement-domain',
       '--',
       'v0-8-integrity-alert-status-bridge',
     ])
@@ -50,7 +50,7 @@ async function main() {
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'integrity_alert_status_bridge']);
 
   const { V08EnforcementIntegrityRuntimeAuditReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-enforcement-integrity-runtime-audit.js');
+    await import('@ocentra-parent/enforcement-domain/v0-8-enforcement-integrity-runtime-audit');
   const summary = summarizeReadModel(V08EnforcementIntegrityRuntimeAuditReadModel);
 
   assertReadModel(V08EnforcementIntegrityRuntimeAuditReadModel, summary);
@@ -63,12 +63,12 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/parent-domain/src/v0-8-enforcement-integrity-runtime-audit.ts',
-      tsContractTest: 'packages/parent-domain/tests/v0-8-enforcement-integrity-runtime-audit.test.ts',
-      tsSupportedAdapterExport: 'packages/parent-domain/src/v0-8-supported-adapter-runtime-proof.ts',
+      tsContract: 'packages/enforcement-domain/src/v0-8-enforcement-integrity-runtime-audit.ts',
+      tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-enforcement-integrity-runtime-audit.test.ts',
+      tsSupportedAdapterExport: 'packages/enforcement-domain/src/v0-8-supported-adapter-runtime-proof.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-supported-adapter-runtime-proof-adapter.ts',
       tsProtocolAdapterTest:
-        'packages/agent-protocol-domain/tests/enforcement-supported-adapter-runtime-proof-adapter.test.ts',
+        'packages/agent-protocol-domain/tests/unit/enforcement-supported-adapter-runtime-proof-adapter.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_integrity_runtime_audit.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_integrity_runtime_audit_tests.rs',
       rustServiceReadModel:

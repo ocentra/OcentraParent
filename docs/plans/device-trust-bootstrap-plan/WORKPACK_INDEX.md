@@ -18,15 +18,17 @@ Choose one workpack. Do not open all workpacks.
 
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
-| open | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | 0/12 | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
-| open | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | 0/12 | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
-| open | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | 0/12 | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
-| open | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | 0/12 | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
-| open | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | 0/12 | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
-| open | [WP06 Recovery Reset Re-Pair](workpacks/06-recovery-reset-re-pair.md) | 0/12 | `RECOVERY_RESET_MODEL.md`, `LOCAL_KEY_SEALING_MODEL.md` | `output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` |
-| open | [WP07 Child Tamper Uninstall](workpacks/07-child-tamper-uninstall.md) | 0/12 | `CHILD_TAMPER_UNINSTALL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/07-child-tamper-uninstall/` |
-| open | [WP08 Open Source Dependency Adoption](workpacks/08-open-source-dependency-adoption.md) | 0/10 | `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/08-open-source-dependency-adoption/` |
-| open | [WP09 Cross Plan Route Gate](workpacks/09-cross-plan-route-gate.md) | 0/14 | prior proof roots | `output/device-trust-bootstrap-plan-proof/09-cross-plan-route-gate/` |
+| partial | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | audit reset | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
+| blocked | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | audit reset | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
+| blocked | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | audit reset | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
+| blocked | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | audit reset | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
+| partial | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | audit reset | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
+| partial | [WP06 Recovery Reset Re-Pair](workpacks/06-recovery-reset-re-pair.md) | audit reset | `RECOVERY_RESET_MODEL.md`, `LOCAL_KEY_SEALING_MODEL.md` | `output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` |
+| partial | [WP07 Child Tamper Uninstall](workpacks/07-child-tamper-uninstall.md) | audit reset | `CHILD_TAMPER_UNINSTALL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/07-child-tamper-uninstall/` |
+| docs-only | [WP08 Open Source Dependency Adoption](workpacks/08-open-source-dependency-adoption.md) | audit reset | `DEPENDENCY_RESEARCH_AND_ADOPTION.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/08-open-source-dependency-adoption/` |
+| partial | [WP09 Cross Plan Route Gate](workpacks/09-cross-plan-route-gate.md) | audit reset | `ROUTE_INDEX.md`, adjacent plan/feature route indexes | `output/device-trust-bootstrap-plan-proof/09-cross-plan-route-gate/` |
+
+The previous `12/12`, `10/10`, and `complete` labels were not backed by real proof roots or runtime validation and have been reset by audit.
 
 ## Default execution order
 

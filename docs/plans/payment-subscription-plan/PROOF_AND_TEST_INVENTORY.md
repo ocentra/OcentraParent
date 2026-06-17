@@ -9,11 +9,13 @@ Exact assertion scope lives in
 document owns harnesses, commands, artifact paths, and proof bundle structure;
 the assertion matrix owns the exact meaning of each test or proof ID.
 
-Use proof root:
+Use canonical proof root:
 
 ```text
-docs/proof/payment-subscription-plan/
+output/payment-subscription-plan-proof/
 ```
+
+Any payment proof reference outside `output/payment-subscription-plan-proof/` is legacy drift. The upstream Cloudflare handoff gate for WP00 is `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`, and payment runtime stays blocked until that artifact exists or records an exact blocker.
 
 No payment, referral, entitlement, invoice, dashboard, admin, provider, or regional claim is DONE or PR_READY without positive proof, negative proof, command output, artifact paths, and no-claim boundaries.
 
@@ -28,11 +30,11 @@ No payment, referral, entitlement, invoice, dashboard, admin, provider, or regio
 | WP04 | `packages/billing-domain/tests/unit/billing-entitlement-runtime-proof.test.ts`, `crates/entitlement-core/tests/unit/capability_gate.rs`, `crates/entitlement-core/tests/unit/capability_access.rs` | Covers signed snapshots, device gating, and entitlement source-of-truth checks. |
 | WP05 | `packages/billing-domain/tests/unit/billing-invoice-tax-refund-dispute.test.ts`, `crates/billing-core/tests/unit/subscription_lifecycle.rs` | Covers invoice, refund, dispute, and grace transitions. |
 | WP06 | `packages/billing-domain/tests/unit/billing-security-privacy-observability.test.ts`, `scripts/test/support-bundle-redaction-proof.mjs`, `scripts/test/billing-support-admin-boundary-proof.mjs` | Covers secret handling, redaction, and support-view minimization. |
-| WP07 | `scripts/test/real-evidence-proof-checkpoint.mjs`, `docs/proof/payment-subscription-plan/07-validation-command-log.md` | Covers route closure, proof-path sync, and the close-gate log. |
+| WP07 | `scripts/test/real-evidence-proof-checkpoint.mjs`, `output/payment-subscription-plan-proof/07-rollout-proof-and-route-gate/07-validation-command-log.md`, `output/payment-subscription-plan-proof/07-rollout-proof-and-route-gate/` | Covers route closure, proof-path sync, and the close-gate log. Route documents now point at the canonical output root, but the proof bundles themselves are still absent on disk. |
 | WP08 | `packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts`, `packages/billing-domain/tests/unit/billing-account-runtime-boundary.test.ts` | Covers provider portability entrypoints and normalization boundaries. |
 | WP09 | `packages/billing-domain/tests/unit/billing-pricing-matrix.test.ts`, `packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts` | Covers region/provider choice and rollout-gating inputs. |
 | WP10 | `packages/billing-domain/tests/unit/billing-entitlement.test.ts`, `packages/billing-domain/tests/unit/billing-entitlement-runtime-proof.test.ts` | Covers referral credits, entitlement impact, and grace behavior. |
-| WP11 | `packages/parent-domain/src/billing-entitlement.ts`, `packages/parent-domain/src/billing-entitlement-proof.ts`, `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts`, `packages/billing-domain/tests/unit/billing-support-admin-status-proof.test.ts` | Covers the parent billing surface and its proof model. `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts` is currently missing and must be created or explicitly blocked during execution. |
+| WP11 | `packages/parent-domain/src/billing-entitlement.ts`, `packages/parent-domain/src/billing-entitlement-proof.ts`, `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts`, `packages/billing-domain/tests/unit/billing-support-admin-status-proof.test.ts` | Covers the parent billing surface and its proof model. `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts` exists, but execution is currently blocked by parent-domain build/import failures before the targeted file can run. |
 | WP12 | `scripts/test/billing-support-admin-status-proof.mjs`, `scripts/test/billing-support-admin-boundary-proof.mjs`, `packages/billing-domain/tests/unit/billing-support-admin-boundary.test.ts` | Covers support/admin search, redaction, and audit gating. |
 
 ## Required proof manifest fields
@@ -112,19 +114,19 @@ Every proof bundle for WP00 through WP12 must record:
 
 | Workpack | Exact validation commands | Run order | Proof locations |
 | --- | --- | --- | --- |
-| WP00 | `npm run format:check`; `npm run lint:schema-boundaries` | 0 | `docs/proof/payment-subscription-plan/wp00-cloudflare-control-plane-handoff/cloudflare-handoff-proof.md` |
-| WP01 | `npm run format:check`; `npm run lint:schema-boundaries` | 1 | `docs/proof/payment-subscription-plan/01-free-starter-bundle-proof.md`, `docs/proof/payment-subscription-plan/01-effective-child-device-limit-proof.md`, `docs/proof/payment-subscription-plan/01-safety-critical-grace-proof.md`, `docs/proof/payment-subscription-plan/01-rejected-game-economy-proof.md` |
-| WP02 | `npm run format:check`; `npm run lint:schema-boundaries` | 2 | `docs/proof/payment-subscription-plan/02-cloudflare-billing-api-boundary-proof.md`, `docs/proof/payment-subscription-plan/02-hosted-checkout-proof.md`, `docs/proof/payment-subscription-plan/02-billing-portal-proof.md`, `docs/proof/payment-subscription-plan/02-no-client-secret-proof.md`, `docs/proof/payment-subscription-plan/02-redirect-origin-negative-proof.md` |
-| WP03 | `npm run format:check`; `npm run lint:schema-boundaries` | 3 | `docs/proof/payment-subscription-plan/03-provider-webhook-proof.md`, `docs/proof/payment-subscription-plan/03-idempotency-replay-proof.md`, `docs/proof/payment-subscription-plan/03-dead-letter-proof.md`, `docs/proof/payment-subscription-plan/03-reconciliation-proof.md`, `docs/proof/payment-subscription-plan/03-test-live-boundary-proof.md` |
-| WP04 | `npm run format:check`; `npm run lint:schema-boundaries` | 4 | `docs/proof/payment-subscription-plan/04-entitlement-ledger-proof.md`, `docs/proof/payment-subscription-plan/04-signed-snapshot-proof.md`, `docs/proof/payment-subscription-plan/04-local-device-trust-required-proof.md`, `docs/proof/payment-subscription-plan/04-referral-loss-recalculation-proof.md` |
-| WP05 | `npm run format:check`; `npm run lint:schema-boundaries` | 5 | `docs/proof/payment-subscription-plan/05-invoice-tax-refund-dispute-matrix.md`, `docs/proof/payment-subscription-plan/05-invoice-dashboard-proof.md`, `docs/proof/payment-subscription-plan/05-refund-dispute-entitlement-proof.md`, `docs/proof/payment-subscription-plan/05-support-admin-audit-proof.md` |
-| WP06 | `npm run format:check`; `npm run lint:schema-boundaries` | 6 | `docs/proof/payment-subscription-plan/06-metadata-privacy-proof.md`, `docs/proof/payment-subscription-plan/06-secret-scan-proof.md`, `docs/proof/payment-subscription-plan/06-referral-abuse-proof.md`, `docs/proof/payment-subscription-plan/06-support-view-minimized-proof.md`, `docs/proof/payment-subscription-plan/06-pci-hosted-boundary-proof.md` |
-| WP07 | `npm run format:check`; `npm run lint:schema-boundaries` | 7 | `docs/proof/payment-subscription-plan/07-route-sync-proof.md`, `docs/proof/payment-subscription-plan/07-proof-path-proof.md`, `docs/proof/payment-subscription-plan/07-validation-command-log.md` |
-| WP08 | `npm run format:check`; `npm run lint:schema-boundaries` | 8 | `docs/proof/payment-subscription-plan/08-provider-adapter-contract-proof.md`, `docs/proof/payment-subscription-plan/08-normalized-event-proof.md`, `docs/proof/payment-subscription-plan/08-provider-lock-escape-proof.md` |
-| WP09 | `npm run format:check`; `npm run lint:schema-boundaries` | 9 | `docs/proof/payment-subscription-plan/09-regional-payment-matrix.md`, `docs/proof/payment-subscription-plan/09-india-razorpay-proof.md`, `docs/proof/payment-subscription-plan/09-pakistan-manual-required-proof.md`, `docs/proof/payment-subscription-plan/09-china-wallet-proof.md`, `docs/proof/payment-subscription-plan/09-uae-provider-proof.md` |
-| WP10 | `npm run format:check`; `npm run lint:schema-boundaries` | 10 | `docs/proof/payment-subscription-plan/10-referral-state-machine-proof.md`, `docs/proof/payment-subscription-plan/10-referral-qualification-proof.md`, `docs/proof/payment-subscription-plan/10-referral-abuse-negative-proof.md`, `docs/proof/payment-subscription-plan/10-referral-loss-entitlement-proof.md`, `docs/proof/payment-subscription-plan/10-over-limit-grace-proof.md` |
-| WP11 | `npm run format:check`; `npm run lint:schema-boundaries` | 11 | `docs/proof/payment-subscription-plan/11-parent-website-dashboard-proof.md`, `docs/proof/payment-subscription-plan/11-dashboard-wrong-household-negative-proof.md`, `docs/proof/payment-subscription-plan/11-dashboard-no-child-private-data-proof.md` |
-| WP12 | `npm run format:check`; `npm run lint:schema-boundaries` | 12 | `docs/proof/payment-subscription-plan/12-support-admin-ops-proof.md`, `docs/proof/payment-subscription-plan/12-admin-role-negative-proof.md`, `docs/proof/payment-subscription-plan/12-support-data-minimization-proof.md`, `docs/proof/payment-subscription-plan/12-reconciliation-admin-proof.md` |
+| WP00 | `npm run format:check`; `npm run lint:schema-boundaries` | 0 | `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/cloudflare-handoff-proof.md` |
+| WP01 | `npm run format:check`; `npm run lint:schema-boundaries` | 1 | `output/payment-subscription-plan-proof/01-product-pricing-entitlement/01-free-starter-bundle-proof.md`, `output/payment-subscription-plan-proof/01-product-pricing-entitlement/01-effective-child-device-limit-proof.md`, `output/payment-subscription-plan-proof/01-product-pricing-entitlement/01-safety-critical-grace-proof.md`, `output/payment-subscription-plan-proof/01-product-pricing-entitlement/01-rejected-game-economy-proof.md` |
+| WP02 | `npm run format:check`; `npm run lint:schema-boundaries` | 2 | `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-cloudflare-billing-api-boundary-proof.md`, `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-hosted-checkout-proof.md`, `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-billing-portal-proof.md`, `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-no-client-secret-proof.md`, `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-redirect-origin-negative-proof.md` |
+| WP03 | `npm run format:check`; `npm run lint:schema-boundaries` | 3 | `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-provider-webhook-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-idempotency-replay-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-dead-letter-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-reconciliation-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-test-live-boundary-proof.md` |
+| WP04 | `npm run format:check`; `npm run lint:schema-boundaries` | 4 | `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-entitlement-ledger-proof.md`, `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-signed-snapshot-proof.md`, `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-local-device-trust-required-proof.md`, `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-referral-loss-recalculation-proof.md` |
+| WP05 | `npm run format:check`; `npm run lint:schema-boundaries` | 5 | `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/05-invoice-tax-refund-dispute-matrix.md`, `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/05-invoice-dashboard-proof.md`, `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/05-refund-dispute-entitlement-proof.md`, `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/05-support-admin-audit-proof.md` |
+| WP06 | `npm run format:check`; `npm run lint:schema-boundaries` | 6 | `output/payment-subscription-plan-proof/06-security-privacy-observability/06-metadata-privacy-proof.md`, `output/payment-subscription-plan-proof/06-security-privacy-observability/06-secret-scan-proof.md`, `output/payment-subscription-plan-proof/06-security-privacy-observability/06-referral-abuse-proof.md`, `output/payment-subscription-plan-proof/06-security-privacy-observability/06-support-view-minimized-proof.md`, `output/payment-subscription-plan-proof/06-security-privacy-observability/06-pci-hosted-boundary-proof.md` |
+| WP07 | `npm run format:check`; `npm run lint:schema-boundaries` | 7 | `output/payment-subscription-plan-proof/07-rollout-proof-and-route-gate/07-route-sync-proof.md`, `output/payment-subscription-plan-proof/07-rollout-proof-and-route-gate/07-proof-path-proof.md`, `output/payment-subscription-plan-proof/07-rollout-proof-and-route-gate/07-validation-command-log.md` |
+| WP08 | `npm run format:check`; `npm run lint:schema-boundaries` | 8 | `output/payment-subscription-plan-proof/08-provider-adapter-portability/08-provider-adapter-contract-proof.md`, `output/payment-subscription-plan-proof/08-provider-adapter-portability/08-normalized-event-proof.md`, `output/payment-subscription-plan-proof/08-provider-adapter-portability/08-provider-lock-escape-proof.md` |
+| WP09 | `npm run format:check`; `npm run lint:schema-boundaries` | 9 | `output/payment-subscription-plan-proof/09-regional-payment-rollout/09-regional-payment-matrix.md`, `output/payment-subscription-plan-proof/09-regional-payment-rollout/09-india-razorpay-proof.md`, `output/payment-subscription-plan-proof/09-regional-payment-rollout/09-pakistan-manual-required-proof.md`, `output/payment-subscription-plan-proof/09-regional-payment-rollout/09-china-wallet-proof.md`, `output/payment-subscription-plan-proof/09-regional-payment-rollout/09-uae-provider-proof.md` |
+| WP10 | `npm run format:check`; `npm run lint:schema-boundaries` | 10 | `output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-referral-state-machine-proof.md`, `output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-referral-qualification-proof.md`, `output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-referral-abuse-negative-proof.md`, `output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-referral-loss-entitlement-proof.md`, `output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-over-limit-grace-proof.md` |
+| WP11 | `npm run format:check`; `npm run lint:schema-boundaries` | 11 | `output/payment-subscription-plan-proof/11-parent-website-billing-dashboard/11-parent-website-dashboard-proof.md`, `output/payment-subscription-plan-proof/11-parent-website-billing-dashboard/11-dashboard-wrong-household-negative-proof.md`, `output/payment-subscription-plan-proof/11-parent-website-billing-dashboard/11-dashboard-no-child-private-data-proof.md` |
+| WP12 | `npm run format:check`; `npm run lint:schema-boundaries` | 12 | `output/payment-subscription-plan-proof/12-support-admin-billing-ops/12-support-admin-ops-proof.md`, `output/payment-subscription-plan-proof/12-support-admin-billing-ops/12-admin-role-negative-proof.md`, `output/payment-subscription-plan-proof/12-support-admin-billing-ops/12-support-data-minimization-proof.md`, `output/payment-subscription-plan-proof/12-support-admin-billing-ops/12-reconciliation-admin-proof.md` |
 
 ## WP00 - Cloudflare Control Plane Handoff
 
@@ -143,7 +145,7 @@ payment-route.payment-remains-blocked-without-handoff
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/wp00-cloudflare-control-plane-handoff/cloudflare-handoff-proof.md
+output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/cloudflare-handoff-proof.md
 ```
 
 ## WP01 - Product Pricing Entitlement
@@ -164,10 +166,10 @@ payment-pricing.rejected-game-economy-model
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/01-free-starter-bundle-proof.md
-docs/proof/payment-subscription-plan/01-effective-child-device-limit-proof.md
-docs/proof/payment-subscription-plan/01-safety-critical-grace-proof.md
-docs/proof/payment-subscription-plan/01-rejected-game-economy-proof.md
+output/payment-subscription-plan-proof/01-product-pricing-entitlement/01-free-starter-bundle-proof.md
+output/payment-subscription-plan-proof/01-product-pricing-entitlement/01-effective-child-device-limit-proof.md
+output/payment-subscription-plan-proof/01-product-pricing-entitlement/01-safety-critical-grace-proof.md
+output/payment-subscription-plan-proof/01-product-pricing-entitlement/01-rejected-game-economy-proof.md
 ```
 
 ## WP02 - Checkout Billing Portal
@@ -193,11 +195,11 @@ payment-checkout.cancel-state
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/02-cloudflare-billing-api-boundary-proof.md
-docs/proof/payment-subscription-plan/02-hosted-checkout-proof.md
-docs/proof/payment-subscription-plan/02-billing-portal-proof.md
-docs/proof/payment-subscription-plan/02-no-client-secret-proof.md
-docs/proof/payment-subscription-plan/02-redirect-origin-negative-proof.md
+output/payment-subscription-plan-proof/02-checkout-billing-portal/02-cloudflare-billing-api-boundary-proof.md
+output/payment-subscription-plan-proof/02-checkout-billing-portal/02-hosted-checkout-proof.md
+output/payment-subscription-plan-proof/02-checkout-billing-portal/02-billing-portal-proof.md
+output/payment-subscription-plan-proof/02-checkout-billing-portal/02-no-client-secret-proof.md
+output/payment-subscription-plan-proof/02-checkout-billing-portal/02-redirect-origin-negative-proof.md
 ```
 
 ## WP03 - Subscription Webhook Lifecycle
@@ -222,11 +224,11 @@ payment-webhook.test-live-separated
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/03-provider-webhook-proof.md
-docs/proof/payment-subscription-plan/03-idempotency-replay-proof.md
-docs/proof/payment-subscription-plan/03-dead-letter-proof.md
-docs/proof/payment-subscription-plan/03-reconciliation-proof.md
-docs/proof/payment-subscription-plan/03-test-live-boundary-proof.md
+output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-provider-webhook-proof.md
+output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-idempotency-replay-proof.md
+output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-dead-letter-proof.md
+output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-reconciliation-proof.md
+output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-test-live-boundary-proof.md
 ```
 
 ## WP04 - Entitlement Delivery Gates
@@ -252,10 +254,10 @@ payment-entitlement.safety-feature-not-silently-disabled
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/04-entitlement-ledger-proof.md
-docs/proof/payment-subscription-plan/04-signed-snapshot-proof.md
-docs/proof/payment-subscription-plan/04-local-device-trust-required-proof.md
-docs/proof/payment-subscription-plan/04-referral-loss-recalculation-proof.md
+output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-entitlement-ledger-proof.md
+output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-signed-snapshot-proof.md
+output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-local-device-trust-required-proof.md
+output/payment-subscription-plan-proof/04-entitlement-delivery-gates/04-referral-loss-recalculation-proof.md
 ```
 
 ## WP05 - Invoice Tax Refund Dispute
@@ -284,10 +286,10 @@ payment-lifecycle.no-data-delete-on-refund
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/05-invoice-tax-refund-dispute-matrix.md
-docs/proof/payment-subscription-plan/05-invoice-dashboard-proof.md
-docs/proof/payment-subscription-plan/05-refund-dispute-entitlement-proof.md
-docs/proof/payment-subscription-plan/05-support-admin-audit-proof.md
+output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/05-invoice-tax-refund-dispute-matrix.md
+output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/05-invoice-dashboard-proof.md
+output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/05-refund-dispute-entitlement-proof.md
+output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/05-support-admin-audit-proof.md
 ```
 
 ## WP06 - Security Privacy Observability
@@ -313,11 +315,11 @@ payment-security.admin-audit-required
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/06-metadata-privacy-proof.md
-docs/proof/payment-subscription-plan/06-secret-scan-proof.md
-docs/proof/payment-subscription-plan/06-referral-abuse-proof.md
-docs/proof/payment-subscription-plan/06-support-view-minimized-proof.md
-docs/proof/payment-subscription-plan/06-pci-hosted-boundary-proof.md
+output/payment-subscription-plan-proof/06-security-privacy-observability/06-metadata-privacy-proof.md
+output/payment-subscription-plan-proof/06-security-privacy-observability/06-secret-scan-proof.md
+output/payment-subscription-plan-proof/06-security-privacy-observability/06-referral-abuse-proof.md
+output/payment-subscription-plan-proof/06-security-privacy-observability/06-support-view-minimized-proof.md
+output/payment-subscription-plan-proof/06-security-privacy-observability/06-pci-hosted-boundary-proof.md
 ```
 
 ## WP07 - Rollout Proof and Route Gate
@@ -335,9 +337,9 @@ payment-route.rollback-path
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/07-route-sync-proof.md
-docs/proof/payment-subscription-plan/07-proof-path-proof.md
-docs/proof/payment-subscription-plan/07-validation-command-log.md
+output/payment-subscription-plan-proof/07-rollout-proof-and-route-gate/07-route-sync-proof.md
+output/payment-subscription-plan-proof/07-rollout-proof-and-route-gate/07-proof-path-proof.md
+output/payment-subscription-plan-proof/07-rollout-proof-and-route-gate/07-validation-command-log.md
 ```
 
 ## WP08 - Provider Adapter Portability
@@ -360,9 +362,9 @@ payment-provider.no-direct-product-provider-reads
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/08-provider-adapter-contract-proof.md
-docs/proof/payment-subscription-plan/08-normalized-event-proof.md
-docs/proof/payment-subscription-plan/08-provider-lock-escape-proof.md
+output/payment-subscription-plan-proof/08-provider-adapter-portability/08-provider-adapter-contract-proof.md
+output/payment-subscription-plan-proof/08-provider-adapter-portability/08-normalized-event-proof.md
+output/payment-subscription-plan-proof/08-provider-adapter-portability/08-provider-lock-escape-proof.md
 ```
 
 ## WP09 - Regional Payment Rollout
@@ -386,11 +388,11 @@ payment-region.manual-required-gaps
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/09-regional-payment-matrix.md
-docs/proof/payment-subscription-plan/09-india-razorpay-proof.md
-docs/proof/payment-subscription-plan/09-pakistan-manual-required-proof.md
-docs/proof/payment-subscription-plan/09-china-wallet-proof.md
-docs/proof/payment-subscription-plan/09-uae-provider-proof.md
+output/payment-subscription-plan-proof/09-regional-payment-rollout/09-regional-payment-matrix.md
+output/payment-subscription-plan-proof/09-regional-payment-rollout/09-india-razorpay-proof.md
+output/payment-subscription-plan-proof/09-regional-payment-rollout/09-pakistan-manual-required-proof.md
+output/payment-subscription-plan-proof/09-regional-payment-rollout/09-china-wallet-proof.md
+output/payment-subscription-plan-proof/09-regional-payment-rollout/09-uae-provider-proof.md
 ```
 
 ## WP10 - Referral Growth Entitlement
@@ -421,11 +423,11 @@ payment-referral.no-data-delete-on-lost-referral
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/10-referral-state-machine-proof.md
-docs/proof/payment-subscription-plan/10-referral-qualification-proof.md
-docs/proof/payment-subscription-plan/10-referral-abuse-negative-proof.md
-docs/proof/payment-subscription-plan/10-referral-loss-entitlement-proof.md
-docs/proof/payment-subscription-plan/10-over-limit-grace-proof.md
+output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-referral-state-machine-proof.md
+output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-referral-qualification-proof.md
+output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-referral-abuse-negative-proof.md
+output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-referral-loss-entitlement-proof.md
+output/payment-subscription-plan-proof/10-referral-growth-entitlement/10-over-limit-grace-proof.md
 ```
 
 ## WP11 - Parent Website Billing Dashboard
@@ -451,9 +453,9 @@ payment-dashboard.targeted-parent-proof-file
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/11-parent-website-dashboard-proof.md
-docs/proof/payment-subscription-plan/11-dashboard-wrong-household-negative-proof.md
-docs/proof/payment-subscription-plan/11-dashboard-no-child-private-data-proof.md
+output/payment-subscription-plan-proof/11-parent-website-billing-dashboard/11-parent-website-dashboard-proof.md
+output/payment-subscription-plan-proof/11-parent-website-billing-dashboard/11-dashboard-wrong-household-negative-proof.md
+output/payment-subscription-plan-proof/11-parent-website-billing-dashboard/11-dashboard-no-child-private-data-proof.md
 ```
 
 ## WP12 - Support Admin Billing Ops
@@ -478,10 +480,10 @@ payment-admin.audit-event-required
 Proof artifacts:
 
 ```text
-docs/proof/payment-subscription-plan/12-support-admin-ops-proof.md
-docs/proof/payment-subscription-plan/12-admin-role-negative-proof.md
-docs/proof/payment-subscription-plan/12-support-data-minimization-proof.md
-docs/proof/payment-subscription-plan/12-reconciliation-admin-proof.md
+output/payment-subscription-plan-proof/12-support-admin-billing-ops/12-support-admin-ops-proof.md
+output/payment-subscription-plan-proof/12-support-admin-billing-ops/12-admin-role-negative-proof.md
+output/payment-subscription-plan-proof/12-support-admin-billing-ops/12-support-data-minimization-proof.md
+output/payment-subscription-plan-proof/12-support-admin-billing-ops/12-reconciliation-admin-proof.md
 ```
 
 ## Suggested proof scripts

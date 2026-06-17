@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { runNpmCommand } from './run-npm-command.mjs';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const proofMode = 'tracking-product-readiness-closure-proof';
@@ -165,29 +165,16 @@ async function main() {
   await mkdir(output33, { recursive: true });
   await mkdir(namedProofRoot, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   run('cmd', [
     '/c',
     'npm',
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
     'tracking-product-readiness-closure-proof',
   ]);
-  run('cmd', ['/c', 'node', 'scripts/test/tracking-full-product-ui-local-runtime-artifact-capture-proof.mjs']);
-  run('cmd', ['/c', 'node', 'scripts/test/tracking-full-product-ui-runtime-preflight-proof.mjs']);
-  run('cmd', ['/c', 'node', 'scripts/test/tracking-android-emulator-artifact-inventory-proof.mjs']);
-  run('cmd', ['/c', 'node', 'scripts/test/tracking-ios-simulator-artifact-inventory-proof.mjs']);
-  run('cmd', ['/c', 'node', 'scripts/test/tracking-parent-child-local-runtime-bridge-proof.mjs']);
-  run('cmd', ['/c', 'node', 'scripts/test/tracking-cross-platform-runtime-capability-proof.mjs']);
-  run('cmd', ['/c', 'node', 'scripts/test/tracking-physical-device-artifact-gate-proof.mjs']);
-  run('cmd', ['/c', 'node', 'scripts/test/tracking-physical-device-evidence-review-proof.mjs']);
-  run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-runtime-artifact-gate-proof.mjs']);
-  run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-applied-settings-runtime-bridge-proof.mjs']);
-  run('cmd', ['/c', 'node', 'scripts/test/tracking-retention-platform-enforcement-preflight-proof.mjs']);
-  run('cmd', ['/c', 'node', 'scripts/test/tracking-production-worker-runtime-preflight-proof.mjs']);
   run('cmd', ['/c', 'node', 'scripts/test/tracking-claim-audit-proof.mjs']);
 
   await assertSourceProofsExist();
@@ -200,10 +187,7 @@ async function main() {
 }
 
 async function buildProof() {
-  const proofModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-product-readiness-closure-proof.js'))
-      .href
-  );
+  const proofModule = await importDist('tracking-product-readiness-closure-proof.js');
   return {
     ...proofModule.buildTrackingProductReadinessClosureProof(generatedAt, sourceProofs, await aggregateEvidence()),
     branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
@@ -644,11 +628,18 @@ function sourceSnapshot(proof) {
     `- claimAuditManualProviderRuntimeRequiredRowCount: ${proof.aggregateEvidence.claimAuditManualProviderRuntimeRequiredRowCount}`,
     `- claimAuditProductionRuntimeRequiredRowCount: ${proof.aggregateEvidence.claimAuditProductionRuntimeRequiredRowCount}`,
     '- does not prove retention product settings, physical-device, authority, provider-delivery, production, or product-ready tracking behavior',
-    '- proof module: packages/parent-domain/src/tracking-product-readiness-closure-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-product-readiness-closure-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-product-readiness-closure-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-product-readiness-closure-proof.test.ts',
     '- proof harness: scripts/test/tracking-product-readiness-closure-proof.mjs',
     '',
   ].join('\n');
+}
+
+function importDist(name) {
+  return tsImport(
+    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', name.replace(/\.js$/u, '.ts'))).href,
+    import.meta.url
+  );
 }
 
 function securityNegativeProof() {

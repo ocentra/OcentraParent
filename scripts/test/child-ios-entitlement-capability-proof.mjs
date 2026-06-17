@@ -1,6 +1,8 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { spawn } from 'node:child_process';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofMode = 'child-ios-entitlement-capability-proof';
@@ -14,14 +16,14 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runNpm(['run', 'build:contracts']);
   await runNpm([
-    'run',
-    'test',
+    'exec',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/child-runtime-domain',
     '--',
-    'tests/child-ios-entitlement-capability-proof.test.ts',
+    'vitest',
+    'run',
+    'tests/unit/child-ios-entitlement-capability-proof.test.ts',
   ]);
 
   const sourceProof = await assertIosSourceProof();
@@ -38,8 +40,8 @@ async function main() {
     proofLabels,
     evidence: {
       sourceProof,
-      contract: 'packages/parent-domain/src/child-ios-entitlement-capability-proof.ts',
-      contractTest: 'packages/parent-domain/tests/child-ios-entitlement-capability-proof.test.ts',
+      contract: 'packages/child-runtime-domain/src/child-ios-entitlement-capability-proof.ts',
+      contractTest: 'packages/child-runtime-domain/tests/unit/child-ios-entitlement-capability-proof.test.ts',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/child-ios-entitlement-capability-proof-2026-05-31.md',
       output: relativePath(proofPath),
@@ -162,9 +164,9 @@ function buildRuntimeReadModel() {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await import('@ocentra-parent/child-runtime-domain/child-ios-entitlement-capability-proof');
+  const module = await importTsModule('packages/child-runtime-domain/src/child-ios-entitlement-capability-proof.ts');
   const parsed = module.ChildIosEntitlementCapabilityReadModelSchema.parse(readModel);
-  proofLabels.push('parent-domain.child-ios-entitlement-capability-proof-parse');
+  proofLabels.push('child-runtime-domain.child-ios-entitlement-capability-proof-parse');
   return parsed;
 }
 
@@ -188,18 +190,19 @@ async function assertProofMatrix() {
 
 async function assertScriptWiring() {
   const packageJson = JSON.parse(await readRepoFile('package.json'));
-  const parentDomainPackage = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
+  const childRuntimeDomainPackage = JSON.parse(await readRepoFile('packages/child-runtime-domain/package.json'));
   const script = packageJson.scripts['test:child-ios-entitlement-capability-proof'];
   if (script !== `node scripts/test/${proofMode}.mjs`) {
     throw new Error('Missing root test:child-ios-entitlement-capability-proof script.');
   }
-  if (!parentDomainPackage.exports['./child-ios-entitlement-capability-proof']) {
-    throw new Error('Missing parent-domain child-ios-entitlement-capability-proof export.');
+  if (!childRuntimeDomainPackage.exports['./*']) {
+    throw new Error('Missing child-runtime-domain wildcard export.');
   }
   proofLabels.push('package-scripts.child-ios-entitlement-capability-proof');
   return {
     rootScript: 'test:child-ios-entitlement-capability-proof',
-    parentDomainExport: './child-ios-entitlement-capability-proof',
+    childRuntimeDomainExport: './*',
+    sourceContract: 'packages/child-runtime-domain/src/child-ios-entitlement-capability-proof.ts',
   };
 }
 
@@ -368,6 +371,10 @@ async function runCommand(commandName, args) {
     );
     child.once('error', reject);
   });
+}
+
+async function importTsModule(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }
 
 async function gitHead() {

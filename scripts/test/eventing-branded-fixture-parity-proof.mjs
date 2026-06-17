@@ -74,7 +74,7 @@ const commands = [
   {
     name: 'source-shape',
     command: 'node',
-    args: ['scripts/check-source-shape.mjs'],
+    args: ['scripts/check-source-shape.mjs', 'crates/ocentra-eventing'],
   },
 ];
 
@@ -96,7 +96,7 @@ const commandResults = commands.map((entry) => {
   };
 });
 
-const rustTests = readFileSync('crates/ocentra-eventing/src/tests/fixture_parity.rs', 'utf8');
+const rustTests = readFileSync('crates/ocentra-eventing/tests/contract/fixture_parity.rs', 'utf8');
 const proofScript = readFileSync('scripts/test/eventing-branded-fixture-parity-proof.mjs', 'utf8');
 
 const assertions = [

@@ -29,6 +29,12 @@ pub enum HouseholdMeshBridgeRejectionReason {
     UnauthenticatedPeer,
     UnauthorizedPeer,
     DirectRemotePublish,
+    PolicyAuthorityEscalation,
+    MismatchedMessageRef,
+    ReplayedMessage,
+    StaleMessage,
+    FamilyMismatch,
+    WrongTargetDevice,
     UnsupportedLanMessage,
 }
 

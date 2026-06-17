@@ -170,6 +170,8 @@ export const LanSignedDiscoveryRelaySpineSchema = withParser(
   )
 );
 
+export const LanSignedDiscoveryRelayProofStateSchema = LanHouseholdProductProofStateSchema;
+
 const RequiredAdapters = [
   'passive-lan-neighbor',
   'router-infrastructure',
@@ -313,4 +315,5 @@ export type LanSignedDiscoveryRelaySignedProofRow = Infer<typeof LanSignedDiscov
 export type LanSignedDiscoveryRelayRouteSafetyRow = Infer<typeof LanSignedDiscoveryRelayRouteSafetyRowSchema>;
 export type LanSignedDiscoveryRelayCacheRow = Infer<typeof LanSignedDiscoveryRelayCacheRowSchema>;
 export type LanSignedDiscoveryRelaySpine = Infer<typeof LanSignedDiscoveryRelaySpineSchema>;
+export type LanSignedDiscoveryRelayProofState = Infer<typeof LanSignedDiscoveryRelayProofStateSchema>;
 

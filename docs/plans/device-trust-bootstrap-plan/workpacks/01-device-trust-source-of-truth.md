@@ -18,8 +18,13 @@ Purpose: define trust ownership, trust states, bootstrap lifecycle, and cross-pl
 
 ## Proof target
 
-- `docs/proof/device-trust-bootstrap-plan/01-*`
-- Route-sync note in the cross-plan gate workpack.
+- `output/device-trust-bootstrap-plan-proof/01-*`
+- Route-sync note at `output/device-trust-bootstrap-plan-proof/09-cross-plan-route-gate/06-route-sync-proof.md`.
+
+## Current audit state
+
+- No proof root currently exists on disk for this workpack.
+- `packages/family-domain` and `packages/lan-domain` currently carry the strongest trust-adjacent authority and registry coverage, but this plan still lacks an end-to-end device-trust bootstrap owner and proof set.
 
 ## Negative cases
 

@@ -15,7 +15,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+    "build": "tsc -p tsconfig.build.json && node ../../scripts/fix-esm-imports.mjs dist",
     "type-check": "tsc -p tsconfig.json --noEmit",
     "lint": "npx turbo run lint:exec --filter=@ocentra-parent/child-runtime-domain",
     "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",

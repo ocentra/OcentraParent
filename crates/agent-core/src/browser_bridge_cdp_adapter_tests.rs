@@ -16,7 +16,7 @@ fn poll_chromium_bridge_skips_blank_and_internal_page_targets() {
     let config = bridge_config(endpoint);
 
     let snapshot = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -35,7 +35,7 @@ fn poll_chromium_bridge_rejects_non_array_target_payload() {
     let config = bridge_config(endpoint);
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -53,7 +53,7 @@ fn poll_chromium_bridge_rejects_invalid_json_body() {
     let config = bridge_config(endpoint);
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -71,7 +71,7 @@ fn poll_chromium_bridge_rejects_non_object_version_payload() {
     let config = bridge_config(endpoint);
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -89,7 +89,7 @@ fn poll_chromium_bridge_rejects_missing_page_url() {
     let config = bridge_config(endpoint);
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -107,7 +107,7 @@ fn poll_chromium_bridge_rejects_missing_target_id() {
     let config = bridge_config(endpoint);
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -127,7 +127,7 @@ fn poll_chromium_bridge_rejects_oversized_devtools_response() {
     let config = bridge_config(endpoint);
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -142,7 +142,7 @@ fn poll_chromium_bridge_reports_devtools_timeout() {
     let config = bridge_config(endpoint);
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )

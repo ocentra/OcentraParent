@@ -69,7 +69,7 @@ async function main() {
       '../../packages/portal-domain/src/commands.ts',
     ])
   );
-  await runCommand('node', ['scripts/check-source-shape.mjs']);
+  await runCommand('node', ['scripts/check-source-shape.mjs', 'crates/ocentra-eventing']);
 
   const scannedFiles = await assertPortalTypedIntentBoundary();
 

@@ -16,8 +16,8 @@ describe("GET /health", () => {
     assert.equal(response.status, 200);
     assert.equal(body.status, "ok");
     assert.equal(body.service, "cloudflare-control-plane");
-    assert.equal(body.bindingStatus, "degraded");
-    assert.equal(body.missingBindingCount, 1);
+    assert.equal(body.bindingStatus, "ready");
+    assert.equal(body.missingBindingCount, 0);
     assert.equal(body.seedSummary.pricingPlanCount, 3);
     assert.equal(body.seedSummary.referralFixtureCount, 2);
   });

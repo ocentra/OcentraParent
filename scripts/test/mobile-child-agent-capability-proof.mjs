@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { spawn } from 'node:child_process';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofMode = 'mobile-child-agent-capability-proof';
@@ -24,14 +25,14 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runNpm(['run', 'build:contracts']);
   await runNpm([
-    'run',
-    'test',
+    'exec',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/child-runtime-domain',
     '--',
-    'tests/mobile-child-agent-capability-proof.test.ts',
+    'vitest',
+    'run',
+    'tests/unit/mobile-child-agent-capability-proof.test.ts',
   ]);
 
   const scriptWiring = await assertScriptWiring();
@@ -47,8 +48,8 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      contract: 'packages/parent-domain/src/mobile-child-agent-capability-proof.ts',
-      contractTest: 'packages/parent-domain/tests/mobile-child-agent-capability-proof.test.ts',
+      contract: 'packages/child-runtime-domain/src/mobile-child-agent-capability-proof.ts',
+      contractTest: 'packages/child-runtime-domain/tests/unit/mobile-child-agent-capability-proof.test.ts',
       output: relativePath(proofPath),
       scriptWiring,
       sourceProofWiring,
@@ -88,13 +89,19 @@ async function main() {
 
 async function assertScriptWiring() {
   const packageJson = JSON.parse(await readRepoFile('package.json'));
+  const childRuntimeDomainPackage = JSON.parse(await readRepoFile('packages/child-runtime-domain/package.json'));
   const rootScript = packageJson.scripts['test:mobile-child-agent-capability-proof'];
   if (rootScript !== `node scripts/test/${proofMode}.mjs`) {
     throw new Error('Missing root test:mobile-child-agent-capability-proof script.');
   }
+  if (!childRuntimeDomainPackage.exports['./*']) {
+    throw new Error('Missing child-runtime-domain wildcard export.');
+  }
   proofLabels.push('package-scripts.mobile-child-agent-capability-proof');
   return {
     rootScript: 'test:mobile-child-agent-capability-proof',
+    childRuntimeDomainExport: './*',
+    sourceContract: 'packages/child-runtime-domain/src/mobile-child-agent-capability-proof.ts',
   };
 }
 
@@ -398,12 +405,9 @@ function runtimeHook(hook, platform, hookState, evidencePath, source) {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const modulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'mobile-child-agent-capability-proof.js')
-  ).href;
-  const module = await import(modulePath);
+  const module = await importTsModule('packages/child-runtime-domain/src/mobile-child-agent-capability-proof.ts');
   const parsed = module.MobileChildAgentCapabilityReadModelSchema.parse(readModel);
-  proofLabels.push('parent-domain.mobile-child-agent-capability-proof-parse');
+  proofLabels.push('child-runtime-domain.mobile-child-agent-capability-proof-parse');
   return parsed;
 }
 
@@ -424,6 +428,10 @@ async function runCommand(commandName, args) {
     );
     child.once('error', reject);
   });
+}
+
+async function importTsModule(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }
 
 async function gitHead() {

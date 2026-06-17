@@ -29,6 +29,10 @@
       "import": "./dist/test-log/types.js",
       "types": "./dist/test-log/types.d.ts"
     },
+    "./test-log/ndjsonBrands": {
+      "import": "./dist/test-log/ndjsonBrands.js",
+      "types": "./dist/test-log/ndjsonBrands.d.ts"
+    },
     "./test-log/bridgeConvert": {
       "import": "./dist/test-log/bridgeConvert.js",
       "types": "./dist/test-log/bridgeConvert.d.ts"
@@ -36,6 +40,10 @@
     "./test-log/ndjsonPaths": {
       "import": "./dist/test-log/ndjsonPaths.js",
       "types": "./dist/test-log/ndjsonPaths.d.ts"
+    },
+    "./test-log/ndjsonLogFileWriter": {
+      "import": "./dist/test-log/ndjsonLogFileWriter.js",
+      "types": "./dist/test-log/ndjsonLogFileWriter.d.ts"
     },
     "./test-log/ndjsonWriter": {
       "import": "./dist/test-log/ndjsonWriter.js",

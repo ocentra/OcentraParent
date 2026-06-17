@@ -17,7 +17,7 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 
 - `infra/cloudflare/src/routes.ts`
 - [ROUTE_MANIFEST_MODEL.md](../ROUTE_MANIFEST_MODEL.md)
-- `docs/proof/cloudflare-control-plane-plan/wp04-route-manifest-and-domain-contracts/`
+- `output/cloudflare-control-plane-plan-proof/04-route-manifest-and-domain-contracts/`
 
 ## Acceptance
 
@@ -31,7 +31,10 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 
 ## Validation
 
-- Docs or scaffold validation: `npm run format:check`
+- Scoped validation: `npm --prefix infra/cloudflare run test:unit`
+- Scoped validation: `npm --prefix infra/cloudflare run test:contract`
+- Scoped validation: `npm --prefix infra/cloudflare run test:integration`
+- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/routes.ts packages/billing-domain/src`
 
 ## Negative cases
 

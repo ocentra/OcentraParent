@@ -70,7 +70,8 @@ describe("hosted checkout and portal routes", () => {
       await readJson<unknown>(audit.response),
     );
     const checkoutEvents = auditBody.results.filter(
-      (event) => event.eventId === "billing-checkout-session:checkout-request-1",
+      (event: (typeof auditBody.results)[number]) =>
+        event.eventId === "billing-checkout-session:checkout-request-1",
     );
     assert.equal(audit.response.status, 200);
     assert.equal(checkoutEvents.length, 1);
@@ -112,7 +113,8 @@ describe("hosted checkout and portal routes", () => {
       await readJson<unknown>(audit.response),
     );
     const portalEvents = auditBody.results.filter(
-      (event) => event.eventId === "billing-portal-session:portal-request-1",
+      (event: (typeof auditBody.results)[number]) =>
+        event.eventId === "billing-portal-session:portal-request-1",
     );
     assert.equal(audit.response.status, 200);
     assert.equal(portalEvents.length, 1);

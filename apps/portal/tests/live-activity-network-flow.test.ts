@@ -229,7 +229,7 @@ function requireNetworkFlowReadModel(readModel: ActivityNetworkFlowReadModel | n
 
 function networkEvidenceDrawerSummaryContext(state: ReturnType<typeof resolveLiveActivityState>) {
   return {
-    networkFlowEventPayload: state.networkFlowEvent?.payload,
+    networkFlowEventPayload: state.networkFlowEvent?.payload ?? null,
     policyPreviewReadModel: state.policyPreviewReadModel,
     networkRuntimeEventChainStream: state.networkRuntimeEventChainStream,
   };

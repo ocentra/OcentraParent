@@ -10,7 +10,7 @@ use ocentra_policy_control_core::policy_source::{
     PolicyTargetReferenceId, PolicyTimezoneName, PolicyVersion,
 };
 
-use ocentra_eventing::SchemaVersion;
+use ocentra_eventing::ids::SchemaVersion;
 use serde_json::Value;
 
 fn sample_policy_schedule_time_budget() -> PolicyScheduleTimeBudget {

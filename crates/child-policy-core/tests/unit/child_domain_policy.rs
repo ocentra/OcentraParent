@@ -104,7 +104,7 @@ fn child_domain_policy_rejects_wrong_event_type_and_missing_evidence() {
             .expect_err("must reject wrong event type");
     assert_eq!(
         wrong_event,
-        ocentra_eventing::EventingError::InvalidValue {
+        ocentra_eventing::error::EventingError::InvalidValue {
             field: "child_domain_policy.event_type",
             value: String::from("child-domain.policy.violation.detected"),
         }
@@ -117,7 +117,7 @@ fn child_domain_policy_rejects_wrong_event_type_and_missing_evidence() {
             .expect_err("must reject empty evidence refs");
     assert_eq!(
         missing_evidence,
-        ocentra_eventing::EventingError::InvalidValue {
+        ocentra_eventing::error::EventingError::InvalidValue {
             field: "child_domain_policy.evidence_refs",
             value: String::from("empty"),
         }

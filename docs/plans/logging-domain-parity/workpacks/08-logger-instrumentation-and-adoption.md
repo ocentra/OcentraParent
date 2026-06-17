@@ -165,3 +165,16 @@ Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
 ```
+
+## Current audit note
+
+This workpack's main live claim is real: `crates/agent-service/src/dev_log.rs`
+delegates to the shared Rust logging core, and the dedicated
+`cargo test -p ocentra-parent-agent-service dev_log` check passed during the
+June 16, 2026 audit. The supporting `tests/unit/dev_log.rs` layout also exists
+in the current tree.
+
+The appended completion block was still overstated because the named proof root
+`output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/` is
+absent in this checkout. Treat WP08 as partially re-verified instrumentation
+adoption, not as full repo instrumentation completion.

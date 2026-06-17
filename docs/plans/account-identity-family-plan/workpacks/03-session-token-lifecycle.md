@@ -130,12 +130,34 @@ Provider implementation remains tied to WP01. Device trust/step-up proof remains
 
 ## Fill before DONE
 
-```text
-Workpack id and branch:
-Credential/session changes:
-Touched files:
-Validation commands and results:
-Proof artifacts:
-Known gaps/manual-required states:
-No-claim boundaries:
-```
+- Workpack id and branch: `WP03 Session Token Lifecycle`; `codex/tracking-plan-full-continuation-a`.
+- Current status: partial. Only `02-token-expiry-replay-proof.md` and `16-validation-commands.log` exist under `output/account-identity-family-plan-proof/03-session-token-lifecycle/`.
+- Contract/source changes in this slice: none in WP03-owned session sources; current proof is derived from existing TypeScript and Rust session/token coverage.
+- Touched files:
+  - `docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md`
+  - `docs/plans/account-identity-family-plan/PLAN_STATE.md`
+  - `docs/plans/account-identity-family-plan/WORKPACK_INDEX.md`
+  - `docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md`
+  - `output/account-identity-family-plan-proof/03-session-token-lifecycle/02-token-expiry-replay-proof.md`
+  - `output/account-identity-family-plan-proof/03-session-token-lifecycle/16-validation-commands.log`
+- Validation commands and results:
+  - `command: npm run build --workspace @ocentra-parent/family-domain`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: family-domain builds after direct lifecycle test repair`
+  - `command: npm run test --workspace @ocentra-parent/family-domain -- tests/unit/household-authority.test.ts tests/unit/session-lifecycle.test.ts tests/unit/token-lifecycle.test.ts`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: direct session/token suite passed with 22 tests`
+  - `command: cargo test -p ocentra-family-identity-core`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: Rust parity suite passed with session lifecycle negatives`
+- Proof artifacts:
+  - `output/account-identity-family-plan-proof/03-session-token-lifecycle/02-token-expiry-replay-proof.md`
+  - `output/account-identity-family-plan-proof/03-session-token-lifecycle/16-validation-commands.log`
+- Known gaps/manual-required states: `00-credential-type-matrix.md`, `01-session-lifecycle-proof.md`, `03-refresh-revocation-proof.md`, `04-session-freshness-proof.md`, `05-csrf-origin-proof.md`, and `06-token-redaction-proof.md` are still missing; state-changing browser request safety remains unclosed; provider implementation remains tied to WP01; device trust/step-up proof remains external.
+- No-claim boundaries: do not claim full browser session lifecycle, refresh/revoke, freshness, request safety, redaction, provider selection, invite/recovery completion, UI readiness, or route-gate completion here.

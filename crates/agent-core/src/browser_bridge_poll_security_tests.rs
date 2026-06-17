@@ -18,7 +18,7 @@ fn poll_chromium_bridge_rejects_non_loopback_endpoint() {
     let config = bridge_config(endpoint);
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -41,7 +41,7 @@ fn poll_chromium_bridge_rejects_untrusted_bridge_port() {
     config.expected_custody.bridge_port = constants::browser::DEVTOOLS_PORT_UNRESERVED;
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -64,7 +64,7 @@ fn poll_chromium_bridge_rejects_wrong_process_custody() {
     config.expected_custody.process_id = constants::browser::PROCESS_ID_UNKNOWN;
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -88,7 +88,7 @@ fn poll_chromium_bridge_rejects_default_profile_custody() {
     config.expected_custody.profile_id = constants::browser::PATH_SEGMENT_DEFAULT.to_string();
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -112,7 +112,7 @@ fn poll_chromium_bridge_rejects_stale_session_custody() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string();
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
         constants::activity_store::TEST_THIRD_OBSERVED_AT,
     )
@@ -135,7 +135,7 @@ fn poll_chromium_bridge_rejects_wrong_browser_identity() {
     config.expected_custody.browser_family = BrowserFamily::Edge;
 
     let error = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
@@ -157,7 +157,7 @@ fn poll_chromium_bridge_redacts_raw_debugger_urls_from_events() {
     let config = bridge_config(endpoint);
 
     let snapshot = poll_chromium_bridge(
-        config,
+        &config,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )

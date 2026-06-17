@@ -21,16 +21,19 @@ Current child direction:
 
 Open gaps:
 
-- Canonical child plan route still needs to be reflected in the global indexes.
 - Artifact matrix and signing/device-owner claims need explicit per-platform rows.
 - Tamper/uninstall and managed respawn proof still need separate slices.
 - iOS capability and manual-required state still need explicit wording.
+- WP01 and WP10 remain open; no proof artifacts exist under their declared `output/child-agent-runtime-distribution-plan-proof/...` roots.
+- Proof docs still disagree between the `output/child-agent-runtime-distribution-plan-proof/...` route and stale legacy proof-path references.
+- Android and iOS proof runners still reference missing parent-domain test ownership paths instead of the existing `packages/child-runtime-domain/tests/unit/...` tests.
+- Focused child proof commands still fail before slice validation when unrelated workspace `build:contracts` dependencies break.
 
 ## HID execution guard
 
 - Follow `PLAN_EXECUTION_BLUEPRINT.md`, then `WORKPACK_INDEX.md`, then `NEXT_ACTIONS.md`.
 - Do not mark this plan complete from checklist deltas alone.
-- Before any checked update, attach a real test run log or explicit blocker from the assigned boundary and a proof manifest under `docs/proof/child-agent-runtime-distribution-plan/`.
+- Before any checked update, attach a real test run log or explicit blocker under the selected `output/child-agent-runtime-distribution-plan-proof/<workpack-file-stem>/` root.
 - Failure rule: no PR-ready claim until package lifecycle, tamper/uninstall, and setup-device-trust handoff proofs are present for the assigned slice.
 
 ## HID execution blueprint

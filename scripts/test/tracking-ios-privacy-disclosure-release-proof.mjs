@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { runNpmCommand } from './run-npm-command.mjs';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const testOutputDir = join(repoRoot, 'test-results', 'tracking-ios-privacy-disclosure-release-proof');
@@ -22,19 +22,19 @@ await mkdir(testOutputDir, { recursive: true });
 await mkdir(wp12ProofDir, { recursive: true });
 await mkdir(wp33ProofDir, { recursive: true });
 
-runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
 run('cmd', [
   '/c',
   'npm',
-  'run',
-  'test',
+  'exec',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
-  'tracking-ios-privacy-disclosure-release-proof',
+  'vitest',
+  'run',
+  'tests/contract/tracking-ios-privacy-disclosure-release-proof.test.ts',
 ]);
 
-const proofModule = await importDist('tracking-ios-privacy-disclosure-release-proof.js');
+const proofModule = await importSource('packages/tracking-domain/src/tracking-ios-privacy-disclosure-release-proof.ts');
 const readModel = proofModule.buildTrackingIosPrivacyDisclosureProofReadModel(
   {
     generatedAt: timestamp,
@@ -63,8 +63,8 @@ const proof = {
   summary: summarize(readModel),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-ios-privacy-disclosure-release-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-ios-privacy-disclosure-release-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-ios-privacy-disclosure-release-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-ios-privacy-disclosure-release-proof.test.ts',
     harness: 'scripts/test/tracking-ios-privacy-disclosure-release-proof.mjs',
     evidence: 'test-results/tracking-ios-privacy-disclosure-release-proof/proof.json',
     readModel: 'test-results/tracking-ios-privacy-disclosure-release-proof/read-model.json',
@@ -84,8 +84,8 @@ await writeProofPacks(proof);
 console.log('tracking-ios-privacy-disclosure-release-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-ios-privacy-disclosure-release-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importSource(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }
 
 function disclosureRows() {

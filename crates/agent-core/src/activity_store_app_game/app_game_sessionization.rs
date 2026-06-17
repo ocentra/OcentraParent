@@ -30,7 +30,7 @@ pub(super) fn session_summaries_from_rows(
 
     let mut state = SessionizationState::default();
     for observation in observations {
-        state.apply_observation(observation);
+        state.apply_observation(&observation);
     }
 
     let mut summaries = state.into_summaries();
@@ -64,16 +64,16 @@ struct ForegroundFocus {
 }
 
 impl SessionizationState {
-    fn apply_observation(&mut self, observation: AppGameObservation) {
+    fn apply_observation(&mut self, observation: &AppGameObservation) {
         let Some(observed_at_ms) = timestamp_ms(&observation.observed_at) else {
             return;
         };
 
         if observation.is_foreground_observation() {
-            self.apply_foreground_transition(&observation, observed_at_ms);
+            self.apply_foreground_transition(observation, observed_at_ms);
         }
 
-        let session_index = self.session_index_for_observation(&observation, observed_at_ms);
+        let session_index = self.session_index_for_observation(observation, observed_at_ms);
         self.apply_observation_to_session(session_index, observation, observed_at_ms);
     }
 
@@ -137,7 +137,7 @@ impl SessionizationState {
     fn apply_observation_to_session(
         &mut self,
         session_index: usize,
-        observation: AppGameObservation,
+        observation: &AppGameObservation,
         observed_at_ms: i64,
     ) {
         let gap_ms = self.session_gap_ms(session_index, observed_at_ms);

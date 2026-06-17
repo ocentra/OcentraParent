@@ -22,7 +22,7 @@ import {
   classNames,
 } from './PortalFrameTunerControls';
 import { PortalAppLayoutContentPanel } from './PortalAppLayoutContentPanel';
-import { DEFAULT_PORTAL_FRAME_LAYOUT } from './portal-frame-layout';
+import { DEFAULT_PORTAL_FRAME_LAYOUT } from './portal-frame-layout-types';
 
 type PortalAppLayoutSurfacePanelProps = {
   readonly content: PortalAppLayoutSurfaceContentDraft;

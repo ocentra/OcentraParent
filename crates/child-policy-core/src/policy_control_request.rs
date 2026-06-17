@@ -1,4 +1,4 @@
-use ocentra_eventing::EventingError;
+use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::ChildDomainPolicyViolationDetectedEvent;
 use ocentra_policy_control_core::policy_request::{
     policy_request_schema_version, validate_child_policy_request, ChildPolicyRequest,

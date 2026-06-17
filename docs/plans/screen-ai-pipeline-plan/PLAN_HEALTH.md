@@ -14,7 +14,7 @@
 
 <!-- /agent-capsule -->
 
-This file records documentation health and consistency checks for the plan. It is generated from the existing docs and should be updated manually when the plan state is cleaned further.
+This file records documentation health and consistency checks for the plan. Update it manually when the plan state, proof route, or blocker set changes.
 
 ## Status sources
 
@@ -23,26 +23,42 @@ This file records documentation health and consistency checks for the plan. It i
 - Current snapshot: `missing`
 - Implementation checklist present: true
 - Workpacks indexed: 10
+- Retained proof root present: false (`output/screen-ai-pipeline-proof/`)
+- Plan proof manifest present: false (`docs/proof/screen-ai-pipeline-plan/PLAN_PROOF_MANIFEST.md`)
 
 ## Consistency warnings
 
 - No current snapshot file was found. Treat workpack/checklist indexes as routing state and create/update a snapshot when product state changes.
+- Workpack/checklist truth drift was present before this audit repair: `PLAN_STATE.md` and `WORKPACK_INDEX.md` claimed 8 checked workpacks and 134 checked checklist rows, while the current recount shows 10 open workpacks and 134 open checklist rows.
+- Proof-root drift was present before this audit repair: `PROOF_INDEX.md`, `TEST_PROOF_EXPECTATIONS.md`, and `PLAN_EXECUTION_BLUEPRINT.md` used `output/screen-ai-pipeline-plan-proof/`, while the workpacks, `implementation-checklist.md`, and `pipeline-proof-matrix.md` use `output/screen-ai-pipeline-proof/`.
+- Proof-shape drift still remains: many workpacks/checklist rows cite scenario-local `proof-summary.json`, while `pipeline-proof-matrix.md` defines a richer numbered scenario bundle.
+- No retained proof currently exists under `output/screen-ai-pipeline-proof/` in this checkout.
+- Scoped architecture validation is currently red on `packages/screen-domain/src/screen-evidence.ts`, `packages/portal-domain/src/contracts.ts`, and `packages/parent-domain/src/local-ai-runtime.ts`.
 
 ## Required hygiene before PR_READY
 
 - Update the assigned workpack.
 - Update the relevant checklist row/section.
-- Update `PLAN_STATE.md`/`NEXT_ACTIONS.md` if the current state changed.
+- Update `PLAN_STATE.md` and `NEXT_ACTIONS.md` if the current state changed.
+- Retain the proof artifacts the assigned workpack names under `output/screen-ai-pipeline-proof/`.
+- Add or update `docs/proof/screen-ai-pipeline-plan/PLAN_PROOF_MANIFEST.md` if the slice claims closure.
 - Update feature/product docs if a product claim, gap, or proof changed.
 - Do not use a stale checked row to override an open assigned workpack or hub instruction.
 
-## Agent Route Walkthrough
+## Agent route walkthrough
 
 - Landing decision: root `AGENTS.md` routes OCR/VLM pipeline, screen-to-AI evidence handoff, model result validation, and safety evaluation work here.
 - Scope split: AI pipeline processing, output contracts, redaction, result validation, prompt safety, and proof datasets stay here. Raw capture mechanics stay in screen-plan; shared AI provider/runtime stays in ai-plan when named.
 - Minimum read set: assigned pipeline workpack, exact checklist row, `TEST_PROOF_EXPECTATIONS.md`, and only the AI/screen bridge docs named by that workpack.
 - Test/proof decision: require OCR/VLM output invariants, prompt-injection, hallucination regression, temperature sensitivity, redaction/custody, safety-boundary, schema rejection, and degraded model proof where touched.
 - DONE blocker: no screen-AI claim may move unless proof shows validated outputs, no direct policy authority, no unredacted leak, and deterministic handoff to the owning policy boundary.
+
+## Host-scoped proof stance
+
+- Windows proof is expected where the assigned workpack touches Windows-owned runtime or portal behavior.
+- Android proof is expected where the assigned workpack includes Android scope; use the emulator and the already-synced Samsung device when needed.
+- Linux proof via WSL is expected where the assigned workpack includes Linux scope; missing Docker CLI on PATH is a local execution gap if Docker-backed proof is required.
+- Real macOS and iOS proof are external-platform constraints from this Windows host and must not be misreported as local completion.
 
 ## High-Information-Density Gate
 
@@ -53,15 +69,15 @@ This file records documentation health and consistency checks for the plan. It i
 
 ### State
 
-- Current state: route and schema hygiene are present, but implementation/closure proof remains incomplete until checklist and workpack evidence are updated.
-- Current action: keep this file and `screen-ai-pipeline-plan/PLAN_STATE.md` aligned before any DONE/PR_READY claim.
+- Current state: source and test surfaces exist, but retained proof, manifest coverage, and completion bookkeeping remain incomplete.
+- Current action: keep this file and `screen-ai-pipeline-plan/PLAN_STATE.md` aligned before any DONE or PR readiness claim.
 
 ### Decision routes and failure controls
 
-- Decision route: follow this plan�s AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
-- Failure controls: do not claim completion when handoff routes are missing, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
+- Decision route: follow this plan's AGENTS landing decision, the selected workpack path, and the feature/doc proof matrix referenced in this file.
+- Failure controls: do not claim completion when retained proof is missing, proof shape/root expectations diverge, checklist/workpack states diverge, or known risks remain unmitigated with no explicit deferral.
 
 ### Proof mapping
 
-- Required proof before READY: explicit links from workpack checklist rows, proof artifacts named in this file, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
+- Required proof before READY: explicit links from workpack checklist rows, retained proof artifacts under `output/screen-ai-pipeline-proof/`, a plan proof manifest when slice closure is claimed, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
 - At minimum, align the following docs before READY: `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, and the assigned plan workpacks.

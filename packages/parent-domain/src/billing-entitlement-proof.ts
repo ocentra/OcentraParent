@@ -21,8 +21,10 @@ import {
   type BillingEntitlementRuntimeProof,
 } from './billing-entitlement-runtime-proof';
 import {
-  BillingEntitlementContractProof,
+  BillingParentVisibleInvoiceRecoveryStateCountsSchema,
+  BillingParentVisibleInvoiceVisibilityCountsSchema,
   type BillingParentVisibleManualInvoiceState,
+  type BillingEntitlementContractProof as ParentBillingEntitlementContractProof,
   BillingParentVisibleSummarySchema,
   type BillingParentVisibleInvoiceRecoveryStateCounts,
   type BillingParentVisibleInvoiceVisibilityCounts,
@@ -71,7 +73,7 @@ export const BillingParentVisibleSummaryReadModel =
   );
 
 export function buildParentBillingVisibleSummary(
-  contractProof: BillingEntitlementContractProof,
+  contractProof: ParentBillingEntitlementContractProof,
   runtimeProof: BillingEntitlementRuntimeProof,
   invoiceProof: DomainBillingInvoiceTaxRefundDisputeProof = DomainBillingInvoiceTaxRefundDisputeProofReadModel,
   portalSession: BillingPortalSessionResponse = BillingParentVisiblePortalSessionProofReadModel
@@ -118,11 +120,11 @@ export function buildParentBillingVisibleSummary(
 }
 
 export function buildParentBillingVisibleSummaryForExpectedHousehold(
-  contractProof: BillingEntitlementContractProof,
+  contractProof: ParentBillingEntitlementContractProof,
   runtimeProof: BillingEntitlementRuntimeProof,
   expected: {
-    readonly parentAccountId: BillingEntitlementContractProof['entitlementSnapshot']['parentAccount']['parentAccountId'];
-    readonly familyId: BillingEntitlementContractProof['entitlementSnapshot']['family']['familyId'];
+    readonly parentAccountId: ParentBillingEntitlementContractProof['entitlementSnapshot']['parentAccount']['parentAccountId'];
+    readonly familyId: ParentBillingEntitlementContractProof['entitlementSnapshot']['family']['familyId'];
   },
   invoiceProof: DomainBillingInvoiceTaxRefundDisputeProof = DomainBillingInvoiceTaxRefundDisputeProofReadModel,
   portalSession: BillingPortalSessionResponse = BillingParentVisiblePortalSessionProofReadModel
@@ -153,7 +155,7 @@ export function isBillingSafeParentSummary(
 }
 
 function countVisibleActiveBillingDevices(
-  contractProof: BillingEntitlementContractProof
+  contractProof: ParentBillingEntitlementContractProof
 ): number {
   return contractProof.deviceLimitDecisions.filter(
     (entry) => entry.decision === 'allowed' || entry.decision === 'grace'
@@ -161,7 +163,7 @@ function countVisibleActiveBillingDevices(
 }
 
 function summarizeParentVisibleSeatComposition(
-  contractProof: BillingEntitlementContractProof
+  contractProof: ParentBillingEntitlementContractProof
 ) {
   return {
     baseChildDeviceLimit:
@@ -176,7 +178,7 @@ function summarizeParentVisibleSeatComposition(
 }
 
 function summarizeParentVisibleReferralCreditSummary(
-  contractProof: BillingEntitlementContractProof
+  contractProof: ParentBillingEntitlementContractProof
 ) {
   return {
     activeQualifiedReferralParents:
@@ -191,7 +193,7 @@ function summarizeParentVisibleReferralCreditSummary(
 }
 
 function summarizeParentVisibleLicenseSnapshot(
-  contractProof: BillingEntitlementContractProof
+  contractProof: ParentBillingEntitlementContractProof
 ) {
   return {
     source: contractProof.entitlementSnapshot.source,
@@ -211,7 +213,7 @@ function summarizeParentVisibleLicenseSnapshot(
 }
 
 function summarizeParentVisibleInvoiceSummary(
-  contractProof: BillingEntitlementContractProof,
+  contractProof: ParentBillingEntitlementContractProof,
   invoiceProof: DomainBillingInvoiceTaxRefundDisputeProof
 ) {
   const representativeRow = representativeInvoiceLifecycleRow(
@@ -234,7 +236,7 @@ function summarizeParentVisibleInvoiceSummary(
 function summarizeInvoiceVisibilityStates(
   invoiceProof: DomainBillingInvoiceTaxRefundDisputeProof
 ): BillingParentVisibleInvoiceVisibilityCounts {
-  const counts: BillingParentVisibleInvoiceVisibilityCounts = {
+  const counts: Record<DomainBillingInvoiceTaxRefundDisputeRow['invoiceVisibility'], number> = {
     'customer-portal-hosted': 0,
     'download-link-issued': 0,
     'manual-support-required': 0,
@@ -244,13 +246,13 @@ function summarizeInvoiceVisibilityStates(
     counts[row.invoiceVisibility] += 1;
   }
 
-  return counts;
+  return BillingParentVisibleInvoiceVisibilityCountsSchema.parse(counts);
 }
 
 function summarizeInvoiceRecoveryStates(
   invoiceProof: DomainBillingInvoiceTaxRefundDisputeProof
 ): BillingParentVisibleInvoiceRecoveryStateCounts {
-  const counts: BillingParentVisibleInvoiceRecoveryStateCounts = {
+  const counts: Record<DomainBillingInvoiceTaxRefundDisputeRow['recoveryState'], number> = {
     active: 0,
     trialing: 0,
     'past-due': 0,
@@ -264,7 +266,7 @@ function summarizeInvoiceRecoveryStates(
     counts[row.recoveryState] += 1;
   }
 
-  return counts;
+  return BillingParentVisibleInvoiceRecoveryStateCountsSchema.parse(counts);
 }
 
 function summarizeParentVisibleManualInvoiceState(
@@ -297,7 +299,7 @@ function summarizeParentVisiblePortalHandoff(
 }
 
 function summarizeParentVisibleChangePlanAction(
-  contractProof: BillingEntitlementContractProof
+  contractProof: ParentBillingEntitlementContractProof
 ) {
   return {
     selfServiceVisible: true as const,
@@ -308,7 +310,7 @@ function summarizeParentVisibleChangePlanAction(
 }
 
 function summarizeParentVisibleCancellationAction(
-  contractProof: BillingEntitlementContractProof,
+  contractProof: ParentBillingEntitlementContractProof,
   invoiceProof: DomainBillingInvoiceTaxRefundDisputeProof
 ) {
   const immediate = requiredInvoiceLifecycleRow(
@@ -335,7 +337,7 @@ function summarizeParentVisibleCancellationAction(
 }
 
 function representativeInvoiceLifecycleRow(
-  contractProof: BillingEntitlementContractProof,
+  contractProof: ParentBillingEntitlementContractProof,
   invoiceProof: DomainBillingInvoiceTaxRefundDisputeProof
 ): DomainBillingInvoiceTaxRefundDisputeRow {
   if (

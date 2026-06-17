@@ -135,12 +135,42 @@ Actual storage export/delete mechanics stay in `data-custody-storage-plan`. Supp
 
 ## Fill before DONE
 
-```text
-Workpack id and branch:
-Invite/recovery changes:
-Touched files:
-Validation commands and results:
-Proof artifacts:
-Known gaps/manual-required states:
-No-claim boundaries:
-```
+- Workpack id and branch: `WP04 Invites Recovery Lifecycle`; `codex/tracking-plan-full-continuation-a`.
+- Current status: partial. `01-invite-negative-proof.md`, `02-recovery-state-machine-proof.md`, and `16-validation-commands.log` exist under `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/`.
+- Contract/source changes in this slice: the only code repair affecting this workpack was the direct helper fix in `packages/family-domain/tests/unit/setup-lifecycle.test.ts`; no new WP04-owned lifecycle source change was required.
+- Touched files:
+  - `packages/family-domain/tests/unit/setup-lifecycle.test.ts`
+  - `docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md`
+  - `docs/plans/account-identity-family-plan/PLAN_STATE.md`
+  - `docs/plans/account-identity-family-plan/WORKPACK_INDEX.md`
+  - `docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md`
+  - `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/01-invite-negative-proof.md`
+  - `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/02-recovery-state-machine-proof.md`
+  - `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/16-validation-commands.log`
+- Validation commands and results:
+  - `command: npm run build --workspace @ocentra-parent/family-domain`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: family-domain builds after direct lifecycle helper repair`
+  - `command: npm run test --workspace @ocentra-parent/family-domain -- tests/unit/setup-lifecycle.test.ts tests/unit/invite-recovery-lifecycle.test.ts`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: direct and command-target invite/recovery suites passed with 10 tests`
+  - `command: npm run test --workspace @ocentra-parent/setup-domain -- tests/unit/registration-entry.test.ts tests/unit/family-setup-bridge.test.ts`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: downstream setup-domain consumers passed with 20 tests`
+  - `command: npm run lint:architecture -- --files packages/family-domain packages/setup-domain`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: focused architecture checks passed for family-domain and setup-domain`
+- Proof artifacts:
+  - `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/01-invite-negative-proof.md`
+  - `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/02-recovery-state-machine-proof.md`
+  - `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/16-validation-commands.log`
+- Known gaps/manual-required states: `00-invite-state-machine-proof.md`, `03-recovery-abuse-proof.md`, `04-delete-export-handoff-proof.md`, and `05-support-recovery-audit-proof.md` are still missing; storage export/delete mechanics stay in `data-custody-storage-plan`; support/admin tooling remains external.
+- No-claim boundaries: do not claim invite-state-machine closure, rate-limit/enumeration proof, export/delete execution, support tooling readiness, or WP04 completion.

@@ -35,11 +35,56 @@ This folder is the single working plan location for V0.8 enforcement, product-co
 
 ## What is already present / proved
 
-- No concise existing/proved bullet section was detected in the current snapshot.
+- WP01 contract boundary and Effect Schema ownership is now backed by
+  `packages/enforcement-domain/src/enforcement.ts`,
+  `crates/agent-protocol/src/enforcement.rs`,
+  `npm run test --workspace @ocentra-parent/enforcement-domain -- enforcement`,
+  `cargo test -p ocentra-parent-agent-protocol enforcement`,
+  `output/v0-8-enforcement-control-plan-proof/01-contract-boundary-and-effect-schemas/`,
+  and
+  `docs/proof/v0-8-enforcement-control-plan/slice-04-contract-boundary-and-effect-schemas.md`.
+- WP02 policy decision evidence references is now backed by
+  `node scripts/test/v0-8-enforcement-policy-dispatch-proof.mjs`,
+  `packages/enforcement-domain/src/enforcement-policy-dispatch.ts`,
+  `crates/agent-core/src/enforcement_policy_dispatch.rs`,
+  `crates/agent-service/src/enforcement_policy_dispatch_read_model.rs`,
+  `test-results/v0-8-enforcement-policy-dispatch-proof/`,
+  `output/v0-8-enforcement-control-plan-proof/02-policy-decision-evidence-references/`,
+  and
+  `docs/proof/v0-8-enforcement-control-plan/slice-06-policy-decision-evidence-references.md`.
+- WP03 adapter capability matrix is now backed by
+  `node scripts/test/v0-8-supported-adapter-runtime-proof.mjs`,
+  `node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs`,
+  `node scripts/test/v0-8-broad-os-adapter-runtime-proof.mjs`,
+  `output/v0-8-enforcement-control-plan-proof/03-adapter-capability-matrix/`,
+  and
+  `docs/proof/v0-8-enforcement-control-plan/slice-05-adapter-capability-matrix.md`.
+- WP07 unmanaged browser fallback is now backed by
+  `npm run test --workspace @ocentra-parent/enforcement-domain -- v0-8-browser-enforcement-timer-recovery-proof`,
+  `node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs`,
+  `output/v0-8-enforcement-control-plan-proof/07-unmanaged-browser-fallback/`,
+  and
+  `docs/proof/v0-8-enforcement-control-plan/slice-01-unmanaged-browser-fallback.md`.
+- WP09 timer recovery and rollback is now backed by
+  `node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs`,
+  `cargo test -p ocentra-parent-agent-core enforcement_timer_state`,
+  `cargo test -p ocentra-parent-agent-service enforcement_timer`,
+  `output/v0-8-enforcement-control-plan-proof/09-timer-recovery-and-rollback/`,
+  and
+  `docs/proof/v0-8-enforcement-control-plan/slice-02-timer-recovery-and-rollback.md`.
+- WP18 proof command is now present:
+  `node scripts/test/v0-8-enforcement-control-plan-proof.mjs`
+- Current WP18 proof artifacts:
+  `test-results/v0-8-enforcement-control-plan-proof/proof.json`,
+  `output/v0-8-enforcement-control-plan-proof/18-proof-command-and-matrix/`, and
+  `docs/proof/v0-8-enforcement-control-plan/slice-03-proof-command-and-matrix.md`.
 
 ## Open gaps / missing product runtime
 
-- No concise missing/gaps bullet section was detected in the current snapshot.
+- Remaining gaps are tracked by the still-open workpacks below. WP02 is now
+  backed by the focused enforcement-domain contract, adapter, Rust-core,
+  Rust-service, and proof-harness validation path rather than the broken
+  `parent-domain` indirection.
 
 ## Checklist summary
 
@@ -50,15 +95,12 @@ This folder is the single working plan location for V0.8 enforcement, product-co
 ## Workpack summary
 
 - Workpacks indexed: 20.
-- Workpacks with open checkboxes: 18.
-- Workpacks with all detected boxes checked: 2.
+- Workpacks with open checkboxes: 14.
+- Workpacks with all detected boxes checked: 6.
 - Workpacks with no checkbox status: 0.
 
 ### Active/open workpacks
 
-- [01 Contract Boundary And Effect Schemas](workpacks/01-contract-boundary-and-effect-schemas.md) - 0/5 checked, 5 open.
-- [02 Policy Decision Evidence References](workpacks/02-policy-decision-evidence-references.md) - 0/5 checked, 5 open.
-- [03 Adapter Capability Matrix](workpacks/03-adapter-capability-matrix.md) - 0/5 checked, 5 open.
 - [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md) - 0/5 checked, 5 open.
 - [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md) - 0/5 checked, 5 open.
 - [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md) - 0/5 checked, 5 open.
@@ -71,7 +113,6 @@ This folder is the single working plan location for V0.8 enforcement, product-co
 - [15 Integrity Heartbeat And Permission Loss](workpacks/15-integrity-heartbeat-permission-loss.md) - 0/5 checked, 5 open.
 - [16 Tamper/Uninstall Non-Claim Design](workpacks/16-tamper-uninstall-non-claim-design.md) - 0/5 checked, 5 open.
 - [17 Cross-Platform Unavailable States](workpacks/17-cross-platform-unavailable-states.md) - 0/5 checked, 5 open.
-- [18 Proof Command And Matrix](workpacks/18-proof-command-and-matrix.md) - 0/5 checked, 5 open.
 - [19 Playwright And UI Proof](workpacks/19-playwright-ui-proof.md) - 0/5 checked, 5 open.
 - [20 Rollout Docs And CI/PR Gate](workpacks/20-rollout-docs-ci-pr-gate.md) - 0/5 checked, 5 open.
 
@@ -99,6 +140,8 @@ This folder is the single working plan location for V0.8 enforcement, product-co
   - docs/proof/v0-8-enforcement-control-plan/slice-01-\*.md
   - docs/proof/v0-8-enforcement-control-plan/slice-02-\*.md
   - docs/proof/v0-8-enforcement-control-plan/slice-03-\*.md
+  - docs/proof/v0-8-enforcement-control-plan/slice-04-\*.md
+  - docs/proof/v0-8-enforcement-control-plan/slice-05-\*.md
   - each proof file must include commands, pass/fail,
     negative-cases, and manual-required notes.
 - Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.

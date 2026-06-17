@@ -44,6 +44,16 @@ export const SetupInviteReplayStateLiteral = {
   ReplayDetected: 'replay-detected',
 } as const;
 
+export const SetupRecoveryAbuseStateLiteral = {
+  WithinLimit: 'within-limit',
+  Throttled: 'throttled',
+} as const;
+
+export const SetupRecoveryResponseTimingStateLiteral = {
+  Uniform: 'uniform',
+  Variable: 'variable',
+} as const;
+
 export const SetupInviteDecisionStateLiteral = {
   Acceptable: 'acceptable',
   Rejected: 'rejected',
@@ -139,6 +149,17 @@ export const SetupInviteStateSchema = withParser(
 
 export const SetupInviteReplayStateSchema = withParser(
   Schema.Literal(SetupInviteReplayStateLiteral.Fresh, SetupInviteReplayStateLiteral.ReplayDetected)
+);
+
+export const SetupRecoveryAbuseStateSchema = withParser(
+  Schema.Literal(SetupRecoveryAbuseStateLiteral.WithinLimit, SetupRecoveryAbuseStateLiteral.Throttled)
+);
+
+export const SetupRecoveryResponseTimingStateSchema = withParser(
+  Schema.Literal(
+    SetupRecoveryResponseTimingStateLiteral.Uniform,
+    SetupRecoveryResponseTimingStateLiteral.Variable
+  )
 );
 
 export const SetupInviteTargetRoleSchema = withParser(
@@ -266,6 +287,8 @@ export const SetupInviteAuthorizationInputSchema = withParser(
     inviteState: SetupInviteStateSchema,
     singleUse: Schema.Boolean,
     replayState: SetupInviteReplayStateSchema,
+    abuseState: SetupRecoveryAbuseStateSchema,
+    responseTimingState: SetupRecoveryResponseTimingStateSchema,
   })
 );
 
@@ -307,6 +330,8 @@ export const RecoveryAuthorizationInputSchema = withParser(
     identityProofState: RecoveryIdentityProofStateSchema,
     supportChannel: RecoverySupportChannelSchema,
     deleteExportHandoffRequired: Schema.Boolean,
+    abuseState: SetupRecoveryAbuseStateSchema,
+    responseTimingState: SetupRecoveryResponseTimingStateSchema,
   })
 );
 
@@ -338,6 +363,8 @@ export const SetupAuditEventSchema = withParser(
 export type SetupInvitePurpose = Infer<typeof SetupInvitePurposeSchema>;
 export type SetupInviteState = Infer<typeof SetupInviteStateSchema>;
 export type SetupInviteReplayState = Infer<typeof SetupInviteReplayStateSchema>;
+export type SetupRecoveryAbuseState = Infer<typeof SetupRecoveryAbuseStateSchema>;
+export type SetupRecoveryResponseTimingState = Infer<typeof SetupRecoveryResponseTimingStateSchema>;
 export type SetupInviteTargetRole = Infer<typeof SetupInviteTargetRoleSchema>;
 export type SetupInviteDecisionState = Infer<typeof SetupInviteDecisionStateSchema>;
 export type SetupInviteFailureReason = Infer<typeof SetupInviteFailureReasonSchema>;
@@ -375,6 +402,16 @@ export const SetupInviteState = {
 export const SetupInviteReplayState = {
   Fresh: SetupInviteReplayStateSchema.parse(SetupInviteReplayStateLiteral.Fresh),
   ReplayDetected: SetupInviteReplayStateSchema.parse(SetupInviteReplayStateLiteral.ReplayDetected),
+} as const;
+
+export const SetupRecoveryAbuseState = {
+  WithinLimit: SetupRecoveryAbuseStateSchema.parse(SetupRecoveryAbuseStateLiteral.WithinLimit),
+  Throttled: SetupRecoveryAbuseStateSchema.parse(SetupRecoveryAbuseStateLiteral.Throttled),
+} as const;
+
+export const SetupRecoveryResponseTimingState = {
+  Uniform: SetupRecoveryResponseTimingStateSchema.parse(SetupRecoveryResponseTimingStateLiteral.Uniform),
+  Variable: SetupRecoveryResponseTimingStateSchema.parse(SetupRecoveryResponseTimingStateLiteral.Variable),
 } as const;
 
 export const SetupInviteDecisionState = {
@@ -493,6 +530,14 @@ export function authorizeSetupInvite(input: SetupInviteAuthorizationInput): Setu
     return rejectedSetupInvite(SetupInviteFailureReason.InviteReplayRejected);
   }
 
+  if (parsedInput.abuseState === SetupRecoveryAbuseState.Throttled) {
+    return rejectedSetupInvite(SetupInviteFailureReason.InviteNotActive);
+  }
+
+  if (parsedInput.responseTimingState !== SetupRecoveryResponseTimingState.Uniform) {
+    return rejectedSetupInvite(SetupInviteFailureReason.InviteNotActive);
+  }
+
   if (!parsedInput.sameFamily) {
     return rejectedSetupInvite(SetupInviteFailureReason.WrongHousehold);
   }
@@ -551,7 +596,7 @@ export function evaluateRecoveryOperation(input: RecoveryAuthorizationInput): Re
     parsedInput.sameFamily,
     parsedInput.supportChannel
   );
-  const dataCustodyHandoffState = dataCustodyHandoffState(
+  const custodyHandoffState = dataCustodyHandoffState(
     parsedInput.kind,
     parsedInput.deleteExportHandoffRequired
   );
@@ -561,7 +606,7 @@ export function evaluateRecoveryOperation(input: RecoveryAuthorizationInput): Re
       RecoveryFailureReason.RecoveryNotActive,
       ownerApprovalRequired,
       childEvidenceAccessState,
-      dataCustodyHandoffState
+      custodyHandoffState
     );
   }
 
@@ -570,7 +615,7 @@ export function evaluateRecoveryOperation(input: RecoveryAuthorizationInput): Re
       RecoveryFailureReason.WrongHousehold,
       ownerApprovalRequired,
       childEvidenceAccessState,
-      dataCustodyHandoffState
+      custodyHandoffState
     );
   }
 
@@ -579,7 +624,25 @@ export function evaluateRecoveryOperation(input: RecoveryAuthorizationInput): Re
       RecoveryFailureReason.IdentityProofRequired,
       ownerApprovalRequired,
       childEvidenceAccessState,
-      dataCustodyHandoffState
+      custodyHandoffState
+    );
+  }
+
+  if (parsedInput.abuseState === SetupRecoveryAbuseState.Throttled) {
+    return rejectedRecovery(
+      RecoveryFailureReason.IdentityProofRequired,
+      ownerApprovalRequired,
+      childEvidenceAccessState,
+      custodyHandoffState
+    );
+  }
+
+  if (parsedInput.responseTimingState !== SetupRecoveryResponseTimingState.Uniform) {
+    return rejectedRecovery(
+      RecoveryFailureReason.IdentityProofRequired,
+      ownerApprovalRequired,
+      childEvidenceAccessState,
+      custodyHandoffState
     );
   }
 
@@ -588,7 +651,7 @@ export function evaluateRecoveryOperation(input: RecoveryAuthorizationInput): Re
       RecoveryFailureReason.RoleNotAuthorized,
       ownerApprovalRequired,
       childEvidenceAccessState,
-      dataCustodyHandoffState
+      custodyHandoffState
     );
   }
 
@@ -597,7 +660,7 @@ export function evaluateRecoveryOperation(input: RecoveryAuthorizationInput): Re
     ownerApprovalRequired,
     auditRequirementState: AuditRequirementState.Required,
     childEvidenceAccessState,
-    dataCustodyHandoffState,
+    dataCustodyHandoffState: custodyHandoffState,
     failureReason: null,
   });
 }

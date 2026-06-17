@@ -4,6 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -132,6 +133,7 @@ const ReadyDecisionCandidate = SocialParentPolicyDecisionCandidateSchema.parse({
   reasonCodes: ['parent-rule-match', 'schedule-context'],
   confidence: 'medium',
   compilerMode: 'contract-only',
+  compilerCapabilityState: PolicyCompilerCapabilityState.Supported,
   fallbackUsed: false,
   parentApprovalRequired: false,
   finalPolicyDecisionClaimed: false,
@@ -163,6 +165,7 @@ const ManualDecisionCandidate = SocialParentPolicyDecisionCandidateSchema.parse(
   reasonCodes: ['manual-required'],
   confidence: 'unknown',
   compilerMode: 'manual-required',
+  compilerCapabilityState: PolicyCompilerCapabilityState.ManualRequired,
   fallbackUsed: true,
   parentApprovalRequired: false,
   finalPolicyDecisionClaimed: false,

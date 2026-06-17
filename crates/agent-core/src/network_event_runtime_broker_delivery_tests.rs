@@ -1,4 +1,6 @@
-use ocentra_eventing::{EventDeliveryDecisionState, EventDeliveryRequiredArtifact};
+use ocentra_eventing::{
+    delivery::EventDeliveryDecisionState, delivery::EventDeliveryRequiredArtifact,
+};
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::{

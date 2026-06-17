@@ -1,8 +1,10 @@
 #![forbid(unsafe_code)]
+#![allow(clippy::expect_used)]
 
 use std::collections::BTreeMap;
 
-use ocentra_eventing::{EventingError, SchemaVersion};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::SchemaVersion;
 use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 
@@ -456,7 +458,7 @@ fn schedule_has_transition_local_time(
     schedule: &PolicyScheduleWindow,
     transition: DstTransitionKind,
 ) -> Result<bool, EventingError> {
-    Ok([
+    [
         &schedule.starts_at,
         &schedule.ends_at,
         &schedule.time_budget.reset.local_time,
@@ -471,7 +473,7 @@ fn schedule_has_transition_local_time(
             DstTransitionKind::SpringForward => (120..180).contains(&minutes),
             DstTransitionKind::FallBack => (60..120).contains(&minutes),
         })
-    })?)
+    })
 }
 
 fn schedule_on_single_transition_day(
@@ -553,13 +555,13 @@ fn parse_clock_time(value: &str) -> Result<u16, EventingError> {
 
     let hours = hours
         .parse::<u16>()
-        .map_err(|_| EventingError::InvalidValue {
+        .map_err(|_error| EventingError::InvalidValue {
             field: policy_control::preview::FIELD_SCHEDULE_TIME,
             value: value.to_string(),
         })?;
     let minutes = minutes
         .parse::<u16>()
-        .map_err(|_| EventingError::InvalidValue {
+        .map_err(|_error| EventingError::InvalidValue {
             field: policy_control::preview::FIELD_SCHEDULE_TIME,
             value: value.to_string(),
         })?;
@@ -682,19 +684,19 @@ struct UtcDate {
 fn parse_utc_date(field: &'static str, value: &str) -> Result<UtcDate, EventingError> {
     let year = value[0..4]
         .parse::<i32>()
-        .map_err(|_| EventingError::InvalidValue {
+        .map_err(|_error| EventingError::InvalidValue {
             field,
             value: value.to_string(),
         })?;
     let month = value[5..7]
         .parse::<u8>()
-        .map_err(|_| EventingError::InvalidValue {
+        .map_err(|_error| EventingError::InvalidValue {
             field,
             value: value.to_string(),
         })?;
     let day = value[8..10]
         .parse::<u8>()
-        .map_err(|_| EventingError::InvalidValue {
+        .map_err(|_error| EventingError::InvalidValue {
             field,
             value: value.to_string(),
         })?;

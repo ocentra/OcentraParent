@@ -17,7 +17,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 - `infra/cloudflare/src/env.ts`
 - [STORAGE_BINDING_MODEL.md](../STORAGE_BINDING_MODEL.md)
-- `docs/proof/cloudflare-control-plane-plan/wp06-storage-do-d1-kv-r2-queue-bindings/`
+- `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
 
 ## Acceptance
 
@@ -35,7 +35,10 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Validation
 
-- Docs or scaffold validation: `npm run format:check`
+- Scoped validation: `npm --prefix infra/cloudflare run test:unit`
+- Scoped validation: `npm --prefix infra/cloudflare run test:integration`
+- Scoped validation: `npm --prefix infra/cloudflare run test:property`
+- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/env.ts`
 
 ## Negative cases
 

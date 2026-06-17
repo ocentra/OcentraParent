@@ -125,13 +125,45 @@ Implementation remains open until WP02/WP03 convert this decision into family-do
 
 ## Fill before DONE
 
-```text
-Workpack id and branch:
-Decision outcome:
-Rejected options:
-Touched files:
-Validation commands and results:
-Proof artifacts:
-Known gaps/manual-required states:
-No-claim boundaries:
-```
+- Workpack id and branch: `WP01 Auth Provider Decision`; `codex/tracking-plan-full-continuation-a`.
+- Decision outcome: Cloudflare-first custody; Firebase Auth and Auth.js stay adapter-only; D1/DO own family truth; no family data in IdP/custom claims.
+- Rejected options:
+  - Firebase owns family product data.
+  - Auth.js as a hidden product-data owner.
+  - Firebase custom claims as household truth.
+  - IdP user profile as child/device registry.
+  - Cloudflare Access as the consumer family identity product.
+  - Third-party IdP as the source of truth for household membership.
+- Touched files:
+  - `docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md`
+  - `docs/plans/account-identity-family-plan/PLAN_STATE.md`
+  - `docs/plans/account-identity-family-plan/WORKPACK_INDEX.md`
+  - `docs/plans/account-identity-family-plan/workpacks/01-auth-provider-decision.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/00-provider-decision-record.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/01-provider-rejected-options.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/02-provider-custody-boundary-proof.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/03-custom-claims-data-minimization-proof.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/04-provider-outage-degraded-proof.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/05-migration-path-proof.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/16-validation-commands.log`
+- Validation commands and results:
+  - `command: node -e "console.log('provider-decision-docs-only')"`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: docs-only sentinel`
+  - `command: npm run lint:architecture -- --files docs/plans/account-identity-family-plan`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: re-export gate skipped; no JS/TS or Rust files in scope`
+- Proof artifacts:
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/00-provider-decision-record.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/01-provider-rejected-options.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/02-provider-custody-boundary-proof.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/03-custom-claims-data-minimization-proof.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/04-provider-outage-degraded-proof.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/05-migration-path-proof.md`
+  - `output/account-identity-family-plan-proof/01-auth-provider-decision/16-validation-commands.log`
+- Known gaps/manual-required states: runtime login/session implementation remains open in WP02/WP03 and beyond; provider role is fixed but route-sync details for passkey/step-up remain external dependencies.
+- No-claim boundaries: provider selection is external-only; no runtime login/session implementation; no household/device authority claim; no PR-ready claim.

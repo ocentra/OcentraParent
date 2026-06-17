@@ -22,6 +22,16 @@ function sanitizePathSegment(value: string): string {
   return value.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+/, '').replace(/-+$/, '') || 'default';
 }
 
+export function sanitizeTestNameForNdjson(testName: string): string {
+  const sanitized = testName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '')
+    .substring(0, 100);
+  return sanitized || 'unnamed-test';
+}
+
 export function ensureDirectory(dirPath: string): string {
   fs.mkdirSync(dirPath, { recursive: true });
   return dirPath;

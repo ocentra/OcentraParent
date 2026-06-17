@@ -15,7 +15,7 @@
 
 <!-- /agent-capsule -->
 
-A checkbox may be marked `[x]` only after the matching proof pack exists.
+A checkbox may be marked `[ ]` only after the matching proof pack exists.
 
 Expected proof pack path:
 

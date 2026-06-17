@@ -23,7 +23,7 @@ Define the starter bundle, child-device seat math, referral credit application, 
 - [PRODUCT_PRICING_ENTITLEMENT_MODEL.md](../PRODUCT_PRICING_ENTITLEMENT_MODEL.md)
 - [REFERRAL_ENTITLEMENT_MODEL.md](../REFERRAL_ENTITLEMENT_MODEL.md)
 - [APP_OWNED_ENTITLEMENT_LEDGER.md](../APP_OWNED_ENTITLEMENT_LEDGER.md)
-- `docs/proof/payment-subscription-plan/wp01-product-pricing-entitlement/`
+- `output/payment-subscription-plan-proof/01-product-pricing-entitlement/`
 
 ## Acceptance
 
@@ -44,7 +44,7 @@ Define the starter bundle, child-device seat math, referral credit application, 
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
 - Required proof families: `payment-pricing.free-starter-bundle`, `payment-pricing.base-one-parent-one-child`, `payment-pricing.paid-extra-child-device`, `payment-pricing.extra-parent-slot`, `payment-pricing.effective-child-device-limit`, `payment-pricing.over-limit-grace`, `payment-pricing.safety-critical-grace`, `payment-pricing.rejected-game-economy-model`
-- Proof bundle: `docs/proof/payment-subscription-plan/01-free-starter-bundle-proof.md`, `docs/proof/payment-subscription-plan/01-effective-child-device-limit-proof.md`, `docs/proof/payment-subscription-plan/01-safety-critical-grace-proof.md`, `docs/proof/payment-subscription-plan/01-rejected-game-economy-proof.md`
+- Proof bundle: `output/payment-subscription-plan-proof/01-product-pricing-entitlement/01-free-starter-bundle-proof.md`, `output/payment-subscription-plan-proof/01-product-pricing-entitlement/01-effective-child-device-limit-proof.md`, `output/payment-subscription-plan-proof/01-product-pricing-entitlement/01-safety-critical-grace-proof.md`, `output/payment-subscription-plan-proof/01-product-pricing-entitlement/01-rejected-game-economy-proof.md`
 
 ## Negative cases
 

@@ -20,7 +20,12 @@ Purpose: evaluate WebAuthn, keyring, and encrypted-bundle dependencies for adopt
 
 ## Proof target
 
-- `docs/proof/device-trust-bootstrap-plan/08-*`
+- `output/device-trust-bootstrap-plan-proof/08-open-source-dependency-adoption/`
+
+## Current audit state
+
+- No proof root currently exists on disk for this workpack.
+- The dependency matrix lives in `DEPENDENCY_RESEARCH_AND_ADOPTION.md`, but adoption remains research-level until chosen adapters or libraries are wired into owned runtime seams with scoped proof.
 
 ## Negative cases
 

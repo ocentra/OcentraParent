@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
   PolicyControlApprovalNotificationBoundaryEntrySchema,
-  PolicyControlApprovalNotificationBoundaryReadModel,
+  PolicyControlApprovalNotificationBoundarySample,
   PolicyControlApprovalNotificationBoundaryReadModelSchema,
 } from '../../src/policy-control-approval-notification-boundary';
 
 describe('policy control approval notification boundary', () => {
   it('covers preview pending approved denied modified expired and replay-rejected approval queue states', () => {
     const readModel = PolicyControlApprovalNotificationBoundaryReadModelSchema.parse(
-      PolicyControlApprovalNotificationBoundaryReadModel
+      PolicyControlApprovalNotificationBoundarySample
     );
 
     expect(readModel.readModelId).toBe('policy-control-approval-notification-boundary');
@@ -95,9 +95,9 @@ describe('policy control approval notification boundary', () => {
 });
 
 function entryFor(entryId: string) {
-  const entry = PolicyControlApprovalNotificationBoundaryReadModel.entries.find(
-    (candidate) => candidate.entryId === entryId
-  );
+    const entry = PolicyControlApprovalNotificationBoundarySample.entries.find(
+      (candidate: { entryId: string }) => candidate.entryId === entryId
+    );
   if (entry === undefined) {
     throw new Error(`Missing policy control approval notification entry: ${entryId}`);
   }

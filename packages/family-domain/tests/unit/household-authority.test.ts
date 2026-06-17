@@ -486,6 +486,16 @@ describe('household authority contracts', () => {
     expect(revokedDevice.auditRequirementState).toBe(AuditRequirementState.Required);
     expect(revokedDevice.failureReason).toBe(HouseholdAuthorizationFailureReason.DeviceNotTrusted);
 
+    const pendingDevice = authorizeHouseholdAction({
+      ...trustedParentAuthorityInput,
+      deviceTrustState: DeviceTrustState.Pending,
+      action: DeviceAuthorityAction.ViewChildStatus,
+    });
+
+    expect(pendingDevice.authorizationState).toBe(HouseholdAuthorizationState.Rejected);
+    expect(pendingDevice.auditRequirementState).toBe(AuditRequirementState.Required);
+    expect(pendingDevice.failureReason).toBe(HouseholdAuthorizationFailureReason.DeviceNotTrusted);
+
     const disabledMember = authorizeHouseholdAction({
       ...trustedParentAuthorityInput,
       membershipState: HouseholdMembershipState.Disabled,

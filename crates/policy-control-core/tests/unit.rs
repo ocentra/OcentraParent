@@ -1,3 +1,5 @@
+#![allow(clippy::expect_used, clippy::panic)]
+
 #[path = "unit/policy_control.rs"]
 mod policy_control;
 
@@ -12,6 +14,9 @@ mod policy_compiler;
 
 #[path = "unit/policy_delivery.rs"]
 mod policy_delivery;
+
+#[path = "unit/policy_event.rs"]
+mod policy_event;
 
 #[path = "unit/policy_preview.rs"]
 mod policy_preview;

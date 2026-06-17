@@ -1,7 +1,8 @@
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_family_identity_core::{
     ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState, FamilyActorRole,
     HouseholdAuthorityAction, HouseholdAuthorityInput, HouseholdMembership,
+    ParentControllerLeaseState,
     RecoveryIdentityProofState, RecoveryKind as FamilyRecoveryKind,
     RecoveryOperation as FamilyRecoveryOperation, RecoveryState as FamilyRecoveryState,
     RecoverySupportChannel, SessionActivityState, SessionCredentialKind, SessionFreshnessState,
@@ -9,7 +10,7 @@ use ocentra_family_identity_core::{
     SetupInviteReplayState, SetupInviteState, SetupInviteTargetRole, TokenReplayState,
     TokenValidityWindowState,
 };
-use ocentra_provisioning_core::{
+use ocentra_provisioning_core::provisioning_install::{
     derive_provisioning_readiness_input_from_family_context, evaluate_provisioning_readiness,
     evaluate_provisioning_readiness_from_family_context, plan_provisioning_actions,
     plan_provisioning_actions_from_family_context, provisioning_action_planned_event,
@@ -77,6 +78,7 @@ fn ready_family_context() -> ProvisioningFamilyContextInput {
             device_trust_state: DeviceTrustState::Trusted,
             session_freshness_state: SessionFreshnessState::Fresh,
             capability_granted: true,
+            controller_lease_state: Some(ParentControllerLeaseState::Active),
             action: HouseholdAuthorityAction::PairChildDevice,
         },
         recovery_operation: None,

@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const testOutputDir = join(repoRoot, 'test-results', 'tracking-ios-location-manual-required-proof');
@@ -21,17 +22,17 @@ await mkdir(testOutputDir, { recursive: true });
 await mkdir(wp11ProofDir, { recursive: true });
 await mkdir(wp12ProofDir, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
 runNpm([
-  'run',
-  'test',
+  'exec',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
-  'tracking-ios-location-manual-required-proof',
+  'vitest',
+  'run',
+  'tests/contract/tracking-ios-location-manual-required-proof.test.ts',
 ]);
 
-const proofModule = await importDist('tracking-ios-location-manual-required-proof.js');
+const proofModule = await importSource('packages/tracking-domain/src/tracking-ios-location-manual-required-proof.ts');
 const readModel = proofModule.buildTrackingIosLocationManualRequiredProofReadModel(
   {
     generatedAt: timestamp,
@@ -60,8 +61,8 @@ const proof = {
   summary: summarize(readModel),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-ios-location-manual-required-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-ios-location-manual-required-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-ios-location-manual-required-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-ios-location-manual-required-proof.test.ts',
     harness: 'scripts/test/tracking-ios-location-manual-required-proof.mjs',
     evidence: 'test-results/tracking-ios-location-manual-required-proof/proof.json',
     foregroundProofPack: 'output/tracking-plan-proof/11-ios-core-location-foreground-adapter',
@@ -78,8 +79,8 @@ await writeProofPacks(proof);
 console.log('tracking-ios-location-manual-required-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-ios-location-manual-required-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importSource(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }
 
 function iosLocationRows() {

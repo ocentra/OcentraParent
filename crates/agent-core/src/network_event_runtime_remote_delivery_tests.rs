@@ -1,5 +1,6 @@
 use ocentra_eventing::{
-    EventDeliveryDecisionState, EventDeliveryRequiredArtifact, EventDeliveryRouteKind, ReplayMode,
+    delivery::EventDeliveryDecisionState, delivery::EventDeliveryRequiredArtifact,
+    delivery::EventDeliveryRouteKind, replay::ReplayMode,
 };
 use ocentra_parent_agent_protocol::constants;
 

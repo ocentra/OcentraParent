@@ -140,7 +140,7 @@ fn parse_sni_extension_data(data: &[u8]) -> Result<Option<String>, TlsClientHell
         if name_type == HOST_NAME_TYPE {
             return Ok(Some(
                 std::str::from_utf8(name)
-                    .map_err(|_| TlsClientHelloError::SniInvalidUtf8)?
+                    .map_err(|_error| TlsClientHelloError::SniInvalidUtf8)?
                     .to_ascii_lowercase(),
             ));
         }

@@ -23,7 +23,7 @@ Define the non-negotiable controls around monetization data, secret handling, pr
 
 - [SECURITY_PRIVACY_OBSERVABILITY.md](../SECURITY_PRIVACY_OBSERVABILITY.md)
 - [PROOF_AND_TEST_INVENTORY.md](../PROOF_AND_TEST_INVENTORY.md)
-- `docs/proof/payment-subscription-plan/wp06-security-privacy-observability/`
+- `output/payment-subscription-plan-proof/06-security-privacy-observability/`
 
 ## Acceptance
 
@@ -46,7 +46,7 @@ Define the non-negotiable controls around monetization data, secret handling, pr
 
 - Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
 - Required proof families: `payment-security.provider-metadata-allow-deny`, `payment-security.no-child-data-metadata`, `payment-security.secret-scan`, `payment-security.webhook-smuggling-negative`, `payment-security.webhook-replay`, `payment-security.rate-limit`, `payment-security.bot-abuse-gate`, `payment-security.open-redirect-negative`, `payment-security.redacted-logs`, `payment-security.support-view-minimized`, `payment-security.pci-hosted-checkout-boundary`, `payment-security.referral-abuse-signals`, `payment-security.admin-audit-required`
-- Proof bundle: `docs/proof/payment-subscription-plan/06-metadata-privacy-proof.md`, `docs/proof/payment-subscription-plan/06-secret-scan-proof.md`, `docs/proof/payment-subscription-plan/06-referral-abuse-proof.md`, `docs/proof/payment-subscription-plan/06-support-view-minimized-proof.md`, `docs/proof/payment-subscription-plan/06-pci-hosted-boundary-proof.md`
+- Proof bundle: `output/payment-subscription-plan-proof/06-security-privacy-observability/06-metadata-privacy-proof.md`, `output/payment-subscription-plan-proof/06-security-privacy-observability/06-secret-scan-proof.md`, `output/payment-subscription-plan-proof/06-security-privacy-observability/06-referral-abuse-proof.md`, `output/payment-subscription-plan-proof/06-security-privacy-observability/06-support-view-minimized-proof.md`, `output/payment-subscription-plan-proof/06-security-privacy-observability/06-pci-hosted-boundary-proof.md`
 
 ## Negative cases
 

@@ -14,7 +14,12 @@
 
 <!-- /agent-capsule -->
 
-Generated from the existing `browser-plan` docs. This is the default resume/status file; large historical docs are linked, not embedded.
+This is the default resume/status file; large historical docs are linked, not
+embedded.
+
+Audit note (2026-06-16): earlier generated summaries in this file overstated
+checked checklist/workpack state. Use the selected workpack,
+`implementation-checklist.md`, and the current proof roots as truth.
 
 ## Scope
 
@@ -48,6 +53,11 @@ This folder is the single working plan location for managed browser evidence, br
 - authoring manifest shapes;
 - browser policy value/update contracts;
 
+Current implementation is concentrated in `packages/browser-domain`,
+`packages/agent-protocol-domain`, `crates/agent-protocol`,
+`crates/agent-core`, `crates/agent-service`, `apps/portal`, and
+`scripts/test`.
+
 ## Open gaps / missing product runtime
 
 - Browser inventory is not a complete product read model across installed, running, supported, unsupported, managed, unmanaged, packaged, and portable browsers.
@@ -57,24 +67,34 @@ This folder is the single working plan location for managed browser evidence, br
 - Unmanaged browser URL evidence remains not claimed. Unmanaged process terminate/warn states exist only as scoped proof paths, not broad OS blocking.
 - AppLocker/App Control prevention remains real platform proof/manual-required.
 - Firefox, Safari, Android, iOS, extension/native-host, owned browser shell, managed configurations, FamilyControls, and mobile browser support remain separate adapter/platform proof work.
+- The plan-local source ownership notes still reference legacy
+  `packages/activity-domain/src/browser*.ts` paths that do not exist in this
+  checkout.
+- The expected plan-local proof roots under
+  `output/browser-plan-proof/<workpack-file-stem>/` are absent in this
+  checkout.
 
 ## Checklist summary
 
 - Full checklist: [implementation-checklist.md](implementation-checklist.md) (not default context).
-- Checkbox rows detected: 138 total, 97 checked, 41 unchecked.
+- Table rows detected in `implementation-checklist.md`: 97 total, 0 checked, 0
+  partial/manual-required, 97 open.
 - Checklist index: [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md).
 
 ## Workpack summary
 
-- Workpacks indexed: 24.
-- Workpacks with open checkboxes: 0.
-- Workpacks with all detected boxes checked: 24.
-- Workpacks with no checkbox status: 0.
+- Numbered workpacks indexed: 24.
+- Numbered workpacks with open checkboxes: 24.
+- Numbered workpacks with all detected boxes checked: 0.
+- Reference/control-routing workpacks with no checkbox status: 6.
 
 ### Active/open workpacks
 
-- Browser control settings inventory, coverage matrix, schema proposal, policy questionnaire forest, policy settings catalog, and managed/unmanaged browser reference workpacks remain open.
-- These open rows are reference/control-routing workpacks, not proof that browser implementation is incomplete or complete by themselves.
+- Every numbered workpack remains open in its own file.
+- Browser control settings inventory, coverage matrix, schema proposal, policy questionnaire forest, policy settings catalog, and managed/unmanaged browser reference workpacks remain open as doc/reference material.
+- The expected plan-local proof roots under
+  `output/browser-plan-proof/<workpack-file-stem>/` are absent in this
+  checkout.
 - Use `WORKPACK_INDEX.md` to choose the exact assigned row and avoid opening the giant browser inventories by default.
 
 ## Default no-read list
@@ -96,13 +116,12 @@ This folder is the single working plan location for managed browser evidence, br
   - do not mark this plan complete from checklist deltas alone.
 - Before any checked update, attach:
   - a real test run log (or explicit known blocker) from the assigned implementation boundary,
-  - a proof manifest under docs/proof/browser-plan/.
-- Required proof manifest names:
-  - docs/proof/browser-plan/slice-01-\*.md
-  - docs/proof/browser-plan/slice-02-\*.md
-  - docs/proof/browser-plan/slice-03-\*.md
-  - each proof file must include commands, pass/fail,
-    negative-cases, and manual-required notes.
+  - a proof pack under the current plan-local proof root from `PROOF_INDEX.md`.
+- Current proof-root note:
+  - the historical HID-era `docs/proof/browser-plan/slice-*` path is stale for
+    this checkout.
+  - use `output/browser-plan-proof/<workpack-file-stem>/` plus the selected
+    workpack's required artifacts instead.
 - Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.
 
 ## HID execution blueprint

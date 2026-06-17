@@ -11,25 +11,51 @@ describe('enforcement policy dispatch contracts', () => {
     const parsed = EnforcementPolicyDispatchReadModelSchema.parse(EnforcementPolicyDispatchReadModel);
 
     expect(parsed.readModelId).toBe('v0-8-enforcement-policy-dispatch');
-    expect(parsed.entries.map((entry) => entry.matrixRow.proofLevel)).toEqual([
-      'implemented',
-      'implemented',
-      'report-only',
-      'manual-required',
-      'scaffold',
-    ]);
-    expect(parsed.entries[0]?.matrixRow.outcomeState).toBe('dispatch-ready');
-    expect(parsed.entries[0]?.intent.evidenceReferences[0]?.evidenceReferenceId).toBe(
+    expect(parsed.entries).toHaveLength(8);
+    expect(countBy(parsed.entries.map((entry) => entry.matrixRow.proofLevel))).toEqual({
+      implemented: 2,
+      scaffold: 4,
+      'report-only': 1,
+      'manual-required': 1,
+    });
+    expect(countBy(parsed.entries.map((entry) => entry.matrixRow.outcomeState))).toEqual({
+      'dispatch-ready': 2,
+      'dry-run-only': 1,
+      'report-only': 1,
+      'manual-required': 1,
+      rejected: 3,
+    });
+
+    const ownedProcessEntry = entryForIntent('dispatch-owned-process-time-limit');
+    expect(ownedProcessEntry.matrixRow.outcomeState).toBe('dispatch-ready');
+    expect(ownedProcessEntry.intent.evidenceReferences[0]?.evidenceReferenceId).toBe(
       'evidence-app-session-owned-process'
     );
-    expect(parsed.entries[1]?.timerState).toBe('restart-recovered');
-    expect(parsed.entries[2]?.intent.dryRun).toBe(true);
-    expect(parsed.entries[3]?.matrixRow.rejectionReason).toBe('adapter-manual-required');
-    expect(parsed.entries[4]?.childReasonCode).toBe('child-reason-integrity-proof-required');
+
+    const askParentEntry = entryForIntent('dispatch-ask-parent-dry-run');
+    expect(askParentEntry.intent.requestedParentAction).toBe('ask-parent');
+    expect(askParentEntry.intent.requestedPolicyAction).toBe('ask-parent');
+    expect(askParentEntry.intent.dryRun).toBe(true);
+    expect(askParentEntry.matrixRow.outcomeState).toBe('dry-run-only');
+    expect(askParentEntry.approvalState).toBe('pending');
+
+    const appGameEntry = entryForIntent('dispatch-app-game-session-handoff');
+    expect(appGameEntry.timerState).toBe('restart-recovered');
+
+    const stalePolicyEntry = entryForIntent('dispatch-stale-policy-version-rejected');
+    expect(stalePolicyEntry.matrixRow.rejectionReason).toBe('stale-policy-version');
+    expect(stalePolicyEntry.intent.sourceState).toBe('stale');
+
+    const missingSourceEntry = entryForIntent('dispatch-missing-source-rejected');
+    expect(missingSourceEntry.matrixRow.rejectionReason).toBe('source-not-ready');
+    expect(missingSourceEntry.intent.sourceState).toBe('missing');
+
+    const tamperEntry = entryForIntent('dispatch-tamper-alert-scaffold');
+    expect(tamperEntry.childReasonCode).toBe('child-reason-integrity-proof-required');
   });
 
   it('rejects dispatch intents without evidence references', () => {
-    const validIntent = EnforcementPolicyDispatchReadModel.entries[0]!.intent;
+    const validIntent = entryForIntent('dispatch-owned-process-time-limit').intent;
     const parsed = EnforcementPolicyDispatchIntentSchema.safeParse({
       ...validIntent,
       evidenceReferences: [],
@@ -38,8 +64,34 @@ describe('enforcement policy dispatch contracts', () => {
     expect(parsed.success).toBe(false);
   });
 
+  it('rejects missing or malformed decision references', () => {
+    const validIntent = entryForIntent('dispatch-owned-process-time-limit').intent;
+
+    const missingDecisionRef = EnforcementPolicyDispatchIntentSchema.safeParse({
+      ...validIntent,
+      policyDecisionRef: '',
+    });
+    const malformedDecisionRef = EnforcementPolicyDispatchIntentSchema.safeParse({
+      ...validIntent,
+      policyDecisionRef: 'malformed-dispatch-ref',
+    });
+
+    expect(missingDecisionRef.success).toBe(false);
+    expect(malformedDecisionRef.success).toBe(false);
+  });
+
+  it('rejects ask-parent intents that claim live execution', () => {
+    const askParentIntent = entryForIntent('dispatch-ask-parent-dry-run').intent;
+    const parsed = EnforcementPolicyDispatchIntentSchema.safeParse({
+      ...askParentIntent,
+      dryRun: false,
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
   it('rejects accidental implemented claim upgrades without dispatch-ready support', () => {
-    const validMatrixRow = EnforcementPolicyDispatchReadModel.entries[0]!.matrixRow;
+    const validMatrixRow = entryForIntent('dispatch-owned-process-time-limit').matrixRow;
     const parsed = EnforcementPolicyDispatchCapabilityMatrixRowSchema.safeParse({
       ...validMatrixRow,
       proofLevel: 'implemented',
@@ -52,7 +104,7 @@ describe('enforcement policy dispatch contracts', () => {
   });
 
   it('requires child reason codes to match the capability matrix reason', () => {
-    const validEntry = EnforcementPolicyDispatchReadModel.entries[0]!;
+    const validEntry = entryForIntent('dispatch-owned-process-time-limit');
     const parsed = EnforcementPolicyDispatchReadModelSchema.safeParse({
       ...EnforcementPolicyDispatchReadModel,
       entries: [
@@ -66,3 +118,18 @@ describe('enforcement policy dispatch contracts', () => {
     expect(parsed.success).toBe(false);
   });
 });
+
+function entryForIntent(intentId: string) {
+  const entry = EnforcementPolicyDispatchReadModel.entries.find((candidate) => candidate.intent.intentId === intentId);
+  if (entry === undefined) {
+    throw new Error(`missing dispatch entry ${intentId}`);
+  }
+  return entry;
+}
+
+function countBy(values: readonly string[]) {
+  return values.reduce<Record<string, number>>((counts, value) => {
+    counts[value] = (counts[value] ?? 0) + 1;
+    return counts;
+  }, {});
+}

@@ -4,7 +4,7 @@ import path from 'node:path';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createBridgeServer } from '../../src/transport/bridgeServer';
-import { sendToBridge } from '../../src/transport/bridgeTransport';
+import { BridgeTransport, sendToBridge } from '../../src/transport/bridgeTransport';
 import { TestLogScope, RunType } from '../../src/test-log/types';
 import { getTestLogScopeDir, listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
 
@@ -131,5 +131,21 @@ describe('bridge transport', () => {
 
     const files = listNdjsonFiles(getTestLogScopeDir(TestLogScope.ParentTest, tempDir));
     expect(files).toHaveLength(0);
+  });
+
+  it('BridgeTransport emits to the configured endpoint and no-ops without one', async () => {
+    const transport = new BridgeTransport();
+    await transport.emit([]);
+
+    const tempDir = makeTempDir();
+    tempDirs.push(tempDir);
+    const server = createBridgeServer({ rootDir: tempDir });
+    servers.push(server);
+    const address = await listen(server);
+    const explicit = new BridgeTransport(`http://127.0.0.1:${address.port}`, true);
+    await explicit.emit([createBridgeEntry()]);
+
+    const entry = readSingleStoredEntry(tempDir);
+    expect(entry.message).toBe('bridge write');
   });
 });

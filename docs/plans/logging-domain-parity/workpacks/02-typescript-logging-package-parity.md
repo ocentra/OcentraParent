@@ -173,3 +173,18 @@ Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
 ```
+
+## Current audit note
+
+`packages/logging-domain` now contains the TypeScript package surface this
+workpack expected, including the `core`, `test-log`, `transport`, and
+`app-log` areas plus targeted unit and integration tests. The June 16, 2026
+audit also re-verified focused package coverage through
+`packages/logging-domain/tests/integration/mcp-query-interface.test.ts`,
+`packages/logging-domain/tests/unit/logger.test.ts`, and
+`packages/logging-domain/tests/unit/dev-log-fixture.test.ts`.
+
+The appended completion block was still overstated, because the named proof root
+`output/logging-domain-parity-proof/02-typescript-logging-package-parity/` is
+absent in this checkout and the plan checklist remains unchecked. Treat WP02 as
+source-present but not durably proved complete from current workspace evidence.

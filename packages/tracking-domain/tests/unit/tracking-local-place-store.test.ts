@@ -1,15 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { EvidenceRef, LocationEvidence } from './tracking-fixtures';
 import {
-  TrackingLocalParentDefinedPlaceStoreSchema,
   TrackingParentDefinedPlaceSchema,
+} from '../../src/tracking-geofence';
+import { TrackingLocalParentDefinedPlaceStoreSchema } from '../../src/tracking-local-place-store-schemas';
+import {
   buildTrackingLocalParentDefinedPlaceMatch,
   createTrackingLocalParentDefinedPlaceStore,
   deleteTrackingLocalParentDefinedPlace,
   exportTrackingLocalParentDefinedPlaceStore,
   importTrackingLocalParentDefinedPlaces,
   upsertTrackingLocalParentDefinedPlace,
-} from '../../src/tracking';
+} from '../../src/tracking-local-place-store';
 
 const Store = createTrackingLocalParentDefinedPlaceStore({
   storeId: 'parent-local-place-store',

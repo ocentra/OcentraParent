@@ -17,7 +17,12 @@ Purpose: define child tamper, uninstall, and anti-tamper boundaries.
 
 ## Proof target
 
-- `docs/proof/device-trust-bootstrap-plan/07-*`
+- `output/device-trust-bootstrap-plan-proof/07-child-tamper-uninstall/`
+
+## Current audit state
+
+- No proof root currently exists on disk for this workpack.
+- Tamper status contracts exist elsewhere in the repo, but parent-controlled uninstall and tamper execution for this plan remain unimplemented.
 
 ## Negative cases
 

@@ -9,6 +9,22 @@
       "import": "./dist/network-contracts.js",
       "types": "./dist/network-contracts.d.ts"
     },
+    "./network-control-catalog": {
+      "import": "./dist/network-control-catalog.js",
+      "types": "./dist/network-control-catalog.d.ts"
+    },
+    "./network-control-catalog-data": {
+      "import": "./dist/network-control-catalog-data.js",
+      "types": "./dist/network-control-catalog-data.d.ts"
+    },
+    "./network-control-catalog-metadata": {
+      "import": "./dist/network-control-catalog-metadata.js",
+      "types": "./dist/network-control-catalog-metadata.d.ts"
+    },
+    "./network-control-catalog-schema": {
+      "import": "./dist/network-control-catalog-schema.js",
+      "types": "./dist/network-control-catalog-schema.d.ts"
+    },
     "./network-flow": {
       "import": "./dist/network-flow.js",
       "types": "./dist/network-flow.d.ts"

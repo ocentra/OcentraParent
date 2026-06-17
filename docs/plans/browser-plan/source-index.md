@@ -103,28 +103,31 @@ them only when the implementation status, acceptance contract, or proof changes.
 
 ## TypeScript Ownership
 
-- `packages/activity-domain/src/browser.ts`
-- `packages/activity-domain/src/browser-schemas.ts`
-- `packages/activity-domain/src/browser-intervention.ts`
-- `packages/activity-domain/src/browser-intervention-schemas.ts`
-- `packages/activity-domain/src/app-game*.ts`
+- `packages/browser-domain/src/browser-*.ts`
+- `packages/browser-domain/src/browser-ai-*.ts`
+- `packages/browser-domain/src/browser-social-*.ts`
+- `packages/browser-domain/src/browser-game-*.ts`
+- `packages/browser-domain/tests/unit/browser*.test.ts`
+- `packages/browser-domain/tests/unit/social*.test.ts`
+- `packages/browser-domain/tests/unit/browser-game*.test.ts`
 - `packages/parent-domain/src/browser-control-policy.ts`
 - `packages/parent-domain/src/browser-control-manifest.ts`
 - `packages/parent-domain/src/browser-control-values.ts`
 - `packages/parent-domain/src/browser-control-catalog-values.ts`
 - `packages/parent-domain/src/browser-control-full-catalog*.ts`
 - `packages/parent-domain/src/browser-policy-questionnaire-forest*.ts`
-- `packages/parent-domain/src/game-control-catalog*.ts`
 - `packages/agent-protocol-domain/src/browser-policy-adapter.ts`
+- `packages/agent-protocol-domain/src/browser-runtime-events.ts`
+- `packages/agent-protocol-domain/src/social-*.ts`
 
-TypeScript rule: enhance these existing browser paths. Do not create a parallel
-browser domain package unless an ownership boundary genuinely changes. Browser
-URL/video intelligence must reuse activity evidence refs, parent-domain policy
-targets, and local-AI expectation contracts instead of inventing a second
-decision path. Social account/feed gates must reuse parent-domain policy and
-approval contracts instead of creating browser-only approvals. Browser-game
-gates must reuse browser evidence plus app/game, policy, approval, and local-AI
-contracts instead of creating browser-only game authority.
+TypeScript rule: the primary TypeScript ownership boundary for browser-plan
+implementation in this checkout is `packages/browser-domain`. The older
+`packages/activity-domain/src/browser*.ts` paths referenced in previous plan
+text do not exist here and should not be treated as active ownership. Keep
+browser evidence, browser AI, browser-social, and browser-game contract work
+inside `browser-domain` unless an ownership boundary genuinely changes. Keep
+`parent-domain` focused on policy/catalog/manifest shapes and
+`agent-protocol-domain` focused on typed bridge/read-model crossings.
 
 ## Rust Ownership
 
@@ -175,6 +178,7 @@ directly, or invent policy questions outside the manifest.
 - `npm run test:managed-browser-matrix`
 - `npm run test:managed-browser-service-proof`
 - `npm run test:managed-browser-intervention`
+- `node scripts/test/browser-plan-closure-audit-proof.mjs`
 - `node scripts/test/v0-8-browser-domain-adapter-proof.mjs`
 - `node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs`
 - `node scripts/test/browser-performance-health-proof.mjs`
@@ -182,13 +186,21 @@ directly, or invent policy questions outside the manifest.
 
 ## Current Test Files
 
-- `packages/activity-domain/tests/browser*.test.ts`
-- `packages/parent-domain/tests/browser*.test.ts`
-- `packages/agent-protocol-domain/tests/browser-policy-adapter.test.ts`
+- `packages/browser-domain/tests/unit/browser*.test.ts`
+- `packages/browser-domain/tests/unit/social*.test.ts`
+- `packages/browser-domain/tests/unit/browser-game*.test.ts`
+- `packages/agent-protocol-domain/tests/unit/browser*.test.ts`
+- `packages/agent-protocol-domain/tests/unit/social*.test.ts`
 - `crates/agent-protocol/src/browser*_tests.rs`
 - `crates/agent-core/src/browser*_tests.rs`
 - `crates/agent-service/src/browser*_tests.rs`
 - `apps/portal/tests/live-activity-browser-status.test.ts`
+- `apps/portal/tests/social-*.test.ts`
+- `apps/portal/e2e/browser-ai-parent-explanation-ui-proof.spec.ts`
+- `apps/portal/e2e/social-*-ui-proof.spec.ts`
+- `scripts/test/browser*.mjs`
+- `scripts/test/social*.mjs`
+- `scripts/test/browser-game*.mjs`
 
 ## Source Truth Rule
 

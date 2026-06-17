@@ -5,41 +5,48 @@
 > Agent Capsule
 > Plan: `lan-plan`
 > Doc: `LAN Plan Workpack Index`
-> Kind: workpack selector; use before opening any workpack.
-> Read when: Only when named by the plan route, selected workpack, or index row.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Kind: authoritative workpack selector.
+> Read when: before opening any LAN workpack.
+> Stop rule: use only one authoritative workpack from `01-20`.
+> Proves: current execution model and workpack routing only.
+> Does not prove: row completion or physical proof by itself.
+> Proof rule: if a workpack state changes here, the checklist and proof index must match it.
 
 <!-- /agent-capsule -->
 
-Use this index to open exactly one assigned workpack. Do not read every file in `workpacks/`.
+## Authoritative Execution Workpacks
 
-| Status | Workpack                                                                                        |  Size | Boxes                 |
-| ------ | ----------------------------------------------------------------------------------------------- | ----: | --------------------- |
-| open   | [01 Contract Boundary And Effect Schemas](workpacks/01-contract-boundary-and-effect-schemas.md) | 2,017 | 0/5 checked; 5 open   |
-| open   | [02 Evidence Model And Device Record](workpacks/02-evidence-model-and-device-record.md)         | 1,850 | 0/5 checked; 5 open   |
-| open   | [03 Interface Detection](workpacks/03-interface-detection.md)                                   | 1,787 | 0/5 checked; 5 open   |
-| open   | [04 Neighbor Table Ingestion](workpacks/04-neighbor-table-ingestion.md)                         | 1,592 | 0/5 checked; 5 open   |
-| open   | [05 Targeted ARP Checks](workpacks/05-targeted-arp-checks.md)                                   | 1,511 | 0/5 checked; 5 open   |
-| open   | [06 Bounded ARP Sweep](workpacks/06-bounded-arp-sweep.md)                                       | 1,553 | 0/5 checked; 5 open   |
-| open   | [07 Passive Discovery Listeners](workpacks/07-passive-discovery-listeners.md)                   | 1,626 | 0/5 checked; 5 open   |
-| open   | [08 mDNS And DNS-SD Discovery](workpacks/08-mdns-dns-sd-discovery.md)                           | 1,630 | 0/5 checked; 5 open   |
-| open   | [09 SSDP And UPnP Discovery](workpacks/09-ssdp-upnp-discovery.md)                               | 1,536 | 0/5 checked; 5 open   |
-| open   | [10 NetBIOS, LLMNR, And Reverse DNS](workpacks/10-netbios-llmnr-reverse-dns.md)                 | 1,404 | 0/5 checked; 5 open   |
-| open   | [11 Light Service Probing](workpacks/11-light-service-probing.md)                               | 1,553 | 0/5 checked; 5 open   |
-| open   | [12 OUI And Vendor Lookup](workpacks/12-oui-vendor-lookup.md)                                   | 1,445 | 0/5 checked; 5 open   |
-| open   | [13 Merge And De-Duplication Engine](workpacks/13-merge-deduplication-engine.md)                | 1,770 | 0/5 checked; 5 open   |
-| open   | [14 Explainable Classification](workpacks/14-explainable-classification.md)                     | 1,640 | 0/5 checked; 5 open   |
-| open   | [15 Household Device Store](workpacks/15-household-device-store.md)                             | 2,769 | 0/3 checked; 3 open   |
-| open   | [16 Read Models And LAN Events](workpacks/16-read-models-and-lan-events.md)                     | 4,708 | 7/13 checked; 6 open  |
-| open   | [17 Parent And Child mDNS Advertisements](workpacks/17-parent-child-mdns-advertisements.md)     | 1,728 | 0/5 checked; 5 open   |
-| open   | [18 Signed Child Hello And Heartbeat](workpacks/18-signed-child-hello-heartbeat.md)             | 2,890 | 3/8 checked; 5 open   |
-| open   | [19 Assignment, Revocation, And Audit](workpacks/19-assignment-revocation-audit.md)             | 4,398 | 7/9 checked; 2 open   |
-| open   | [20 Proof Gates, Fixtures, And Rollout](workpacks/20-proof-gates-fixtures-rollout.md)           | 6,365 | 6/11 checked; 5 open  |
-| open   | [21 Contract Boundary And Domain Schemas](workpacks/21-contract-boundary-and-domain-schemas.md) |     - | 0/25 checked; 25 open |
-| open   | [22 Current State And Gap Map](workpacks/22-current-state-and-gap-map.md)                       |     - | 0/25 checked; 25 open |
-| open   | [23 Pairing And Route Proof](workpacks/23-pairing-and-route-proof.md)                           |     - | 0/25 checked; 25 open |
-| open   | [24 Portal UX And First Run Handoff](workpacks/24-portal-ux-and-first-run-handoff.md)           |     - | 0/25 checked; 25 open |
-| open   | [25 Rollout Checklist And PR Gate](workpacks/25-rollout-checklist-and-pr-gate.md)               |     - | 0/25 checked; 25 open |
+| ID | State | Next class | Current truth |
+| --- | --- | --- | --- |
+| `01` | partial | local proof | Contract/export surface exists in `packages/lan-domain`; Slice A repaired the LAN export surface and proof-schema contract path. |
+| `02` | partial | local proof | Service-backed add-device read model and evidence rows exist; canonical all-source evidence store remains open. |
+| `03` | partial | local proof | Selected-interface requirements are modeled; full adapter/interface proof remains open. |
+| `04` | partial | local proof plus platform proof | Windows neighbor-table path exists; Linux/mac normalization is still open or manual-required. |
+| `05` | open | local implementation | Targeted ARP refresh is not implemented. |
+| `06` | open | local implementation | Bounded ARP sweep is not implemented. |
+| `07` | open | local implementation | Passive packet listeners are not implemented. |
+| `08` | open/manual | local implementation plus packet proof | mDNS and DNS-SD implementation/proof is still open. |
+| `09` | open/manual | local implementation plus packet proof | SSDP and UPnP implementation/proof is still open. |
+| `10` | partial | local proof | NetBIOS, LLMNR, and reverse DNS are represented as weak evidence only. |
+| `11` | open | local implementation | Light service probing is not implemented. |
+| `12` | partial | local proof | OUI/vendor data is represented as weak/manual-required only. |
+| `13` | partial | local proof | Household device spine/source merge exists; broader dedupe closure remains open. |
+| `14` | partial | local proof | Explainable labels, authority, and status exist; full classifier closure remains open. |
+| `15` | partial | local proof then physical/manual proof | Durable household device store/read-model work exists; restart and physical proof remain open. |
+| `16` | partial | local proof then physical/manual proof | LAN read-model and diagnostics work exists; replay/event proof remains open. |
+| `17` | open | local implementation plus packet proof | Parent/child mDNS advertisements are not implemented. |
+| `18` | partial/manual | physical/manual proof bound | Signed hello/heartbeat contract rows exist; real signed artifacts are missing. |
+| `19` | partial | local proof then physical/manual proof | Assignment/revoke/audit surfaces exist; restart and negative-route proof remain open. |
+| `20` | partial | local proof then physical/manual proof | Proof routing/scripts exist; honest regenerated proof pack is still required. |
+
+## Frozen Follow-On Workpacks
+
+These rows remain in the folder as draft follow-on material only. They are not authoritative for current `lan-plan` completion.
+
+| ID | State | Current truth |
+| --- | --- | --- |
+| `21` | frozen | follow-on contract/domain-schema rewrite material; not part of current executable model |
+| `22` | frozen | follow-on current-state and gap-map rewrite material; not part of current executable model |
+| `23` | frozen | follow-on pairing and route proof rewrite material; not part of current executable model |
+| `24` | frozen | portal/first-run handoff work; belongs to later household/setup/account execution, not current LAN completion |
+| `25` | frozen | later rollout/PR gate wrapper; not part of current authoritative LAN workpack model |

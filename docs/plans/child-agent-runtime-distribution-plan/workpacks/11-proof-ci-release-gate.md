@@ -20,14 +20,16 @@ Purpose: close the child-agent route with proof pointers, CI evidence, and PR-re
 
 ## Must prove
 
-- proof is stored in `docs/proof/child-agent-runtime-distribution-plan/`
+- proof is stored in the selected `output/child-agent-runtime-distribution-plan-proof/<workpack-file-stem>/` root
 - route docs, state docs, and workpack docs stay aligned
 - validation logs are attached to the slice
 - PR-ready or DONE is not claimed without a negative case and teardown or uninstall proof
+- workpack status and box counts stay open when the matching proof root is empty or only records blockers
 
 ## Failure conditions
 
 - proof is kept in the plan folder
+- a workpack is marked `done` while its proof root is empty or stale
 - route sync is skipped
 - CI success is treated as a substitute for proof
 - the release gate is claimed without a teardown or uninstall path

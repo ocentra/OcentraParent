@@ -1,4 +1,4 @@
-﻿use std::{
+use std::{
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
@@ -10,7 +10,7 @@ use tokio::{
     sync::Semaphore,
 };
 
-use crate::{ExpectValue, EventingError, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
+use crate::{EventingError, ExpectValue, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
 use super::{
     hash_chain::hash_entry, EventJournal, JournalAppend, JournalAppendFuture, SharedEventJournal,
@@ -120,7 +120,12 @@ impl NdjsonEventJournal {
     }
 
     async fn recover_state(&self) -> Result<(), EventingError> {
-        if self.state.lock().expect_value("journal state lock").recovered {
+        if self
+            .state
+            .lock()
+            .expect_value("journal state lock")
+            .recovered
+        {
             return Ok(());
         }
         let recovered = self.read_recovered_state().await?;
@@ -179,8 +184,8 @@ impl NdjsonEventJournal {
             phase,
             envelope: envelope.clone(),
         };
-        let mut line = serde_json::to_vec(&entry)
-            .map_err(|error| EventingError::journal_encode(&error))?;
+        let mut line =
+            serde_json::to_vec(&entry).map_err(|error| EventingError::journal_encode(&error))?;
         line.push(b'\n');
         let mut file = OpenOptions::new()
             .create(true)
@@ -274,5 +279,3 @@ fn current_hash(
 fn default_journal_phase() -> JournalDispatchPhase {
     JournalDispatchPhase::AfterDispatch
 }
-
-

@@ -6,15 +6,14 @@ use ocentra_entitlement_core::entitlement_access::{
     evaluate_entitlement_capability, EntitlementCapabilityAccessState, EntitlementCapabilityInput,
     EntitlementDecision,
 };
-use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
-};
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use ocentra_family_identity_core::{
     authorize_child_device_scope, DeviceScopeAuthorizationState, DeviceScopeDecision,
     DeviceScopeInput,
 };
-use ocentra_provisioning_core::{
+use ocentra_provisioning_core::provisioning_install::{
     evaluate_provisioning_readiness, ChildRuntimeReadinessState, ProvisioningReadinessDecision,
     ProvisioningReadinessInput,
 };

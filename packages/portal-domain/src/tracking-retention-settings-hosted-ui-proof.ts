@@ -1,4 +1,12 @@
-import type { AgentTrackingRetentionSettingsWriteResultParseResult } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
+import {
+  AgentTrackingDeleteAfterAlertResolutionState,
+  AgentTrackingDurableSettingsPersistenceState,
+  AgentTrackingExecutionClaimState,
+  AgentTrackingParentExportState,
+  AgentTrackingRemoteAiState,
+  AgentTrackingRemoteSyncState,
+  type AgentTrackingRetentionSettingsWriteResultParseResult,
+} from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import type { DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
@@ -142,7 +150,7 @@ function retentionSettingsWritePreflight(
   if (writeResult === null) {
     return base;
   }
-  if (!writeResult.ok) {
+  if (writeResult.parseState === 'failed') {
     return {
       ...base,
       parserReason: detailFromValue(writeResult.reason),
@@ -161,23 +169,35 @@ function retentionSettingsWritePreflight(
       value.sourceReadModelProofRefs.join(PortalFormatting.EventDetailSeparator)
     ),
     appliedRetentionWindowHours: detailFromValue(value.appliedRetentionWindowHours ?? 0),
-    appliedDeleteAfterAlertResolved: detailFromFlag(value.appliedDeleteAfterAlertResolved),
-    parentExportPrepared: detailFromFlag(value.parentExportPrepared),
-    remoteSyncEnabled: detailFromFlag(value.remoteSyncEnabled),
-    remoteAiEnabled: detailFromFlag(value.remoteAiEnabled),
+    appliedDeleteAfterAlertResolved: detailFromFlag(
+      value.appliedDeleteAfterAlertResolutionState === AgentTrackingDeleteAfterAlertResolutionState.RetainAfterAlertResolved
+    ),
+    parentExportPrepared: detailFromFlag(value.parentExportState === AgentTrackingParentExportState.Prepared),
+    remoteSyncEnabled: detailFromFlag(value.remoteSyncState === AgentTrackingRemoteSyncState.Enabled),
+    remoteAiEnabled: detailFromFlag(value.remoteAiState === AgentTrackingRemoteAiState.Enabled),
     localServiceStateRevision: detailFromValue(value.localServiceStateRevision ?? 0),
     localServiceStateSnapshotRef: detailFromValue(value.localServiceStateSnapshotRef),
-    durableSettingsPersistedRows: detailFromFlag(value.durableSettingsPersisted),
-    commandTransportClaimedRows: detailFromFlag(value.commandTransportClaimed),
-    serviceWritePreflightClaimedRows: detailFromFlag(value.serviceWritePreflightClaimed),
-    serviceMutationExecutedRows: detailFromFlag(value.serviceMutationExecuted),
-    platformRuntimeClaimedRows: detailFromFlag(value.platformRuntimeClaimed),
-    childDeviceDeliveryClaimedRows: detailFromFlag(value.childDeviceDeliveryClaimed),
-    providerDeliveryClaimedRows: detailFromFlag(value.providerDeliveryClaimed),
-    notificationReceiptClaimedRows: detailFromFlag(value.notificationReceiptClaimed),
-    physicalDeviceClaimedRows: detailFromFlag(value.physicalDeviceClaimed),
-    authorityClaimedRows: detailFromFlag(value.authorityClaimed),
-    productClaimReadyRows: detailFromFlag(value.productClaimReady),
+    durableSettingsPersistedRows: detailFromFlag(
+      value.durableSettingsPersistenceState === AgentTrackingDurableSettingsPersistenceState.Persisted
+    ),
+    commandTransportClaimedRows: detailFromFlag(value.commandTransportClaimState === AgentTrackingExecutionClaimState.Claimed),
+    serviceWritePreflightClaimedRows: detailFromFlag(
+      value.serviceWritePreflightClaimState === AgentTrackingExecutionClaimState.Claimed
+    ),
+    serviceMutationExecutedRows: detailFromFlag(
+      value.serviceMutationExecutionState === AgentTrackingExecutionClaimState.Claimed
+    ),
+    platformRuntimeClaimedRows: detailFromFlag(value.platformRuntimeClaimState === AgentTrackingExecutionClaimState.Claimed),
+    childDeviceDeliveryClaimedRows: detailFromFlag(
+      value.childDeviceDeliveryClaimState === AgentTrackingExecutionClaimState.Claimed
+    ),
+    providerDeliveryClaimedRows: detailFromFlag(value.providerDeliveryClaimState === AgentTrackingExecutionClaimState.Claimed),
+    notificationReceiptClaimedRows: detailFromFlag(
+      value.notificationReceiptClaimState === AgentTrackingExecutionClaimState.Claimed
+    ),
+    physicalDeviceClaimedRows: detailFromFlag(value.physicalDeviceClaimState === AgentTrackingExecutionClaimState.Claimed),
+    authorityClaimedRows: detailFromFlag(value.authorityClaimState === AgentTrackingExecutionClaimState.Claimed),
+    productClaimReadyRows: detailFromFlag(value.productClaimState === AgentTrackingExecutionClaimState.Claimed),
   };
 }
 

@@ -20,8 +20,6 @@ import {
   ActivityTimestampSchema,
 } from '@ocentra-parent/evidence-domain/primitives';
 
-export * from './network-contracts';
-
 export const ActivityQuerySchemaVersion = 1;
 
 const NetworkPortNumber = Schema.Number.pipe(Schema.int(), Schema.between(0, 65535));

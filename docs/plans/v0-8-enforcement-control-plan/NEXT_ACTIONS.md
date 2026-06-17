@@ -25,9 +25,6 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by unchecked boxes
 
-- [01 Contract Boundary And Effect Schemas](workpacks/01-contract-boundary-and-effect-schemas.md): 5 open of 5 boxes.
-- [02 Policy Decision Evidence References](workpacks/02-policy-decision-evidence-references.md): 5 open of 5 boxes.
-- [03 Adapter Capability Matrix](workpacks/03-adapter-capability-matrix.md): 5 open of 5 boxes.
 - [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md): 5 open of 5 boxes.
 - [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md): 5 open of 5 boxes.
 - [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md): 5 open of 5 boxes.
@@ -40,9 +37,17 @@ This file is the short resume list for the next worker. It is derived from open 
 - [15 Integrity Heartbeat And Permission Loss](workpacks/15-integrity-heartbeat-permission-loss.md): 5 open of 5 boxes.
 - [16 Tamper/Uninstall Non-Claim Design](workpacks/16-tamper-uninstall-non-claim-design.md): 5 open of 5 boxes.
 - [17 Cross-Platform Unavailable States](workpacks/17-cross-platform-unavailable-states.md): 5 open of 5 boxes.
-- [18 Proof Command And Matrix](workpacks/18-proof-command-and-matrix.md): 5 open of 5 boxes.
 - [19 Playwright And UI Proof](workpacks/19-playwright-ui-proof.md): 5 open of 5 boxes.
 - [20 Rollout Docs And CI/PR Gate](workpacks/20-rollout-docs-ci-pr-gate.md): 5 open of 5 boxes.
+
+## Recently closed proof slice
+
+- [02 Policy Decision Evidence References](workpacks/02-policy-decision-evidence-references.md): closed by `node scripts/test/v0-8-enforcement-policy-dispatch-proof.mjs` after moving the proof harness back to the actual `enforcement-domain` owner path and adding stale-policy-version, missing/malformed decision-reference, ask-parent dry-run, and missing-source rejection coverage with artifacts under `test-results/v0-8-enforcement-policy-dispatch-proof/` and `output/v0-8-enforcement-control-plan-proof/02-policy-decision-evidence-references/`.
+- [01 Contract Boundary And Effect Schemas](workpacks/01-contract-boundary-and-effect-schemas.md): closed by `npm run test --workspace @ocentra-parent/enforcement-domain -- enforcement`, `cargo test -p ocentra-parent-agent-protocol enforcement`, and the focused architecture gate with proof artifacts under `output/v0-8-enforcement-control-plan-proof/01-contract-boundary-and-effect-schemas/`.
+- [03 Adapter Capability Matrix](workpacks/03-adapter-capability-matrix.md): closed by `node scripts/test/v0-8-supported-adapter-runtime-proof.mjs`, `node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs`, and `node scripts/test/v0-8-broad-os-adapter-runtime-proof.mjs` with proof artifacts under `test-results/v0-8-supported-adapter-runtime-proof/`, `test-results/v0-8-cross-platform-enforcement-capability-proof/`, `test-results/v0-8-broad-os-adapter-runtime-proof/`, and `output/v0-8-enforcement-control-plan-proof/03-adapter-capability-matrix/`.
+- [07 Unmanaged Browser Fallback](workpacks/07-unmanaged-browser-fallback.md): closed by `npm run test --workspace @ocentra-parent/enforcement-domain -- v0-8-browser-enforcement-timer-recovery-proof` plus `node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs` with proof artifacts under `test-results/windows-managed-unmanaged-browser-enforcement-proof/` and `output/v0-8-enforcement-control-plan-proof/07-unmanaged-browser-fallback/`.
+- [09 Timer Recovery And Rollback](workpacks/09-timer-recovery-and-rollback.md): closed by `node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs` plus focused Rust timer tests with proof artifacts under `test-results/v0-8-enforcement-timer-recovery-mvp/` and `output/v0-8-enforcement-control-plan-proof/09-timer-recovery-and-rollback/`.
+- [18 Proof Command And Matrix](workpacks/18-proof-command-and-matrix.md): closed by `node scripts/test/v0-8-enforcement-control-plan-proof.mjs` with proof artifacts under `test-results/v0-8-enforcement-control-plan-proof/` and `output/v0-8-enforcement-control-plan-proof/18-proof-command-and-matrix/`.
 
 ## PR readiness guard
 

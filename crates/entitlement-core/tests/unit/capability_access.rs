@@ -1,16 +1,14 @@
 use ocentra_entitlement_core::entitlement_access::{
     evaluate_entitlement_capability, record_entitlement_capability_decision,
     EntitlementAggregateId, EntitlementCapability, EntitlementCapabilityAccessState,
-    EntitlementCapabilityRejectionReason, EntitlementDeviceTrustRequirementState,
-    EntitlementDeviceTrustState, EntitlementPackageBuildState,
     EntitlementCapabilityEvaluationRequestedEvent, EntitlementCapabilityInput,
-    EntitlementCapabilityScope, EntitlementDecisionId, EntitlementEvaluationId,
-    EntitlementManualReviewState, EntitlementPolicyState,
-    EntitlementSnapshotBindingState, EntitlementSnapshotContext,
-    EntitlementSnapshotFreshnessState, EntitlementSnapshotSignatureState,
-    FamilySetupState, OfflineGraceState, SubscriptionState,
+    EntitlementCapabilityRejectionReason, EntitlementCapabilityScope, EntitlementDecisionId,
+    EntitlementDeviceTrustRequirementState, EntitlementDeviceTrustState, EntitlementEvaluationId,
+    EntitlementManualReviewState, EntitlementPackageBuildState, EntitlementPolicyState,
+    EntitlementSnapshotBindingState, EntitlementSnapshotContext, EntitlementSnapshotFreshnessState,
+    EntitlementSnapshotSignatureState, FamilySetupState, OfflineGraceState, SubscriptionState,
 };
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 
 const ENTITLEMENT_AGGREGATE_ID: &str = "entitlement-household-default";
 const ENTITLEMENT_EVALUATION_ID: &str = "entitlement-evaluation-default";

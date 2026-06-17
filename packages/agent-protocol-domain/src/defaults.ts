@@ -4,7 +4,7 @@ import {
   AgentPeerSchema,
   AgentProtocolSchemaVersion,
   AgentWebSocketUrlSchema,
-} from '@ocentra-parent/evidence-domain/primitives';
+} from '@ocentra-parent/event-domain/primitives';
 import { AgentLanHouseholdDeviceActionKindSchema } from './lan-pairing-browser-add-device-state';
 import {
   AgentLanPairingIntentKindSchema,

@@ -137,12 +137,12 @@ Any adjacent plan not yet updated must be listed in `08-manual-required-gap-regi
 ## Fill before DONE / PR_READY
 
 ```text
-Workpack id and branch:
-Prior proof roots consumed:
-Route-sync status:
-Touched files:
-Validation commands and results:
-Proof artifacts:
-Manual-required gaps:
-No-claim boundaries:
+Workpack id and branch: WP06 Security Proof And Route Gate / codex/tracking-plan-full-continuation-a
+Prior proof roots consumed: output/account-identity-family-plan-proof/01-auth-provider-decision/; output/account-identity-family-plan-proof/02-identity-household-role-model/; output/account-identity-family-plan-proof/03-session-token-lifecycle/; output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/; output/account-identity-family-plan-proof/05-device-ownership-authz/
+Route-sync status: consumed adjacent consumer boundaries for setup-install, cloudflare, payment, policy, data custody, device trust, LAN, remote, and portal-ux; WP07 setup UI remains blocked on the missing portal setup route/test harness recorded in the WP07 workpack
+Touched files: docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md; docs/plans/account-identity-family-plan/PLAN_STATE.md; docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/01-authn-negative-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/02-authz-matrix-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/03-token-replay-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/04-recovery-abuse-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/05-origin-csrf-open-redirect-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/06-route-sync-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/07-logging-redaction-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/08-manual-required-gap-register.md
+Validation commands and results: `git diff --check` pass
+Proof artifacts: output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/01-authn-negative-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/02-authz-matrix-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/03-token-replay-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/04-recovery-abuse-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/05-origin-csrf-open-redirect-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/06-route-sync-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/07-logging-redaction-proof.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/08-manual-required-gap-register.md; output/account-identity-family-plan-proof/06-security-proof-and-route-gate/16-validation-commands.log
+Manual-required gaps: WP07 setup UI remains blocked by the missing portal setup route/test harness; `device-trust-bootstrap-plan`, `lan-plan`, `remote-access-plan`, and `setup-install-provisioning-plan` remain owning adjacent execution.
+No-claim boundaries: Do not claim PR_READY; do not claim WP07 complete; do not claim product-ready account/family flow.
 ```

@@ -13,6 +13,14 @@
 - If the platform cannot support respawn or device-owner behavior, keep the row manual-required.
 - If setup-device-trust handoff is not explicit, do not claim package readiness.
 
+## Immediate audit-derived next actions
+
+- [ ] Reopen WP01 and WP10 until their `output/child-agent-runtime-distribution-plan-proof/...` roots contain real artifacts instead of empty directories.
+- [ ] Remove the stale legacy proof route from this plan and keep every proof reference on the `output/...` root.
+- [ ] Repair Android and iOS proof runners so they target the existing `packages/child-runtime-domain/tests/unit/...` ownership paths.
+- [ ] Isolate or replace child proof commands that currently fail in unrelated workspace `build:contracts` dependencies before slice validation begins.
+- [ ] Generate the first real WP01 and WP10 proof packs before any count or status is raised above `open 0/N`.
+
 ## Actioned completion tracker
 
 - [ ] Confirm canonical child scope and parent/child separation.

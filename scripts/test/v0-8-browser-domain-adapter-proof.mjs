@@ -13,13 +13,13 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/browser-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/browser-domain',
       '--',
       'v0-8-browser-domain-adapter-proof',
     ])
@@ -44,7 +44,7 @@ async function main() {
   ]);
 
   const { V08BrowserDomainAdapterProofReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-browser-domain-adapter-proof.js');
+    await import('@ocentra-parent/browser-domain/v0-8-browser-domain-adapter-proof');
   const proofMatrix = JSON.parse(await readFile(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json')));
   const summary = summarizeReadModel(V08BrowserDomainAdapterProofReadModel);
 
@@ -59,8 +59,8 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/parent-domain/src/v0-8-browser-domain-adapter-proof.ts',
-      tsContractTest: 'packages/parent-domain/tests/v0-8-browser-domain-adapter-proof.test.ts',
+      tsContract: 'packages/browser-domain/src/v0-8-browser-domain-adapter-proof.ts',
+      tsContractTest: 'packages/browser-domain/tests/unit/v0-8-browser-domain-adapter-proof.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_browser_domain_adapter_proof.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_browser_domain_adapter_proof_tests.rs',
       rustServiceReadModel: 'crates/agent-service/src/enforcement_browser_domain_adapter_proof_read_model.rs',

@@ -22,14 +22,24 @@ This file records documentation health and consistency checks for the plan. It i
 - Preserved full README: `README_FULL_ORIGINAL.md`
 - Current snapshot: `current-eventing-snapshot.md`
 - Implementation checklist present: true
-- Workpacks indexed: 12 route workpacks
+- Workpacks indexed: 13 route workpacks
+- `docs/proof/eventing-plan/` now exists as the local WP12 route-proof bundle.
 
 ## Consistency warnings
 
-- Previous generated index said there was no workpack route. That was stale because the detailed workpack plan lived in `05-implementation-workpacks.md`. The plan now has 12 focused route workpacks under `workpacks/`.
+- Previous generated index said there was no workpack route. That was stale because the detailed workpack plan lived in `05-implementation-workpacks.md`.
 - Checklist counts still come from the large implementation checklist. Before DONE/PR_READY, verify the assigned route workpack and exact checklist rows match the current proof.
-- The reusable crate and TS mirror pass their direct test suites, but the plan proof pack is still blocked by workspace clippy lints (`expect_used`, `clone_on_ref_ptr`, `needless_pass_by_value`) in `ocentra-eventing`, including library and test targets.
-- Do not treat `cargo test` passing as plan closure while the proof pack and rollout gate are still red.
+- Historical proof and rollout rows currently overclaim checkout state; cited
+  `output/eventing-plan-proof/*` roots outside WP12/WP13 are still incomplete
+  for open workpacks.
+- WP11 now has focused local proof roots plus passing package-wide
+  `@ocentra-parent/agent-protocol-domain` type-check, focused
+  policy-control/contract tests, and a passing touched-file architecture gate.
+- WP12 now has a focused local route-proof bundle and WP13 has a focused local
+  regression proof root.
+- Do not treat focused `cargo test` passes or stale checked rows as plan
+  closure; WP11/WP12/WP13 are locally proved, but the full plan still remains
+  open because WP10 lacks current local proof.
 
 ## Required hygiene before PR_READY
 
@@ -38,6 +48,12 @@ This file records documentation health and consistency checks for the plan. It i
 - Update `PLAN_STATE.md`/`NEXT_ACTIONS.md` if the current state changed.
 - Update feature/product docs if a product claim, gap, or proof changed.
 - Do not use a stale checked row to override an open assigned workpack or hub instruction.
+
+## Current rollout note
+
+- WP11 source-boundary hardening is locally proved. WP12 route-proof
+  reconciliation is locally restored, and WP13 also has a local proof root and
+  focused revalidation.
 
 ## Agent Route Walkthrough
 
@@ -56,8 +72,11 @@ This file records documentation health and consistency checks for the plan. It i
 
 ### State
 
-- Current state: route and schema hygiene are present, but implementation/closure proof remains incomplete until checklist and workpack evidence are updated.
-- Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned before any DONE/PR_READY claim.
+- Current state: route and schema hygiene are improved, WP13 local proof is
+  present, WP12 local route proof is restored, and WP11 is locally proved
+  through its proof roots plus focused package validation.
+- Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned while
+  the remaining WP10 gap is handled.
 
 ### Decision routes and failure controls
 

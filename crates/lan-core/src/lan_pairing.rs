@@ -1,9 +1,8 @@
 #![forbid(unsafe_code)]
 
-use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
-};
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use ocentra_parent_agent_protocol::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,

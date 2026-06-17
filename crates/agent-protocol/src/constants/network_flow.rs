@@ -259,8 +259,7 @@ pub const TEST_ANDROID_VPN_SERVICE_POLICY_DECISION_REF: &str =
     "network.policy-decision.android-vpn-service.40";
 pub const TEST_ANDROID_VPN_SERVICE_PARENT_RULE_REF: &str =
     "network.parent-rule.android-vpn-service.40";
-pub const TEST_ANDROID_VPN_SERVICE_EVIDENCE_REF: &str =
-    "network.evidence.android-vpn-service.40";
+pub const TEST_ANDROID_VPN_SERVICE_EVIDENCE_REF: &str = "network.evidence.android-vpn-service.40";
 pub const TEST_ANDROID_VPN_SERVICE_LOCAL_AI_RESULT_REF: &str =
     "network.local-ai.android-vpn-service.40";
 pub const TEST_ANDROID_VPN_SERVICE_PACKAGE_REF: &str = "network.android-vpn-service.package.40";
@@ -277,15 +276,12 @@ pub const TEST_ANDROID_VPN_VIRTUAL_INTERFACE_PROOF_REF: &str =
     "network.android-vpn-service.virtual-interface-proof.40";
 pub const TEST_ANDROID_VPN_TRAFFIC_OBSERVATION_PROOF_REF: &str =
     "network.android-vpn-service.traffic-observation-proof.40";
-pub const TEST_ANDROID_VPN_ROLLBACK_PLAN_REF: &str =
-    "network.android-vpn-service.rollback-plan.40";
-pub const TEST_ANDROID_VPN_AUDIT_EVENT_REF: &str =
-    "network.android-vpn-service.audit-event.40";
+pub const TEST_ANDROID_VPN_ROLLBACK_PLAN_REF: &str = "network.android-vpn-service.rollback-plan.40";
+pub const TEST_ANDROID_VPN_AUDIT_EVENT_REF: &str = "network.android-vpn-service.audit-event.40";
 pub const TEST_ANDROID_VPN_DEVICE_OWNER_PROOF_REF: &str =
     "network.android-vpn-service.device-owner-proof.40";
 pub const ANDROID_VPN_BOUNDARY_RESEARCH_ONLY_REQUESTED: &str = "research-only-requested";
-pub const ANDROID_VPN_BOUNDARY_CAPABILITY_MANUAL_REQUIRED: &str =
-    "capability-manual-required";
+pub const ANDROID_VPN_BOUNDARY_CAPABILITY_MANUAL_REQUIRED: &str = "capability-manual-required";
 pub const ANDROID_VPN_BOUNDARY_CAPABILITY_UNAVAILABLE: &str = "capability-unavailable";
 pub const ANDROID_VPN_BOUNDARY_EVIDENCE_GRADE_BELOW_PROOF_THRESHOLD: &str =
     "evidence-grade-below-proof-threshold";
@@ -303,8 +299,7 @@ pub const ANDROID_VPN_ARTIFACT_AUDIT_EVENT: &str = "audit-event";
 pub const ANDROID_VPN_ARTIFACT_DEVICE_OWNER_PROOF: &str = "device-owner-proof";
 pub const TEST_APPLE_NETWORK_EXTENSION_GATE_STATUS_REF: &str =
     "network.apple-network-extension.gate-status.41";
-pub const TEST_APPLE_NETWORK_EXTENSION_GATE_REF: &str =
-    "network.apple-network-extension.gate.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_GATE_REF: &str = "network.apple-network-extension.gate.41";
 pub const TEST_APPLE_NETWORK_EXTENSION_POLICY_DECISION_REF: &str =
     "network.policy-decision.apple-network-extension.41";
 pub const TEST_APPLE_NETWORK_EXTENSION_PARENT_RULE_REF: &str =
@@ -315,8 +310,7 @@ pub const TEST_APPLE_NETWORK_EXTENSION_LOCAL_AI_RESULT_REF: &str =
     "network.local-ai.apple-network-extension.41";
 pub const TEST_APPLE_NETWORK_EXTENSION_BUNDLE_REF: &str =
     "network.apple-network-extension.bundle.41";
-pub const TEST_APPLE_NETWORK_EXTENSION_REF: &str =
-    "network.apple-network-extension.extension.41";
+pub const TEST_APPLE_NETWORK_EXTENSION_REF: &str = "network.apple-network-extension.extension.41";
 pub const TEST_APPLE_NETWORK_EXTENSION_DEVELOPER_TEAM_PROOF_REF: &str =
     "network.apple-network-extension.developer-team-proof.41";
 pub const TEST_APPLE_NETWORK_EXTENSION_ENTITLEMENT_APPROVAL_PROOF_REF: &str =
@@ -341,16 +335,14 @@ pub const APPLE_NETWORK_EXTENSION_BOUNDARY_RESEARCH_ONLY_REQUESTED: &str =
     "research-only-requested";
 pub const APPLE_NETWORK_EXTENSION_BOUNDARY_CAPABILITY_MANUAL_REQUIRED: &str =
     "capability-manual-required";
-pub const APPLE_NETWORK_EXTENSION_BOUNDARY_CAPABILITY_UNAVAILABLE: &str =
-    "capability-unavailable";
+pub const APPLE_NETWORK_EXTENSION_BOUNDARY_CAPABILITY_UNAVAILABLE: &str = "capability-unavailable";
 pub const APPLE_NETWORK_EXTENSION_BOUNDARY_EVIDENCE_GRADE_BELOW_PROOF_THRESHOLD: &str =
     "evidence-grade-below-proof-threshold";
 pub const APPLE_NETWORK_EXTENSION_BOUNDARY_POLICY_NOT_NETWORK_EXTENSION_APPROVED: &str =
     "policy-not-network-extension-approved";
 pub const APPLE_NETWORK_EXTENSION_BOUNDARY_MISSING_REQUIRED_ARTIFACT: &str =
     "missing-required-artifact";
-pub const APPLE_NETWORK_EXTENSION_ARTIFACT_DEVELOPER_TEAM_PROOF: &str =
-    "developer-team-proof";
+pub const APPLE_NETWORK_EXTENSION_ARTIFACT_DEVELOPER_TEAM_PROOF: &str = "developer-team-proof";
 pub const APPLE_NETWORK_EXTENSION_ARTIFACT_ENTITLEMENT_APPROVAL_PROOF: &str =
     "entitlement-approval-proof";
 pub const APPLE_NETWORK_EXTENSION_ARTIFACT_PROVISIONING_PROFILE_PROOF: &str =

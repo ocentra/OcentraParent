@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
 import {
   SocialParentPolicyCompilerInputSchema,
   SocialParentPolicyDecisionCandidateSchema,
@@ -30,6 +31,7 @@ function compilesDecisionCandidate() {
   expect(decision.targetKind).toBe('social-video');
   expect(decision.scheduleState).toBe('outside-allowed-window');
   expect(decision.timeBudgetState).toBe('budget-low');
+  expect(decision.compilerCapabilityState).toBe(PolicyCompilerCapabilityState.Supported);
   expect(decision.finalPolicyDecisionClaimed).toBe(false);
   expect(decision.runtimeGateExecutedClaimed).toBe(false);
   expect(decision.enforcementClaimed).toBe(false);
@@ -58,6 +60,9 @@ function acceptsFallbacks() {
   expect(SocialParentPolicyDecisionCandidateSchema.safeParse(askParent).success).toBe(true);
   expect(SocialParentPolicyDecisionCandidateSchema.safeParse(manualReview).success).toBe(true);
   expect(SocialParentPolicyDecisionCandidateSchema.safeParse(unknown).success).toBe(true);
+  expect(askParent.compilerCapabilityState).toBe(PolicyCompilerCapabilityState.Supported);
+  expect(manualReview.compilerCapabilityState).toBe(PolicyCompilerCapabilityState.ManualRequired);
+  expect(unknown.compilerCapabilityState).toBe(PolicyCompilerCapabilityState.Unsupported);
 }
 
 function rejectsInputClaims() {

@@ -1,3 +1,9 @@
+#![allow(
+    clippy::map_err_ignore,
+    clippy::needless_pass_by_value,
+    clippy::redundant_clone
+)]
+
 pub mod action_result;
 pub mod adapter_capability_status;
 pub mod ai_audit;

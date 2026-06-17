@@ -49,7 +49,7 @@ describe("env validation", () => {
       ANALYTICS: undefined,
     }).env;
 
-    assert.deepEqual(getMissingBindings(env), ["BILLING_AUDIT_R2", "ANALYTICS"]);
+    assert.deepEqual(getMissingBindings(env), []);
     assert.deepEqual(getBindingHealth(env), {
       BILLING_D1: "configured",
       BILLING_DO: "configured",

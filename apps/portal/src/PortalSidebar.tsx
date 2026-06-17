@@ -14,12 +14,9 @@ import {
 import type { PortalRenderActions } from './portal-actions';
 import { PortalFrameBackdrop, PortalFrameBoundsOverlay } from './PortalFrameSurface';
 import { routeDescriptor } from './portal-route-descriptor';
-import {
-  frameContentStyle,
-  frameContentTarget,
-  frameHostClassName,
-  type PortalFrameLayout,
-} from './portal-frame-layout';
+import { frameContentStyle, frameHostClassName } from './portal-frame-layout-style';
+import { frameContentTarget } from './portal-frame-layout-state';
+import type { PortalFrameLayout } from './portal-frame-layout-types';
 import type { PortalRuntimeState } from './portal-state';
 
 export function PortalSidebar({

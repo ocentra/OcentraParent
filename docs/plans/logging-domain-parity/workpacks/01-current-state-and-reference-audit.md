@@ -142,3 +142,16 @@ Known gaps/manual-required states:
 ```
 
 Do not report implementation completion from this workpack.
+
+## Current audit note
+
+This workpack is still useful as the routing and current-state inventory slice,
+but the appended completion record was stale. The named proof root
+`output/logging-domain-parity-proof/01-current-state-and-reference-audit/` is
+absent in this checkout, so the earlier artifact list is not currently
+provable from workspace state.
+
+During the June 16, 2026 audit, the plan/workpack docs, owning package/crate
+surfaces, and focused validation paths were re-read, but that re-check does not
+restore the missing proof pack. Keep WP01 audit-only until proof inventory and
+status claims are reconciled elsewhere in the plan.

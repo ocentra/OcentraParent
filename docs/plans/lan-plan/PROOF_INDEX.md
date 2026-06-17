@@ -1,50 +1,60 @@
+# LAN Plan Proof Index
+
 <!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `lan-plan`
 > Doc: `LAN Plan Proof Index`
-> Kind: proof artifact router.
-> Read when: selected workpack needs proof paths or PR_READY/DONE proof validation.
-> Stop rule: use only the proof root for the selected workpack.
-> Proves: proof location routing only.
+> Kind: canonical proof routing.
+> Read when: a LAN slice needs exact proof paths.
+> Stop rule: claim only files that exist on disk.
+> Proves: proof-root routing and current artifact status only.
 > Does not prove: implementation completion by itself.
-> Proof rule: proof artifacts are valid only after focused commands run or precise blockers are recorded.
+> Proof rule: if a file is absent, mark the claim open/manual-required/not yet regenerated.
 
 <!-- /agent-capsule -->
 
-# LAN Plan Proof Index
+## Current Authoritative Proof Root
 
-## Deterministic proof root
-
-```text
-output/lan-plan-proof/<workpack-file-stem>/
-```
-
-## Required universal proof files
+`Slice A` proof root:
 
 ```text
-00-scope-summary.md
-01-negative-case-proof.md
-02-no-claim-boundary.md
-16-validation-commands.log
+output/lan-plan-proof/00-plan-model-reconciliation/
 ```
 
-## Command log format
+Files present for `Slice A`:
+
+- `00-source-snapshot.md`
+- `01-lan-domain-validation.log`
+- `02-plan-truth-sync.md`
+- `03-missing-proof-inventory.md`
+
+## Next Proof Roots
+
+`B1` is not started yet. When it starts, regenerated workpack proof must point at:
 
 ```text
-command: <exact command>
-exit: <code>
-result: pass | fail | blocked
-artifact: <path or n/a>
-notes: <short note>
+output/lan-plan-proof/<workpack-id>-<short-slug>/
 ```
 
-## Required proof themes
+If a proof script emits `test-results/.../proof.json`, the workpack proof pack must reference that file and must not imply the artifact exists until it has been regenerated on this branch/worktree.
 
-```text
-source evidence
-route state
-stale/offline/degraded state
-manual-required state
-portal display proof when UI changes
-```
+## Proof Paths Explicitly Not Claimed By Slice A
+
+These previously cited paths are absent on disk as of 2026-06-17 and are not current proof:
+
+- `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`
+- `output/playwright/lan-source-matrix-plan-completion/devices-lan-source-matrix.png`
+- `output/playwright/lan-source-matrix-plan-completion/activity-network-source-matrix.png`
+- `output/playwright/lan-source-matrix-plan-completion/policy-network-target-binding.png`
+- `output/playwright/lan-source-matrix-plan-completion/browser-proof.json`
+- `output/lan-plan-proof/15-household-device-store/devices-identity-routing-proof.md`
+- `output/lan-plan-proof/15-household-device-store/06-ui-snapshots/devices-identity-persisted.png`
+- `output/lan-plan-proof/15-household-device-store/06-ui-snapshots/devices-update-gated.png`
+- `docs/proof/lan-plan/PLAN_PROOF_MANIFEST.md`
+
+## Proof Routing Rules
+
+- Do not cite absent files as proof.
+- Do not use `docs/proof/lan-plan/` as the active proof root for current LAN work.
+- Use manual-required or open status whenever a physical/device/network artifact has not been regenerated yet.

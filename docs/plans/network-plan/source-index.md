@@ -30,9 +30,9 @@ not invent a second truth.
 | `docs/expectations/ai.md`                                                                      | Owns AI input boundaries for network summaries and unusual-traffic digests.                                            |
 | `docs/expectations/platforms.md`                                                               | Owns platform claim rules and manual proof requirements.                                                               |
 | `docs/architecture/network-flow-evidence-capture.md`                                           | Owns the current Windows-first observation architecture and attribution truth ladder.                                  |
-| `docs/network-control-capability-guide.md`                                                     | Design input for network capabilities, proof limits, and policy/control groups.                                        |
-| `docs/network-control-schema-proposal.md`                                                      | Schema design input for network control settings.                                                                      |
-| `docs/network-control-settings-inventory.md`                                                   | Generated network control inventory; not implementation proof.                                                         |
+| `docs/plans/network-plan/workpacks/network-control-capability-guide.md`                        | Design input for network capabilities, proof limits, and policy/control groups.                                        |
+| `docs/plans/network-plan/workpacks/network-control-schema-proposal.md`                         | Schema design input for network control settings.                                                                      |
+| `docs/plans/network-plan/workpacks/network-control-settings-inventory.md`                      | Generated network control inventory; not implementation proof.                                                         |
 | `docs/plans/eventing-plan/README.md`                                                           | Owns the reusable Rust eventing plan that network Workpack 10 must consume before network-specific bus routing exists. |
 | `docs/plans/v0-8-enforcement-control-plan/workpacks/08-network-domain-report-only-boundary.md` | Existing V0.8 report-only/manual-required network-domain enforcement boundary.                                         |
 
@@ -51,20 +51,25 @@ plan package. They are planning inputs, not implementation proof.
 
 | Source                                                         | Current Role                                                                              |
 | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `packages/activity-domain/src/network-flow.ts`                 | TypeScript network flow contracts.                                                        |
-| `packages/activity-domain/tests/network-flow.test.ts`          | TypeScript network flow contract tests.                                                   |
-| `packages/parent-domain/src/network-control-catalog*.ts`       | Parent network-control catalog inputs and metadata.                                       |
-| `packages/parent-domain/tests/network-control-catalog.test.ts` | Network-control catalog test coverage.                                                    |
+| `packages/network-domain/src/network-flow.ts`                  | Canonical TypeScript network flow query contracts.                                        |
+| `packages/network-domain/src/network-contracts.ts`             | Canonical TypeScript network evidence, classification, and policy-action contracts.       |
+| `packages/network-domain/src/network-control-catalog*.ts`      | Canonical network-control catalog, schema, metadata, and generated setting seeds.         |
+| `packages/network-domain/tests/unit/network-flow.test.ts`      | Network flow contract/query tests.                                                        |
+| `packages/network-domain/tests/unit/network-contracts.test.ts` | Network evidence and policy-action contract tests.                                        |
+| `packages/network-domain/tests/unit/network-control-catalog.test.ts` | Network-control catalog coverage, counts, renderability, and no-claim boundaries.    |
+| `packages/parent-domain/src/network-control-catalog*.ts`       | Re-export shim files only; they are not canonical ownership and currently fail architecture lint. |
 | `crates/agent-protocol/src/network_flow.rs`                    | Rust protocol shape for network flow evidence.                                            |
 | `crates/agent-protocol/src/network_flow_tests.rs`              | Rust protocol tests.                                                                      |
 | `crates/agent-protocol/src/constants/network_flow.rs`          | Rust protocol constants for network flow boundaries.                                      |
 | `crates/agent-core/src/network_capture*.rs`                    | Current network capture adapter foundation.                                               |
 | `crates/agent-core/src/activity_store_network_flow*.rs`        | Network flow journal/SQLite storage foundation.                                           |
+| `crates/agent-core/src/network_event_runtime*.rs`              | Runtime chain, queue, replay, and remote-delivery proof foundation.                       |
 | `crates/agent-service/src/network_flow_digest*.rs`             | Service digest rollups and unusual indicators.                                            |
 | `crates/agent-service/src/activity_network_flow_payload.rs`    | Service payload boundary for activity network flow.                                       |
-| `apps/portal/src/network-flow-read-model.ts`                   | Portal read-model adapter for network flow.                                               |
-| `apps/portal/src/live-network-flow-panel.ts`                   | Portal live network flow panel.                                                           |
-| `apps/portal/tests/live-activity-network-flow.test.ts`         | Portal network flow UI/read-model test direction.                                         |
+| `crates/ocentra-network-evidence/src/*`                        | Parser, classifier, cascade, adapter-gate, performance, and platform-claim proof logic.  |
+| `apps/portal/src/use-portal-network-activity-refresh.ts`       | Real portal network refresh routing.                                                      |
+| `apps/portal/tests/live-activity-network-flow.test.ts`         | Portal network flow read-model, drawer, and no-claim behavior tests.                      |
+| `apps/portal/e2e/network-evidence-drawer-proof.spec.ts`        | Portal service-backed network drawer e2e proof route.                                     |
 | `scripts/test/v0-8-browser-domain-adapter-proof.mjs`           | Existing browser/domain adapter proof harness input; does not prove broad host filtering. |
 
 ## Existing Plan Neighbors
@@ -132,3 +137,5 @@ it does not prove them.
 - Browser or portal screenshots without service-backed network evidence.
 - AI classification without stored evidence refs.
 - DNS/domain rules without adapter result, audit, and rollback/unavailable proof.
+- A generated network-control catalog or settings inventory by itself.
+- A proof script path without a current committed proof bundle or explicit blocker note.

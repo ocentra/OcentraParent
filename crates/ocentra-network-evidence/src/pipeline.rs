@@ -193,12 +193,17 @@ pub fn prove_network_end_to_end_pipeline(
     validate_refs(&input.refs)?;
     reject_unsupported_claims(input.unsupported_claims)?;
     let parts = build_pipeline_parts(&input)?;
+    let NetworkEndToEndPipelineInput { refs, .. } = input;
+    let enforcement_commands_published = parts.adapter_proof.enforcement_command_published as usize;
+    let weak_or_unavailable_evidence_enforcement_blocked =
+        !parts.adapter_proof.adapter_apply_authorized;
+    let adapter_proof = parts.adapter_proof;
 
     Ok(NetworkEndToEndPipelineProof {
-        trigger_ref: input.refs.trigger_ref.clone(),
-        capture_ref: input.refs.capture_ref.clone(),
-        ingest_ref: input.refs.ingest_ref.clone(),
-        typed_event_ref: input.refs.typed_event_ref.clone(),
+        trigger_ref: refs.trigger_ref,
+        capture_ref: refs.capture_ref,
+        ingest_ref: refs.ingest_ref,
+        typed_event_ref: refs.typed_event_ref,
         capture_ingest: parts.capture_ingest,
         evidence_bundle: parts.evidence_bundle,
         local_ai_queue: parts.local_ai_queue,
@@ -206,7 +211,7 @@ pub fn prove_network_end_to_end_pipeline(
         ai_audit: parts.ai_audit,
         risk_budget: parts.risk_budget,
         policy_mapping: parts.policy_mapping,
-        adapter_proof: parts.adapter_proof.clone(),
+        adapter_proof,
         action_result: parts.action_result,
         retention_delete_export: parts.retention_delete_export,
         ai_advisory_only: true,
@@ -214,10 +219,8 @@ pub fn prove_network_end_to_end_pipeline(
         ui_policy_authority: false,
         network_adapter_authority: false,
         adapter_action_executed: false,
-        enforcement_commands_published: parts.adapter_proof.enforcement_command_published as usize,
-        weak_or_unavailable_evidence_enforcement_blocked: !parts
-            .adapter_proof
-            .adapter_apply_authorized,
+        enforcement_commands_published,
+        weak_or_unavailable_evidence_enforcement_blocked,
     })
 }
 
@@ -234,21 +237,6 @@ fn build_pipeline_parts(
     })
     .map_err(NetworkEndToEndPipelineError::Bundle)?;
     let capture_ingest = capture_ingest_proof(&input.refs, &summary_refs, &bundle.evidence_refs)?;
-    let local_ai_queue = plan_network_local_ai_queue(NetworkLocalAiQueueInput {
-        queue_job_ref: input.refs.queue_job_ref.clone(),
-        queue_ref: input.refs.queue_ref.clone(),
-        model_runtime_ref: input.refs.model_runtime_ref.clone(),
-        bundle: bundle.clone(),
-        summary_refs: summary_refs.clone(),
-        local_ai_enabled: input.local_ai_enabled,
-        model_runtime_available: input.model_runtime_available,
-        queue_available: input.queue_available,
-        raw_network_payload_available: false,
-        page_content_available: false,
-        policy_action_authority: false,
-        adapter_action_authority: false,
-    })
-    .map_err(NetworkEndToEndPipelineError::LocalAi)?;
     let ai_detection =
         evaluate_network_ai_detection_fixtures(ai_detection_input(&input.refs, &bundle)?)
             .map_err(NetworkEndToEndPipelineError::AiDetection)?;
@@ -277,6 +265,21 @@ fn build_pipeline_parts(
     ))
     .map_err(NetworkEndToEndPipelineError::ActionResult)?;
     let retention_delete_export = retention_delete_export(&input.refs, &bundle.evidence_refs)?;
+    let local_ai_queue = plan_network_local_ai_queue(NetworkLocalAiQueueInput {
+        queue_job_ref: input.refs.queue_job_ref.clone(),
+        queue_ref: input.refs.queue_ref.clone(),
+        model_runtime_ref: input.refs.model_runtime_ref.clone(),
+        bundle: bundle.clone(),
+        summary_refs,
+        local_ai_enabled: input.local_ai_enabled,
+        model_runtime_available: input.model_runtime_available,
+        queue_available: input.queue_available,
+        raw_network_payload_available: false,
+        page_content_available: false,
+        policy_action_authority: false,
+        adapter_action_authority: false,
+    })
+    .map_err(NetworkEndToEndPipelineError::LocalAi)?;
 
     Ok(NetworkEndToEndPipelineParts {
         capture_ingest,
@@ -286,7 +289,7 @@ fn build_pipeline_parts(
         ai_audit,
         risk_budget,
         policy_mapping,
-        adapter_proof: adapter_proof.clone(),
+        adapter_proof,
         action_result,
         retention_delete_export,
     })

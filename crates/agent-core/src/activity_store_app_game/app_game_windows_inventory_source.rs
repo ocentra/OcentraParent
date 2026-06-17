@@ -170,7 +170,7 @@ fn record_from_shortcut_path(
     Some(WindowsInstalledAppInventoryRecord {
         observed_at: observed_at.to_string(),
         source_kind: APP_GAME_INVENTORY_SOURCE_SHORTCUT.to_string(),
-        source_ref: source_ref.clone(),
+        source_ref,
         custody_state: APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT.to_string(),
         display_label,
         identity_id: None,

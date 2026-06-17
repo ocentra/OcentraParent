@@ -50,6 +50,7 @@ public final class MainActivity extends Activity {
             appGameChildRuntimeLocalNotification =
                 AppGameAndroidChildRuntimeLocalNotificationProof.createLocalNotificationBundle(this);
         }
+        final Bundle appGameChildRuntimeLocalNotificationProof = appGameChildRuntimeLocalNotification;
         Bundle lifecycleProof = ChildAndroidLifecycleProof.createStatusBundle();
         Bundle storageProof = ChildAndroidStorageProtocolProof.createStorageProtocolBundle();
         Bundle serviceProof = ChildAndroidServiceProtocolProof.createServiceProtocolBundle();
@@ -93,6 +94,13 @@ public final class MainActivity extends Activity {
                 permissionProof,
                 privilegedProof,
                 screenProof,
+                appGameUsageEventsProof,
+                appGameUsageEventsPreflight,
+                appGameAccessibilityRuntime,
+                appGameChildRuntimeTransportReceipt,
+                appGameChildRuntimeDelivery,
+                appGameChildRuntimeLocalNotificationProof,
+                appGameChildRuntimeNotificationRequestQueue,
                 foregroundLocationProof,
                 fusedForegroundLocationProof,
                 backgroundLocationProof,
@@ -111,6 +119,13 @@ public final class MainActivity extends Activity {
                         permissionProof,
                         privilegedProof,
                         screenProof,
+                        appGameUsageEventsProof,
+                        appGameUsageEventsPreflight,
+                        appGameAccessibilityRuntime,
+                        appGameChildRuntimeTransportReceipt,
+                        appGameChildRuntimeDelivery,
+                        appGameChildRuntimeLocalNotificationProof,
+                        appGameChildRuntimeNotificationRequestQueue,
                         latestForegroundLocationProof[0],
                         latestFusedForegroundLocationProof[0],
                         TrackingAndroidBackgroundLocationProof.createBackgroundLocationBundle(this),
@@ -131,6 +146,13 @@ public final class MainActivity extends Activity {
                         permissionProof,
                         privilegedProof,
                         screenProof,
+                        appGameUsageEventsProof,
+                        appGameUsageEventsPreflight,
+                        appGameAccessibilityRuntime,
+                        appGameChildRuntimeTransportReceipt,
+                        appGameChildRuntimeDelivery,
+                        appGameChildRuntimeLocalNotificationProof,
+                        appGameChildRuntimeNotificationRequestQueue,
                         latestForegroundLocationProof[0],
                         latestFusedForegroundLocationProof[0],
                         TrackingAndroidBackgroundLocationProof.createBackgroundLocationBundle(this),
@@ -154,6 +176,13 @@ public final class MainActivity extends Activity {
         Bundle permissionProof,
         Bundle privilegedProof,
         Bundle screenProof,
+        Bundle appGameUsageEventsProof,
+        Bundle appGameUsageEventsPreflight,
+        Bundle appGameAccessibilityRuntime,
+        Bundle appGameChildRuntimeTransportReceipt,
+        Bundle appGameChildRuntimeDelivery,
+        Bundle appGameChildRuntimeLocalNotification,
+        Bundle appGameChildRuntimeNotificationRequestQueue,
         Bundle foregroundLocationProof,
         Bundle fusedForegroundLocationProof,
         Bundle backgroundLocationProof,

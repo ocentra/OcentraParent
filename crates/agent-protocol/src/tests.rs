@@ -194,19 +194,21 @@ fn network_android_vpn_service_gate_status_command_and_event_names_serialize_to_
             .expect("event serializes");
 
     assert_eq!(command, "agent.network.android-vpn-service-gate.status.get");
-    assert_eq!(event, "agent.network.android-vpn-service-gate.status.reported");
+    assert_eq!(
+        event,
+        "agent.network.android-vpn-service-gate.status.reported"
+    );
 }
 
 #[test]
-fn network_apple_network_extension_gate_status_command_and_event_names_serialize_to_contract_shape(
-) {
+fn network_apple_network_extension_gate_status_command_and_event_names_serialize_to_contract_shape()
+{
     let command =
         serde_json::to_value(AgentCommandName::AgentNetworkAppleNetworkExtensionGateStatusGet)
             .expect("command serializes");
-    let event = serde_json::to_value(
-        AgentEventName::AgentNetworkAppleNetworkExtensionGateStatusReported,
-    )
-    .expect("event serializes");
+    let event =
+        serde_json::to_value(AgentEventName::AgentNetworkAppleNetworkExtensionGateStatusReported)
+            .expect("event serializes");
 
     assert_eq!(
         command,

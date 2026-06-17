@@ -197,7 +197,7 @@ function memoryIsGroundedInWindow(
   reference: LocalAiMemoryReference,
   selectedRecentEvidenceIds: ReadonlySet<string>
 ): boolean {
-  return reference.sourceEvidenceReferences.every((sourceReference) =>
+  return reference.sourceEvidenceReferences.every((sourceReference: LocalAiMemoryReference['sourceEvidenceReferences'][number]) =>
     selectedRecentEvidenceIds.has(sourceReference.evidenceReferenceId)
   );
 }

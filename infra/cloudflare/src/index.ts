@@ -1266,12 +1266,13 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         stringOrNull(body.planId),
         await loadPricingPlans(env),
       );
+      const targetPlanId = summary.targetPlanId;
       return executeIdempotentWrite(
         env.BILLING_DO,
         `billing-control:${identity.subject}`,
         {
           requestKey: durableWriteKey("change-plan", identity.subject, requestId),
-          requestFingerprint: `change-plan:${summary.targetPlanId ?? "invalid"}`,
+          requestFingerprint: `change-plan:${targetPlanId ?? "invalid"}`,
           responseStatus: 200,
           responseBody: summary,
           queueMessage:
@@ -1280,16 +1281,16 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
                   action: "change-plan",
                   requestId,
                   subject: identity.subject,
-                  targetPlanId: summary.targetPlanId,
+                  targetPlanId,
                 }
               : null,
           stateMutation:
-            summary.status === "accepted"
+            summary.status === "accepted" && targetPlanId !== null
               ? {
                   kind: "change-plan",
                   subject: identity.subject,
                   requestId,
-                  targetPlanId: summary.targetPlanId,
+                  targetPlanId,
                   auditReference: summary.auditReference,
                 }
               : null,
@@ -1723,7 +1724,10 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
               actorRole: identity?.role ?? null,
             },
             stateMutation:
-              refundSubject && result.invoiceId
+              refundSubject &&
+              result.invoiceId &&
+              result.refundState !== "manual-review-required" &&
+              result.amountCents !== null
                 ? {
                     kind: "admin-refund",
                     subject: refundSubject,

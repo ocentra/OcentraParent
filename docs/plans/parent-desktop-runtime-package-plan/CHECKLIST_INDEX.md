@@ -24,16 +24,16 @@
 
 ## WP01 Parent Client Scope And Route Boundary
 
-- [ ] Canonical parent-client scope documented.
-- [ ] Historical desktop-only path compatibility documented.
-- [ ] Child agent runtime excluded.
-- [ ] Setup-install handoff documented.
-- [ ] Portal shell UX handoff documented.
-- [ ] No product-readiness overclaim recorded.
-- [ ] Required proof artifacts written.
-- [ ] Focused commands pass or blocker recorded.
-- [ ] Workpack completion section filled.
-- [ ] PLAN_STATE updated if state changed.
+- [ ] Canonical parent-client scope documented. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`.
+- [ ] Historical desktop-only path compatibility documented. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`.
+- [ ] Child agent runtime excluded. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/01-negative-case-proof.md`.
+- [ ] Setup-install handoff documented. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/02-manual-required-gap-register.md`.
+- [ ] Portal shell UX handoff documented. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`.
+- [ ] No product-readiness overclaim recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/01-negative-case-proof.md`.
+- [ ] Required proof artifacts written. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/01-negative-case-proof.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/02-manual-required-gap-register.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/16-validation-commands.log`.
+- [ ] Focused commands pass or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/16-validation-commands.log`.
+- [ ] Workpack completion section filled. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`.
+- [ ] PLAN_STATE updated if state changed. Proof: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/16-validation-commands.log`.
 
 ## WP02 Parent Web Portal Distribution
 

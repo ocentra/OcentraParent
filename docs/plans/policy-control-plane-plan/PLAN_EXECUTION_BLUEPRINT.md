@@ -24,7 +24,7 @@ AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpa
 ## Proof root
 
 ```text
-output/policy-control-plane-plan-proof/<workpack-file-stem>/
+docs/proof/policy-control-plane-plan/
 ```
 
 ## Focused commands
@@ -32,13 +32,20 @@ output/policy-control-plane-plan-proof/<workpack-file-stem>/
 ```bash
 npm run build --workspace @ocentra-parent/policy-domain
 npm run test --workspace @ocentra-parent/policy-domain
-cargo test -p ocentra-parent-policy-control-core
+cargo test -p ocentra-policy-control-core
 cargo test -p ocentra-parent-agent-protocol policy
-npm run test --workspace @ocentra-parent/portal -- policy
+npm run test --workspace @ocentra-parent/agent-protocol-domain -- tests/unit/policy-preview-contracts.test.ts tests/unit/policy-control-delivery-read-model.test.ts tests/unit/policy-control-audit-redaction.test.ts tests/unit/parent-assistant-adapter.test.ts
+cd apps/portal && npx vitest run tests/policy-preview-route-panel.test.ts tests/policy-preview-live-activity-state.test.ts
 npm run lint:architecture -- --files packages/policy-domain crates/policy-control-core packages/agent-protocol-domain crates/agent-protocol apps/portal docs/plans/policy-control-plane-plan
 ```
 
 If a command/test path does not exist, record the blocker and keep rows open.
+If a workspace script is broader than the selected proof slice, prefer a direct scoped command and record why.
+
+## Platform proof rule
+
+- Real iOS/macOS proof is an external-platform constraint on this Windows host.
+- Windows, Android, WSL, and Docker proof remain expected where relevant and should not be reported as blocked unless a real dependency prevents them.
 
 ## Proof files
 

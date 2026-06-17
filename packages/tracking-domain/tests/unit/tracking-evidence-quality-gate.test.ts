@@ -7,12 +7,14 @@ import {
   trackingReadModelSample,
 } from './tracking-fixtures';
 import {
-  TrackingReadModelSchema,
   TrackingRetentionPolicySchema,
+} from '../../src/tracking-evidence';
+import { evaluateTrackingEvidenceQualityGate } from '../../src/tracking-evidence-quality-gate';
+import { TrackingReadModelSchema } from '../../src/tracking-read-model';
+import {
   applyTrackingRetentionDelete,
   applyTrackingRetentionExport,
-  evaluateTrackingEvidenceQualityGate,
-} from '../../src/tracking';
+} from '../../src/tracking-retention-runtime';
 
 describe('tracking evidence quality gate', () => {
   it('passes when read model rows and retention proofs carry source evidence', () => {

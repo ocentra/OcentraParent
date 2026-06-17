@@ -140,11 +140,29 @@ export const EnforcementPolicyDispatchIntentSchema = withParser(
     sourceState: EnforcementPolicyDispatchSourceStateSchema,
     dryRun: Schema.Boolean,
     requestedAt: ParentTimestampSchema,
-  }).pipe(
-    Schema.filter(
-      (intent) => intent.evidenceReferences.length > 0 || 'Expected dispatch intents to include evidence references'
+  })
+    .pipe(
+      Schema.filter(
+        (intent) => intent.evidenceReferences.length > 0 || 'Expected dispatch intents to include evidence references'
+      )
     )
-  )
+    .pipe(
+      Schema.filter(
+        (intent) =>
+          hasDispatchReferencePrefix(intent.policyDecisionId, 'policy-') &&
+          hasDispatchReferencePrefix(intent.policyDecisionRef, 'decision-') &&
+          hasDispatchReferencePrefix(intent.scheduleRef, 'schedule-') ||
+          'Expected dispatch intents to keep stable policy decision and schedule references'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (intent) =>
+          intent.requestedParentAction !== 'ask-parent' ||
+          intent.dryRun ||
+          'Expected ask-parent dispatch intents to stay dry-run only until approval exists'
+      )
+    )
 );
 
 export const EnforcementPolicyDispatchReadModelEntrySchema = withParser(
@@ -225,6 +243,10 @@ function dispatchMatrixRowIsScaffold(row: DispatchCapabilityMatrixRowCandidate):
   return row.outcomeState === 'rejected' || row.outcomeState === 'dry-run-only';
 }
 
+function hasDispatchReferencePrefix(value: string, prefix: string): boolean {
+  return value.startsWith(prefix) && value.length > prefix.length;
+}
+
 export type EnforcementPolicyDispatchReadModelId = typeof EnforcementPolicyDispatchReadModelIdSchema.Type;
 export type EnforcementPolicyDispatchIntentId = typeof EnforcementPolicyDispatchIntentIdSchema.Type;
 export type EnforcementPolicyDispatchDecisionRef = typeof EnforcementPolicyDispatchDecisionRefSchema.Type;
@@ -268,6 +290,7 @@ type DispatchEntryInput = {
   evidenceReferences: readonly string[];
   auditRefs: readonly string[];
   timerRefs: readonly string[];
+  policyVersion?: string;
   dryRun?: boolean;
 };
 
@@ -323,6 +346,29 @@ export const EnforcementPolicyDispatchReadModel = EnforcementPolicyDispatchReadM
       timerRefs: ['timer-app-game-recovered'],
     }),
     dispatchEntry({
+      intentId: 'dispatch-ask-parent-dry-run',
+      matrixId: 'matrix-ask-parent-dry-run',
+      surface: 'windows-app-time-limit-lifecycle',
+      platform: 'windows',
+      adapterKind: 'process-control',
+      requestedAction: 'ask-parent',
+      mode: 'observe-only',
+      capabilityState: 'supported',
+      proofLevel: 'scaffold',
+      outcomeState: 'dry-run-only',
+      rejectionReason: 'none',
+      sourceState: 'ready',
+      approvalState: 'pending',
+      timerState: 'not-required',
+      childReasonCode: 'child-reason-ask-parent-review-required',
+      targetType: 'app',
+      targetValue: 'app-session:ask-parent-review',
+      evidenceReferences: ['evidence-app-game-session-summary'],
+      auditRefs: ['audit-ask-parent-dry-run'],
+      timerRefs: [],
+      dryRun: true,
+    }),
+    dispatchEntry({
       intentId: 'dispatch-unmanaged-browser-report-only',
       matrixId: 'matrix-unmanaged-browser-report-only',
       surface: 'windows-unmanaged-browser-process-fallback',
@@ -368,6 +414,50 @@ export const EnforcementPolicyDispatchReadModel = EnforcementPolicyDispatchReadM
       timerRefs: [],
     }),
     dispatchEntry({
+      intentId: 'dispatch-stale-policy-version-rejected',
+      matrixId: 'matrix-stale-policy-version-rejected',
+      surface: 'windows-app-time-limit-lifecycle',
+      platform: 'windows',
+      adapterKind: 'process-control',
+      requestedAction: 'time-limit',
+      mode: 'time-limit',
+      capabilityState: 'supported',
+      proofLevel: 'scaffold',
+      outcomeState: 'rejected',
+      rejectionReason: 'stale-policy-version',
+      sourceState: 'stale',
+      approvalState: 'not-required',
+      timerState: 'not-required',
+      childReasonCode: 'child-reason-policy-version-stale',
+      targetType: 'app',
+      targetValue: 'app-session:game-launcher',
+      evidenceReferences: ['evidence-policy-decision-stale'],
+      auditRefs: ['audit-stale-policy-version-rejected'],
+      timerRefs: [],
+    }),
+    dispatchEntry({
+      intentId: 'dispatch-missing-source-rejected',
+      matrixId: 'matrix-missing-source-rejected',
+      surface: 'windows-app-time-limit-lifecycle',
+      platform: 'windows',
+      adapterKind: 'process-control',
+      requestedAction: 'time-limit',
+      mode: 'time-limit',
+      capabilityState: 'supported',
+      proofLevel: 'scaffold',
+      outcomeState: 'rejected',
+      rejectionReason: 'source-not-ready',
+      sourceState: 'missing',
+      approvalState: 'not-required',
+      timerState: 'not-required',
+      childReasonCode: 'child-reason-source-not-ready',
+      targetType: 'app',
+      targetValue: 'policy-source:missing',
+      evidenceReferences: ['evidence-policy-source-missing'],
+      auditRefs: ['audit-missing-source-rejected'],
+      timerRefs: [],
+    }),
+    dispatchEntry({
       intentId: 'dispatch-tamper-alert-scaffold',
       matrixId: 'matrix-tamper-scaffold',
       surface: 'windows-tamper-uninstall-alerts',
@@ -410,7 +500,7 @@ function dispatchEntry(input: DispatchEntryInput): EnforcementPolicyDispatchRead
       },
       policyDecisionId: `policy-${input.intentId}`,
       policyDecisionRef: `decision-${input.intentId}`,
-      policyVersion: 'policy-version-v0-8-dispatch',
+      policyVersion: input.policyVersion ?? 'policy-version-v0-8-dispatch',
       target: {
         targetId: `target-${input.intentId}`,
         targetType: input.targetType,

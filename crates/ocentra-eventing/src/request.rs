@@ -1,4 +1,4 @@
-﻿use std::{
+use std::{
     collections::{BTreeMap, VecDeque},
     sync::{Arc, Mutex},
     time::Duration,
@@ -7,7 +7,9 @@
 use serde::{de::DeserializeOwned, Serialize};
 use tokio::sync::oneshot;
 
-use crate::{ExpectValue, DomainEvent, EventRequestMetrics, EventingError, PublishReport, RequestId};
+use crate::{
+    DomainEvent, EventRequestMetrics, EventingError, ExpectValue, PublishReport, RequestId,
+};
 
 const TERMINAL_REQUEST_RETENTION_LIMIT: usize = 4096;
 
@@ -81,10 +83,7 @@ impl RequestRegistry {
         let (sender, receiver) = oneshot::channel();
         let mut state = self.state.lock().expect_value("request registry lock");
         if state.entries.contains_key(&request_id) {
-            let duplicate_request_id = request_id.clone();
-            return Err(EventingError::DuplicateRequest {
-                request_id: duplicate_request_id,
-            });
+            return Err(EventingError::DuplicateRequest { request_id });
         }
         state
             .entries
@@ -324,6 +323,3 @@ fn trim_terminal_requests(state: &mut RequestRegistryState) {
         }
     }
 }
-
-
-

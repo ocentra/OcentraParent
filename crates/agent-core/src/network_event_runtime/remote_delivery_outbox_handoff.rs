@@ -189,11 +189,13 @@ fn assert_outbox_matches_durable_envelopes_and_receipts(
         .zip(candidates.iter())
         .enumerate()
     {
-        let expected_sequence = u64::try_from(index)
-            .map(|value| value.saturating_add(1))
-            .map_err(|_| {
-                NetworkRuntimeRemoteDeliveryOutboxHandoffError::OutboxDurableEnvelopeMismatch
-            })?;
+        let expected_sequence =
+            match u64::try_from(index) {
+                Ok(value) => value.saturating_add(1),
+                Err(_) => return Err(
+                    NetworkRuntimeRemoteDeliveryOutboxHandoffError::OutboxDurableEnvelopeMismatch,
+                ),
+            };
         if durable_record.sequence != expected_sequence
             || receipt.sequence != expected_sequence
             || candidate.sequence != expected_sequence

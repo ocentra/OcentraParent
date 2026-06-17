@@ -17,6 +17,12 @@
 This is the short, token-efficient entry point for `eventing-plan`. The original full
 README content is preserved at [README_FULL_ORIGINAL.md](README_FULL_ORIGINAL.md) and is not default context.
 
+Historical Household Mesh consumer proof routes through
+`scripts/test/eventing-household-mesh-consumer-proof.mjs`. Treat
+`output/eventing-plan-proof/12-household-mesh-consumer/proof-summary.json` as
+the expected artifact location only; that proof file is absent in this checkout
+until WP12 restores or regenerates it.
+
 ## Default agent path
 
 1. Read [AGENTS.md](AGENTS.md).

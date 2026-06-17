@@ -58,7 +58,7 @@ test-results/setup-install-provisioning-plan-rollout-route-gate/
 00-registration-route-state-proof.md
 01-auth-handoff-contract-proof.md
 02-invite-negative-state-proof.md
-03-no-private-data-before-household-proof.md
+03-no-sensitive-data-before-household-proof.md
 04-registration-ui-state-proof.md
 05-provider-unavailable-state-proof.md
 16-validation-commands.log

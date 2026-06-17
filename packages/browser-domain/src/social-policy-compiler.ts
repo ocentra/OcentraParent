@@ -8,6 +8,10 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/family-domain/reference-primitives';
 import {
+  PolicyCompilerCapabilityState,
+  PolicyCompilerCapabilityStateSchema,
+} from '@ocentra-parent/policy-domain/policy-compiler';
+import {
   SocialParentPolicyActionCandidateSchema,
   SocialParentPolicyCompilerModeSchema,
   SocialParentPolicyCompileRequestIdSchema,
@@ -81,6 +85,7 @@ const SocialParentPolicyDecisionCandidateBaseSchema = Schema.Struct({
   reasonCodes: SocialParentPolicyReasonCodesSchema,
   confidence: SocialParentPolicyConfidenceSchema,
   compilerMode: SocialParentPolicyCompilerModeSchema,
+  compilerCapabilityState: PolicyCompilerCapabilityStateSchema,
   fallbackUsed: Schema.Boolean,
   parentApprovalRequired: Schema.Boolean,
   finalPolicyDecisionClaimed: Schema.Boolean,
@@ -151,6 +156,7 @@ export function compileSocialParentPolicyCandidate(
     compilerMode: input.compilerMode,
     fallbackUsed: parsed.fallbackUsed,
     parentApprovalRequired: parsed.parentApprovalRequired,
+    compilerCapabilityState: compilerCapabilityStateForMode(input.compilerMode),
     finalPolicyDecisionClaimed: false,
     runtimeGateExecutedClaimed: false,
     uiRenderedClaimed: false,
@@ -259,6 +265,17 @@ function socialPolicyCompilerInputClaimsAuthority(value: Infer<typeof SocialPare
     value.nativeAppControlClaimed ||
     value.platformConnectorClaimed
   );
+}
+
+function compilerCapabilityStateForMode(mode: Infer<typeof SocialParentPolicyCompilerModeSchema>) {
+  switch (mode) {
+    case 'contract-only':
+      return PolicyCompilerCapabilityState.Supported;
+    case 'manual-required':
+      return PolicyCompilerCapabilityState.ManualRequired;
+    case 'unavailable':
+      return PolicyCompilerCapabilityState.Unsupported;
+  }
 }
 
 function socialPolicyDecisionCandidateClaimsAuthority(

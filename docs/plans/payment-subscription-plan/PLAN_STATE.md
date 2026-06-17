@@ -18,7 +18,8 @@ Current Parent direction:
   required workpack test and proof ID, plus explicit spec-versus-runtime
   boundaries for dashboard, support/admin, regional, referral, and lifecycle
   slices.
-- `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts` is currently missing; do not overclaim parent-surface proof from billing-domain tests.
+- `packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts` exists, but the targeted parent-surface proof remains blocked until `@ocentra-parent/parent-domain` builds cleanly enough to run it; do not overclaim parent-surface proof from billing-domain tests.
+- The canonical payment proof root is `output/payment-subscription-plan-proof/`; any proof reference outside that root is legacy drift, and the WP00 upstream handoff gate is `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md`.
 
 ## Decision records
 
@@ -37,9 +38,9 @@ Current Parent direction:
   - do not mark this plan complete from checklist deltas or scaffold existence alone.
 - Before any checked update, attach:
   - a real test run log or explicit blocker from the assigned implementation boundary,
-  - a proof path under `docs/proof/payment-subscription-plan/`.
+  - a proof path under `output/payment-subscription-plan-proof/`.
 - Failure rule: no PR-ready claim until the Cloudflare handoff, replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.
 
 ## Overclaim boundary
 
-This plan is architecture-route ready, not implementation complete. Runtime correctness remains unproven until the selected workpack's code, tests, negative cases, proof bundle, rollback/teardown notes, and validation log exist under `docs/proof/payment-subscription-plan/`.
+This plan is architecture-route ready, not implementation complete. Runtime correctness remains unproven until the selected workpack's code, tests, negative cases, proof bundle, rollback/teardown notes, and validation log exist under `output/payment-subscription-plan-proof/` and the relevant scoped validation actually passes.

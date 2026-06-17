@@ -56,7 +56,9 @@ pub(crate) fn network_android_vpn_service_gate_status_payload() -> Result<LogFie
     )]))
 }
 
-fn status_from_proof(proof: &NetworkAndroidVpnServiceGateProof) -> NetworkAndroidVpnServiceGateStatus {
+fn status_from_proof(
+    proof: &NetworkAndroidVpnServiceGateProof,
+) -> NetworkAndroidVpnServiceGateStatus {
     NetworkAndroidVpnServiceGateStatus {
         status_ref: constants::network_flow::TEST_ANDROID_VPN_SERVICE_GATE_STATUS_REF.to_string(),
         android_vpn_service_gate_ref: proof.android_vpn_service_gate_ref.clone(),
@@ -116,16 +118,13 @@ fn gate_input() -> NetworkAndroidVpnServiceGateInput {
             constants::network_flow::TEST_ANDROID_VPN_PHYSICAL_DEVICE_PROOF_REF.to_string(),
         ),
         package_identity_proof_ref: Some(
-            constants::network_flow::TEST_ANDROID_VPN_PACKAGE_IDENTITY_PROOF_REF
-                .to_string(),
+            constants::network_flow::TEST_ANDROID_VPN_PACKAGE_IDENTITY_PROOF_REF.to_string(),
         ),
         virtual_interface_proof_ref: Some(
-            constants::network_flow::TEST_ANDROID_VPN_VIRTUAL_INTERFACE_PROOF_REF
-                .to_string(),
+            constants::network_flow::TEST_ANDROID_VPN_VIRTUAL_INTERFACE_PROOF_REF.to_string(),
         ),
         traffic_observation_proof_ref: Some(
-            constants::network_flow::TEST_ANDROID_VPN_TRAFFIC_OBSERVATION_PROOF_REF
-                .to_string(),
+            constants::network_flow::TEST_ANDROID_VPN_TRAFFIC_OBSERVATION_PROOF_REF.to_string(),
         ),
         rollback_plan_ref: Some(
             constants::network_flow::TEST_ANDROID_VPN_ROLLBACK_PLAN_REF.to_string(),

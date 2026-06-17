@@ -13,7 +13,7 @@ import {
   type AgentEventName,
   type AgentProtocolLogFields,
 } from './contracts';
-import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/evidence-domain/primitives';
+import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/event-domain/primitives';
 
 export const ScreenSettingsUpdateKindSchema = withParser(Schema.Literal('get', 'replace'));
 export const ScreenSettingsUpdateStatusSchema = withParser(Schema.Literal('accepted', 'rejected'));

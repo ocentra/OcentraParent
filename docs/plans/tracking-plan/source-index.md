@@ -24,7 +24,7 @@ tracking-control truth.
 | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `docs/features/location-geofence-device-status.md`                     | Feature owner, current status, gap, roadmap anchors, and next AI instructions.                                                                                   |
 | `docs/expectations/location-geofence.md`                               | Parent/child outcome, data scope, contract families, validation, and non-goals.                                                                                  |
-| `docs/tracking-control-settings-inventory.md`                          | Generated 338-setting inventory, including posture modes, execution modes, capability states, heartbeat, battery, sync, pending upload, and missing-device rows. |
+| `docs/plans/tracking-plan/workpacks/tracking-control-settings-inventory.md` | Generated 338-setting inventory, including posture modes, execution modes, capability states, heartbeat, battery, sync, pending upload, and missing-device rows. |
 | `docs/device-location-tracking-capability-guide.md`                    | Capability terms, location history, live tracking, geofence, check-in, last known, custody, and platform limits.                                                 |
 | `docs/device-location-tracking-schema-proposal.md`                     | Authoring manifest, policy value, effective policy, update protocol, and capability registry guidance.                                                           |
 | `docs/expectations/platforms.md`                                       | Platform claim rule and proof requirements for Windows, macOS, Linux, Android, iOS, Web, and parent app boundaries.                                              |
@@ -78,15 +78,19 @@ must not depend on tracking product types.
 ## TypeScript Ownership
 
 TypeScript is a portal/protocol/read-model contract mirror for tracking, not
-the runtime decision engine. Current buckets:
+the final runtime decision engine. Current buckets:
 
-- `packages/activity-domain` owns schema-facing activity/location evidence,
-  geofence, retention, local place, and tracking read-model contracts used by
-  TypeScript consumers.
+- `packages/tracking-domain` is the current canonical TypeScript owner for
+  tracking evidence, geofence, expected-place, local place, retention, read
+  model, event contracts, and proof-accounting helpers.
 - `packages/agent-protocol-domain` for portal/agent WebSocket command and
   event contract mirrors.
 - `packages/parent-domain` keeps parent policy/product/readiness contracts and
-  proof accounting. It must not become the tracking runtime brain.
+  a large tracking proof/readiness shadow surface. Treat it as a migration and
+  proof boundary, not the canonical tracking runtime owner.
+- `packages/activity-domain` still matters where shared activity query schemas
+  and broader evidence-store contracts are already consumed, but it is no
+  longer the canonical tracking TypeScript owner.
 - `packages/endpoint-domain`, `packages/portal-domain`, and
   `packages/text-domain` for routes, DOM ids, command ids, and display text
   tokens used by portal surfaces.
@@ -102,10 +106,10 @@ Rust-facing protocol shapes belong in `crates/agent-protocol` only after the
 Rust-crossing contract is explicit and test-backed. Runtime tracking behavior
 belongs in Rust before portal proof or TypeScript helper expansion.
 
-- `crates/agent-core` owns tracking state helpers, local durable state,
-  ActivityStore tracking projections, and platform-neutral tracking behavior
-  that should not live in the service shell. Current tracking core modules live
-  under `crates/agent-core/src/tracking/`.
+- `crates/tracking-core` is the current runtime owner for tracking state
+  helpers, local durable state, read-model guards, location validation,
+  geofence/expected-place evaluation, nearby-place decisions, retention
+  application, and portal notification candidate logic.
 - `crates/agent-protocol` owns Rust tracking structs, constants, command names,
   event names, field names, and state labels.
 - `crates/agent-service` owns WebSocket/API transport and event response
@@ -157,6 +161,13 @@ product-readiness closure gate is
 `node scripts/test/tracking-product-readiness-closure-proof.mjs`. Runtime,
 platform, hosted UI, provider, authority, production, and manual-required proof
 scripts stay scoped to their owning workpacks and proof tiers.
+
+Audit note:
+
+- `tracking-source-reconciliation-gap-map-proof.mjs` is not standalone; it
+  depends on `test-results/tracking-product-readiness-closure-proof/proof.json`.
+- `tracking-claim-audit-proof.mjs` and closure proofs depend on
+  `@ocentra-parent/parent-domain` building cleanly.
 
 ## Source Truth Rule
 

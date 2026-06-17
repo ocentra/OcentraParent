@@ -18,7 +18,7 @@ Extract the reusable games Cloudflare control-plane pattern and reduce it to Par
 
 - [GAMES_INFRA_PARITY_MAP.md](../GAMES_INFRA_PARITY_MAP.md)
 - [SOURCE_SURFACE_STATUS_MATRIX.md](../SOURCE_SURFACE_STATUS_MATRIX.md)
-- `docs/proof/cloudflare-control-plane-plan/wp00-games-infra-parity-extraction/`
+- `output/cloudflare-control-plane-plan-proof/00-games-infra-parity-extraction/`
 
 ## Acceptance
 

@@ -290,6 +290,8 @@ function screenAiAdapterReadinessRowIsHonest(row: ScreenAiAdapterReadinessRowCan
     case 'degraded':
       return degradedRowIsHonest(row);
   }
+
+  return false;
 }
 
 function screenAiAdapterReadinessRowHasSourceCustody(row: ScreenAiAdapterReadinessRowCandidate): boolean {

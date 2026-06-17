@@ -1,5 +1,5 @@
 use crate::browser_event_runtime::browser_runtime_stream_report_topology_manifest;
-use ocentra_eventing::EventTopologyStatus;
+use ocentra_eventing::topology::EventTopologyStatus;
 use ocentra_parent_agent_protocol::constants;
 
 #[test]

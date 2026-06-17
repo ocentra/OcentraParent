@@ -136,12 +136,34 @@ Session freshness, invite/recovery lifecycle, and parent trusted-device proof st
 
 ## Fill before DONE
 
-```text
-Workpack id and branch:
-Entity/model changes:
-Touched files:
-Validation commands and results:
-Proof artifacts:
-Known gaps/manual-required states:
-No-claim boundaries:
-```
+- Workpack id and branch: `WP02 Identity Household Role Model`; `codex/tracking-plan-full-continuation-a`.
+- Current status: partial. Only `03-cross-family-negative-proof.md` and `16-validation-commands.log` exist under `output/account-identity-family-plan-proof/02-identity-household-role-model/`.
+- Contract/source changes in this slice: none in WP02-owned authority sources; current proof is derived from existing TypeScript and Rust authority coverage.
+- Touched files:
+  - `docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md`
+  - `docs/plans/account-identity-family-plan/PLAN_STATE.md`
+  - `docs/plans/account-identity-family-plan/WORKPACK_INDEX.md`
+  - `docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md`
+  - `output/account-identity-family-plan-proof/02-identity-household-role-model/03-cross-family-negative-proof.md`
+  - `output/account-identity-family-plan-proof/02-identity-household-role-model/16-validation-commands.log`
+- Validation commands and results:
+  - `command: npm run build --workspace @ocentra-parent/family-domain`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: family-domain builds after direct lifecycle test repair`
+  - `command: npm run test --workspace @ocentra-parent/family-domain -- tests/unit/household-authority.test.ts tests/unit/session-lifecycle.test.ts tests/unit/token-lifecycle.test.ts`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: direct household/session/token contract suite passed with 22 tests`
+  - `command: cargo test -p ocentra-family-identity-core`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: Rust parity suite passed with household/session/setup coverage`
+- Proof artifacts:
+  - `output/account-identity-family-plan-proof/02-identity-household-role-model/03-cross-family-negative-proof.md`
+  - `output/account-identity-family-plan-proof/02-identity-household-role-model/16-validation-commands.log`
+- Known gaps/manual-required states: `00-identity-entity-model-proof.md`, `01-role-action-resource-matrix.md`, `02-membership-state-machine-proof.md`, `04-observer-read-only-proof.md`, `05-support-admin-boundary-proof.md`, and `06-audit-event-proof.md` are still missing; session freshness, invite/recovery lifecycle, and trusted-device proof remain open in adjacent workpacks/plans.
+- No-claim boundaries: no full role/membership model closure, no observer/support/audit closure, no session or invite/recovery claim, no trusted-device bootstrap claim, no setup UI claim, and no PR-ready claim.

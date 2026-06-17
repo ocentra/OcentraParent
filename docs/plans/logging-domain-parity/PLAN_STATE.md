@@ -18,6 +18,8 @@
 
 This plan upgrades OcentraParent logging from a mostly schema/proof-contract package to a practical local development, agent observability, MCP query, and proof-trace pipeline.
 
+No external `docs/features/*` or `docs/expectations/*` files are routed by this plan today. The numbered plan docs in this folder are the routed source-of-truth inputs.
+
 ## Current source docs
 
 The source docs are routed through workpacks:
@@ -40,9 +42,19 @@ The source docs are routed through workpacks:
 ```text
 Plan route: added
 Workpack route: added
-Implementation: not started in this plan
-Source code changes: none from this plan yet
-Proof artifacts: none yet
+WP01 audit closeout: audit docs present, but the named proof root is absent in this checkout
+WP02 TypeScript package parity: source/tests present, but the named proof root is absent in this checkout
+WP03 parent architecture/routing: source/tests present; workpack status is stale; focused portal/routing checks pass but the named proof root is absent
+WP04 Rust logging core: source/tests present, but the named proof root is absent in this checkout
+WP05 local validation evidence: source/tests/smokes present, but the named proof root is absent in this checkout
+WP06 validation/enforcement: scripts and focused checks present, but enforcement does not verify proof inventory or honest workpack completion; named proof root is absent
+WP07 MCP query interface: server and focused smoke paths present, but the named proof root is absent and standalone proof-trace smoke fails in a clean workspace
+WP08 logger instrumentation/adoption: partial portal/agent-service adoption is present, but repo-wide adoption is not proved and the named proof root is absent
+WP09 log control/retention/bridge lifecycle: source/tests present, but the named proof root is absent in this checkout
+WP10 proof trace pipeline: focused portal proof-trace tests pass, but standalone MCP proof-trace smoke fails in a clean workspace and the named proof root is absent
+Checklist state: CHECKLIST_INDEX.md remains unchecked across the plan
+Proof inventory root: output/logging-domain-parity-proof/ is absent in this checkout
+Test-results roots: every test-results/logging-domain-parity-* root named by PROOF_INDEX.md is absent in this checkout
 PR-ready: false
 ```
 
@@ -53,8 +65,8 @@ PR-ready: false
 - Games required source files to register with the shared logger pattern, not merely define a logging package.
 - Games used log decision controls, fresh-run wipe, bridge run-start, retention, and optional tunnel routing.
 - Parent logging-domain currently has live schema/contract usage but does not have games-level local logging pipeline parity.
-- Remote inspection did not find an obvious parent MCP implementation; WP01 must still run a local audit before WP07 implements or upgrades it.
-- Parent needs TypeScript package parity and a Rust `crates/logging-core` because the parent runtime is Rust-heavy.
+- WP01 completed the local MCP audit and confirmed no reusable parent MCP framework was found, so WP07 can implement the parent logging MCP layer if that remains true.
+- Parent now has substantial source/test coverage for TypeScript package parity, Rust logging core, log-control/retention/bridge lifecycle, local validation evidence, MCP query interface support, logger instrumentation/adoption support, proof trace pipeline support, and validation/enforcement support, but the plan docs overclaim proof-backed closeout for those slices in this checkout.
 - Local development observability is separate from production/product safe logging.
 - Codex/local agents should consume compact deterministic evidence through CLI and MCP, not full raw terminal logs.
 - The same log pipeline should also collect proof traces for Playwright/service/runtime paths.
@@ -62,19 +74,11 @@ PR-ready: false
 ## Open gaps
 
 ```text
-- TypeScript test-log/transport/app-log parity modules not implemented.
-- Bridge, NDJSON, DuckDB, query scripts not implemented in parent package.
-- Log decision controls, wipe, retention, and bridge lifecycle are not implemented.
-- Rust logging-core crate not implemented.
-- Agent-service still needs migration away from one-off dev log writer.
-- Portal dev-log route must be implemented or routed through bridge.
-- Local validation evidence wrappers are not implemented.
-- MCP logging query interface is not implemented or proven through local audit.
-- Logger instrumentation/adoption pattern is not implemented in parent surfaces.
-- Proof trace mode and ordered trace query are not implemented.
-- Validation/enforcement scripts are not implemented.
-- Root scripts are not wired.
-- Proof roots are not generated.
+- Recreate or remove the claimed proof roots under output/logging-domain-parity-proof/*
+- Recreate or remove the claimed test-results/logging-domain-parity-* roots
+- Reconcile WP03/WP06/WP07/WP10 workpack docs with current source and smoke behavior
+- Decide whether "done" in this plan means source present, proof present, or both; the current docs mix those states
+- Make proof-trace standalone smoke self-seeding, or stop claiming it as a standalone smoke
 ```
 
 ## No-claim boundaries
@@ -83,13 +87,8 @@ Until implemented and validated, do not claim:
 
 ```text
 logging-domain parity complete
-local validation evidence complete
-Rust logging-core complete
 portal dev-log routing fixed
 agent-service logging migrated
-Codex evidence wrapper available
-MCP logging query interface available
-logger instrumentation adopted repo-wide
 proof trace coverage for product flows
 production telemetry readiness
 product runtime logging readiness
@@ -102,16 +101,10 @@ Workpacks are indexed in `WORKPACK_INDEX.md`.
 Current default execution order:
 
 ```text
-WP01 current-state/reference audit, including existing MCP audit
-WP02 TypeScript package parity
-WP03 parent architecture/routing fix
-WP09 log control, retention, and bridge lifecycle
-WP04 Rust logging-core
-WP05 local validation evidence
-WP07 MCP query interface
-WP08 logger instrumentation and adoption
-WP10 proof trace pipeline
-WP06 validation/enforcement
+1. plan-state and proof-inventory reconciliation
+2. WP10 proof-trace standalone smoke fix or claim reduction
+3. WP03 parent architecture/routing truthful closeout
+4. WP06 enforcement hardening for proof inventory and honest closeout checks
 ```
 
 ## Health rules

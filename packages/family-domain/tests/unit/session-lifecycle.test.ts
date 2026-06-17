@@ -406,6 +406,8 @@ function registerSessionFreshnessTests(): void {
 function registerSessionSchemaBoundaryTests(): void {
   it('schema boundary rejects unsupported session literals', () => {
     expect(SessionCredentialKindSchema.safeParse('bearer-token').success).toBe(false);
+    expect(SessionCredentialKindSchema.safeParse('controller-lease').success).toBe(false);
+    expect(SessionCredentialKindSchema.safeParse('support-admin-session').success).toBe(false);
     expect(SessionLifecycleActionSchema.safeParse('reset-password').success).toBe(false);
     expect(SessionActivityStateSchema.safeParse('paused').success).toBe(false);
   });

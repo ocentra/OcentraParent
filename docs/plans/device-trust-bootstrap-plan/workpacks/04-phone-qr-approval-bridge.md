@@ -17,7 +17,12 @@ Purpose: define desktop QR approval, phone approval, and replay-resistant action
 
 ## Proof target
 
-- `docs/proof/device-trust-bootstrap-plan/04-*`
+- `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/`
+
+## Current audit state
+
+- No proof root currently exists on disk for this workpack.
+- The current plan-local tests for this slice are document assertions, not QR approval runtime proof.
 
 ## Negative cases
 

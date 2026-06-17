@@ -1,4 +1,4 @@
-﻿# Reusable Rust Eventing Plan Next Actions
+# Reusable Rust Eventing Plan Next Actions
 
 <!-- agent-capsule -->
 
@@ -25,10 +25,23 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
-1. [WP11 Type Safety And Ownership Hardening](workpacks/11-type-safety-and-ownership-hardening.md) - the reusable crate is test-green, but workspace clippy denies still block proof completion on `ocentra-eventing`.
-2. [WP12 Rollout Proof And PR Gate](workpacks/12-rollout-proof-and-pr-gate.md) - reconcile the proof pack, checklist rows, and final reporting once the lint debt is closed.
-3. [WP07 Parent Protocol Event Contracts](workpacks/07-parent-protocol-event-contracts.md) through [WP10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md) - consumer handoffs remain open after the reusable runtime is validated.
-4. [WP01 Source Boundary And Semantics Audit](workpacks/01-source-boundary-and-semantics-audit.md) through [WP06 Journal Replay And Lineage](workpacks/06-journal-replay-and-lineage.md) - already validated by crate/package tests; revisit only if hardening refactors require it.
+- [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
+  is open because the expected local proof roots remain absent and the
+  LAN/remote-access consumer handoff still needs exact verification.
+- WP11 is now locally proved: the scoped proof roots remain present, package-wide
+  `npm run type-check --workspace @ocentra-parent/agent-protocol-domain`
+  passes again, focused `policy-control-audit-redaction.test.ts`,
+  `policy-control-delivery-read-model.test.ts`, and `contracts.test.ts` pass,
+  and the touched-file `lint:architecture` gate is green.
+- WP12 is now locally proved at
+  `output/eventing-plan-proof/rollout-proof/proof-summary.json`,
+  `test-results/eventing-rollout-proof/proof.json`, and
+  `docs/proof/eventing-plan/`.
+- WP13 is now locally proved at
+  `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json`
+  and `test-results/eventing-test-folder-layout-regression-audit/proof.json`.
+- Next slice: verify the owning LAN/remote-access proof handoff for WP10 before
+  changing its local status.
 
 ## PR readiness guard
 
@@ -38,6 +51,6 @@ Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), pr
 
 ## Actioned completion tracker
 
-- [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
-- [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
-- [ ] Record the clippy/proof blocker, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
+- [x] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
+- [x] Update one assigned workpack and matching checklist/proof rows before reporting progress.
+- [x] Record the rollout-proof reconciliation and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.

@@ -13,6 +13,14 @@
 
 # Screen AI Pipeline Execution Blueprint
 
+## Current audited entry conditions
+
+- All 10 workpacks are currently open.
+- `implementation-checklist.md` currently has 134 unchecked rows and 0 checked rows.
+- No retained `output/screen-ai-pipeline-proof/` proof root currently exists in this checkout.
+- `docs/proof/screen-ai-pipeline-plan/PLAN_PROOF_MANIFEST.md` is currently missing.
+- The scoped architecture gate is currently red on `packages/screen-domain/src/screen-evidence.ts`, `packages/portal-domain/src/contracts.ts`, and `packages/parent-domain/src/local-ai-runtime.ts`.
+
 ## Execution rule
 
 Use this loop:
@@ -24,8 +32,13 @@ AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpa
 ## Proof root
 
 ```text
-output/screen-ai-pipeline-plan-proof/<workpack-file-stem>/
+output/screen-ai-pipeline-proof/
 ```
+
+## Proof routing note
+
+- Use the scenario directories named by the assigned workpack or checklist row, not the workpack filename as a folder name.
+- Current docs still mix `proof-summary.json` scenario artifacts with the richer numbered bundle described in `pipeline-proof-matrix.md`; resolve that expectation in the assigned workpack before checking rows.
 
 ## Focused commands
 
@@ -40,15 +53,6 @@ npm run test --workspace @ocentra-parent/portal -- screen
 npm run lint:architecture -- --files packages/screen-domain packages/ai-domain packages/evidence-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/screen-ai-pipeline-plan
 ```
 
-## Proof files
-
-```text
-00-scope-summary.md
-01-negative-case-proof.md
-02-no-claim-boundary.md
-16-validation-commands.log
-```
-
 ## DONE rule
 
-One workpack is DONE only after focused commands or blockers are recorded and proof artifacts exist under that workpack root.
+One workpack is DONE only after focused commands or explicit blockers are recorded, retained proof artifacts exist under the named scenario directories, and the workpack/checklist rows are updated after the proof exists.

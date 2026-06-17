@@ -11,6 +11,7 @@ import {
 import { BrowserControlWritesToPath } from '../../src/browser-control-values';
 import { browserPolicyForestSourceSettingIds } from '../../src/browser-policy-questionnaire-forest';
 import { BrowserInventoryPlatformMatrix } from '../../src/browser-platform-inventory-matrix';
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
 
 describe('browser control coverage matrix', () => {
   it('covers every candidate MVP item and major catalog section exactly once', () => {
@@ -28,17 +29,40 @@ describe('browser control coverage matrix', () => {
     const matrix = BrowserControlCoverageMatrixSchema.parse(BrowserControlCoverageMatrix);
     const implemented = matrix.filter((entry) => entry.coverageStatus === 'implemented-manifest-control');
     const capability = matrix.filter((entry) => entry.coverageStatus === 'represented-through-capability');
+    const unsupported = matrix.filter(
+      (entry) =>
+        entry.coverageStatus === 'documentation-only' ||
+        entry.coverageStatus === 'future-gap' ||
+        entry.coverageStatus === 'unavailable'
+    );
     const docsOnly = matrix.filter((entry) => entry.coverageStatus === 'documentation-only');
 
     expect(implemented.every((entry) => entry.manifestFieldIds.length > 0 && entry.writesTo.length > 0)).toBe(true);
     expect(capability.every((entry) => entry.capabilityState !== null)).toBe(true);
+    expect(matrix.every((entry) => entry.compilerCapabilityState !== null)).toBe(true);
+    expect(implemented.every((entry) => entry.compilerCapabilityState === PolicyCompilerCapabilityState.Supported)).toBe(
+      true
+    );
+    expect(
+      capability.every(
+        (entry) =>
+          entry.compilerCapabilityState ===
+          (entry.capabilityState === 'manual-required'
+            ? PolicyCompilerCapabilityState.ManualRequired
+            : PolicyCompilerCapabilityState.Supported)
+      )
+    ).toBe(true);
+    expect(unsupported.every((entry) => entry.compilerCapabilityState === PolicyCompilerCapabilityState.Unsupported)).toBe(
+      true
+    );
     expect(
       docsOnly.every(
         (entry) =>
           entry.manifestFieldIds.length === 0 &&
           entry.writesTo.length === 0 &&
           entry.policyShape === null &&
-          entry.capabilityState === null
+          entry.capabilityState === null &&
+          entry.compilerCapabilityState === PolicyCompilerCapabilityState.Unsupported
       )
     ).toBe(true);
   });
@@ -49,7 +73,9 @@ describe('browser control coverage matrix', () => {
     const catalogSettingIds = browserControlFullCatalogSettings().map((setting) => setting.settingId);
 
     expect(
-      entriesByKind(BrowserControlCoverageMatrix, 'catalog-section').every((entry) => sourceSections.has(entry.catalogSection))
+      entriesByKind(BrowserControlCoverageMatrix, 'catalog-section')
+        .filter((entry) => entry.coverageStatus !== 'documentation-only' && entry.coverageStatus !== 'future-gap')
+        .every((entry) => sourceSections.has(entry.catalogSection))
     ).toBe(true);
     expect([...questionnaireSettingIds].sort()).toEqual(catalogSettingIds.slice().sort());
   });
@@ -73,8 +99,10 @@ describe('browser control coverage matrix', () => {
     ]);
     expect(managedSetupSection.coverageStatus).toBe('represented-through-capability');
     expect(managedSetupSection.capabilityState).toBe('manual-required');
+    expect(managedSetupSection.compilerCapabilityState).toBe(PolicyCompilerCapabilityState.ManualRequired);
     expect(unmanagedSection.coverageStatus).toBe('implemented-manifest-control');
     expect(unmanagedSection.capabilityState).toBeNull();
+    expect(unmanagedSection.compilerCapabilityState).toBe(PolicyCompilerCapabilityState.Supported);
     expect(platformEntries.some((entry) => entry.platform === 'windows' && entry.managementTier === 'managed')).toBe(
       true
     );

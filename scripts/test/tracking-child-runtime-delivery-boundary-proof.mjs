@@ -4,6 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { runNpmCommand } from './run-npm-command.mjs';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof', '30-parent-and-child-ui-ux-surfaces');
@@ -20,31 +21,20 @@ const commands = [];
 await main();
 
 async function main() {
-  await runNpm(['--workspace', '@ocentra-parent/parent-domain', 'run', 'build']);
   await runNpm([
     'exec',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
     'vitest',
     'run',
-    'tests/tracking/tracking-child-runtime-delivery-boundary-proof.test.ts',
-    'tests/tracking/tracking-child-check-in-timeout-escalation-proof.test.ts',
+    'tests/contract/tracking-child-runtime-delivery-boundary-proof.test.ts',
+    'tests/contract/tracking-child-check-in-timeout-escalation-proof.test.ts',
   ]);
 
-  const policy = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-location-policy.js'))
-  );
-  const timeoutProof = await import(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-child-check-in-timeout-escalation-proof.js')
-    )
-  );
-  const boundaryProof = await import(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-child-runtime-delivery-boundary-proof.js')
-    )
-  );
+  const policy = await importSource('packages/tracking-domain/src/tracking-location-policy.ts');
+  const timeoutProof = await importSource('packages/tracking-domain/src/tracking-child-check-in-timeout-escalation-proof.ts');
+  const boundaryProof = await importSource('packages/tracking-domain/src/tracking-child-runtime-delivery-boundary-proof.ts');
   const checkedAt = new Date().toISOString();
   const commit = await gitHead();
   const sourceTimeoutReadModel = timeoutProof.buildTrackingChildCheckInTimeoutReadModel(
@@ -52,8 +42,8 @@ async function main() {
       generatedAt: '2026-06-07T14:05:00.000Z',
       readinessId: 'tracking-child-check-in-timeout-escalation-proof',
       sourceContractRefs: [
-        'packages/parent-domain/src/tracking-location-policy.ts',
-        'packages/parent-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
+        'packages/tracking-domain/src/tracking-location-policy.ts',
+        'packages/tracking-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
         'docs/plans/tracking-plan/workpacks/18-child-check-in-flow.md',
       ],
     },
@@ -64,8 +54,8 @@ async function main() {
       generatedAt: '2026-06-07T14:10:00.000Z',
       readinessId: 'tracking-child-runtime-delivery-boundary-proof',
       sourceContractRefs: [
-        'packages/parent-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
-        'packages/parent-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
+        'packages/tracking-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
+        'packages/tracking-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
         'packages/portal-domain/src/tracking-child-check-in-proof.ts',
         'apps/portal/e2e/tracking-hosted-ui-proof.spec.ts',
         'docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md',
@@ -178,8 +168,8 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- currentProofTier: P2_HOSTED_CI',
     '- status: proved',
     '- proves hosted child-runtime disclosure rows linked to child check-in timeout rows and hosted UI proof refs',
-    '- proof module: packages/parent-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking/tracking-child-runtime-delivery-boundary-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-child-runtime-delivery-boundary-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-child-runtime-delivery-boundary-proof.test.ts',
     '- proof harness: scripts/test/tracking-child-runtime-delivery-boundary-proof.mjs',
     '- hosted UI source: packages/portal-domain/src/tracking-child-check-in-proof.ts',
     '- hosted UI proof: scripts/test/tracking-plan-hosted-ui-proof.mjs',
@@ -328,6 +318,10 @@ function evidenceTrace() {
     kind: 'journal-event',
     observedAt: '2026-06-07T14:00:00.000Z',
   };
+}
+
+function importSource(relativePath) {
+  return tsImport(pathToFileURL(join(repoRoot, relativePath)).href, import.meta.url);
 }
 
 async function runNpm(args) {

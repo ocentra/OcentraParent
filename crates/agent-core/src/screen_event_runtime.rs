@@ -1,6 +1,7 @@
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventBus, EventContract, EventSubscriber, EventType, EventingError,
-    IdempotencyKey, SchemaVersion, SubscriberId, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::DomainEvent,
+    envelope::EventContract, error::EventingError, ids::AggregateKey, ids::EventType,
+    ids::IdempotencyKey, ids::SchemaVersion, ids::SubscriberId, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
@@ -210,9 +211,9 @@ impl DomainEvent for ScreenRuntimeEventPayload {
 
 #[derive(Clone, Debug)]
 pub struct ScreenRuntimeReport {
-    pub publish_reports: Vec<ocentra_eventing::PublishReport>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
+    pub publish_reports: Vec<ocentra_eventing::bus::reports::PublishReport>,
+    pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
+    pub dead_letters: Vec<ocentra_eventing::bus::reports::DeadLetter>,
 }
 
 impl ScreenRuntimeReport {

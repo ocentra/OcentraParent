@@ -29,3 +29,9 @@ Purpose: lock the canonical scope, the setup handoff boundary, and the compatibi
 - child runtime leaks into parent scope
 - setup completion is claimed from package metadata alone
 - manual-required gaps are hidden
+
+## Completion
+
+- Proof root: `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/`
+- Status: WP01 scope and route boundary proof recorded; later workpacks remain open.
+- Notes: canonical parent-client scope, route bridge separation, setup-install handoff boundary, portal shell UX handoff, and compatibility note are documented in the plan-local route docs.

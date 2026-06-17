@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PortalFrameTuner } from '@ocentra-parent/portal-domain/contracts';
-import { DEFAULT_PORTAL_FRAME_LAYOUT, normalizePortalFrameLayout, type PortalFrameLayout } from './portal-frame-layout';
+import { normalizePortalFrameLayout } from './portal-frame-layout-state';
+import { DEFAULT_PORTAL_FRAME_LAYOUT, type PortalFrameLayout } from './portal-frame-layout-types';
 
 export function usePortalFrameLayout(
   pollDevLayout: boolean

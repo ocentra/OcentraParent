@@ -92,13 +92,19 @@ impl DevLogger {
         };
 
         match &self.target {
-            DevLogTarget::Scoped { writer, scope } => writer.append_event(scope, DEV_LOG_STREAM, &event),
+            DevLogTarget::Scoped { writer, scope } => {
+                writer.append_event(scope, DEV_LOG_STREAM, &event)
+            }
             DevLogTarget::LegacyDir(directory) => append_legacy_event(directory, &event),
         }
     }
 }
 
-pub fn write_agent_info(source: LogSource, message: &str, fields: LogFields) -> io::Result<PathBuf> {
+pub fn write_agent_info(
+    source: LogSource,
+    message: &str,
+    fields: LogFields,
+) -> io::Result<PathBuf> {
     DevLogger::from_env(source)?.info(message, fields)
 }
 
@@ -121,9 +127,17 @@ fn append_legacy_event(directory: &Path, event: &ParentLogEvent) -> io::Result<P
     Ok(path)
 }
 
-fn legacy_dev_log_path(mut directory: PathBuf, source: &LogSource, timestamp: &str) -> io::Result<PathBuf> {
+fn legacy_dev_log_path(
+    mut directory: PathBuf,
+    source: &LogSource,
+    timestamp: &str,
+) -> io::Result<PathBuf> {
     create_dir_all(&directory)?;
-    directory.push(format!("{}-{}.ndjson", source.compat_file_prefix(), timestamp_day(timestamp)));
+    directory.push(format!(
+        "{}-{}.ndjson",
+        source.compat_file_prefix(),
+        timestamp_day(timestamp)
+    ));
     Ok(directory)
 }
 
@@ -145,10 +159,15 @@ fn timestamp_day(timestamp: &str) -> String {
 }
 
 fn create_log_id(timestamp: &str, source: &LogSource, message: &str) -> String {
-    let digest = Sha256::digest(format!("{}:{}:{message}", source.compat_file_prefix(), timestamp).as_bytes());
+    let digest = Sha256::digest(
+        format!("{}:{}:{message}", source.compat_file_prefix(), timestamp).as_bytes(),
+    );
     format!(
         "parent-log-{}-{}",
-        timestamp.chars().filter(char::is_ascii_alphanumeric).collect::<String>(),
+        timestamp
+            .chars()
+            .filter(char::is_ascii_alphanumeric)
+            .collect::<String>(),
         &format!("{digest:x}")[..8]
     )
 }

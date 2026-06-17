@@ -40,13 +40,16 @@ This folder is the single working plan location for location evidence, geofence 
 - Capability guide exists.
 - Schema proposal exists.
 - Tracking settings inventory exists with 338 raw settings.
-- Focused TypeScript contract proof now exists for tracking evidence, geofence/place models, tracking AI safety evidence, tracking policy/action contracts, and proof-routing states.
+- Real TypeScript tracking owner now exists mostly in `packages/tracking-domain`.
+- Real Rust tracking runtime now exists in `crates/tracking-core`.
 - Location posture modes are represented as design inputs: Off, Last known, Check-in, Arrival alerts, Temporary live, and Missing device.
 - Capability/degraded vocabulary exists as raw inventory input, including service-disabled, manual-required, offline-last-known-only, and battery-throttled.
 - Device-status design inputs exist for last heartbeat, last location sample, last sync, battery percentage, charging state, low-power mode, and pending upload count.
 
 ## Open gaps / missing product runtime
 
+- Architecture gate currently fails in `packages/tracking-domain` on pre-existing `Prettier ignore directives are forbidden` bypass-guard violations in `packages/tracking-domain/src/tracking-control-catalog-data.ts`.
+- Proof regeneration is currently blocked because `tracking-product-readiness-closure-proof.mjs` now stops on missing upstream pre-device/runtime/service/mobile proof artifacts and `tracking-source-reconciliation-gap-map-proof.mjs` still depends on the missing closure artifact.
 - Platform adapter proof.
 - Journal/SQLite read models.
 - Parent/child UI.
@@ -74,13 +77,24 @@ This folder is the single working plan location for location evidence, geofence 
 
 ## Workpack summary
 
-- Workpacks indexed: 33.
-- Workpacks with open checkboxes: 28.
-- Workpacks with all detected boxes checked: 5.
-- Workpacks with no checkbox status: 0.
+- Workpacks on disk: 39.
+- Workpacks previously indexed by generated docs: 33.
+- Checkbox-closed workpacks requiring audit reopen: `WP25`, `WP27`, `WP28`, `WP29`, `WP33`.
+- On-disk workpacks omitted by the earlier generated index: `WP34`, `WP35`, `WP36`, `WP37`, `WP38`, `WP39`.
 
-### Active/open workpacks
+### Audit-priority workpacks
 
+- [WP33 Proof Gates Fixtures Rollout And PR Gate](workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md) - 65/65 checked, but proof rerun is blocked and the checked state is not trustworthy.
+- [WP25 Policy Compiler For Tracking Rules](workpacks/25-policy-compiler-for-tracking-rules.md) - 11/11 checked, but runtime compiler/evaluator completion is not yet proved.
+- [WP27 Escalation Engine](workpacks/27-escalation-engine.md) - 11/11 checked, but runtime escalation proof is incomplete.
+- [WP28 Temporary Live Tracking Mode](workpacks/28-temporary-live-tracking-mode.md) - 11/11 checked, but runtime/UI proof is incomplete.
+- [WP29 Missing-Device Mode](workpacks/29-missing-device-mode.md) - 11/11 checked, but runtime/device proof is incomplete.
+- [WP34 Tracking Event Contracts And Protocol Constants](workpacks/34-tracking-event-contracts-and-protocol-constants.md) - on disk, not represented in older generated status docs.
+- [WP35 Parent Tracking Config Command Event Flow](workpacks/35-parent-tracking-config-command-event-flow.md) - on disk, not represented in older generated status docs.
+- [WP36 Tracking Detection Cascade Event Flow](workpacks/36-tracking-detection-cascade-event-flow.md) - on disk, not represented in older generated status docs.
+- [WP37 Tracking Event Journal Replay And Projection](workpacks/37-tracking-event-journal-replay-and-projection.md) - on disk, not represented in older generated status docs.
+- [WP38 Tracking Notification And Escalation Event Flow](workpacks/38-tracking-notification-and-escalation-event-flow.md) - on disk, not represented in older generated status docs.
+- [WP39 Tracking Portal Event Read-Model Proof](workpacks/39-tracking-portal-event-read-model-proof.md) - on disk, not represented in older generated status docs.
 - [WP01 Source Index And Repo Reconciliation](workpacks/01-source-index-and-repo-reconciliation.md) - 0/11 checked, 11 open.
 - [WP09 Android Background Location And Geofence Adapter](workpacks/09-android-background-location-and-geofence-adapter.md) - 3/14 checked, 11 open.
 - [WP02 Current Tracking Snapshot And Gap Map](workpacks/02-current-tracking-snapshot-and-gap-map.md) - 0/10 checked, 10 open.
@@ -106,6 +120,12 @@ This folder is the single working plan location for location evidence, geofence 
 - [WP06 Permission And Capability Status Model](workpacks/06-permission-and-capability-status-model.md) - 6/10 checked, 4 open.
 - [WP14 Geofence Rule Model](workpacks/14-geofence-rule-model.md) - 6/10 checked, 4 open.
 - [WP21 Place-Risk Taxonomy And Ambiguity Model](workpacks/21-place-category-taxonomy-and-ambiguity-model.md) - 6/10 checked, 4 open.
+
+## Audit truth notes
+
+- The current TypeScript tracking owner is mostly `packages/tracking-domain`, not `packages/activity-domain`.
+- `packages/parent-domain` still carries a large tracking proof/readiness shadow surface and currently fails to build, so proof scripts depending on it are not rerunnable today.
+- The strongest runtime implementation is in `crates/tracking-core`.
 
 ## Default no-read list
 

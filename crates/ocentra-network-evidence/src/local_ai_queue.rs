@@ -81,28 +81,35 @@ pub fn plan_network_local_ai_queue(
 ) -> Result<NetworkLocalAiQueuePlan, NetworkLocalAiQueueError> {
     validate_refs(&input)?;
     validate_no_claims(&input)?;
-
-    let trigger_ref = input.bundle.trigger_ref.clone();
-    let evidence_refs = input.bundle.evidence_refs.clone();
-    let summary_refs = normalized_summary_refs(&input.summary_refs)?;
     let status = queue_status(&input);
+
+    let NetworkLocalAiQueueInput {
+        queue_job_ref,
+        queue_ref,
+        model_runtime_ref,
+        bundle,
+        summary_refs,
+        ..
+    } = input;
+    let trigger_ref = bundle.trigger_ref.clone();
+    let evidence_refs = bundle.evidence_refs.clone();
+    let summary_refs = normalized_summary_refs(&summary_refs)?;
     let job = if status == NetworkLocalAiQueueStatus::Queued {
         Some(NetworkLocalAiQueueJob {
-            queue_job_ref: normalize_ref(&input.queue_job_ref)
+            queue_job_ref: normalize_ref(&queue_job_ref)
                 .ok_or(NetworkLocalAiQueueError::EmptyQueueJobRef)?,
-            queue_ref: normalize_ref(&input.queue_ref)
-                .ok_or(NetworkLocalAiQueueError::EmptyQueueRef)?,
-            model_runtime_ref: normalize_ref(&input.model_runtime_ref)
+            queue_ref: normalize_ref(&queue_ref).ok_or(NetworkLocalAiQueueError::EmptyQueueRef)?,
+            model_runtime_ref: normalize_ref(&model_runtime_ref)
                 .ok_or(NetworkLocalAiQueueError::EmptyModelRuntimeRef)?,
             trigger_ref: trigger_ref.clone(),
             evidence_refs: evidence_refs.clone(),
             summary_refs: summary_refs.clone(),
-            exact_url_evidence_refs: input.bundle.exact_url_evidence_refs.clone(),
+            exact_url_evidence_refs: bundle.exact_url_evidence_refs.clone(),
             input_kinds: vec![
                 NetworkLocalAiQueueInputKind::EvidenceRefs,
                 NetworkLocalAiQueueInputKind::SummaryRefs,
             ],
-            evidence_grade: input.bundle.evidence_grade,
+            evidence_grade: bundle.evidence_grade,
             raw_network_payload_available: false,
             page_content_available: false,
             decrypted_payload_available: false,
@@ -118,7 +125,7 @@ pub fn plan_network_local_ai_queue(
         trigger_ref,
         evidence_refs,
         summary_refs,
-        local_ai_review_recommended: input.bundle.local_ai_review_recommended,
+        local_ai_review_recommended: bundle.local_ai_review_recommended,
         job,
         policy_action_authority: false,
         adapter_action_authority: false,

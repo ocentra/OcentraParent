@@ -16,22 +16,22 @@ import {
   BillingFailureKindSchema,
   BillingPlanIdSchema,
   NonNegativeBillingCountSchema,
-} from './billing-entitlement-values';
+} from './billing-entitlement-values.js';
 import {
   BillingEntitlementSideEffectSchema,
   BillingInvoiceCurrencyCodeSchema,
   BillingInvoiceNumberSchema,
   BillingInvoiceVisibilityStateSchema,
-} from './billing-invoice-tax-refund-dispute-values';
+} from './billing-invoice-tax-refund-dispute-values.js';
 import {
   BillingSupportAdminAuditReferenceSchema,
   BillingSupportAdminNonClaimSchema,
   BillingSupportAdminProviderSecretCustodySchema,
-} from './billing-support-admin-boundary-values';
+} from './billing-support-admin-boundary-values.js';
 import {
   BillingReferralCodeSchema,
   BillingReferralSubjectSchema,
-} from './billing-referral-boundary';
+} from './billing-referral-boundary.js';
 
 export const BillingSupportAdminReadActorRoleSchema = withParser(
   Schema.Literal('support', 'admin')

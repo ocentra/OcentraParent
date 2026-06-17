@@ -124,11 +124,11 @@ Deployment, custom domain, analytics, account handoff, and downloads remain manu
 ## Fill before DONE
 
 ```text
-Workpack id and branch:
-Public route/data-boundary changes:
-Touched files:
-Validation commands and results:
-Proof artifacts:
-Known gaps/manual-required states:
-No-claim boundaries:
+Workpack id and branch: WP01 Family Web Info Site / codex/tracking-plan-full-continuation-a
+Public route/data-boundary changes: defined the public route map, no-private-activity boundary, data collection matrix, privacy copy rules, link map, and deploy blocker state for family.ocentra.ca.
+Touched files: output/setup-install-provisioning-plan-proof/01-family-web-info-site/00-public-site-route-map-proof.md, output/setup-install-provisioning-plan-proof/01-family-web-info-site/01-no-private-activity-data-proof.md, output/setup-install-provisioning-plan-proof/01-family-web-info-site/02-data-collection-matrix.md, output/setup-install-provisioning-plan-proof/01-family-web-info-site/03-privacy-copy-no-overclaim-proof.md, output/setup-install-provisioning-plan-proof/01-family-web-info-site/04-link-accessibility-proof.md, output/setup-install-provisioning-plan-proof/01-family-web-info-site/05-deploy-preview-proof-or-blocker.md, output/setup-install-provisioning-plan-proof/01-family-web-info-site/16-validation-commands.log, docs/plans/setup-install-provisioning-plan/workpacks/01-family-web-info-site.md, docs/plans/setup-install-provisioning-plan/CHECKLIST_INDEX.md, docs/plans/setup-install-provisioning-plan/PLAN_STATE.md, docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md
+Validation commands and results: `node -e "console.log('family-web-info-site-docs-only')"` PASS; `npm run lint:architecture -- --files docs/plans/setup-install-provisioning-plan` PASS; `npm run build --workspace @ocentra-parent/production-domain` PASS; `npm run test --workspace @ocentra-parent/production-domain` PASS (56 files, 208 tests)
+Proof artifacts: output/setup-install-provisioning-plan-proof/01-family-web-info-site/00-public-site-route-map-proof.md, output/setup-install-provisioning-plan-proof/01-family-web-info-site/01-no-private-activity-data-proof.md, output/setup-install-provisioning-plan-proof/01-family-web-info-site/02-data-collection-matrix.md, output/setup-install-provisioning-plan-proof/01-family-web-info-site/03-privacy-copy-no-overclaim-proof.md, output/setup-install-provisioning-plan-proof/01-family-web-info-site/04-link-accessibility-proof.md, output/setup-install-provisioning-plan-proof/01-family-web-info-site/05-deploy-preview-proof-or-blocker.md, output/setup-install-provisioning-plan-proof/01-family-web-info-site/16-validation-commands.log
+Known gaps/manual-required states: no live family-site deployment proof, no custom-domain proof, no browser-level accessibility smoke, Cloudflare Pages vs Workers ownership still unresolved by the owning plans.
+No-claim boundaries: no deployed site, no installer readiness, no account/session implementation, no child activity custody, no LAN or child-device implementation, no production-ready installer claim.
 ```

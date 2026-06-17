@@ -245,6 +245,24 @@ fn policy_delivery_round_trips_explicit_wp04_delivery_states() {
             None,
         ),
         (
+            PolicyDeliveryState::Acknowledged,
+            "acknowledged",
+            Some(("attempt-acknowledged", "audit-attempt-acknowledged-2")),
+            None,
+        ),
+        (
+            PolicyDeliveryState::Offline,
+            "offline",
+            Some(("attempt-offline", "audit-attempt-offline-2")),
+            Some("network-offline"),
+        ),
+        (
+            PolicyDeliveryState::Superseded,
+            "superseded",
+            Some(("attempt-superseded", "audit-attempt-superseded-2")),
+            None,
+        ),
+        (
             PolicyDeliveryState::RetryScheduled,
             "retry-scheduled",
             Some(("attempt-retry", "audit-attempt-retry-2")),
@@ -295,6 +313,10 @@ fn policy_delivery_round_trips_explicit_wp04_delivery_states() {
         transition.reason_code = reason_code.map(|value| {
             PolicyReasonCode::parse(value).expect("policy reason code for explicit wp04 state")
         });
+        if state == PolicyDeliveryState::Superseded {
+            transition.superseded_by_policy_version =
+                Some(PolicyVersion::new(8).expect("policy version"));
+        }
 
         let record = apply_policy_delivery_transition(&queued, transition)
             .expect("explicit wp04 delivery state transition")

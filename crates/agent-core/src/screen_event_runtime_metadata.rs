@@ -1,6 +1,7 @@
 use ocentra_eventing::{
-    CorrelationId, EventCustody, EventId, EventMetadata, EventSource, EventingError, RecordedAt,
-    RuntimeInstanceId, SourceComponent, SourceService, TargetHandler,
+    envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::CorrelationId,
+    ids::EventCustody, ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
+    ids::SourceService, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
 

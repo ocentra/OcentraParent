@@ -17,8 +17,10 @@
 ## Proof root
 
 ```text
-output/policy-control-plane-plan-proof/<workpack-file-stem>/
+docs/proof/policy-control-plane-plan/
 ```
+
+Current audit state: this proof root is the canonical location referenced by the workpacks and now contains the WP06 route bundle plus universal guardrail files. Keep WP01/WP02/WP03/WP04/WP05/WP07/WP08 open until their named closeout artifacts exist.
 
 ## Required universal proof files
 
@@ -28,6 +30,8 @@ output/policy-control-plane-plan-proof/<workpack-file-stem>/
 02-no-claim-boundary.md
 16-validation-commands.log
 ```
+
+Workpack-specific proof files named in the workpack docs are the closeout artifacts for WP01-WP08; the universal files supplement them and do not replace them.
 
 ## Command log format
 

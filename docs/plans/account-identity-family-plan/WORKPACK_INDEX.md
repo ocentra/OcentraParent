@@ -18,11 +18,11 @@ Use this index to select exactly one workpack.
 
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
-| open | [WP01 Auth Provider Decision](workpacks/01-auth-provider-decision.md) | 0/10 | `RESEARCH_AND_DECISIONS.md`, `docs/expectations/cloud.md` | `output/account-identity-family-plan-proof/01-auth-provider-decision/` |
-| open | [WP02 Identity Household Role Model](workpacks/02-identity-household-role-model.md) | 0/13 | `docs/features/family-setup-device-roles.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/02-identity-household-role-model/` |
-| open | [WP03 Session Token Lifecycle](workpacks/03-session-token-lifecycle.md) | 0/14 | `RESEARCH_AND_DECISIONS.md`, `packages/family-domain/src/session-lifecycle.ts` | `output/account-identity-family-plan-proof/03-session-token-lifecycle/` |
-| open | [WP04 Invites Recovery Lifecycle](workpacks/04-invites-recovery-lifecycle.md) | 0/13 | `docs/expectations/family-setup.md`, `docs/expectations/data-custody.md` | `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/` |
-| open | [WP05 Device Ownership AuthZ](workpacks/05-device-ownership-authz.md) | 0/13 | `docs/features/family-setup-device-roles.md`, `docs/expectations/platforms.md` | `output/account-identity-family-plan-proof/05-device-ownership-authz/` |
+| partial | [WP01 Auth Provider Decision](workpacks/01-auth-provider-decision.md) | 10/10 | `RESEARCH_AND_DECISIONS.md`, `docs/expectations/cloud.md` | `output/account-identity-family-plan-proof/01-auth-provider-decision/` |
+| partial | [WP02 Identity Household Role Model](workpacks/02-identity-household-role-model.md) | 0/13 | `docs/features/family-setup-device-roles.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/02-identity-household-role-model/` |
+| partial | [WP03 Session Token Lifecycle](workpacks/03-session-token-lifecycle.md) | 0/14 | `RESEARCH_AND_DECISIONS.md`, `packages/family-domain/src/session-lifecycle.ts` | `output/account-identity-family-plan-proof/03-session-token-lifecycle/` |
+| partial | [WP04 Invites Recovery Lifecycle](workpacks/04-invites-recovery-lifecycle.md) | 0/13 | `docs/expectations/family-setup.md`, `docs/expectations/data-custody.md` | `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/` |
+| partial | [WP05 Device Ownership AuthZ](workpacks/05-device-ownership-authz.md) | 0/13 | `docs/features/family-setup-device-roles.md`, `docs/expectations/platforms.md` | `output/account-identity-family-plan-proof/05-device-ownership-authz/` |
 | open | [WP07 Parent Account Family Setup UI](workpacks/07-parent-account-family-setup-ui.md) | 0/13 | `docs/expectations/portal.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/` |
 | open | [WP06 Security Proof And Route Gate](workpacks/06-security-proof-and-route-gate.md) | 0/16 | all prior workpack proof roots | `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/` |
 

@@ -6,10 +6,9 @@
 //! classification, dispute/manual-review state, and downstream entitlement
 //! update requirements. Local capability access gates stay in entitlement-core.
 
-use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventContract, EventType, EventingError, IdempotencyKey,
-    SchemaVersion,
-};
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use serde::{Deserialize, Serialize};
 
 pub const CRATE_NAME: &str = "ocentra-billing-core";

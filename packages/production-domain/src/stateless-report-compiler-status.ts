@@ -8,12 +8,12 @@ import {
   ParentOwnedSyncExportDataClassSchema,
   type ParentOwnedSyncExportDataClass,
   ParentOwnedSyncExportDestinationOwnershipSchema,
-} from '@ocentra-parent/production-domain/parent-owned-sync-export';
+} from './parent-owned-sync-export';
 import {
   RequiredStatelessReportCompilerNonClaims,
   RequiredStatelessReportCompilerStatuses,
   StatelessReportCompilerKnownGaps,
-} from '@ocentra-parent/production-domain/stateless-report-compiler-status-values';
+} from './stateless-report-compiler-status-values';
 import {
   FamilyReferenceSchema,
   ParentAccountReferenceSchema,

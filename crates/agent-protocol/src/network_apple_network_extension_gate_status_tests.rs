@@ -13,8 +13,8 @@ fn apple_network_extension_gate_status_serializes_to_camel_case_contract_shape()
             constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_GATE_REF.to_string(),
         policy_decision_ref:
             constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_POLICY_DECISION_REF.to_string(),
-        parent_rule_ref:
-            constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_PARENT_RULE_REF.to_string(),
+        parent_rule_ref: constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_PARENT_RULE_REF
+            .to_string(),
         evidence_refs: vec![
             constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_EVIDENCE_REF.to_string(),
         ],
@@ -23,10 +23,9 @@ fn apple_network_extension_gate_status_serializes_to_camel_case_contract_shape()
         ),
         platform: NetworkAppleNetworkExtensionPlatformStatus::MacOs,
         bundle_ref: constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_BUNDLE_REF.to_string(),
-        network_extension_ref:
-            constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_REF.to_string(),
-        capability_state:
-            NetworkAppleNetworkExtensionGateCapabilityStatusState::AppleDeviceReady,
+        network_extension_ref: constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_REF
+            .to_string(),
+        capability_state: NetworkAppleNetworkExtensionGateCapabilityStatusState::AppleDeviceReady,
         gate_state: NetworkAppleNetworkExtensionGateStatusState::ManualRequired,
         boundary_reasons: vec![
             constants::network_flow::APPLE_NETWORK_EXTENSION_BOUNDARY_MISSING_REQUIRED_ARTIFACT

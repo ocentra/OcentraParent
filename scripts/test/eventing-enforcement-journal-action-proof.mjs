@@ -23,7 +23,14 @@ async function main() {
     'ocentra-parent-agent-service',
     'enforcement_supported_adapter_runtime_proof',
   ]);
-  await runCommand('node', ['scripts/check-source-shape.mjs']);
+  for (const sourceShapeTarget of [
+    'crates/agent-service/src/enforcement_api.rs',
+    'crates/agent-service/src/enforcement_api/enforcement_pre_action_journal.rs',
+    'crates/agent-service/src/enforcement_tests.rs',
+    'crates/agent-protocol/src/constants/enforcement.rs',
+  ]) {
+    await runCommand('node', ['scripts/check-source-shape.mjs', sourceShapeTarget]);
+  }
   await assertSourceContracts();
 
   const proof = {

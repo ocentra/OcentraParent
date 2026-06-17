@@ -21,8 +21,9 @@ workpack index: present
 checklist index: present
 proof index: present
 workpacks: present
-implementation: not started by this plan
-source proof: not generated yet
+implementation: substantial source/test work exists for WP02/WP03/WP04/WP05/WP06/WP07/WP08/WP09/WP10, but the closeout docs overclaim proof-backed completion relative to this checkout
+source proof: output/logging-domain-parity-proof/ is absent in this checkout
+test-results roots: the named test-results/logging-domain-parity-* roots are absent in this checkout
 PR-ready: false
 ```
 
@@ -37,6 +38,7 @@ CHECKLIST_INDEX.md has rows for every workpack.
 PROOF_INDEX.md has proof roots for every workpack.
 TEST_PROOF_EXPECTATIONS.md has commands for every workpack.
 Every workpack has a Fill-before-DONE section.
+Plan-level done/open labels match the actual checklist state and on-disk proof roots.
 ```
 
 ## Known healthy boundaries
@@ -60,16 +62,10 @@ Do not remove that split.
 The plan is not implementation-complete until these are done:
 
 ```text
-WP01 audit artifacts generated
-WP02 TypeScript package parity implemented
-WP03 parent routing fixed
-WP09 log control, retention, and bridge lifecycle implemented
-WP04 Rust logging-core implemented
-WP05 local validation evidence implemented
-WP07 MCP query interface implemented or existing MCP upgraded
-WP08 logger instrumentation/adoption implemented
-WP10 proof trace pipeline implemented
-WP06 validation/enforcement implemented
+proof inventory restored or proof claims removed
+WP03 truthful closeout
+WP10 standalone proof-trace smoke repaired or narrowed
+WP06 enforcement extended if the plan intends to guarantee proof-inventory honesty
 ```
 
 ## Stale-state triggers
@@ -98,6 +94,8 @@ workpack status says checked but proof artifacts are missing
 MCP or instrumentation claims are made without WP07/WP08 proof
 proof-trace claims are made without WP10 proof
 log lifecycle/control claims are made without WP09 proof
+plan-level done/source-proof claims remain after the named proof roots are absent in the checkout
+workpack boxes imply completion while CHECKLIST_INDEX.md remains unchecked
 ```
 
 ## PR-ready rule

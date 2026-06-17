@@ -1,9 +1,9 @@
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    NetworkAppleNetworkExtensionGateCapabilityStatusState,
-    NetworkAppleNetworkExtensionGateStatus, NetworkAppleNetworkExtensionGateStatusState,
-    NetworkAppleNetworkExtensionPlatformStatus, AGENT_PROTOCOL_SCHEMA_VERSION,
+    NetworkAppleNetworkExtensionGateCapabilityStatusState, NetworkAppleNetworkExtensionGateStatus,
+    NetworkAppleNetworkExtensionGateStatusState, NetworkAppleNetworkExtensionPlatformStatus,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use serde::de::DeserializeOwned;
 
@@ -52,7 +52,10 @@ fn assert_apple_network_extension_status(status: &NetworkAppleNetworkExtensionGa
         status.apple_network_extension_gate_ref,
         constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_GATE_REF
     );
-    assert_eq!(status.platform, NetworkAppleNetworkExtensionPlatformStatus::Ios);
+    assert_eq!(
+        status.platform,
+        NetworkAppleNetworkExtensionPlatformStatus::Ios
+    );
     assert_eq!(
         status.capability_state,
         NetworkAppleNetworkExtensionGateCapabilityStatusState::AppleDeviceReady
@@ -77,9 +80,7 @@ fn assert_artifact_refs(status: &NetworkAppleNetworkExtensionGateStatus) {
     );
     assert_eq!(
         status.entitlement_approval_proof_ref.as_deref(),
-        Some(
-            constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_ENTITLEMENT_APPROVAL_PROOF_REF
-        )
+        Some(constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_ENTITLEMENT_APPROVAL_PROOF_REF)
     );
     assert_eq!(
         status.network_extension_declaration_ref.as_deref(),

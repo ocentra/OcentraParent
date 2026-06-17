@@ -8,7 +8,7 @@ import {
   LanHouseholdManualProofGateSchema,
   LanHouseholdProductProofStateSchema,
   LanHouseholdProductReadinessDecisionSchema,
-} from '@ocentra-parent/lan-domain/lan-pairing-product-proof';
+} from './lan-pairing-product-proof';
 import {
   LanPairingDeviceReachabilitySchema,
   LanPairingProductionDiscoveryStateSchema,
@@ -17,7 +17,7 @@ import {
   LanPairingSchemaVersionSchema,
   LanPairingTimestampSchema,
   LanPairingTrustStateSchema,
-} from '@ocentra-parent/lan-domain/lan-pairing-values';
+} from './lan-pairing-values';
 
 export const V09ProductionDiscoveryHouseholdProofBoundarySchema = withParser(
   Schema.Literal('local-real-service-not-physical-household-lan')

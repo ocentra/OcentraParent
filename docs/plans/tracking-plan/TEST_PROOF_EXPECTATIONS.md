@@ -28,11 +28,24 @@ Use the subset relevant to the selected workpack:
 ```bash
 npm run build --workspace @ocentra-parent/tracking-domain
 npm run test --workspace @ocentra-parent/tracking-domain
-cargo test -p ocentra-parent-tracking-core
+cargo test -p ocentra-tracking-core
 cargo test -p ocentra-parent-agent-protocol tracking
 npm run test --workspace @ocentra-parent/portal -- tracking
 npm run lint:architecture -- --files packages/tracking-domain crates/tracking-core packages/agent-protocol-domain crates/agent-protocol apps/portal docs/plans/tracking-plan
 ```
+
+Audit note:
+
+- `node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs` is a
+  dependent proof step, not a cheap standalone green check. It requires the
+  product-readiness closure proof artifact first.
+- `node scripts/test/tracking-claim-audit-proof.mjs` now reruns from
+  `packages/tracking-domain` source and is the cheap WP33 aggregate proof gate
+  that should stay green before closure/source-reconciliation reruns.
+- `node scripts/test/tracking-product-readiness-closure-proof.mjs` no longer
+  depends on a clean `@ocentra-parent/parent-domain` build directly, but it is
+  currently blocked by missing upstream proof artifacts from the pre-device,
+  runtime, service-read-model, and mobile proof chain.
 
 ## Required negative states
 
