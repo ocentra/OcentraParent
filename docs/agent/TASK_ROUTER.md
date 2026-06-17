@@ -21,6 +21,10 @@ Authoring rule: routing docs define goals, expected shapes, boundaries, proof,
 and failure conditions. They must not spoon-feed implementation code or tell a
 future worker exactly what code to write.
 
+## Universal instrumentation note
+
+For source/test/proof work, universal logging and proof-chain instrumentation is part of source shape. It is not Cloudflare-only. Source routes must apply `.ocentra-ai/rules/ocentra-parent-logging-redaction.mdc` and `docs/repo-audits/event-driven-proof-architecture/LOGGER_USAGE_PATTERN_STANDARD.md` where applicable.
+
 ## Route decision
 
 | Assignment says...                                                                                                       | Read                                                             |
