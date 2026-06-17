@@ -18,6 +18,10 @@ Purpose: coordinate structural cleanup and per-plan follow-up after all canonica
 | --- | --- |
 | [AGENTS.md](AGENTS.md) | Local route and stop rules. |
 | [LANE_MANAGER_AUTOPILOT.md](LANE_MANAGER_AUTOPILOT.md) | Main lane-manager operating instructions. |
+| [READ_SCOPE_BUDGET.md](READ_SCOPE_BUDGET.md) | Read limits so workers do not scan the whole repo. |
+| [VALIDATION_BUDGET_LADDER.md](VALIDATION_BUDGET_LADDER.md) | Validation levels so workers do not run broad gates by habit. |
+| [DISPATCH_PACKET_TEMPLATE.md](DISPATCH_PACKET_TEMPLATE.md) | Required packet shape for every assignment. |
+| [CODEX_DRY_RUN_RISK_AUDIT.md](CODEX_DRY_RUN_RISK_AUDIT.md) | Mental dry-run failure modes and required guardrails. |
 | [DISPATCH_PHASES.md](DISPATCH_PHASES.md) | Step-by-step dispatch phases and path locks. |
 | [COORDINATOR_VERDICT_MATRIX.md](COORDINATOR_VERDICT_MATRIX.md) | Verdict, first slice, blocker, and tier for every thread. |
 | [EXECUTION_DAG.md](EXECUTION_DAG.md) | Dependency order and parallelization gates. |
@@ -39,3 +43,5 @@ Before broad per-plan implementation, complete or assign:
 5. architecture policy reconciliation;
 6. ownership drift map;
 7. DRY/common-core candidate map.
+
+Every assignment must include a read-scope level, validation level, exact allowed paths, exact forbidden paths, and stop conditions.
