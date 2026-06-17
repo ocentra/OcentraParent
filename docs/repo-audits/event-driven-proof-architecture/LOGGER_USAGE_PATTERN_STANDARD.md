@@ -4,7 +4,9 @@
 
 Every core file that participates in runtime, event, command, request, proof, or test chains must be logger-ready. Logging is not random console output. It is controlled proof and diagnostics infrastructure.
 
-This standard adapts the Ocentra Games logger pattern to OcentraParent.
+This standard is universal for OcentraParent. It is not Cloudflare-only. It applies to packages, apps, scripts, infra workers when present, tests, proof runners, and Rust crates through the Rust parity rule below.
+
+This standard adapts the Ocentra Games logger pattern to OcentraParent names and boundaries.
 
 ## Existing OcentraParent surface
 
@@ -16,6 +18,19 @@ import { getStackTrace, type StackTrace } from '@ocentra-parent/logging-domain/c
 ```
 
 `logging-domain` already provides core logger, stack trace, test-log, app-log, and bridge transport exports.
+
+## Applies to
+
+| Surface | Rule |
+| --- | --- |
+| `packages/*/src` runtime/domain behavior | logger-ready unless pure schema/constants/brands only |
+| `packages/*/tests` | initialize logger for chain/proof tests |
+| `apps/*/src` command paths, dev panels, route actions | logger-ready for command/read-model proof |
+| `apps/*/tests` and Playwright/e2e | initialize logger and correlate UI proof to logs/events/read models |
+| `scripts/test/*` and proof runners | logger-ready and artifact-producing |
+| `scripts/*` operational helpers | logger-ready when part of validation/proof/runtime flow |
+| `infra/*` workers/handlers, if present | same pattern; not special-cased to Cloudflare only |
+| `crates/*` Rust runtime/proof code | Rust parity trace/event adapter required |
 
 ## Module-level TS pattern
 
@@ -126,3 +141,4 @@ If a Rust crate cannot emit or expose proof trace, add a small logging/event ada
 | noisy production logs | keep default disabled/gated |
 | proof without trace id | add run id and correlation id |
 | test only asserts return value | also assert log/event/read-model milestone when proving chain |
+| treating this as Cloudflare-only | apply it universally to runtime/proof/test chain files |
