@@ -6,6 +6,7 @@ import {
   getArtifactSlice,
   getLatestFailures,
   getLogStats,
+  getProofInventoryStatus,
   getProofTrace,
   getProofTraceGaps,
   getRunDiagnostics,
@@ -103,6 +104,13 @@ async function main() {
   if (command === 'stats') {
     const stats = await getLogStats({ scope: 'parent-codex' });
     process.stdout.write(formatStats(stats.agentEvidence ?? stats));
+    return;
+  }
+
+  if (command === 'proof-inventory') {
+    process.stdout.write(
+      `${JSON.stringify(await getProofInventoryStatus(), null, 2)}\n`
+    );
     return;
   }
 

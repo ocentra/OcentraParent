@@ -60,6 +60,49 @@ fn guardian_cannot_manage_billing() {
 }
 
 #[test]
+fn export_delete_requires_parent_owner_authority() {
+    let owner_decision = authorize_household_action(trusted_parent_input(
+        HouseholdAuthorityAction::ExportDeleteData,
+    ));
+
+    assert_eq!(
+        owner_decision.authorization_state,
+        HouseholdAuthorizationState::Authorized
+    );
+    assert_eq!(
+        owner_decision.audit_requirement_state,
+        AuditRequirementState::Required
+    );
+    assert_eq!(
+        owner_decision.elevated_confirmation_state,
+        ElevatedConfirmationState::Required
+    );
+    assert_eq!(owner_decision.failure_reason, None);
+
+    let guardian_decision = authorize_household_action(HouseholdAuthorityInput {
+        actor_role: FamilyActorRole::Guardian,
+        ..trusted_parent_input(HouseholdAuthorityAction::ExportDeleteData)
+    });
+
+    assert_eq!(
+        guardian_decision.authorization_state,
+        HouseholdAuthorizationState::Rejected
+    );
+    assert_eq!(
+        guardian_decision.audit_requirement_state,
+        AuditRequirementState::Required
+    );
+    assert_eq!(
+        guardian_decision.elevated_confirmation_state,
+        ElevatedConfirmationState::Required
+    );
+    assert_eq!(
+        guardian_decision.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::RoleNotAuthorized)
+    );
+}
+
+#[test]
 fn observer_can_view_child_status_but_cannot_change_policy() {
     let view_decision = authorize_household_action(HouseholdAuthorityInput {
         actor_role: FamilyActorRole::Observer,

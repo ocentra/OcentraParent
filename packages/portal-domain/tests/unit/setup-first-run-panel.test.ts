@@ -111,6 +111,62 @@ describe('setup first-run panel intent', () => {
     );
   });
 
+  it('surfaces invite-role-support distinctions and separates trust from login/session readiness', () => {
+    const intent = createSetupFirstRunPanelIntent();
+    const inviteRoleCard = intent.cards.find((card) => card.title === 'Invite, role, and support visibility');
+    const trustCard = intent.cards.find((card) => card.title === 'Trust and session distinction');
+
+    expect(inviteRoleCard?.details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Signed-in without household',
+          value: 'account-entry -> household-selection | signed-in account still lacks household authority',
+        }),
+        expect.objectContaining({
+          label: 'Co-parent invite',
+          value: 'pending invite -> co-parent role stays distinct from parent-owner and child-device trust',
+        }),
+        expect.objectContaining({
+          label: 'Observer invite',
+          value: 'pending invite -> observer stays read-only and cannot inherit owner controls',
+        }),
+        expect.objectContaining({
+          label: 'Support access status',
+          value: 'support-admin remains a separate audited support state | never parent-owner',
+        }),
+      ])
+    );
+
+    expect(trustCard?.details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Trust status',
+          value: 'Pairing:action-required:accepted | Pairing:complete:trusted',
+        }),
+        expect.objectContaining({
+          label: 'Wrong-account state',
+          value: 'Account:action-required:wrong-account',
+        }),
+        expect.objectContaining({
+          label: 'Reauth/manual-required state',
+          value: 'Account:action-required:recovery-required | manual-required-screen',
+        }),
+        expect.objectContaining({
+          label: 'Revoked child state',
+          value: 'Child service:action-required:revoked',
+        }),
+        expect.objectContaining({
+          label: 'Stale parent state',
+          value: 'Parent app:action-required:stale',
+        }),
+        expect.objectContaining({
+          label: 'Direct-entry-required state',
+          value: 'Network reachability:action-required:direct-entry-required',
+        }),
+      ])
+    );
+  });
+
   it('reuses shared readable portal labels where they already exist', () => {
     expect(readableSetupValue('manual-required')).toBe('Manual required');
     expect(readableSetupValue('live-local')).toBe('Live local');

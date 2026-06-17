@@ -23,10 +23,12 @@ fn validates_dispatch_ready_dry_run_manual_report_only_rejected_and_recovery_sta
         EnforcementPolicyDispatchTimerState::NotRequired,
     );
     dry_run_entry.intent.requested_policy_action = PolicyAction::AskParent;
-    dry_run_entry.intent.requested_parent_action = V08EnforcementProductControlParentAction::AskParent;
+    dry_run_entry.intent.requested_parent_action =
+        V08EnforcementProductControlParentAction::AskParent;
     dry_run_entry.intent.dry_run = true;
     dry_run_entry.matrix_row.proof_level = EnforcementPolicyDispatchProofLevel::Scaffold;
-    dry_run_entry.matrix_row.child_reason_code = dispatch::CHILD_REASON_ASK_PARENT_REVIEW.to_string();
+    dry_run_entry.matrix_row.child_reason_code =
+        dispatch::CHILD_REASON_ASK_PARENT_REVIEW.to_string();
     dry_run_entry.child_reason_code = dispatch::CHILD_REASON_ASK_PARENT_REVIEW.to_string();
     dry_run_entry.reason_codes = vec![dispatch::CHILD_REASON_ASK_PARENT_REVIEW.to_string()];
     dry_run_entry.approval_state = EnforcementPolicyDispatchApprovalState::Pending;

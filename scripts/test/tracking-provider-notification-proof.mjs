@@ -2,6 +2,8 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const testOutputDir = join(repoRoot, 'test-results', 'tracking-provider-notification-proof');
@@ -14,20 +16,23 @@ await rm(testOutputDir, { recursive: true, force: true });
 await mkdir(testOutputDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-runNpm([
+runNpmCommand(run, [
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
-  'tracking-provider-notification-proof',
-  'tracking-location-policy',
-  'v0-8-notification-provider-status-boundary',
+  'tests/contract/tracking-provider-notification-proof.test.ts',
 ]);
 
-const tracking = await importDist('tracking-location-policy.js');
-const proofModule = await importDist('tracking-provider-notification-proof.js');
+const tracking = await tsImport(
+  pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-location-policy.ts')).href,
+  import.meta.url
+);
+const proofModule = await tsImport(
+  pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-provider-notification-proof.ts')).href,
+  import.meta.url
+);
 const sourceReadModel = tracking.TrackingLocationPolicyReadModelSchema.parse(sourceTrackingReadModel(tracking));
 const readModel = proofModule.buildTrackingProviderNotificationProofReadModel(
   {
@@ -56,8 +61,8 @@ const proof = {
   summary: summarize(readModel),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-provider-notification-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-provider-notification-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-provider-notification-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-provider-notification-proof.test.ts',
     harness: 'scripts/test/tracking-provider-notification-proof.mjs',
     evidence: 'test-results/tracking-provider-notification-proof/proof.json',
     trackingProofPack: 'output/tracking-plan-proof/26-alert-severity-and-notification-model',
@@ -72,10 +77,6 @@ await writeProofPack(proofDir, proof);
 
 console.log('tracking-provider-notification-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-provider-notification-proof', 'proof.json')}`);
-
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
-}
 
 function sourceTrackingReadModel(tracking) {
   return {
@@ -205,8 +206,7 @@ async function writeProofPack(path, proof) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-provider-notification-proof tracking-location-policy v0-8-notification-provider-status-boundary: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tests/contract/tracking-provider-notification-proof.test.ts: PASS',
       '- Tracking alert rows preserve evidence refs, policy decision refs, notification status refs, reason refs, and sensitive-detail modes.',
       '- Tracking rows map into existing V0.8 provider-status boundary rows while provider delivery remains unclaimed.',
       '',
@@ -256,10 +256,4 @@ function countBy(values) {
 
 async function writeJson(path, value) {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
-}
-
-function runNpm(args, ...rest) {
-  const command = process.platform === 'win32' ? 'cmd' : 'npm';
-  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
-  return run(command, commandArgs, ...rest);
 }

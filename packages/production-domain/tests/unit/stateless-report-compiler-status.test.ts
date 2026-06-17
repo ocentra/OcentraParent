@@ -43,7 +43,7 @@ function acceptsTheContractOnlyCompilerStatusProof(): void {
     expect(proof.request.outputDestinationOwnership).toBe('parent-owned-external-storage');
     expect(proof.results.every((result) => result.tempArtifacts.deletionConfirmed)).toBe(true);
     expect(StatelessReportCompilerKnownGaps).toEqual([
-      'No report compiler runtime or cloud worker is implemented by this parent-domain proof.',
+      'No report compiler runtime or cloud worker is implemented by this production-domain contract proof.',
       'No connector OAuth, token vault, provider API, upload, or download implementation is claimed.',
       'No portal UI, CLI control, or account/subscription backend is implemented.',
       'No Ocentra-hosted custody of family activity data, generated reports, source bundles, or temporary child evidence is claimed.',

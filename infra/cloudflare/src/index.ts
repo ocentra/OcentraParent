@@ -165,6 +165,9 @@ type IdempotentWriteResult = {
   responseBody: unknown;
   queued: boolean;
 };
+type QueueFailureReason =
+  | "reconciliation-queue-missing"
+  | "reconciliation-queue-send-failed";
 
 const CHECKOUT_SUCCESS_PATH = BillingHostedReturnRoute.CheckoutSuccess.relativePath;
 const CHECKOUT_CANCEL_PATH = BillingHostedReturnRoute.CheckoutCancel.relativePath;
@@ -456,6 +459,62 @@ function withQueuedFlag(responseBody: unknown, queued: boolean): unknown {
     ...responseBody,
     queued,
   };
+}
+
+function queueFailureMessage(error: unknown): string | null {
+  if (!(error instanceof Error)) {
+    return null;
+  }
+
+  return error.message.replace(/\s+/gu, " ").trim().slice(0, 160) || null;
+}
+
+function deadLetterPayload(
+  payload: Record<string, unknown>,
+  reason: QueueFailureReason,
+  error: unknown,
+): Record<string, unknown> {
+  return {
+    disposition: "dead-letter",
+    sourceQueue: "BILLING_RECONCILIATION_QUEUE",
+    reason,
+    payload: cloneJsonValue(payload),
+    failedAt: new Date().toISOString(),
+    errorMessage: queueFailureMessage(error),
+  };
+}
+
+function explicitProviderHint(payload: unknown): string | null {
+  if (!isPlainObject(payload)) {
+    return null;
+  }
+
+  const directHint =
+    stringOrNull(payload.provider) ??
+    stringOrNull(payload.providerName) ??
+    stringOrNull(payload.providerRoute);
+  if (directHint) {
+    return directHint;
+  }
+
+  const metadata = isPlainObject(payload.metadata) ? payload.metadata : null;
+  const metadataHint =
+    stringOrNull(metadata?.provider) ??
+    stringOrNull(metadata?.providerName) ??
+    stringOrNull(metadata?.providerRoute);
+  if (metadataHint) {
+    return metadataHint;
+  }
+
+  const data = isPlainObject(payload.data) ? payload.data : null;
+  const object = isPlainObject(data?.object) ? data.object : null;
+  const objectMetadata = isPlainObject(object?.metadata) ? object.metadata : null;
+  return (
+    stringOrNull(object?.provider) ??
+    stringOrNull(objectMetadata?.provider) ??
+    stringOrNull(objectMetadata?.providerName) ??
+    stringOrNull(objectMetadata?.providerRoute)
+  );
 }
 
 function parseBillingStateMutation(value: unknown): BillingStateMutation | null {
@@ -976,7 +1035,31 @@ async function acceptProviderWebhook(
   proofIdFamily: string,
   env: Env,
 ): Promise<Response> {
-  const payload = body.length > 0 ? JSON.parse(body) : {};
+  let payload: unknown;
+  try {
+    payload = body.length > 0 ? JSON.parse(body) : {};
+  } catch {
+    return json(400, {
+      error: "invalid-webhook-payload",
+      provider,
+    });
+  }
+
+  if (!isPlainObject(payload)) {
+    return json(400, {
+      error: "invalid-webhook-payload",
+      provider,
+    });
+  }
+
+  const providerHint = explicitProviderHint(payload);
+  if (providerHint && providerHint !== provider) {
+    return json(400, {
+      error: "provider-route-mismatch",
+      provider,
+    });
+  }
+
   const event = providerEventDetails(provider, payload);
   const subject = providerWebhookSubject(payload);
   const invoiceId = providerWebhookInvoiceId(payload);
@@ -1019,10 +1102,30 @@ async function acceptProviderWebhook(
 
 async function queueReconciliationEvent(env: Env, payload: Record<string, unknown>): Promise<boolean> {
   if (!env.BILLING_RECONCILIATION_QUEUE) {
+    try {
+      await env.BILLING_DEAD_LETTER_QUEUE?.send(
+        deadLetterPayload(payload, "reconciliation-queue-missing", null),
+      );
+    } catch {
+      return false;
+    }
     return false;
   }
-  await env.BILLING_RECONCILIATION_QUEUE.send(payload);
-  return true;
+
+  try {
+    await env.BILLING_RECONCILIATION_QUEUE.send(payload);
+    return true;
+  } catch (error) {
+    try {
+      await env.BILLING_DEAD_LETTER_QUEUE?.send(
+        deadLetterPayload(payload, "reconciliation-queue-send-failed", error),
+      );
+    } catch {
+      return false;
+    }
+
+    return false;
+  }
 }
 
 async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {

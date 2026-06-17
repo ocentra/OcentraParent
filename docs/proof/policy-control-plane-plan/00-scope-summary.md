@@ -8,8 +8,9 @@ Workpack: `06-rollout-proof-and-route-gate`
 
 ## What this bundle proves
 
-- The plan-level route docs were reopened and synchronized after the audit.
+- The touched plan-level route docs now agree on one canonical proof root.
 - The canonical proof root for this plan is `docs/proof/policy-control-plane-plan/`.
+- `PLAN_PROOF_MANIFEST.md` records current proof presence and open/checked workpack status under that root.
 - Focused validation facts from this checkout are recorded in `16-validation-commands.log`.
 - The plan now has explicit no-overclaim and manual-gap artifacts for WP06.
 
@@ -27,6 +28,7 @@ Workpack: `06-rollout-proof-and-route-gate`
 | --- | --- | --- |
 | Route sync and no-overclaim | Present | `06-route-sync-proof.md`, `06-no-overclaim-proof.md` |
 | Manual-required gap register | Present | `06-manual-required-gap-register.md` |
+| Root manifest | Present | `PLAN_PROOF_MANIFEST.md` |
 | Focused command log | Present | `16-validation-commands.log` |
 | WP01 source-of-truth closeout artifacts | Present | `01-*.md` |
 | WP07 schedule/conflict closeout artifacts | Present | `07-*.md` |

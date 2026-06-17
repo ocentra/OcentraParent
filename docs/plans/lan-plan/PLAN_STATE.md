@@ -19,8 +19,10 @@
 - Plan state: active
 - Authoritative execution model: `01-20`
 - Frozen follow-on only: `21-25`
-- Current completed reconciliation slice: `Slice A`
+- Current completed slices: `Slice A`, `B1`, `B2`
 - Slice A evidence root: `output/lan-plan-proof/00-plan-model-reconciliation/`
+- B1 evidence root: `output/lan-plan-proof/01-lan-b1-proof-regeneration/`
+- B2 evidence root: `output/lan-plan-proof/02-lan-b2-test-truth-repair/`
 
 ## Slice A Status
 
@@ -41,6 +43,45 @@ Exact evidence:
 - `output/lan-plan-proof/00-plan-model-reconciliation/02-plan-truth-sync.md`
 - `output/lan-plan-proof/00-plan-model-reconciliation/03-missing-proof-inventory.md`
 
+## B1 Status
+
+`B1` is green as of 2026-06-17 for the assigned local proof-regeneration scope
+only.
+
+- Repaired proof scripts now read current `packages/lan-domain` ownership
+  rather than stale `parent-domain`, portal, or service-backed proof paths.
+- `@ocentra-parent/lan-domain` tests are green.
+- `packages/lan-domain` architecture validation is green.
+- The regenerated proof chain ends in
+  `not-ready-for-product-ready-household-lan-claim`, which is the correct
+  local mechanical result for this slice.
+
+Exact evidence:
+
+- `output/lan-plan-proof/01-lan-b1-proof-regeneration/01-lan-source-matrix-plan-completion-proof.json`
+- `output/lan-plan-proof/01-lan-b1-proof-regeneration/02-lan-signed-discovery-relay-spine-proof.json`
+- `output/lan-plan-proof/01-lan-b1-proof-regeneration/03-production-discovery-household-proof.json`
+- `output/lan-plan-proof/01-lan-b1-proof-regeneration/04-household-lan-proof-readiness.json`
+
+## B2 Status
+
+`B2` is green as of 2026-06-17 for the assigned LAN test-truth repair scope.
+
+- `packages/lan-domain/tests/unit` is the only populated LAN test category on
+  this branch/worktree.
+- Current real LAN test files: `18`.
+- Current placeholder `.gitkeep` files outside real unit coverage: `30`.
+- Placeholder category directories do not count as integration, contract, e2e,
+  property, security, load, observability, or release coverage.
+- No `packages/lan-domain/src/**` edits are part of `B2`.
+- Focused validation is green:
+  - `packages/lan-domain :: cmd /c npx vitest run tests/unit`
+
+Expected evidence for `B2`:
+
+- `packages/lan-domain/tests/README.md`
+- `output/lan-plan-proof/02-lan-b2-test-truth-repair/00-b2-test-truth-note.md`
+
 ## Executable Truth
 
 - `packages/lan-domain` is the current TypeScript source owner for executable `lan-plan` work.
@@ -50,7 +91,7 @@ Exact evidence:
 
 ## Open Execution Buckets
 
-- Locally executable next: `01-16`, `19`, `20`
+- Locally executable next: `01-16`, `19`
 - Open implementation but still local-slice work: `05`, `06`, `07`, `08`, `09`, `11`, `17`
 - Mixed local plus physical/manual final gates: `15`, `16`, `18`, `19`, `20`
 - Frozen and out of current model: `21-25`
@@ -61,11 +102,13 @@ Exact evidence:
 - router/firewall reachability proof
 - real signed child hello/heartbeat artifacts
 - replay/restart/event-stream proof completion
-- regenerated LAN source-matrix and portal proof artifacts
+- portal and downstream consumer proof artifacts
 - Android/mobile-controller proof where the plan still keeps those claims
 
 Household/setup/account first-run UX is not part of the current authoritative model. That work remains frozen in `21-25`.
 
 ## Next Slice
 
-Next approved slice after this file is `B1`: local LAN proof regeneration for the authoritative `01-20` model only.
+If `B2` lands cleanly with the current unit-only test truth and no remaining
+LAN test-placement contradiction, the next exact slice is
+`lan-c1-protocol-service-truth-repair`.

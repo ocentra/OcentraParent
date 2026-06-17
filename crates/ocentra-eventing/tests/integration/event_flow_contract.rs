@@ -4,9 +4,7 @@ use std::{
 };
 
 use ocentra_eventing::bus::{subscriber::EventSubscriber, EventBus};
-use ocentra_eventing::envelope::{
-    DomainEvent, EventContract, EventMetadata, EventSource,
-};
+use ocentra_eventing::envelope::{DomainEvent, EventContract, EventMetadata, EventSource};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{
@@ -125,8 +123,13 @@ async fn publish_and_wait_dispatches_typed_fire_and_forget_event() {
 
     assert_eq!(report.handled_count, 1);
     assert_eq!(
-        observed_payload.lock().expect_value(PARSE_EXPECTATION).clone(),
-        Some(IntegrationPayloadRef(FIRE_AND_FORGET_PAYLOAD_REF.to_owned()))
+        observed_payload
+            .lock()
+            .expect_value(PARSE_EXPECTATION)
+            .clone(),
+        Some(IntegrationPayloadRef(
+            FIRE_AND_FORGET_PAYLOAD_REF.to_owned()
+        ))
     );
 }
 

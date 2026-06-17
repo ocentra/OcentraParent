@@ -41,6 +41,7 @@ manual-required gap register
 - `docs/proof/policy-control-plane-plan/06-route-sync-proof.md`
 - `docs/proof/policy-control-plane-plan/06-no-overclaim-proof.md`
 - `docs/proof/policy-control-plane-plan/06-manual-required-gap-register.md`
+- `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md`
 
 ## Failure examples
 

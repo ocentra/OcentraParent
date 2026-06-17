@@ -101,7 +101,11 @@ function acceptsProof() {
   expect(parsed.boundarySummary.cloudRelayState).toBe('not-implemented');
   expect(parsed.boundarySummary.remoteControlState).toBe('not-implemented');
   expect(parsed.addDeviceReadModel.householdDeviceDecisions[0]?.actionKind).toBe('rename');
-  expect(parsed.addDeviceReadModel.canonicalHouseholdDevices[0]?.roleBadges).toEqual(['child-agent']);
+  expect(parsed.addDeviceReadModel.canonicalHouseholdDevices[0]?.roleBadges).toEqual([
+    'child-agent',
+    'portal',
+    'parent-controller',
+  ]);
   expect(parsed.addDeviceReadModel.canonicalHouseholdDevices[0]?.policyTargetSurfaces).toEqual([
     'devices',
     'policy',
@@ -200,7 +204,7 @@ function canonicalHouseholdDevice() {
     canonicalDeviceId: childDeviceId,
     displayName: 'Mia Windows PC',
     classification: 'child-agent',
-    roleBadges: ['child-agent'],
+    roleBadges: ['child-agent', 'portal', 'parent-controller'],
     enrollable: true,
     discoveryState: 'paired',
     trustState: 'paired',
@@ -220,7 +224,23 @@ function canonicalHouseholdDevice() {
       offlineAt: null,
       evidenceRecords: [trustedRegistryEvidenceRecord()],
     },
-    childAgentInventory: null,
+    childAgentInventory: {
+      deviceName: 'Mia Windows PC',
+      platform: 'windows',
+      os: 'windows',
+      cpuModel: null,
+      cpuCores: null,
+      memoryTotal: null,
+      gpuModel: null,
+      gpuDriver: null,
+      gpuMemory: null,
+      nvidiaSmi: null,
+      networkInterfaces: [],
+      capabilities: ['direct-websocket', 'device-inventory', 'pairing-route'],
+      roleState: 'implemented',
+      routeState: 'local-network',
+      pairingTrustState: 'paired',
+    },
     policyTargetSurfaces: ['devices', 'policy', 'browser', 'app', 'screen', 'network', 'activity', 'tracking', 'ai'],
   };
 }

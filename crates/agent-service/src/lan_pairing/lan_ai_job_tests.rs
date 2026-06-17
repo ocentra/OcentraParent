@@ -150,6 +150,56 @@ async fn authorized_lan_ai_job_submit_routes_to_opted_in_provider() {
 }
 
 #[tokio::test]
+async fn repeated_lan_ai_job_submit_reuses_completed_job_without_raw_transfer() {
+    let runtime = lan_ai_provider_runtime().await;
+    let first_command = lan_ai_job_submit_command(
+        "lan-ai-job-command-first",
+        "lan-ai-job-intent-first",
+        constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
+        constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+    );
+    let second_command = lan_ai_job_submit_command(
+        "lan-ai-job-command-second",
+        "lan-ai-job-intent-second",
+        constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER,
+        constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+    );
+
+    let first = handle_command_text_for_test(
+        &first_command,
+        runtime.clone(),
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+    let second = handle_command_text_for_test(
+        &second_command,
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+
+    assert_eq!(first.event, AgentEventName::AgentLanAiJobReported);
+    assert_eq!(second.event, AgentEventName::AgentLanAiJobReported);
+    assert_eq!(
+        first.payload.get(constants::field::LAN_AI_JOB_ID),
+        second.payload.get(constants::field::LAN_AI_JOB_ID)
+    );
+    assert_eq!(
+        second.payload.get(constants::field::LAN_AUDIT_EVENT_TYPE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AUDIT_LAN_AI_JOB_COMPLETED.to_string()
+        ))
+    );
+    assert_eq!(
+        second.payload.get(constants::field::LAN_AI_JOB_STATE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AI_JOB_STATE_COMPLETED.to_string()
+        ))
+    );
+    assert_no_raw_lan_ai_markers(&second.payload);
+}
+
+#[tokio::test]
 async fn degraded_lan_ai_provider_routes_as_degraded_policy_state() {
     let runtime = degraded_lan_ai_provider_runtime().await;
     let event = handle_command_text_for_test(
@@ -304,6 +354,25 @@ fn lan_ai_job_payload_for_capability(authority: &str, capability: &str) -> LogFi
         LogFieldValue::String(capability.to_string()),
     );
     payload
+}
+
+fn lan_ai_job_submit_command(
+    message_id: &str,
+    intent_id: &str,
+    authority: &str,
+    capability: &str,
+) -> String {
+    let mut command = command_for_target(
+        AgentCommandName::AgentLanAiJobSubmit,
+        local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
+        lan_ai_job_payload_for_capability(authority, capability),
+    );
+    command.message_id = message_id.to_string();
+    command.payload.insert(
+        constants::field::LAN_INTENT_ID.to_string(),
+        LogFieldValue::String(intent_id.to_string()),
+    );
+    serialize_command(command)
 }
 
 async fn lan_ai_job_event(runtime: LanPairingRuntime) -> AgentEventEnvelope {

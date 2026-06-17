@@ -280,6 +280,27 @@ fn duplicate_and_older_transitions_are_safe_noops() {
 }
 
 #[test]
+fn conflicting_same_sequence_replay_is_rejected() {
+    let queued = sample_queued_delivery();
+    let delivered = transition(2, "attempt-delivered", PolicyDeliveryState::Delivered);
+    let delivered_record = apply_policy_delivery_transition(&queued, delivered)
+        .expect("deliver policy")
+        .into_record();
+
+    let conflict = apply_policy_delivery_transition(
+        &delivered_record,
+        transition(
+            2,
+            "attempt-acknowledged-conflict",
+            PolicyDeliveryState::Acknowledged,
+        ),
+    )
+    .expect_err("same-sequence replay with changed state must be rejected");
+
+    assert!(conflict.to_string().contains("policy_delivery.sequence"));
+}
+
+#[test]
 fn delivering_state_stays_pending_until_ack_or_apply() {
     let queued = sample_queued_delivery();
     let delivering = apply_policy_delivery_transition(
@@ -331,10 +352,7 @@ fn offline_delivery_is_degraded_and_requires_reason_code() {
         offline.parent_visible_state(),
         PolicyDeliveryParentVisibleState::Degraded
     );
-    assert_eq!(
-        offline.reason_code,
-        Some(reason("network-offline"))
-    );
+    assert_eq!(offline.reason_code, Some(reason("network-offline")));
     assert!(!offline.is_active());
 }
 
@@ -601,4 +619,40 @@ fn superseded_transition_requires_newer_policy_version_and_blocks_regressions() 
         PolicyDeliveryParentVisibleState::Superseded
     );
     assert!(regression_error.to_string().contains("invalid transition"));
+}
+
+#[test]
+fn superseded_before_ack_stays_superseded_and_never_becomes_active() {
+    let queued = sample_queued_delivery();
+    let delivered = apply_policy_delivery_transition(
+        &queued,
+        transition(2, "attempt-delivered", PolicyDeliveryState::Delivered),
+    )
+    .expect("delivered transition")
+    .into_record();
+
+    let mut superseded = transition(
+        3,
+        "attempt-superseded-before-ack",
+        PolicyDeliveryState::Superseded,
+    );
+    superseded.superseded_by_policy_version = Some(PolicyVersion::new(4).expect("version"));
+
+    let superseded_record = apply_policy_delivery_transition(&delivered, superseded)
+        .expect("superseded before ack transition")
+        .into_record();
+
+    assert_eq!(superseded_record.state, PolicyDeliveryState::Superseded);
+    assert_eq!(
+        superseded_record.parent_visible_state(),
+        PolicyDeliveryParentVisibleState::Superseded
+    );
+    assert_eq!(
+        superseded_record
+            .superseded_by_policy_version
+            .expect("replacement policy version")
+            .value(),
+        4
+    );
+    assert!(!superseded_record.is_active());
 }

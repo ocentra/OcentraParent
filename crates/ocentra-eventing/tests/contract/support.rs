@@ -1,3 +1,4 @@
+use ocentra_eventing::bus::subscriber::EventSubscriber;
 use ocentra_eventing::envelope::{DomainEvent, EventContract, EventMetadata, EventSource};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
@@ -6,7 +7,6 @@ use ocentra_eventing::ids::{
     RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService, SubscriberId,
     TargetHandler,
 };
-use ocentra_eventing::bus::subscriber::EventSubscriber;
 use serde::{Deserialize, Serialize};
 
 pub(super) const TEST_EVENT_TYPE: &str = "eventing.test.observed";

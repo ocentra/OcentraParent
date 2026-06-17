@@ -6,7 +6,6 @@ import {
   withParser,
 } from '@ocentra-parent/schema-domain/effect';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
-import { AgentNetworkRuntimeEventType } from './network-runtime-events';
 import {
   AgentDeviceIdSchema,
   AgentMessageIdSchema,
@@ -14,6 +13,13 @@ import {
   AgentPlatformSchema,
   AgentRouteSchema,
 } from '@ocentra-parent/event-domain/primitives';
+
+const AgentTrackingSharedRuntimeEventTypeLiteral = {
+  PolicyEvaluationRequested: 'policy.evaluation.requested',
+  PolicyDecisionCompleted: 'policy.decision.completed',
+  AuditEntryCommitted: 'audit.entry.committed',
+  PortalReadModelUpdated: 'portal.read_model.updated',
+} as const;
 
 export const AgentTrackingRetentionCommandIdSchema = brandedNonEmptyStringSchema(
   'AgentTrackingRetentionCommandId'
@@ -56,14 +62,16 @@ export const AgentTrackingConfigCommandFlowEventType = {
   ChangeApproved: EventingEventTypeSchema.parse('tracking.config.change_approved'),
   ChangeRejected: EventingEventTypeSchema.parse('tracking.config.change_rejected'),
   PolicyEvaluationRequested: EventingEventTypeSchema.parse(
-    AgentNetworkRuntimeEventType.PolicyEvaluationRequested
+    AgentTrackingSharedRuntimeEventTypeLiteral.PolicyEvaluationRequested
   ),
   PolicyDecisionCompleted: EventingEventTypeSchema.parse(
-    AgentNetworkRuntimeEventType.PolicyDecisionCompleted
+    AgentTrackingSharedRuntimeEventTypeLiteral.PolicyDecisionCompleted
   ),
-  AuditEntryCommitted: EventingEventTypeSchema.parse(AgentNetworkRuntimeEventType.AuditEntryCommitted),
+  AuditEntryCommitted: EventingEventTypeSchema.parse(
+    AgentTrackingSharedRuntimeEventTypeLiteral.AuditEntryCommitted
+  ),
   PortalReadModelUpdated: EventingEventTypeSchema.parse(
-    AgentNetworkRuntimeEventType.PortalReadModelUpdated
+    AgentTrackingSharedRuntimeEventTypeLiteral.PortalReadModelUpdated
   ),
 } as const;
 
@@ -572,13 +580,12 @@ export const AgentTrackingRetentionSettingsWriteResultSchema = withParser(
     localServiceStateSnapshotRef: AgentTrackingLocalServiceStateSnapshotRefSchema,
     durableSettingsStoreRef: AgentTrackingDurableSettingsStoreRefSchema,
     durableSettingsPersistenceState: AgentTrackingDurableSettingsPersistenceStateSchema,
-    childConfigResponseState: Schema.optionalWith(
-      Schema.Union(AgentTrackingConfigUpdateResponseStateSchema, Schema.Null),
-      { default: () => null }
+    childConfigResponseState: Schema.optional(
+      Schema.Union(AgentTrackingConfigUpdateResponseStateSchema, Schema.Null)
     ),
-    effectiveTrackingState: Schema.optionalWith(Schema.Union(AgentTrackingEffectiveStateSchema, Schema.Null), {
-      default: () => null,
-    }),
+    effectiveTrackingState: Schema.optional(
+      Schema.Union(AgentTrackingEffectiveStateSchema, Schema.Null)
+    ),
     childConfigAckState: Schema.optionalWith(AgentTrackingConfigAckStateSchema, {
       default: () => AgentTrackingConfigAckState.Missing,
     }),

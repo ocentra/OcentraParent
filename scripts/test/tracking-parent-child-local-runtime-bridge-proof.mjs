@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
@@ -24,22 +25,23 @@ async function main() {
   await mkdir(output30, { recursive: true });
   await mkdir(output33, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-parent-child-local-runtime-bridge-proof',
+    'tests/contract/tracking-parent-child-local-runtime-bridge-proof.test.ts',
   ]);
-  run('node', ['scripts/test/eventing-parent-child-runtime-proof.mjs']);
 
   const eventingProof = await readJson(eventingProofRef);
   const eventingRowProof = await readJson(eventingRowProofRef);
-  const proofModule = await importDist('tracking-parent-child-local-runtime-bridge-proof.js');
+  const proofModule = await tsImport(
+    pathToFileURL(
+      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-parent-child-local-runtime-bridge-proof.ts')
+    ).href,
+    import.meta.url
+  );
   const proof = buildProof({ proofModule, eventingProof, eventingRowProof });
 
   assertProof(proof);
@@ -158,10 +160,6 @@ function validationLog() {
 
 async function readJson(relativePath) {
   return JSON.parse(await readFile(join(repoRoot, relativePath), 'utf8'));
-}
-
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
 }
 
 function run(command, args) {

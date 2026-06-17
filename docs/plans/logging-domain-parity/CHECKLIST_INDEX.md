@@ -59,17 +59,17 @@ test-results/logging-domain-parity-<proof-mode>/
 
 ## WP03 Parent Logging Architecture and Routing
 
-- [ ] Local-dev-observability and product-safe logging separated in docs/API.
-- [ ] Parent scopes defined.
-- [ ] Portal dev-log route implemented or moved to bridge path.
+- [x] Local-dev-observability and product-safe logging separated in docs/API.
+- [x] Parent scopes defined.
+- [x] Portal dev-log route implemented or moved to bridge path.
 - [ ] Agent-service current logging path mapped to Rust crate migration.
-- [ ] `/api/dev/log-snapshot` role documented as snapshot, not primary store.
-- [ ] Cloudflare infra scope kept separate.
-- [ ] README/package docs updated.
-- [ ] Route tests or smoke checks added.
-- [ ] Focused commands pass.
-- [ ] Proof root written.
-- [ ] Workpack completion section filled.
+- [x] `/api/dev/log-snapshot` role documented as snapshot, not primary store.
+- [x] Cloudflare infra scope kept separate.
+- [x] README/package docs updated.
+- [x] Route tests or smoke checks added.
+- [x] Focused commands pass.
+- [x] Proof root written.
+- [x] Workpack completion section filled.
 
 ## WP09 Log Control, Retention, and Bridge Lifecycle
 
@@ -171,15 +171,15 @@ test-results/logging-domain-parity-<proof-mode>/
 
 ## WP06 Validation and Enforcement
 
-- [ ] `check-logging-domain-parity.mjs` added.
-- [ ] `check-local-evidence-wrapper.mjs` added.
-- [ ] `check-dev-log-routing.mjs` added.
-- [ ] `check-logging-exports.mjs` added.
-- [ ] Root scripts added.
-- [ ] Validation chain updated at safe point.
-- [ ] Logging evidence smoke script added.
-- [ ] Agent guidance references wrapper usage.
-- [ ] Negative/failure checks verified.
+- [x] `check-logging-domain-parity.mjs` added.
+- [x] `check-local-evidence-wrapper.mjs` added.
+- [x] `check-dev-log-routing.mjs` added.
+- [x] `check-logging-exports.mjs` added.
+- [x] Root scripts added.
+- [x] Validation chain updated at safe point.
+- [x] Logging evidence smoke script added.
+- [x] Agent guidance references wrapper usage.
+- [x] Negative/failure checks verified.
 - [ ] Focused validation passes.
-- [ ] Proof root written.
-- [ ] Workpack completion section filled.
+- [x] Proof root written.
+- [x] Workpack completion section filled.

@@ -37,100 +37,100 @@
 
 ## WP02 Identity Household Role Model
 
-- [ ] Account user model defined.
-- [ ] Household model defined.
-- [ ] Membership state machine defined.
-- [ ] Role/action/resource matrix defined.
-- [ ] Child profile and child device separated.
-- [ ] Parent owner/co-parent/observer roles separated.
-- [ ] Support/admin actor minimized and audited.
-- [ ] Pending/invited/revoked/disabled states represented.
-- [ ] Cross-family negative proof exists.
-- [ ] Observer read-only proof exists.
-- [ ] Audit-event requirement proof exists.
-- [ ] Required proof artifacts written.
-- [ ] Workpack completion section filled.
+- [x] Account user model defined. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/00-identity-entity-model-proof.md`.
+- [x] Household model defined. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/00-identity-entity-model-proof.md`.
+- [x] Membership state machine defined. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/02-membership-state-machine-proof.md`.
+- [x] Role/action/resource matrix defined. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/01-role-action-resource-matrix.md`.
+- [x] Child profile and child device separated. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/00-identity-entity-model-proof.md`.
+- [x] Parent owner/co-parent/observer roles separated. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/01-role-action-resource-matrix.md`; `output/account-identity-family-plan-proof/02-identity-household-role-model/04-observer-read-only-proof.md`.
+- [x] Support/admin actor minimized and audited. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/05-support-admin-boundary-proof.md`; `output/account-identity-family-plan-proof/02-identity-household-role-model/06-audit-event-proof.md`.
+- [x] Pending/invited/revoked/disabled states represented. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/02-membership-state-machine-proof.md`.
+- [x] Cross-family negative proof exists. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/03-cross-family-negative-proof.md`.
+- [x] Observer read-only proof exists. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/04-observer-read-only-proof.md`.
+- [x] Audit-event requirement proof exists. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/06-audit-event-proof.md`.
+- [x] Required proof artifacts written. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/00-identity-entity-model-proof.md`; `output/account-identity-family-plan-proof/02-identity-household-role-model/01-role-action-resource-matrix.md`; `output/account-identity-family-plan-proof/02-identity-household-role-model/02-membership-state-machine-proof.md`; `output/account-identity-family-plan-proof/02-identity-household-role-model/03-cross-family-negative-proof.md`; `output/account-identity-family-plan-proof/02-identity-household-role-model/04-observer-read-only-proof.md`; `output/account-identity-family-plan-proof/02-identity-household-role-model/05-support-admin-boundary-proof.md`; `output/account-identity-family-plan-proof/02-identity-household-role-model/06-audit-event-proof.md`; `output/account-identity-family-plan-proof/02-identity-household-role-model/16-validation-commands.log`.
+- [x] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md`.
 
 ## WP03 Session Token Lifecycle
 
-- [ ] Credential type matrix defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/00-credential-type-matrix.md`.
-- [ ] Browser session lifecycle defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/01-session-lifecycle-proof.md`.
-- [ ] Refresh rotation defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/03-refresh-revocation-proof.md`.
-- [ ] Logout/global revoke behavior defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/01-session-lifecycle-proof.md`.
-- [ ] Expiry and clock-skew behavior defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/02-token-expiry-replay-proof.md`.
-- [ ] Reuse and stolen-token negative proof exists. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/02-token-expiry-replay-proof.md`.
-- [ ] Device credential separated from browser session. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/00-credential-type-matrix.md`.
-- [ ] Invite/recovery/controller-lease tokens separated from sessions. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/00-credential-type-matrix.md`.
-- [ ] Freshness requirement defined for sensitive actions. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/04-session-freshness-proof.md`.
-- [ ] State-changing request safety proof or blocker exists. Blocker: `output/account-identity-family-plan-proof/03-session-token-lifecycle/05-csrf-origin-proof.md`.
-- [ ] Redacted audit log proof exists. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/06-token-redaction-proof.md`.
-- [ ] Required proof artifacts written. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/00-credential-type-matrix.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/01-session-lifecycle-proof.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/02-token-expiry-replay-proof.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/03-refresh-revocation-proof.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/04-session-freshness-proof.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/05-csrf-origin-proof.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/06-token-redaction-proof.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/16-validation-commands.log`.
-- [ ] Focused commands pass or blocker recorded. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/16-validation-commands.log`.
-- [ ] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md`.
+- [x] Credential type matrix defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/00-credential-type-matrix.md`.
+- [x] Browser session lifecycle defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/01-session-lifecycle-proof.md`.
+- [x] Refresh rotation defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/03-refresh-revocation-proof.md`.
+- [x] Logout/global revoke behavior defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/01-session-lifecycle-proof.md`.
+- [x] Expiry and clock-skew behavior defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/02-token-expiry-replay-proof.md`.
+- [x] Reuse and stolen-token negative proof exists. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/02-token-expiry-replay-proof.md`.
+- [x] Device credential separated from browser session. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/00-credential-type-matrix.md`.
+- [x] Invite/recovery/controller-lease tokens separated from sessions. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/00-credential-type-matrix.md`.
+- [x] Freshness requirement defined for sensitive actions. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/04-session-freshness-proof.md`.
+- [x] State-changing request safety proof or blocker exists. Blocker: `output/account-identity-family-plan-proof/03-session-token-lifecycle/05-csrf-origin-proof.md`.
+- [x] Redacted audit log proof exists. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/06-token-redaction-proof.md`.
+- [x] Required proof artifacts written. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/00-credential-type-matrix.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/01-session-lifecycle-proof.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/02-token-expiry-replay-proof.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/03-refresh-revocation-proof.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/04-session-freshness-proof.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/05-csrf-origin-proof.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/06-token-redaction-proof.md`, `output/account-identity-family-plan-proof/03-session-token-lifecycle/16-validation-commands.log`.
+- [x] Focused commands pass or blocker recorded. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/16-validation-commands.log`.
+- [x] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md`.
 
 ## WP04 Invites Recovery Lifecycle
 
-- [ ] Invite state machine defined. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/00-invite-state-machine-proof.md`.
-- [ ] Co-parent/observer/child-device invite scopes separated. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/00-invite-state-machine-proof.md`.
-- [ ] Invite single-use proof exists. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/00-invite-state-machine-proof.md`.
-- [ ] Expired/revoked/reused invite negative proof exists. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/01-invite-negative-proof.md`.
-- [ ] Wrong-household/wrong-role invite negative proof exists. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/01-invite-negative-proof.md`.
-- [ ] Recovery state machine defined. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/02-recovery-state-machine-proof.md`.
-- [ ] Forgotten-login recovery modeled. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/02-recovery-state-machine-proof.md`.
-- [ ] Lost-parent-device and compromised-account recovery modeled. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/02-recovery-state-machine-proof.md`.
-- [ ] Child reinstall and household transfer modeled. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/02-recovery-state-machine-proof.md`.
-- [ ] Recovery rate-limit/enumeration-resistant proof exists. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/03-recovery-abuse-proof.md`.
-- [ ] Delete/export handoff to data custody documented. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/04-delete-export-handoff-proof.md`.
-- [ ] Support recovery audit proof exists. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/05-support-recovery-audit-proof.md`.
-- [ ] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md`.
+- [x] Invite state machine defined. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/00-invite-state-machine-proof.md`.
+- [x] Co-parent/observer/child-device invite scopes separated. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/00-invite-state-machine-proof.md`.
+- [x] Invite single-use proof exists. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/00-invite-state-machine-proof.md`.
+- [x] Expired/revoked/reused invite negative proof exists. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/01-invite-negative-proof.md`.
+- [x] Wrong-household/wrong-role invite negative proof exists. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/01-invite-negative-proof.md`.
+- [x] Recovery state machine defined. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/02-recovery-state-machine-proof.md`.
+- [x] Forgotten-login recovery modeled. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/02-recovery-state-machine-proof.md`.
+- [x] Lost-parent-device and compromised-account recovery modeled. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/02-recovery-state-machine-proof.md`.
+- [x] Child reinstall and household transfer modeled. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/02-recovery-state-machine-proof.md`.
+- [x] Recovery rate-limit/enumeration-resistant proof exists. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/03-recovery-abuse-proof.md`.
+- [x] Delete/export handoff to data custody documented. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/04-delete-export-handoff-proof.md`.
+- [x] Support recovery audit proof exists. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/05-support-recovery-audit-proof.md`.
+- [x] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md`.
 
 ## WP05 Device Ownership AuthZ
 
-- [ ] Actor/household/role/device/session/capability matrix defined. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`.
-- [ ] Parent controller authority proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`.
-- [ ] Parent observer read-only proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/04-remote-capability-proof.md`.
-- [ ] Child agent authority proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`.
-- [ ] Pending/trusted/revoked/disabled/stale device states covered. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/01-revoked-device-negative-proof.md`.
-- [ ] Wrong-household denial proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/02-wrong-household-negative-proof.md`.
-- [ ] Controller lease required/expired/revoked proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/03-controller-lease-proof.md`.
-- [ ] Remote view/control capability separation proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/04-remote-capability-proof.md`.
-- [ ] Export/delete owner-only proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/05-export-delete-owner-proof.md`.
-- [ ] Billing parent-owner proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/06-billing-owner-proof.md`.
-- [ ] Audit-event requirement proof exists. Proof: `packages/family-domain/src/household-authority.ts`.
-- [ ] Required proof artifacts written. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/01-revoked-device-negative-proof.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/02-wrong-household-negative-proof.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/03-controller-lease-proof.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/04-remote-capability-proof.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/05-export-delete-owner-proof.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/06-billing-owner-proof.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/16-validation-commands.log`.
-- [ ] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md`.
+- [x] Actor/household/role/device/session/capability matrix defined. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`.
+- [x] Parent controller authority proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`.
+- [x] Parent observer read-only proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/04-remote-capability-proof.md`.
+- [x] Child agent authority proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`.
+- [x] Pending/trusted/revoked/disabled/stale device states covered. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/01-revoked-device-negative-proof.md`.
+- [x] Wrong-household denial proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/02-wrong-household-negative-proof.md`.
+- [x] Controller lease required/expired/revoked proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/03-controller-lease-proof.md`.
+- [x] Remote view/control capability separation proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/04-remote-capability-proof.md`.
+- [x] Export/delete owner-only proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/05-export-delete-owner-proof.md`.
+- [x] Billing parent-owner proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/06-billing-owner-proof.md`.
+- [x] Audit-event requirement proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/06-billing-owner-proof.md`.
+- [x] Required proof artifacts written. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/01-revoked-device-negative-proof.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/02-wrong-household-negative-proof.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/03-controller-lease-proof.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/04-remote-capability-proof.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/05-export-delete-owner-proof.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/06-billing-owner-proof.md`; `output/account-identity-family-plan-proof/05-device-ownership-authz/16-validation-commands.log`.
+- [x] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md`.
 
 ## WP07 Parent Account Family Setup UI
 
-- [ ] First-run UI state machine defined.
-- [ ] Sign-in/no-household/create-household/join-household states covered.
-- [ ] Add child profile flow covered.
-- [ ] Pair child device flow covered.
-- [ ] Co-parent invite flow covered.
-- [ ] Observer invite flow covered.
-- [ ] Role visibility proof exists.
-- [ ] Device trust/revoked/expired-session status proof exists.
-- [ ] Recovery/support/manual-required states visible.
-- [ ] Source/custody labels visible and honest.
-- [ ] UI does not imply login equals device trust.
-- [ ] Portal tests or exact missing test blocker recorded.
-- [ ] Workpack completion section filled.
+- [x] First-run UI state machine defined. Proof: `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/00-first-run-ui-state-machine.md`.
+- [x] Sign-in/no-household/create-household/join-household states covered. Proof: `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/00-first-run-ui-state-machine.md`; `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/01-household-setup-ui-proof.md`.
+- [x] Add child profile flow covered. Proof: `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/01-household-setup-ui-proof.md`; `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/05-mobile-parent-child-claim-split-proof.md`.
+- [x] Pair child device flow covered. Proof: `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/02-device-role-ui-proof.md`.
+- [x] Co-parent invite flow covered. Proof: `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/03-observer-read-only-ui-proof.md`.
+- [x] Observer invite flow covered. Proof: `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/03-observer-read-only-ui-proof.md`.
+- [x] Role visibility proof exists. Proof: `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/03-observer-read-only-ui-proof.md`; `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/05-mobile-parent-child-claim-split-proof.md`.
+- [x] Device trust/revoked/expired-session status proof exists. Proof: `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/02-device-role-ui-proof.md`; `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/04-recovery-ui-proof.md`.
+- [x] Recovery/support/manual-required states visible. Proof: `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/03-observer-read-only-ui-proof.md`; `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/04-recovery-ui-proof.md`.
+- [x] Source/custody labels visible and honest. Proof: `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/06-source-custody-label-proof.md`.
+- [x] UI does not imply login equals device trust. Proof: `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/02-device-role-ui-proof.md`; `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/05-mobile-parent-child-claim-split-proof.md`.
+- [x] Portal tests or exact missing test blocker recorded. Proof: `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/16-validation-commands.log`.
+- [x] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md`.
 
 ## WP06 Security Proof And Route Gate
 
-- [ ] WP01 proof root consumed. Proof: `output/account-identity-family-plan-proof/01-auth-provider-decision/`.
-- [ ] WP02 proof root consumed. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/`.
-- [ ] WP03 proof root consumed. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/`.
-- [ ] WP04 proof root consumed. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/`.
-- [ ] WP05 proof root consumed. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/`.
-- [ ] WP07 proof root consumed or explicit UI blocker recorded. Proof: `docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md`.
-- [ ] Authentication negative proof exists. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/01-authn-negative-proof.md`.
-- [ ] Authorization matrix proof exists. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/02-authz-matrix-proof.md`.
-- [ ] Token misuse proof exists. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/03-token-replay-proof.md`.
-- [ ] Recovery/invite misuse proof exists. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/04-recovery-abuse-proof.md`.
-- [ ] Origin and state-changing request safety proof exists or blocker recorded. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/05-origin-csrf-open-redirect-proof.md`.
-- [ ] Logging redaction proof exists. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/07-logging-redaction-proof.md`.
-- [ ] Route sync proof names setup, Cloudflare, payment, policy, data custody, device trust, LAN, and remote boundaries. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/06-route-sync-proof.md`.
-- [ ] Manual-required gap register written. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/08-manual-required-gap-register.md`.
-- [ ] Focused validation commands pass or blockers recorded. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/16-validation-commands.log`.
-- [ ] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md`.
+- [x] WP01 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`.
+- [x] WP02 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`.
+- [x] WP03 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`; `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/05-origin-csrf-open-redirect-proof.md`.
+- [x] WP04 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`.
+- [x] WP05 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`.
+- [x] WP07 proof root consumed or explicit UI blocker recorded. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`; `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/06-route-sync-proof.md`.
+- [x] Authentication negative proof exists. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/01-authn-negative-proof.md`.
+- [x] Authorization matrix proof exists. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/02-authz-matrix-proof.md`.
+- [x] Token misuse proof exists. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/03-token-replay-proof.md`.
+- [x] Recovery/invite misuse proof exists. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/04-recovery-abuse-proof.md`.
+- [x] Origin and state-changing request safety proof exists or blocker recorded. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/05-origin-csrf-open-redirect-proof.md`.
+- [x] Logging redaction proof exists. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/07-logging-redaction-proof.md`.
+- [x] Route sync proof names setup, Cloudflare, payment, policy, data custody, device trust, LAN, and remote boundaries. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/06-route-sync-proof.md`.
+- [x] Manual-required gap register written. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/08-manual-required-gap-register.md`.
+- [x] Focused validation commands pass or blockers recorded. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/16-validation-commands.log`.
+- [x] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md`.

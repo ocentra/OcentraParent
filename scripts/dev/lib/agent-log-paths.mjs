@@ -6,12 +6,17 @@ import { fileURLToPath } from 'node:url';
 const DEFAULT_SCOPE = 'parent-codex';
 const LOG_ROOT_ENV = 'OCENTRA_PARENT_LOG_ROOT';
 const LEGACY_LOG_ROOT_ENV = 'OCENTRA_PARENT_LOG_DIR';
+const WORKSPACE_ROOT_ENV = 'OCENTRA_PARENT_WORKSPACE_ROOT';
 
 function scriptRoot() {
   return path.dirname(fileURLToPath(import.meta.url));
 }
 
 export function getWorkspaceRoot() {
+  const configured = process.env[WORKSPACE_ROOT_ENV];
+  if (configured != null && configured.trim().length > 0) {
+    return path.resolve(configured);
+  }
   return path.resolve(scriptRoot(), '..', '..', '..');
 }
 

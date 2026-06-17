@@ -1,7 +1,9 @@
 use ocentra_eventing::bus::subscriber::EventSubscriber;
 use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::contract_registry::EventContractRegistry;
-use ocentra_eventing::envelope::{DomainEvent, EventContract, EventEnvelope, EventMetadata, EventSource};
+use ocentra_eventing::envelope::{
+    DomainEvent, EventContract, EventEnvelope, EventMetadata, EventSource,
+};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{
@@ -79,7 +81,10 @@ async fn family_subscriber_receives_typed_enum_variants_without_downcast() {
             async move {
                 match context.payload() {
                     DecisionFamilyEvent::Approved(payload) => {
-                        approved_seen.lock().expect_value("received lock").push(payload.label.clone());
+                        approved_seen
+                            .lock()
+                            .expect_value("received lock")
+                            .push(payload.label.clone());
                     }
                     DecisionFamilyEvent::Rejected(_) => std::process::abort(),
                 }
@@ -99,7 +104,10 @@ async fn family_subscriber_receives_typed_enum_variants_without_downcast() {
                 match context.payload() {
                     DecisionFamilyEvent::Approved(_) => std::process::abort(),
                     DecisionFamilyEvent::Rejected(payload) => {
-                        rejected_seen.lock().expect_value("received lock").push(payload.label.clone());
+                        rejected_seen
+                            .lock()
+                            .expect_value("received lock")
+                            .push(payload.label.clone());
                     }
                 }
                 Ok(())

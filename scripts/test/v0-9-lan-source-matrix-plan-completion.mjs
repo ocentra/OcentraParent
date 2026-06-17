@@ -1,94 +1,84 @@
 import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
-const outputDir = join(repoRoot, 'test-results', 'v0-9-lan-source-matrix-plan-completion');
-const proofPath = join(outputDir, 'proof.json');
+const lanDomainRoot = join(repoRoot, 'packages', 'lan-domain');
+const lanPairingModulePath = join(lanDomainRoot, 'dist', 'lan-pairing.js');
+const outputDir = join(repoRoot, 'output', 'lan-plan-proof', '01-lan-b1-proof-regeneration');
+const proofPath = join(outputDir, '01-lan-source-matrix-plan-completion-proof.json');
 const commands = [];
 
 await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await ensureLanDomainBuild();
   await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/parent-domain',
-      '--',
-      'tests/lan-discovery-source-matrix.test.ts',
-      'tests/lan-signed-discovery-relay-spine.test.ts',
-      'tests/lan-production-household-proof.test.ts',
-    ])
+    'cmd',
+    ['/c', 'npx', 'vitest', 'run', 'tests/unit/lan-discovery-source-matrix.test.ts', 'tests/unit/lan-pairing-browser-add-device-state.test.ts'],
+    lanDomainRoot
   );
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/agent-protocol-domain',
-      '--',
-      'tests/lan-discovery-source-matrix.test.ts',
-      'tests/lan-pairing-browser-add-device-state.test.ts',
-    ])
-  );
-  await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'lan_pairing_browser_add_device_state']);
-  await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'lan_pairing_browser_add_device_state']);
-  await runCommand(...npmCommand(['run', 'lint', '--workspace', '@ocentra-parent/portal']));
 
-  const contract = await import(parentDomainLanPairingModuleUrl());
+  const contract = await import(moduleUrl(lanPairingModulePath));
   const matrix = contract.LanDiscoverySourceMatrixSchema.parse(sourceMatrixFixture());
   const readModel = contract.LanBrowserAddDeviceReadModelSchema.parse({
     ...addDeviceReadModelFixture(),
     lanDiscoverySourceMatrix: matrix,
   });
-  assertSourceMatrix(matrix);
 
-  const workpackCounts = countByStatus(matrix.workpackRows);
-  const sourceCounts = countByStatus(matrix.sourceRows);
-  const weakSources = matrix.sourceRows.filter(
-    (row) => row.canConfirmChildAgent !== true && row.canAssignChildProfile !== true
-  );
+  assertSourceMatrix(matrix);
 
   const proof = {
     schemaVersion: 1,
     checkedAt: new Date().toISOString(),
     commit: await gitHead(),
     proofMode: 'v0-9-lan-source-matrix-plan-completion',
+    ownerBoundary: 'packages/lan-domain',
     commands,
+    artifactPath: relativePath(proofPath),
     readModelFields: {
+      discoverySource: readModel.discoverySource,
       addDeviceState: readModel.addDeviceState,
+      localServiceDiscoveryState: readModel.localServiceDiscoveryState,
       physicalHouseholdLanState: readModel.physicalHouseholdLanState,
       cloudRelayState: readModel.cloudRelayState,
       hasLanDiscoverySourceMatrix: readModel.lanDiscoverySourceMatrix !== undefined,
     },
-    workpackCounts,
-    sourceCounts,
-    weakSourceFence: {
-      weakSources: weakSources.length,
-      totalSources: matrix.sourceRows.length,
-      canConfirmChildAgent: weakSources.filter((row) => row.canConfirmChildAgent === true).length,
-      canAssignChildProfile: weakSources.filter((row) => row.canAssignChildProfile === true).length,
-    },
+    workpackCounts: countByStatus(matrix.workpackRows),
+    sourceCounts: countByStatus(matrix.sourceRows),
     manualRequiredWorkpacks: matrix.workpackRows
       .filter((row) => row.status === 'manual-required')
       .map((row) => `${row.workpackId}:${row.title}`),
     notImplementedWorkpacks: matrix.workpackRows
       .filter((row) => row.status === 'not-implemented')
       .map((row) => `${row.workpackId}:${row.title}`),
-    manualRequiredSources: matrix.sourceRows.filter((row) => row.status === 'manual-required').map((row) => row.source),
-    notImplementedSources: matrix.sourceRows.filter((row) => row.status === 'not-implemented').map((row) => row.source),
+    manualRequiredSources: matrix.sourceRows
+      .filter((row) => row.status === 'manual-required')
+      .map((row) => row.source),
+    weakSourceFence: {
+      weakSources: matrix.sourceRows.filter((row) => !row.canConfirmChildAgent && !row.canAssignChildProfile).length,
+      signedSources: matrix.sourceRows
+        .filter((row) => row.source === 'signed-child-agent-hello' || row.source === 'signed-child-agent-heartbeat')
+        .map((row) => ({
+          source: row.source,
+          canConfirmChildAgent: row.canConfirmChildAgent,
+          requiredArtifactSummary: row.requiredArtifactSummary,
+        })),
+    },
     claimsProved: [
-      'LAN read model carries all 20 plan workpacks as typed status rows',
-      'weak LAN evidence sources are visible but cannot confirm child-agent identity or assign child profile',
-      'signed child-agent hello and heartbeat remain artifact-gated instead of being silently marked implemented',
-      'Devices/LAN and Activity/Network can render the matrix through the service-backed add-device read model',
+      'The authoritative 01-20 LAN workpack model is represented as a typed lan-domain source matrix.',
+      'Weak discovery sources remain fenced from child confirmation and profile assignment.',
+      'Signed child-agent sources remain artifact-gated instead of being upgraded to implemented proof.',
+      'The browser add-device read model carries the source matrix without claiming portal or service runtime closure.',
     ],
-    claimsNotProved: matrix.claimsNotProved,
+    claimsNotProved: [
+      'Rust service/runtime execution for the LAN source matrix.',
+      'Portal rendering or screenshot proof for Devices/LAN, Activity/Network, or policy surfaces.',
+      'Physical two-device household LAN readiness.',
+      'Packet-mode ARP, passive listener, or advertisement proof.',
+    ],
   };
 
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
@@ -96,242 +86,67 @@ async function main() {
   console.log(`evidence=${proofPath}`);
 }
 
+async function ensureLanDomainBuild() {
+  if (existsSync(lanPairingModulePath)) {
+    return;
+  }
+  await runCommand('cmd', ['/c', 'npm', 'run', 'build'], lanDomainRoot);
+}
+
 function sourceMatrixFixture() {
   return {
     schemaVersion: 'v0.9',
-    generatedAt: '2026-06-02T12:00:00.000Z',
-    productionDiscoveryState: 'manual-required',
+    generatedAt: '2026-06-02T15:55:00.000Z',
     workpackRows: workpackRows(),
     sourceRows: sourceRows(),
     claimsProved: [
-      'read-model-source-matrix-visible',
-      'weak-source-confirmation-fenced',
-      'signed-child-agent-artifacts-gated',
+      'all LAN plan workpacks are represented in a service-backed source matrix read model',
+      'weak LAN discovery sources cannot confirm child identity or assign child profiles',
     ],
     claimsNotProved: [
-      'packet-mode adapters remain manual-required',
-      'physical household proof still needs a second child-agent device',
-      'mDNS/SSDP advertisement is not implemented yet',
+      'packet-mode ARP sweep and passive listeners remain gated until packet driver artifacts exist',
+      'physical household LAN completion remains manual-required until real two-host proof is attached',
+      'mDNS/SSDP advertisement and responder behavior remains manual-required until fixtures and LAN captures exist',
     ],
   };
 }
 
 function workpackRows() {
-  const rows = [
-    ['01', 'Contract boundary and Effect schemas', 'implemented', 'typescript-contract'],
-    ['02', 'Evidence model and device record', 'partial', 'typescript-contract'],
-    ['03', 'Interface detection', 'partial', 'rust-service-read-model'],
-    ['04', 'Neighbor table ingestion', 'partial', 'rust-service-read-model'],
-    ['05', 'Targeted ARP checks', 'not-implemented', 'manual-artifact'],
-    ['06', 'Bounded ARP sweep', 'not-implemented', 'manual-artifact'],
-    ['07', 'Passive discovery listeners', 'manual-required', 'manual-artifact'],
-    ['08', 'mDNS and DNS-SD discovery', 'manual-required', 'manual-artifact'],
-    ['09', 'SSDP and UPnP discovery', 'manual-required', 'manual-artifact'],
-    ['10', 'NetBIOS, LLMNR, and reverse DNS', 'partial', 'rust-service-read-model'],
-    ['11', 'Light service probing', 'not-implemented', 'manual-artifact'],
-    ['12', 'OUI and vendor lookup', 'partial', 'rust-service-read-model'],
-    ['13', 'Merge and de-duplication engine', 'partial', 'rust-service-read-model'],
-    ['14', 'Explainable classification', 'partial', 'rust-service-read-model'],
-    ['15', 'Household device store', 'partial', 'rust-service-read-model'],
-    ['16', 'Read models and LAN events', 'implemented', 'rust-service-read-model'],
-    ['17', 'Parent and child mDNS advertisements', 'manual-required', 'manual-artifact'],
-    ['18', 'Signed child hello and heartbeat', 'manual-required', 'manual-artifact'],
-    ['19', 'Assignment, revocation, and audit', 'partial', 'rust-service-read-model'],
-    ['20', 'Proof gates, fixtures, and rollout', 'partial', 'proof-harness'],
+  return [
+    workpack('01', 'Contract boundary and Effect schemas', 'discovered', 'ci-mechanical-proof', 'implemented', null),
+    workpack('02', 'Evidence model and device record', 'pending', 'ci-mechanical-proof', 'partial', null),
+    workpack('03', 'Interface detection', 'pending', 'ci-mechanical-proof', 'partial', null),
+    workpack('04', 'Neighbor table ingestion', 'discovered', 'ci-mechanical-proof', 'partial', null),
+    workpack('05', 'Targeted ARP checks', 'unavailable', 'not-implemented', 'not-implemented', packetArtifact()),
+    workpack('06', 'Bounded ARP sweep', 'unavailable', 'not-implemented', 'not-implemented', packetArtifact()),
+    workpack('07', 'Passive discovery listeners', 'manual-required', 'manual-required', 'manual-required', packetArtifact()),
+    workpack('08', 'mDNS and DNS-SD discovery', 'manual-required', 'manual-required', 'manual-required', mdnsArtifact()),
+    workpack('09', 'SSDP and UPnP discovery', 'manual-required', 'manual-required', 'manual-required', mdnsArtifact()),
+    workpack('10', 'NetBIOS, LLMNR, and reverse DNS', 'pending', 'ci-mechanical-proof', 'partial', null),
+    workpack('11', 'Light service probing', 'unavailable', 'not-implemented', 'not-implemented', packetArtifact()),
+    workpack('12', 'OUI and vendor lookup', 'pending', 'ci-mechanical-proof', 'partial', null),
+    workpack('13', 'Merge and de-duplication engine', 'pending', 'ci-mechanical-proof', 'partial', null),
+    workpack('14', 'Explainable classification', 'pending', 'ci-mechanical-proof', 'partial', null),
+    workpack('15', 'Household device store', 'pending', 'ci-mechanical-proof', 'partial', null),
+    workpack('16', 'Read models and LAN events', 'discovered', 'ci-mechanical-proof', 'implemented', null),
+    workpack('17', 'Parent and child mDNS advertisements', 'manual-required', 'manual-required', 'manual-required', mdnsArtifact()),
+    workpack('18', 'Signed child hello and heartbeat', 'manual-required', 'manual-required', 'manual-required', signedArtifact()),
+    workpack('19', 'Assignment, revocation, and audit', 'pending', 'ci-mechanical-proof', 'partial', null),
+    workpack('20', 'Proof gates, fixtures, and rollout', 'pending', 'ci-mechanical-proof', 'partial', null),
   ];
-  return rows.map(([workpackId, title, status, runtimePath]) => ({
-    schemaVersion: 'v0.9',
-    workpackId,
-    title,
-    discoveryState: discoveryStateForStatus(status),
-    proofState: proofStateForStatus(status),
-    runtimeOwner: runtimeOwnerForPath(runtimePath),
-    status,
-    readModelVisible: true,
-    requiredArtifactSummary: status === 'implemented' ? null : `${title} evidence remains ${status}`,
-  }));
 }
 
 function sourceRows() {
   return [
-    implementedSource('contract-boundary', '01', 'typescript-contract', 'activity-network', true, false),
-    implementedSource('evidence-model', '02', 'typescript-contract', 'activity-network', true, false),
-    implementedSource('interface-selection', '03', 'rust-service-read-model', 'devices-lan', true, false),
-    weakSource('windows-neighbor-table', '04', 'rust-service-read-model', 'devices-lan'),
-    weakSource('linux-proc-net-arp', '04', 'manual-artifact', 'activity-network'),
-    weakSource('linux-ip-neigh', '04', 'manual-artifact', 'activity-network'),
-    weakSource('macos-arp', '04', 'manual-artifact', 'activity-network'),
-    weakSource('netbios-name-cache', '10', 'rust-service-read-model', 'activity-network'),
-    weakSource('llmnr-name-query', '10', 'rust-service-read-model', 'activity-network'),
-    weakSource('reverse-dns-query', '10', 'rust-service-read-model', 'activity-network'),
-    weakSource('mdns-dns-sd-query', '08', 'manual-artifact', 'activity-network'),
-    weakSource('ssdp-upnp-query', '09', 'manual-artifact', 'activity-network'),
-    weakSource('service-identity-probe', '11', 'manual-artifact', 'activity-network'),
-    weakSource('oui-vendor-lookup', '12', 'rust-service-read-model', 'devices-lan'),
-    implementedSource('merge-deduplication', '13', 'rust-service-read-model', 'devices-lan', true, false),
-    implementedSource('explainable-classification', '14', 'rust-service-read-model', 'devices-lan', true, false),
-    implementedSource('household-device-store', '15', 'rust-service-read-model', 'policy-network', true, true),
-    implementedSource('read-model-event-stream', '16', 'rust-service-read-model', 'activity-network', true, false),
-    manualSource(
-      'parent-mdns-advertisement',
-      '17',
-      'manual-artifact',
-      'activity-network',
-      false,
-      false,
-      'mDNS advertisement artifact'
-    ),
-    manualSource(
-      'child-mdns-advertisement',
-      '17',
-      'manual-artifact',
-      'activity-network',
-      false,
-      false,
-      'mDNS advertisement artifact'
-    ),
-    manualSource(
-      'signed-child-agent-hello',
-      '18',
-      'manual-artifact',
-      'devices-lan',
-      true,
-      false,
-      'signed hello artifact'
-    ),
-    manualSource(
-      'signed-child-agent-heartbeat',
-      '18',
-      'manual-artifact',
-      'activity-network',
-      true,
-      false,
-      'signed heartbeat artifact'
-    ),
-    implementedSource('assignment-revocation-audit', '19', 'rust-service-read-model', 'activity-network', true, true),
-    implementedSource('proof-gate-rollout', '20', 'proof-harness', 'activity-network', false, false),
-    notImplementedSource('targeted-arp-refresh', '05', 'manual-artifact', 'activity-network'),
-    notImplementedSource('bounded-arp-sweep', '06', 'manual-artifact', 'activity-network'),
-    notImplementedSource('passive-arp-listener', '07', 'manual-artifact', 'activity-network'),
-    notImplementedSource('passive-mdns-listener', '07', 'manual-artifact', 'activity-network'),
-    notImplementedSource('passive-ssdp-listener', '07', 'manual-artifact', 'activity-network'),
-    notImplementedSource('passive-llmnr-listener', '07', 'manual-artifact', 'activity-network'),
-    notImplementedSource('passive-netbios-listener', '07', 'manual-artifact', 'activity-network'),
+    source('windows-neighbor-table', '04', 'implemented', 'weak-identity', false, false, null),
+    source('mdns-dns-sd-query', '08', 'manual-required', 'name-only', false, false, mdnsArtifact()),
+    source('ssdp-upnp-query', '09', 'manual-required', 'name-only', false, false, mdnsArtifact()),
+    source('netbios-name-cache', '10', 'manual-required', 'name-only', false, false, mdnsArtifact()),
+    source('service-identity-probe', '11', 'manual-required', 'classification-only', false, false, packetArtifact()),
+    source('oui-vendor-lookup', '12', 'manual-required', 'classification-only', false, false, mdnsArtifact()),
+    source('signed-child-agent-hello', '18', 'manual-required', 'strong-identity', true, false, signedArtifact()),
+    source('signed-child-agent-heartbeat', '18', 'manual-required', 'strong-identity', true, false, signedArtifact()),
   ];
-}
-
-function implementedSource(source, workpackId, runtimePath, uiSurface, canConfirm, canAssign) {
-  return sourceRow(source, workpackId, 'implemented', runtimePath, uiSurface, canConfirm, canAssign, null);
-}
-
-function weakSource(source, workpackId, runtimePath, uiSurface) {
-  return sourceRow(
-    source,
-    workpackId,
-    runtimePath === 'manual-artifact' ? 'manual-required' : 'partial',
-    runtimePath,
-    uiSurface,
-    false,
-    false,
-    null
-  );
-}
-
-function manualSource(source, workpackId, runtimePath, uiSurface, canConfirm, canAssign, requiredArtifactSummary) {
-  return sourceRow(
-    source,
-    workpackId,
-    'manual-required',
-    runtimePath,
-    uiSurface,
-    canConfirm,
-    canAssign,
-    requiredArtifactSummary
-  );
-}
-
-function notImplementedSource(source, workpackId, runtimePath, uiSurface) {
-  return sourceRow(
-    source,
-    workpackId,
-    'not-implemented',
-    runtimePath,
-    uiSurface,
-    false,
-    false,
-    'adapter not implemented'
-  );
-}
-
-function sourceRow(
-  source,
-  workpackId,
-  status,
-  runtimePath,
-  uiSurface,
-  canConfirmChildAgent,
-  canAssignChildProfile,
-  requiredArtifactSummary
-) {
-  return {
-    schemaVersion: 'v0.9',
-    source,
-    workpackId,
-    status,
-    authority: sourceAuthority(source, canConfirmChildAgent, canAssignChildProfile),
-    runtimePath,
-    uiSurface,
-    canConfirmChildAgent,
-    canAssignChildProfile,
-    canControlRoute: canConfirmChildAgent || canAssignChildProfile,
-    requiresSelectedInterface: sourceRequiresSelectedInterface(source),
-    persistsAcrossRestart: source === 'household-device-store' || source === 'assignment-revocation-audit',
-    evidenceLabel: `${source} evidence`,
-    requiredArtifactSummary,
-  };
-}
-
-function discoveryStateForStatus(status) {
-  if (status === 'implemented' || status === 'partial' || status === 'parser-proof') return 'pending';
-  if (status === 'manual-required') return 'manual-required';
-  return 'unavailable';
-}
-
-function proofStateForStatus(status) {
-  if (status === 'manual-required') return 'manual-required';
-  if (status === 'not-implemented') return 'not-implemented';
-  return 'ci-mechanical-proof';
-}
-
-function runtimeOwnerForPath(runtimePath) {
-  if (runtimePath === 'typescript-contract') return 'parent-domain-contract';
-  if (runtimePath === 'agent-protocol') return 'agent-protocol';
-  if (runtimePath === 'rust-service-read-model') return 'rust-service-read-model';
-  if (runtimePath === 'proof-harness') return 'proof-harness';
-  return 'manual-proof';
-}
-
-function sourceAuthority(source, canConfirmChildAgent, canAssignChildProfile) {
-  if (source === 'proof-gate-rollout') return 'proof-gate';
-  if (canAssignChildProfile) return 'manual-parent-decision';
-  if (canConfirmChildAgent) return 'strong-identity';
-  if (source.includes('classification') || source.includes('oui')) return 'classification-only';
-  if (source.includes('mdns') || source.includes('ssdp')) return 'presence-only';
-  if (source.includes('netbios') || source.includes('llmnr') || source.includes('dns')) return 'name-only';
-  return 'no-child-confirmation';
-}
-
-function sourceRequiresSelectedInterface(source) {
-  return (
-    source.includes('arp') ||
-    source.includes('neighbor') ||
-    source.includes('mdns') ||
-    source.includes('ssdp') ||
-    source.includes('llmnr') ||
-    source.includes('netbios') ||
-    source.includes('targeted') ||
-    source.includes('bounded')
-  );
 }
 
 function addDeviceReadModelFixture() {
@@ -374,49 +189,70 @@ function addDeviceReadModelFixture() {
     observerAuthority: 'observer',
     routeRequirementLabels: ['allowed-origin'],
     auditCheckLabels: ['anonymous', 'wrong-origin', 'wrong-device'],
-    honestNonClaims: ['physical-household-lan-manual-required', 'cloud-relay-not-implemented'],
+    honestNonClaims: ['physical-household-lan-manual-required'],
+  };
+}
+
+function workpack(workpackId, title, discoveryState, proofState, status, requiredArtifactSummary) {
+  return {
+    schemaVersion: 'v0.9',
+    workpackId,
+    title,
+    discoveryState,
+    proofState,
+    runtimeOwner:
+      proofState === 'manual-required' || proofState === 'not-implemented' ? 'manual-proof' : 'rust-service-read-model',
+    status,
+    readModelVisible: true,
+    requiredArtifactSummary,
+  };
+}
+
+function source(sourceKind, workpackId, status, authority, canConfirmChildAgent, canAssignChildProfile, requiredArtifactSummary) {
+  return {
+    schemaVersion: 'v0.9',
+    source: sourceKind,
+    workpackId,
+    status,
+    authority,
+    runtimePath: status === 'implemented' ? 'rust-service-read-model' : 'manual-artifact',
+    uiSurface: status === 'implemented' ? 'devices-lan' : 'proof-report',
+    canConfirmChildAgent,
+    canAssignChildProfile,
+    canControlRoute: canConfirmChildAgent,
+    requiresSelectedInterface: true,
+    persistsAcrossRestart: canConfirmChildAgent,
+    evidenceLabel: sourceKind,
+    requiredArtifactSummary,
   };
 }
 
 function assertSourceMatrix(matrix) {
   if (matrix.workpackRows.length !== 20) {
-    throw new Error(`expected 20 workpack rows, received ${matrix.workpackRows.length}`);
+    throw new Error(`Expected 20 workpack rows, received ${matrix.workpackRows.length}.`);
   }
   assertStatusCount(matrix.workpackRows, 'implemented', 2, 'implemented workpacks');
   assertStatusCount(matrix.workpackRows, 'manual-required', 5, 'manual-required workpacks');
   assertStatusCount(matrix.workpackRows, 'not-implemented', 3, 'not-implemented workpacks');
-  assertRow(matrix.sourceRows, 'source', 'windows-neighbor-table', 'canConfirmChildAgent', false);
-  assertRow(matrix.sourceRows, 'source', 'mdns-dns-sd-query', 'canAssignChildProfile', false);
-  assertRow(
-    matrix.sourceRows,
-    'source',
-    'signed-child-agent-hello',
-    'requiredArtifactSummary',
-    'signed hello artifact'
-  );
-  assertRow(
-    matrix.sourceRows,
-    'source',
-    'signed-child-agent-heartbeat',
-    'requiredArtifactSummary',
-    'signed heartbeat artifact'
-  );
+  assertRow(matrix.sourceRows, 'source', 'windows-neighbor-table', 'canAssignChildProfile', false);
+  assertRow(matrix.sourceRows, 'source', 'mdns-dns-sd-query', 'canConfirmChildAgent', false);
+  assertRow(matrix.sourceRows, 'source', 'signed-child-agent-heartbeat', 'requiredArtifactSummary', signedArtifact());
 }
 
 function assertStatusCount(rows, status, minimum, label) {
   const count = rows.filter((row) => row.status === status).length;
   if (count < minimum) {
-    throw new Error(`expected at least ${minimum} ${label}, received ${count}`);
+    throw new Error(`Expected at least ${minimum} ${label}, received ${count}.`);
   }
 }
 
 function assertRow(rows, key, value, field, expected) {
   const row = rows.find((candidate) => candidate[key] === value);
   if (!row) {
-    throw new Error(`missing row ${value}`);
+    throw new Error(`Missing row ${value}.`);
   }
   if (row[field] !== expected) {
-    throw new Error(`expected ${value}.${field} ${expected}, received ${row[field]}`);
+    throw new Error(`Expected ${value}.${field} to equal ${expected}, received ${row[field]}.`);
   }
 }
 
@@ -427,16 +263,28 @@ function countByStatus(rows) {
   }, {});
 }
 
-async function runCommand(commandName, args) {
-  commands.push([commandName, ...args].join(' '));
+function packetArtifact() {
+  return 'Attach packet-driver or controlled packet IO proof with selected interface, subnet cap, timing, and malformed packet fixtures.';
+}
+
+function mdnsArtifact() {
+  return 'Attach mDNS/DNS-SD and SSDP/UPnP fixtures or LAN captures with sanitized host or service names.';
+}
+
+function signedArtifact() {
+  return 'Attach signed child-agent hello and heartbeat payloads with nonce, family hash, route id, and replay rejection logs.';
+}
+
+async function runCommand(commandName, args, cwd) {
+  commands.push(`${relativePath(cwd)} :: ${[commandName, ...args].join(' ')}`);
   await new Promise((resolve, reject) => {
-    const child = spawn(commandName, args, { cwd: repoRoot, stdio: 'inherit', windowsHide: true });
+    const child = spawn(commandName, args, { cwd, stdio: 'inherit', windowsHide: true });
     child.once('exit', (code) => {
       if (code === 0) {
         resolve();
         return;
       }
-      reject(new Error(`${commandName} ${args.join(' ')} exited with ${code}`));
+      reject(new Error(`${commandName} ${args.join(' ')} exited with ${code}.`));
     });
     child.once('error', reject);
   });
@@ -447,19 +295,16 @@ async function gitHead() {
   await new Promise((resolve, reject) => {
     const child = spawn('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] });
     child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
-    child.once('exit', (code) => (code === 0 ? resolve() : reject(new Error('git rev-parse HEAD failed'))));
+    child.once('exit', (code) => (code === 0 ? resolve() : reject(new Error('git rev-parse HEAD failed.'))));
     child.once('error', reject);
   });
   return chunks.join('').trim();
 }
 
-function parentDomainLanPairingModuleUrl() {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'lan-pairing.js');
-  return `file:///${modulePath.replaceAll('\\', '/')}`;
+function moduleUrl(path) {
+  return `file:///${path.replaceAll('\\', '/')}`;
 }
 
-function npmCommand(args) {
-  const command = process.platform === 'win32' ? 'cmd' : 'npm';
-  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
-  return [command, commandArgs];
+function relativePath(path) {
+  return relative(repoRoot, path).replaceAll('\\', '/');
 }

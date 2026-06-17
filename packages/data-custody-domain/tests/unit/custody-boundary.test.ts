@@ -5,7 +5,12 @@ import {
 } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   DataCustodyBoundarySchema,
+  DataCustodyBundleState,
+  DataCustodyBundleType,
   DataCustodyClassId,
+  DataCustodyRecoveryHandoffSchema,
+  DataCustodyRecoveryHandoffState,
+  DataCustodyRecoveryHandoffTarget,
   DataCustodySourceOfTruth,
   DataCustodySourceOfTruthSchema,
   DataCustodyRawPayloadState,
@@ -73,6 +78,75 @@ describe('data custody boundary contracts', () => {
       DataCustodySourceOfTruthSchema.safeParse({
         kind: 'derived-from-data-class',
         sourceClassId: null,
+      }).success
+    ).toBe(false);
+  });
+
+  it('parses non-mutating recovery preview and delete handoff contracts', () => {
+    const previewHandoff = DataCustodyRecoveryHandoffSchema.parse({
+      bundleType: DataCustodyBundleType.ImportPreview,
+      bundleState: DataCustodyBundleState.BundlePreviewOnly,
+      handoffTarget: DataCustodyRecoveryHandoffTarget.SetupRestorePreview,
+      handoffState: DataCustodyRecoveryHandoffState.PreviewOnly,
+      previewIsNonMutating: true,
+      explicitParentConfirmationRequired: true,
+      sourceOfTruthPreserved: true,
+      tombstonesPreserved: true,
+      deleteRequestRequired: false,
+    });
+    const deleteHandoff = DataCustodyRecoveryHandoffSchema.parse({
+      bundleType: DataCustodyBundleType.Export,
+      bundleState: DataCustodyBundleState.BundleWritten,
+      handoffTarget: DataCustodyRecoveryHandoffTarget.ParentLocalDeleteRuntime,
+      handoffState: DataCustodyRecoveryHandoffState.DeletePending,
+      previewIsNonMutating: true,
+      explicitParentConfirmationRequired: false,
+      sourceOfTruthPreserved: true,
+      tombstonesPreserved: true,
+      deleteRequestRequired: true,
+    });
+
+    expect(previewHandoff.handoffState).toBe('preview-only');
+    expect(deleteHandoff.handoffState).toBe('delete-pending');
+  });
+
+  it('rejects recovery handoffs that mutate preview state or omit delete requirements', () => {
+    const preview = {
+      bundleType: DataCustodyBundleType.ImportPreview,
+      bundleState: DataCustodyBundleState.BundlePreviewOnly,
+      handoffTarget: DataCustodyRecoveryHandoffTarget.SetupRestorePreview,
+      handoffState: DataCustodyRecoveryHandoffState.PreviewOnly,
+      previewIsNonMutating: true,
+      explicitParentConfirmationRequired: true,
+      sourceOfTruthPreserved: true,
+      tombstonesPreserved: true,
+      deleteRequestRequired: false,
+    } as const;
+
+    expect(
+      DataCustodyRecoveryHandoffSchema.safeParse({
+        ...preview,
+        previewIsNonMutating: false,
+      }).success
+    ).toBe(false);
+    expect(
+      DataCustodyRecoveryHandoffSchema.safeParse({
+        ...preview,
+        explicitParentConfirmationRequired: false,
+      }).success
+    ).toBe(false);
+    expect(
+      DataCustodyRecoveryHandoffSchema.safeParse({
+        ...preview,
+        handoffTarget: DataCustodyRecoveryHandoffTarget.ParentLocalDeleteRuntime,
+        handoffState: DataCustodyRecoveryHandoffState.DeleteConfirmed,
+      }).success
+    ).toBe(false);
+    expect(
+      DataCustodyRecoveryHandoffSchema.safeParse({
+        ...preview,
+        bundleState: DataCustodyBundleState.BundleWrongHousehold,
+        handoffState: DataCustodyRecoveryHandoffState.ManualRequired,
       }).success
     ).toBe(false);
   });

@@ -2,8 +2,7 @@ use ocentra_eventing::envelope::DomainEvent;
 use ocentra_family_identity_core::{
     ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState, FamilyActorRole,
     HouseholdAuthorityAction, HouseholdAuthorityInput, HouseholdMembership,
-    ParentControllerLeaseState,
-    RecoveryIdentityProofState, RecoveryKind as FamilyRecoveryKind,
+    ParentControllerLeaseState, RecoveryIdentityProofState, RecoveryKind as FamilyRecoveryKind,
     RecoveryOperation as FamilyRecoveryOperation, RecoveryState as FamilyRecoveryState,
     RecoverySupportChannel, SessionActivityState, SessionCredentialKind, SessionFreshnessState,
     SessionLifecycleAction, SessionTokenInput, SetupInviteInput, SetupInvitePurpose,

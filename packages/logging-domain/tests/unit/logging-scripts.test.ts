@@ -25,6 +25,63 @@ function makeTempDir(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'logging-domain-scripts-'));
 }
 
+function writeFile(filePath: string, content: string): void {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, content, 'utf8');
+}
+
+function createProofInventoryFixture(rootDir: string): void {
+  writeFile(
+    path.join(rootDir, 'docs', 'plans', 'logging-domain-parity', 'PROOF_INDEX.md'),
+    [
+      '# Proof Index',
+      'output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/',
+      'output/logging-domain-parity-proof/06-validation-and-enforcement/',
+      '',
+    ].join('\n')
+  );
+  writeFile(
+    path.join(rootDir, 'docs', 'plans', 'logging-domain-parity', 'WORKPACK_INDEX.md'),
+    [
+      '| Status | Workpack | Boxes | Primary source doc |',
+      '| --- | --- | ---: | --- |',
+      '| source-present | [WP03 Parent Logging Architecture and Routing](workpacks/03-parent-logging-architecture-and-routing.md) | 0/11 | `01-parent-logging-architecture.md` |',
+      '| partial-proof | [WP06 Validation and Enforcement](workpacks/06-validation-and-enforcement.md) | 0/12 | `04-validation-and-enforcement.md` |',
+      '',
+    ].join('\n')
+  );
+  writeFile(
+    path.join(rootDir, 'docs', 'plans', 'logging-domain-parity', 'CHECKLIST_INDEX.md'),
+    [
+      '## WP03 Parent Logging Architecture and Routing',
+      '- [ ] Proof root written.',
+      '- [ ] Workpack completion section filled.',
+      '',
+      '## WP06 Validation and Enforcement',
+      '- [x] Proof root written.',
+      '- [x] Workpack completion section filled.',
+      '',
+    ].join('\n')
+  );
+  writeFile(
+    path.join(rootDir, 'docs', 'plans', 'logging-domain-parity', 'PLAN_STATE.md'),
+    [
+      'Proof inventory root: output/logging-domain-parity-proof/ now exists in this checkout, but only WP07 and WP10 roots are restored so far',
+      '',
+    ].join('\n')
+  );
+  writeFile(
+    path.join(
+      rootDir,
+      'output',
+      'logging-domain-parity-proof',
+      '03-parent-logging-architecture-and-routing',
+      '16-validation-commands.log'
+    ),
+    'command: fixture\nexit: 0\nresult: pass\nnotes: fixture proof\n'
+  );
+}
+
 function runScript(scriptPath: string, args: readonly string[], env: NodeJS.ProcessEnv): { stdout: string; stderr: string; status: number | null } {
   const result = spawnSync(process.execPath, [TSX_CLI, scriptPath, ...args], {
     cwd: workspaceRoot(),
@@ -117,5 +174,58 @@ describe('logging scripts', () => {
     );
     expect(query.status).toBe(0);
     expect(query.stdout).toContain('totalLogs');
+  });
+
+  it('reports missing and stale logging proof inventory through agent-query', () => {
+    const tempDir = makeTempDir();
+    tempDirs.push(tempDir);
+    createProofInventoryFixture(tempDir);
+
+    const result = spawnSync(
+      process.execPath,
+      [path.join(workspaceRoot(), 'scripts/dev/agent-query.mjs'), 'proof-inventory'],
+      {
+        cwd: workspaceRoot(),
+        env: {
+          ...process.env,
+          OCENTRA_PARENT_WORKSPACE_ROOT: tempDir,
+        },
+        encoding: 'utf8',
+        windowsHide: true,
+      }
+    );
+
+    expect(result.status).toBe(0);
+    const inventory = JSON.parse(result.stdout) as {
+      readonly actualPresentWorkpackIds: ReadonlyArray<string>;
+      readonly actualMissingWorkpackIds: ReadonlyArray<string>;
+      readonly gaps: ReadonlyArray<{ readonly kind: string; readonly workpackId?: string }>;
+    };
+
+    expect(inventory.actualPresentWorkpackIds).toEqual(['03']);
+    expect(inventory.actualMissingWorkpackIds).toEqual(['06']);
+    expect(inventory.gaps).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'status-underclaims-existing-proof-root',
+          workpackId: '03',
+        }),
+        expect.objectContaining({
+          kind: 'status-claims-proof-root-but-root-missing',
+          workpackId: '06',
+        }),
+        expect.objectContaining({
+          kind: 'checklist-claims-proof-root-written-but-root-missing',
+          workpackId: '06',
+        }),
+        expect.objectContaining({
+          kind: 'checklist-claims-workpack-completion-without-proof-root',
+          workpackId: '06',
+        }),
+        expect.objectContaining({
+          kind: 'plan-state-restored-roots-drift',
+        }),
+      ])
+    );
   });
 });

@@ -160,10 +160,70 @@ Real child-device pairing proof remains gated by device-trust/LAN plans. Hosted 
 
 ```text
 Workpack id and branch: WP07 Parent Account Family Setup UI / codex/tracking-plan-full-continuation-a
-UI/contract changes: Blocked. `apps/portal/src` and `apps/portal/tests` do not contain a dedicated account/family setup route or test harness to extend, so no honest first-run setup UI proof can be added without creating a new route contract first.
-Touched files: docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md; docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md
-Validation commands and results: not-run for WP07 UI; portal setup route contract missing
-Proof artifacts: none yet
-Known gaps/manual-required states: Real child-device pairing proof remains gated by device-trust/LAN plans. Hosted account site remains setup-install scope. Child activity evidence remains data-custody scope. Missing exact contract/test path: `apps/portal/tests/account-family-setup.test.ts` or a designated WP07 portal route harness.
-No-claim boundaries: Do not claim first-run UI state machine; do not claim setup UI readiness; do not claim portal tests exist; do not claim WP07 done.
+Current status: complete for the local contract/proof slice. `00-first-run-ui-state-machine.md`, `01-household-setup-ui-proof.md`, `02-device-role-ui-proof.md`, `03-observer-read-only-ui-proof.md`, `04-recovery-ui-proof.md`, `05-mobile-parent-child-claim-split-proof.md`, `06-source-custody-label-proof.md`, and `16-validation-commands.log` now exist under `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/`.
+UI/contract changes: the existing portal-domain Start-route projection now renders explicit invite-role-support visibility and trust/session distinction rows over the typed setup-domain first-run and readiness surfaces. `apps/portal/src/SetupFirstRunRoutePanel.tsx` remained a thin renderer over that projection.
+Touched files:
+- `packages/portal-domain/src/setup-first-run-panel.ts`
+- `packages/portal-domain/tests/unit/setup-first-run-panel.test.ts`
+- `apps/portal/tests/setup-first-run-route-panel.test.ts`
+- `apps/portal/e2e/setup-first-run-ui-proof.spec.ts`
+- `docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md`
+- `docs/plans/account-identity-family-plan/PLAN_STATE.md`
+- `docs/plans/account-identity-family-plan/WORKPACK_INDEX.md`
+- `docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/00-first-run-ui-state-machine.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/01-household-setup-ui-proof.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/02-device-role-ui-proof.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/03-observer-read-only-ui-proof.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/04-recovery-ui-proof.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/05-mobile-parent-child-claim-split-proof.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/06-source-custody-label-proof.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/16-validation-commands.log`
+Validation commands and results:
+- `command: npm run build --workspace @ocentra-parent/portal-domain`
+- `exit: 0`
+- `result: pass`
+- `artifact: n/a`
+- `notes: portal-domain build passed after the WP07 route-binding projection update`
+- `command: npm run test --workspace @ocentra-parent/portal-domain -- tests/unit/setup-first-run-panel.test.ts`
+- `exit: 0`
+- `result: pass`
+- `artifact: n/a`
+- `notes: focused portal-domain unit suite passed with 5 tests`
+- `command: npm run test --workspace @ocentra-parent/portal -- tests/setup-first-run-route-panel.test.ts`
+- `exit: 1`
+- `result: blocked`
+- `artifact: n/a`
+- `notes: the workspace test script expands to `vitest run tests ...` and pulled unrelated `tests/live-activity-surface-adapter.test.ts` failures outside the WP07 scope; focused route validation used `npx vitest run tests/setup-first-run-route-panel.test.ts` instead`
+- `command: npx vitest run tests/setup-first-run-route-panel.test.ts`
+- `exit: 0`
+- `result: pass`
+- `artifact: n/a`
+- `notes: focused Start-route validation passed with 2 tests`
+- `command: npx playwright test e2e/setup-first-run-ui-proof.spec.ts`
+- `exit: 1`
+- `result: blocked`
+- `artifact: test-results/portal-playwright/setup-first-run-ui-proof-s-36a41-ers-and-no-fake-ready-state-chromium/`
+- `notes: direct Playwright invocation did not start the portal shell on this host; the workspace proof runner was used instead`
+- `command: npm run test:e2e --workspace @ocentra-parent/portal -- e2e/setup-first-run-ui-proof.spec.ts`
+- `exit: 0`
+- `result: pass`
+- `artifact: n/a`
+- `notes: focused Playwright proof runner passed with 1 Chromium test`
+- `command: npm run lint:architecture -- --files packages/portal-domain/src/setup-first-run-panel.ts packages/portal-domain/tests/unit/setup-first-run-panel.test.ts apps/portal/tests/setup-first-run-route-panel.test.ts apps/portal/e2e/setup-first-run-ui-proof.spec.ts`
+- `exit: 0`
+- `result: pass`
+- `artifact: n/a`
+- `notes: touched-file architecture and test-integrity gates passed for the WP07 slice`
+Proof artifacts:
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/00-first-run-ui-state-machine.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/01-household-setup-ui-proof.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/02-device-role-ui-proof.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/03-observer-read-only-ui-proof.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/04-recovery-ui-proof.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/05-mobile-parent-child-claim-split-proof.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/06-source-custody-label-proof.md`
+- `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/16-validation-commands.log`
+Known gaps/manual-required states: physical trusted-device proof remains owned by `device-trust-bootstrap-plan` and `lan-plan`; Cloudflare account/runtime implementation remains external; data-custody export/delete execution, payment runtime, and WP06 route-gate aggregation remain open; the broad `npm run test --workspace @ocentra-parent/portal -- ...` path is still mis-scoped for single-route proof and should not be used as the focused WP07 signal.
+No-claim boundaries: do not claim Cloudflare account runtime readiness, physical trusted-device bootstrap, LAN transport execution, custody execution, payment/customer runtime, or whole-plan readiness from this WP07 closure.
 ```

@@ -2,107 +2,133 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
-const testOutputDir = join(repoRoot, 'test-results', 'tracking-notification-receipt-boundary-proof');
+const proofMode = 'tracking-notification-receipt-boundary-proof';
+const testOutputDir = join(repoRoot, 'test-results', proofMode);
 const wp26ProofDir = join(repoRoot, 'output', 'tracking-plan-proof', '26-alert-severity-and-notification-model');
 const wp33ProofDir = join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
-const focusedProofDir = join(repoRoot, 'output', 'tracking-plan-proof', 'tracking-notification-receipt-boundary-proof');
+const focusedProofDir = join(repoRoot, 'output', 'tracking-plan-proof', proofMode);
 const timestamp = '2026-06-06T07:04:00.000Z';
 const commands = [];
 const initialGitStatusShort = gitOutput(['status', '--short']);
 
-await rm(testOutputDir, { recursive: true, force: true });
-await rm(focusedProofDir, { recursive: true, force: true });
-await mkdir(testOutputDir, { recursive: true });
-await mkdir(wp26ProofDir, { recursive: true });
-await mkdir(wp33ProofDir, { recursive: true });
-await mkdir(focusedProofDir, { recursive: true });
+await main();
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-runNpm([
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/parent-domain',
-  '--',
-  'tracking-notification-receipt-boundary-proof',
-  'tracking-provider-notification-proof',
-  'v0-8-notification-provider-status-boundary',
-]);
+async function main() {
+  await rm(testOutputDir, { recursive: true, force: true });
+  await rm(focusedProofDir, { recursive: true, force: true });
+  await mkdir(testOutputDir, { recursive: true });
+  await mkdir(wp26ProofDir, { recursive: true });
+  await mkdir(wp33ProofDir, { recursive: true });
+  await mkdir(focusedProofDir, { recursive: true });
 
-const tracking = await importDist('tracking-location-policy.js');
-const providerProofModule = await importDist('tracking-provider-notification-proof.js');
-const receiptProofModule = await importDist('tracking-notification-receipt-boundary-proof.js');
-const sourceReadModel = tracking.TrackingLocationPolicyReadModelSchema.parse(sourceTrackingReadModel(tracking));
-const sourceProviderProof = providerProofModule.buildTrackingProviderNotificationProofReadModel(
-  {
+  runNpmCommand(run, [
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/notification-domain',
+    '--',
+    'tests/unit/v0-8-notification-provider-status-boundary.test.ts',
+  ]);
+  runNpmCommand(run, [
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/tracking-domain',
+    '--',
+    'tests/contract/tracking-provider-notification-proof.test.ts',
+    'tests/contract/tracking-notification-receipt-boundary-proof.test.ts',
+  ]);
+
+  const proof = await buildProof();
+  assertProof(proof);
+  await writeJson(join(testOutputDir, 'tracking-notification-receipt-boundary-read-model.json'), proof.readModel);
+  await writeJson(join(testOutputDir, 'proof.json'), proof);
+  await writeFocusedProofPack(focusedProofDir, proof);
+  await writeJson(join(wp26ProofDir, '22-notification-receipt-boundary-proof.json'), proof);
+  await writeJson(join(wp33ProofDir, '22-notification-receipt-boundary-proof.json'), proof);
+
+  console.log('tracking-notification-receipt-boundary-proof-ok');
+  console.log(`evidence=${join('test-results', proofMode, 'proof.json')}`);
+}
+
+async function buildProof() {
+  const trackingLocationPolicyModule = await tsImport(
+    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-location-policy.ts')).href,
+    import.meta.url
+  );
+  const providerProofModule = await tsImport(
+    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-provider-notification-proof.ts')).href,
+    import.meta.url
+  );
+  const receiptProofModule = await tsImport(
+    pathToFileURL(
+      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-notification-receipt-boundary-proof.ts')
+    ).href,
+    import.meta.url
+  );
+
+  const sourceReadModel = trackingLocationPolicyModule.TrackingLocationPolicyReadModelSchema.parse(
+    sourceTrackingReadModel(trackingLocationPolicyModule)
+  );
+  const sourceProviderProof = providerProofModule.buildTrackingProviderNotificationProofReadModel(
+    {
+      generatedAt: timestamp,
+      proofId: 'tracking-provider-notification-proof',
+      familyId: 'family-tracking-notification-receipt',
+      sourceTrackingReadModelRef: 'tracking-location-policy-read-model-provider-notification',
+      sourceContractRefs: [
+        'tracking-location-policy',
+        'v0-8-notification-provider-status-boundary',
+        'notification-local-outbox-adapter-proof',
+        'location-geofence-device-status',
+        'reports-notifications-sync',
+      ],
+    },
+    sourceReadModel
+  );
+  const readModel = receiptProofModule.buildTrackingNotificationReceiptBoundaryReadModel(
+    {
+      generatedAt: timestamp,
+      proofId: proofMode,
+      familyId: 'family-tracking-notification-receipt',
+      sourceProviderNotificationProofRef: 'tracking-provider-notification-proof',
+      sourceContractRefs: [
+        'tracking-provider-notification-proof',
+        'v0-8-notification-provider-status-boundary',
+        'notifications-expectations',
+        'location-geofence-device-status',
+        'reports-notifications-sync',
+      ],
+    },
+    sourceProviderProof
+  );
+
+  return {
+    proofMode,
     generatedAt: timestamp,
-    proofId: 'tracking-provider-notification-proof',
-    familyId: 'family-tracking-notification-receipt',
-    sourceTrackingReadModelRef: 'tracking-location-policy-read-model-provider-notification',
-    sourceContractRefs: [
-      'tracking-location-policy',
-      'v0-8-notification-provider-status-boundary',
-      'notification-local-outbox-adapter-proof',
-      'location-geofence-device-status',
-      'reports-notifications-sync',
-    ],
-  },
-  sourceReadModel
-);
-const readModel = receiptProofModule.buildTrackingNotificationReceiptBoundaryReadModel(
-  {
-    generatedAt: timestamp,
-    proofId: 'tracking-notification-receipt-boundary-proof',
-    familyId: 'family-tracking-notification-receipt',
-    sourceProviderNotificationProofRef: 'tracking-provider-notification-proof',
-    sourceContractRefs: [
-      'tracking-provider-notification-proof',
-      'v0-8-notification-provider-status-boundary',
-      'notifications-expectations',
-      'location-geofence-device-status',
-      'reports-notifications-sync',
-    ],
-  },
-  sourceProviderProof
-);
-
-const proof = {
-  proofMode: 'tracking-notification-receipt-boundary-proof',
-  generatedAt: timestamp,
-  branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
-  commit: gitOutput(['rev-parse', 'HEAD']),
-  gitStatusShort: initialGitStatusShort,
-  commands,
-  summary: summarize(readModel),
-  nonClaims: nonClaims(readModel),
-  proofPaths: {
-    source: 'packages/parent-domain/src/tracking-notification-receipt-boundary-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-notification-receipt-boundary-proof.test.ts',
-    harness: 'scripts/test/tracking-notification-receipt-boundary-proof.mjs',
-    evidence: 'test-results/tracking-notification-receipt-boundary-proof/proof.json',
-    focusedProofRoot: 'output/tracking-plan-proof/tracking-notification-receipt-boundary-proof',
-    wp26Proof:
-      'output/tracking-plan-proof/26-alert-severity-and-notification-model/22-notification-receipt-boundary-proof.json',
-    wp33Proof:
-      'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/22-notification-receipt-boundary-proof.json',
-  },
-  readModel,
-};
-
-assertProof(proof);
-await writeJson(join(testOutputDir, 'tracking-notification-receipt-boundary-read-model.json'), readModel);
-await writeJson(join(testOutputDir, 'proof.json'), proof);
-await writeFocusedProofPack(focusedProofDir, proof);
-await writeJson(join(wp26ProofDir, '22-notification-receipt-boundary-proof.json'), proof);
-await writeJson(join(wp33ProofDir, '22-notification-receipt-boundary-proof.json'), proof);
-
-console.log('tracking-notification-receipt-boundary-proof-ok');
-console.log(`evidence=${join('test-results', 'tracking-notification-receipt-boundary-proof', 'proof.json')}`);
-
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+    branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
+    commit: gitOutput(['rev-parse', 'HEAD']),
+    gitStatusShort: initialGitStatusShort,
+    commands,
+    summary: summarize(readModel),
+    nonClaims: nonClaims(readModel),
+    proofPaths: {
+      source: 'packages/tracking-domain/src/tracking-notification-receipt-boundary-proof.ts',
+      test: 'packages/tracking-domain/tests/contract/tracking-notification-receipt-boundary-proof.test.ts',
+      harness: 'scripts/test/tracking-notification-receipt-boundary-proof.mjs',
+      evidence: 'test-results/tracking-notification-receipt-boundary-proof/proof.json',
+      focusedProofRoot: 'output/tracking-plan-proof/tracking-notification-receipt-boundary-proof',
+      wp26:
+        'output/tracking-plan-proof/26-alert-severity-and-notification-model/22-notification-receipt-boundary-proof.json',
+      wp33:
+        'output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/22-notification-receipt-boundary-proof.json',
+    },
+    readModel,
+  };
 }
 
 function sourceTrackingReadModel(tracking) {
@@ -233,8 +259,8 @@ async function writeFocusedProofPack(path, proof) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-notification-receipt-boundary-proof tracking-provider-notification-proof v0-8-notification-provider-status-boundary: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/notification-domain -- tests/unit/v0-8-notification-provider-status-boundary.test.ts: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tests/contract/tracking-provider-notification-proof.test.ts tests/contract/tracking-notification-receipt-boundary-proof.test.ts: PASS',
       '- Receipt boundary rows preserve provider proof refs, evidence refs, policy decision refs, notification status refs, reason refs, provider attempt refs, and audit refs.',
       '- The delivered provider status contract is cited as a future receipt-required coverage ref while actual receipt ingestion remains unclaimed.',
       '',
@@ -253,20 +279,40 @@ async function writeFocusedProofPack(path, proof) {
     ].join('\n'),
     'utf8'
   );
-  await writeFile(join(path, '16-validation-commands.log'), `${proof.commands.join('\n')}\n`, 'utf8');
+  await writeFile(join(path, '16-validation-commands.log'), `${validationLog()}\n`, 'utf8');
   await writeJson(join(path, 'proof.json'), proof);
 }
 
 function run(command, args) {
-  commands.push([command, ...args].join(' '));
-  const result = spawnSync(command, args, { cwd: repoRoot, stdio: 'inherit', shell: false });
+  const printable = [command, ...args].join(' ');
+  const result = spawnSync(command, args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    shell: false,
+  });
+  commands.push({
+    command: printable,
+    status: result.status,
+    stdout: result.stdout.trim(),
+    stderr: result.stderr.trim(),
+  });
   if (result.status !== 0) {
-    throw new Error(`Command failed: ${command} ${args.join(' ')}`);
+    throw new Error(`${printable} failed\n${result.stdout}\n${result.stderr}`);
   }
 }
 
+function validationLog() {
+  return commands.map((entry) => `${entry.command} exit=${entry.status}`).join('\n');
+}
+
 function gitOutput(args) {
-  return spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8' }).stdout.trim();
+  const result = spawnSync('git', args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    shell: false,
+  });
+  if (result.status !== 0) return '';
+  return result.stdout.trim();
 }
 
 function countBy(values) {
@@ -277,11 +323,6 @@ function countBy(values) {
 }
 
 async function writeJson(path, value) {
+  await mkdir(dirname(path), { recursive: true });
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
-}
-
-function runNpm(args, ...rest) {
-  const command = process.platform === 'win32' ? 'cmd' : 'npm';
-  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
-  return run(command, commandArgs, ...rest);
 }

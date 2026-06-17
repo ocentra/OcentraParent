@@ -133,3 +133,7 @@ impl HouseholdMeshLocalRepublish {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "../tests/contract/household_mesh.rs"]
+mod contract_tests;

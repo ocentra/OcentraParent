@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
@@ -20,19 +21,21 @@ async function main() {
   await mkdir(namedProofRoot, { recursive: true });
   await mkdir(output33, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-physical-device-evidence-review-proof',
+    'tests/contract/tracking-physical-device-evidence-review-proof.test.ts',
   ]);
 
-  const proofModule = await importDist('tracking-physical-device-evidence-review-proof.js');
+  const proofModule = await tsImport(
+    pathToFileURL(
+      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-physical-device-evidence-review-proof.ts')
+    ).href,
+    import.meta.url
+  );
   const artifactGateProof = (await readJson(sourceGateProofRef)).readModel;
   const generatedAt = '2026-06-08T14:25:00.000Z';
   const readModel = proofModule.buildTrackingPhysicalDeviceEvidenceReviewProof(generatedAt, artifactGateProof);
@@ -130,8 +133,8 @@ function sourceSnapshot(proof) {
     `- supportingStatusArtifactCount: ${proof.summary.supportingStatusArtifactCount}`,
     '- physicalDeviceBehaviorClaimedRows: 0',
     '- productReadyRows: 0',
-    '- proof module: packages/parent-domain/src/tracking-physical-device-evidence-review-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-physical-device-evidence-review-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-physical-device-evidence-review-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-physical-device-evidence-review-proof.test.ts',
     '- proof harness: scripts/test/tracking-physical-device-evidence-review-proof.mjs',
     '',
   ].join('\n');
@@ -181,10 +184,6 @@ function validationLog() {
 
 async function readJson(relativePathValue) {
   return JSON.parse(await readFile(path.join(repoRoot, relativePathValue), 'utf8'));
-}
-
-function importDist(name) {
-  return import(pathToFileURL(path.join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
 }
 
 function run(command, args) {

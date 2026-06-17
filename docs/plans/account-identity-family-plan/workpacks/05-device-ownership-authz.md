@@ -143,38 +143,67 @@ Physical trusted-device proof remains owned by `device-trust-bootstrap-plan`. LA
 ## Fill before DONE
 
 - Workpack id and branch: `WP05 Device Ownership AuthZ`; `codex/tracking-plan-full-continuation-a`.
-- Current status: partial. Only `00-device-authority-matrix.md` and `16-validation-commands.log` exist under `output/account-identity-family-plan-proof/05-device-ownership-authz/`.
-- Contract/source changes in this slice: none in WP05-owned device authority sources; current proof is derived from existing TypeScript, Rust parity, and provisioning-readiness coverage.
+- Current status: complete for the local contract/proof slice. `00-device-authority-matrix.md`, `01-revoked-device-negative-proof.md`, `02-wrong-household-negative-proof.md`, `03-controller-lease-proof.md`, `04-remote-capability-proof.md`, `05-export-delete-owner-proof.md`, `06-billing-owner-proof.md`, and `16-validation-commands.log` now exist under `output/account-identity-family-plan-proof/05-device-ownership-authz/`.
+- Contract/source changes in this slice: no new WP05-owned production TypeScript or Rust authority logic was required beyond the earlier WP04 repair in `packages/family-domain/src/setup-lifecycle.ts`. This slice only added owner-only export/delete assertions in the shared authority tests at `packages/family-domain/tests/unit/household-authority.test.ts` and `crates/family-identity-core/tests/unit/household_authority.rs` so the proof root could close honestly.
 - Touched files:
+  - `packages/family-domain/tests/unit/household-authority.test.ts`
+  - `crates/family-identity-core/tests/unit/household_authority.rs`
   - `docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md`
   - `docs/plans/account-identity-family-plan/PLAN_STATE.md`
   - `docs/plans/account-identity-family-plan/WORKPACK_INDEX.md`
   - `docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md`
   - `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/01-revoked-device-negative-proof.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/02-wrong-household-negative-proof.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/03-controller-lease-proof.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/04-remote-capability-proof.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/05-export-delete-owner-proof.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/06-billing-owner-proof.md`
   - `output/account-identity-family-plan-proof/05-device-ownership-authz/16-validation-commands.log`
 - Validation commands and results:
+  - `command: npm run test --workspace @ocentra-parent/family-domain -- tests/unit/household-authority.test.ts`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: added direct export/delete owner-only assertions; suite now passes with 14 tests`
+  - `command: cargo test -p ocentra-family-identity-core household_authority`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: Rust parity household-authority subset passed with 12 tests including export/delete owner-only coverage`
   - `command: npm run build --workspace @ocentra-parent/family-domain`
   - `exit: 0`
   - `result: pass`
   - `artifact: n/a`
-  - `notes: family-domain builds after direct lifecycle helper repair`
+  - `notes: family-domain build passed after the local WP04 repair and before WP05 proof closure`
   - `command: npm run test --workspace @ocentra-parent/family-domain -- tests/unit/household-authority.test.ts tests/unit/session-lifecycle.test.ts tests/unit/token-lifecycle.test.ts`
   - `exit: 0`
   - `result: pass`
   - `artifact: n/a`
-  - `notes: direct household/session/token suite passed with 22 tests`
-  - `command: cargo test -p ocentra-family-identity-core`
-  - `exit: 0`
-  - `result: pass`
-  - `artifact: n/a`
-  - `notes: Rust parity suite passed with device authority, session, and setup negatives`
+  - `notes: direct household/session/token suite now passes with 24 tests after the export/delete owner-only additions`
   - `command: cargo test -p ocentra-provisioning-core readiness`
   - `exit: 0`
   - `result: pass`
   - `artifact: n/a`
-  - `notes: provisioning consumer suite passed with 29 readiness and family-context tests`
+  - `notes: provisioning readiness consumer suite passed with 29 tests after the WP05 proof fill-in`
+  - `command: npm run lint:architecture -- --files packages/family-domain`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: focused TypeScript architecture gate passed for the touched family-domain scope`
+  - `command: cargo lint-architecture crates/family-identity-core/tests/unit/household_authority.rs`
+  - `exit: 0`
+  - `result: pass`
+  - `artifact: n/a`
+  - `notes: focused Rust architecture gate passed for the touched household_authority test file; crate-wide lint remains affected by pre-existing lib.rs re-export debt outside this slice`
 - Proof artifacts:
   - `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/01-revoked-device-negative-proof.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/02-wrong-household-negative-proof.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/03-controller-lease-proof.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/04-remote-capability-proof.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/05-export-delete-owner-proof.md`
+  - `output/account-identity-family-plan-proof/05-device-ownership-authz/06-billing-owner-proof.md`
   - `output/account-identity-family-plan-proof/05-device-ownership-authz/16-validation-commands.log`
-- Known gaps/manual-required states: `01-revoked-device-negative-proof.md`, `02-wrong-household-negative-proof.md`, `03-controller-lease-proof.md`, `04-remote-capability-proof.md`, `05-export-delete-owner-proof.md`, and `06-billing-owner-proof.md` are still missing; physical trusted-device proof remains owned by `device-trust-bootstrap-plan`; LAN/remote transport execution remains external.
-- No-claim boundaries: do not claim full device-state closure, wrong-household proof completion, remote transport execution, physical trusted-device bootstrap, or WP05 completion.
+- Known gaps/manual-required states: physical trusted-device proof remains owned by `device-trust-bootstrap-plan`; LAN/remote transport execution remains owned by `lan-plan` and `remote-access-plan`; payment runtime and data-custody execution remain external; crate-wide `cargo lint-architecture crates/family-identity-core` is still red because of pre-existing `src/lib.rs` re-export debt outside this slice, so validation stayed file-scoped as required.
+- No-claim boundaries: do not claim physical trusted-device bootstrap, LAN/remote runtime execution, payment runtime readiness, data-custody execution, WP07 UI readiness, or whole-plan completion from this WP05 closure.

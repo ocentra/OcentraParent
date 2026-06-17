@@ -20,7 +20,15 @@
 docs/proof/policy-control-plane-plan/
 ```
 
-Current audit state: this proof root is the canonical location referenced by the workpacks and now contains the WP06 route bundle plus universal guardrail files. Keep WP01/WP02/WP03/WP04/WP05/WP07/WP08 open until their named closeout artifacts exist.
+Current audit state: this proof root is the only canonical proof location for this plan. It now contains the WP06 route bundle, the root manifest, universal guardrail files, and checked closeout bundles for WP01, WP07, and WP08. Keep WP02/WP03/WP04/WP05 open until their named closeout artifacts exist under this same root.
+
+## Root manifest
+
+```text
+PLAN_PROOF_MANIFEST.md
+```
+
+The manifest records current file presence and workpack proof status only. It does not upgrade open workpacks or claim runtime completeness.
 
 ## Required universal proof files
 
@@ -31,7 +39,7 @@ Current audit state: this proof root is the canonical location referenced by the
 16-validation-commands.log
 ```
 
-Workpack-specific proof files named in the workpack docs are the closeout artifacts for WP01-WP08; the universal files supplement them and do not replace them.
+Workpack-specific proof files named in the workpack docs are the closeout artifacts for WP01-WP08. The universal files and manifest supplement them and do not replace them. `02-no-claim-boundary.md` is a universal guardrail file; it is not a WP02 closeout bundle.
 
 ## Command log format
 

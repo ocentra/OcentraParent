@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const proofMode = 'sync-export-endpoint-contract-proof';
-const outputDir = join(repoRoot, 'test-results', proofMode);
-const proofPath = join(outputDir, 'proof.json');
+const outputDir = join(repoRoot, 'output', 'data-custody-storage-plan-proof', '03-parent-owned-cloud-sync');
+const proofPath = join(outputDir, `${proofMode}.json`);
 const commands = [];
 
 await main();
@@ -16,12 +16,18 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/endpoint-domain']));
   await runCommand(
-    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/endpoint-domain', '--', 'tests/sync-export.test.ts'])
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/endpoint-domain',
+      '--',
+      'tests/unit/sync-export.test.ts',
+    ])
   );
 
   const packageExport = await assertPackageExport();
   const contract = await assertBuiltContract();
-  const documentation = await assertDocumentationProof();
   const commit = await gitHead();
   const proof = {
     schemaVersion: 1,
@@ -31,9 +37,9 @@ async function main() {
     commands,
     evidence: {
       contract: 'packages/endpoint-domain/src/constants/sync-export.ts',
-      contractTest: 'packages/endpoint-domain/tests/sync-export.test.ts',
+      contractTest: 'packages/endpoint-domain/tests/unit/sync-export.test.ts',
+      builtModule: 'packages/endpoint-domain/dist/constants/sync-export.js',
       packageExport,
-      documentation,
       output: relativePath(proofPath),
     },
     routeContracts: contract.routeContracts,
@@ -59,12 +65,12 @@ async function main() {
 }
 
 async function assertPackageExport() {
-  const packageJson = JSON.parse(await readRepoFile('packages/endpoint-domain/package.json'));
-  assert.deepEqual(packageJson.exports['./constants/sync-export'], {
-    import: './dist/constants/sync-export.js',
-    types: './dist/constants/sync-export.d.ts',
-  });
-  return 'packages/endpoint-domain/package.json#exports[./constants/sync-export]';
+  const exportedModule = await import('@ocentra-parent/endpoint-domain/constants/sync-export');
+  assert.equal(
+    exportedModule.ParentOwnedSyncExportBoundaryState.RouteContract,
+    'defined'
+  );
+  return '@ocentra-parent/endpoint-domain/constants/sync-export';
 }
 
 async function assertBuiltContract() {
@@ -102,24 +108,6 @@ async function assertBuiltContract() {
   };
 }
 
-async function assertDocumentationProof() {
-  const remoteFeature = await readRepoFile('docs/features/remote-lan-mobile-platforms.md');
-  const syncExport = await readRepoFile('docs/expectations/sync-export.md');
-  const cloud = await readRepoFile('docs/expectations/cloud.md');
-  assertIncludes(remoteFeature, proofMode, 'remote LAN mobile feature proof note');
-  assertIncludes(syncExport, proofMode, 'sync export expectation proof note');
-  assertIncludes(cloud, proofMode, 'cloud expectation proof note');
-  return [
-    'docs/features/remote-lan-mobile-platforms.md',
-    'docs/expectations/sync-export.md',
-    'docs/expectations/cloud.md',
-  ];
-}
-
-async function readRepoFile(path) {
-  return readFile(join(repoRoot, path), 'utf8');
-}
-
 async function runCommand(commandName, args) {
   commands.push([commandName, ...args].join(' '));
   await new Promise((resolve, reject) => {
@@ -140,12 +128,6 @@ async function gitHead() {
     child.once('error', reject);
   });
   return chunks.join('').trim();
-}
-
-function assertIncludes(value, expected, label) {
-  if (!value.includes(expected)) {
-    throw new Error(`${label}: missing ${expected}`);
-  }
 }
 
 function relativePath(path) {

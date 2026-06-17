@@ -37,7 +37,7 @@
 | `17` | open | local implementation plus packet proof | Parent/child mDNS advertisements are not implemented. |
 | `18` | partial/manual | physical/manual proof bound | Signed hello/heartbeat contract rows exist; real signed artifacts are missing. |
 | `19` | partial | local proof then physical/manual proof | Assignment/revoke/audit surfaces exist; restart and negative-route proof remain open. |
-| `20` | partial | local proof then physical/manual proof | Proof routing/scripts exist; honest regenerated proof pack is still required. |
+| `20` | partial/manual | local proof then physical/manual proof | B1 regenerated the local proof pack under `output/lan-plan-proof/01-lan-b1-proof-regeneration/`; B2 keeps LAN test-category truth honest by treating placeholder test folders as non-coverage. |
 
 ## Frozen Follow-On Workpacks
 

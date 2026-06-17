@@ -21,22 +21,18 @@ Sources: [20-step plan](../v0-9-lan-discovery-20-step-plan.md),
 
 ## Where We Are
 
-Existing proof commands cover important local V0.9 LAN behavior, but production
-household LAN readiness is still not proven. The pasted test blueprint requires
-fixtures, property tests, Playwright coverage, performance gates, manual
-validation, and explicit CI gates.
+Prior proof references for this workpack drifted onto stale `parent-domain`,
+portal, and service-backed paths that were not current proof on this
+branch/worktree. `B1` repaired the local proof chain back to authoritative
+`packages/lan-domain` ownership and regenerated a fresh proof pack under:
 
-Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds the focused proof
-harness for signed discovery, route custody, trusted registry safety,
-relay/cache unavailable states, and manual-required physical proof. It does not
-finish the full fixture family, visual snapshot proof, or manual two-device
-household validation.
+`output/lan-plan-proof/01-lan-b1-proof-regeneration/`
 
-The portal now also has focused unit/parser fixture coverage for consuming the
-signed discovery relay spine in LAN UI intent and live activity-state parsing.
-Live B-port screenshots now prove the current service-backed Devices/LAN,
-Activity/Network, and Network policy surfaces render. They are still not a
-substitute for two-device household validation or platform manual artifacts.
+That local proof pack is green for source-matrix fencing, signed discovery
+relay/manual boundaries, production discovery state handling, and the explicit
+`not-ready-for-product-ready-household-lan-claim` readiness decision. It does
+not finish portal proof, service/runtime proof, the full fixture family, visual
+snapshot proof, or manual two-device household validation.
 
 ## Where We Want To Be
 
@@ -45,16 +41,38 @@ unavailable, degraded, manual-required, or blocked. CI never depends on the
 user's real LAN. Real physical household claims require manual two-device
 artifacts.
 
+## B1 Truth Note - 2026-06-17
+
+`B1` is green for the assigned local proof-regeneration scope only.
+
+- Authoritative execution scope remains `01-20`; frozen follow-on `21-25` is
+  still out of completion scope.
+- Current proof owner for this slice is `packages/lan-domain`, not
+  `packages/parent-domain/src/lan-*`.
+- Exact regenerated artifacts:
+  - `output/lan-plan-proof/01-lan-b1-proof-regeneration/01-lan-source-matrix-plan-completion-proof.json`
+  - `output/lan-plan-proof/01-lan-b1-proof-regeneration/02-lan-signed-discovery-relay-spine-proof.json`
+  - `output/lan-plan-proof/01-lan-b1-proof-regeneration/03-production-discovery-household-proof.json`
+  - `output/lan-plan-proof/01-lan-b1-proof-regeneration/04-household-lan-proof-readiness.json`
+- Exact remaining non-claims:
+  - portal screenshot/render proof
+  - service/runtime-backed LAN source proof
+  - real signed child hello and heartbeat artifacts
+  - real two-device household LAN proof
+  - router/firewall/local-network permission proof
+  - cloud relay routing/storage/auth proof
+
 ## Requirement Checklist
 
-- [ ] `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs` proves the
-      signed-discovery relay spine remains coherent for this branch slice.
-- [ ] `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` proves the
-      plan-completion source matrix remains coherent across TypeScript
-      contracts, Rust protocol, Rust service state, and portal render data.
-      Latest local evidence is
-      `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`.
-- [ ] Feature docs updated by this branch keep real physical household proof,
+- [x] `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs` proves the
+      signed-discovery relay spine remains coherent for the local `B1`
+      `lan-domain` slice. Latest local evidence is
+      `output/lan-plan-proof/01-lan-b1-proof-regeneration/02-lan-signed-discovery-relay-spine-proof.json`.
+- [x] `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` proves the
+      authoritative `01-20` source-matrix/read-model contract remains coherent
+      for the local `B1` slice. Latest local evidence is
+      `output/lan-plan-proof/01-lan-b1-proof-regeneration/01-lan-source-matrix-plan-completion-proof.json`.
+- [x] Feature docs updated by this branch keep real physical household proof,
       relay/cache, mobile parity, signing, and store readiness as remaining
       gaps.
 - [ ] Portal tests cover LAN UI-intent consumption and live activity parser
@@ -75,12 +93,8 @@ artifacts.
       profile.
 - [ ] Add visual snapshot proof for Devices/LAN, Activity/Network diagnostics,
       policy network targeting, and the current pairing/assignment/trust/ignore
-      action surface. Current artifacts:
-      `output/playwright/lan-source-matrix-plan-completion/devices-lan-source-matrix.png`,
-      `output/playwright/lan-source-matrix-plan-completion/activity-network-source-matrix.png`,
-      `output/playwright/lan-source-matrix-plan-completion/policy-network-target-binding.png`,
-      and
-      `output/playwright/lan-source-matrix-plan-completion/browser-proof.json`.
+      action surface. Previously cited Playwright paths are absent on this
+      branch/worktree and are not current proof; see `../PROOF_INDEX.md`.
 - [ ] Keep manual validation artifacts for Windows, macOS, Linux, router,
       Windows laptop, MacBook, Linux machine, iPhone, Android phone, TV,
       printer, Chromecast/Google TV, console where available, and child agent.

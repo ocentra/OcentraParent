@@ -18,9 +18,9 @@
 
 ```text
 Plan route: upgraded
-Execution-grade workpacks: WP01 has a docs-only proof pack on disk; WP02-WP05 each have partial proof roots on disk; WP07 and WP06 remain open
-Implementation: partial contract implementation exists in family-domain, setup-domain, family-identity-core, and provisioning-core, but account-identity adapter/runtime, custody schema proof, and first-run setup UI remain open
-Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-decision/` is populated; `02` through `05` roots exist with partial artifact sets; `06`, `07`, and `test-results/account-identity-family-plan-*` roots remain absent
+Execution-grade workpacks: WP01 has a docs-only proof pack on disk; WP02, WP03, WP04, WP05, WP06, and WP07 now have complete proof roots on disk
+Implementation: partial contract implementation exists in family-domain, setup-domain, family-identity-core, and provisioning-core, but account-identity adapter/runtime and custody schema proof remain open
+Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-decision/`, `02-identity-household-role-model/`, `03-session-token-lifecycle/`, `04-invites-recovery-lifecycle/`, `05-device-ownership-authz/`, `06-security-proof-and-route-gate/`, and `07-parent-account-family-setup-ui/` are populated; WP03 and WP06 carry request-safety as an explicit blocker note instead of a fake-green proof; `test-results/account-identity-family-plan-*` roots remain absent
 PR-ready: false
 ```
 
@@ -59,15 +59,17 @@ Auth.js or another app-owned auth layer may be used only as an adapter/session l
 ## Open gaps
 
 ```text
-- WP02 root currently contains only `03-cross-family-negative-proof.md` and `16-validation-commands.log`; entity-model, role-matrix, membership-state, observer, support-boundary, and audit proof slices are still missing.
-- WP03 root currently contains only `02-token-expiry-replay-proof.md` and `16-validation-commands.log`; credential-matrix, lifecycle, refresh, freshness, request-safety, and redaction proof slices are still missing.
-- WP04 root currently contains only `01-invite-negative-proof.md`, `02-recovery-state-machine-proof.md`, and `16-validation-commands.log`; invite-state, abuse, delete/export-handoff, and support-audit proof slices are still missing.
-- WP05 root currently contains only `00-device-authority-matrix.md` and `16-validation-commands.log`; revoked-device, wrong-household, controller-lease, remote-capability, export/delete-owner, and billing-owner proof slices are still missing.
-- `packages/family-domain/tests/unit/setup-lifecycle.test.ts` was repaired so the direct invite/recovery suite now matches the live schema; broader WP02-WP05 proof reconciliation remains open.
+- WP02 root now contains `00-identity-entity-model-proof.md`, `01-role-action-resource-matrix.md`, `02-membership-state-machine-proof.md`, `03-cross-family-negative-proof.md`, `04-observer-read-only-proof.md`, `05-support-admin-boundary-proof.md`, `06-audit-event-proof.md`, and `16-validation-commands.log`.
+- WP03 root now contains `00-credential-type-matrix.md`, `01-session-lifecycle-proof.md`, `02-token-expiry-replay-proof.md`, `03-refresh-revocation-proof.md`, `04-session-freshness-proof.md`, `05-csrf-origin-proof.md`, `06-token-redaction-proof.md`, and `16-validation-commands.log`; `05-csrf-origin-proof.md` is an explicit blocker note because this slice does not own a real browser request surface.
+- WP04 root now contains `00-invite-state-machine-proof.md`, `01-invite-negative-proof.md`, `02-recovery-state-machine-proof.md`, `03-recovery-abuse-proof.md`, `04-delete-export-handoff-proof.md`, `05-support-recovery-audit-proof.md`, and `16-validation-commands.log`.
+- WP05 root now contains `00-device-authority-matrix.md`, `01-revoked-device-negative-proof.md`, `02-wrong-household-negative-proof.md`, `03-controller-lease-proof.md`, `04-remote-capability-proof.md`, `05-export-delete-owner-proof.md`, `06-billing-owner-proof.md`, and `16-validation-commands.log`.
+- WP07 root now contains `00-first-run-ui-state-machine.md`, `01-household-setup-ui-proof.md`, `02-device-role-ui-proof.md`, `03-observer-read-only-ui-proof.md`, `04-recovery-ui-proof.md`, `05-mobile-parent-child-claim-split-proof.md`, `06-source-custody-label-proof.md`, and `16-validation-commands.log`; the portal route/test/e2e surface is now real and keeps sibling runtime ownership explicit instead of pretending setup owns Cloudflare, trust, custody, or transport execution.
+- `packages/family-domain/tests/unit/setup-lifecycle.test.ts` was repaired so the direct invite/recovery suite now matches the live schema, and `packages/family-domain/src/setup-lifecycle.ts` received a local exhaustiveness repair so the WP04 build gate is green again; no further production TS/Rust changes were required for WP02-WP03 closure, and WP05 only needed owner-only test additions in shared TypeScript/Rust authority suites.
 - No runtime implementation for account identity adapter boundary.
 - No D1/DO/KV account-family schema or migration proof exists.
-- No first-run family setup UI proof exists.
-- No cross-plan route gate proof exists for setup, Cloudflare, payment, policy, data custody, device trust, LAN, or remote access.
+- WP06 root now contains `00-security-proof-pack.md`, `01-authn-negative-proof.md`, `02-authz-matrix-proof.md`, `03-token-replay-proof.md`, `04-recovery-abuse-proof.md`, `05-origin-csrf-open-redirect-proof.md`, `06-route-sync-proof.md`, `07-logging-redaction-proof.md`, `08-manual-required-gap-register.md`, and `16-validation-commands.log`; it consumes WP01-WP05 and WP07 without absorbing sibling runtime ownership, and it carries forward the explicit request-safety blocker from WP03 instead of hiding it.
+- Browser request-safety proof remains blocked at `output/account-identity-family-plan-proof/03-session-token-lifecycle/05-csrf-origin-proof.md` and `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/05-origin-csrf-open-redirect-proof.md` because this plan slice still does not own a real browser request consumer.
+- Adjacent runtime and schema work remain manual-required: account identity adapter/runtime implementation, D1/DO/KV account-family schema and migration proof, Cloudflare worker/runtime proof, payment execution, policy execution, data-custody execution, device-trust bootstrap, LAN transport, and remote transport.
 ```
 
 ## No-claim boundaries

@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
@@ -10,79 +11,83 @@ const testOutputDir = join(repoRoot, 'test-results', proofMode);
 const wp26Dir = join(repoRoot, 'output', 'tracking-plan-proof', '26-alert-severity-and-notification-model');
 const wp33Dir = join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
 const proofDir = join(repoRoot, 'output', 'tracking-plan-proof', proofMode);
-const sourcePreflightProofPath = join(
-  repoRoot,
-  'test-results',
-  'tracking-notification-preference-preflight-proof',
-  'proof.json'
-);
+const sourcePreflightProofRef = 'test-results/tracking-notification-preference-preflight-proof/proof.json';
+const sourcePreflightProofPath = join(repoRoot, sourcePreflightProofRef);
 const timestamp = '2026-06-07T21:20:00.000Z';
 const commands = [];
 const initialGitStatusShort = gitOutput(['status', '--short']);
 
-await rm(testOutputDir, { recursive: true, force: true });
-await rm(proofDir, { recursive: true, force: true });
-await mkdir(testOutputDir, { recursive: true });
-await mkdir(wp26Dir, { recursive: true });
-await mkdir(wp33Dir, { recursive: true });
-await mkdir(proofDir, { recursive: true });
+await main();
 
-run('node', ['scripts/test/tracking-notification-preference-preflight-proof.mjs']);
-runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-run('cmd', [
-  '/c',
-  'npm',
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/parent-domain',
-  '--',
-  'tracking-notification-preference-status-handoff',
-  'tracking-notification-preference-preflight-proof',
-  'v3-notification-rule-provider-retry-contract',
-]);
+async function main() {
+  await rm(testOutputDir, { recursive: true, force: true });
+  await rm(proofDir, { recursive: true, force: true });
+  await mkdir(testOutputDir, { recursive: true });
+  await mkdir(wp26Dir, { recursive: true });
+  await mkdir(wp33Dir, { recursive: true });
+  await mkdir(proofDir, { recursive: true });
 
-const sourcePreflightProof = JSON.parse(await readFile(sourcePreflightProofPath, 'utf8'));
-const preferenceStatusHandoff = await importDist('tracking-notification-preference-status-handoff.js');
-const readModel = preferenceStatusHandoff.buildTrackingNotificationPreferenceStatusHandoffReadModel(
-  {
+  run('node', ['scripts/test/tracking-notification-preference-preflight-proof.mjs']);
+  runNpmCommand(run, [
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/notification-domain',
+    '--',
+    'tests/unit/v3-notification-rule-provider-retry-contract.test.ts',
+  ]);
+  runNpmCommand(run, [
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/tracking-domain',
+    '--',
+    'tests/contract/tracking-notification-preference-status-handoff.test.ts',
+  ]);
+
+  const sourcePreflightProof = JSON.parse(await readFile(sourcePreflightProofPath, 'utf8'));
+  const preferenceStatusHandoff = await tsImport(
+    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-notification-preference-status-handoff.ts'))
+      .href,
+    import.meta.url
+  );
+  const readModel = preferenceStatusHandoff.buildTrackingNotificationPreferenceStatusHandoffReadModel(
+    {
+      generatedAt: timestamp,
+      handoffId: proofMode,
+      sourceContractRefs: [
+        'tracking-notification-preference-preflight-proof',
+        'v3-notification-rule-provider-retry-contract',
+        'notification-parent-preference-boundary',
+        'notification-quiet-hours-policy-boundary',
+      ],
+    },
+    sourcePreflightProof.readModel
+  );
+
+  const proof = {
+    proofMode,
     generatedAt: timestamp,
-    handoffId: 'tracking-notification-preference-status-handoff-proof',
-    sourceContractRefs: [
-      'tracking-notification-preference-preflight-proof',
-      'v3-notification-rule-provider-retry-contract',
-      'notification-parent-preference-boundary',
-      'notification-quiet-hours-policy-boundary',
-    ],
-  },
-  sourcePreflightProof.readModel
-);
-const proof = {
-  proofMode,
-  generatedAt: timestamp,
-  branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
-  commit: gitOutput(['rev-parse', 'HEAD']),
-  gitStatusShort: initialGitStatusShort,
-  commands,
-  summary: summarize(readModel),
-  nonClaims: nonClaims(readModel),
-  sourcePreferencePreflightProof: 'test-results/tracking-notification-preference-preflight-proof/proof.json',
-  proofPaths: proofPaths(),
-  readModel,
-};
+    branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
+    commit: gitOutput(['rev-parse', 'HEAD']),
+    gitStatusShort: initialGitStatusShort,
+    commands,
+    summary: summarize(readModel),
+    nonClaims: nonClaims(readModel),
+    sourcePreferencePreflightProof: sourcePreflightProofRef,
+    proofPaths: proofPaths(),
+    readModel,
+  };
 
-assertProof(proof);
-await writeJson(join(testOutputDir, 'tracking-notification-preference-status-handoff-read-model.json'), readModel);
-await writeJson(join(testOutputDir, 'proof.json'), proof);
-await writeProofPack(proofDir, proof);
-await writeJson(join(wp26Dir, '31-notification-preference-status-handoff-proof.json'), proof);
-await writeJson(join(wp33Dir, '54-notification-preference-status-handoff-proof.json'), proof);
+  assertProof(proof);
+  await writeJson(join(testOutputDir, 'tracking-notification-preference-status-handoff-read-model.json'), readModel);
+  await writeJson(join(testOutputDir, 'proof.json'), proof);
+  await writeProofPack(proofDir, proof);
+  await writeJson(join(wp26Dir, '31-notification-preference-status-handoff-proof.json'), proof);
+  await writeJson(join(wp33Dir, '54-notification-preference-status-handoff-proof.json'), proof);
 
-console.log('tracking-notification-preference-status-handoff-proof-ok');
-console.log(`evidence=${join('test-results', proofMode, 'proof.json')}`);
-
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  console.log('tracking-notification-preference-status-handoff-proof-ok');
+  console.log(`evidence=${join('test-results', proofMode, 'proof.json')}`);
 }
 
 function summarize(readModel) {
@@ -120,8 +125,8 @@ function nonClaims(readModel) {
 
 function proofPaths() {
   return {
-    source: 'packages/parent-domain/src/tracking-notification-preference-status-handoff.ts',
-    test: 'packages/parent-domain/tests/tracking-notification-preference-status-handoff.test.ts',
+    source: 'packages/tracking-domain/src/tracking-notification-preference-status-handoff.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-notification-preference-status-handoff.test.ts',
     harness: 'scripts/test/tracking-notification-preference-status-handoff-proof.mjs',
     evidence: 'test-results/tracking-notification-preference-status-handoff-proof/proof.json',
     wp26: 'output/tracking-plan-proof/26-alert-severity-and-notification-model/31-notification-preference-status-handoff-proof.json',
@@ -166,11 +171,7 @@ async function writeProofPack(targetDir, proof) {
     ].join('\n'),
     'utf8'
   );
-  await writeFile(
-    join(targetDir, '16-validation-commands.log'),
-    `${commands.map((entry) => `${entry.command} exit=${entry.status}`).join('\n')}\n`,
-    'utf8'
-  );
+  await writeFile(join(targetDir, '16-validation-commands.log'), `${validationLog()}\n`, 'utf8');
   await writeFile(
     join(targetDir, '13-security-negative-proof.log'),
     [
@@ -199,6 +200,10 @@ function run(command, args) {
   }
 }
 
+function validationLog() {
+  return commands.map((entry) => `${entry.command} exit=${entry.status}`).join('\n');
+}
+
 function gitOutput(args) {
   const result = spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8', shell: false });
   if (result.status !== 0) return '';
@@ -213,5 +218,6 @@ function countBy(values) {
 }
 
 async function writeJson(path, value) {
+  await mkdir(dirname(path), { recursive: true });
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }

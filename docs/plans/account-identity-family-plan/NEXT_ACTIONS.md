@@ -26,7 +26,9 @@
 
 ## Highest-priority queue
 
-Audit snapshot June 16, 2026: no workpack is auditable complete yet. Proof roots are missing for WP01-WP07, and the recorded WP04 pattern commands do not cover the stale `packages/family-domain/tests/unit/setup-lifecycle.test.ts` path. Re-open the queue from WP01.
+Audit snapshot June 17, 2026: WP01 has a docs-only provider/custody proof pack on disk; WP02, WP03, WP04, WP05, WP06, and WP07 now have complete proof roots on disk. PR-ready remains false because browser request-safety is still an explicit blocker artifact and the remaining runtime/schema/adjacent execution gaps stay manual-required.
+
+Current routing note: no proof-only workpack remains open inside this plan. Do not reopen WP02-WP07 unless a proof root drifts or a prior blocker becomes locally owned. The next coordinator assignment should be one of the remaining runtime/schema gaps or a sibling-plan consumption slice.
 
 ### 1. WP01 Auth Provider Decision
 
@@ -104,6 +106,7 @@ Expected result:
 rollout proof pack consumes WP01-WP05/WP07 proof
 route sync confirms adjacent plans consume account identity without owning it
 remaining manual-required gaps listed
+explicit request-safety blocker carried forward without fake-green closure
 ```
 
 ## Blocked execution rules

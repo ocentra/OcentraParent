@@ -8,6 +8,8 @@ import {
   HouseholdAuthorityInputSchema,
   HouseholdMembershipState,
   HouseholdRole,
+  ParentStepUpAssertionSchema,
+  ParentStepUpMethod,
   SessionFreshnessState,
 } from '@ocentra-parent/family-domain/household-authority';
 import { ParentActorRole, ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
@@ -39,7 +41,12 @@ import {
   SetupRecoveryKind,
   SetupRecoveryState,
 } from '../../src/readiness';
-import { SetupPairingFailureReason, SetupPairingState } from '../../src/pairing-intent';
+import {
+  SetupPairingApprovalChallengeSchema,
+  SetupPairingApprovalResponseSchema,
+  SetupPairingFailureReason,
+  SetupPairingState,
+} from '../../src/pairing-intent';
 
 const BaseInvite = SetupInviteSchema.parse({
   schemaVersion: ParentContractSchemaVersion.V0_6,
@@ -97,6 +104,56 @@ const BaseInput = SetupFamilyReadinessInputSchema.parse({
   childDeviceRevoked: false,
   observedAt: '2026-06-13T20:00:00.000Z',
 });
+const LocalStepUpAssertion = ParentStepUpAssertionSchema.parse({
+  schemaVersion: ParentContractSchemaVersion.V0_6,
+  stepUpAssertionId: 'step-up-assertion-1',
+  family: BaseInput.family,
+  parentAccount: BaseInput.parentAccount,
+  actionDevice: BaseInput.parentDevice,
+  approverDevice: BaseInput.parentDevice,
+  targetChildProfile: BaseInput.childProfile,
+  action: DeviceAuthorityAction.PairChildDevice,
+  method: ParentStepUpMethod.Passkey,
+  nonce: 'step-up-nonce-1',
+  issuedAt: '2026-06-13T19:58:00.000Z',
+  expiresAt: '2026-06-13T20:05:00.000Z',
+});
+const DesktopParentDevice = {
+  deviceId: 'device-parent-desktop-1',
+  childProfileId: null,
+  label: 'Parent Desktop',
+  platform: 'windows',
+} as const;
+const QrApprovalChallenge = SetupPairingApprovalChallengeSchema.parse({
+  schemaVersion: ParentContractSchemaVersion.V0_6,
+  approvalChallengeId: 'pairing-approval-challenge-1',
+  pairingIntentId: BaseInput.pairingIntentId,
+  family: BaseInput.family,
+  parentAccount: BaseInput.parentAccount,
+  actionDevice: DesktopParentDevice,
+  desktopSessionId: 'desktop-session-1',
+  childProfile: BaseInput.childProfile,
+  action: DeviceAuthorityAction.PairChildDevice,
+  challengeNonce: 'pairing-approval-nonce-1',
+  createdAt: '2026-06-13T19:58:00.000Z',
+  expiresAt: '2026-06-13T20:05:00.000Z',
+});
+const QrApprovalResponse = SetupPairingApprovalResponseSchema.parse({
+  schemaVersion: ParentContractSchemaVersion.V0_6,
+  approvalResponseId: 'pairing-approval-response-1',
+  approvalChallengeId: QrApprovalChallenge.approvalChallengeId,
+  pairingIntentId: QrApprovalChallenge.pairingIntentId,
+  family: QrApprovalChallenge.family,
+  parentAccount: QrApprovalChallenge.parentAccount,
+  actionDevice: QrApprovalChallenge.actionDevice,
+  desktopSessionId: QrApprovalChallenge.desktopSessionId,
+  approvalDevice: BaseInput.parentDevice,
+  childProfile: QrApprovalChallenge.childProfile,
+  action: QrApprovalChallenge.action,
+  challengeNonce: QrApprovalChallenge.challengeNonce,
+  approvalMethod: ParentStepUpMethod.PhoneQrApproval,
+  approvedAt: '2026-06-13T20:01:00.000Z',
+});
 
 describe('setup family bridge', () => {
   it('produces a trusted ready report from an accepted child-device invite', () => {
@@ -106,6 +163,7 @@ describe('setup family bridge', () => {
         ...BaseInvite,
         state: SetupInviteState.Accepted,
       }),
+      parentStepUpAssertion: LocalStepUpAssertion,
     });
 
     expect(report.pairingState).toBe(SetupPairingState.Trusted);
@@ -114,6 +172,20 @@ describe('setup family bridge', () => {
     expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Ready);
     expect(deriveSetupChildInstallJourneyStage(report)).toBe(SetupChildInstallJourneyStage.Paired);
     expect(report.checklist.find((entry) => entry.checklistItemId === 'setup-pairing-state')?.state).toBe('complete');
+  });
+
+  it('keeps an accepted child invite blocked until fresh step-up is supplied even when the parent device is trusted', () => {
+    const report = createSetupReadinessReportFromFamilyContext({
+      ...BaseInput,
+      setupInvite: SetupInviteSchema.parse({
+        ...BaseInvite,
+        state: SetupInviteState.Accepted,
+      }),
+    });
+
+    expect(report.pairingState).toBe(SetupPairingState.Accepted);
+    expect(report.accountState).toBe(SetupAccountReadinessState.Ready);
+    expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Blocked);
   });
 
   it('maps replay detection into blocked replay-rejected pairing state', () => {
@@ -166,6 +238,40 @@ describe('setup family bridge', () => {
     expect(report.checklist.find((entry) => entry.checklistItemId === 'setup-pairing-state')?.supportCode).toBe(
       'accepted'
     );
+  });
+
+  it('accepts a phone QR approval bridge as fresh step-up for a desktop pairing action', () => {
+    const report = createSetupReadinessReportFromFamilyContext({
+      ...BaseInput,
+      parentDevice: DesktopParentDevice,
+      setupInvite: SetupInviteSchema.parse({
+        ...BaseInvite,
+        state: SetupInviteState.Accepted,
+      }),
+      pairingApprovalChallenge: QrApprovalChallenge,
+      pairingApprovalResponse: QrApprovalResponse,
+    });
+
+    expect(report.pairingState).toBe(SetupPairingState.Trusted);
+    expect(report.accountState).toBe(SetupAccountReadinessState.Ready);
+    expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Ready);
+  });
+
+  it('rejects expired phone QR approvals instead of silently trusting the pairing action', () => {
+    const projection = deriveSetupPairingProjectionFromFamilyContext({
+      ...BaseInput,
+      parentDevice: DesktopParentDevice,
+      observedAt: '2026-06-13T20:06:00.000Z',
+      setupInvite: SetupInviteSchema.parse({
+        ...BaseInvite,
+        state: SetupInviteState.Accepted,
+      }),
+      pairingApprovalChallenge: QrApprovalChallenge,
+      pairingApprovalResponse: QrApprovalResponse,
+    });
+
+    expect(projection.pairingState).toBe(SetupPairingState.Expired);
+    expect(projection.failureReason).toBe(SetupPairingFailureReason.ApprovalExpired);
   });
 
   it('marks wrong-account pairing when the invite targets a different parent account', () => {

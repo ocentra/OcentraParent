@@ -5,7 +5,11 @@ import {
   HouseholdAuthorizationFailureReasonSchema,
   HouseholdAuthorizationFailureReason,
   HouseholdAuthorizationState,
+  ParentStepUpAssertionSchema,
+  ParentStepUpValidationFailureReason,
+  requiresParentStepUp,
   authorizeHouseholdAction,
+  validateParentStepUpAssertion,
 } from '@ocentra-parent/family-domain/household-authority';
 import {
   ParentContractSchemaVersionSchema,
@@ -61,6 +65,9 @@ import {
   SetupRecoveryStateSchema,
 } from './readiness';
 import {
+  deriveParentStepUpAssertionFromSetupPairingApproval,
+  SetupPairingApprovalChallengeSchema,
+  SetupPairingApprovalResponseSchema,
   SetupPairingFailureReason,
   SetupPairingFailureReasonSchema,
   SetupPairingIntentIdSchema,
@@ -80,6 +87,15 @@ export const SetupFamilyReadinessInputSchema = withParser(
     setupInvite: SetupInviteSchema,
     householdAuthorityInput: HouseholdAuthorityInputSchema,
     recoveryOperation: Schema.Union(FamilyRecoveryOperationSchema, Schema.Null),
+    parentStepUpAssertion: Schema.optionalWith(Schema.Union(ParentStepUpAssertionSchema, Schema.Null), {
+      default: () => null,
+    }),
+    pairingApprovalChallenge: Schema.optionalWith(Schema.Union(SetupPairingApprovalChallengeSchema, Schema.Null), {
+      default: () => null,
+    }),
+    pairingApprovalResponse: Schema.optionalWith(Schema.Union(SetupPairingApprovalResponseSchema, Schema.Null), {
+      default: () => null,
+    }),
     parentAppState: SetupParentAppReadinessStateSchema,
     childAppState: SetupChildAppReadinessStateSchema,
     childInstallState: Schema.optionalWith(Schema.Union(SetupChildInstallStateSchema, Schema.Null), {
@@ -265,9 +281,32 @@ export function deriveSetupPairingProjectionFromFamilyContext(
     );
   }
 
+  const requiredStepUpStatus = evaluateRequiredPairingStepUp(parsedInput);
+
+  if (requiredStepUpStatus.kind === 'pending') {
+    return pairingProjection(
+      SetupPairingState.Accepted,
+      null,
+      accountStateForPairing(parsedInput, authorityDecision),
+      familyRecoveryState
+    );
+  }
+
+  if (requiredStepUpStatus.kind === 'rejected') {
+    return pairingProjection(
+      requiredStepUpStatus.pairingState,
+      requiredStepUpStatus.failureReason,
+      requiredStepUpStatus.failureReason === SetupPairingFailureReason.WrongAccount
+        ? SetupAccountReadinessState.WrongAccount
+        : accountStateForPairing(parsedInput, authorityDecision),
+      SetupRecoveryState.Required
+    );
+  }
+
   if (
     parsedInput.setupInvite.state === SetupInviteState.Accepted &&
-    parsedInput.householdAuthorityInput.deviceTrustState === DeviceTrustState.Pending
+    parsedInput.householdAuthorityInput.deviceTrustState === DeviceTrustState.Pending &&
+    requiredStepUpStatus.kind !== 'satisfied'
   ) {
     return pairingProjection(
       SetupPairingState.Accepted,
@@ -442,6 +481,139 @@ function pairingProjection(
     accountState,
     recoveryState,
   });
+}
+
+function evaluateRequiredPairingStepUp(
+  input: SetupFamilyReadinessInput
+):
+  | { kind: 'not-required' }
+  | { kind: 'satisfied' }
+  | { kind: 'pending' }
+  | {
+      kind: 'rejected';
+      pairingState: Infer<typeof SetupPairingStateSchema>;
+      failureReason: Infer<typeof SetupPairingFailureReasonSchema>;
+    } {
+  if (input.setupInvite.state !== SetupInviteState.Accepted || !requiresParentStepUp(input.householdAuthorityInput.action)) {
+    return { kind: 'not-required' };
+  }
+
+  if (input.parentStepUpAssertion !== null) {
+    return stepUpStatusFromValidation(
+      validateParentStepUpAssertion({
+        assertion: input.parentStepUpAssertion,
+        family: input.family,
+        parentAccount: input.parentAccount,
+        actionDevice: input.parentDevice,
+        targetChildProfile: input.childProfile,
+        action: input.householdAuthorityInput.action,
+        observedAt: input.observedAt,
+      })
+    );
+  }
+
+  if (input.pairingApprovalResponse !== null && input.pairingApprovalChallenge === null) {
+    return rejectedStepUpStatus(SetupPairingState.Replayed, SetupPairingFailureReason.ReplayRejected);
+  }
+
+  if (input.pairingApprovalChallenge === null || input.pairingApprovalResponse === null) {
+    return { kind: 'pending' };
+  }
+
+  const approvalResolution = deriveParentStepUpAssertionFromSetupPairingApproval({
+    challenge: input.pairingApprovalChallenge,
+    response: input.pairingApprovalResponse,
+    observedAt: input.observedAt,
+  });
+
+  if (approvalResolution.failureReason !== null) {
+    return rejectedStepUpStatus(
+      pairingStateForStepUpFailure(approvalResolution.failureReason),
+      approvalResolution.failureReason
+    );
+  }
+
+  return stepUpStatusFromValidation(
+    validateParentStepUpAssertion({
+      assertion: approvalResolution.assertion,
+      family: input.family,
+      parentAccount: input.parentAccount,
+      actionDevice: input.parentDevice,
+      targetChildProfile: input.childProfile,
+      action: input.householdAuthorityInput.action,
+      observedAt: input.observedAt,
+      expectedNonce: input.pairingApprovalChallenge.challengeNonce,
+    })
+  );
+}
+
+function stepUpStatusFromValidation(validation: ReturnType<typeof validateParentStepUpAssertion>):
+  | { kind: 'satisfied' }
+  | { kind: 'pending' }
+  | {
+      kind: 'rejected';
+      pairingState: Infer<typeof SetupPairingStateSchema>;
+      failureReason: Infer<typeof SetupPairingFailureReasonSchema>;
+    } {
+  if (validation.valid) {
+    return { kind: 'satisfied' };
+  }
+
+  switch (validation.failureReason) {
+    case ParentStepUpValidationFailureReason.Required:
+      return { kind: 'pending' };
+    case ParentStepUpValidationFailureReason.Expired:
+      return rejectedStepUpStatus(SetupPairingState.Expired, SetupPairingFailureReason.ApprovalExpired);
+    case ParentStepUpValidationFailureReason.WrongHousehold:
+      return rejectedStepUpStatus(SetupPairingState.WrongHousehold, SetupPairingFailureReason.WrongHousehold);
+    case ParentStepUpValidationFailureReason.WrongAccount:
+      return rejectedStepUpStatus(SetupPairingState.Untrusted, SetupPairingFailureReason.WrongAccount);
+    case ParentStepUpValidationFailureReason.WrongDevice:
+      return rejectedStepUpStatus(SetupPairingState.WrongDevice, SetupPairingFailureReason.WrongDevice);
+    case ParentStepUpValidationFailureReason.WrongAction:
+    case ParentStepUpValidationFailureReason.WrongTarget:
+      return rejectedStepUpStatus(SetupPairingState.WrongTarget, SetupPairingFailureReason.WrongTarget);
+    case ParentStepUpValidationFailureReason.ReplayRejected:
+      return rejectedStepUpStatus(SetupPairingState.Replayed, SetupPairingFailureReason.ReplayRejected);
+    default:
+      return rejectedStepUpStatus(SetupPairingState.Untrusted, SetupPairingFailureReason.WrongTarget);
+  }
+}
+
+function rejectedStepUpStatus(
+  pairingState: Infer<typeof SetupPairingStateSchema>,
+  failureReason: Infer<typeof SetupPairingFailureReasonSchema>
+): {
+  kind: 'rejected';
+  pairingState: Infer<typeof SetupPairingStateSchema>;
+  failureReason: Infer<typeof SetupPairingFailureReasonSchema>;
+} {
+  return {
+    kind: 'rejected',
+    pairingState,
+    failureReason,
+  };
+}
+
+function pairingStateForStepUpFailure(
+  failureReason: Infer<typeof SetupPairingFailureReasonSchema>
+): Infer<typeof SetupPairingStateSchema> {
+  switch (failureReason) {
+    case SetupPairingFailureReason.WrongHousehold:
+      return SetupPairingState.WrongHousehold;
+    case SetupPairingFailureReason.WrongAccount:
+      return SetupPairingState.Untrusted;
+    case SetupPairingFailureReason.WrongDevice:
+      return SetupPairingState.WrongDevice;
+    case SetupPairingFailureReason.WrongTarget:
+      return SetupPairingState.WrongTarget;
+    case SetupPairingFailureReason.ApprovalExpired:
+      return SetupPairingState.Expired;
+    case SetupPairingFailureReason.ReplayRejected:
+      return SetupPairingState.Replayed;
+    default:
+      return SetupPairingState.Untrusted;
+  }
 }
 
 function accountStateForPairing(

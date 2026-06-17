@@ -25,7 +25,12 @@ import {
   ParentControllerLeaseSchema,
   ParentControllerLeaseState,
   ParentMemberSchema,
+  ParentStepUpAssertionSchema,
+  ParentStepUpMethod,
+  ParentStepUpValidationFailureReason,
+  requiresParentStepUp,
   SessionFreshnessState,
+  validateParentStepUpAssertion,
 } from '../../src/household-authority';
 
 describe('household authority contracts', () => {
@@ -41,6 +46,31 @@ describe('household authority contracts', () => {
     capabilityGranted: true,
     action: DeviceAuthorityAction.ChangePolicy,
   } as const;
+
+  const parentStepUpAssertion = ParentStepUpAssertionSchema.parse({
+    schemaVersion: 'v0.6',
+    stepUpAssertionId: 'step-up-assertion-main',
+    family: { familyId: 'family-main' },
+    parentAccount: { parentAccountId: 'parent-account-1' },
+    actionDevice: {
+      deviceId: 'device-parent-1',
+      childProfileId: null,
+      label: 'Parent Phone',
+      platform: 'android',
+    },
+    approverDevice: {
+      deviceId: 'device-parent-1',
+      childProfileId: null,
+      label: 'Parent Phone',
+      platform: 'android',
+    },
+    targetChildProfile: { childProfileId: 'child-1', displayName: 'Sam' },
+    action: DeviceAuthorityAction.PairChildDevice,
+    method: ParentStepUpMethod.Passkey,
+    nonce: 'step-up-nonce-1',
+    issuedAt: '2026-06-13T15:56:00.000Z',
+    expiresAt: '2026-06-13T16:01:00.000Z',
+  });
 
   it('parses household, member, device registration, and controller lease contracts exactly', () => {
     expect(
@@ -363,6 +393,45 @@ describe('household authority contracts', () => {
     expect(staleRemoteControl.elevatedConfirmationState).toBe(ElevatedConfirmationState.Required);
   });
 
+  it('marks child pairing and policy change as step-up-required household actions', () => {
+    const pairChildDeviceDecision = authorizeHouseholdAction({
+      ...trustedParentAuthorityInput,
+      action: DeviceAuthorityAction.PairChildDevice,
+    });
+    const policyDecision = authorizeHouseholdAction({
+      ...trustedParentAuthorityInput,
+      action: DeviceAuthorityAction.ChangePolicy,
+    });
+
+    expect(requiresParentStepUp(DeviceAuthorityAction.PairChildDevice)).toBe(true);
+    expect(requiresParentStepUp(DeviceAuthorityAction.ChangePolicy)).toBe(true);
+    expect(pairChildDeviceDecision.elevatedConfirmationState).toBe(ElevatedConfirmationState.Required);
+    expect(policyDecision.elevatedConfirmationState).toBe(ElevatedConfirmationState.Required);
+  });
+
+  it('keeps export and delete authority restricted to the parent owner role', () => {
+    const ownerDecision = authorizeHouseholdAction({
+      ...trustedParentAuthorityInput,
+      action: DeviceAuthorityAction.ExportDeleteData,
+    });
+
+    expect(ownerDecision.authorizationState).toBe(HouseholdAuthorizationState.Authorized);
+    expect(ownerDecision.auditRequirementState).toBe(AuditRequirementState.Required);
+    expect(ownerDecision.elevatedConfirmationState).toBe(ElevatedConfirmationState.Required);
+    expect(ownerDecision.failureReason).toBe(null);
+
+    const guardianDecision = authorizeHouseholdAction({
+      ...trustedParentAuthorityInput,
+      actorRole: HouseholdRole.CoParentGuardian,
+      action: DeviceAuthorityAction.ExportDeleteData,
+    });
+
+    expect(guardianDecision.authorizationState).toBe(HouseholdAuthorizationState.Rejected);
+    expect(guardianDecision.auditRequirementState).toBe(AuditRequirementState.Required);
+    expect(guardianDecision.elevatedConfirmationState).toBe(ElevatedConfirmationState.Required);
+    expect(guardianDecision.failureReason).toBe(HouseholdAuthorizationFailureReason.RoleNotAuthorized);
+  });
+
   it('requires an active controller lease for remote-sensitive actions once the base matrix passes', () => {
     const activeRemoteControl = authorizeHouseholdAction({
       ...trustedParentAuthorityInput,
@@ -546,6 +615,61 @@ describe('household authority contracts', () => {
     expect(wrongScope.authorizationState).toBe(HouseholdAuthorizationState.Rejected);
     expect(wrongScope.auditRequirementState).toBe(AuditRequirementState.Required);
     expect(wrongScope.failureReason).toBe(HouseholdAuthorizationFailureReason.WrongDeviceScope);
+  });
+
+  it('validates parent step-up assertions as action-bound, device-bound, and target-bound', () => {
+    const validAssertion = validateParentStepUpAssertion({
+      assertion: parentStepUpAssertion,
+      family: { familyId: 'family-main' },
+      parentAccount: { parentAccountId: 'parent-account-1' },
+      actionDevice: {
+        deviceId: 'device-parent-1',
+        childProfileId: null,
+        label: 'Parent Phone',
+        platform: 'android',
+      },
+      targetChildProfile: { childProfileId: 'child-1', displayName: 'Sam' },
+      action: DeviceAuthorityAction.PairChildDevice,
+      observedAt: '2026-06-13T15:58:00.000Z',
+      expectedNonce: 'step-up-nonce-1',
+    });
+    const wrongTarget = validateParentStepUpAssertion({
+      assertion: parentStepUpAssertion,
+      family: { familyId: 'family-main' },
+      parentAccount: { parentAccountId: 'parent-account-1' },
+      actionDevice: {
+        deviceId: 'device-parent-1',
+        childProfileId: null,
+        label: 'Parent Phone',
+        platform: 'android',
+      },
+      targetChildProfile: { childProfileId: 'child-9', displayName: 'Alex' },
+      action: DeviceAuthorityAction.PairChildDevice,
+      observedAt: '2026-06-13T15:58:00.000Z',
+      expectedNonce: 'step-up-nonce-1',
+    });
+    const expiredAssertion = validateParentStepUpAssertion({
+      assertion: parentStepUpAssertion,
+      family: { familyId: 'family-main' },
+      parentAccount: { parentAccountId: 'parent-account-1' },
+      actionDevice: {
+        deviceId: 'device-parent-1',
+        childProfileId: null,
+        label: 'Parent Phone',
+        platform: 'android',
+      },
+      targetChildProfile: { childProfileId: 'child-1', displayName: 'Sam' },
+      action: DeviceAuthorityAction.PairChildDevice,
+      observedAt: '2026-06-13T16:02:00.000Z',
+      expectedNonce: 'step-up-nonce-1',
+    });
+
+    expect(validAssertion).toEqual({
+      valid: true,
+      failureReason: null,
+    });
+    expect(wrongTarget.failureReason).toBe(ParentStepUpValidationFailureReason.WrongTarget);
+    expect(expiredAssertion.failureReason).toBe(ParentStepUpValidationFailureReason.Expired);
   });
 
   it('treats a child profile and child device as separate authority shapes that only bind through a trusted child-agent registration', () => {

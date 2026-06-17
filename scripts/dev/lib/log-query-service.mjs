@@ -14,6 +14,8 @@ const MAX_LIMIT = 200;
 const DEFAULT_ARTIFACT_LINES = 80;
 const MAX_ARTIFACT_LINES = 200;
 const DEFAULT_PROOF_TRACE_SCOPE = 'parent-portal';
+const LOGGING_PLAN_NAME = 'logging-domain-parity';
+const LOGGING_PLAN_PROOF_ROOT = 'output/logging-domain-parity-proof';
 
 function getStructuredLogBaseRoot() {
   const configuredRoot = process.env['OCENTRA_PARENT_LOG_DIR'];
@@ -444,6 +446,123 @@ function missingStructuredScopeError(scope) {
   );
 }
 
+function readTextIfExists(filePath) {
+  return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : null;
+}
+
+function listFilesRecursive(rootPath) {
+  if (!fs.existsSync(rootPath)) {
+    return [];
+  }
+  const files = [];
+  const stack = [rootPath];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const fullPath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        stack.push(fullPath);
+        continue;
+      }
+      files.push(fullPath);
+    }
+  }
+  return files.sort((left, right) => left.localeCompare(right));
+}
+
+function getLoggingPlanRoot(workspaceRoot = getWorkspaceRoot()) {
+  return path.join(workspaceRoot, 'docs', 'plans', LOGGING_PLAN_NAME);
+}
+
+function getLoggingPlanFile(relativePath, workspaceRoot = getWorkspaceRoot()) {
+  return path.join(getLoggingPlanRoot(workspaceRoot), relativePath);
+}
+
+function parseWorkpackIndexStatuses(text) {
+  const statuses = new Map();
+  const pattern =
+    /^\|\s*([a-z-]+)\s*\|\s*\[WP(\d{2})\s+([^\]]+)\]\([^)]+\)\s*\|\s*([^|]+?)\s*\|\s*`([^`]+)`\s*\|$/gmu;
+  for (const match of text.matchAll(pattern)) {
+    statuses.set(match[2], {
+      workpackId: match[2],
+      status: match[1],
+      title: match[3].trim(),
+      boxes: match[4].trim(),
+      sourceDoc: match[5].trim(),
+    });
+  }
+  return statuses;
+}
+
+function parseChecklistProofState(text) {
+  const checklist = new Map();
+  const pattern =
+    /^##\s+WP(\d{2})[^\n]*\n([\s\S]*?)(?=^##\s+WP\d{2}|$(?![\r\n]))/gmu;
+  for (const match of text.matchAll(pattern)) {
+    const body = match[2];
+    const checkedLines = body
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => /^-\s+\[x\]\s+/iu.test(line));
+    const combinedRowChecked = checkedLines.some((line) =>
+      /Proof root and workpack completion section filled\./iu.test(line)
+    );
+    checklist.set(match[1], {
+      workpackId: match[1],
+      proofRowChecked:
+        combinedRowChecked ||
+        checkedLines.some((line) => /Proof root written\./iu.test(line)),
+      workpackCompletionChecked:
+        combinedRowChecked ||
+        checkedLines.some((line) =>
+          /Workpack completion section filled\./iu.test(line)
+        ),
+    });
+  }
+  return checklist;
+}
+
+function parseProofRootDefinitions(text) {
+  const roots = new Map();
+  const pattern = /output\/logging-domain-parity-proof\/(\d{2})-([a-z0-9-]+)\//giu;
+  for (const match of text.matchAll(pattern)) {
+    const workpackId = match[1];
+    if (roots.has(workpackId)) {
+      continue;
+    }
+    roots.set(workpackId, {
+      workpackId,
+      slug: match[2],
+      relativePath: `${LOGGING_PLAN_PROOF_ROOT}/${workpackId}-${match[2]}`,
+    });
+  }
+  return [...roots.values()].sort((left, right) => left.workpackId.localeCompare(right.workpackId));
+}
+
+function parsePlanStateRestoredRootsClaim(text) {
+  for (const line of text.split(/\r?\n/)) {
+    if (!/roots are restored so far/iu.test(line)) {
+      continue;
+    }
+    const workpackIds = [...line.matchAll(/WP(\d{2})/gu)].map((match) => match[1]);
+    if (workpackIds.length === 0) {
+      continue;
+    }
+    return {
+      line: line.trim(),
+      workpackIds: [...new Set(workpackIds)].sort(),
+    };
+  }
+  return null;
+}
+
+function sameStringSet(left, right) {
+  if (left.length !== right.length) {
+    return false;
+  }
+  return left.every((value, index) => value === right[index]);
+}
+
 function readAgentEvidenceStream(stream) {
   const streamRoot = path.join(getLogRoot(), getEvidenceScope(), 'ndjson', stream);
   const events = [];
@@ -830,6 +949,134 @@ export async function getLogStats(options = {}) {
     sources: sourceCounts,
     contexts: contextCounts,
     agentEvidence: evidenceStats,
+  };
+}
+
+export async function getProofInventoryStatus(options = {}) {
+  const workspaceRoot = path.resolve(options.workspaceRoot ?? getWorkspaceRoot());
+  const proofIndexPath = getLoggingPlanFile('PROOF_INDEX.md', workspaceRoot);
+  const workpackIndexPath = getLoggingPlanFile('WORKPACK_INDEX.md', workspaceRoot);
+  const checklistPath = getLoggingPlanFile('CHECKLIST_INDEX.md', workspaceRoot);
+  const planStatePath = getLoggingPlanFile('PLAN_STATE.md', workspaceRoot);
+
+  const proofIndexText = readTextIfExists(proofIndexPath);
+  const workpackIndexText = readTextIfExists(workpackIndexPath);
+  const checklistText = readTextIfExists(checklistPath);
+  const planStateText = readTextIfExists(planStatePath);
+
+  if (proofIndexText == null || workpackIndexText == null || checklistText == null || planStateText == null) {
+    throw new Error(`Logging proof inventory docs are incomplete under ${getLoggingPlanRoot(workspaceRoot).replace(/\\/g, '/')}.`);
+  }
+
+  const proofRoots = parseProofRootDefinitions(proofIndexText);
+  const workpackStatuses = parseWorkpackIndexStatuses(workpackIndexText);
+  const checklistState = parseChecklistProofState(checklistText);
+  const restoredRootsClaim = parsePlanStateRestoredRootsClaim(planStateText);
+
+  const workpacks = [];
+  const gaps = [];
+  const actualPresentWorkpackIds = [];
+  const actualMissingWorkpackIds = [];
+
+  for (const proofRoot of proofRoots) {
+    const absoluteRoot = path.join(workspaceRoot, proofRoot.relativePath);
+    const artifactFiles = listFilesRecursive(absoluteRoot);
+    const status = workpackStatuses.get(proofRoot.workpackId) ?? null;
+    const checklist = checklistState.get(proofRoot.workpackId) ?? {
+      workpackId: proofRoot.workpackId,
+      proofRowChecked: false,
+      workpackCompletionChecked: false,
+    };
+    const exists = artifactFiles.length > 0;
+    if (exists) {
+      actualPresentWorkpackIds.push(proofRoot.workpackId);
+    } else {
+      actualMissingWorkpackIds.push(proofRoot.workpackId);
+    }
+
+    if (!exists && status?.status === 'partial-proof') {
+      gaps.push({
+        kind: 'status-claims-proof-root-but-root-missing',
+        severity: 'error',
+        workpackId: proofRoot.workpackId,
+        message: `WORKPACK_INDEX marks WP${proofRoot.workpackId} as partial-proof, but ${proofRoot.relativePath} has no artifacts.`,
+      });
+    }
+
+    if (!exists && checklist.proofRowChecked) {
+      gaps.push({
+        kind: 'checklist-claims-proof-root-written-but-root-missing',
+        severity: 'error',
+        workpackId: proofRoot.workpackId,
+        message: `CHECKLIST_INDEX says the proof root is written for WP${proofRoot.workpackId}, but ${proofRoot.relativePath} is missing.`,
+      });
+    }
+
+    if (!exists && checklist.workpackCompletionChecked) {
+      gaps.push({
+        kind: 'checklist-claims-workpack-completion-without-proof-root',
+        severity: 'error',
+        workpackId: proofRoot.workpackId,
+        message: `CHECKLIST_INDEX says the workpack completion section is filled for WP${proofRoot.workpackId}, but ${proofRoot.relativePath} is missing.`,
+      });
+    }
+
+    if (exists && (status?.status === 'source-present' || status?.status === 'audit-open')) {
+      gaps.push({
+        kind: 'status-underclaims-existing-proof-root',
+        severity: 'warning',
+        workpackId: proofRoot.workpackId,
+        message: `WORKPACK_INDEX still says ${status.status} for WP${proofRoot.workpackId}, but ${proofRoot.relativePath} has artifacts on disk.`,
+      });
+    }
+
+    workpacks.push({
+      workpackId: proofRoot.workpackId,
+      title: status?.title ?? null,
+      status: status?.status ?? null,
+      boxes: status?.boxes ?? null,
+      proofRoot: proofRoot.relativePath,
+      proofArtifacts: artifactFiles.length,
+      proofRootExists: exists,
+      checklist,
+      artifacts: artifactFiles.map((filePath) =>
+        path.relative(workspaceRoot, filePath).replace(/\\/g, '/')
+      ),
+    });
+  }
+
+  actualPresentWorkpackIds.sort();
+  actualMissingWorkpackIds.sort();
+
+  if (
+    restoredRootsClaim != null &&
+    !sameStringSet(restoredRootsClaim.workpackIds, actualPresentWorkpackIds)
+  ) {
+    gaps.push({
+      kind: 'plan-state-restored-roots-drift',
+      severity: 'warning',
+      claimedWorkpackIds: restoredRootsClaim.workpackIds,
+      actualWorkpackIds: actualPresentWorkpackIds,
+      message: `PLAN_STATE restored-root summary is stale. Claimed: ${restoredRootsClaim.workpackIds.join(', ')}. Actual: ${actualPresentWorkpackIds.join(', ') || 'none'}.`,
+      line: restoredRootsClaim.line,
+    });
+  }
+
+  return {
+    plan: LOGGING_PLAN_NAME,
+    workspaceRoot: workspaceRoot.replace(/\\/g, '/'),
+    proofRoot: LOGGING_PLAN_PROOF_ROOT,
+    actualPresentWorkpackIds,
+    actualMissingWorkpackIds,
+    summary: {
+      totalWorkpacks: workpacks.length,
+      presentProofRoots: actualPresentWorkpackIds.length,
+      missingProofRoots: actualMissingWorkpackIds.length,
+      blockingGapCount: gaps.filter((gap) => gap.severity === 'error').length,
+      warningGapCount: gaps.filter((gap) => gap.severity === 'warning').length,
+    },
+    workpacks,
+    gaps,
   };
 }
 

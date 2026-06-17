@@ -43,13 +43,13 @@ pub enum HouseholdMeshBridgeRejection {
 pub type HouseholdMeshLanMessage = protocol::HouseholdMeshTransportEnvelope;
 pub type HouseholdMeshLocalRepublish = protocol::HouseholdMeshLocalRepublish;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum HouseholdMeshExportDecision {
     Export(HouseholdMeshLanMessage),
     Reject(HouseholdMeshBridgeRejection),
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum HouseholdMeshImportDecision {
     Republish(HouseholdMeshLocalRepublish),
     Reject(HouseholdMeshBridgeRejection),
@@ -131,8 +131,9 @@ pub fn validate_incoming_lan_message(
             HouseholdMeshBridgeRejection::WrongTargetDevice,
         );
     }
-    if lan_message_type_for_ref(&message.local_event_ref) != Some(message.lan_message_type.as_str()) {
-        return if is_selected_local_event_ref(message.local_event_ref) {
+    if lan_message_type_for_ref(&message.local_event_ref) != Some(message.lan_message_type.as_str())
+    {
+        return if is_selected_local_event_ref(&message.local_event_ref) {
             HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::MismatchedMessageRef)
         } else {
             HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::UnselectedLocalEvent)
@@ -262,9 +263,7 @@ impl HouseholdMeshBridgeRejection {
             HouseholdMeshBridgeRejection::ReplayedMessage => mesh::REJECTION_REPLAYED_MESSAGE,
             HouseholdMeshBridgeRejection::StaleMessage => mesh::REJECTION_STALE_MESSAGE,
             HouseholdMeshBridgeRejection::FamilyMismatch => mesh::REJECTION_FAMILY_MISMATCH,
-            HouseholdMeshBridgeRejection::WrongTargetDevice => {
-                mesh::REJECTION_WRONG_TARGET_DEVICE
-            }
+            HouseholdMeshBridgeRejection::WrongTargetDevice => mesh::REJECTION_WRONG_TARGET_DEVICE,
         }
     }
 }

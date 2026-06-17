@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
@@ -19,19 +20,21 @@ async function main() {
   await mkdir(output26, { recursive: true });
   await mkdir(output33, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-provider-delivery-artifact-gate-proof',
+    'tests/contract/tracking-provider-delivery-artifact-gate-proof.test.ts',
   ]);
 
-  const proofModule = await importDist('tracking-provider-delivery-artifact-gate-proof.js');
+  const proofModule = await tsImport(
+    pathToFileURL(
+      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-provider-delivery-artifact-gate-proof.ts')
+    ).href,
+    import.meta.url
+  );
   const generatedAt = '2026-06-07T19:20:00.000Z';
   const inventory = {
     presentArtifacts: await presentArtifactsForRoot(
@@ -140,10 +143,6 @@ async function writeArtifacts(proof) {
     `${commands.map((entry) => entry.command).join('\n')}\n`,
     'utf8'
   );
-}
-
-function importDist(name) {
-  return import(pathToFileURL(path.join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
 }
 
 function run(command, args) {

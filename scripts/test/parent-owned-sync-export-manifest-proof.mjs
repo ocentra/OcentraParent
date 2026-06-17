@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
-const outputDir = join(repoRoot, 'test-results', 'parent-owned-sync-export-manifest-proof');
-const proofPath = join(outputDir, 'proof.json');
+const outputDir = join(repoRoot, 'output', 'data-custody-storage-plan-proof', '03-parent-owned-cloud-sync');
+const proofPath = join(outputDir, 'parent-owned-sync-export-manifest-proof.json');
 const commands = [];
 
 await main();
@@ -14,15 +14,15 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/parent-owned-sync-export.test.ts',
+      'tests/unit/parent-owned-sync-export.test.ts',
     ])
   );
 
@@ -32,6 +32,12 @@ async function main() {
   const dataClassCounts = proofModule.summarizeParentOwnedSyncExportDataClasses(readModel.manifest.items);
   const connectorStatusCounts = proofModule.summarizeParentOwnedSyncExportConnectorStatuses(
     readModel.connectorStatuses
+  );
+  const recoveryBundleStateCounts = proofModule.summarizeParentOwnedSyncExportRecoveryBundleStates(
+    readModel.recoveryBundles
+  );
+  const recoveryHandoffStateCounts = proofModule.summarizeParentOwnedSyncExportRecoveryHandoffStates(
+    readModel.recoveryBundles
   );
 
   assert.equal(
@@ -53,6 +59,15 @@ async function main() {
     readModel.deleteResults.map((result) => result.resultState),
     ['pending', 'confirmed', 'failed', 'not-requested']
   );
+  assert.equal(recoveryBundleStateCounts.bundlePreviewOnly, 1);
+  assert.equal(recoveryBundleStateCounts.bundleApplyPending, 1);
+  assert.equal(recoveryBundleStateCounts.bundleApplied, 1);
+  assert.equal(recoveryBundleStateCounts.bundleWrongHousehold, 1);
+  assert.equal(recoveryBundleStateCounts.bundleWrongKey, 1);
+  assert.equal(recoveryBundleStateCounts.bundleCorrupt, 1);
+  assert.equal(recoveryBundleStateCounts.bundleManualRequired, 1);
+  assert.equal(recoveryHandoffStateCounts['delete-pending'], 1);
+  assert.equal(recoveryHandoffStateCounts['delete-confirmed'], 1);
 
   const proof = {
     schemaVersion: 1,
@@ -61,10 +76,10 @@ async function main() {
     proofMode: 'parent-owned-sync-export-manifest-proof',
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/parent-owned-sync-export.ts',
-      contractTest: 'packages/parent-domain/tests/parent-owned-sync-export.test.ts',
-      builtModule: 'packages/parent-domain/dist/parent-owned-sync-export.js',
-      packageExport: '@ocentra-parent/parent-domain/parent-owned-sync-export',
+      contract: 'packages/production-domain/src/parent-owned-sync-export.ts',
+      contractTest: 'packages/production-domain/tests/unit/parent-owned-sync-export.test.ts',
+      builtModule: 'packages/production-domain/dist/src/parent-owned-sync-export.js',
+      packageExport: '@ocentra-parent/production-domain/parent-owned-sync-export',
       featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDoc: 'docs/expectations/sync-export.md',
       output: relative(repoRoot, proofPath),
@@ -75,6 +90,9 @@ async function main() {
     conflictResolutions: readModel.conflictRecords.map((record) => record.resolution),
     importResultStates: readModel.importResults.map((result) => result.resultState),
     deleteResultStates: readModel.deleteResults.map((result) => result.resultState),
+    recoveryBundleStates: recoveryBundleStateCounts,
+    recoveryHandoffStates: recoveryHandoffStateCounts,
+    recoveryHandoffTargets: [...new Set(readModel.recoveryBundles.map((bundle) => bundle.handoff.handoffTarget))],
     nonClaims: readModel.nonClaims,
     claimBoundaries: {
       transferRuntimeClaimed: readModel.transferRuntimeClaimed,
@@ -92,18 +110,12 @@ async function main() {
 }
 
 async function loadContractProofModule() {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'parent-owned-sync-export.js');
+  const modulePath = join(repoRoot, 'packages', 'production-domain', 'dist', 'src', 'parent-owned-sync-export.js');
   return import(pathToFileURL(modulePath).href);
 }
 
 async function assertPackageExport(proofModule) {
-  const packageJson = JSON.parse(await readFile(join(repoRoot, 'packages', 'parent-domain', 'package.json'), 'utf8'));
-  assert.deepEqual(packageJson.exports['./parent-owned-sync-export'], {
-    import: './dist/parent-owned-sync-export.js',
-    types: './dist/parent-owned-sync-export.d.ts',
-  });
-
-  const exportedModule = await import('@ocentra-parent/parent-domain/parent-owned-sync-export');
+  const exportedModule = await import('@ocentra-parent/production-domain/parent-owned-sync-export');
   assert.equal(
     exportedModule.ParentOwnedSyncExportContractProofReadModel.manifest.manifestId,
     proofModule.ParentOwnedSyncExportContractProofReadModel.manifest.manifestId

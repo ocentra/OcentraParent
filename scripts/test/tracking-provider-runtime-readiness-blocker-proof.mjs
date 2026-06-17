@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
@@ -25,10 +26,21 @@ async function main() {
   await mkdir(wp26ProofDir, { recursive: true });
   await mkdir(wp33ProofDir, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  runNpmCommand(run, ['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
+  runNpmCommand(run, [
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/tracking-domain',
+    '--',
+    'tests/contract/tracking-provider-runtime-readiness-blocker-proof.test.ts',
+  ]);
 
-  const providerRuntimeModule = await importDist('tracking-provider-runtime-readiness-blocker-proof.js');
+  const providerRuntimeModule = await tsImport(
+    pathToFileURL(
+      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-provider-runtime-readiness-blocker-proof.ts')
+    ).href,
+    import.meta.url
+  );
   const providerProof = await readProofJson('test-results/tracking-provider-notification-proof/proof.json');
   const receiptProof = await readProofJson('test-results/tracking-notification-receipt-boundary-proof/proof.json');
   const outboxProof = await readProofJson('test-results/tracking-notification-local-outbox-readiness-proof/proof.json');
@@ -154,10 +166,6 @@ async function writeArtifacts(proof) {
 
 async function readProofJson(relativePath) {
   return JSON.parse(await readFile(join(repoRoot, relativePath), 'utf8'));
-}
-
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
 }
 
 function run(command, args) {

@@ -39,9 +39,16 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 
 - the canonical TypeScript source package is `packages/network-domain`, not the `packages/activity-domain` paths still named elsewhere in this plan;
 - real network code exists across `packages/network-domain`, `crates/agent-protocol`, `crates/agent-core`, `crates/agent-service`, `crates/ocentra-network-evidence`, and `apps/portal`;
-- `docs/proof/network-plan/` is missing in this checkout;
-- `output/network-plan-proof/` is absent in this checkout;
+- the proof root was missing at audit time, but `docs/proof/network-plan/` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` were restored as a slice-01 skeleton on 2026-06-17;
+- only the slice-01 proof skeleton exists right now; broader plan proof bundles are still missing;
 - `implementation-checklist.md` shows 127/128 checked boxes, but that count is not a truthful completion signal while source paths, proof routing, and workpack state are out of sync.
+
+## Current slice checkpoint
+
+- 2026-06-17 `network-foundation-shim-cleanup` is limited to the parent-domain TypeScript ownership boundary plus the initial proof-root skeleton.
+- This slice converts `packages/parent-domain/src/network-flow.ts` and `packages/parent-domain/src/network-contracts.ts` off banned `export *` shims without widening into Rust, portal, or platform proof.
+- The single remaining contradiction inside this slice boundary is the published `@ocentra-parent/parent-domain` `./network-control-catalog` surface, because `packages/parent-domain/src/network-control-catalog.ts`, `network-control-catalog-data.ts`, `network-control-catalog-metadata.ts`, and `network-control-catalog-schema.ts` still fail the re-export gate and this slice must not widen beyond the exact control-catalog boundary to invent a replacement API.
+- Proof skeleton for this slice lives at `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` with artifacts under `output/network-plan-proof/01-network-foundation-shim-cleanup/`.
 
 ## What is already present in source
 
@@ -68,7 +75,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - Windows proof is expected where a row needs it; current gaps are proof-generation and row-tracking gaps, not a host limitation.
 - Android tooling is present and an AVD exists, but no device is attached right now and the remembered Samsung Wi-Fi ADB endpoint did not answer during the audit refresh.
 - WSL is installed but stopped, and Docker Desktop's binary exists while the Linux engine is currently unavailable; Linux proof through WSL and/or Docker is therefore feasible but not currently active.
-- `docs/proof/network-plan/` and `output/network-plan-proof/` must be regenerated or the plan rows must stop claiming them.
+- only `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` exist so far; all broader plan proof bundles still need to be generated before rows can close honestly.
 - Production live packet capture driver support and live raw artifact creation.
 - Router/log import implementation proof.
 - Local AI model execution or remote provider execution.
@@ -125,8 +132,8 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
   - a real test run log (or explicit known blocker) from the assigned implementation boundary,
   - a proof manifest under `docs/proof/network-plan/`.
 - Current audit truth:
-  - `docs/proof/network-plan/` is missing in this checkout, so the HID proof-manifest route is currently stale;
-  - do not mark any slice complete until that route is rebuilt or explicitly replaced by a new proof index plus real committed artifacts;
+  - `docs/proof/network-plan/` now exists again, but only the slice-01 skeleton is present;
+  - do not mark any slice complete until the assigned slice has real committed artifacts beyond the current skeleton or an explicit blocker note;
   - each rebuilt proof file must include commands, pass/fail, negative cases, and manual-required notes.
 - Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, and rollback/teardown proofs are present for the assigned slice.
 

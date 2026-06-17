@@ -2,72 +2,101 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
+import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
-const testOutputDir = join(repoRoot, 'test-results', 'tracking-notification-preference-preflight-proof');
+const proofMode = 'tracking-notification-preference-preflight-proof';
+const testOutputDir = join(repoRoot, 'test-results', proofMode);
 const wp26Dir = join(repoRoot, 'output', 'tracking-plan-proof', '26-alert-severity-and-notification-model');
 const wp33Dir = join(repoRoot, 'output', 'tracking-plan-proof', '33-proof-gates-fixtures-rollout-and-pr-gate');
-const proofDir = join(repoRoot, 'output', 'tracking-plan-proof', 'tracking-notification-preference-preflight-proof');
+const proofDir = join(repoRoot, 'output', 'tracking-plan-proof', proofMode);
 const timestamp = '2026-06-06T08:02:00.000Z';
 const commands = [];
 const initialGitStatusShort = gitOutput(['status', '--short']);
 
-await rm(testOutputDir, { recursive: true, force: true });
-await rm(proofDir, { recursive: true, force: true });
-await mkdir(testOutputDir, { recursive: true });
-await mkdir(wp26Dir, { recursive: true });
-await mkdir(wp33Dir, { recursive: true });
-await mkdir(proofDir, { recursive: true });
+await main();
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-runNpm([
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/parent-domain',
-  '--',
-  'tracking-notification-preference-preflight-proof',
-  'tracking-provider-notification-proof',
-  'v3-notification-rule-provider-retry-contract',
-]);
+async function main() {
+  await rm(testOutputDir, { recursive: true, force: true });
+  await rm(proofDir, { recursive: true, force: true });
+  await mkdir(testOutputDir, { recursive: true });
+  await mkdir(wp26Dir, { recursive: true });
+  await mkdir(wp33Dir, { recursive: true });
+  await mkdir(proofDir, { recursive: true });
 
-const tracking = await importDist('tracking-location-policy.js');
-const providerModule = await importDist('tracking-provider-notification-proof.js');
-const preferenceModule = await importDist('tracking-notification-preference-preflight-proof.js');
-const sourceReadModel = tracking.TrackingLocationPolicyReadModelSchema.parse(sourceTrackingReadModel(tracking));
-const providerReadModel = providerModule.buildTrackingProviderNotificationProofReadModel(
-  providerOptions(),
-  sourceReadModel
-);
-const readModel = preferenceModule.buildTrackingNotificationPreferencePreflightReadModel(
-  preferenceOptions(),
-  providerReadModel
-);
-const proof = {
-  proofMode: 'tracking-notification-preference-preflight-proof',
-  generatedAt: timestamp,
-  branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
-  gitStatusShort: initialGitStatusShort,
-  commands,
-  summary: summarize(readModel),
-  nonClaims: nonClaims(readModel),
-  proofPaths: proofPaths(),
-  sourceProviderNotificationProof: providerReadModel.proofId,
-  readModel,
-};
+  runNpmCommand(run, [
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/notification-domain',
+    '--',
+    'tests/unit/v0-8-notification-provider-status-boundary.test.ts',
+    'tests/unit/v3-notification-rule-provider-retry-contract.test.ts',
+  ]);
+  runNpmCommand(run, [
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/tracking-domain',
+    '--',
+    'tests/contract/tracking-provider-notification-proof.test.ts',
+    'tests/contract/tracking-notification-preference-preflight-proof.test.ts',
+  ]);
 
-assertProof(proof);
-await writeJson(join(testOutputDir, 'tracking-notification-preference-preflight-read-model.json'), readModel);
-await writeJson(join(testOutputDir, 'proof.json'), proof);
-await writeProofPack(proofDir, proof);
-await writeJson(join(wp26Dir, '24-notification-preference-preflight-proof.json'), proof);
-await writeJson(join(wp33Dir, '24-notification-preference-preflight-proof.json'), proof);
+  const proof = await buildProof();
+  assertProof(proof);
+  await writeJson(join(testOutputDir, 'tracking-notification-preference-preflight-read-model.json'), proof.readModel);
+  await writeJson(join(testOutputDir, 'proof.json'), proof);
+  await writeProofPack(proofDir, proof);
+  await writeJson(join(wp26Dir, '24-notification-preference-preflight-proof.json'), proof);
+  await writeJson(join(wp33Dir, '24-notification-preference-preflight-proof.json'), proof);
 
-console.log('tracking-notification-preference-preflight-proof-ok');
-console.log(`evidence=${join('test-results', 'tracking-notification-preference-preflight-proof', 'proof.json')}`);
+  console.log('tracking-notification-preference-preflight-proof-ok');
+  console.log(`evidence=${join('test-results', proofMode, 'proof.json')}`);
+}
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+async function buildProof() {
+  const trackingLocationPolicyModule = await tsImport(
+    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-location-policy.ts')).href,
+    import.meta.url
+  );
+  const providerModule = await tsImport(
+    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-provider-notification-proof.ts')).href,
+    import.meta.url
+  );
+  const preferenceModule = await tsImport(
+    pathToFileURL(
+      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-notification-preference-preflight-proof.ts')
+    ).href,
+    import.meta.url
+  );
+
+  const sourceReadModel = trackingLocationPolicyModule.TrackingLocationPolicyReadModelSchema.parse(
+    sourceTrackingReadModel(trackingLocationPolicyModule)
+  );
+  const providerReadModel = providerModule.buildTrackingProviderNotificationProofReadModel(
+    providerOptions(),
+    sourceReadModel
+  );
+  const readModel = preferenceModule.buildTrackingNotificationPreferencePreflightReadModel(
+    preferenceOptions(),
+    providerReadModel
+  );
+
+  return {
+    proofMode,
+    generatedAt: timestamp,
+    branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
+    commit: gitOutput(['rev-parse', 'HEAD']),
+    gitStatusShort: initialGitStatusShort,
+    commands,
+    summary: summarize(readModel),
+    nonClaims: nonClaims(readModel),
+    proofPaths: proofPaths(),
+    sourceProviderNotificationProof: providerReadModel.proofId,
+    readModel,
+  };
 }
 
 function providerOptions() {
@@ -83,7 +112,7 @@ function providerOptions() {
 function preferenceOptions() {
   return {
     generatedAt: timestamp,
-    preferencePreflightId: 'tracking-notification-preference-preflight-proof',
+    preferencePreflightId: proofMode,
     sourceContractRefs: [
       'tracking-provider-notification-proof',
       'v3-notification-rule-provider-retry-contract',
@@ -168,8 +197,8 @@ function nonClaims(readModel) {
 
 function proofPaths() {
   return {
-    source: 'packages/parent-domain/src/tracking-notification-preference-preflight-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-notification-preference-preflight-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-notification-preference-preflight-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-notification-preference-preflight-proof.test.ts',
     harness: 'scripts/test/tracking-notification-preference-preflight-proof.mjs',
     evidence: 'test-results/tracking-notification-preference-preflight-proof/proof.json',
     wp26: 'output/tracking-plan-proof/26-alert-severity-and-notification-model/24-notification-preference-preflight-proof.json',
@@ -198,6 +227,7 @@ async function writeProofPack(path, proof) {
       '# Tracking Notification Preference Preflight Source Snapshot',
       '',
       `- Branch: ${proof.branch}`,
+      `- Commit: ${proof.commit}`,
       `- Source provider proof: ${proof.sourceProviderNotificationProof}`,
       '- Git status at proof generation:',
       '',
@@ -208,26 +238,58 @@ async function writeProofPack(path, proof) {
     ].join('\n'),
     'utf8'
   );
-  await writeFile(join(path, '01-contract-proof.log'), `${proof.commands.join('\n')}\n`, 'utf8');
   await writeFile(
-    join(path, '13-security-negative-proof.log'),
-    'Parent preference UI, notification history UI, quiet-hours timers, provider delivery, receipts, credentials, child delivery, physical devices, durable outbox storage, and adapter dispatch remain unclaimed.\n',
+    join(path, '01-contract-proof.log'),
+    [
+      'Contract proof:',
+      '',
+      '- cmd /c npm run test --workspace @ocentra-parent/notification-domain -- tests/unit/v0-8-notification-provider-status-boundary.test.ts tests/unit/v3-notification-rule-provider-retry-contract.test.ts: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tests/contract/tracking-provider-notification-proof.test.ts tests/contract/tracking-notification-preference-preflight-proof.test.ts: PASS',
+      '- Preference preflight rows preserve source evidence, policy, reason, provider attempt, and provider preference refs while keeping UI/runtime claims false.',
+      '',
+    ].join('\n'),
     'utf8'
   );
-  await writeFile(join(path, '16-validation-commands.log'), `${proof.commands.join('\n')}\n`, 'utf8');
+  await writeFile(
+    join(path, '13-security-negative-proof.log'),
+    [
+      'Security/no-claim proof:',
+      '',
+      '- Parent preference UI, notification history UI, quiet-hours timers, provider delivery, receipts, credentials, cloud routing, child-device delivery, physical-device proof, retry runtime, durable outbox storage, and adapter dispatch remain unclaimed.',
+      '',
+    ].join('\n'),
+    'utf8'
+  );
+  await writeFile(join(path, '16-validation-commands.log'), `${validationLog()}\n`, 'utf8');
   await writeJson(join(path, 'proof.json'), proof);
 }
 
 function run(command, args) {
-  commands.push([command, ...args].join(' '));
-  const result = spawnSync(command, args, { cwd: repoRoot, stdio: 'inherit', shell: false });
+  const printable = [command, ...args].join(' ');
+  const result = spawnSync(command, args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    shell: false,
+  });
+  commands.push({
+    command: printable,
+    status: result.status,
+    stdout: result.stdout.trim(),
+    stderr: result.stderr.trim(),
+  });
   if (result.status !== 0) {
-    throw new Error(`Command failed: ${command} ${args.join(' ')}`);
+    throw new Error(`${printable} failed\n${result.stdout}\n${result.stderr}`);
   }
 }
 
+function validationLog() {
+  return commands.map((entry) => `${entry.command} exit=${entry.status}`).join('\n');
+}
+
 function gitOutput(args) {
-  return spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8' }).stdout.trim();
+  const result = spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8', shell: false });
+  if (result.status !== 0) return '';
+  return result.stdout.trim();
 }
 
 function countBy(values) {
@@ -238,11 +300,6 @@ function countBy(values) {
 }
 
 async function writeJson(path, value) {
+  await mkdir(dirname(path), { recursive: true });
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
-}
-
-function runNpm(args, ...rest) {
-  const command = process.platform === 'win32' ? 'cmd' : 'npm';
-  const commandArgs = process.platform === 'win32' ? ['/c', 'npm', ...args] : args;
-  return run(command, commandArgs, ...rest);
 }

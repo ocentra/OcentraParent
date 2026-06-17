@@ -593,16 +593,19 @@ export function recoveryCanAccessChildEvidence(input: RecoveryOperation): boolea
 export function deviceTrustStateForRecoveryState(state: RecoveryState): FamilyDeviceTrustState {
   const parsedState = RecoveryStateSchema.parse(state);
 
-  switch (parsedState) {
-    case RecoveryState.PendingIdentityProof:
-    case RecoveryState.OwnerApprovalRequired:
-    case RecoveryState.Approved:
-      return DeviceTrustState.ResetRequired;
-    case RecoveryState.Completed:
-      return DeviceTrustState.Pending;
-    case RecoveryState.Revoked:
-      return DeviceTrustState.Revoked;
+  if (
+    parsedState === RecoveryState.PendingIdentityProof ||
+    parsedState === RecoveryState.OwnerApprovalRequired ||
+    parsedState === RecoveryState.Approved
+  ) {
+    return DeviceTrustState.ResetRequired;
   }
+
+  if (parsedState === RecoveryState.Completed) {
+    return DeviceTrustState.Pending;
+  }
+
+  return DeviceTrustState.Revoked;
 }
 
 export function evaluateRecoveryOperation(input: RecoveryAuthorizationInput): RecoveryDecision {

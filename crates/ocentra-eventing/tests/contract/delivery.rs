@@ -67,10 +67,9 @@ fn delivery_rejects_live_external_or_authority_claims_without_artifact_path() {
 
 #[test]
 fn delivery_decision_allows_local_first_route_with_filter_and_backpressure() {
-    let proof = decide_event_delivery_route(network_local_input(
-        EventDeliveryRouteKind::LocalInProcess,
-    ))
-    .expect_value("local in-process event route should be ready");
+    let proof =
+        decide_event_delivery_route(network_local_input(EventDeliveryRouteKind::LocalInProcess))
+            .expect_value("local in-process event route should be ready");
 
     assert_eq!(proof.route_kind, EventDeliveryRouteKind::LocalInProcess);
     assert_eq!(
@@ -110,7 +109,10 @@ fn delivery_decision_marks_external_transport_manual_required_without_required_a
         proof.decision_state,
         EventDeliveryDecisionState::ExternalTransportRouteManualRequired
     );
-    assert_eq!(proof.required_artifacts, network_external_transport_requirements());
+    assert_eq!(
+        proof.required_artifacts,
+        network_external_transport_requirements()
+    );
     assert_eq!(
         proof.missing_artifacts,
         vec![
@@ -163,14 +165,12 @@ fn delivery_decision_marks_external_relay_manual_required_for_relay_artifacts() 
 }
 
 #[test]
-fn delivery_decision_preserves_satisfied_external_transport_requirements_without_live_transport()
-{
-    let proof = decide_event_delivery_route(
-        network_external_transport_requirements_satisfied_input(),
-    )
-    .expect_value(
-        "complete external transport requirements should be distinguishable from live delivery",
-    );
+fn delivery_decision_preserves_satisfied_external_transport_requirements_without_live_transport() {
+    let proof =
+        decide_event_delivery_route(network_external_transport_requirements_satisfied_input())
+            .expect_value(
+            "complete external transport requirements should be distinguishable from live delivery",
+        );
 
     assert_eq!(
         proof.decision_state,

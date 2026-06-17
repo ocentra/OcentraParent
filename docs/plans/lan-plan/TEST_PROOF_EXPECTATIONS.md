@@ -19,6 +19,22 @@
 output/lan-plan-proof/<workpack-file-stem>/
 ```
 
+## Current LAN-domain test truth
+
+- As of 2026-06-17, `packages/lan-domain/tests/unit` is the only populated LAN
+  test category on this branch/worktree.
+- Empty or placeholder directories under `packages/lan-domain/tests/**` do not
+  count as integration, contract, e2e, property, security, observability,
+  release, or load coverage.
+- Future category claims should be made only when real test files exist under a
+  matching major top-level category.
+
+## Focused B2 command
+
+```bash
+cd packages/lan-domain && cmd /c npx vitest run tests/unit
+```
+
 ## Common commands
 
 ```bash
@@ -29,6 +45,9 @@ cargo test -p ocentra-parent-agent-service lan
 npm run test --workspace @ocentra-parent/portal -- lan
 npm run lint:architecture -- --files packages/lan-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/lan-plan
 ```
+
+The cross-surface `cargo` and portal commands above are not evidence that
+`packages/lan-domain` currently has populated non-unit LAN test categories.
 
 ## Required negative states
 

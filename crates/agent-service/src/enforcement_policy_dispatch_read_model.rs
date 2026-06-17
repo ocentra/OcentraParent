@@ -117,7 +117,9 @@ fn report_only_dispatch_entry(generated_at: &str) -> EnforcementPolicyDispatchRe
     )
 }
 
-fn ask_parent_dry_run_dispatch_entry(generated_at: &str) -> EnforcementPolicyDispatchReadModelEntry {
+fn ask_parent_dry_run_dispatch_entry(
+    generated_at: &str,
+) -> EnforcementPolicyDispatchReadModelEntry {
     dispatch_entry(
         generated_at,
         DispatchEntryInput {
@@ -169,7 +171,9 @@ fn manual_required_dispatch_entry(generated_at: &str) -> EnforcementPolicyDispat
     )
 }
 
-fn stale_policy_version_rejected_entry(generated_at: &str) -> EnforcementPolicyDispatchReadModelEntry {
+fn stale_policy_version_rejected_entry(
+    generated_at: &str,
+) -> EnforcementPolicyDispatchReadModelEntry {
     dispatch_entry(
         generated_at,
         DispatchEntryInput {

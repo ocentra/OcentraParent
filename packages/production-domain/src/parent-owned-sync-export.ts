@@ -291,6 +291,111 @@ export const ParentOwnedSyncExportDeleteResultSchema = withParser(
   )
 );
 
+export const ParentOwnedSyncExportRecoveryBundleStateSchema = withParser(
+  Schema.Literal(
+    'bundleQueued',
+    'bundleWritten',
+    'bundleVerified',
+    'bundlePreviewOnly',
+    'bundleApplyPending',
+    'bundleApplied',
+    'bundleRejected',
+    'bundleCorrupt',
+    'bundleWrongHousehold',
+    'bundleWrongKey',
+    'bundleManualRequired'
+  )
+);
+
+export const ParentOwnedSyncExportRecoveryBundleTypeSchema = withParser(
+  Schema.Literal('export', 'backup', 'import-preview', 'restore', 'support')
+);
+
+export const ParentOwnedSyncExportRecoveryHandoffTargetSchema = withParser(
+  Schema.Literal(
+    'setup-restore-preview',
+    'device-trust-recovery-persistence',
+    'parent-local-delete-runtime'
+  )
+);
+
+export const ParentOwnedSyncExportRecoveryHandoffStateSchema = withParser(
+  Schema.Literal(
+    'preview-only',
+    'apply-pending',
+    'applied',
+    'partial-restore',
+    'delete-pending',
+    'delete-confirmed',
+    'rejected',
+    'manual-required'
+  )
+);
+
+export const ParentOwnedSyncExportRecoveryBundleBindingStateSchema = withParser(
+  Schema.Literal('matched', 'mismatched', 'absent')
+);
+
+export const ParentOwnedSyncExportRecoveryBundleKeyAvailabilityStateSchema = withParser(
+  Schema.Literal('available', 'wrong-key', 'recovery-not-supported', 'manual-required')
+);
+
+const ParentOwnedSyncExportRecoveryBundleRefSchema = brandedNonEmptyStringSchema(
+  'ParentOwnedSyncExportRecoveryBundleRef'
+);
+const ParentOwnedSyncExportRecoveryHandoffRefSchema = brandedNonEmptyStringSchema(
+  'ParentOwnedSyncExportRecoveryHandoffRef'
+);
+
+const ParentOwnedSyncExportRecoveryHandoffBaseSchema = Schema.Struct({
+  handoffRef: ParentOwnedSyncExportRecoveryHandoffRefSchema,
+  handoffTarget: ParentOwnedSyncExportRecoveryHandoffTargetSchema,
+  handoffState: ParentOwnedSyncExportRecoveryHandoffStateSchema,
+  previewIsNonMutating: Schema.Boolean,
+  explicitParentConfirmationRequired: Schema.Boolean,
+  sourceOfTruthPreserved: Schema.Boolean,
+  tombstonesPreserved: Schema.Boolean,
+  deleteRequestRequired: Schema.Boolean,
+});
+
+export const ParentOwnedSyncExportRecoveryHandoffSchema = withParser(
+  ParentOwnedSyncExportRecoveryHandoffBaseSchema.pipe(
+    Schema.filter(
+      (handoff) =>
+        syncExportRecoveryHandoffIsHonest(handoff) ||
+        'Expected recovery handoff records to keep preview non-mutating, preserve source-of-truth and tombstones, and keep delete handoff explicit'
+    )
+  )
+);
+
+const ParentOwnedSyncExportRecoveryBundleBaseSchema = Schema.Struct({
+  bundleRef: ParentOwnedSyncExportRecoveryBundleRefSchema,
+  manifestRef: ParentOwnedSyncExportManifestIdSchema,
+  bundleType: ParentOwnedSyncExportRecoveryBundleTypeSchema,
+  bundleState: ParentOwnedSyncExportRecoveryBundleStateSchema,
+  handoff: ParentOwnedSyncExportRecoveryHandoffSchema,
+  sourceHouseholdBindingState: ParentOwnedSyncExportRecoveryBundleBindingStateSchema,
+  sourceDeviceBindingState: ParentOwnedSyncExportRecoveryBundleBindingStateSchema,
+  keyAvailabilityState: ParentOwnedSyncExportRecoveryBundleKeyAvailabilityStateSchema,
+  acceptedDataClasses: Schema.Array(ParentOwnedSyncExportDataClassSchema),
+  rejectedDataClasses: Schema.Array(ParentOwnedSyncExportDataClassSchema),
+  rejectionReasonRef: Schema.Union(ParentOwnedSyncExportPolicyRefSchema, Schema.Null),
+  deleteRequestRef: Schema.Union(ParentOwnedSyncExportResultRefSchema, Schema.Null),
+  previewMutatedLocalTruth: Schema.Boolean,
+  applyConfirmedByParent: Schema.Boolean,
+  auditRefs: Schema.Array(ParentEvidenceReferenceSchema),
+});
+
+export const ParentOwnedSyncExportRecoveryBundleSchema = withParser(
+  ParentOwnedSyncExportRecoveryBundleBaseSchema.pipe(
+    Schema.filter(
+      (bundle) =>
+        syncExportRecoveryBundleIsHonest(bundle) ||
+        'Expected recovery bundle records to keep preview non-mutating, reject wrong household/key/corrupt bundles, and keep partial restore or delete handoff explicit'
+    )
+  )
+);
+
 const ParentOwnedSyncExportManifestBaseSchema = Schema.Struct({
   schemaVersion: ParentOwnedSyncExportSchemaVersionSchema,
   manifestId: ParentOwnedSyncExportManifestIdSchema,
@@ -322,6 +427,7 @@ const ParentOwnedSyncExportContractProofBaseSchema = Schema.Struct({
   conflictRecords: Schema.Array(ParentOwnedSyncExportConflictRecordSchema),
   importResults: Schema.Array(ParentOwnedSyncExportImportResultSchema),
   deleteResults: Schema.Array(ParentOwnedSyncExportDeleteResultSchema),
+  recoveryBundles: Schema.Array(ParentOwnedSyncExportRecoveryBundleSchema),
   nonClaims: Schema.Array(ParentOwnedSyncExportNonClaimSchema),
   transferRuntimeClaimed: Schema.Boolean,
   connectorOAuthClaimed: Schema.Boolean,
@@ -349,6 +455,8 @@ type ParentOwnedSyncExportSyncCursorCandidate = Infer<typeof ParentOwnedSyncExpo
 type ParentOwnedSyncExportConflictRecordCandidate = Infer<typeof ParentOwnedSyncExportConflictRecordBaseSchema>;
 type ParentOwnedSyncExportImportResultCandidate = Infer<typeof ParentOwnedSyncExportImportResultBaseSchema>;
 type ParentOwnedSyncExportDeleteResultCandidate = Infer<typeof ParentOwnedSyncExportDeleteResultBaseSchema>;
+type ParentOwnedSyncExportRecoveryHandoffCandidate = Infer<typeof ParentOwnedSyncExportRecoveryHandoffBaseSchema>;
+type ParentOwnedSyncExportRecoveryBundleCandidate = Infer<typeof ParentOwnedSyncExportRecoveryBundleBaseSchema>;
 type ParentOwnedSyncExportContractProofCandidate = Infer<typeof ParentOwnedSyncExportContractProofBaseSchema>;
 
 export type ParentOwnedSyncExportDataClass = Infer<typeof ParentOwnedSyncExportDataClassSchema>;
@@ -359,6 +467,10 @@ export type ParentOwnedSyncExportSyncCursorState = Infer<typeof ParentOwnedSyncE
 export type ParentOwnedSyncExportConflictResolution = Infer<typeof ParentOwnedSyncExportConflictResolutionSchema>;
 export type ParentOwnedSyncExportImportResultState = Infer<typeof ParentOwnedSyncExportImportResultStateSchema>;
 export type ParentOwnedSyncExportDeleteResultState = Infer<typeof ParentOwnedSyncExportDeleteResultStateSchema>;
+export type ParentOwnedSyncExportRecoveryBundleState = Infer<typeof ParentOwnedSyncExportRecoveryBundleStateSchema>;
+export type ParentOwnedSyncExportRecoveryBundleType = Infer<typeof ParentOwnedSyncExportRecoveryBundleTypeSchema>;
+export type ParentOwnedSyncExportRecoveryHandoffTarget = Infer<typeof ParentOwnedSyncExportRecoveryHandoffTargetSchema>;
+export type ParentOwnedSyncExportRecoveryHandoffState = Infer<typeof ParentOwnedSyncExportRecoveryHandoffStateSchema>;
 export type ParentOwnedSyncExportNonClaim = Infer<typeof ParentOwnedSyncExportNonClaimSchema>;
 export type ParentOwnedSyncExportItemDescriptor = Infer<typeof ParentOwnedSyncExportItemDescriptorSchema>;
 export type ParentOwnedSyncExportConnectorStatusRow = Infer<typeof ParentOwnedSyncExportConnectorStatusRowSchema>;
@@ -366,6 +478,8 @@ export type ParentOwnedSyncExportSyncCursor = Infer<typeof ParentOwnedSyncExport
 export type ParentOwnedSyncExportConflictRecord = Infer<typeof ParentOwnedSyncExportConflictRecordSchema>;
 export type ParentOwnedSyncExportImportResult = Infer<typeof ParentOwnedSyncExportImportResultSchema>;
 export type ParentOwnedSyncExportDeleteResult = Infer<typeof ParentOwnedSyncExportDeleteResultSchema>;
+export type ParentOwnedSyncExportRecoveryHandoff = Infer<typeof ParentOwnedSyncExportRecoveryHandoffSchema>;
+export type ParentOwnedSyncExportRecoveryBundle = Infer<typeof ParentOwnedSyncExportRecoveryBundleSchema>;
 export type ParentOwnedSyncExportContractProof = Infer<typeof ParentOwnedSyncExportContractProofSchema>;
 
 function syncExportRetentionPolicyIsExplicit(policy: ParentOwnedSyncExportRetentionPolicyCandidate): boolean {
@@ -466,12 +580,128 @@ function syncExportDeleteResultIsHonest(result: ParentOwnedSyncExportDeleteResul
   return result.deleteRequestRef !== null;
 }
 
+function syncExportRecoveryHandoffIsHonest(
+  handoff: ParentOwnedSyncExportRecoveryHandoffCandidate
+): boolean {
+  if (
+    !handoff.previewIsNonMutating ||
+    !handoff.sourceOfTruthPreserved ||
+    !handoff.tombstonesPreserved
+  ) {
+    return false;
+  }
+  if (
+    handoff.handoffState === 'preview-only' ||
+    handoff.handoffState === 'apply-pending' ||
+    handoff.handoffState === 'applied' ||
+    handoff.handoffState === 'partial-restore'
+  ) {
+    if (!handoff.explicitParentConfirmationRequired || handoff.deleteRequestRequired) {
+      return false;
+    }
+  }
+  if (
+    handoff.handoffState === 'delete-pending' ||
+    handoff.handoffState === 'delete-confirmed'
+  ) {
+    return (
+      handoff.handoffTarget === 'parent-local-delete-runtime' &&
+      handoff.deleteRequestRequired &&
+      !handoff.explicitParentConfirmationRequired
+    );
+  }
+  if (handoff.handoffTarget === 'parent-local-delete-runtime') {
+    return handoff.handoffState === 'manual-required';
+  }
+  return !handoff.deleteRequestRequired;
+}
+
+function syncExportRecoveryBundleIsHonest(bundle: ParentOwnedSyncExportRecoveryBundleCandidate): boolean {
+  if (bundle.auditRefs.length === 0 || bundle.previewMutatedLocalTruth) {
+    return false;
+  }
+  if (
+    bundle.handoff.handoffState === 'delete-pending' ||
+    bundle.handoff.handoffState === 'delete-confirmed'
+  ) {
+    if (bundle.deleteRequestRef === null || bundle.handoff.handoffTarget !== 'parent-local-delete-runtime') {
+      return false;
+    }
+  } else if (bundle.deleteRequestRef !== null) {
+    return false;
+  }
+
+  if (bundle.bundleState === 'bundleWrongHousehold') {
+    return (
+      bundle.sourceHouseholdBindingState === 'mismatched' &&
+      bundle.handoff.handoffState === 'rejected' &&
+      bundle.rejectionReasonRef !== null &&
+      bundle.acceptedDataClasses.length === 0 &&
+      !bundle.applyConfirmedByParent
+    );
+  }
+  if (bundle.bundleState === 'bundleWrongKey') {
+    return (
+      bundle.keyAvailabilityState === 'wrong-key' &&
+      bundle.handoff.handoffState === 'rejected' &&
+      bundle.rejectionReasonRef !== null &&
+      bundle.acceptedDataClasses.length === 0 &&
+      !bundle.applyConfirmedByParent
+    );
+  }
+  if (bundle.bundleState === 'bundleCorrupt') {
+    return (
+      bundle.handoff.handoffState === 'rejected' &&
+      bundle.rejectionReasonRef !== null &&
+      bundle.acceptedDataClasses.length === 0 &&
+      !bundle.applyConfirmedByParent
+    );
+  }
+  if (bundle.bundleState === 'bundleManualRequired') {
+    return (
+      bundle.handoff.handoffState === 'manual-required' &&
+      bundle.rejectionReasonRef !== null &&
+      !bundle.applyConfirmedByParent
+    );
+  }
+  if (bundle.bundleState === 'bundlePreviewOnly') {
+    return (
+      bundle.handoff.handoffState === 'preview-only' &&
+      bundle.acceptedDataClasses.length > 0 &&
+      !bundle.applyConfirmedByParent &&
+      bundle.rejectionReasonRef === null
+    );
+  }
+  if (bundle.bundleState === 'bundleApplyPending') {
+    return (
+      bundle.handoff.handoffState === 'apply-pending' &&
+      bundle.acceptedDataClasses.length > 0 &&
+      !bundle.applyConfirmedByParent &&
+      bundle.rejectionReasonRef === null
+    );
+  }
+  if (bundle.bundleState === 'bundleApplied') {
+    if (!bundle.applyConfirmedByParent || bundle.rejectionReasonRef !== null) {
+      return false;
+    }
+    if (bundle.handoff.handoffState === 'applied') {
+      return bundle.rejectedDataClasses.length === 0;
+    }
+    return bundle.handoff.handoffState === 'partial-restore' && bundle.rejectedDataClasses.length > 0;
+  }
+  if (bundle.bundleState === 'bundleRejected') {
+    return bundle.handoff.handoffState === 'rejected' && bundle.rejectionReasonRef !== null;
+  }
+  return bundle.sourceHouseholdBindingState === 'matched';
+}
+
 function syncExportContractProofIsHonest(proof: ParentOwnedSyncExportContractProofCandidate): boolean {
   return (
     syncExportProofHasRequiredNonClaims(proof.nonClaims) &&
     syncExportProofCoversConnectorStatuses(proof.connectorStatuses) &&
     syncExportProofCoversCursorStates(proof.syncCursors) &&
     syncExportProofCoversImportAndDeleteResults(proof.importResults, proof.deleteResults) &&
+    syncExportProofCoversRecoveryBundles(proof.recoveryBundles) &&
     !proof.transferRuntimeClaimed &&
     !proof.connectorOAuthClaimed &&
     !proof.portalUiClaimed &&
@@ -523,6 +753,31 @@ function syncExportProofCoversImportAndDeleteResults(
     ) &&
     ['pending', 'confirmed', 'failed', 'not-requested'].every((state) =>
       deleteStates.has(state as ParentOwnedSyncExportDeleteResultState)
+    )
+  );
+}
+
+function syncExportProofCoversRecoveryBundles(
+  recoveryBundles: readonly ParentOwnedSyncExportRecoveryBundle[]
+): boolean {
+  const bundleStates = new Set(recoveryBundles.map((bundle) => bundle.bundleState));
+  const handoffStates = new Set(recoveryBundles.map((bundle) => bundle.handoff.handoffState));
+  const handoffTargets = new Set(recoveryBundles.map((bundle) => bundle.handoff.handoffTarget));
+  return (
+    [
+      'bundlePreviewOnly',
+      'bundleApplyPending',
+      'bundleApplied',
+      'bundleCorrupt',
+      'bundleWrongHousehold',
+      'bundleWrongKey',
+      'bundleManualRequired',
+    ].every((state) => bundleStates.has(state as ParentOwnedSyncExportRecoveryBundleState)) &&
+    ['preview-only', 'apply-pending', 'partial-restore', 'delete-pending', 'delete-confirmed', 'rejected', 'manual-required'].every(
+      (state) => handoffStates.has(state as ParentOwnedSyncExportRecoveryHandoffState)
+    ) &&
+    ['setup-restore-preview', 'device-trust-recovery-persistence', 'parent-local-delete-runtime'].every((target) =>
+      handoffTargets.has(target as ParentOwnedSyncExportRecoveryHandoffTarget)
     )
   );
 }
@@ -626,6 +881,134 @@ export const ParentOwnedSyncExportContractProofReadModel = ParentOwnedSyncExport
     deleteResult('delete-failed-proof', 'failed', 'notification-history', 'delete-request-notification-history-proof'),
     deleteResult('delete-not-requested-proof', 'not-requested', 'parent-rule', null),
   ],
+  recoveryBundles: [
+    recoveryBundle(
+      'bundle-preview-setup-proof',
+      'import-preview',
+      'bundlePreviewOnly',
+      handoff('handoff-setup-preview-proof', 'setup-restore-preview', 'preview-only'),
+      'matched',
+      'matched',
+      'available',
+      ['encrypted-journal-segment', 'generated-summary'],
+      [],
+      null,
+      null,
+      false
+    ),
+    recoveryBundle(
+      'bundle-apply-pending-device-trust-proof',
+      'restore',
+      'bundleApplyPending',
+      handoff('handoff-device-trust-pending-proof', 'device-trust-recovery-persistence', 'apply-pending'),
+      'matched',
+      'matched',
+      'available',
+      ['encrypted-journal-segment', 'sqlite-query-row', 'parent-rule'],
+      [],
+      null,
+      null,
+      false
+    ),
+    recoveryBundle(
+      'bundle-partial-restore-device-trust-proof',
+      'restore',
+      'bundleApplied',
+      handoff('handoff-device-trust-partial-proof', 'device-trust-recovery-persistence', 'partial-restore'),
+      'matched',
+      'matched',
+      'available',
+      ['encrypted-journal-segment', 'sqlite-query-row', 'generated-summary'],
+      ['device-registry-entry'],
+      null,
+      null,
+      true
+    ),
+    recoveryBundle(
+      'bundle-wrong-household-proof',
+      'import-preview',
+      'bundleWrongHousehold',
+      handoff('handoff-wrong-household-proof', 'setup-restore-preview', 'rejected'),
+      'mismatched',
+      'matched',
+      'available',
+      [],
+      ['encrypted-journal-segment', 'sqlite-query-row'],
+      'wrong-household-binding-ref',
+      null,
+      false
+    ),
+    recoveryBundle(
+      'bundle-wrong-key-proof',
+      'restore',
+      'bundleWrongKey',
+      handoff('handoff-wrong-key-proof', 'device-trust-recovery-persistence', 'rejected'),
+      'matched',
+      'matched',
+      'wrong-key',
+      [],
+      ['encrypted-journal-segment', 'generated-summary'],
+      'wrong-key-ref',
+      null,
+      false
+    ),
+    recoveryBundle(
+      'bundle-corrupt-proof',
+      'backup',
+      'bundleCorrupt',
+      handoff('handoff-corrupt-proof', 'setup-restore-preview', 'rejected'),
+      'matched',
+      'absent',
+      'available',
+      [],
+      ['encrypted-journal-segment', 'sqlite-query-row', 'generated-summary'],
+      'integrity-check-failed-ref',
+      null,
+      false
+    ),
+    recoveryBundle(
+      'bundle-manual-required-proof',
+      'restore',
+      'bundleManualRequired',
+      handoff('handoff-manual-required-proof', 'device-trust-recovery-persistence', 'manual-required'),
+      'matched',
+      'matched',
+      'recovery-not-supported',
+      ['generated-summary'],
+      ['encrypted-journal-segment'],
+      'manual-recovery-approval-ref',
+      null,
+      false
+    ),
+    recoveryBundle(
+      'bundle-delete-pending-proof',
+      'export',
+      'bundleWritten',
+      handoff('handoff-delete-pending-proof', 'parent-local-delete-runtime', 'delete-pending'),
+      'matched',
+      'matched',
+      'available',
+      ['audit-event'],
+      [],
+      null,
+      'delete-handoff-request-proof',
+      false
+    ),
+    recoveryBundle(
+      'bundle-delete-confirmed-proof',
+      'export',
+      'bundleWritten',
+      handoff('handoff-delete-confirmed-proof', 'parent-local-delete-runtime', 'delete-confirmed'),
+      'matched',
+      'matched',
+      'available',
+      ['generated-summary'],
+      [],
+      null,
+      'delete-handoff-confirmed-proof',
+      false
+    ),
+  ],
   nonClaims: [...RequiredNonClaims],
   transferRuntimeClaimed: false,
   connectorOAuthClaimed: false,
@@ -637,10 +1020,11 @@ export const ParentOwnedSyncExportContractProofReadModel = ParentOwnedSyncExport
 });
 
 export const ParentOwnedSyncExportKnownGaps = [
-  'No export/import/upload/download runtime is implemented by this parent-domain proof.',
+  'No export/import/upload/download runtime is implemented by this production-domain contract proof.',
   'No connector OAuth, token refresh, revocation runtime, or provider API calls are implemented.',
   'No portal UI or CLI control is claimed for export, sync, retention, or delete controls.',
   'No Ocentra-hosted storage of child evidence, generated reports, journal data, or query rows is claimed.',
+  'Parent-owned local export/delete execution remains a separate parent-domain holdout; this proof only defines delete and recovery handoff contracts.',
   'Real encrypted journal export/import, SQLite rebuild, conflict replay, and delete execution remain future work.',
 ] as const;
 
@@ -659,6 +1043,45 @@ export function summarizeParentOwnedSyncExportConnectorStatuses(
   return countBy(
     rows.map((row) => row.status),
     ['ready', 'revoked', 'wrong-account', 'folder-unavailable', 'partial-upload', 'disabled', 'not-configured'] as const
+  );
+}
+
+export function summarizeParentOwnedSyncExportRecoveryBundleStates(
+  bundles: ReadonlyArray<ParentOwnedSyncExportRecoveryBundle>
+): Record<ParentOwnedSyncExportRecoveryBundleState, number> {
+  return countBy(
+    bundles.map((bundle) => bundle.bundleState),
+    [
+      'bundleQueued',
+      'bundleWritten',
+      'bundleVerified',
+      'bundlePreviewOnly',
+      'bundleApplyPending',
+      'bundleApplied',
+      'bundleRejected',
+      'bundleCorrupt',
+      'bundleWrongHousehold',
+      'bundleWrongKey',
+      'bundleManualRequired',
+    ] as const
+  );
+}
+
+export function summarizeParentOwnedSyncExportRecoveryHandoffStates(
+  bundles: ReadonlyArray<ParentOwnedSyncExportRecoveryBundle>
+): Record<ParentOwnedSyncExportRecoveryHandoffState, number> {
+  return countBy(
+    bundles.map((bundle) => bundle.handoff.handoffState),
+    [
+      'preview-only',
+      'apply-pending',
+      'applied',
+      'partial-restore',
+      'delete-pending',
+      'delete-confirmed',
+      'rejected',
+      'manual-required',
+    ] as const
   );
 }
 
@@ -787,6 +1210,60 @@ function deleteResult(
     dataClass,
     deleteRequestRef,
     connectorStatusRef: 'connector-status-delete-proof',
+    auditRefs: [EvidenceRef],
+  });
+}
+
+function handoff(
+  handoffRef: string,
+  handoffTarget: ParentOwnedSyncExportRecoveryHandoffTarget,
+  handoffState: ParentOwnedSyncExportRecoveryHandoffState
+): ParentOwnedSyncExportRecoveryHandoff {
+  return ParentOwnedSyncExportRecoveryHandoffSchema.parse({
+    handoffRef,
+    handoffTarget,
+    handoffState,
+    previewIsNonMutating: true,
+    explicitParentConfirmationRequired:
+      handoffState === 'preview-only' ||
+      handoffState === 'apply-pending' ||
+      handoffState === 'applied' ||
+      handoffState === 'partial-restore',
+    sourceOfTruthPreserved: true,
+    tombstonesPreserved: true,
+    deleteRequestRequired: handoffState === 'delete-pending' || handoffState === 'delete-confirmed',
+  });
+}
+
+function recoveryBundle(
+  bundleRef: string,
+  bundleType: ParentOwnedSyncExportRecoveryBundleType,
+  bundleState: ParentOwnedSyncExportRecoveryBundleState,
+  handoffEntry: ParentOwnedSyncExportRecoveryHandoff,
+  sourceHouseholdBindingState: Infer<typeof ParentOwnedSyncExportRecoveryBundleBindingStateSchema>,
+  sourceDeviceBindingState: Infer<typeof ParentOwnedSyncExportRecoveryBundleBindingStateSchema>,
+  keyAvailabilityState: Infer<typeof ParentOwnedSyncExportRecoveryBundleKeyAvailabilityStateSchema>,
+  acceptedDataClasses: ReadonlyArray<ParentOwnedSyncExportDataClass>,
+  rejectedDataClasses: ReadonlyArray<ParentOwnedSyncExportDataClass>,
+  rejectionReasonRef: string | null,
+  deleteRequestRef: string | null,
+  applyConfirmedByParent: boolean
+): ParentOwnedSyncExportRecoveryBundle {
+  return ParentOwnedSyncExportRecoveryBundleSchema.parse({
+    bundleRef,
+    manifestRef: ManifestId,
+    bundleType,
+    bundleState,
+    handoff: handoffEntry,
+    sourceHouseholdBindingState,
+    sourceDeviceBindingState,
+    keyAvailabilityState,
+    acceptedDataClasses,
+    rejectedDataClasses,
+    rejectionReasonRef,
+    deleteRequestRef,
+    previewMutatedLocalTruth: false,
+    applyConfirmedByParent,
     auditRefs: [EvidenceRef],
   });
 }

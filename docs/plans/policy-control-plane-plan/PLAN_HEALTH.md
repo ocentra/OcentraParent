@@ -11,7 +11,7 @@ Known risks: duplicate policy truth, ad hoc domain compilers, assistant writes w
 
 ## State
 
-- Current state: route and contract docs exist, checked closeout bundles now exist for WP01, WP07, and WP08 under `docs/proof/policy-control-plane-plan/`, and feature dependencies still keep WP02/WP05 open while WP03/WP04 proof closure remains open.
+- Current state: route and contract docs exist, the canonical proof root is `docs/proof/policy-control-plane-plan/`, `PLAN_PROOF_MANIFEST.md` now records present route and closeout bundles, checked closeout bundles exist for WP01, WP07, and WP08, and feature dependencies still keep WP02/WP05 open while WP03/WP04 proof closure remains open.
 - Current action: keep this file and `PLAN_STATE.md` aligned before any DONE/PR_READY claim and treat WP02/WP03/WP04/WP05 as the remaining open workpacks.
 
 ## Decision routes and failure controls
@@ -23,5 +23,5 @@ Known risks: duplicate policy truth, ad hoc domain compilers, assistant writes w
 ## Proof mapping
 
 - Required proof before READY: explicit artifact files under `docs/proof/policy-control-plane-plan/`, matching focused validation logs, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
-- The current checkout now has a proof artifact directory at that root with universal guardrail files, checked closeout bundles for WP01/WP07/WP08, and the WP06 route bundle.
+- The current checkout now has a proof artifact directory at that root with universal guardrail files, `PLAN_PROOF_MANIFEST.md`, checked closeout bundles for WP01/WP07/WP08, and the WP06 route bundle.
 - At minimum, align the following docs before READY: `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, `WORKPACK_INDEX.md`, and the assigned workpack.

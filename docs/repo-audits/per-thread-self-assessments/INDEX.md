@@ -51,6 +51,6 @@ When a thread lands its file:
 - change only that row's status
 - do not normalize away the thread's raw report text
 
-Legacy note:
-- Earlier numbered files such as `01-account-identity-family-plan.md` through `08-data-custody-storage-plan.md` are transitional duplicates from the first prompt shape.
-- Canonical files for this archive are the `*-selfaudit.md` files only.
+Canonical note:
+- Canonical review inputs in this folder are the `*-selfaudit.md` files only.
+- Transitional numbered duplicates from the first archival pass were removed during phase-0 archive hygiene on 2026-06-17.

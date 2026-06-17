@@ -25,20 +25,20 @@
 
 ## Highest-priority queue
 
-### 1. Plan-State and Proof-Inventory Reconciliation
+### 1. Remaining Proof-Inventory Restoration / Claim Reduction
 
 Current status:
 
 ```text
-the plan docs still overclaim missing-vs-present proof state, but canonical WP07/WP10 proof roots now exist under output/logging-domain-parity-proof/ and test-results/logging-domain-parity-{mcp,proof-trace}/
+WP06 now has a canonical proof root plus live agent-query/MCP proof-inventory detection, and the logging plan docs no longer need to imply that WP06 is proof-missing; the remaining blocking proof-inventory error is the stale WP08 partial-proof claim
 ```
 
 Expected result:
 
 ```text
-PLAN_STATE.md, WORKPACK_INDEX.md, PLAN_HEALTH.md, and the affected workpack docs match the restored WP07/WP10 proof truth
-done claims do not outrun on-disk proof
-the plan stops implying missing proof roots for WP07/WP10 while keeping the remaining roots explicitly open
+WP08 either gets a real canonical proof root or drops back from partial-proof to an honest lower status
+the remaining proof-missing workpacks keep explicit no-claim language until proof is restored
+proof-inventory wrappers stay useful by reporting only real blocking gaps
 ```
 
 ### 2. WP03 Parent Architecture and Routing Truthful Closeout
@@ -46,29 +46,28 @@ the plan stops implying missing proof roots for WP07/WP10 while keeping the rema
 Current status:
 
 ```text
-portal bridge routing, snapshot-language separation, and agent-service delegation already exist in source/tests, but the workpack still reads as open/unproved
+the portal dev-log consumer slice is now proved locally: bridge-first routing, same-origin compatibility fallback, parent scope definitions, snapshot-language separation, focused portal logging tests, and the canonical WP03 proof root are all present in this checkout
 ```
 
 Expected result:
 
 ```text
-WP03 either gets rebuilt proof and an honest closeout
-or it records the exact remaining blocker without implying missing implementation
+WP03 stays partial until the remaining Rust-side agent-service mapping row is closed by its owning slice or reduced to a narrower no-claim boundary
 ```
 
-### 3. WP06 Validation / Enforcement Honest Closeout
+### 3. Root Dev-Log-Routing Handoff For Full WP06 Closeout
 
 Current status:
 
 ```text
-WP07/WP10 proof roots are now present, but enforcement still does not verify proof inventory or reject stale closeout claims
+npm run validate:logging still fails at lint:dev-log-routing because the portal dev logger points at an unimplemented endpoint, and that owner surface is outside this delegated logging-only slice
 ```
 
 Expected result:
 
 ```text
-validation scripts and workpack language reflect the restored proof inventory
-proof-backed closeout stays honest when roots are missing or stale
+the owning portal/agent-service slice either fixes or narrows the dev-log-routing expectation
+WP06 can then move from partial-proof to a true focused-validation pass without widening this thread
 ```
 
 ## PR readiness guard
@@ -90,6 +89,8 @@ unless the assigned workpack is explicitly proof-routing-only.
 
 - [x] Re-check this plan route from `README.md`, `AGENTS.md`, and `PLAN_STATE.md`.
 - [x] Audit the current source/test/proof state against the plan claims.
-- [ ] Reconcile plan-state and workpack docs with the restored WP07/WP10 proof truth.
+- [x] Reconcile plan-state and workpack docs with the restored WP03/WP06/WP07/WP10 proof truth.
 - [ ] Rebuild the remaining missing proof roots or remove the claims that say they already exist.
+- [x] Write the canonical WP03 portal-dev-log consumer proof root and truth-sync the workpack/checklist for that bounded slice.
+- [x] Write the canonical WP06 validation/enforcement proof root and truth-sync the bounded workpack/checklist state.
 - [x] Fix the standalone proof-trace smoke claim with a self-seeding clean-workspace harness and canonical proof roots.

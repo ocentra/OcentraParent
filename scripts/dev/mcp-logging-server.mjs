@@ -10,6 +10,7 @@ import {
   getLogStats,
   getLogsByContext,
   getLogsBySource,
+  getProofInventoryStatus,
   getProofTrace,
   getProofTraceGaps,
   getRecentLogs,
@@ -138,6 +139,14 @@ const TOOLS = [
     },
   },
   {
+    name: 'get_proof_inventory_status',
+    description: 'Return current logging proof-root presence and stale-claim gaps for logging-domain-parity.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+    },
+  },
+  {
     name: 'get_proof_trace',
     description: 'Return ordered proof-trace rows for one proof id.',
     inputSchema: {
@@ -235,6 +244,8 @@ async function callTool(name, argumentsValue = {}) {
       return getRunDiagnostics(argumentsValue);
     case 'get_artifact_slice':
       return getArtifactSlice(argumentsValue);
+    case 'get_proof_inventory_status':
+      return getProofInventoryStatus(argumentsValue);
     case 'get_proof_trace':
       return getProofTrace(argumentsValue);
     case 'get_proof_trace_gaps':
@@ -292,6 +303,10 @@ async function runCli(argv) {
     }
     if (target === 'proof-trace') {
       process.stdout.write(`${JSON.stringify(runProofTraceSmoke(argv), null, 2)}\n`);
+      return true;
+    }
+    if (target === 'proof-inventory') {
+      process.stdout.write(`${JSON.stringify(await callTool('get_proof_inventory_status', {}), null, 2)}\n`);
       return true;
     }
     throw new Error(`Unknown smoke target: ${target}`);

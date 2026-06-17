@@ -29,3 +29,8 @@ Failure conditions:
 - Do not treat the 300k+ settings inventory as the plan.
 - Do not create broad implementation claims from catalog existence.
 - Do not route policy, UI, billing, or data custody decisions into network just because a setting touches network behavior.
+
+## Current slice note
+
+- The 2026-06-17 `network-foundation-shim-cleanup` slice uses WP08 only to keep the control-catalog surface honest while the parent-domain shim cleanup is in progress.
+- The exact remaining decision is whether `@ocentra-parent/parent-domain` continues to publish `./network-control-catalog`, or whether that path must be retired before the remaining control-catalog shim files are deleted.

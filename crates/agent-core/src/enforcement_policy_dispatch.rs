@@ -46,7 +46,10 @@ fn validate_entry_identity(
         return Err(EnforcementPolicyDispatchRejectionReason::WrongDevice);
     }
     if !has_dispatch_reference_prefix(&entry.intent.policy_decision_id, dispatch::PREFIX_POLICY)
-        || !has_dispatch_reference_prefix(&entry.intent.policy_decision_ref, dispatch::PREFIX_DECISION)
+        || !has_dispatch_reference_prefix(
+            &entry.intent.policy_decision_ref,
+            dispatch::PREFIX_DECISION,
+        )
     {
         return Err(EnforcementPolicyDispatchRejectionReason::MissingPolicyDecision);
     }

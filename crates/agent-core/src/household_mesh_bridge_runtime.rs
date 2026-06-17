@@ -4,47 +4,83 @@ use ocentra_eventing::{
     ids::IdempotencyKey, ids::SchemaVersion, ids::SubscriberId, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::household_mesh::HouseholdMeshBridgeState;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    export_selected_local_event,
     household_mesh_bridge_runtime_phase::HouseholdMeshBridgePhase,
     household_mesh_bridge_runtime_refs::{
-        bridge_aggregate_key, bridge_event_state, bridge_message_type_for_local_event,
-        previous_bridge_phase_ref,
+        bridge_aggregate_key, bridge_event_state, bridge_local_event_kind_for_local_event,
+        bridge_message_type_for_local_event, previous_bridge_phase_ref,
     },
     household_mesh_bridge_runtime_source::bridge_event_metadata,
     household_mesh_bridge_runtime_state::{
         HouseholdMeshBridgeCustody, HouseholdMeshBridgeDirection, HouseholdMeshBridgeEnvelopeState,
         HouseholdMeshBridgeRejectionReason, HouseholdMeshBridgeValidationState,
     },
+    validate_incoming_lan_message, HouseholdMeshBridgeRejection, HouseholdMeshExportDecision,
+    HouseholdMeshImportDecision, HouseholdMeshLanMessage,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct HouseholdMeshBridgeInput {
     pub correlation_id: String,
     pub local_event_type: String,
+    pub family_id: String,
+    pub target_child_device_id: String,
     pub outbound_message_id: String,
-    pub inbound_message_id: String,
+    pub outbound_idempotency_key: String,
     pub child_agent_peer_id: String,
     pub provider_peer_id: String,
     pub payload_ref: String,
     pub observed_at: String,
+    pub received_at_epoch_seconds: u64,
+    pub inbound_message: HouseholdMeshLanMessage,
+    pub seen_message_ids: Vec<String>,
+    pub seen_idempotency_keys: Vec<String>,
 }
 
 impl HouseholdMeshBridgeInput {
     pub fn proof_fixture() -> Self {
+        let mut inbound_message = HouseholdMeshLanMessage::proof_fixture_for(
+            constants::household_mesh::LOCAL_EVENT_AI_RESULT_RETURN,
+            constants::household_mesh::LAN_MESSAGE_AI_RESULT_RETURN,
+        );
+        inbound_message.source_peer_id =
+            constants::household_mesh::TEST_BRIDGE_PROVIDER_PEER_ID.to_string();
         Self {
             correlation_id: constants::household_mesh::TEST_BRIDGE_CORRELATION_ID.to_string(),
             local_event_type: constants::screen_flow::EVENT_SCREEN_MESH_OFFER_PUBLISHED.to_string(),
+            family_id: constants::household_mesh::TEST_BRIDGE_FAMILY_ID.to_string(),
+            target_child_device_id: constants::household_mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID
+                .to_string(),
             outbound_message_id: constants::household_mesh::TEST_BRIDGE_OUTBOUND_MESSAGE_ID
                 .to_string(),
-            inbound_message_id: constants::household_mesh::TEST_BRIDGE_INBOUND_MESSAGE_ID
+            outbound_idempotency_key: constants::household_mesh::TEST_BRIDGE_IDEMPOTENCY_KEY
                 .to_string(),
             child_agent_peer_id: constants::household_mesh::TEST_BRIDGE_CHILD_AGENT_PEER_ID
                 .to_string(),
             provider_peer_id: constants::household_mesh::TEST_BRIDGE_PROVIDER_PEER_ID.to_string(),
             payload_ref: constants::household_mesh::TEST_BRIDGE_PAYLOAD_REF.to_string(),
             observed_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+            received_at_epoch_seconds:
+                constants::household_mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
+            inbound_message,
+            seen_message_ids: Vec::new(),
+            seen_idempotency_keys: Vec::new(),
+        }
+    }
+
+    fn inbound_envelope(&self) -> HouseholdMeshBridgeInboundEnvelope {
+        HouseholdMeshBridgeInboundEnvelope {
+            message: self.inbound_message.clone(),
+            expected_family_id: self.family_id.clone(),
+            expected_target_child_device_id: self.target_child_device_id.clone(),
+            received_at_epoch_seconds: self.received_at_epoch_seconds,
+            authorized: true,
+            seen_message_ids: self.seen_message_ids.clone(),
+            seen_idempotency_keys: self.seen_idempotency_keys.clone(),
         }
     }
 }
@@ -68,21 +104,53 @@ impl HouseholdMeshBridgeExportCandidate {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct HouseholdMeshBridgeInboundEnvelope {
-    pub lan_message_type: String,
-    pub authenticated: bool,
+    pub message: HouseholdMeshLanMessage,
+    pub expected_family_id: String,
+    pub expected_target_child_device_id: String,
+    pub received_at_epoch_seconds: u64,
     pub authorized: bool,
-    pub direct_remote_publish_attempted: bool,
-    pub contains_raw_screenshot: bool,
+    pub seen_message_ids: Vec<String>,
+    pub seen_idempotency_keys: Vec<String>,
 }
 
 impl HouseholdMeshBridgeInboundEnvelope {
     pub fn accepted_offer() -> Self {
+        let mut message = HouseholdMeshLanMessage::proof_fixture_for(
+            constants::household_mesh::LOCAL_EVENT_AI_WORK_OFFER,
+            constants::household_mesh::LAN_MESSAGE_AI_WORK_OFFER,
+        );
+        message.source_peer_id =
+            constants::household_mesh::TEST_BRIDGE_PROVIDER_PEER_ID.to_string();
         Self {
-            lan_message_type: constants::household_mesh::MESSAGE_AI_WORK_OFFER.to_string(),
-            authenticated: true,
+            message,
+            expected_family_id: constants::household_mesh::TEST_BRIDGE_FAMILY_ID.to_string(),
+            expected_target_child_device_id:
+                constants::household_mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID.to_string(),
+            received_at_epoch_seconds:
+                constants::household_mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
             authorized: true,
-            direct_remote_publish_attempted: false,
-            contains_raw_screenshot: false,
+            seen_message_ids: Vec::new(),
+            seen_idempotency_keys: Vec::new(),
+        }
+    }
+
+    pub fn accepted_result() -> Self {
+        let mut message = HouseholdMeshLanMessage::proof_fixture_for(
+            constants::household_mesh::LOCAL_EVENT_AI_RESULT_RETURN,
+            constants::household_mesh::LAN_MESSAGE_AI_RESULT_RETURN,
+        );
+        message.source_peer_id =
+            constants::household_mesh::TEST_BRIDGE_PROVIDER_PEER_ID.to_string();
+        Self {
+            message,
+            expected_family_id: constants::household_mesh::TEST_BRIDGE_FAMILY_ID.to_string(),
+            expected_target_child_device_id:
+                constants::household_mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID.to_string(),
+            received_at_epoch_seconds:
+                constants::household_mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
+            authorized: true,
+            seen_message_ids: Vec::new(),
+            seen_idempotency_keys: Vec::new(),
         }
     }
 }
@@ -99,7 +167,12 @@ pub struct HouseholdMeshBridgeEventPayload {
     pub envelope_state: HouseholdMeshBridgeEnvelopeState,
     pub direction: HouseholdMeshBridgeDirection,
     pub local_event_type: String,
+    pub local_event_ref: String,
     pub lan_message_type: String,
+    pub family_id: String,
+    pub target_child_device_id: String,
+    pub source_peer_id: String,
+    pub idempotency_key: String,
     pub outbound_message_id: String,
     pub inbound_message_id: String,
     pub child_agent_peer_id: String,
@@ -114,22 +187,44 @@ pub struct HouseholdMeshBridgeEventPayload {
 
 impl HouseholdMeshBridgeEventPayload {
     fn from_input(phase: HouseholdMeshBridgePhase, input: &HouseholdMeshBridgeInput) -> Self {
-        let lan_message_type = bridge_message_type_for_local_event(&input.local_event_type)
-            .unwrap_or(constants::household_mesh::MESSAGE_AI_WORK_OFFER);
+        let export_decision = bridge_export_decision_for_input(input);
+        let bridge_message = bridge_message_for_phase(phase, input, &export_decision);
+        let import_validation = matches!(
+            phase,
+            HouseholdMeshBridgePhase::LanMessageReceived
+                | HouseholdMeshBridgePhase::LocalEventRepublished
+        )
+        .then(|| validate_household_mesh_bridge_import(&input.inbound_envelope()));
+        let export_validation = match export_decision {
+            HouseholdMeshExportDecision::Export(_) => HouseholdMeshBridgeValidation {
+                state: HouseholdMeshBridgeValidationState::Accepted,
+                rejection_reason: None,
+            },
+            HouseholdMeshExportDecision::Reject(rejection) => HouseholdMeshBridgeValidation {
+                state: HouseholdMeshBridgeValidationState::Rejected,
+                rejection_reason: Some(bridge_rejection_reason(rejection)),
+            },
+        };
+        let validation = import_validation.unwrap_or(export_validation);
         Self {
             phase,
             envelope_state: bridge_event_state(phase),
             direction: bridge_direction_for_phase(phase),
             local_event_type: input.local_event_type.clone(),
-            lan_message_type: lan_message_type.to_string(),
+            local_event_ref: bridge_message.local_event_ref.clone(),
+            lan_message_type: bridge_message.lan_message_type.clone(),
+            family_id: bridge_message.family_id.clone(),
+            target_child_device_id: bridge_message.target_child_device_id.clone(),
+            source_peer_id: bridge_message.source_peer_id.clone(),
+            idempotency_key: bridge_message.idempotency_key.clone(),
             outbound_message_id: input.outbound_message_id.clone(),
-            inbound_message_id: input.inbound_message_id.clone(),
+            inbound_message_id: input.inbound_message.message_id.clone(),
             child_agent_peer_id: input.child_agent_peer_id.clone(),
             provider_peer_id: input.provider_peer_id.clone(),
             payload_ref: input.payload_ref.clone(),
             previous_phase_ref: previous_bridge_phase_ref(phase),
-            validation_state: HouseholdMeshBridgeValidationState::Accepted,
-            rejection_reason: None,
+            validation_state: validation.state,
+            rejection_reason: validation.rejection_reason,
             custody: HouseholdMeshBridgeCustody::selected_bridge_only(),
             observed_at: input.observed_at.clone(),
         }
@@ -206,20 +301,32 @@ pub fn validate_household_mesh_bridge_export(
 pub fn validate_household_mesh_bridge_import(
     envelope: &HouseholdMeshBridgeInboundEnvelope,
 ) -> HouseholdMeshBridgeValidation {
-    let rejection_reason = if envelope.direct_remote_publish_attempted {
-        Some(HouseholdMeshBridgeRejectionReason::DirectRemotePublish)
-    } else if !envelope.authenticated {
-        Some(HouseholdMeshBridgeRejectionReason::UnauthenticatedPeer)
-    } else if !envelope.authorized {
+    let rejection_reason = if !envelope.authorized {
         Some(HouseholdMeshBridgeRejectionReason::UnauthorizedPeer)
-    } else if envelope.contains_raw_screenshot {
-        Some(HouseholdMeshBridgeRejectionReason::RawScreenPayload)
-    } else if envelope.lan_message_type != constants::household_mesh::MESSAGE_AI_WORK_OFFER
-        && envelope.lan_message_type != constants::household_mesh::MESSAGE_AI_WORK_RESULT
-    {
-        Some(HouseholdMeshBridgeRejectionReason::UnsupportedLanMessage)
     } else {
-        None
+        let seen_message_ids = envelope
+            .seen_message_ids
+            .iter()
+            .map(String::as_str)
+            .collect::<Vec<_>>();
+        let seen_idempotency_keys = envelope
+            .seen_idempotency_keys
+            .iter()
+            .map(String::as_str)
+            .collect::<Vec<_>>();
+        match validate_incoming_lan_message(
+            envelope.message.clone(),
+            &envelope.expected_family_id,
+            &envelope.expected_target_child_device_id,
+            envelope.received_at_epoch_seconds,
+            &seen_message_ids,
+            &seen_idempotency_keys,
+        ) {
+            HouseholdMeshImportDecision::Republish(_) => None,
+            HouseholdMeshImportDecision::Reject(rejection) => {
+                Some(bridge_rejection_reason(rejection))
+            }
+        }
     };
     bridge_validation_for_rejection(rejection_reason)
 }
@@ -287,5 +394,104 @@ fn bridge_direction_for_phase(phase: HouseholdMeshBridgePhase) -> HouseholdMeshB
         | HouseholdMeshBridgePhase::LanMessageExported => HouseholdMeshBridgeDirection::Export,
         HouseholdMeshBridgePhase::LanMessageReceived
         | HouseholdMeshBridgePhase::LocalEventRepublished => HouseholdMeshBridgeDirection::Import,
+    }
+}
+
+fn bridge_export_decision_for_input(
+    input: &HouseholdMeshBridgeInput,
+) -> HouseholdMeshExportDecision {
+    let Some(local_event_kind) = bridge_local_event_kind_for_local_event(&input.local_event_type)
+    else {
+        return HouseholdMeshExportDecision::Reject(
+            HouseholdMeshBridgeRejection::UnselectedLocalEvent,
+        );
+    };
+    export_selected_local_event(
+        local_event_kind,
+        &input.family_id,
+        &input.target_child_device_id,
+        &input.child_agent_peer_id,
+        &input.outbound_message_id,
+        &input.outbound_idempotency_key,
+        constants::household_mesh::TEST_BRIDGE_SENT_AT_EPOCH_SECONDS,
+        constants::household_mesh::TEST_BRIDGE_STALE_AFTER_SECONDS,
+    )
+}
+
+fn bridge_message_for_phase(
+    phase: HouseholdMeshBridgePhase,
+    input: &HouseholdMeshBridgeInput,
+    export_decision: &HouseholdMeshExportDecision,
+) -> HouseholdMeshLanMessage {
+    match phase {
+        HouseholdMeshBridgePhase::LocalEventSelected
+        | HouseholdMeshBridgePhase::LanMessageExported => match export_decision {
+            HouseholdMeshExportDecision::Export(message) => message.clone(),
+            HouseholdMeshExportDecision::Reject(_) => fallback_export_message(input),
+        },
+        HouseholdMeshBridgePhase::LanMessageReceived
+        | HouseholdMeshBridgePhase::LocalEventRepublished => input.inbound_message.clone(),
+    }
+}
+
+fn fallback_export_message(input: &HouseholdMeshBridgeInput) -> HouseholdMeshLanMessage {
+    let lan_message_type = bridge_message_type_for_local_event(&input.local_event_type)
+        .unwrap_or(constants::household_mesh::LAN_MESSAGE_AI_WORK_OFFER);
+    let local_event_ref = bridge_local_event_kind_for_local_event(&input.local_event_type)
+        .map(crate::household_mesh_event_bridge::local_event_ref)
+        .unwrap_or(constants::household_mesh::LOCAL_EVENT_AI_WORK_OFFER);
+    HouseholdMeshLanMessage {
+        schema_version: constants::household_mesh::EVENT_SCHEMA_VERSION,
+        message_id: input.outbound_message_id.clone(),
+        idempotency_key: input.outbound_idempotency_key.clone(),
+        family_id: input.family_id.clone(),
+        target_child_device_id: input.target_child_device_id.clone(),
+        source_peer_id: input.child_agent_peer_id.clone(),
+        local_event_ref: local_event_ref.to_string(),
+        lan_message_type: lan_message_type.to_string(),
+        bridge_state: HouseholdMeshBridgeState::ExportSelected,
+        authentication_state: crate::HouseholdMeshAuthenticationState::PairedTrustedDevice,
+        policy_authority: crate::HouseholdMeshPolicyAuthority::ChildAgentOnly,
+        direct_remote_publish_requested: false,
+        raw_payload_included: false,
+        sent_at_epoch_seconds: constants::household_mesh::TEST_BRIDGE_SENT_AT_EPOCH_SECONDS,
+        stale_after_seconds: constants::household_mesh::TEST_BRIDGE_STALE_AFTER_SECONDS,
+    }
+}
+
+fn bridge_rejection_reason(
+    rejection: HouseholdMeshBridgeRejection,
+) -> HouseholdMeshBridgeRejectionReason {
+    match rejection {
+        HouseholdMeshBridgeRejection::UnselectedLocalEvent => {
+            HouseholdMeshBridgeRejectionReason::UnselectedEvent
+        }
+        HouseholdMeshBridgeRejection::UnauthenticatedMessage => {
+            HouseholdMeshBridgeRejectionReason::UnauthenticatedPeer
+        }
+        HouseholdMeshBridgeRejection::DirectRemotePublish => {
+            HouseholdMeshBridgeRejectionReason::DirectRemotePublish
+        }
+        HouseholdMeshBridgeRejection::PolicyAuthorityEscalation => {
+            HouseholdMeshBridgeRejectionReason::PolicyAuthorityEscalation
+        }
+        HouseholdMeshBridgeRejection::RawPayload => {
+            HouseholdMeshBridgeRejectionReason::RawScreenPayload
+        }
+        HouseholdMeshBridgeRejection::MismatchedMessageRef => {
+            HouseholdMeshBridgeRejectionReason::MismatchedMessageRef
+        }
+        HouseholdMeshBridgeRejection::ReplayedMessage => {
+            HouseholdMeshBridgeRejectionReason::ReplayedMessage
+        }
+        HouseholdMeshBridgeRejection::StaleMessage => {
+            HouseholdMeshBridgeRejectionReason::StaleMessage
+        }
+        HouseholdMeshBridgeRejection::FamilyMismatch => {
+            HouseholdMeshBridgeRejectionReason::FamilyMismatch
+        }
+        HouseholdMeshBridgeRejection::WrongTargetDevice => {
+            HouseholdMeshBridgeRejectionReason::WrongTargetDevice
+        }
     }
 }

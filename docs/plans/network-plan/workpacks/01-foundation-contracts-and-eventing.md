@@ -32,3 +32,9 @@ Failure conditions:
 - Do not claim exact content, exact URL, exact video, or private message truth from network-only evidence.
 - Do not allow AI/network observations to publish enforcement commands.
 - Do not use the giant settings inventory as implementation proof.
+
+## Current slice note
+
+- The 2026-06-17 `network-foundation-shim-cleanup` slice is limited to the parent-domain TypeScript shim boundary and initial proof-root creation.
+- In this slice, `packages/parent-domain/src/network-flow.ts` and `packages/parent-domain/src/network-contracts.ts` can be cleaned up without widening scope.
+- The remaining exact contradiction for WP01 is the public `./network-control-catalog` surface, which must be resolved before the control-catalog shim family can be removed honestly.

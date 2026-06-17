@@ -20,10 +20,17 @@
 output/network-plan-proof/<workpack-file-stem>/
 ```
 
+## Active slice proof root
+
+```text
+docs/proof/network-plan/01-network-foundation-shim-cleanup.md
+output/network-plan-proof/01-network-foundation-shim-cleanup/
+```
+
 ## Current audit truth
 
-- Audit refresh on 2026-06-16 found `docs/proof/network-plan/` missing in this checkout.
-- Audit refresh on 2026-06-16 found `output/network-plan-proof/` absent in this checkout.
+- `docs/proof/network-plan/` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` were restored on 2026-06-17 for the active foundation shim cleanup slice.
+- The proof root is still only a slice-01 skeleton; broader workpack proof bundles remain missing.
 - `test-results/` currently contains no network-plan proof artifacts in this checkout.
 - Proof scripts exist under `scripts/test/`, but script presence alone is not proof completion.
 - Stale doc references to `docs/proof/network-plan/` or `output/network-plan-proof/` must be rebuilt or removed before a row can be treated as proved.
@@ -87,3 +94,5 @@ Do not claim a proof complete from a planned artifact path. A proof becomes curr
 1. the focused validation command runs from the real owning surface;
 2. the resulting artifact exists in the committed proof location or the blocker is written explicitly;
 3. the workpack/checklist row points at that exact artifact or blocker.
+
+For the current `network-foundation-shim-cleanup` slice, the proof root is allowed to stay as a skeleton if the only unresolved item is the single `./network-control-catalog` public-export decision recorded by the slice proof doc.

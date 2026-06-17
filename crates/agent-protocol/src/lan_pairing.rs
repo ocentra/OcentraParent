@@ -14,8 +14,7 @@ pub type DeviceRuntimeRoleEntry = device_roles::DeviceRuntimeRoleEntry;
 pub type DeviceRoleRuntimeReadModel = device_roles::DeviceRoleRuntimeReadModel;
 #[path = "lan_pairing/discovery_states.rs"]
 mod discovery_states;
-pub type LanPairingProductionDiscoveryState =
-    discovery_states::LanPairingProductionDiscoveryState;
+pub type LanPairingProductionDiscoveryState = discovery_states::LanPairingProductionDiscoveryState;
 pub type LanAiProviderRoutingState = discovery_states::LanAiProviderRoutingState;
 #[path = "lan_pairing/device_hardware.rs"]
 mod device_hardware;

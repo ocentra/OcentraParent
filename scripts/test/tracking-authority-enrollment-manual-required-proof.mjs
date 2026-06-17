@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
@@ -24,19 +25,21 @@ async function main() {
   await mkdir(output31, { recursive: true });
   await mkdir(output33, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-authority-enrollment-manual-required-proof',
+    'tests/contract/tracking-authority-enrollment-manual-required-proof.test.ts',
   ]);
 
-  const proofModule = await importDist('tracking-authority-enrollment-manual-required-proof.js');
+  const proofModule = await tsImport(
+    pathToFileURL(
+      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-authority-enrollment-manual-required-proof.ts')
+    ).href,
+    import.meta.url
+  );
   const generatedAt = '2026-06-07T18:05:00.000Z';
   const readModel = proofModule.buildTrackingAuthorityEnrollmentManualRequiredProof(generatedAt);
   const proof = buildProof({ generatedAt, readModel });
@@ -131,10 +134,6 @@ function sourceSnapshot(proof) {
     '- No provider delivery, production worker, or product-ready tracking is claimed.',
     '',
   ].join('\n');
-}
-
-function importDist(name) {
-  return import(pathToFileURL(path.join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
 }
 
 function run(command, args) {

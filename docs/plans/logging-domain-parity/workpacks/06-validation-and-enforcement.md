@@ -177,31 +177,151 @@ Known gaps/manual-required states:
 Focused checks observed in this checkout:
 
 ```text
-- npm run validate:logging -> pass
+- npm run validate:logging -> fail at lint:dev-log-routing (`portal dev logger must not post to an unimplemented endpoint`)
 - npm run test:logging-evidence -> pass
+- npm run lint:logging-exports -> pass
+- npm run agent:query -- proof-inventory -> pass
+- npm run mcp:logging -- --smoke proof-inventory -> pass
+- npx vitest run packages/logging-domain/tests/unit/logging-scripts.test.ts packages/logging-domain/tests/integration/mcp-query-interface.test.ts -> pass
+- npm run lint:architecture -- --files scripts/dev/lib/log-query-service.mjs scripts/dev/lib/agent-log-paths.mjs scripts/dev/agent-query.mjs scripts/dev/mcp-logging-server.mjs packages/logging-domain/tests/unit/logging-scripts.test.ts packages/logging-domain/tests/integration/mcp-query-interface.test.ts -> pass
 ```
 
 What this actually proves:
 
 ```text
-- the validation scripts exist and run
+- the validation scripts and root wrappers exist and run
 - local evidence smoke works for controlled pass/fail runs
-- dev-log routing static checks pass
 - logging export shape checks pass
+- agent-query and MCP proof-inventory wrappers now detect missing/stale proof roots and stale closeout claims through a shared query surface
+- focused unit/integration tests verify fixture-based negative cases for missing proof roots, stale checklist/workpack claims, and CLI/MCP parity
+- a canonical WP06 proof root now exists in this checkout
 ```
 
 What this does not yet prove:
 
 ```text
-- output/logging-domain-parity-proof/06-validation-and-enforcement/ exists in this checkout
 - test-results/logging-domain-parity-validation/ exists in this checkout
-- the validation layer detects missing proof roots or stale done claims
-- the workpack completion claim is backed by on-disk proof artifacts
+- full dev-log-routing closure for the portal endpoint expectation
+- focused-validation green for the whole workpack while lint:dev-log-routing still fails
+- missing proof-root closeout for WP01/WP02/WP04/WP05/WP08/WP09
 ```
 
 Required next step for truthful closeout:
 
 ```text
-- recreate the missing proof root or remove the completion claim
-- extend enforcement if this workpack is meant to guarantee proof-inventory honesty rather than only source-shape/script existence
+- hand off lint:dev-log-routing to the owning portal/agent-service slice or narrow that expectation there
+- restore or reduce the remaining WP08 stale partial-proof claim so proof-inventory wrappers report only real remaining gaps
 ```
+
+## Workpack completion section
+
+```text
+Workpack id and branch:
+WP06 Validation and Enforcement
+codex/tracking-plan-full-continuation-a
+
+Touched files:
+docs/plans/logging-domain-parity/PLAN_STATE.md
+docs/plans/logging-domain-parity/NEXT_ACTIONS.md
+docs/plans/logging-domain-parity/WORKPACK_INDEX.md
+docs/plans/logging-domain-parity/CHECKLIST_INDEX.md
+docs/plans/logging-domain-parity/workpacks/06-validation-and-enforcement.md
+scripts/dev/lib/agent-log-paths.mjs
+scripts/dev/lib/log-query-service.mjs
+scripts/dev/agent-query.mjs
+scripts/dev/mcp-logging-server.mjs
+packages/logging-domain/tests/unit/logging-scripts.test.ts
+packages/logging-domain/tests/integration/mcp-query-interface.test.ts
+output/logging-domain-parity-proof/06-validation-and-enforcement/*
+
+Validation commands and results:
+- npm run validate:logging -> fail at lint:dev-log-routing (`portal dev logger must not post to an unimplemented endpoint`)
+- npm run test:logging-evidence -> pass
+- npm run lint:logging-exports -> pass
+- npm run agent:query -- proof-inventory -> pass
+- npm run mcp:logging -- --smoke proof-inventory -> pass
+- npx vitest run packages/logging-domain/tests/unit/logging-scripts.test.ts packages/logging-domain/tests/integration/mcp-query-interface.test.ts -> pass
+- npm run lint:architecture -- --files scripts/dev/lib/log-query-service.mjs scripts/dev/lib/agent-log-paths.mjs scripts/dev/agent-query.mjs scripts/dev/mcp-logging-server.mjs packages/logging-domain/tests/unit/logging-scripts.test.ts packages/logging-domain/tests/integration/mcp-query-interface.test.ts -> pass
+
+Proof artifacts:
+output/logging-domain-parity-proof/06-validation-and-enforcement/00-validation-script-map.json
+output/logging-domain-parity-proof/06-validation-and-enforcement/01-negative-checks-proof.json
+output/logging-domain-parity-proof/06-validation-and-enforcement/02-root-script-wiring-proof.json
+output/logging-domain-parity-proof/06-validation-and-enforcement/03-agent-guidance-proof.md
+output/logging-domain-parity-proof/06-validation-and-enforcement/16-validation-commands.log
+
+Product/runtime claims:
+- no product/runtime logging readiness claim
+- no full logging-domain parity completion claim
+- no portal endpoint closure claim
+
+Known gaps/manual-required states:
+- lint:dev-log-routing still fails outside this delegated logging-owned boundary
+- WP08 remains the blocking stale proof-inventory claim until its proof root is restored or its status is reduced
+- test-results/logging-domain-parity-validation/ is still absent in this checkout
+```
+*** Add File: C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-a\OcentraParent\output\logging-domain-parity-proof\06-validation-and-enforcement\00-validation-script-map.json
+{
+  "workpackId": "WP06",
+  "branch": "codex/tracking-plan-full-continuation-a",
+  "status": "partial-proof",
+  "validationScripts": [
+    {
+      "script": "lint:logging-parity",
+      "command": "npm run lint:logging-parity",
+      "target": "scripts/check-logging-domain-parity.mjs",
+      "result": "pass",
+      "notes": "Confirms the logging-domain parity checker exists and runs."
+    },
+    {
+      "script": "lint:local-evidence",
+      "command": "npm run lint:local-evidence",
+      "target": "scripts/check-local-evidence-wrapper.mjs",
+      "result": "pass",
+      "notes": "Confirms the local evidence wrapper checker exists and runs."
+    },
+    {
+      "script": "lint:dev-log-routing",
+      "command": "npm run lint:dev-log-routing",
+      "target": "scripts/check-dev-log-routing.mjs",
+      "result": "fail",
+      "notes": "Fails honestly on the still-unimplemented portal endpoint expectation outside this delegated slice."
+    },
+    {
+      "script": "lint:logging-exports",
+      "command": "npm run lint:logging-exports",
+      "target": "scripts/check-logging-exports.mjs",
+      "result": "pass",
+      "notes": "Confirms the logging export-shape checker exists and runs."
+    }
+  ],
+  "wrapperSurface": [
+    {
+      "script": "agent:query",
+      "command": "npm run agent:query -- proof-inventory",
+      "target": "scripts/dev/agent-query.mjs",
+      "result": "pass",
+      "notes": "CLI wrapper reports live proof-inventory truth."
+    },
+    {
+      "script": "mcp:logging",
+      "command": "npm run mcp:logging -- --smoke proof-inventory",
+      "target": "scripts/dev/mcp-logging-server.mjs",
+      "result": "pass",
+      "notes": "MCP wrapper mirrors the shared proof-inventory query surface."
+    },
+    {
+      "script": "test:logging-evidence",
+      "command": "npm run test:logging-evidence",
+      "target": "scripts/test/logging-local-evidence-smoke.mjs",
+      "result": "pass",
+      "notes": "Local evidence smoke still records a controlled run."
+    }
+  ],
+  "knownGap": {
+    "command": "npm run validate:logging",
+    "result": "fail",
+    "blockingStep": "lint:dev-log-routing",
+    "owner": "portal dev-log routing expectation outside the logging-only allowed edit boundary"
+  }
+}

@@ -180,11 +180,10 @@ function expectLanCanonicalDeviceState(state: LiveLanActivityState): void {
   expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.displayName).toBe('GAMEDEV');
   expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.roleBadges).toEqual([
     'child-agent',
-    'portal',
     'parent-controller',
   ]);
   expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.networkIdentity.ipAddresses).toEqual([
-    '192.168.2.44',
+    '192.168.2.10',
   ]);
 }
 

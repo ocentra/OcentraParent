@@ -90,19 +90,24 @@ async fn policy_dispatch_websocket_command_returns_service_read_model() {
         .entries
         .iter()
         .find(|entry| {
-            entry.matrix_row.rejection_reason == EnforcementPolicyDispatchRejectionReason::AdapterManualRequired
+            entry.matrix_row.rejection_reason
+                == EnforcementPolicyDispatchRejectionReason::AdapterManualRequired
         })
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
     let stale_entry = read_model
         .entries
         .iter()
         .find(|entry| {
-            entry.matrix_row.rejection_reason == EnforcementPolicyDispatchRejectionReason::StalePolicyVersion
+            entry.matrix_row.rejection_reason
+                == EnforcementPolicyDispatchRejectionReason::StalePolicyVersion
         })
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
-        manual_required_entry.matrix_row.rejection_reason.as_protocol_str(),
+        manual_required_entry
+            .matrix_row
+            .rejection_reason
+            .as_protocol_str(),
         constants::v08_enforcement_policy_dispatch::REJECTION_ADAPTER_MANUAL_REQUIRED
     );
     assert_eq!(

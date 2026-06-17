@@ -1,10 +1,12 @@
 use super::support::{test_event_for_type, OTHER_EVENT_TYPE, TEST_EVENT_TYPE};
 use ocentra_eventing::contract_registry::EventContractRegistry;
 use ocentra_eventing::expect_value::ExpectValue;
-use ocentra_eventing::ids::{EventNamespace, EventType, SourceComponent, SubscriberId, TargetHandler};
+use ocentra_eventing::ids::{
+    EventNamespace, EventType, SourceComponent, SubscriberId, TargetHandler,
+};
 use ocentra_eventing::topology::{
-    EventTopologyFamilyVariant, EventTopologyManifest, EventTopologyPublisher,
-    EventTopologyStatus, EventTopologySubscriber, EventTopologyEntry,
+    EventTopologyEntry, EventTopologyFamilyVariant, EventTopologyManifest, EventTopologyPublisher,
+    EventTopologyStatus, EventTopologySubscriber,
 };
 
 const NO_SUBSCRIBER_EVENT_TYPE: &str = "eventing.topology.no_subscriber";
@@ -160,10 +162,7 @@ fn family_variant(event_type: &str) -> EventTopologyFamilyVariant {
     }
 }
 
-fn entry<'a>(
-    manifest: &'a EventTopologyManifest,
-    event_type: &str,
-) -> &'a EventTopologyEntry {
+fn entry<'a>(manifest: &'a EventTopologyManifest, event_type: &str) -> &'a EventTopologyEntry {
     manifest
         .entries()
         .iter()

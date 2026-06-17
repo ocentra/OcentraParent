@@ -31,6 +31,16 @@
 - Truth-sync notes: `output/lan-plan-proof/00-plan-model-reconciliation/02-plan-truth-sync.md`
 - Missing proof inventory: `output/lan-plan-proof/00-plan-model-reconciliation/03-missing-proof-inventory.md`
 
+## B1 Evidence
+
+`B1` is green for the assigned local proof-regeneration scope only.
+
+- Proof root: `output/lan-plan-proof/01-lan-b1-proof-regeneration/`
+- Source matrix proof: `output/lan-plan-proof/01-lan-b1-proof-regeneration/01-lan-source-matrix-plan-completion-proof.json`
+- Signed relay proof: `output/lan-plan-proof/01-lan-b1-proof-regeneration/02-lan-signed-discovery-relay-spine-proof.json`
+- Production discovery proof: `output/lan-plan-proof/01-lan-b1-proof-regeneration/03-production-discovery-household-proof.json`
+- Readiness decision proof: `output/lan-plan-proof/01-lan-b1-proof-regeneration/04-household-lan-proof-readiness.json`
+
 ## Authoritative Workpack Truth
 
 | Workpack | Current state | Closability after Slice A | Evidence now | Remaining gate |
@@ -54,7 +64,7 @@
 | `17` | open | locally executable next | no implementation claimed | parent/child mDNS advertisements and packet proof |
 | `18` | partial/manual | physical/manual-bound for final closure | signed hello/heartbeat rows exist as contracts/read-model labels | real signed artifacts and real device proof |
 | `19` | partial | locally closable next, then physical/manual-bound | assignment/revoke/audit surfaces exist | restart and negative-route proof |
-| `20` | partial | locally closable next, then physical/manual-bound | proof script chain exists | regenerated honest proof pack and remaining physical/manual proof |
+| `20` | partial/manual | mixed local plus physical/manual final gate | `output/lan-plan-proof/01-lan-b1-proof-regeneration/`; Workpack 20 proof note | portal/service-backed consumer proof, real signed artifacts, and remaining physical/manual proof |
 
 ## Frozen Follow-On Rows
 

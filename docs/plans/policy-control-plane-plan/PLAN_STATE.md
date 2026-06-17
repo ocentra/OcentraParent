@@ -19,7 +19,8 @@ Current truth:
   - `cargo lint-architecture crates/policy-control-core`
 - The shared architecture gate for the selected validation slice is not green because `packages/agent-protocol-domain` still contains banned re-exports.
 - Feature-owned parent authoring and assistant approval surfaces remain incomplete and cannot be claimed done from contract tests alone.
-- The plan-local proof route was inconsistent between `docs/proof/policy-control-plane-plan/` and `output/policy-control-plane-plan-proof/`; the canonical `docs/proof/policy-control-plane-plan/` root now contains checked closeout bundles for WP01, WP07, WP08, plus the WP06 route bundle, while WP02/WP03/WP04/WP05 remain open.
+- The canonical proof root for this plan is `docs/proof/policy-control-plane-plan/`, and the touched route docs in this slice now agree on that single root.
+- `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md` now records current file presence and route status: checked closeout bundles for WP01, WP03, WP04, WP07, and WP08; the WP06 route bundle; and open gaps for WP02/WP05.
 
 Open gaps:
 
@@ -32,9 +33,7 @@ External platform constraints:
 - Real iOS and macOS proof is not currently expected from this Windows host and should be tracked as an external-platform constraint when selected work requires it.
 
 Avoidable local execution gaps:
-- The plan docs previously marked workpacks and closure as complete without present proof artifacts.
-- Workpack-specific closeout artifacts are still missing for WP02/WP03/WP04/WP05.
-- The current checkout still has deleted stale `03-*.md` proof artifacts and no refreshed WP03 replacement bundle.
+- Workpack-specific closeout artifacts are still missing for WP02/WP05.
 - The scoped architecture gate currently fails on existing `agent-protocol-domain` re-export debt.
 - The `@ocentra-parent/portal` workspace `test` script is overbroad for policy-only validation and pulls unrelated LAN failures unless direct scoped `vitest` commands are used.
 

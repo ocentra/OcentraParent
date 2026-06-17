@@ -144,11 +144,11 @@ Observed current source/test state in this checkout:
   * cargo test -p ocentra-parent-agent-service dev_log
 ```
 
-Remaining blocker for truthful closeout:
+Remaining blocker for full-workpack closeout:
 
 ```text
-- output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/ is absent in this checkout
-- the workpack completion section is still unfilled, so the docs understate present behavior while plan-level state previously overclaimed other proof-backed completion
+- the portal dev-log consumer slice is now proved in output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/
+- the remaining open row is the Rust-side agent-service-to-logging-core mapping, which this delegated slice intentionally did not widen into
 ```
 
 ## Fill before DONE or PR-ready
@@ -160,4 +160,45 @@ Validation commands and results:
 Proof artifacts:
 Product/runtime claims:
 Known gaps/manual-required states:
+```
+
+## Slice completion: logging-wp03-portal-dev-log-consumer-closeout
+
+```text
+Workpack id and branch:
+- WP03 Parent Logging Architecture and Routing
+- codex/tracking-plan-full-continuation-a
+
+Touched files:
+- docs/plans/logging-domain-parity/PLAN_STATE.md
+- docs/plans/logging-domain-parity/NEXT_ACTIONS.md
+- docs/plans/logging-domain-parity/WORKPACK_INDEX.md
+- docs/plans/logging-domain-parity/CHECKLIST_INDEX.md
+- docs/plans/logging-domain-parity/workpacks/03-parent-logging-architecture-and-routing.md
+- output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/00-routing-before-after.md
+- output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/01-portal-dev-log-route-proof.json
+- output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/02-agent-service-logging-route-proof.json
+- output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/03-scope-model-proof.json
+- output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/16-validation-commands.log
+
+Validation commands and results:
+- npm run build --workspace @ocentra-parent/logging-domain -> pass
+- cmd /c npx vitest run apps/portal/tests/logging/portal-dev-log-route.test.ts apps/portal/tests/logging/portal-proof-trace.test.ts apps/portal/tests/logging/portal-proof-trace-pipeline.test.ts -> pass
+- npm run lint:architecture -- --files apps/portal/src/dev-logger.ts apps/portal/src/main.ts apps/portal/src/transport.ts packages/logging-domain/src/contracts.ts packages/logging-domain/src/test-log/types.ts apps/portal/tests/logging/portal-dev-log-route.test.ts apps/portal/tests/logging/portal-proof-trace.test.ts apps/portal/tests/logging/portal-proof-trace-pipeline.test.ts -> pass
+
+Proof artifacts:
+- output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/00-routing-before-after.md
+- output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/01-portal-dev-log-route-proof.json
+- output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/02-agent-service-logging-route-proof.json
+- output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/03-scope-model-proof.json
+- output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/16-validation-commands.log
+
+Product/runtime claims:
+- none
+- this slice proves only the portal dev-log consumer path, parent scope model, and snapshot-endpoint documentation boundary
+
+Known gaps/manual-required states:
+- the agent-service current logging path mapped to Rust crate migration row remains open
+- this slice intentionally did not read or validate crates/agent-service/** or crates/logging-core/**
+- full WP03 closeout must happen in a later Rust-owned slice or by reducing that row to the correct owner boundary
 ```

@@ -7,9 +7,12 @@ import {
   ParentOwnedSyncExportImportResultSchema,
   ParentOwnedSyncExportItemDescriptorSchema,
   ParentOwnedSyncExportKnownGaps,
+  ParentOwnedSyncExportRecoveryBundleSchema,
   ParentOwnedSyncExportSyncCursorSchema,
   summarizeParentOwnedSyncExportConnectorStatuses,
   summarizeParentOwnedSyncExportDataClasses,
+  summarizeParentOwnedSyncExportRecoveryBundleStates,
+  summarizeParentOwnedSyncExportRecoveryHandoffStates,
 } from '../../src/parent-owned-sync-export';
 
 describe('parent-owned sync export manifest contracts', () => {
@@ -17,6 +20,7 @@ describe('parent-owned sync export manifest contracts', () => {
   rejectsRuntimeConnectorPortalAndCustodyOverclaims();
   rejectsUnsafeManifestItemsAndDefaultRawEvidenceUpload();
   rejectsIncoherentConnectorCursorImportAndDeleteStates();
+  rejectsUnsafeRecoveryBundleAndHandoffStates();
 });
 
 function acceptsTheContractOnlySyncExportProof(): void {
@@ -61,8 +65,31 @@ function acceptsTheContractOnlySyncExportProof(): void {
       'failed',
       'not-requested',
     ]);
+    expect(summarizeParentOwnedSyncExportRecoveryBundleStates(proof.recoveryBundles)).toEqual({
+      bundleQueued: 0,
+      bundleWritten: 2,
+      bundleVerified: 0,
+      bundlePreviewOnly: 1,
+      bundleApplyPending: 1,
+      bundleApplied: 1,
+      bundleRejected: 0,
+      bundleCorrupt: 1,
+      bundleWrongHousehold: 1,
+      bundleWrongKey: 1,
+      bundleManualRequired: 1,
+    });
+    expect(summarizeParentOwnedSyncExportRecoveryHandoffStates(proof.recoveryBundles)).toEqual({
+      'preview-only': 1,
+      'apply-pending': 1,
+      applied: 0,
+      'partial-restore': 1,
+      'delete-pending': 1,
+      'delete-confirmed': 1,
+      rejected: 3,
+      'manual-required': 1,
+    });
     expect(ParentOwnedSyncExportKnownGaps).toContain(
-      'No export/import/upload/download runtime is implemented by this parent-domain proof.'
+      'Parent-owned local export/delete execution remains a separate parent-domain holdout; this proof only defines delete and recovery handoff contracts.'
     );
   });
 }
@@ -147,6 +174,48 @@ function rejectsIncoherentConnectorCursorImportAndDeleteStates(): void {
   });
 }
 
+function rejectsUnsafeRecoveryBundleAndHandoffStates(): void {
+  it('rejects recovery bundles that mutate preview state or omit required rejection and delete refs', () => {
+    const previewBundle = recoveryBundleFor('bundlePreviewOnly');
+    const wrongHouseholdBundle = recoveryBundleFor('bundleWrongHousehold');
+    const deletePendingBundle = recoveryBundleFor('delete-pending');
+
+    expect(
+      ParentOwnedSyncExportRecoveryBundleSchema.safeParse({
+        ...previewBundle,
+        previewMutatedLocalTruth: true,
+      }).success
+    ).toBe(false);
+    expect(
+      ParentOwnedSyncExportRecoveryBundleSchema.safeParse({
+        ...previewBundle,
+        applyConfirmedByParent: true,
+      }).success
+    ).toBe(false);
+    expect(
+      ParentOwnedSyncExportRecoveryBundleSchema.safeParse({
+        ...wrongHouseholdBundle,
+        rejectionReasonRef: null,
+      }).success
+    ).toBe(false);
+    expect(
+      ParentOwnedSyncExportRecoveryBundleSchema.safeParse({
+        ...deletePendingBundle,
+        deleteRequestRef: null,
+      }).success
+    ).toBe(false);
+    expect(
+      ParentOwnedSyncExportRecoveryBundleSchema.safeParse({
+        ...deletePendingBundle,
+        handoff: {
+          ...deletePendingBundle.handoff,
+          handoffTarget: 'setup-restore-preview',
+        },
+      }).success
+    ).toBe(false);
+  });
+}
+
 function itemFor(dataClass: 'encrypted-journal-segment' | 'generated-summary') {
   const item = ParentOwnedSyncExportContractProofReadModel.manifest.items.find(
     (candidate) => candidate.dataClass === dataClass
@@ -195,4 +264,16 @@ function deleteResultFor(resultState: 'pending') {
     throw new Error(`missing sync export delete result: ${resultState}`);
   }
   return result;
+}
+
+function recoveryBundleFor(state: 'bundlePreviewOnly' | 'bundleWrongHousehold' | 'delete-pending') {
+  const bundle = ParentOwnedSyncExportContractProofReadModel.recoveryBundles.find((candidate) =>
+    state === 'delete-pending'
+      ? candidate.handoff.handoffState === state
+      : candidate.bundleState === state
+  );
+  if (bundle === undefined) {
+    throw new Error(`missing sync export recovery bundle: ${state}`);
+  }
+  return bundle;
 }

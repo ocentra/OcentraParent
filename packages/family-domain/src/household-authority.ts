@@ -19,6 +19,8 @@ export const ParentMemberDisplayNameSchema = brandedNonEmptyStringSchema('Parent
 export const DeviceRegistrationIdSchema = brandedNonEmptyStringSchema('DeviceRegistrationId');
 export const ParentControllerLeaseIdSchema = brandedNonEmptyStringSchema('ParentControllerLeaseId');
 export const ObserverPermissionIdSchema = brandedNonEmptyStringSchema('ObserverPermissionId');
+export const ParentStepUpAssertionIdSchema = brandedNonEmptyStringSchema('ParentStepUpAssertionId');
+export const ParentStepUpNonceSchema = brandedNonEmptyStringSchema('ParentStepUpNonce');
 
 export const HouseholdRoleLiteral = {
   ParentOwner: 'parent-owner',
@@ -88,6 +90,23 @@ export const AuditRequirementStateLiteral = {
 export const ElevatedConfirmationStateLiteral = {
   Required: 'required',
   NotRequired: 'not-required',
+} as const;
+
+export const ParentStepUpMethodLiteral = {
+  Passkey: 'passkey',
+  OsNative: 'os-native',
+  PhoneQrApproval: 'phone-qr-approval',
+} as const;
+
+export const ParentStepUpValidationFailureReasonLiteral = {
+  Required: 'required',
+  Expired: 'expired',
+  WrongHousehold: 'wrong-household',
+  WrongAccount: 'wrong-account',
+  WrongAction: 'wrong-action',
+  WrongDevice: 'wrong-device',
+  WrongTarget: 'wrong-target',
+  ReplayRejected: 'replay-rejected',
 } as const;
 
 export const HouseholdAuthorizationFailureReasonLiteral = {
@@ -209,6 +228,27 @@ export const ElevatedConfirmationStateSchema = withParser(
   Schema.Literal(ElevatedConfirmationStateLiteral.Required, ElevatedConfirmationStateLiteral.NotRequired)
 );
 
+export const ParentStepUpMethodSchema = withParser(
+  Schema.Literal(
+    ParentStepUpMethodLiteral.Passkey,
+    ParentStepUpMethodLiteral.OsNative,
+    ParentStepUpMethodLiteral.PhoneQrApproval
+  )
+);
+
+export const ParentStepUpValidationFailureReasonSchema = withParser(
+  Schema.Literal(
+    ParentStepUpValidationFailureReasonLiteral.Required,
+    ParentStepUpValidationFailureReasonLiteral.Expired,
+    ParentStepUpValidationFailureReasonLiteral.WrongHousehold,
+    ParentStepUpValidationFailureReasonLiteral.WrongAccount,
+    ParentStepUpValidationFailureReasonLiteral.WrongAction,
+    ParentStepUpValidationFailureReasonLiteral.WrongDevice,
+    ParentStepUpValidationFailureReasonLiteral.WrongTarget,
+    ParentStepUpValidationFailureReasonLiteral.ReplayRejected
+  )
+);
+
 export const HouseholdAuthorizationFailureReasonSchema = withParser(
   Schema.Literal(
     HouseholdAuthorizationFailureReasonLiteral.ExternalHousehold,
@@ -314,6 +354,23 @@ export const ParentControllerLeaseSchema = withParser(
   })
 );
 
+export const ParentStepUpAssertionSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    stepUpAssertionId: ParentStepUpAssertionIdSchema,
+    family: FamilyReferenceSchema,
+    parentAccount: ParentAccountReferenceSchema,
+    actionDevice: ParentDeviceReferenceSchema,
+    approverDevice: ParentDeviceReferenceSchema,
+    targetChildProfile: Schema.Union(ChildProfileReferenceSchema, Schema.Null),
+    action: DeviceAuthorityActionSchema,
+    method: ParentStepUpMethodSchema,
+    nonce: ParentStepUpNonceSchema,
+    issuedAt: ParentTimestampSchema,
+    expiresAt: ParentTimestampSchema,
+  })
+);
+
 export const ObserverPermissionSchema = withParser(
   Schema.Struct({
     schemaVersion: ParentContractSchemaVersionSchema,
@@ -365,6 +422,8 @@ export type SessionFreshnessState = Infer<typeof SessionFreshnessStateSchema>;
 export type HouseholdAuthorizationState = Infer<typeof HouseholdAuthorizationStateSchema>;
 export type AuditRequirementState = Infer<typeof AuditRequirementStateSchema>;
 export type ElevatedConfirmationState = Infer<typeof ElevatedConfirmationStateSchema>;
+export type ParentStepUpMethod = Infer<typeof ParentStepUpMethodSchema>;
+export type ParentStepUpValidationFailureReason = Infer<typeof ParentStepUpValidationFailureReasonSchema>;
 export type HouseholdAuthorizationFailureReason = Infer<typeof HouseholdAuthorizationFailureReasonSchema>;
 export type ParentControllerLeaseState = Infer<typeof ParentControllerLeaseStateSchema>;
 export type ObserverPermissionScope = Infer<typeof ObserverPermissionScopeSchema>;
@@ -373,6 +432,7 @@ export type HouseholdProfile = Infer<typeof HouseholdProfileSchema>;
 export type ParentMember = Infer<typeof ParentMemberSchema>;
 export type DeviceRegistration = Infer<typeof DeviceRegistrationSchema>;
 export type ParentControllerLease = Infer<typeof ParentControllerLeaseSchema>;
+export type ParentStepUpAssertion = Infer<typeof ParentStepUpAssertionSchema>;
 export type ObserverPermission = Infer<typeof ObserverPermissionSchema>;
 export type HouseholdAuthorityInput = Infer<typeof HouseholdAuthorityInputSchema>;
 export type HouseholdAuthorityDecision = Infer<typeof HouseholdAuthorityDecisionSchema>;
@@ -460,6 +520,35 @@ export const AuditRequirementState = {
 export const ElevatedConfirmationState = {
   Required: ElevatedConfirmationStateSchema.parse(ElevatedConfirmationStateLiteral.Required),
   NotRequired: ElevatedConfirmationStateSchema.parse(ElevatedConfirmationStateLiteral.NotRequired),
+} as const;
+
+export const ParentStepUpMethod = {
+  Passkey: ParentStepUpMethodSchema.parse(ParentStepUpMethodLiteral.Passkey),
+  OsNative: ParentStepUpMethodSchema.parse(ParentStepUpMethodLiteral.OsNative),
+  PhoneQrApproval: ParentStepUpMethodSchema.parse(ParentStepUpMethodLiteral.PhoneQrApproval),
+} as const;
+
+export const ParentStepUpValidationFailureReason = {
+  Required: ParentStepUpValidationFailureReasonSchema.parse(ParentStepUpValidationFailureReasonLiteral.Required),
+  Expired: ParentStepUpValidationFailureReasonSchema.parse(ParentStepUpValidationFailureReasonLiteral.Expired),
+  WrongHousehold: ParentStepUpValidationFailureReasonSchema.parse(
+    ParentStepUpValidationFailureReasonLiteral.WrongHousehold
+  ),
+  WrongAccount: ParentStepUpValidationFailureReasonSchema.parse(
+    ParentStepUpValidationFailureReasonLiteral.WrongAccount
+  ),
+  WrongAction: ParentStepUpValidationFailureReasonSchema.parse(
+    ParentStepUpValidationFailureReasonLiteral.WrongAction
+  ),
+  WrongDevice: ParentStepUpValidationFailureReasonSchema.parse(
+    ParentStepUpValidationFailureReasonLiteral.WrongDevice
+  ),
+  WrongTarget: ParentStepUpValidationFailureReasonSchema.parse(
+    ParentStepUpValidationFailureReasonLiteral.WrongTarget
+  ),
+  ReplayRejected: ParentStepUpValidationFailureReasonSchema.parse(
+    ParentStepUpValidationFailureReasonLiteral.ReplayRejected
+  ),
 } as const;
 
 export const HouseholdAuthorizationFailureReason = {
@@ -558,6 +647,113 @@ export function canHouseholdRoleAuthorizeAction(role: HouseholdRole, action: Dev
     default:
       return false;
   }
+}
+
+export function requiresParentStepUp(action: DeviceAuthorityAction): boolean {
+  const parsedAction = DeviceAuthorityActionSchema.parse(action);
+
+  return (
+    parsedAction === DeviceAuthorityAction.PairChildDevice ||
+    parsedAction === DeviceAuthorityAction.RevokeChildDevice ||
+    parsedAction === DeviceAuthorityAction.ChangePolicy ||
+    parsedAction === DeviceAuthorityAction.StartRemoteControl ||
+    parsedAction === DeviceAuthorityAction.ExportDeleteData ||
+    parsedAction === DeviceAuthorityAction.ManageBilling
+  );
+}
+
+export function validateParentStepUpAssertion(input: {
+  assertion: ParentStepUpAssertion | null;
+  family: Infer<typeof FamilyReferenceSchema>;
+  parentAccount: Infer<typeof ParentAccountReferenceSchema>;
+  actionDevice: Infer<typeof ParentDeviceReferenceSchema>;
+  targetChildProfile: Infer<typeof ChildProfileReferenceSchema> | null;
+  action: DeviceAuthorityAction;
+  observedAt: Infer<typeof ParentTimestampSchema>;
+  expectedNonce?: string | null;
+}): {
+  valid: boolean;
+  failureReason: ParentStepUpValidationFailureReason | null;
+} {
+  const family = FamilyReferenceSchema.parse(input.family);
+  const parentAccount = ParentAccountReferenceSchema.parse(input.parentAccount);
+  const actionDevice = ParentDeviceReferenceSchema.parse(input.actionDevice);
+  const targetChildProfile =
+    input.targetChildProfile === null ? null : ChildProfileReferenceSchema.parse(input.targetChildProfile);
+  const action = DeviceAuthorityActionSchema.parse(input.action);
+
+  if (input.assertion === null) {
+    return {
+      valid: false,
+      failureReason: ParentStepUpValidationFailureReason.Required,
+    };
+  }
+
+  const assertion = ParentStepUpAssertionSchema.parse(input.assertion);
+  const observedAt = Schema.decodeUnknownSync(ParentTimestampSchema)(input.observedAt);
+  const expectedNonce = input.expectedNonce === undefined ? null : input.expectedNonce;
+
+  if (assertion.expiresAt < observedAt) {
+    return {
+      valid: false,
+      failureReason: ParentStepUpValidationFailureReason.Expired,
+    };
+  }
+
+  if (assertion.family.familyId !== family.familyId) {
+    return {
+      valid: false,
+      failureReason: ParentStepUpValidationFailureReason.WrongHousehold,
+    };
+  }
+
+  if (assertion.parentAccount.parentAccountId !== parentAccount.parentAccountId) {
+    return {
+      valid: false,
+      failureReason: ParentStepUpValidationFailureReason.WrongAccount,
+    };
+  }
+
+  if (assertion.action !== action) {
+    return {
+      valid: false,
+      failureReason: ParentStepUpValidationFailureReason.WrongAction,
+    };
+  }
+
+  if (
+    assertion.actionDevice.deviceId !== actionDevice.deviceId ||
+    assertion.actionDevice.childProfileId !== actionDevice.childProfileId
+  ) {
+    return {
+      valid: false,
+      failureReason: ParentStepUpValidationFailureReason.WrongDevice,
+    };
+  }
+
+  if (
+    (assertion.targetChildProfile === null) !== (targetChildProfile === null) ||
+    (assertion.targetChildProfile !== null &&
+      targetChildProfile !== null &&
+      assertion.targetChildProfile.childProfileId !== targetChildProfile.childProfileId)
+  ) {
+    return {
+      valid: false,
+      failureReason: ParentStepUpValidationFailureReason.WrongTarget,
+    };
+  }
+
+  if (expectedNonce !== null && assertion.nonce !== expectedNonce) {
+    return {
+      valid: false,
+      failureReason: ParentStepUpValidationFailureReason.ReplayRejected,
+    };
+  }
+
+  return {
+    valid: true,
+    failureReason: null,
+  };
 }
 
 export function canParentMemberAuthorizeDeviceAction(
@@ -737,12 +933,7 @@ function auditRequirementState(action: DeviceAuthorityAction): AuditRequirementS
 }
 
 function elevatedConfirmationState(action: DeviceAuthorityAction): ElevatedConfirmationState {
-  if (
-    action === DeviceAuthorityAction.RevokeChildDevice ||
-    action === DeviceAuthorityAction.StartRemoteControl ||
-    action === DeviceAuthorityAction.ExportDeleteData ||
-    action === DeviceAuthorityAction.ManageBilling
-  ) {
+  if (requiresParentStepUp(action)) {
     return ElevatedConfirmationState.Required;
   }
 

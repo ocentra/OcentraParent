@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
@@ -20,19 +21,21 @@ async function main() {
   await mkdir(namedProofRoot, { recursive: true });
   await mkdir(output33, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-physical-device-artifact-gate-proof',
+    'tests/contract/tracking-physical-device-artifact-gate-proof.test.ts',
   ]);
 
-  const proofModule = await importDist('tracking-physical-device-artifact-gate-proof.js');
+  const proofModule = await tsImport(
+    pathToFileURL(
+      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-physical-device-artifact-gate-proof.ts')
+    ).href,
+    import.meta.url
+  );
   const generatedAt = '2026-06-07T18:20:00.000Z';
   const inventories = await collectInventories(proofModule.RequiredTrackingPhysicalDeviceArtifactPlans);
   const readModel = proofModule.buildTrackingPhysicalDeviceArtifactGateProof(generatedAt, inventories);
@@ -217,8 +220,8 @@ function sourceSnapshot(proof) {
     `- artifactAcceptanceNoteCount: ${proof.summary.artifactAcceptanceNoteCount}`,
     '- physicalDeviceBehaviorClaimedRows: 0',
     '- productReadyRows: 0',
-    '- proof module: packages/parent-domain/src/tracking-physical-device-artifact-gate-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-physical-device-artifact-gate-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-physical-device-artifact-gate-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-physical-device-artifact-gate-proof.test.ts',
     '- proof harness: scripts/test/tracking-physical-device-artifact-gate-proof.mjs',
     '',
   ].join('\n');
@@ -262,10 +265,6 @@ function manualValidationRunbook(proof) {
   }
 
   return `${lines.join('\n')}\n`;
-}
-
-function importDist(name) {
-  return import(pathToFileURL(path.join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
 }
 
 function run(command, args) {

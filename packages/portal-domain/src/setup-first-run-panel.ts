@@ -78,6 +78,17 @@ const SetupDetailLabels = {
   ScreensMapped: decodeDisplayText('Screens mapped'),
   ReadyGate: decodeDisplayText('Ready gate'),
   RecoveryProjection: decodeDisplayText('Recovery projection'),
+  SignedInNoHousehold: decodeDisplayText('Signed-in without household'),
+  CoParentInviteState: decodeDisplayText('Co-parent invite'),
+  ObserverInviteState: decodeDisplayText('Observer invite'),
+  RoleVisibility: decodeDisplayText('Role visibility'),
+  SupportAccessStatus: decodeDisplayText('Support access status'),
+  TrustStatus: decodeDisplayText('Trust status'),
+  WrongAccountState: decodeDisplayText('Wrong-account state'),
+  ReauthState: decodeDisplayText('Reauth/manual-required state'),
+  RevokedChildState: decodeDisplayText('Revoked child state'),
+  StaleParentState: decodeDisplayText('Stale parent state'),
+  DirectEntryState: decodeDisplayText('Direct-entry-required state'),
   States: decodeDisplayText('States'),
   Screens: decodeDisplayText('Screens'),
   NextStates: decodeDisplayText('Next states'),
@@ -122,6 +133,9 @@ export type SetupFirstRunPanelIntent = {
 
 export function createSetupFirstRunPanelIntent(): SetupFirstRunPanelIntent {
   const readyReport = createSetupReadinessReport();
+  const pendingTrustReport = createSetupReadinessReport({
+    pairingState: SetupPairingState.Accepted,
+  });
   const degradedReport = createSetupReadinessReport({
     childAppState: SetupChildAppReadinessState.Offline,
     networkReachabilityState: SetupNetworkReachabilityState.OfflineChild,
@@ -135,6 +149,27 @@ export function createSetupFirstRunPanelIntent(): SetupFirstRunPanelIntent {
     pairingState: SetupPairingState.Accepted,
     dataCustodySyncState: SetupDataCustodySyncState.Blocked,
     networkReachabilityState: SetupNetworkReachabilityState.LanUnavailable,
+  });
+  const wrongAccountReport = createSetupReadinessReport({
+    accountState: SetupAccountReadinessState.WrongAccount,
+    pairingState: SetupPairingState.Accepted,
+  });
+  const recoveryRequiredReport = createSetupReadinessReport({
+    accountState: SetupAccountReadinessState.RecoveryRequired,
+    pairingState: SetupPairingState.Accepted,
+    recoveryState: SetupRecoveryState.Required,
+  });
+  const revokedChildReport = createSetupReadinessReport({
+    childAppState: SetupChildAppReadinessState.Revoked,
+    pairingState: SetupPairingState.Accepted,
+  });
+  const staleParentReport = createSetupReadinessReport({
+    parentAppState: SetupParentAppReadinessState.Stale,
+    pairingState: SetupPairingState.Accepted,
+  });
+  const directEntryReport = createSetupReadinessReport({
+    networkReachabilityState: SetupNetworkReachabilityState.DirectEntryRequired,
+    pairingState: SetupPairingState.Accepted,
   });
 
   const emptyStartState = resolveSetupFirstRunState({
@@ -161,8 +196,14 @@ export function createSetupFirstRunPanelIntent(): SetupFirstRunPanelIntent {
   });
 
   const readyChecklist = createSetupReadinessChecklist(readyReport);
+  const pendingTrustChecklist = createSetupReadinessChecklist(pendingTrustReport);
   const degradedChecklist = createSetupReadinessChecklist(degradedReport);
   const blockedChecklist = createSetupReadinessChecklist(blockedReport);
+  const wrongAccountChecklist = createSetupReadinessChecklist(wrongAccountReport);
+  const recoveryRequiredChecklist = createSetupReadinessChecklist(recoveryRequiredReport);
+  const revokedChildChecklist = createSetupReadinessChecklist(revokedChildReport);
+  const staleParentChecklist = createSetupReadinessChecklist(staleParentReport);
+  const directEntryChecklist = createSetupReadinessChecklist(directEntryReport);
 
   const phaseCards = [
     createPhaseCard(
@@ -183,6 +224,16 @@ export function createSetupFirstRunPanelIntent(): SetupFirstRunPanelIntent {
       manualState,
       blockedCompletionState,
       readyCompletionState
+    ),
+    createInviteAndRoleCard(),
+    createTrustAndSessionCard(
+      readyChecklist,
+      pendingTrustChecklist,
+      wrongAccountChecklist,
+      recoveryRequiredChecklist,
+      revokedChildChecklist,
+      staleParentChecklist,
+      directEntryChecklist
     ),
     createChecklistAndLabelCard(readyChecklist, degradedChecklist, blockedChecklist),
     createHandoffCard(),
@@ -294,6 +345,84 @@ function createRecoveryCard(
   };
 }
 
+function createInviteAndRoleCard(): SetupFirstRunPanelCard {
+  return {
+    title: decodeDisplayText('Invite, role, and support visibility'),
+    summary: decodeDisplayText(
+      'First-run setup keeps household role invites, observer read-only scope, and audited support access separate from parent-owner and child-device trust.'
+    ),
+    details: [
+      detail(
+        SetupDetailLabels.SignedInNoHousehold,
+        literalValue('account-entry -> household-selection | signed-in account still lacks household authority')
+      ),
+      detail(
+        SetupDetailLabels.CoParentInviteState,
+        literalValue('pending invite -> co-parent role stays distinct from parent-owner and child-device trust')
+      ),
+      detail(
+        SetupDetailLabels.ObserverInviteState,
+        literalValue('pending invite -> observer stays read-only and cannot inherit owner controls')
+      ),
+      detail(
+        SetupDetailLabels.RoleVisibility,
+        literalValue('parent-owner | co-parent | observer | child-profile | child-device remain distinct UI concepts')
+      ),
+      detail(
+        SetupDetailLabels.SupportAccessStatus,
+        literalValue('support-admin remains a separate audited support state | never parent-owner')
+      ),
+    ],
+  };
+}
+
+function createTrustAndSessionCard(
+  readyChecklist: readonly SetupReadinessChecklistItem[],
+  pendingTrustChecklist: readonly SetupReadinessChecklistItem[],
+  wrongAccountChecklist: readonly SetupReadinessChecklistItem[],
+  recoveryRequiredChecklist: readonly SetupReadinessChecklistItem[],
+  revokedChildChecklist: readonly SetupReadinessChecklistItem[],
+  staleParentChecklist: readonly SetupReadinessChecklistItem[],
+  directEntryChecklist: readonly SetupReadinessChecklistItem[]
+): SetupFirstRunPanelCard {
+  return {
+    title: decodeDisplayText('Trust and session distinction'),
+    summary: decodeDisplayText(
+      'Parent login, trusted child-device proof, revoked child runtime, stale parent state, and reauth/manual-required recovery all remain visible as separate setup outcomes.'
+    ),
+    details: [
+      detail(
+        SetupDetailLabels.TrustStatus,
+        literalValue(
+          `${checklistItemSummary(pendingTrustChecklist, 'Pairing')} | ${checklistItemSummary(readyChecklist, 'Pairing')}`
+        )
+      ),
+      detail(
+        SetupDetailLabels.WrongAccountState,
+        literalValue(checklistItemSummary(wrongAccountChecklist, 'Account'))
+      ),
+      detail(
+        SetupDetailLabels.ReauthState,
+        literalValue(
+          `${checklistItemSummary(recoveryRequiredChecklist, 'Account')} | manual-required-screen`
+        )
+      ),
+      detail(
+        SetupDetailLabels.RevokedChildState,
+        literalValue(checklistItemSummary(revokedChildChecklist, 'Child service'))
+      ),
+      detail(
+        SetupDetailLabels.StaleParentState,
+        literalValue(checklistItemSummary(staleParentChecklist, 'Parent app'))
+      ),
+      detail(
+        SetupDetailLabels.DirectEntryState,
+        literalValue(checklistItemSummary(directEntryChecklist, 'Network reachability'))
+      ),
+    ],
+  };
+}
+
 function createChecklistAndLabelCard(
   readyChecklist: readonly SetupReadinessChecklistItem[],
   degradedChecklist: readonly SetupReadinessChecklistItem[],
@@ -383,6 +512,11 @@ function createSetupReadinessReport(overrides: Partial<SetupReadinessReport> = {
 
 function checklistSummary(checklist: readonly SetupReadinessChecklistItem[]): string {
   return checklist.map((item) => `${item.label}:${item.state}:${item.supportCode}`).join(' | ');
+}
+
+function checklistItemSummary(checklist: readonly SetupReadinessChecklistItem[], label: string): string {
+  const item = checklist.find((entry) => entry.label === label);
+  return item === undefined ? `${label}:missing` : `${item.label}:${item.state}:${item.supportCode}`;
 }
 
 function joinStateIds(states: readonly SetupFirstRunState[]): string {

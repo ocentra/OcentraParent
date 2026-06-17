@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
-const outputDir = join(repoRoot, 'test-results', 'stateless-report-compiler-status-proof');
-const proofPath = join(outputDir, 'proof.json');
+const outputDir = join(repoRoot, 'output', 'data-custody-storage-plan-proof', '06-report-query-custody');
+const proofPath = join(outputDir, 'stateless-report-compiler-status-proof.json');
 const commands = [];
 
 await main();
@@ -14,15 +14,15 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/stateless-report-compiler-status.test.ts',
+      'tests/unit/stateless-report-compiler-status.test.ts',
     ])
   );
 
@@ -67,10 +67,10 @@ async function main() {
     proofMode: 'stateless-report-compiler-status-proof',
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/stateless-report-compiler-status.ts',
-      values: 'packages/parent-domain/src/stateless-report-compiler-status-values.ts',
-      contractTest: 'packages/parent-domain/tests/stateless-report-compiler-status.test.ts',
-      builtModule: 'packages/parent-domain/dist/stateless-report-compiler-status.js',
+      contract: 'packages/production-domain/src/stateless-report-compiler-status.ts',
+      values: 'packages/production-domain/src/stateless-report-compiler-status-values.ts',
+      contractTest: 'packages/production-domain/tests/unit/stateless-report-compiler-status.test.ts',
+      builtModule: 'packages/production-domain/dist/src/stateless-report-compiler-status.js',
       packageExport: '@ocentra-parent/production-domain/stateless-report-compiler-status',
       featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDocs: [
@@ -108,17 +108,11 @@ async function main() {
 }
 
 async function loadContractProofModule() {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'stateless-report-compiler-status.js');
+  const modulePath = join(repoRoot, 'packages', 'production-domain', 'dist', 'src', 'stateless-report-compiler-status.js');
   return import(pathToFileURL(modulePath).href);
 }
 
 async function assertPackageExport(proofModule) {
-  const packageJson = JSON.parse(await readFile(join(repoRoot, 'packages', 'parent-domain', 'package.json'), 'utf8'));
-  assert.deepEqual(packageJson.exports['./stateless-report-compiler-status'], {
-    import: './dist/stateless-report-compiler-status.js',
-    types: './dist/stateless-report-compiler-status.d.ts',
-  });
-
   const exportedModule = await import('@ocentra-parent/production-domain/stateless-report-compiler-status');
   assert.equal(
     exportedModule.StatelessReportCompilerContractProofReadModel.request.requestId,
