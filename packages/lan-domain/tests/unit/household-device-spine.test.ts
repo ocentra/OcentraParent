@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { HouseholdDeviceSpineEntrySchema, LanDiscoveryEvidenceRecordSchema } from '../../src/lan-pairing';
+import { DeviceTrustState } from '@ocentra-parent/family-domain/household-authority';
+import {
+  deviceTrustStateFromLanPairingTrustState,
+  HouseholdDeviceSpineEntrySchema,
+  LanDiscoveryEvidenceRecordSchema,
+} from '../../src/lan-pairing';
 
 describe('canonical household device spine', () => {
   it('accepts one merged child-agent device with inventory and cross-surface targets', () => {
@@ -37,6 +42,19 @@ describe('canonical household device spine', () => {
     ).toThrow(/stable target surfaces/u);
   });
 
+  it('rejects child-agent rows whose top-level and inventory trust states disagree', () => {
+    expect(() =>
+      HouseholdDeviceSpineEntrySchema.parse({
+        ...childAgentDevice(),
+        trustState: 'paired',
+        childAgentInventory: {
+          ...childAgentDevice().childAgentInventory,
+          pairingTrustState: 'revoked',
+        },
+      })
+    ).toThrow(/trust states to stay aligned/u);
+  });
+
   it('rejects routers that pretend to be enrollable child-agent targets', () => {
     expect(() =>
       HouseholdDeviceSpineEntrySchema.parse({
@@ -65,6 +83,14 @@ describe('canonical household device spine', () => {
     expect(parsed.source).toBe('local-service');
     expect(parsed.confidence).toBe('confirmed');
     expect(parsed.mergeKey).toBe('hostname:gamedev');
+  });
+
+  it('maps LAN pairing trust states into family trust states for the trust core', () => {
+    expect(deviceTrustStateFromLanPairingTrustState('unpaired')).toBe(DeviceTrustState.Pending);
+    expect(deviceTrustStateFromLanPairingTrustState('pairing')).toBe(DeviceTrustState.Pending);
+    expect(deviceTrustStateFromLanPairingTrustState('paired')).toBe(DeviceTrustState.Trusted);
+    expect(deviceTrustStateFromLanPairingTrustState('revoked')).toBe(DeviceTrustState.Revoked);
+    expect(deviceTrustStateFromLanPairingTrustState('expired')).toBe(DeviceTrustState.ResetRequired);
   });
 });
 

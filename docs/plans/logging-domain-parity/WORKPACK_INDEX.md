@@ -24,7 +24,7 @@ Use this index to select exactly one workpack.
 | source-present | [WP09 Log Control, Retention, and Bridge Lifecycle](workpacks/09-log-control-retention-bridge-lifecycle.md) | 0/13 | `08-log-control-retention-bridge-lifecycle.md` |
 | source-present | [WP04 Rust Logging Core Crate](workpacks/04-rust-logging-core-crate.md) | 0/12 | `02-rust-logging-core-crate.md` |
 | source-present | [WP05 Local Validation Evidence](workpacks/05-local-validation-evidence.md) | 0/12 | `03-local-validation-evidence.md` |
-| source-present | [WP07 MCP Query Interface](workpacks/07-mcp-query-interface.md) | 0/18 | `06-mcp-query-interface.md` |
+| partial-proof | [WP07 MCP Query Interface](workpacks/07-mcp-query-interface.md) | 0/18 | `06-mcp-query-interface.md` |
 | partial-proof | [WP08 Logger Instrumentation and Adoption](workpacks/08-logger-instrumentation-and-adoption.md) | 0/12 | `07-logger-instrumentation-pattern.md` |
 | partial-proof | [WP10 Proof Trace Pipeline](workpacks/10-proof-trace-pipeline.md) | 0/13 | `09-proof-trace-pipeline.md` |
 | source-present | [WP06 Validation and Enforcement](workpacks/06-validation-and-enforcement.md) | 0/12 | `04-validation-and-enforcement.md` |
@@ -44,13 +44,13 @@ The boxes column mirrors the current unchecked rows in `CHECKLIST_INDEX.md`, not
 Current audit note:
 
 ```text
-Before any workpack in this checkout can be honestly reported done, the plan-level proof inventory claims must be reconciled with the missing output/logging-domain-parity-proof/* and test-results/logging-domain-parity-* roots.
+WP07 and WP10 now have canonical proof roots in this checkout, but the remaining workpacks still cannot be honestly reported done until their named output/logging-domain-parity-proof/* and test-results/logging-domain-parity-* roots are restored or their claims are reduced.
 ```
 
 Default order:
 
 ```text
-plan-state reconciliation -> WP10 -> WP03 -> WP06 -> implementation-specific follow-through
+plan-state reconciliation -> WP03 -> WP06 -> remaining proof-inventory restoration -> implementation-specific follow-through
 ```
 
 Allowed parallelism:

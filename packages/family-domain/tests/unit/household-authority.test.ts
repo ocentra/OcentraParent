@@ -11,6 +11,7 @@ import {
   DeviceOwnershipScope,
   DeviceRegistrationSchema,
   DeviceTrustState,
+  isTrustedDeviceState,
   ElevatedConfirmationState,
   HouseholdAuthorityDecisionSchema,
   HouseholdAuthorityInputSchema,
@@ -526,6 +527,16 @@ describe('household authority contracts', () => {
     expect(disabledDevice.auditRequirementState).toBe(AuditRequirementState.Required);
     expect(disabledDevice.failureReason).toBe(HouseholdAuthorizationFailureReason.DeviceNotTrusted);
 
+    const resetRequiredDevice = authorizeHouseholdAction({
+      ...trustedParentAuthorityInput,
+      deviceTrustState: DeviceTrustState.ResetRequired,
+      action: DeviceAuthorityAction.ViewChildStatus,
+    });
+
+    expect(resetRequiredDevice.authorizationState).toBe(HouseholdAuthorizationState.Rejected);
+    expect(resetRequiredDevice.auditRequirementState).toBe(AuditRequirementState.Required);
+    expect(resetRequiredDevice.failureReason).toBe(HouseholdAuthorizationFailureReason.DeviceNotTrusted);
+
     const wrongScope = authorizeHouseholdAction({
       ...trustedParentAuthorityInput,
       deviceOwnershipScope: DeviceOwnershipScope.OtherDevice,
@@ -644,6 +655,15 @@ describe('household authority contracts', () => {
 
     expect(HouseholdMembershipState.Active).toBe('active');
     expect(DeviceTrustState.Trusted).toBe('trusted');
+    expect(DeviceTrustState.ResetRequired).toBe('reset-required');
     expect(ParentControllerLeaseState.Active).toBe('active');
+  });
+
+  it('treats only the trusted state as a privileged device authority state', () => {
+    expect(isTrustedDeviceState(DeviceTrustState.Trusted)).toBe(true);
+    expect(isTrustedDeviceState(DeviceTrustState.Pending)).toBe(false);
+    expect(isTrustedDeviceState(DeviceTrustState.ResetRequired)).toBe(false);
+    expect(isTrustedDeviceState(DeviceTrustState.Revoked)).toBe(false);
+    expect(isTrustedDeviceState(DeviceTrustState.Disabled)).toBe(false);
   });
 });

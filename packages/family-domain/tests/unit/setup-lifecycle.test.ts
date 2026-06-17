@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { AuditRequirementState, HouseholdRole } from '../../src/household-authority';
+import { AuditRequirementState, DeviceTrustState, HouseholdRole } from '../../src/household-authority';
 import {
   authorizeSetupInvite,
+  deviceTrustStateForRecoveryState,
   doesSetupInviteMatchTargetRole,
   evaluateRecoveryOperation,
   isSetupInviteActive,
@@ -446,6 +447,14 @@ describe('family setup lifecycle contracts', () => {
 
     expect(recoveryRequiresAuditedSupport(selfServeRecovery)).toBe(false);
     expect(recoveryCanAccessChildEvidence(selfServeRecovery)).toBe(true);
+  });
+
+  it('maps recovery states into explicit trust rebuild states instead of silently restoring trust', () => {
+    expect(deviceTrustStateForRecoveryState(RecoveryState.PendingIdentityProof)).toBe(DeviceTrustState.ResetRequired);
+    expect(deviceTrustStateForRecoveryState(RecoveryState.OwnerApprovalRequired)).toBe(DeviceTrustState.ResetRequired);
+    expect(deviceTrustStateForRecoveryState(RecoveryState.Approved)).toBe(DeviceTrustState.ResetRequired);
+    expect(deviceTrustStateForRecoveryState(RecoveryState.Completed)).toBe(DeviceTrustState.Pending);
+    expect(deviceTrustStateForRecoveryState(RecoveryState.Revoked)).toBe(DeviceTrustState.Revoked);
   });
 
   it('schema boundary rejects unknown recovery states and malformed invite purposes', () => {

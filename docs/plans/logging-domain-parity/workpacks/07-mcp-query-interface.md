@@ -256,9 +256,12 @@ Known gaps/manual-required states:
 Focused checks observed in this checkout:
 
 ```text
-- npm run mcp:logging -- --list-tools -> pass
-- npm run mcp:logging -- --smoke run-diagnostics -> pass
-- npm run mcp:logging -- --smoke artifact-slice -> pass
+- node scripts/dev/mcp-logging-server.mjs --list-tools -> pass
+- node scripts/dev/mcp-logging-server.mjs --smoke latest-failures with OCENTRA_PARENT_LOG_DIR=test-results/logging-domain-parity-mcp -> pass
+- node scripts/dev/mcp-logging-server.mjs --smoke run-diagnostics with OCENTRA_PARENT_LOG_DIR=test-results/logging-domain-parity-mcp -> pass
+- node scripts/dev/mcp-logging-server.mjs --smoke artifact-slice with OCENTRA_PARENT_LOG_DIR=test-results/logging-domain-parity-mcp -> pass
+- node scripts/dev/agent-query.mjs latest-failures with OCENTRA_PARENT_LOG_DIR=test-results/logging-domain-parity-mcp -> pass
+- node scripts/dev/agent-query.mjs by-run <seeded-run-id> with OCENTRA_PARENT_LOG_DIR=test-results/logging-domain-parity-mcp -> pass
 - cmd /c npx vitest run packages/logging-domain/tests/integration/mcp-query-interface.test.ts -> pass
 ```
 
@@ -267,22 +270,23 @@ What this actually proves:
 ```text
 - the MCP server starts locally
 - the tool list is present
-- run-diagnostics and bounded artifact-slice paths work against local evidence
+- fresh-root latest-failures, run-diagnostics, and bounded artifact-slice paths work against deterministic local evidence under test-results/logging-domain-parity-mcp/
+- CLI and MCP can both resolve the same seeded failing run from the canonical custom root
 - the package has at least one dedicated MCP integration test
+- output/logging-domain-parity-proof/07-mcp-query-interface/ and test-results/logging-domain-parity-mcp/ now exist in this checkout
 ```
 
 What this does not yet prove:
 
 ```text
-- output/logging-domain-parity-proof/07-mcp-query-interface/ exists in this checkout
-- test-results/logging-domain-parity-mcp/ exists in this checkout
-- the standalone proof-trace smoke path works from a clean workspace
-- negative coverage for unknown scope, path traversal, stale-ingest recovery, and limit-clamp behavior is represented by the named proof inventory
+- full WP07 checklist closeout
+- dedicated proof artifacts for stale-ingest recovery beyond the current integration and smoke inventory
+- repo-wide MCP adoption or whole-plan parity
 ```
 
 Required next step for truthful closeout:
 
 ```text
-- recreate the missing proof root or remove the completion claim
-- either make the proof-trace smoke self-seeding or stop implying that WP07 already proves it as a standalone MCP smoke
+- decide whether the current proof inventory is sufficient to check remaining WP07 rows or add one narrow stale-ingest-recovery proof artifact
+- keep WP07 scoped to the MCP/query surface and do not broaden into WP06 checker hardening from this workpack
 ```

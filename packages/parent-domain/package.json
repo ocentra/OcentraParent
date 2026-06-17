@@ -705,10 +705,6 @@
       "import": "./dist/lan-pairing.js",
       "types": "./dist/lan-pairing.d.ts"
     },
-    "./household-device-spine": {
-      "import": "./dist/household-device-spine.js",
-      "types": "./dist/household-device-spine.d.ts"
-    },
     "./network-control-catalog": {
       "import": "./dist/network-control-catalog.js",
       "types": "./dist/network-control-catalog.d.ts"
@@ -1012,10 +1008,6 @@
     "./screen-ai-model-runtime-backpressure-proof": {
       "import": "./dist/screen-ai-model-runtime-backpressure-proof.js",
       "types": "./dist/screen-ai-model-runtime-backpressure-proof.d.ts"
-    },
-    "./tamper-uninstall-artifact-status": {
-      "import": "./dist/tamper-uninstall-artifact-status.js",
-      "types": "./dist/tamper-uninstall-artifact-status.d.ts"
     },
     "./tamper-uninstall-artifact-status-read-model": {
       "import": "./dist/tamper-uninstall-artifact-status-read-model.js",

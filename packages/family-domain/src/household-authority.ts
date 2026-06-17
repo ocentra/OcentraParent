@@ -47,6 +47,7 @@ export const DeviceTrustStateLiteral = {
   Pending: 'pending',
   Trusted: 'trusted',
   Revoked: 'revoked',
+  ResetRequired: 'reset-required',
   Disabled: 'disabled',
 } as const;
 
@@ -163,6 +164,7 @@ export const DeviceTrustStateSchema = withParser(
     DeviceTrustStateLiteral.Pending,
     DeviceTrustStateLiteral.Trusted,
     DeviceTrustStateLiteral.Revoked,
+    DeviceTrustStateLiteral.ResetRequired,
     DeviceTrustStateLiteral.Disabled
   )
 );
@@ -402,8 +404,13 @@ export const DeviceTrustState = {
   Pending: DeviceTrustStateSchema.parse(DeviceTrustStateLiteral.Pending),
   Trusted: DeviceTrustStateSchema.parse(DeviceTrustStateLiteral.Trusted),
   Revoked: DeviceTrustStateSchema.parse(DeviceTrustStateLiteral.Revoked),
+  ResetRequired: DeviceTrustStateSchema.parse(DeviceTrustStateLiteral.ResetRequired),
   Disabled: DeviceTrustStateSchema.parse(DeviceTrustStateLiteral.Disabled),
 } as const;
+
+export function isTrustedDeviceState(state: DeviceTrustState): boolean {
+  return DeviceTrustStateSchema.parse(state) === DeviceTrustState.Trusted;
+}
 
 export const ActorAccountState = {
   Active: ActorAccountStateSchema.parse(ActorAccountStateLiteral.Active),
@@ -597,7 +604,7 @@ export function authorizeHouseholdAction(input: HouseholdAuthorityInput): Househ
     return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.AccountNotActive, parsedInput.action);
   }
 
-  if (parsedInput.deviceTrustState !== DeviceTrustState.Trusted) {
+  if (!isTrustedDeviceState(parsedInput.deviceTrustState)) {
     return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.DeviceNotTrusted, parsedInput.action);
   }
 
@@ -649,7 +656,7 @@ export function isTrustedChildAgentRegistrationForProfile(
 
   return (
     parsedRegistration.deviceRole === DeviceRole.ChildAgent &&
-    parsedRegistration.trustState === DeviceTrustState.Trusted &&
+    isTrustedDeviceState(parsedRegistration.trustState) &&
     parsedRegistration.device.childProfileId === parsedChildProfile.childProfileId
   );
 }

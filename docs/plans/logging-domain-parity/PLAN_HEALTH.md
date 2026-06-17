@@ -22,8 +22,8 @@ checklist index: present
 proof index: present
 workpacks: present
 implementation: substantial source/test work exists for WP02/WP03/WP04/WP05/WP06/WP07/WP08/WP09/WP10, but the closeout docs overclaim proof-backed completion relative to this checkout
-source proof: output/logging-domain-parity-proof/ is absent in this checkout
-test-results roots: the named test-results/logging-domain-parity-* roots are absent in this checkout
+source proof: output/logging-domain-parity-proof/ exists in this checkout, but only WP07 and WP10 roots are currently restored
+test-results roots: test-results/logging-domain-parity-mcp/ and test-results/logging-domain-parity-proof-trace/ exist; the remaining named test-results/logging-domain-parity-* roots are still absent
 PR-ready: false
 ```
 
@@ -62,10 +62,10 @@ Do not remove that split.
 The plan is not implementation-complete until these are done:
 
 ```text
-proof inventory restored or proof claims removed
+remaining proof inventory restored or proof claims removed
 WP03 truthful closeout
-WP10 standalone proof-trace smoke repaired or narrowed
 WP06 enforcement extended if the plan intends to guarantee proof-inventory honesty
+WP07 and WP10 checklist/workpack closeout synced to the restored proof roots
 ```
 
 ## Stale-state triggers

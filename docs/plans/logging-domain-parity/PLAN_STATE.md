@@ -48,13 +48,13 @@ WP03 parent architecture/routing: source/tests present; workpack status is stale
 WP04 Rust logging core: source/tests present, but the named proof root is absent in this checkout
 WP05 local validation evidence: source/tests/smokes present, but the named proof root is absent in this checkout
 WP06 validation/enforcement: scripts and focused checks present, but enforcement does not verify proof inventory or honest workpack completion; named proof root is absent
-WP07 MCP query interface: server and focused smoke paths present, but the named proof root is absent and standalone proof-trace smoke fails in a clean workspace
+WP07 MCP query interface: server, integration coverage, and canonical MCP proof roots are present; fresh-root latest-failures/run-diagnostics/artifact-slice plus CLI parity now prove the deterministic local evidence path, but checklist/workpack closeout is still open
 WP08 logger instrumentation/adoption: partial portal/agent-service adoption is present, but repo-wide adoption is not proved and the named proof root is absent
 WP09 log control/retention/bridge lifecycle: source/tests present, but the named proof root is absent in this checkout
-WP10 proof trace pipeline: focused portal proof-trace tests pass, but standalone MCP proof-trace smoke fails in a clean workspace and the named proof root is absent
+WP10 proof trace pipeline: focused portal proof-trace tests pass, the standalone MCP proof-trace smoke is now self-seeding in a clean workspace, and the canonical proof root is present; checklist/workpack closeout is still open
 Checklist state: CHECKLIST_INDEX.md remains unchecked across the plan
-Proof inventory root: output/logging-domain-parity-proof/ is absent in this checkout
-Test-results roots: every test-results/logging-domain-parity-* root named by PROOF_INDEX.md is absent in this checkout
+Proof inventory root: output/logging-domain-parity-proof/ now exists in this checkout, but only WP07 and WP10 roots are restored so far
+Test-results roots: test-results/logging-domain-parity-mcp/ and test-results/logging-domain-parity-proof-trace/ now exist; the other named test-results/logging-domain-parity-* roots are still absent
 PR-ready: false
 ```
 
@@ -74,11 +74,11 @@ PR-ready: false
 ## Open gaps
 
 ```text
-- Recreate or remove the claimed proof roots under output/logging-domain-parity-proof/*
-- Recreate or remove the claimed test-results/logging-domain-parity-* roots
+- Recreate or remove the remaining claimed proof roots under output/logging-domain-parity-proof/*
+- Recreate or remove the remaining claimed test-results/logging-domain-parity-* roots
 - Reconcile WP03/WP06/WP07/WP10 workpack docs with current source and smoke behavior
 - Decide whether "done" in this plan means source present, proof present, or both; the current docs mix those states
-- Make proof-trace standalone smoke self-seeding, or stop claiming it as a standalone smoke
+- Close WP03 portal/dev-log routing proof and WP06 enforcement proof against the now-restored WP07/WP10 inventory
 ```
 
 ## No-claim boundaries
@@ -101,10 +101,9 @@ Workpacks are indexed in `WORKPACK_INDEX.md`.
 Current default execution order:
 
 ```text
-1. plan-state and proof-inventory reconciliation
-2. WP10 proof-trace standalone smoke fix or claim reduction
-3. WP03 parent architecture/routing truthful closeout
-4. WP06 enforcement hardening for proof inventory and honest closeout checks
+1. WP03 parent architecture/routing truthful closeout
+2. WP06 enforcement hardening for proof inventory and honest closeout checks
+3. remaining proof-inventory restoration or claim reduction for WP01/WP02/WP04/WP05/WP08/WP09
 ```
 
 ## Health rules

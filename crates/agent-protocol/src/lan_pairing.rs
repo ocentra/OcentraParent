@@ -4,16 +4,46 @@ use crate::{LanPairingParentAuthority, ParentEvidenceReference};
 
 #[path = "lan_pairing/device_roles.rs"]
 mod device_roles;
-pub use device_roles::*;
+pub type DeviceRuntimeRole = device_roles::DeviceRuntimeRole;
+pub type DeviceRuntimeRoleState = device_roles::DeviceRuntimeRoleState;
+pub type DeviceRuntimeSurface = device_roles::DeviceRuntimeSurface;
+pub type DeviceRuntimeRouteState = device_roles::DeviceRuntimeRouteState;
+pub type DeviceRuntimeAiProviderState = device_roles::DeviceRuntimeAiProviderState;
+pub type DeviceRuntimeLocalAiClaim = device_roles::DeviceRuntimeLocalAiClaim;
+pub type DeviceRuntimeRoleEntry = device_roles::DeviceRuntimeRoleEntry;
+pub type DeviceRoleRuntimeReadModel = device_roles::DeviceRoleRuntimeReadModel;
 #[path = "lan_pairing/discovery_states.rs"]
 mod discovery_states;
-pub use discovery_states::*;
+pub type LanPairingProductionDiscoveryState =
+    discovery_states::LanPairingProductionDiscoveryState;
+pub type LanAiProviderRoutingState = discovery_states::LanAiProviderRoutingState;
 #[path = "lan_pairing/device_hardware.rs"]
 mod device_hardware;
-pub use device_hardware::*;
+pub type LanPairingDeviceHardwareProfile = device_hardware::LanPairingDeviceHardwareProfile;
 #[path = "lan_pairing/household_proof.rs"]
 mod household_proof;
-pub use household_proof::*;
+pub type V09ProductionDiscoveryHouseholdProofBoundary =
+    household_proof::V09ProductionDiscoveryHouseholdProofBoundary;
+pub type V09ProductionDiscoveryHouseholdRuntimeOwner =
+    household_proof::V09ProductionDiscoveryHouseholdRuntimeOwner;
+pub type V09ProductionDiscoveryHouseholdCheck =
+    household_proof::V09ProductionDiscoveryHouseholdCheck;
+pub type V09ProductionDiscoveryHouseholdSourceState =
+    household_proof::V09ProductionDiscoveryHouseholdSourceState;
+pub type V09ProductionDiscoveryHouseholdRouteRecoveryState =
+    household_proof::V09ProductionDiscoveryHouseholdRouteRecoveryState;
+pub type V09ProductionDiscoveryHouseholdProofState =
+    household_proof::V09ProductionDiscoveryHouseholdProofState;
+pub type V09ProductionDiscoveryHouseholdReadinessDecision =
+    household_proof::V09ProductionDiscoveryHouseholdReadinessDecision;
+pub type V09ProductionDiscoveryHouseholdManualProofGate =
+    household_proof::V09ProductionDiscoveryHouseholdManualProofGate;
+pub type V09ProductionDiscoveryHouseholdStateEvidence =
+    household_proof::V09ProductionDiscoveryHouseholdStateEvidence;
+pub type V09ProductionDiscoveryHouseholdManualChecklistItem =
+    household_proof::V09ProductionDiscoveryHouseholdManualChecklistItem;
+pub type V09ProductionDiscoveryHouseholdProofReadModel =
+    household_proof::V09ProductionDiscoveryHouseholdProofReadModel;
 #[cfg(test)]
 #[path = "lan_pairing/household_proof_tests.rs"]
 mod household_proof_tests;

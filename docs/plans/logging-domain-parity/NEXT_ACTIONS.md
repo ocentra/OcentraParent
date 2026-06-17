@@ -30,33 +30,18 @@
 Current status:
 
 ```text
-the plan docs claim completed workpacks and proof roots, but output/logging-domain-parity-proof/ and every test-results/logging-domain-parity-* root named by PROOF_INDEX.md are absent in this checkout
+the plan docs still overclaim missing-vs-present proof state, but canonical WP07/WP10 proof roots now exist under output/logging-domain-parity-proof/ and test-results/logging-domain-parity-{mcp,proof-trace}/
 ```
 
 Expected result:
 
 ```text
-PLAN_STATE.md, WORKPACK_INDEX.md, PLAN_HEALTH.md, and the affected workpack docs match the audited source/test/proof truth
+PLAN_STATE.md, WORKPACK_INDEX.md, PLAN_HEALTH.md, and the affected workpack docs match the restored WP07/WP10 proof truth
 done claims do not outrun on-disk proof
-the plan stops implying PR-ready-adjacent completeness from missing artifacts
+the plan stops implying missing proof roots for WP07/WP10 while keeping the remaining roots explicitly open
 ```
 
-### 2. WP10 Proof-Trace Standalone Smoke Fix or Claim Reduction
-
-Current status:
-
-```text
-npm run mcp:logging -- --smoke proof-trace fails in a clean workspace with "No proof trace rows found for scope \"parent-portal\""
-```
-
-Expected result:
-
-```text
-the standalone proof-trace smoke self-seeds deterministic proof data
-or the docs stop claiming it as a standalone smoke and route proof through the portal Vitest path only
-```
-
-### 3. WP03 Parent Architecture and Routing Truthful Closeout
+### 2. WP03 Parent Architecture and Routing Truthful Closeout
 
 Current status:
 
@@ -69,6 +54,21 @@ Expected result:
 ```text
 WP03 either gets rebuilt proof and an honest closeout
 or it records the exact remaining blocker without implying missing implementation
+```
+
+### 3. WP06 Validation / Enforcement Honest Closeout
+
+Current status:
+
+```text
+WP07/WP10 proof roots are now present, but enforcement still does not verify proof inventory or reject stale closeout claims
+```
+
+Expected result:
+
+```text
+validation scripts and workpack language reflect the restored proof inventory
+proof-backed closeout stays honest when roots are missing or stale
 ```
 
 ## PR readiness guard
@@ -90,6 +90,6 @@ unless the assigned workpack is explicitly proof-routing-only.
 
 - [x] Re-check this plan route from `README.md`, `AGENTS.md`, and `PLAN_STATE.md`.
 - [x] Audit the current source/test/proof state against the plan claims.
-- [ ] Reconcile plan-state and workpack docs with the audited checkout truth.
-- [ ] Rebuild missing proof roots or remove the claims that say they already exist.
-- [ ] Fix or narrow the standalone proof-trace smoke claim before any broader completion report.
+- [ ] Reconcile plan-state and workpack docs with the restored WP07/WP10 proof truth.
+- [ ] Rebuild the remaining missing proof roots or remove the claims that say they already exist.
+- [x] Fix the standalone proof-trace smoke claim with a self-seeding clean-workspace harness and canonical proof roots.

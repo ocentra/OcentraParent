@@ -87,6 +87,7 @@ import {
   HouseholdDeviceNetworkIdentitySchema,
   ChildAgentInventoryPacketSchema,
   HouseholdDeviceSpineEntrySchema,
+  deviceTrustStateFromLanPairingTrustState,
   type HouseholdDevicePlatform,
   type HouseholdDeviceClassification,
   type HouseholdDeviceInventorySource,
@@ -352,6 +353,7 @@ export {
   HouseholdDeviceNetworkIdentitySchema,
   ChildAgentInventoryPacketSchema,
   HouseholdDeviceSpineEntrySchema,
+  deviceTrustStateFromLanPairingTrustState,
 };
 export {
   LanProductionHouseholdProofCapabilitySchema,

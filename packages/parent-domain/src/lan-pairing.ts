@@ -1,1 +1,6 @@
-export * from '@ocentra-parent/lan-domain/lan-pairing';
+import {
+  LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD,
+  LAN_HOUSEHOLD_DEVICE_KIND_VALUES,
+} from '@ocentra-parent/lan-domain/lan-device-parent-actions';
+
+export { LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD, LAN_HOUSEHOLD_DEVICE_KIND_VALUES };

@@ -10,6 +10,8 @@ import { ParentActorRole, ParentContractSchemaVersionSchema, ParentTimestampSche
 import {
   AuditRequirementState,
   AuditRequirementStateSchema,
+  DeviceTrustState,
+  type DeviceTrustState as FamilyDeviceTrustState,
   HouseholdMembershipState,
   HouseholdMembershipStateSchema,
   HouseholdRole,
@@ -586,6 +588,21 @@ export function recoveryCanAccessChildEvidence(input: RecoveryOperation): boolea
     recovery.identityProofState === RecoveryIdentityProofState.Verified &&
     recovery.supportChannel !== RecoverySupportChannel.SupportAssisted
   );
+}
+
+export function deviceTrustStateForRecoveryState(state: RecoveryState): FamilyDeviceTrustState {
+  const parsedState = RecoveryStateSchema.parse(state);
+
+  switch (parsedState) {
+    case RecoveryState.PendingIdentityProof:
+    case RecoveryState.OwnerApprovalRequired:
+    case RecoveryState.Approved:
+      return DeviceTrustState.ResetRequired;
+    case RecoveryState.Completed:
+      return DeviceTrustState.Pending;
+    case RecoveryState.Revoked:
+      return DeviceTrustState.Revoked;
+  }
 }
 
 export function evaluateRecoveryOperation(input: RecoveryAuthorizationInput): RecoveryDecision {

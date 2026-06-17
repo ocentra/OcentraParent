@@ -162,27 +162,30 @@ Focused checks observed in this checkout:
 
 ```text
 - cmd /c npx vitest run apps/portal/tests/logging/portal-proof-trace-pipeline.test.ts apps/portal/tests/logging/portal-proof-trace.test.ts apps/portal/tests/logging/portal-dev-log-route.test.ts -> pass
-- npm run mcp:logging -- --smoke proof-trace -> fail with "No proof trace rows found for scope \"parent-portal\"" in a clean workspace
+- node --import tsx scripts/dev/logging-proof-trace-smoke.mjs --root=test-results/logging-domain-parity-proof-trace --keep-root -> pass
+- node scripts/dev/mcp-logging-server.mjs --smoke proof-trace --smoke-root test-results/logging-domain-parity-proof-trace -> pass
 ```
 
 What this actually proves:
 
 ```text
 - the portal proof-trace path is implemented and passes when the Vitest flow seeds its own structured log data
+- the standalone proof-trace smoke now self-seeds deterministic data, wipes stale proof rows, and passes in a clean workspace
 - CLI/MCP proof-trace query helpers exist in source
+- output/logging-domain-parity-proof/10-proof-trace-pipeline/ and test-results/logging-domain-parity-proof-trace/ now exist in this checkout
 ```
 
 What this does not yet prove:
 
 ```text
-- output/logging-domain-parity-proof/10-proof-trace-pipeline/ exists in this checkout
-- test-results/logging-domain-parity-proof-trace/ exists in this checkout
-- the advertised standalone MCP proof-trace smoke works without pre-seeded portal proof data
+- every product proof-trace route
+- Playwright-specific ownership for the current equivalent UI-to-result smoke artifact
+- full WP10 checklist closeout
 ```
 
 Required next step for truthful closeout:
 
 ```text
-- recreate the missing proof root or remove the completion claim
-- make the standalone proof-trace smoke self-seeding, or narrow the docs so WP10 proof is explicitly routed through the portal Vitest flow instead
+- use the restored WP10 proof roots when closing WP03 and WP06 so downstream docs stop implying missing proof data
+- keep WP10 claims scoped to one selected vertical proof-trace path plus reusable helpers
 ```

@@ -445,7 +445,7 @@ function missingStructuredScopeError(scope) {
 }
 
 function readAgentEvidenceStream(stream) {
-  const streamRoot = path.join(getWorkspaceRoot(), '.logs', getEvidenceScope(), 'ndjson', stream);
+  const streamRoot = path.join(getLogRoot(), getEvidenceScope(), 'ndjson', stream);
   const events = [];
   for (const filePath of listNdjsonFiles(streamRoot)) {
     events.push(...readNdjsonFile(filePath));
@@ -462,7 +462,7 @@ function readAgentEvidenceFromNdjson() {
 }
 
 function getAgentEvidenceDbPath() {
-  return path.join(getWorkspaceRoot(), '.logs', getEvidenceScope(), 'db', 'agent-evidence.duckdb');
+  return path.join(getLogRoot(), getEvidenceScope(), 'db', 'agent-evidence.duckdb');
 }
 
 function mapArtifactEvent(artifact) {
@@ -595,10 +595,9 @@ async function tryDb(work) {
 }
 
 function ensureLocalPath(candidatePath) {
-  const workspaceRoot = getWorkspaceRoot();
   const absolute = path.resolve(candidatePath);
   const allowedRoots = [
-    path.join(workspaceRoot, '.logs'),
+    getLogRoot(),
     getStructuredLogBaseRoot(),
   ].map((entry) => path.resolve(entry));
 

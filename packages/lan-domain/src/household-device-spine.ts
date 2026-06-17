@@ -5,6 +5,7 @@ import {
   brandedNonEmptyStringSchema,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
+import { DeviceTrustState, type DeviceTrustState as FamilyDeviceTrustState } from '@ocentra-parent/family-domain/household-authority';
 import { ChildProfileIdSchema, ParentDeviceIdSchema, ParentDeviceLabelSchema } from '@ocentra-parent/family-domain/reference-primitives';
 import {
   LanPairingDeviceReachabilitySchema,
@@ -153,10 +154,28 @@ export const HouseholdDeviceSpineEntrySchema = withParser(
     Schema.filter(
       (device) =>
         householdDeviceSpineEntryIsConsistent(device) ||
-        'Expected routers and unsupported devices to be non-enrollable, child agents to expose stable target surfaces, and role badges to be unique'
+        'Expected routers and unsupported devices to be non-enrollable, child agents to expose stable target surfaces, child-agent trust states to stay aligned, and role badges to be unique'
     )
   )
 );
+
+export function deviceTrustStateFromLanPairingTrustState(
+  trustState: Infer<typeof LanPairingTrustStateSchema>
+): FamilyDeviceTrustState {
+  const parsedTrustState = LanPairingTrustStateSchema.parse(trustState);
+
+  switch (parsedTrustState) {
+    case 'paired':
+      return DeviceTrustState.Trusted;
+    case 'revoked':
+      return DeviceTrustState.Revoked;
+    case 'expired':
+      return DeviceTrustState.ResetRequired;
+    case 'pairing':
+    case 'unpaired':
+      return DeviceTrustState.Pending;
+  }
+}
 
 function householdDeviceSpineEntryIsConsistent(device: HouseholdDeviceCandidate): boolean {
   if (new Set(device.roleBadges).size !== device.roleBadges.length) {
@@ -168,8 +187,10 @@ function householdDeviceSpineEntryIsConsistent(device: HouseholdDeviceCandidate)
   }
 
   return (
+    device.childAgentInventory !== null &&
     device.roleBadges.includes('child-agent') &&
     device.enrollable &&
+    device.trustState === device.childAgentInventory.pairingTrustState &&
     device.policyTargetSurfaces.includes('policy') &&
     device.policyTargetSurfaces.includes('activity') &&
     device.policyTargetSurfaces.includes('network') &&
