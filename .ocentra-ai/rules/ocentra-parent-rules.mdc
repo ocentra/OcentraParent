@@ -10,6 +10,18 @@ Read this file before coding in this repo. It is a router, not the whole ruleboo
 
 Do not add product behavior until the relevant scaffold boundary exists, is typed, and is validated.
 
+## Universal Logging and Proof-Chain Rule
+
+This rule is repo-wide, not Cloudflare-only.
+
+Before editing runtime behavior, service code, domain behavior, app command paths, proof helpers, tests, scripts, or Rust crates involved in a command/event/request/read-model chain, read:
+
+- `.ocentra-ai/rules/ocentra-parent-logging-redaction.mdc`
+- `docs/repo-audits/event-driven-proof-architecture/LOGGER_USAGE_PATTERN_STANDARD.md`
+- `docs/repo-audits/event-driven-proof-architecture/LOGGED_PROOF_CHAIN_STANDARD.md`
+
+New or edited core chain files must be logger-ready unless they are pure schema, constants, brands, generated data, or static docs. Runtime logs stay gated and redacted. Tests, proof scripts, and dev command routes must emit correlated proof milestones when they prove a chain.
+
 ## Product Feature Doc Route
 
 For product-facing work, route by feature before routing by code layer:
@@ -29,6 +41,7 @@ roadmap, or hub assignment names them as proof.
 - `.ocentra-ai/rules/ocentra-parent-validation.mdc`
 - `.ocentra-ai/rules/ocentra-parent-source-shape.mdc`
 - `.ocentra-ai/rules/ocentra-parent-domain-boundaries.mdc`
+- `.ocentra-ai/rules/ocentra-parent-logging-redaction.mdc`
 
 ## Task Routing
 
@@ -39,7 +52,7 @@ roadmap, or hub assignment names them as proof.
 | Endpoints, local API paths, WebSocket commands/events | `.ocentra-ai/rules/ocentra-parent-protocol-websocket.mdc` |
 | Rust crates or localhost service code | `.ocentra-ai/rules/ocentra-parent-rust-service.mdc` |
 | Vite portal UI or browser transport | `.ocentra-ai/rules/ocentra-parent-portal.mdc` |
-| Logs, telemetry, diagnostics, redaction | `.ocentra-ai/rules/ocentra-parent-logging-redaction.mdc` |
+| Logs, telemetry, diagnostics, redaction, proof-chain instrumentation | `.ocentra-ai/rules/ocentra-parent-logging-redaction.mdc` |
 | Auth, localhost trust, child-device safety, abuse cases | `.ocentra-ai/rules/ocentra-parent-security-localhost.mdc` |
 | File size, function size, module ownership | `.ocentra-ai/rules/ocentra-parent-source-shape.mdc` |
 | CI, local validation, build gates | `.ocentra-ai/rules/ocentra-parent-validation.mdc` |
@@ -63,3 +76,5 @@ If two rules conflict, stop and resolve the conflict before editing.
 - no game economy
 - no Solana assumptions
 - no product capture or parental-control enforcement until explicitly planned
+
+Reuse the logging pattern idea where it fits, but keep OcentraParent package names, redaction boundaries, and event/proof architecture.
