@@ -6,7 +6,7 @@ Turn the per-thread self-assessments into controlled execution without letting l
 
 ## Required first pass
 
-Run these as coordination tasks before broad plan implementation:
+Run these as coordination tasks before broad plan implementation. These are inventory/coordination tasks first, not broad source-edit permission.
 
 | Step | Dispatch | Output |
 | ---: | --- | --- |
@@ -20,14 +20,21 @@ Run these as coordination tasks before broad plan implementation:
 
 ## Dispatch protocol
 
+Every thread assignment must use `DISPATCH_PACKET_TEMPLATE.md`.
+
+The packet must name one thread, one slice, exact allowed paths, exact forbidden paths, read scope, validation level, owner boundary, event/log chain, and stop conditions.
+
 For every thread assignment, send:
 
 ```text
+Read the dispatch packet.
 Read docs/repo-audits/lane-manager-coordination/thread-instructions/<thread>.md.
+Read docs/repo-audits/event-driven-proof-architecture/thread-instructions/<thread>.md.
 Follow only the slice named there.
-Use docs/repo-audits/lane-manager-coordination/DISPATCH_PHASES.md for dependency order.
+Use docs/repo-audits/lane-manager-coordination/READ_SCOPE_BUDGET.md for read scope.
+Use docs/repo-audits/lane-manager-coordination/VALIDATION_BUDGET_LADDER.md for validation level.
 Do not widen scope.
-Report exact files, commands, proof outputs, blockers, and next slice.
+Report exact files read, files changed, validation level, proof outputs, blockers, and next slice.
 ```
 
 ## Parallelization rule
@@ -66,10 +73,12 @@ Use `DISPATCH_PHASES.md` as the authoritative queue. Summary:
 - `tests exist` when only `.gitkeep` or inline source tests exist.
 - `portal proved` when only route/component rendering was tested and runtime/service is missing.
 - `manual-required` when a Windows/Android/Linux proof was feasible locally but skipped.
+- `logger-ready` without logger pattern or explicit exemption.
+- `event-driven` while directly importing another owner's runtime behavior.
 
 ## Manager closeout format
 
 Every dispatch result must be summarized in `thread-instructions/INDEX.md` or a future coordinator status file with:
 
-| Thread | Assigned slice | Files touched | Commands run | Proof outputs | Verdict | Next dependency |
-| --- | --- | --- | --- | --- | --- | --- |
+| Thread | Assigned slice | Files read | Files touched | Validation level | Proof outputs | Verdict | Next dependency |
+| --- | --- | --- | --- | --- | --- | --- | --- |
