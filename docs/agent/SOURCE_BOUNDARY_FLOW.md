@@ -27,6 +27,17 @@ Before claiming validation, use `docs/agent/TEST_PROOF_DECISION_MATRIX.md` to
 select the required contract, schema, protocol, auth, persistence, security,
 performance, AI, observability, or platform proof rows for the touched source.
 
+## Universal logging/proof-chain gate
+
+For every new or edited runtime, service, domain behavior, app command path,
+proof helper, test, script, or Rust crate participating in a command/event/request/read-model chain, read:
+
+- `.ocentra-ai/rules/ocentra-parent-logging-redaction.mdc`
+- `docs/repo-audits/event-driven-proof-architecture/LOGGER_USAGE_PATTERN_STANDARD.md`
+- `docs/repo-audits/event-driven-proof-architecture/LOGGED_PROOF_CHAIN_STANDARD.md`
+
+This is universal, not Cloudflare-only. Pure schemas, constants, brands, generated data, and static docs are exempt unless they define log/proof shapes.
+
 ## Non-negotiable boundaries
 
 - Shared API paths, route ids, event names, log shapes, policy ids, and device
@@ -44,6 +55,9 @@ performance, AI, observability, or platform proof rows for the touched source.
 - Rust runtime strings live in `crates/agent-protocol` constants.
 - Do not use mocks, fakes, stubs, spies, MSW, Nock, Sinon, `vi.mock`, `vi.fn`, or
   equivalent test doubles.
+- Cross-responsibility behavior must be command/event/request/read-model driven.
+  Direct imports are allowed for schemas, constants, brands, and typed contracts;
+  direct imports are not allowed for another owner's runtime behavior.
 
 ## Package responsibility router
 
@@ -56,4 +70,4 @@ performance, AI, observability, or platform proof rows for the touched source.
 | `@ocentra-parent/portal-domain`         | Portal routes, DOM constants, dev command button contracts.      |
 | `@ocentra-parent/parent-domain`         | Parent/family/device product contracts.                          |
 | `@ocentra-parent/activity-domain`       | Device activity event schemas and query contracts.               |
-| `@ocentra-parent/logging-domain`        | Operational app/service logging contracts shared by TS and Rust. |
+| `@ocentra-parent/logging-domain`        | Universal structured logging, redaction, proof-chain, app-log, and test-log contracts shared by TS and Rust-facing code. |
