@@ -17,6 +17,7 @@ Purpose: coordinate structural cleanup and per-plan follow-up after all canonica
 | --- | --- |
 | [AGENTS.md](AGENTS.md) | Local route and stop rules. |
 | [LANE_MANAGER_AUTOPILOT.md](LANE_MANAGER_AUTOPILOT.md) | Main lane-manager operating instructions. |
+| [COORDINATOR_VERDICT_MATRIX.md](COORDINATOR_VERDICT_MATRIX.md) | One-table verdict, first slice, blocker, and dependency tier for every thread. |
 | [EXECUTION_DAG.md](EXECUTION_DAG.md) | Dependency order and parallelization gates. |
 | [GLOBAL_FIRST_FIXES.md](GLOBAL_FIRST_FIXES.md) | Repo-wide fixes that must start before plan expansion. |
 | [thread-instructions/INDEX.md](thread-instructions/INDEX.md) | Per-thread dispatch index. |
