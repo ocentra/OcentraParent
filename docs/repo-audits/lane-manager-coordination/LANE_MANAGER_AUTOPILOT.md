@@ -10,12 +10,13 @@ Run these as coordination tasks before broad plan implementation:
 
 | Step | Dispatch | Output |
 | ---: | --- | --- |
-| 0 | Lane manager | Remove or quarantine legacy numbered self-assessment duplicates so only canonical `*-selfaudit.md` files are used. |
+| 0 | Lane manager | Archive hygiene: only canonical `*-selfaudit.md` files are active inputs. |
 | 1 | Repo-audit WP01 | Test topology inventory: real tests, empty scaffolds, inline tests, move candidates. |
 | 2 | Repo-audit WP02 | CI/package/crate coverage matrix. |
-| 3 | Repo-audit WP03 | Architecture policy decision: global cleanup, staged cleanup, or explicit exceptions. |
-| 4 | Repo-audit WP04 | Ownership drift plus orphan/legacy/pre-eventing code map. |
-| 5 | Repo-audit WP05 | DRY/common-core candidates, especially repeated child-domain event-chain assembly. |
+| 3 | Repo-audit WP07 | Orphan/legacy/pre-eventing/stale proof-wrapper inventory. |
+| 4 | Repo-audit WP03 | Architecture policy decision: global cleanup, staged cleanup, or explicit exceptions. |
+| 5 | Repo-audit WP04 | Ownership drift map with path owners. |
+| 6 | Repo-audit WP05 | DRY/common-core candidates and required pre-extraction tests. |
 
 ## Dispatch protocol
 
@@ -24,6 +25,7 @@ For every thread assignment, send:
 ```text
 Read docs/repo-audits/lane-manager-coordination/thread-instructions/<thread>.md.
 Follow only the slice named there.
+Use docs/repo-audits/lane-manager-coordination/DISPATCH_PHASES.md for dependency order.
 Do not widen scope.
 Report exact files, commands, proof outputs, blockers, and next slice.
 ```
@@ -35,8 +37,8 @@ Parallelize only when path ownership is disjoint.
 Safe parallel examples:
 
 - `logging-domain-parity` WP03/WP06 with `cloudflare-control-plane-plan` CFCP-C.
-- `data-custody-storage-plan` substrate repair with `device-trust-bootstrap-plan` step-up/QR semantics, if neither edits shared files.
-- `eventing-plan` WP10 typed bridge with `lan-plan` proof regeneration, if LAN source files are not edited by eventing.
+- `data-custody-storage-plan` substrate repair with `account-identity-family-plan` WP02-WP05 proof reconciliation.
+- `browser-plan` WP01 with `lan-plan` B1 if no shared files are touched.
 
 Unsafe parallel examples:
 
@@ -47,12 +49,13 @@ Unsafe parallel examples:
 
 ## Dependency dispatch order
 
+Use `DISPATCH_PHASES.md` as the authoritative queue. Summary:
+
 1. Global structural work.
-2. Foundation cluster: account, data custody, device trust, Cloudflare, logging.
-3. Infrastructure cluster: LAN, eventing, policy core.
-4. Runtime domain cluster: tracking, network, browser, app-game/app, AI.
-5. Overlay/product cluster: setup, portal UX, screen, screen-AI, enforcement.
-6. Distribution/remote/payment closure: child runtime package, parent runtime package, remote access, payment.
+2. Foundation truth/proof: tracking S0/S1, data custody, LAN B1, Cloudflare, account, logging, policy, setup.
+3. Infrastructure and owner cleanup: device trust, eventing, network, browser, app-game/app, AI, payment-local, distribution-local.
+4. Overlay/product slices: portal, screen, screen-AI, enforcement, remote.
+5. Platform proof and final handoff.
 
 ## Never accept these as closure
 
