@@ -1,6 +1,6 @@
 # Repo Audits Index
 
-This folder holds repo-level structural audit routes and lane-manager coordination docs.
+This folder holds repo-level structural audit routes, event-driven proof architecture rules, and lane-manager coordination docs.
 
 ## Start here for structural cleanup
 
@@ -9,6 +9,14 @@ This folder holds repo-level structural audit routes and lane-manager coordinati
 3. [NEXT_ACTIONS.md](NEXT_ACTIONS.md)
 4. [WORKPACK_INDEX.md](WORKPACK_INDEX.md)
 5. One selected workpack under `workpacks/`
+
+## Start here for event-driven proof architecture
+
+1. [event-driven-proof-architecture/AGENTS.md](event-driven-proof-architecture/AGENTS.md)
+2. [event-driven-proof-architecture/INDEX.md](event-driven-proof-architecture/INDEX.md)
+3. [event-driven-proof-architecture/EVENT_BOUNDARY_STANDARD.md](event-driven-proof-architecture/EVENT_BOUNDARY_STANDARD.md)
+4. [event-driven-proof-architecture/LOGGED_PROOF_CHAIN_STANDARD.md](event-driven-proof-architecture/LOGGED_PROOF_CHAIN_STANDARD.md)
+5. [event-driven-proof-architecture/thread-instructions/INDEX.md](event-driven-proof-architecture/thread-instructions/INDEX.md)
 
 ## Start here for lane-manager coordination
 
@@ -25,6 +33,7 @@ This folder holds repo-level structural audit routes and lane-manager coordinati
 | [2026-06-17 Structural Truth Audit](2026-06-17-structural-truth-audit.md) | Baseline findings for tests, CI, architecture, ownership, and DRY risks. |
 | [NEXT_ACTIONS.md](NEXT_ACTIONS.md) | Ordered cleanup queue. |
 | [WORKPACK_INDEX.md](WORKPACK_INDEX.md) | Focused workpack selector. |
+| [event-driven-proof-architecture/](event-driven-proof-architecture/INDEX.md) | Event-driven boundary, logging/proof-chain, dev UI, and per-thread architecture rules. |
 | [lane-manager-coordination/](lane-manager-coordination/INDEX.md) | Dispatch plan for lane manager after self-assessments are archived. |
 
 ## Workpacks
@@ -41,4 +50,4 @@ This folder holds repo-level structural audit routes and lane-manager coordinati
 
 ## Review rule
 
-Do not accept a plan-thread report as complete until source owners, executable tests, proof generators, run evidence, architecture-gate scope, ownership, DRY risks, and dependency blockers are checked.
+Do not accept a plan-thread report as complete until source owners, executable tests, proof generators, run evidence, architecture-gate scope, ownership, DRY risks, event-driven boundary, logging/proof-chain evidence, and dependency blockers are checked.
