@@ -1,10 +1,10 @@
 # Dispatch Phases
 
-This is the lane-manager execution queue. Use it with `COORDINATOR_VERDICT_MATRIX.md` and `thread-instructions/INDEX.md`.
+This is the lane-manager execution queue. Use it with `VALIDATION_BUDGET_LADDER.md`, `COORDINATOR_VERDICT_MATRIX.md`, and `thread-instructions/INDEX.md`.
 
 ## Shared path locks
 
-Before dispatching any implementation slice, lock these broad surfaces to one lane or prove disjoint paths:
+Before dispatching any source slice, lock exact files or subtrees. A broad package name is not enough.
 
 | Surface | Why locked |
 | --- | --- |
@@ -18,20 +18,20 @@ Before dispatching any implementation slice, lock these broad surfaces to one la
 
 ## Phase 0: global structural gate
 
-Run or explicitly assign these before broad plan implementation.
+Phase 0 is inventory and coordination first. It is not permission for broad source edits.
 
-| Step | Dispatch | Exit condition |
-| ---: | --- | --- |
-| 0.1 | lane-manager archive hygiene | Only canonical `*-selfaudit.md` files are active review inputs. |
-| 0.2 | repo-audit WP01 | Real tests, empty scaffolds, inline tests, and move candidates inventoried. |
-| 0.3 | repo-audit WP02 | Every crate/package/app mapped to local commands and CI jobs. |
-| 0.4 | repo-audit WP07 | Orphaned, legacy, pre-eventing, and stale proof-wrapper surfaces inventoried. |
-| 0.5 | repo-audit WP03 | Architecture policy state is explicit: clean now, staged cleanup, or exception list. |
-| 0.6 | repo-audit WP04/WP05 | Ownership drift and DRY/common-core candidates mapped before refactor. |
+| Step | Dispatch | Exit condition | Validation ceiling |
+| ---: | --- | --- | --- |
+| 0.1 | lane-manager archive hygiene | Only canonical `*-selfaudit.md` files are active review inputs. | V0 |
+| 0.2 | repo-audit WP01 | Real tests, empty scaffolds, inline tests, and move candidates inventoried. | V0/V1 |
+| 0.3 | repo-audit WP02 | Every crate/package/app mapped to local commands and CI jobs. | V0/V1 |
+| 0.4 | repo-audit WP07 | Orphaned, legacy, pre-eventing, and stale proof-wrapper surfaces inventoried. | V0/V1 |
+| 0.5 | repo-audit WP03 | Architecture policy state is explicit: clean now, staged cleanup, or exception list. | V0/V1 |
+| 0.6 | repo-audit WP04/WP05 | Ownership drift and DRY/common-core candidates mapped before refactor. | V0/V1 |
 
 ## Phase 1: unblock local truth and proof foundations
 
-These may run in parallel only if the path locks are disjoint.
+These may run in parallel only if the path locks are disjoint. Use V0-V2 by default; V3+ needs dispatch approval.
 
 | Order | Thread | Assign | Reason |
 | ---: | --- | --- | --- |
@@ -71,38 +71,13 @@ Start after Phase 1 owners have reported their first outputs or blockers.
 | `v0-8-enforcement-control-plan` | proof-router truth | First free duplicate writer claims; app-game readiness/preflight must be sequenced before final WP05/WP13. |
 | `remote-access-plan` | hold, then RA-01 contract parity/test repair | Account identity first; LAN before protocol/relay; logging before rollout proof. |
 
-## Phase 4: platform and proof regeneration
-
-Run after the relevant local foundations exist.
-
-| Thread | Platform/proof slice |
-| --- | --- |
-| `lan-plan` | Android/second-device/Linux/physical proof for rows 15/16/18/19/20. |
-| `network-plan` | Windows, Android emulator/device, WSL/Linux proof gates. |
-| `tracking-plan` | Android, WSL, portal service-backed proof for WP34-WP39. |
-| `screen-plan` | Windows, Android, Linux proof regeneration. |
-| `child-agent-runtime-distribution-plan` | Windows/Linux/Android package proof; Apple remains external. |
-| `parent-desktop-runtime-package-plan` | Windows desktop, Linux update/rollback, Android parent proof; Apple remains external. |
-| `remote-access-plan` | Windows/Android/Linux remote session/degraded/redaction proof after RA-03/RA-04. |
-
-## Phase 5: final closure/handoff
-
-| Thread | Final gate |
-| --- | --- |
-| `cloudflare-control-plane-plan` | deployment/promotion proof and WP12 payment handoff. |
-| `payment-subscription-plan` | consume Cloudflare handoff, then provider/region/store proof and route closeout. |
-| `setup-install-provisioning-plan` | final aggregate after account, distribution, LAN, device-trust, custody, policy. |
-| `portal-ux-household-surfaces-plan` | final household UX closure after account, policy, LAN, setup, tracking/screen where referenced. |
-| `screen-ai-pipeline-plan` | final product path only after screen and AI retained proof artifacts exist. |
-| `v0-8-enforcement-control-plan` | final proof after app-game/browser/policy/portal/service proof surfaces exist. |
-| `remote-access-plan` | final rollout after account/device/LAN/screen/logging proof exists. |
-
 ## Manager stop conditions
 
 Stop a thread and require a new coordinator row if it:
 
-- edits a locked broad surface without a path assignment;
-- starts a downstream closure before its upstream artifact exists;
+- edits a locked broad surface without exact path assignment;
+- starts downstream closure before upstream artifact exists;
+- escalates validation above its assigned budget;
 - adds a new broad re-export or barrel to avoid import work;
 - counts `.gitkeep`, inline-only Rust tests, stale docs, or generated paths as completion;
 - claims platform support without current Windows/Android/Linux/Apple feasibility notes.
