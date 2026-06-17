@@ -1,19 +1,56 @@
 ---
-description: Structured logging, redaction, and child-safety telemetry rules.
-globs: packages/logging-domain/**/*.ts, crates/agent-service/**/*.rs, crates/agent-protocol/**/*.rs, apps/portal/src/**/*.ts
-alwaysApply: false
+description: Universal structured logging, proof-chain instrumentation, diagnostics, and redaction rules.
+globs: packages/**/*.ts, apps/**/*.ts, apps/**/*.tsx, scripts/**/*.mjs, scripts/**/*.ts, infra/**/*.ts, crates/**/*.rs
+alwaysApply: true
 ---
 
-# Ocentra Parent Logging and Redaction Rules
+# Ocentra Parent Universal Logging and Redaction Rules
 
-Logs are product data boundaries. This project may eventually observe child-device activity, so logging must be conservative from the start.
+This rule is universal. It is not Cloudflare-only.
+
+Any new or edited runtime, service, domain behavior, app command path, proof helper, test, script, or Rust crate involved in a command/event/request/read-model chain must be logger-ready unless it is pure schema, constants, brands, generated data, or static docs.
+
+## Required detailed pattern
+
+Read:
+
+- `docs/repo-audits/event-driven-proof-architecture/LOGGER_USAGE_PATTERN_STANDARD.md`
+- `docs/repo-audits/event-driven-proof-architecture/LOGGED_PROOF_CHAIN_STANDARD.md`
 
 ## Structured Logs Only
 
-- Use `@ocentra-parent/logging-domain` for TypeScript log shapes.
-- Use `crates/agent-protocol` constants and structs for Rust log snapshots.
-- Do not add raw console logging in app/runtime code.
+- Use `@ocentra-parent/logging-domain` for TypeScript log shapes and logger/test-log/app-log/bridge surfaces.
+- Use `crates/ocentra-eventing` event/journal/request/replay surfaces for Rust runtime proof chains where applicable.
+- Do not add raw console logging in app/runtime/proof code.
 - Do not invent log fields at call sites.
+- Do not add a second logging system.
+
+## Logger-ready source rule
+
+New or edited core chain files should initialize the logger pattern from `LOGGER_USAGE_PATTERN_STANDARD.md`.
+
+Use it in:
+
+- packages with runtime/domain behavior;
+- app/portal command paths and dev proof routes;
+- scripts and proof runners;
+- tests proving command/event chains;
+- infra handlers/workers when present;
+- Rust crates through a Rust parity trace/event adapter.
+
+Do not remove logger helpers only because they are initially unused. Add or use a narrow lint exception for the logger-ready pattern when needed.
+
+## Controlled enablement
+
+Runtime logging must not become noisy.
+
+| Context | Rule |
+| --- | --- |
+| production | errors and selected warnings only, redacted |
+| dev command route | selected chain logs enabled |
+| tests | selected chain logs enabled |
+| proof runners | logs required as proof artifacts |
+| failed proof debug | expanded logs allowed only if scoped and redacted |
 
 ## Redaction First
 
@@ -29,7 +66,7 @@ Never log:
 - clipboard content
 - message contents
 
-If a field might later contain sensitive activity, store a stable category, status, or redacted summary instead.
+If a field might later contain sensitive activity, store a stable category, status, hash, id, or redacted summary instead.
 
 ## Diagnostics
 
@@ -42,6 +79,12 @@ Dev diagnostics must be useful without leaking private data:
 - correlation ids
 - schema versions
 - event types
+- owner package/crate
+- command/event/request/read-model name
+- no-claim/manual-required/degraded reason
 
-Add tests when adding log shapes or redaction behavior.
+## Proof-chain rule
 
+A passing test is not enough for cross-owner behavior. The test or proof runner must emit enough structured log/event/read-model evidence to show where the chain started, what owner handled it, what event/request was emitted, what consumer reacted, and where it stopped if it failed.
+
+Add tests when adding log shapes, redaction behavior, or proof-chain instrumentation.
