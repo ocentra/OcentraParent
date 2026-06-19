@@ -24,7 +24,7 @@ import {
   type BrowserControlFieldValue,
   type BrowserControlSchemaKnownWritesToPath,
 } from './browser-control-values';
-import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserControlFieldOptionSchema = withParser(
   Schema.Struct({
@@ -179,85 +179,6 @@ export const BrowserControlManifestDefaults = {
 } as const;
 
 export const decodeBrowserControlAuthoringManifest = Schema.decodeUnknownSync(BrowserControlAuthoringManifestSchema);
-export {
-  BaselineBrowserControlFullCatalog,
-  BrowserControlFullCatalogSettingSeeds,
-  browserControlFullCatalogSectionTitles,
-  browserControlFullCatalogSettingCount,
-  browserControlFullCatalogSettings,
-} from './browser-control-full-catalog';
-export {
-  BrowserControlFullCatalogCardKindSchema,
-  BrowserControlFullCatalogCapabilityStateSchema,
-  BrowserControlFullCatalogControlKindSchema,
-  BrowserControlFullCatalogEffectStatusSchema,
-  BrowserControlFullCatalogGroupSchema,
-  BrowserControlFullCatalogLayoutHintsSchema,
-  BrowserControlFullCatalogOptionSchema,
-  BrowserControlFullCatalogRuleSchema,
-  BrowserControlFullCatalogRuntimeOwnerSchema,
-  BrowserControlFullCatalogSchema,
-  BrowserControlFullCatalogSectionKindSchema,
-  BrowserControlFullCatalogSectionSchema,
-  BrowserControlFullCatalogSelectionModeSchema,
-  BrowserControlFullCatalogSettingSchema,
-  BrowserControlFullCatalogSidePanelCategorySchema,
-  BrowserControlFullCatalogTabSchema,
-  BrowserControlFullCatalogUiTabSchema,
-  type BrowserControlFullCatalog,
-  type BrowserControlFullCatalogCardKind,
-  type BrowserControlFullCatalogCapabilityState,
-  type BrowserControlFullCatalogControlKind,
-  type BrowserControlFullCatalogEffectStatus,
-  type BrowserControlFullCatalogGroup,
-  type BrowserControlFullCatalogLayoutHints,
-  type BrowserControlFullCatalogOption,
-  type BrowserControlFullCatalogRule,
-  type BrowserControlFullCatalogRuntimeOwner,
-  type BrowserControlFullCatalogSection,
-  type BrowserControlFullCatalogSectionKind,
-  type BrowserControlFullCatalogSelectionMode,
-  type BrowserControlFullCatalogSetting,
-  type BrowserControlFullCatalogSettingSeed,
-  type BrowserControlFullCatalogSidePanelCategory,
-  type BrowserControlFullCatalogTab,
-  type BrowserControlFullCatalogUiTab,
-} from './browser-control-full-catalog-schema';
-export {
-  BrowserPolicyQuestionIds,
-  BrowserPolicyDefaultAnswers,
-  BrowserPolicyQuestionnaireCompactOrder,
-  BrowserPolicyQuestionnaireForest,
-  BrowserPolicyQuestions,
-  browserPolicyComputedFlag,
-  browserPolicyConditionMatches,
-  browserPolicyForestSourceSettingIds,
-  browserPolicyQuestionById,
-  browserPolicyQuestionState,
-  browserPolicyQuestionStates,
-  browserPolicyVisibleQuestions,
-  type BrowserPolicyAnswerMap,
-  type BrowserPolicyComputedFlagId,
-  type BrowserPolicyCondition,
-  type BrowserPolicyOption,
-  type BrowserPolicyQuestion,
-  type BrowserPolicyQuestionId,
-  type BrowserPolicyQuestionState,
-  type BrowserPolicySelectionMode,
-  type BrowserPolicySurface,
-} from './browser-policy-questionnaire-forest';
-export {
-  BrowserControlCandidateMvpItems,
-  BrowserControlCatalogMajorSections,
-  BrowserControlCoverageEntrySchema,
-  BrowserControlCoverageKindSchema,
-  BrowserControlCoverageMatrix,
-  BrowserControlCoverageMatrixSchema,
-  BrowserControlCoverageStatusSchema,
-  type BrowserControlCoverageEntry,
-  type BrowserControlCoverageKind,
-  type BrowserControlCoverageStatus,
-} from './browser-control-coverage-matrix';
 
 export function browserControlVisibleSectionIds(
   manifest: BrowserControlAuthoringManifest,

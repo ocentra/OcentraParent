@@ -1,7 +1,7 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentAccountReferenceSchema, FamilyReferenceSchema, ParentActorReferenceSchema } from '@ocentra-parent/family-domain/references';
 import { ParentDeviceReferenceSchema } from '@ocentra-parent/family-domain/references';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   BillingAuditReferenceSchema,
   BillingChildActivityCustodyClaimSchema,
@@ -17,11 +17,9 @@ import {
   BillingEntitlementSnapshotIdSchema,
   BillingEntitlementSourceSchema,
   BillingEvidenceExportAccessSchema,
-  BillingFailureKindSchema,
   BillingFeatureCodeSchema,
   BillingLocalSafetyBehaviorSchema,
   BillingParentVisibleStateSchema,
-  BillingParentResolutionSchema,
   BillingPlanActiveStateSchema,
   BillingPlanIdSchema,
   BillingPortalUiClaimSchema,
@@ -37,6 +35,7 @@ import {
   NonNegativeBillingCountSchema,
   PositiveBillingLimitSchema,
 } from './billing-entitlement-values';
+import { buildBillingFailureStateSchema } from './billing-support-admin-common-values';
 
 export const BillingFeatureEntitlementSchema = withParser(
   Schema.Struct({
@@ -74,29 +73,7 @@ export const BillingPlanSchema = withParser(
   })
 );
 
-export const BillingFailureStateSchema = withParser(
-  Schema.Struct({
-    failureKind: BillingFailureKindSchema,
-    parentVisibleState: BillingParentVisibleStateSchema,
-    localSafetyBehavior: BillingLocalSafetyBehaviorSchema,
-    retainEvidenceExportAccess: Schema.Boolean,
-    existingLocalSafetyContinues: Schema.Boolean,
-    parentResolution: BillingParentResolutionSchema,
-    retryAllowed: Schema.Boolean,
-    retryAfter: Schema.Union(ParentTimestampSchema, Schema.Null),
-  }).pipe(
-    Schema.filter(
-      (failure) =>
-        failure.retainEvidenceExportAccess ||
-        'Expected billing failures to retain evidence export and safety-critical audit access'
-    ),
-    Schema.filter(
-      (failure) =>
-        failure.existingLocalSafetyContinues ||
-        'Expected billing failures to keep existing local safety behavior explicit'
-    )
-  )
-);
+export const BillingFailureStateSchema = buildBillingFailureStateSchema('billing');
 
 export const BillingSubscriptionStatusProofRowSchema = withParser(
   Schema.Struct({

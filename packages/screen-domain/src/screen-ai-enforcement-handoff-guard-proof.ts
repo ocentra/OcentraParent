@@ -1,4 +1,4 @@
-import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
+import { EventingEventTypeSchema } from '@ocentra-parent/schema-domain/eventing';
 import {
   type Infer,
   Schema,
@@ -6,7 +6,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { PolicyActionSchema, PolicyDecisionSchema, PolicyRuleSchema } from '@ocentra-parent/policy-domain/policy';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 
 export const ScreenAiEnforcementHandoffGuardPayloadIdSchema = brandedNonEmptyStringSchema('ScreenAiEnforcementHandoffGuardPayloadId');

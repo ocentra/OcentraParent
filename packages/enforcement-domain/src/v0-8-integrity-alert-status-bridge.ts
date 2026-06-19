@@ -8,7 +8,12 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  enforcementProofClaimFlagsAreUnset,
+  enforcementProofEntriesHaveUniqueField,
+  enforcementProofRequiredValuesAreCovered,
+} from './enforcement-proof-shape';
 
 export const V08IntegrityAlertStatusBridgeReadModelIdSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeReadModelId');
 export const V08IntegrityAlertStatusBridgeEntryIdSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeEntryId');
@@ -85,7 +90,7 @@ export const V08IntegrityAlertStatusBridgeReadModelSchema = withParser(
   }).pipe(
     Schema.filter(
       (readModel) =>
-        new Set(readModel.entries.map((entry) => entry.bridgeEntryId)).size === readModel.entries.length ||
+        enforcementProofEntriesHaveUniqueField(readModel.entries, (entry) => entry.bridgeEntryId) ||
         'Expected V0.8 integrity alert/status bridge entry ids to be unique'
     ),
     Schema.filter(
@@ -113,14 +118,14 @@ function integrityAlertStatusBridgeEntryIsHonest(entry: V08IntegrityAlertStatusB
 }
 
 function integrityAlertStatusBridgeEntryHasClaimUpgrade(entry: V08IntegrityAlertStatusBridgeEntryCandidate): boolean {
-  return [
+  return !enforcementProofClaimFlagsAreUnset([
     entry.providerDeliveryClaimed,
     entry.broadBlockingClaimed,
     entry.tamperResistanceClaimed,
     entry.mobileEnforcementClaimed,
     entry.stealthPersistenceClaimed,
     entry.privilegeEscalationClaimed,
-  ].some(Boolean);
+  ]);
 }
 
 function integrityAlertStatusBridgeManualProofMatchesState(
@@ -136,9 +141,9 @@ function integrityAlertStatusBridgeManualProofMatchesState(
 function integrityAlertStatusBridgeCoversRequiredStates(
   entries: readonly V08IntegrityAlertStatusBridgeEntry[]
 ): boolean {
-  const states = new Set(entries.map((entry) => entry.integrityAlertState));
-  return ['permission-loss', 'stale-heartbeat', 'stopped-or-removed', 'tamper-manual-required'].every((state) =>
-    states.has(state as V08IntegrityAlertState)
+  return enforcementProofRequiredValuesAreCovered(
+    entries.map((entry) => entry.integrityAlertState),
+    RequiredIntegrityAlertStates
   );
 }
 
@@ -154,6 +159,13 @@ export type V08IntegrityAlertDeliveryState = Infer<typeof V08IntegrityAlertDeliv
 export type V08IntegrityAlertAuditState = Infer<typeof V08IntegrityAlertAuditStateSchema>;
 export type V08IntegrityAlertStatusBridgeEntry = Infer<typeof V08IntegrityAlertStatusBridgeEntrySchema>;
 export type V08IntegrityAlertStatusBridgeReadModel = Infer<typeof V08IntegrityAlertStatusBridgeReadModelSchema>;
+
+const RequiredIntegrityAlertStates = [
+  'permission-loss',
+  'stale-heartbeat',
+  'stopped-or-removed',
+  'tamper-manual-required',
+] as const satisfies ReadonlyArray<V08IntegrityAlertState>;
 
 type V08IntegrityAlertStatusBridgeEntryInput = {
   bridgeEntryId: string;

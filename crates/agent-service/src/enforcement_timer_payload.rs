@@ -1,4 +1,4 @@
-use ocentra_parent_agent_core::EnforcementTimerTransitionIds;
+use ocentra_parent_agent_core::enforcement_timer_state::EnforcementTimerTransitionIds;
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, LogFieldValue, LogFields,
     ParentActionReference, ParentActorReference, ParentActorRole,

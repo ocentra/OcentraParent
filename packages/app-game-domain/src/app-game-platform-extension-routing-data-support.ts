@@ -17,7 +17,7 @@ import {
   type ParentPlatform,
   ParentContractSchemaVersion,
   ParentPlatform as ParentPlatformValue,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 type ExtensionRouteInput = {
   rowId: string;

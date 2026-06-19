@@ -51,12 +51,17 @@ describe('policy preview portal route panel', () => {
       policyRequestStatus: 'approved',
     });
 
-    const intent = createPolicyPreviewPanelIntent(liveActivity.policyPreviewEvent, liveActivity.policyPreviewReadModel);
+    const intent = createPolicyPreviewPanelIntent(
+      liveActivity.policyPreviewEvent,
+      liveActivity.policyPreviewReadModel,
+      'active-controller'
+    );
 
     expect(intent.summaryDetails).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ label: 'Policy check', value: 'policy-preview-latest' }),
         expect.objectContaining({ label: 'Parent rule context references', value: '1' }),
+        expect.objectContaining({ label: 'Parent access', value: 'Active controller' }),
       ])
     );
     expect(intent.cards[0]?.details).toEqual(
@@ -74,12 +79,41 @@ describe('policy preview portal route panel', () => {
         actions: policyPreviewActions(),
         commandEnabled: true,
         liveActivity,
+        parentAccessState: 'active-controller',
       })
     );
 
     expect(markup).toContain('Policy preview parent authoring');
     expect(markup).toContain('Refresh policy decision');
     expect(markup).toContain('https://example.test/latest');
+    expect(markup).toContain('Approval authority');
+    expect(markup).toContain('Active controller');
+  });
+
+  it('keeps observer-only policy routes read-only in rendered markup', () => {
+    const liveActivity = resolveLiveActivityState([
+      policyPreviewEvent({
+        eventId: 'evt-policy-preview-observer',
+        sentAt: '2026-06-12T10:06:00Z',
+        previewId: 'policy-preview-observer',
+        targetValue: 'https://example.test/observer',
+        sourceStatus: 'delivered',
+        requestStatus: 'approved',
+      }),
+    ]);
+
+    const markup = renderToStaticMarkup(
+      createElement(PolicyPreviewRoutePanel, {
+        actions: policyPreviewActions(),
+        commandEnabled: true,
+        liveActivity,
+        parentAccessState: 'observer-only',
+      })
+    );
+
+    expect(markup).toContain('Observer only');
+    expect(markup).toContain('cannot confirm or save writes');
+    expect(markup).toContain('Delivered is reported, but active enforcement is separate.');
   });
 });
 
@@ -95,7 +129,7 @@ function policyPreviewEvent({
   readonly previewId: string;
   readonly requestStatus: 'approved' | 'preview-only';
   readonly sentAt: string;
-  readonly sourceStatus: 'confirmed' | 'preview';
+  readonly sourceStatus: 'confirmed' | 'delivered' | 'preview';
   readonly targetValue: string;
 }) {
   return AgentEventEnvelopeSchema.parse({

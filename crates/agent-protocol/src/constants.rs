@@ -175,6 +175,8 @@ pub mod event_id {
     pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
     pub const PARENT_ASSISTANT_ANSWER_REPORTED: &str = "parent-assistant-answer-reported";
     pub const POLICY_PREVIEW_READ_MODEL_REPORTED: &str = "policy-preview-read-model-reported";
+    pub const POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_REPORTED: &str =
+        "policy-request-assistant-preview-confirm-reported";
     pub const BROWSER_POLICY_REPORTED: &str = "browser-policy-reported";
     pub const BROWSER_POLICY_PREVIEWED: &str = "browser-policy-previewed";
     pub const BROWSER_POLICY_PATCH_ACCEPTED: &str = "browser-policy-patch-accepted";

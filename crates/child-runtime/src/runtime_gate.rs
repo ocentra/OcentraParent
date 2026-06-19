@@ -1,4 +1,4 @@
-use ocentra_child_enforcement_core::{
+use ocentra_child_enforcement_core::enforcement_action::{
     evaluate_enforcement_action, EnforcementActionDecision, EnforcementActionInput,
     EnforcementAdapterExecutionState,
 };
@@ -9,7 +9,7 @@ use ocentra_entitlement_core::entitlement_access::{
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
-use ocentra_family_identity_core::{
+use ocentra_family_identity_core::family_identity::{
     authorize_child_device_scope, DeviceScopeAuthorizationState, DeviceScopeDecision,
     DeviceScopeInput,
 };
@@ -17,7 +17,7 @@ use ocentra_provisioning_core::provisioning_install::{
     evaluate_provisioning_readiness, ChildRuntimeReadinessState, ProvisioningReadinessDecision,
     ProvisioningReadinessInput,
 };
-use ocentra_remote_access_core::{
+use ocentra_remote_access_core::remote_access_session::{
     evaluate_remote_access_session, RemoteAccessSessionAuthorizationState,
     RemoteAccessSessionDecision, RemoteAccessSessionRequest,
 };

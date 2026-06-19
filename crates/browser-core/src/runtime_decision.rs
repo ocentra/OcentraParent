@@ -1,6 +1,7 @@
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
+use ocentra_parent_agent_protocol::child_domain_runtime::ChildDomainObservedEvent;
 use serde::{Deserialize, Serialize};
 
 use crate::{browser_observed_event, BrowserObservationIntent};
@@ -194,9 +195,7 @@ pub fn evaluate_browser_runtime(input: BrowserRuntimeInput) -> BrowserRuntimeDec
     }
 }
 
-pub fn browser_runtime_observed_event(
-    input: BrowserRuntimeInput,
-) -> ocentra_parent_agent_protocol::ChildDomainObservedEvent {
+pub fn browser_runtime_observed_event(input: BrowserRuntimeInput) -> ChildDomainObservedEvent {
     browser_observed_event(evaluate_browser_runtime(input).observation_intent)
 }
 

@@ -26,7 +26,7 @@ import {
   ParentPlatform,
   ParentPlatformSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 export const V08BroadOsAdapterProofReadModelIdSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofReadModelId');
 export const V08BroadOsAdapterProofEntryIdSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofEntryId');
 export const V08BroadOsAdapterProofReferenceSchema = brandedNonEmptyStringSchema('V08BroadOsAdapterProofReference');

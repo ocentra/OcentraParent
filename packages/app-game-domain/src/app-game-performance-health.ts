@@ -10,7 +10,7 @@ import {
 } from './app-game-performance-health-rules';
 import { EnforcementCapabilityStateSchema } from '@ocentra-parent/enforcement-domain/enforcement';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const PositivePerformanceHealthNumber = Schema.Number.pipe(
   Schema.filter((value) => (Number.isFinite(value) && value > 0) || 'Expected a positive finite number')
 );

@@ -3,11 +3,11 @@ import {
   applyScreenOptionalVisibilityRuntimeSettingsRequest,
   createDisabledScreenOptionalVisibilityRuntimeSettingsState,
   ScreenLiveViewOptInSettingSchema,
-  ScreenOptionalVisibilityModeSchemaVersion,
   ScreenOptionalVisibilityRuntimeSettingsSchemaVersion,
   ScreenOptionalVisibilityRuntimeUpdateRequestSchema,
   ScreenRawScreenshotRetentionOptInSettingSchema,
 } from '../../src/screen-evidence';
+import { ScreenOptionalVisibilityModeSchemaVersion } from '../../src/screen-optional-visibility-mode-values';
 
 const ChangedAt = '2026-06-07T20:00:00Z';
 

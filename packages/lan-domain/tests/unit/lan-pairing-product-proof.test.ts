@@ -6,7 +6,7 @@ import {
   LanHouseholdRouteCheckOutcomeSchema,
   LanHouseholdSelectedProviderPolicyEvidenceSchema,
   LanHouseholdSelectedRouteEvidenceSchema,
-} from '../../src/lan-pairing';
+} from '../../src/lan-pairing-product-proof';
 
 const checkedAt = '2026-05-30T13:05:00.000Z';
 const routeId = 'lan-route-household-product-proof';

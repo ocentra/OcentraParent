@@ -10,7 +10,7 @@ import {
   ParentContractSchemaVersionSchema,
   ParentDeviceIdSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const NetworkControlCatalogIdSchema = withParser(
   brandedNonEmptyStringSchema('NetworkControlCatalogId')

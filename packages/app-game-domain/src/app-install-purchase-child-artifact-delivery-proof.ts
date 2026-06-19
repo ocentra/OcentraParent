@@ -6,7 +6,7 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseRuntimeProofReadModel } from './app-install-purchase-runtime-proof';
 import { AppInstallPurchasePlatformArtifactProofReadModel } from './app-install-purchase-platform-artifact-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ChildArtifactSchemaVersion = 'app-install-purchase-child-artifact-delivery-proof';
 const SourcePlatformArtifactProofVersion = 'app-install-purchase-platform-artifact-proof';
 const SourceRuntimeProofVersion = 'app-install-purchase-runtime-proof';

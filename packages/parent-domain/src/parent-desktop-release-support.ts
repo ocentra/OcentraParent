@@ -9,7 +9,7 @@ import {
   ParentDesktopReleaseSupportIncidentHandoffSchema,
   type ParentDesktopReleaseSupportIncidentHandoff,
 } from './parent-desktop-release-support-incident';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export { ParentDesktopReleaseSupportIncidentHandoffSchema, type ParentDesktopReleaseSupportIncidentHandoff };
 

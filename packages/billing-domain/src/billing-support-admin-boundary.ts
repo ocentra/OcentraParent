@@ -1,15 +1,14 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { FamilyReferenceSchema, ParentAccountReferenceSchema } from '@ocentra-parent/family-domain/references';
 import {
   BillingChildActivityCustodySchema,
   BillingEvidenceExportAccessSchema,
-  BillingFailureKindSchema,
   BillingLocalSafetyBehaviorSchema,
-  BillingParentResolutionSchema,
   BillingParentVisibleStateSchema,
   BillingProviderBoundarySchema,
 } from './billing-entitlement-values';
+import { buildBillingFailureStateSchema } from './billing-support-admin-common-values';
 import {
   BillingSupportAdminActionSchema,
   BillingSupportAdminAuditReferenceSchema,
@@ -30,29 +29,7 @@ import {
   type BillingSupportAdminRuntimeState,
 } from './billing-support-admin-boundary-values';
 
-export const BillingSupportAdminFailureStateSchema = withParser(
-  Schema.Struct({
-    failureKind: BillingFailureKindSchema,
-    parentVisibleState: BillingParentVisibleStateSchema,
-    localSafetyBehavior: BillingLocalSafetyBehaviorSchema,
-    retainEvidenceExportAccess: Schema.Boolean,
-    existingLocalSafetyContinues: Schema.Boolean,
-    parentResolution: BillingParentResolutionSchema,
-    retryAllowed: Schema.Boolean,
-    retryAfter: Schema.Union(ParentTimestampSchema, Schema.Null),
-  }).pipe(
-    Schema.filter(
-      (failure) =>
-        failure.retainEvidenceExportAccess ||
-        'Expected billing support admin failures to retain evidence export and audit access'
-    ),
-    Schema.filter(
-      (failure) =>
-        failure.existingLocalSafetyContinues ||
-        'Expected billing support admin failures to keep existing local safety behavior explicit'
-    )
-  )
-);
+export const BillingSupportAdminFailureStateSchema = buildBillingFailureStateSchema('billing support admin');
 
 export const BillingSupportAdminBoundaryRowSchema = withParser(
   Schema.Struct({

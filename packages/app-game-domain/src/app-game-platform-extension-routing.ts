@@ -10,7 +10,7 @@ import {
 } from './app-game-control-platform-authority';
 import { platformExtensionRoutingRowIsHonest } from './app-game-platform-extension-routing-rules';
 import { EnforcementCapabilityStateSchema } from '@ocentra-parent/enforcement-domain/enforcement';
-import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGamePlatformExtensionRoutingRowIdSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionRoutingRowId');
 export const AppGamePlatformExtensionRoutingMatrixIdSchema = brandedNonEmptyStringSchema('AppGamePlatformExtensionRoutingMatrixId');

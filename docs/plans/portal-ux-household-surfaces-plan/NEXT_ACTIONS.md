@@ -25,10 +25,6 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by unchecked boxes
 
-- [01 Service-Backed Shell And Navigation](workpacks/01-service-backed-shell-and-navigation.md): 5 open of 5 boxes.
-- [02 Household First-Run And Profiles](workpacks/02-household-first-run-and-profiles.md): 5 open of 5 boxes.
-- [03 Device Inventory And Source States](workpacks/03-device-inventory-and-source-states.md): 5 open of 5 boxes.
-- [04 Selected Device Context](workpacks/04-selected-device-context.md): 5 open of 5 boxes.
 - [05 Policy Authoring Control Center](workpacks/05-policy-authoring-control-center.md): 5 open of 5 boxes.
 - [06 Schedules, Time Budgets, And Templates](workpacks/06-schedules-time-budgets-and-templates.md): 5 open of 5 boxes.
 - [07 Parent Requests And Approvals](workpacks/07-parent-requests-and-approvals.md): 5 open of 5 boxes.

@@ -50,6 +50,10 @@ pub const ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_REQUEST: &str =
     "trackingRetentionSettingsWriteRequest";
 pub const ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT: &str =
     "trackingRetentionSettingsWriteResult";
+pub const POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_REQUEST: &str =
+    "policyRequestAssistantPreviewConfirmRequest";
+pub const POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_RESULT: &str =
+    "policyRequestAssistantPreviewConfirmResult";
 pub const ACTIVE_TAB_CAPABILITY: &str = "activeTabCapability";
 pub const ACTIVE_PROOF_SOURCE: &str = "activeProofSource";
 pub const ACTIVE_STATE: &str = "activeState";
@@ -210,6 +214,13 @@ pub const POLICY_SOURCE_SURFACE: &str = "policySourceSurface";
 pub const POLICY_REQUEST_ORIGIN: &str = "policyRequestOrigin";
 pub const POLICY_ASSISTANT_CONFIRMATION_STATE: &str = "policyAssistantConfirmationState";
 pub const POLICY_REQUEST_STATUS: &str = "policyRequestStatus";
+pub const POLICY_APPROVAL_ID: &str = "policyApprovalId";
+pub const POLICY_OVERRIDE_ID: &str = "policyOverrideId";
+pub const POLICY_REPLAY_OF_APPROVAL_ID: &str = "policyReplayOfApprovalId";
+pub const POLICY_REVIEWED_BY_ACTOR_ID: &str = "policyReviewedByActorId";
+pub const POLICY_REVIEWED_BY_ACTOR_ROLE: &str = "policyReviewedByActorRole";
+pub const POLICY_REVIEWED_AT: &str = "policyReviewedAt";
+pub const POLICY_AUDIT_REFERENCE_ID: &str = "policyAuditReferenceId";
 pub const ACTION_INTENT_ID: &str = "assistantActionIntentId";
 pub const ADAPTER_DISPATCH_CLAIMED: &str = "adapterDispatchClaimed";
 pub const PREVIOUS_PHASE_REF: &str = "previousPhaseRef";

@@ -9,11 +9,46 @@ import {
   ParentContractSchemaVersionSchema,
   ParentPlatformSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  V08IntegrityAlertStatusBridgeReadModel as ImportedV08IntegrityAlertStatusBridgeReadModel,
+  V08IntegrityAlertStatusBridgeReadModelSchema,
+  decodeV08IntegrityAlertStatusBridgeReadModel,
+} from './v0-8-integrity-alert-status-bridge';
+import type {
+  V08IntegrityAlertStatusBridgeReadModel as V08IntegrityAlertStatusBridgeReadModelType,
+} from './v0-8-integrity-alert-status-bridge';
+import {
+  V08NotificationProviderStatusBoundaryReadModel as ImportedV08NotificationProviderStatusBoundaryReadModel,
+  V08NotificationProviderStatusBoundaryReadModelSchema,
+  decodeV08NotificationProviderStatusBoundaryReadModel,
+} from '@ocentra-parent/notification-domain/v0-8-notification-provider-status-boundary';
+import type {
+  V08NotificationProviderStatusBoundaryReadModel as V08NotificationProviderStatusBoundaryReadModelType,
+} from '@ocentra-parent/notification-domain/v0-8-notification-provider-status-boundary';
+import {
+  V08EnforcementIntegrityRuntimeAuditReadModel as ImportedV08EnforcementIntegrityRuntimeAuditReadModel,
+  V08EnforcementIntegrityRuntimeAuditReadModelSchema,
+  decodeV08EnforcementIntegrityRuntimeAuditReadModel,
+} from './v0-8-enforcement-integrity-runtime-audit';
+import type {
+  V08EnforcementIntegrityRuntimeAuditReadModel as V08EnforcementIntegrityRuntimeAuditReadModelType,
+} from './v0-8-enforcement-integrity-runtime-audit';
 
-export * from './v0-8-integrity-alert-status-bridge';
-export * from '@ocentra-parent/notification-domain/v0-8-notification-provider-status-boundary';
-export * from './v0-8-enforcement-integrity-runtime-audit';
+export {
+  V08IntegrityAlertStatusBridgeReadModelSchema,
+  decodeV08IntegrityAlertStatusBridgeReadModel,
+  V08NotificationProviderStatusBoundaryReadModelSchema,
+  decodeV08NotificationProviderStatusBoundaryReadModel,
+  V08EnforcementIntegrityRuntimeAuditReadModelSchema,
+  decodeV08EnforcementIntegrityRuntimeAuditReadModel,
+};
+export const V08IntegrityAlertStatusBridgeReadModel = ImportedV08IntegrityAlertStatusBridgeReadModel;
+export type V08IntegrityAlertStatusBridgeReadModel = V08IntegrityAlertStatusBridgeReadModelType;
+export const V08NotificationProviderStatusBoundaryReadModel = ImportedV08NotificationProviderStatusBoundaryReadModel;
+export type V08NotificationProviderStatusBoundaryReadModel = V08NotificationProviderStatusBoundaryReadModelType;
+export const V08EnforcementIntegrityRuntimeAuditReadModel = ImportedV08EnforcementIntegrityRuntimeAuditReadModel;
+export type V08EnforcementIntegrityRuntimeAuditReadModel = V08EnforcementIntegrityRuntimeAuditReadModelType;
 
 export const V08SupportedAdapterRuntimeProofReadModelIdSchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofReadModelId');
 export const V08SupportedAdapterRuntimeProofEntryIdSchema = brandedNonEmptyStringSchema('V08SupportedAdapterRuntimeProofEntryId');

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EventingEventPriority } from '@ocentra-parent/event-domain/eventing';
+import { EventingEventPriority } from '@ocentra-parent/schema-domain/eventing';
 import { type PolicyAuditReferenceId } from '../../src/authority';
 import {
   PolicyEventDeadLetterReason,

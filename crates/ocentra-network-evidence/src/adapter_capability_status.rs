@@ -4,7 +4,10 @@ use crate::{
     adapter_capability_status_values::{
         normalize_portal_ref, normalize_ref, status_counts, status_entry_from_platform_entry,
     },
-    NetworkPlatformClaimManifestProof, NetworkPlatformClaimState, NetworkPlatformClaimTarget,
+    platform_claims::{
+        NetworkPlatformClaimEntry, NetworkPlatformClaimManifestProof, NetworkPlatformClaimState,
+        NetworkPlatformClaimTarget,
+    },
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -229,7 +232,7 @@ fn validate_platform_manifest_summary(
 }
 
 fn count_claim_state(
-    entries: &[crate::NetworkPlatformClaimEntry],
+    entries: &[NetworkPlatformClaimEntry],
     state: NetworkPlatformClaimState,
 ) -> usize {
     entries

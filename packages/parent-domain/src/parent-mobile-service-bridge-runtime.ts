@@ -21,7 +21,7 @@ import {
   type ParentMobilePlatform,
 } from './parent-mobile-runtime';
 import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
-import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const ParentMobileServiceBridgeRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('parent-mobile-service-bridge-proof')

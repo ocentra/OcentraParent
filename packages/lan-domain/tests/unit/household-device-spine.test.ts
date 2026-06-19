@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { DeviceTrustState } from '@ocentra-parent/family-domain/household-authority';
+import { LanDiscoveryEvidenceRecordSchema } from '../../src/lan-discovery-evidence';
 import {
   deviceTrustStateFromLanPairingTrustState,
   HouseholdDeviceSpineEntrySchema,
-  LanDiscoveryEvidenceRecordSchema,
-} from '../../src/lan-pairing';
+} from '../../src/household-device-spine';
 
 describe('canonical household device spine', () => {
   it('accepts one merged child-agent device with inventory and cross-surface targets', () => {

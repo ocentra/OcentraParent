@@ -10,10 +10,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::policy_authority::PolicyManualReviewState;
 use crate::policy_source::{
-    validate_parent_policy_source_document, ParentPolicyDocumentId, ParentPolicyRule,
-    ParentPolicySourceDocument, PolicyConsumerDomain, PolicyRuleId, PolicyRuleTarget,
-    PolicyScheduleClockSource, PolicyScheduleId, PolicyScheduleWindow, PolicySourceDocumentStatus,
-    PolicyTargetReferenceId, PolicyVersion,
+    policy_status_name, validate_parent_policy_source_document, ParentPolicyDocumentId,
+    ParentPolicyRule, ParentPolicySourceDocument, PolicyConsumerDomain, PolicyRuleId,
+    PolicyRuleTarget, PolicyScheduleClockSource, PolicyScheduleId, PolicyScheduleWindow,
+    PolicySourceDocumentStatus, PolicyTargetReferenceId, PolicyVersion,
 };
 
 const POLICY_PREVIEW_SCHEMA_VERSION_VALUE: u16 = 1;
@@ -238,7 +238,7 @@ fn assert_preview_candidate_status(
 
     Err(EventingError::InvalidValue {
         field: policy_control::preview::FIELD_CANDIDATE_STATUS,
-        value: preview_candidate_status_name(status).to_string(),
+        value: policy_status_name(status).to_string(),
     })
 }
 
@@ -619,29 +619,6 @@ fn conflict_schedule_ids(
     }
 
     schedule_ids
-}
-
-fn preview_candidate_status_name(status: PolicySourceDocumentStatus) -> &'static str {
-    match status {
-        PolicySourceDocumentStatus::Draft => policy_control::source::STATUS_DRAFT,
-        PolicySourceDocumentStatus::Preview => policy_control::source::STATUS_PREVIEW,
-        PolicySourceDocumentStatus::Confirmed => policy_control::source::STATUS_CONFIRMED,
-        PolicySourceDocumentStatus::Queued => policy_control::source::STATUS_QUEUED,
-        PolicySourceDocumentStatus::Delivered => policy_control::source::STATUS_DELIVERED,
-        PolicySourceDocumentStatus::Acknowledged => policy_control::source::STATUS_ACKNOWLEDGED,
-        PolicySourceDocumentStatus::Active => policy_control::source::STATUS_ACTIVE,
-        PolicySourceDocumentStatus::PartiallyActive => {
-            policy_control::source::STATUS_PARTIALLY_ACTIVE
-        }
-        PolicySourceDocumentStatus::Rejected => policy_control::source::STATUS_REJECTED,
-        PolicySourceDocumentStatus::Superseded => policy_control::source::STATUS_SUPERSEDED,
-        PolicySourceDocumentStatus::RolledBack => policy_control::source::STATUS_ROLLED_BACK,
-        PolicySourceDocumentStatus::Stale => policy_control::source::STATUS_STALE,
-        PolicySourceDocumentStatus::Expired => policy_control::source::STATUS_EXPIRED,
-        PolicySourceDocumentStatus::ManualRequired => {
-            policy_control::source::STATUS_MANUAL_REQUIRED
-        }
-    }
 }
 
 fn preview_explanation_code(value: &str) -> PolicyPreviewExplanationCode {

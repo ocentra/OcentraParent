@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex};
 use std::{path::PathBuf, time::Duration};
 
+use crate::event_flow_scaffold;
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
     envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::CorrelationId,
@@ -242,60 +243,54 @@ pub struct TrackingConfigUpdateEventState {
 
 impl TrackingConfigUpdateEventState {
     fn record_child_event(&self, event: ChildTrackingConfigUpdatedEvent) {
-        self.child_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .push(event);
+        event_flow_scaffold::record_event(
+            &self.child_events,
+            event,
+            constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED,
+        );
     }
 
     fn record_applied_event(&self, event: TrackingConfigUpdateAppliedEvent) {
-        self.applied_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED)
-            .push(event);
+        event_flow_scaffold::record_event(
+            &self.applied_events,
+            event,
+            constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED,
+        );
     }
 
     fn record_applied_report(&self, report: TrackingConfigUpdateAppliedReport) {
-        self.applied_reports
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED)
-            .push(report);
+        event_flow_scaffold::record_event(
+            &self.applied_reports,
+            report,
+            constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED,
+        );
     }
 
     fn child_event(&self) -> Result<ChildTrackingConfigUpdatedEvent, EventingError> {
-        self.child_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED)
-            .last()
-            .cloned()
-            .ok_or_else(|| EventingError::InvalidValue {
-                field: constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED,
-                value: constants::tracking_config_update::CHILD_EVENT_TYPE.to_string(),
-            })
+        event_flow_scaffold::latest_event(
+            &self.child_events,
+            constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED,
+            constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED,
+            constants::tracking_config_update::CHILD_EVENT_TYPE,
+        )
     }
 
     fn applied_event(&self) -> Result<TrackingConfigUpdateAppliedEvent, EventingError> {
-        self.applied_events
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED)
-            .last()
-            .cloned()
-            .ok_or_else(|| EventingError::InvalidValue {
-                field: constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED,
-                value: constants::tracking_config_update::APPLIED_EVENT_TYPE.to_string(),
-            })
+        event_flow_scaffold::latest_event(
+            &self.applied_events,
+            constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED,
+            constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED,
+            constants::tracking_config_update::APPLIED_EVENT_TYPE,
+        )
     }
 
     fn applied_report(&self) -> Result<TrackingConfigUpdateAppliedReport, EventingError> {
-        self.applied_reports
-            .lock()
-            .expect(constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED)
-            .last()
-            .cloned()
-            .ok_or_else(|| EventingError::InvalidValue {
-                field: constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED,
-                value: constants::tracking_config_update::APPLIED_EVENT_TYPE.to_string(),
-            })
+        event_flow_scaffold::latest_event(
+            &self.applied_reports,
+            constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED,
+            constants::tracking_config_update::ERROR_CHILD_CONFIG_APPLIED_EVENT_RECORDED,
+            constants::tracking_config_update::APPLIED_EVENT_TYPE,
+        )
     }
 }
 

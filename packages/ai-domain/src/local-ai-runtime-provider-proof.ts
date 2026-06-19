@@ -28,7 +28,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 const RuntimeAccessLaneCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 const RuntimeLoadCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 

@@ -9,10 +9,6 @@
       "import": "./dist/eventing.js",
       "types": "./dist/eventing.d.ts"
     },
-    "./primitives": {
-      "import": "./dist/primitives.js",
-      "types": "./dist/primitives.d.ts"
-    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"

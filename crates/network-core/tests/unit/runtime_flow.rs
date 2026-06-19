@@ -1,11 +1,13 @@
-use ocentra_network_core::{
+use ocentra_network_core::network_runtime::{
     evaluate_network_runtime, network_runtime_ai_analysis_requested_event,
     network_runtime_event_chain, network_runtime_observed_event,
     network_runtime_policy_evaluation_requested_event, NetworkAdapterState, NetworkAiHandoffState,
     NetworkCapturePermissionState, NetworkObservationIntent, NetworkParserState,
     NetworkPolicyHandoffState, NetworkRuntimeActionState, NetworkRuntimeInput,
 };
-use ocentra_parent_agent_protocol::{ChildDomainObservedSignal, ChildRuntimeDomain};
+use ocentra_parent_agent_protocol::child_domain_runtime::{
+    ChildDomainObservedSignal, ChildRuntimeDomain,
+};
 
 #[test]
 fn runtime_policy_flow_aligns_with_child_domain_policy_chain() {

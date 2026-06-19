@@ -7,7 +7,7 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import { LanDiscoveryEvidenceRecordSchema } from '@ocentra-parent/lan-domain/lan-discovery-evidence';
 import { LanPairingRouteIdSchema, LanPairingSchemaVersionSchema } from '@ocentra-parent/lan-domain/lan-pairing-values';
-import { ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const ScreenFamilyAiHubRuntimeDiscoveryProofSchemaVersionSchema = withParser(
   Schema.Literal('screen-family-ai-hub-runtime-discovery-proof')

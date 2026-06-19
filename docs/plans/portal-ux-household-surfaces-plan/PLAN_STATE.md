@@ -50,16 +50,12 @@ This folder is the single working plan location for the C lane: coherent parent-
 ## Workpack summary
 
 - Workpacks indexed: 20.
-- Workpacks with open checkboxes: 19.
-- Workpacks with all detected boxes checked: 1.
+- Workpacks with open checkboxes: 15.
+- Workpacks with all detected boxes checked: 5.
 - Workpacks with no checkbox status: 0.
 
 ### Active/open workpacks
 
-- [01 Service-Backed Shell And Navigation](workpacks/01-service-backed-shell-and-navigation.md) - 0/5 checked, 5 open.
-- [02 Household First-Run And Profiles](workpacks/02-household-first-run-and-profiles.md) - 0/5 checked, 5 open.
-- [03 Device Inventory And Source States](workpacks/03-device-inventory-and-source-states.md) - 0/5 checked, 5 open.
-- [04 Selected Device Context](workpacks/04-selected-device-context.md) - 0/5 checked, 5 open.
 - [05 Policy Authoring Control Center](workpacks/05-policy-authoring-control-center.md) - 0/5 checked, 5 open.
 - [06 Schedules, Time Budgets, And Templates](workpacks/06-schedules-time-budgets-and-templates.md) - 0/5 checked, 5 open.
 - [07 Parent Requests And Approvals](workpacks/07-parent-requests-and-approvals.md) - 0/5 checked, 5 open.

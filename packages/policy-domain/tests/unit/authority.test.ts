@@ -10,7 +10,7 @@ import {
 import {
   ParentEvidenceReferenceIdSchema,
   type ParentTimestamp,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const policyDecision = {
   schemaVersion: 'v0.6',

@@ -15,14 +15,6 @@ import {
 } from './notification-local-outbox-adapter-proof-values';
 import {
   NotificationLocalOutboxAdapterProofSchema,
-  NotificationLocalOutboxRecordSchema,
-  type NotificationLocalOutboxRecord,
-  type NotificationLocalOutboxState,
-} from './notification-local-outbox-adapter-proof-schemas';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
-
-export {
-  NotificationLocalOutboxAdapterProofSchema,
   NotificationLocalOutboxAdapterProofSchemaVersionSchema,
   NotificationLocalOutboxDeliveryClaimStateSchema,
   NotificationLocalOutboxEntryIdSchema,
@@ -34,7 +26,30 @@ export {
   NotificationLocalOutboxReferenceSchema,
   NotificationLocalOutboxSeveritySchema,
   NotificationLocalOutboxStateSchema,
+  type NotificationLocalOutboxAdapterProof,
+  type NotificationLocalOutboxDeliveryClaimState,
+  type NotificationLocalOutboxMinimalAlertEnvelope,
+  type NotificationLocalOutboxNonClaim,
+  type NotificationLocalOutboxRecord,
+  type NotificationLocalOutboxSeverity,
+  type NotificationLocalOutboxState,
 } from './notification-local-outbox-adapter-proof-schemas';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
+
+export {
+  NotificationLocalOutboxAdapterProofSchemaVersionSchema,
+  NotificationLocalOutboxDeliveryClaimStateSchema,
+  NotificationLocalOutboxEntryIdSchema,
+  NotificationLocalOutboxMinimalAlertEnvelopeSchema,
+  NotificationLocalOutboxNonClaimSchema,
+  NotificationLocalOutboxPayloadPreviewSchema,
+  NotificationLocalOutboxReadModelIdSchema,
+  NotificationLocalOutboxAdapterProofSchema,
+  NotificationLocalOutboxRecordSchema,
+  NotificationLocalOutboxReferenceSchema,
+  NotificationLocalOutboxSeveritySchema,
+  NotificationLocalOutboxStateSchema,
+};
 export type {
   NotificationLocalOutboxAdapterProof,
   NotificationLocalOutboxDeliveryClaimState,
@@ -43,7 +58,7 @@ export type {
   NotificationLocalOutboxRecord,
   NotificationLocalOutboxSeverity,
   NotificationLocalOutboxState,
-} from './notification-local-outbox-adapter-proof-schemas';
+};
 export { NotificationLocalOutboxForbiddenDetailFragments, NotificationLocalOutboxKnownGaps };
 
 type OutboxInput = (typeof NotificationLocalOutboxProofRows)[number];

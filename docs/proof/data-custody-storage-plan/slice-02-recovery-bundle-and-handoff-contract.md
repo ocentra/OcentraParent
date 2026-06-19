@@ -24,7 +24,7 @@
   - parent-local delete-runtime handoff
   - wrong-household, wrong-key, corrupt-bundle, manual-required, and partial-restore cases
 - Kept preview explicitly non-mutating, source-of-truth preserving, and tombstone preserving in both generic custody and sync/export proof surfaces.
-- Kept `packages/parent-domain/src/parent-owned-local-export-runtime.ts` explicit as the surviving runtime holdout instead of pretending this slice finished local delete execution.
+- Kept `packages/parent-domain/src/parent-owned-local-export-runtime.ts` explicit as the then-open runtime holdout instead of pretending this slice finished local delete execution; that follow-on is now locally closed by the focused executor proof on this branch/worktree.
 - Updated the direct-owner proof script so the generated proof artifact exposes recovery bundle states, handoff states, and handoff targets directly.
 
 ## Validation
@@ -42,17 +42,17 @@
 
 ## Downstream Boundary
 
-- `device-trust-bootstrap-plan`: `partially unblocked`
-- reason: this slice now gives downstream consumers an explicit substrate contract for `device-trust-recovery-persistence` and `parent-local-delete-runtime` handoffs, including negative states and partial restore semantics.
-- still not claimed here: any consumer-specific persistence implementation, delete executor runtime, recovery key/runtime behavior, or device-trust proof surface.
+- `device-trust-bootstrap-plan`: `locally closed for the owned recovery-persistence boundary`
+- reason: this slice provided the substrate contract later consumed by the WP06 recovery-persistence closeout, including negative states and partial restore semantics.
+- still not claimed here: this slice itself does not claim encrypted import/apply runtime, delete scheduler runtime, recovery key/device runtime, parent-visible controls, or whole-plan device-trust proof.
 
 ## Surviving Gaps
 
-- `packages/parent-domain/src/parent-owned-local-export-runtime.ts` is still the real local export/delete runtime holdout.
-- The updated proof remains a contract proof. It does not claim encrypted import/apply runtime, SQLite rebuild execution, provider API execution, connector OAuth, portal/UI control, or downstream device-trust persistence/runtime behavior.
-- This slice does not create setup or device-trust consumer code; it only makes the substrate contract concrete enough for those plans to consume.
+- The formerly downstream local export/delete runtime holdout is now closed by the focused Windows-host executor proof, but that does not expand this slice into a broader product claim.
+- The updated proof remains a contract proof. It does not claim encrypted import/apply runtime, SQLite rebuild execution, provider API execution, connector OAuth, portal/UI control, retention scheduler runtime, or parent-visible export/delete controls.
+- This slice remains a substrate contract packet; later consumer code/proof can consume it without turning this document into a whole-product claim.
 
 ## Recommended Next Slice
 
-- recommended next owner: `device-trust-bootstrap-plan`
-- reason: the storage-side recovery/delete/export handoff contract is now concrete enough that the next useful work is downstream consumer persistence and proof against `device-trust-recovery-persistence`, not more substrate widening inside this plan.
+- recommended next owner: `coordinator-selected post-device-trust exact slice`
+- reason: the storage-side recovery/delete/export handoff contract has already been consumed by the later device-trust WP06 persistence closure on this branch/worktree, so any further work should be chosen from the coordinator queue instead of reopening this substrate packet.

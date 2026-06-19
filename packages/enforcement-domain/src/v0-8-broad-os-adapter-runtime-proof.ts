@@ -4,6 +4,10 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
+import {
+  enforcementProofClaimFlagsAreUnset,
+  enforcementProofEntriesHaveUniqueField,
+} from './enforcement-proof-shape';
 import { V08OsAdapterProductProofReadModel } from './enforcement-os-adapter-product-proof';
 import {
   ParentContractSchemaVersion,
@@ -11,7 +15,7 @@ import {
   type ParentPlatform,
   ParentPlatformSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { V08BroadOsAdapterProofReadModel } from './v0-8-broad-os-adapter-proof';
 import { V08BrowserDomainAdapterProofReadModel } from '@ocentra-parent/browser-domain/v0-8-browser-domain-adapter-proof';
 import { V08OsAdapterManualArtifactGateReadModel } from './v0-8-os-adapter-manual-artifact-gates';
@@ -90,7 +94,7 @@ export const V08BroadOsAdapterRuntimeProofReadModelSchema = withParser(
   }).pipe(
     Schema.filter(
       (readModel) =>
-        new Set(readModel.entries.map((entry) => entry.proofEntryId)).size === readModel.entries.length ||
+        enforcementProofEntriesHaveUniqueField(readModel.entries, (entry) => entry.proofEntryId) ||
         'Expected V0.8 broad OS adapter runtime proof entry ids to be unique'
     )
   )
@@ -119,14 +123,14 @@ function broadOsAdapterRuntimeProofEntryIsHonest(entry: V08BroadOsAdapterRuntime
 }
 
 function broadOsAdapterRuntimeProofEntryHasClaimUpgrade(entry: V08BroadOsAdapterRuntimeProofEntryCandidate): boolean {
-  return [
+  return !enforcementProofClaimFlagsAreUnset([
     entry.broadInstalledAppBlockingClaimed,
     entry.networkDomainBlockingClaimed,
     entry.managedBrowserExactUrlClaimed,
     entry.unmanagedBrowserExactEvidenceClaimed,
     entry.unsupportedPlatformClaimed,
     entry.mobilePrivilegeClaimed,
-  ].some(Boolean);
+  ]);
 }
 
 export type V08BroadOsAdapterRuntimeProofReadModelId = typeof V08BroadOsAdapterRuntimeProofReadModelIdSchema.Type;

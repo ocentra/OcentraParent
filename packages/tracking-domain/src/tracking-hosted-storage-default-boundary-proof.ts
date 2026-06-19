@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { TrackingEvidenceTraceSchema, TrackingPolicySchemaVersion } from './tracking-location-policy';
 import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from './tracking-location-policy-primitives';
 

@@ -17,7 +17,7 @@ import {
   ParentMobilePlatformSchema,
   ParentMobileServiceAvailabilityStateSchema,
 } from './parent-mobile-runtime';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   type V09MobileControllerObserverOperation,
   V09MobileControllerObserverOperationSchema,

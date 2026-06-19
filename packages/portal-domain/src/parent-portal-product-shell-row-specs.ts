@@ -1,5 +1,5 @@
 import type { ParentPortalTone } from './parent-portal-data';
-import { PARENT_PORTAL_SERVICE_STATE } from './parent-portal-service-state-constants';
+import { PARENT_PORTAL_SERVICE_STATE } from './parent-portal-service-state';
 
 export type ProductShellSignalKind =
   | 'household'

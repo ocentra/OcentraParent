@@ -1,4 +1,4 @@
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { ScreenControlCatalogData0 } from './screen-control-catalog-data-0';
 import { ScreenControlCatalogData1 } from './screen-control-catalog-data-1';
 import { ScreenControlCatalogData2 } from './screen-control-catalog-data-2';

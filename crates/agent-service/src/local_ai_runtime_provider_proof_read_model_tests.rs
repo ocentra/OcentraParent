@@ -1,3 +1,6 @@
+use ocentra_parent_agent_protocol::local_ai_runtime_provider_proof::{
+    LocalAiRuntimeProviderProofEntry, LocalAiRuntimeProviderProofReadModel,
+};
 use ocentra_parent_agent_protocol::{
     constants, DeviceRuntimeRole, LocalAiDegradedState, LocalAiProviderSchedulerJobClass,
     LocalAiProviderSchedulerLifecycle, LocalAiResourceClass, LocalModelRuntimeStatus,
@@ -149,9 +152,9 @@ fn local_ai_runtime_provider_proof_serializes_for_protocol_parity() {
 }
 
 fn entry<'a>(
-    read_model: &'a ocentra_parent_agent_protocol::LocalAiRuntimeProviderProofReadModel,
+    read_model: &'a LocalAiRuntimeProviderProofReadModel,
     proof_entry_id: &str,
-) -> &'a ocentra_parent_agent_protocol::LocalAiRuntimeProviderProofEntry {
+) -> &'a LocalAiRuntimeProviderProofEntry {
     read_model
         .entries
         .iter()

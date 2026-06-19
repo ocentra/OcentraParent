@@ -4,6 +4,7 @@ import {
   ParentActorReferenceSchema,
   ParentDeviceReferenceSchema,
 } from '@ocentra-parent/family-domain/references';
+import { literalSchema, parsedLiteralRecord } from './literal-contracts';
 import {
   PermissionRequestIdSchema,
   PolicyAction,
@@ -65,62 +66,13 @@ export const PolicyOverrideStateLiteral = {
   Revoked: 'revoked',
 } as const;
 
-export const PolicyAuthoritySourceSchema = withParser(
-  Schema.Literal(
-    PolicyAuthoritySourceLiteral.ParentPolicy,
-    PolicyAuthoritySourceLiteral.LocalAiResult,
-    PolicyAuthoritySourceLiteral.TrackingSignal,
-    PolicyAuthoritySourceLiteral.ActivityEvidence
-  )
-);
-
-export const PolicyAuthorityStateSchema = withParser(
-  Schema.Literal(
-    PolicyAuthorityStateLiteral.Authorized,
-    PolicyAuthorityStateLiteral.EvidenceOnly,
-    PolicyAuthorityStateLiteral.DryRun
-  )
-);
-
-export const PolicyApprovalOriginSchema = withParser(
-  Schema.Literal(PolicyApprovalOriginLiteral.ChildRequest, PolicyApprovalOriginLiteral.AssistantDraft)
-);
-
-export const PolicyApprovalKindSchema = withParser(
-  Schema.Literal(
-    PolicyApprovalKindLiteral.AskParent,
-    PolicyApprovalKindLiteral.TemporaryOverride,
-    PolicyApprovalKindLiteral.BonusTime
-  )
-);
-
-export const PolicyApprovalStateSchema = withParser(
-  Schema.Literal(
-    PolicyApprovalStateLiteral.Pending,
-    PolicyApprovalStateLiteral.Approved,
-    PolicyApprovalStateLiteral.Denied,
-    PolicyApprovalStateLiteral.Modified,
-    PolicyApprovalStateLiteral.ExpiredRequest,
-    PolicyApprovalStateLiteral.ReplayRejected,
-    PolicyApprovalStateLiteral.PreviewOnly
-  )
-);
-
-export const PolicyOverrideTypeSchema = withParser(
-  Schema.Literal(
-    PolicyOverrideTypeLiteral.TemporaryAllow,
-    PolicyOverrideTypeLiteral.TemporaryBlock,
-    PolicyOverrideTypeLiteral.BonusTime
-  )
-);
-
-export const PolicyOverrideStateSchema = withParser(
-  Schema.Literal(
-    PolicyOverrideStateLiteral.Active,
-    PolicyOverrideStateLiteral.Expired,
-    PolicyOverrideStateLiteral.Revoked
-  )
-);
+export const PolicyAuthoritySourceSchema = literalSchema(PolicyAuthoritySourceLiteral);
+export const PolicyAuthorityStateSchema = literalSchema(PolicyAuthorityStateLiteral);
+export const PolicyApprovalOriginSchema = literalSchema(PolicyApprovalOriginLiteral);
+export const PolicyApprovalKindSchema = literalSchema(PolicyApprovalKindLiteral);
+export const PolicyApprovalStateSchema = literalSchema(PolicyApprovalStateLiteral);
+export const PolicyOverrideTypeSchema = literalSchema(PolicyOverrideTypeLiteral);
+export const PolicyOverrideStateSchema = literalSchema(PolicyOverrideStateLiteral);
 
 export const PolicyAuthorityRequestSchema = withParser(
   Schema.Struct({
@@ -195,51 +147,33 @@ export type PolicyApprovalRequest = Infer<typeof PolicyApprovalRequestSchema>;
 export type PolicyOverrideGrant = Infer<typeof PolicyOverrideGrantSchema>;
 export type PolicyApprovalResolution = Infer<typeof PolicyApprovalResolutionSchema>;
 
-export const PolicyAuthoritySource = {
-  ParentPolicy: PolicyAuthoritySourceSchema.parse(PolicyAuthoritySourceLiteral.ParentPolicy),
-  LocalAiResult: PolicyAuthoritySourceSchema.parse(PolicyAuthoritySourceLiteral.LocalAiResult),
-  TrackingSignal: PolicyAuthoritySourceSchema.parse(PolicyAuthoritySourceLiteral.TrackingSignal),
-  ActivityEvidence: PolicyAuthoritySourceSchema.parse(PolicyAuthoritySourceLiteral.ActivityEvidence),
-} as const;
+export const PolicyAuthoritySource = parsedLiteralRecord(PolicyAuthoritySourceLiteral, (value) =>
+  PolicyAuthoritySourceSchema.parse(value)
+);
 
-export const PolicyAuthorityState = {
-  Authorized: PolicyAuthorityStateSchema.parse(PolicyAuthorityStateLiteral.Authorized),
-  EvidenceOnly: PolicyAuthorityStateSchema.parse(PolicyAuthorityStateLiteral.EvidenceOnly),
-  DryRun: PolicyAuthorityStateSchema.parse(PolicyAuthorityStateLiteral.DryRun),
-} as const;
+export const PolicyAuthorityState = parsedLiteralRecord(PolicyAuthorityStateLiteral, (value) =>
+  PolicyAuthorityStateSchema.parse(value)
+);
 
-export const PolicyApprovalOrigin = {
-  ChildRequest: PolicyApprovalOriginSchema.parse(PolicyApprovalOriginLiteral.ChildRequest),
-  AssistantDraft: PolicyApprovalOriginSchema.parse(PolicyApprovalOriginLiteral.AssistantDraft),
-} as const;
+export const PolicyApprovalOrigin = parsedLiteralRecord(PolicyApprovalOriginLiteral, (value) =>
+  PolicyApprovalOriginSchema.parse(value)
+);
 
-export const PolicyApprovalKind = {
-  AskParent: PolicyApprovalKindSchema.parse(PolicyApprovalKindLiteral.AskParent),
-  TemporaryOverride: PolicyApprovalKindSchema.parse(PolicyApprovalKindLiteral.TemporaryOverride),
-  BonusTime: PolicyApprovalKindSchema.parse(PolicyApprovalKindLiteral.BonusTime),
-} as const;
+export const PolicyApprovalKind = parsedLiteralRecord(PolicyApprovalKindLiteral, (value) =>
+  PolicyApprovalKindSchema.parse(value)
+);
 
-export const PolicyApprovalState = {
-  Pending: PolicyApprovalStateSchema.parse(PolicyApprovalStateLiteral.Pending),
-  Approved: PolicyApprovalStateSchema.parse(PolicyApprovalStateLiteral.Approved),
-  Denied: PolicyApprovalStateSchema.parse(PolicyApprovalStateLiteral.Denied),
-  Modified: PolicyApprovalStateSchema.parse(PolicyApprovalStateLiteral.Modified),
-  ExpiredRequest: PolicyApprovalStateSchema.parse(PolicyApprovalStateLiteral.ExpiredRequest),
-  ReplayRejected: PolicyApprovalStateSchema.parse(PolicyApprovalStateLiteral.ReplayRejected),
-  PreviewOnly: PolicyApprovalStateSchema.parse(PolicyApprovalStateLiteral.PreviewOnly),
-} as const;
+export const PolicyApprovalState = parsedLiteralRecord(PolicyApprovalStateLiteral, (value) =>
+  PolicyApprovalStateSchema.parse(value)
+);
 
-export const PolicyOverrideType = {
-  TemporaryAllow: PolicyOverrideTypeSchema.parse(PolicyOverrideTypeLiteral.TemporaryAllow),
-  TemporaryBlock: PolicyOverrideTypeSchema.parse(PolicyOverrideTypeLiteral.TemporaryBlock),
-  BonusTime: PolicyOverrideTypeSchema.parse(PolicyOverrideTypeLiteral.BonusTime),
-} as const;
+export const PolicyOverrideType = parsedLiteralRecord(PolicyOverrideTypeLiteral, (value) =>
+  PolicyOverrideTypeSchema.parse(value)
+);
 
-export const PolicyOverrideState = {
-  Active: PolicyOverrideStateSchema.parse(PolicyOverrideStateLiteral.Active),
-  Expired: PolicyOverrideStateSchema.parse(PolicyOverrideStateLiteral.Expired),
-  Revoked: PolicyOverrideStateSchema.parse(PolicyOverrideStateLiteral.Revoked),
-} as const;
+export const PolicyOverrideState = parsedLiteralRecord(PolicyOverrideStateLiteral, (value) =>
+  PolicyOverrideStateSchema.parse(value)
+);
 
 function assertAuthorityContract(condition: unknown, message: string): asserts condition {
   if (!condition) {
@@ -344,6 +278,27 @@ function validatePolicyOverrideGrant(
   }
 }
 
+function assertResolutionHasNoReviewOrOverrideArtifacts(
+  resolution: PolicyApprovalResolution,
+  message: string
+): void {
+  assertAuthorityContract(
+    resolution.reviewedBy === null &&
+      resolution.reviewedAt === null &&
+      resolution.auditReferenceId === null &&
+      resolution.override === null,
+    message
+  );
+}
+
+function assertResolutionHasNoReviewOverrideOrReplayArtifacts(
+  resolution: PolicyApprovalResolution,
+  message: string
+): void {
+  assertResolutionHasNoReviewOrOverrideArtifacts(resolution, message);
+  assertAuthorityContract(resolution.replayOfApprovalId === null, message);
+}
+
 export function resolvePolicyAuthority(input: PolicyAuthorityRequest): PolicyAuthorityDecision {
   const request = PolicyAuthorityRequestSchema.parse(input);
   const state = request.decision.dryRun
@@ -386,12 +341,8 @@ export function resolvePolicyApprovalLifecycle(input: unknown): PolicyApprovalRe
         resolution.approval.origin === PolicyApprovalOrigin.AssistantDraft,
         'preview-only approvals require assistant-draft origin'
       );
-      assertAuthorityContract(
-        resolution.reviewedBy === null &&
-          resolution.reviewedAt === null &&
-          resolution.auditReferenceId === null &&
-          resolution.override === null &&
-          resolution.replayOfApprovalId === null,
+      assertResolutionHasNoReviewOverrideOrReplayArtifacts(
+        resolution,
         'preview-only approvals must remain unconfirmed and override-free'
       );
       break;
@@ -400,12 +351,8 @@ export function resolvePolicyApprovalLifecycle(input: unknown): PolicyApprovalRe
         evaluatedAt >= parseTimestampMillis(resolution.approval.expiresAt, 'approval.expiresAt'),
         'expired-request state requires evaluatedAt on or after approval.expiresAt'
       );
-      assertAuthorityContract(
-        resolution.reviewedBy === null &&
-          resolution.reviewedAt === null &&
-          resolution.auditReferenceId === null &&
-          resolution.override === null &&
-          resolution.replayOfApprovalId === null,
+      assertResolutionHasNoReviewOverrideOrReplayArtifacts(
+        resolution,
         'expired-request state cannot include review or override artifacts'
       );
       break;
@@ -414,11 +361,8 @@ export function resolvePolicyApprovalLifecycle(input: unknown): PolicyApprovalRe
         resolution.replayOfApprovalId !== null,
         'replay-rejected state requires replayOfApprovalId'
       );
-      assertAuthorityContract(
-        resolution.reviewedBy === null &&
-          resolution.reviewedAt === null &&
-          resolution.auditReferenceId === null &&
-          resolution.override === null,
+      assertResolutionHasNoReviewOrOverrideArtifacts(
+        resolution,
         'replay-rejected state cannot include review or override artifacts'
       );
       break;

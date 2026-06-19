@@ -1,8 +1,11 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    NetworkLinuxNftablesLabCommandStatusKind, NetworkLinuxNftablesLabStatus,
-    NetworkLinuxNftablesLabStatusState, AGENT_PROTOCOL_SCHEMA_VERSION,
+    constants,
+    network_linux_nftables_lab_status::{
+        NetworkLinuxNftablesLabCommandStatusKind, NetworkLinuxNftablesLabStatus,
+        NetworkLinuxNftablesLabStatusState,
+    },
+    policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
+    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use serde::de::DeserializeOwned;
 

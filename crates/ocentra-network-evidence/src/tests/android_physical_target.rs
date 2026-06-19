@@ -1,9 +1,10 @@
-use crate::{
-    prove_network_android_physical_target, NetworkAndroidPhysicalTargetBoundaryReason,
-    NetworkAndroidPhysicalTargetError, NetworkAndroidPhysicalTargetExpected,
-    NetworkAndroidPhysicalTargetField, NetworkAndroidPhysicalTargetInput,
-    NetworkAndroidPhysicalTargetMismatch, NetworkAndroidPhysicalTargetObserved,
-    NetworkAndroidPhysicalTargetState, NetworkAndroidPhysicalTargetUnsupportedClaims,
+use crate::android_physical_target::prove_network_android_physical_target;
+use crate::android_physical_target::types::{
+    NetworkAndroidPhysicalTargetBoundaryReason, NetworkAndroidPhysicalTargetError,
+    NetworkAndroidPhysicalTargetExpected, NetworkAndroidPhysicalTargetField,
+    NetworkAndroidPhysicalTargetInput, NetworkAndroidPhysicalTargetMismatch,
+    NetworkAndroidPhysicalTargetObserved, NetworkAndroidPhysicalTargetState,
+    NetworkAndroidPhysicalTargetUnsupportedClaims,
 };
 
 #[test]

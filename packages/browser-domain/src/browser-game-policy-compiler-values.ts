@@ -4,7 +4,7 @@ import {
   brandedNonEmptyStringSchema,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserGamePolicyEvidenceRefsSchema = Schema.Array(ParentEvidenceReferenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected browser game policy evidence refs')

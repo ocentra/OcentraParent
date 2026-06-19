@@ -1,8 +1,9 @@
 use std::collections::BTreeMap;
 
 use ocentra_parent_agent_protocol::{
-    constants::v08_integrity_alert_status_bridge as bridge, policy_constants,
-    V08IntegrityAlertState, V08IntegrityAlertStatusBridgeEntry,
+    constants::v08_integrity_alert_status_bridge as bridge,
+    integrity_alert_status_bridge::{V08IntegrityAlertState, V08IntegrityAlertStatusBridgeEntry},
+    policy_constants,
 };
 
 use super::integrity_alert_status_bridge_read_model::v08_integrity_alert_status_bridge_read_model;

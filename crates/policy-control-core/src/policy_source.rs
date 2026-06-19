@@ -1203,7 +1203,7 @@ fn policy_surface_name(surface: PolicySourceWriteSurface) -> &'static str {
     }
 }
 
-fn policy_actor_role_name(role: ParentPolicyActorRole) -> &'static str {
+pub(crate) fn policy_actor_role_name(role: ParentPolicyActorRole) -> &'static str {
     match role {
         ParentPolicyActorRole::Parent => policy_control::source::ROLE_PARENT,
         ParentPolicyActorRole::CoParent => policy_control::source::ROLE_CO_PARENT,
@@ -1213,14 +1213,14 @@ fn policy_actor_role_name(role: ParentPolicyActorRole) -> &'static str {
     }
 }
 
-fn policy_actor_state_name(state: PolicySourceActorState) -> &'static str {
+pub(crate) fn policy_actor_state_name(state: PolicySourceActorState) -> &'static str {
     match state {
         PolicySourceActorState::Active => policy_control::source::ACTOR_STATE_ACTIVE,
         PolicySourceActorState::Revoked => policy_control::source::ACTOR_STATE_REVOKED,
     }
 }
 
-fn policy_status_name(status: PolicySourceDocumentStatus) -> &'static str {
+pub(crate) fn policy_status_name(status: PolicySourceDocumentStatus) -> &'static str {
     match status {
         PolicySourceDocumentStatus::Draft => policy_control::source::STATUS_DRAFT,
         PolicySourceDocumentStatus::Preview => policy_control::source::STATUS_PREVIEW,

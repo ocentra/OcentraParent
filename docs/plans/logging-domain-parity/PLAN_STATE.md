@@ -49,11 +49,11 @@ WP04 Rust logging core: source/tests present, but the named proof root is absent
 WP05 local validation evidence: source/tests/smokes present, but the named proof root is absent in this checkout
 WP06 validation/enforcement: root checker scripts, wrapper scripts, and local evidence smoke are present; logging-owned proof-inventory query surfaces now detect missing/stale proof roots and stale closeout claims through agent-query/MCP plus focused tests, and the canonical WP06 proof root is present; full focused validation remains open because npm run validate:logging still fails at lint:dev-log-routing against an unimplemented portal endpoint outside this delegated slice
 WP07 MCP query interface: server, integration coverage, and canonical MCP proof roots are present; fresh-root latest-failures/run-diagnostics/artifact-slice plus CLI parity now prove the deterministic local evidence path, but checklist/workpack closeout is still open
-WP08 logger instrumentation/adoption: partial portal/agent-service adoption is present, but repo-wide adoption is not proved and the named proof root is absent
+WP08 logger instrumentation/adoption: a canonical partial-proof root now exists for the portal dev logger path, logging-domain storage/query path, and agent-service startup/dev-log path; repo-wide adoption is still not proved
 WP09 log control/retention/bridge lifecycle: source/tests present, but the named proof root is absent in this checkout
 WP10 proof trace pipeline: focused portal proof-trace tests pass, the standalone MCP proof-trace smoke is now self-seeding in a clean workspace, and the canonical proof root is present; checklist/workpack closeout is still open
-Checklist state: WP03 now reflects its written proof root, WP06 now has 11/12 rows checked against focused proof, and the remaining workpacks stay open as documented in CHECKLIST_INDEX.md
-Proof inventory root: output/logging-domain-parity-proof/ now contains canonical WP03, WP06, WP07, and WP10 roots in this checkout
+Checklist state: WP03 now reflects its written proof root, WP06 now has 11/12 rows checked against focused proof, WP08 now has 8/12 rows checked against its canonical partial-proof root, and the remaining workpacks stay open as documented in CHECKLIST_INDEX.md
+Proof inventory root: output/logging-domain-parity-proof/ now contains canonical WP03, WP06, WP07, WP08, and WP10 roots in this checkout
 Test-results roots: test-results/logging-domain-parity-mcp/ and test-results/logging-domain-parity-proof-trace/ now exist; the other named test-results/logging-domain-parity-* roots are still absent
 PR-ready: false
 ```
@@ -76,7 +76,7 @@ PR-ready: false
 ```text
 - Recreate or remove the remaining claimed proof roots under output/logging-domain-parity-proof/*
 - Recreate or remove the remaining claimed test-results/logging-domain-parity-* roots
-- Reconcile the remaining WP07/WP10 checklist closeout and the WP08 stale partial-proof claim with current source and proof truth
+- Reconcile the remaining WP07/WP10 checklist closeout and keep WP08 scoped to its canonical partial-proof boundary instead of inflating it to repo-wide adoption
 - Decide whether "done" in this plan means source present, proof present, or both; the current docs mix those states
 - Close the remaining WP03 Rust-side route claim and hand off the root dev-log-routing failure to the owning portal/agent-service slice before claiming full WP06 focused-validation closure
 ```
@@ -101,7 +101,7 @@ Workpacks are indexed in `WORKPACK_INDEX.md`.
 Current default execution order:
 
 ```text
-1. remaining proof-inventory restoration or claim reduction for WP01/WP02/WP04/WP05/WP08/WP09, with WP08 first because the proof-inventory checker still reports it as the blocking stale claim
+1. remaining proof-inventory restoration or claim reduction for WP01/WP02/WP04/WP05/WP09 now that WP08 has a canonical partial-proof root
 2. resolve or reduce the remaining WP03 Rust-side agent-service mapping claim under its owning slice
 3. hand off the root lint:dev-log-routing failure to the owning portal/agent-service slice before claiming full WP06 focused-validation closure
 ```

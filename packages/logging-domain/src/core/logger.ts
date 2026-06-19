@@ -1,9 +1,8 @@
 import {
   LogLevel,
-  LoggerRuntimeDefaults,
-  LoggerRuntimeEnvironment,
   type LogLevel as LogLevelValue,
 } from '../contracts';
+import { LoggerRuntimeDefaults, LoggerRuntimeEnvironment } from './logRuntimeConstants';
 import { createParentLogDecisionProvider } from './logDecisionProvider';
 import { resolveBridgeEndpoint, sendToBridge } from '../transport/bridgeTransport';
 import { RunType, TestLogOrigin, TestLogScope, parseRunTypeOrDefault, parseSuiteTypeOrNull, parseTestLogScopeOrDefault, type RunType as RunTypeValue, type TestLogOrigin as TestLogOriginValue, type TestLogScope as TestLogScopeValue, type TestSuiteType } from '../test-log/types';

@@ -14,7 +14,7 @@ import {
   AppGamePolicyTargetKind,
 } from '../../src/app-game-policy-target-compiler-rules';
 import { PolicyAction } from '@ocentra-parent/policy-domain/policy';
-import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-04T13:45:00Z';
 const LocalUserRef = 'windows-local-user-category-risk';

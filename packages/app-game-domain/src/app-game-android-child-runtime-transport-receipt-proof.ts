@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidChildRuntimeTransportReceiptProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-child-runtime-transport-receipt-proof')
@@ -157,7 +157,6 @@ function androidChildRuntimeTransportReceiptProofRefs(input: {
   return refs;
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function androidChildRuntimeTransportReceiptProofIsHonest(proof: AndroidChildRuntimeReceiptCandidate): boolean {
   return (
     proof.transportChannelState === 'activity-visible-transport-channel' &&

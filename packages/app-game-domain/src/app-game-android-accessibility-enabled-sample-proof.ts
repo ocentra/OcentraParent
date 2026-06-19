@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidAccessibilityEnabledSampleProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-accessibility-enabled-sample-proof')
@@ -131,7 +131,6 @@ export function summarizeAppGameAndroidAccessibilityEnabledSampleProof(
   } as const;
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function enabledSampleProofIsHonest(proof: EnabledSampleCandidate): boolean {
   return (
     proof.packageId === 'ca.ocentra.parent.agent' &&

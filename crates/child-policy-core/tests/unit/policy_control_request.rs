@@ -1,9 +1,10 @@
 use ocentra_eventing::error::EventingError;
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_child_device_id, child_domain_child_profile_id, child_domain_evidence_ref,
-    child_domain_observed_at, child_domain_policy_violation_id_from_policy_request_id,
-    ChildDomainEventType, ChildDomainPolicyRuleRef, ChildDomainPolicySeverity,
-    ChildDomainPolicyViolationDetectedEvent, ChildDomainRefSuffix, ChildRuntimeDomain,
+    child_domain_observed_at, child_domain_policy_request_id,
+    child_domain_policy_violation_id_from_policy_request_id, ChildDomainEventType,
+    ChildDomainPolicyRuleRef, ChildDomainPolicySeverity, ChildDomainPolicyViolationDetectedEvent,
+    ChildDomainRefSuffix, ChildRuntimeDomain,
 };
 use ocentra_policy_control_core::policy_request::{
     PolicyAssistantConfirmationState, PolicyAssistantPreviewId, PolicyDurationMinutes,
@@ -186,7 +187,7 @@ fn child_origin_input() -> ChildPolicyControlRequestInput {
 }
 
 fn violation() -> ChildDomainPolicyViolationDetectedEvent {
-    let request_id = ocentra_parent_agent_protocol::child_domain_policy_request_id(
+    let request_id = child_domain_policy_request_id(
         ChildRuntimeDomain::Browser,
         ChildDomainRefSuffix::DefaultPolicyRequest,
     );

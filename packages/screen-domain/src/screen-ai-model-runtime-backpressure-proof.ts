@@ -12,7 +12,7 @@ import {
   LocalAiUnavailableReasonSchema,
 } from '@ocentra-parent/ai-domain/local-ai-primitives';
 import { LocalAiPhysicalDeviceIdSchema, LocalAiProviderSchedulerDecisionSchema } from '@ocentra-parent/ai-domain/local-ai-provider-scheduler';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ScreenAiModelRuntimeBackpressureProofIdSchema = brandedNonEmptyStringSchema('ScreenAiModelRuntimeBackpressureProofId');
 const ScreenAiModelRuntimeBackpressureJobIdSchema = brandedNonEmptyStringSchema('ScreenAiModelRuntimeBackpressureJobId');
 const ScreenAiModelRuntimeEvidenceRefSchema = brandedNonEmptyStringSchema('ScreenAiModelRuntimeEvidenceRef');

@@ -6,7 +6,7 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProductClaimSafeParentWorkflowProofReadModel } from './app-install-purchase-product-claim-safe-parent-workflow-proof';
 import { AppInstallPurchaseProviderStoreManualEvidencePacketProofReadModel } from './app-install-purchase-provider-store-manual-evidence-packet-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const ProofVersion = 'app-install-purchase-product-claim-store-handoff-proof';
 const SourceSafeWorkflowVersion = 'app-install-purchase-product-claim-safe-parent-workflow-proof';

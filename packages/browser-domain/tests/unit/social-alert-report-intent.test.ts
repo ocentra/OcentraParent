@@ -14,7 +14,7 @@ import {
   ParentContractSchemaVersion,
   ParentEvidenceReferenceKind,
   ParentPlatform,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-06T07:52:00Z';
 const PolicyVersion = 'policy-social-alert-report-v1';

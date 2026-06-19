@@ -4,6 +4,10 @@ import type {
   SupportCaseResolutionStatusEntryCandidate,
   SupportCaseResolutionStatusState,
 } from './support-case-resolution-status.js';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 export function supportCaseResolutionStatusEntryIsSafe(
   entry: SupportCaseResolutionStatusEntryCandidate,
@@ -11,7 +15,7 @@ export function supportCaseResolutionStatusEntryIsSafe(
 ): boolean {
   return (
     !supportCaseResolutionHasClaimUpgrade(entry) &&
-    requiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
+    supportProofRequiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
     supportCaseResolutionRefsArePresent(entry) &&
     supportCaseResolutionStatesAreCoherent(entry)
   );
@@ -33,7 +37,7 @@ export function supportCaseResolutionStatusCoversRequiredStates(
 }
 
 function supportCaseResolutionHasClaimUpgrade(entry: SupportCaseResolutionStatusEntryCandidate): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsTokens,
     entry.containsRawChildActivity,
     entry.containsRawUrls,
@@ -53,7 +57,7 @@ function supportCaseResolutionHasClaimUpgrade(entry: SupportCaseResolutionStatus
     entry.remoteSupportSessionExecuted,
     entry.productionSlaClaimed,
     entry.ocentraHostedFamilyDataDefault,
-  ].some(Boolean);
+  ]);
 }
 
 function supportCaseResolutionRefsArePresent(entry: SupportCaseResolutionStatusEntryCandidate): boolean {
@@ -134,12 +138,4 @@ function supportCaseResolutionSlaStateIsCoherent(entry: SupportCaseResolutionSta
       entry.manualProofRequirements.length > 0 &&
       entry.allowedDestinations.includes('manual-support-operator'))
   );
-}
-
-function requiredValuesArePresent<T extends string>(
-  actualValues: ReadonlyArray<T>,
-  requiredValues: ReadonlyArray<T>
-): boolean {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }

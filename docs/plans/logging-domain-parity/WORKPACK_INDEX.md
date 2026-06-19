@@ -25,7 +25,7 @@ Use this index to select exactly one workpack.
 | source-present | [WP04 Rust Logging Core Crate](workpacks/04-rust-logging-core-crate.md) | 0/12 | `02-rust-logging-core-crate.md` |
 | source-present | [WP05 Local Validation Evidence](workpacks/05-local-validation-evidence.md) | 0/12 | `03-local-validation-evidence.md` |
 | partial-proof | [WP07 MCP Query Interface](workpacks/07-mcp-query-interface.md) | 0/18 | `06-mcp-query-interface.md` |
-| partial-proof | [WP08 Logger Instrumentation and Adoption](workpacks/08-logger-instrumentation-and-adoption.md) | 0/12 | `07-logger-instrumentation-pattern.md` |
+| partial-proof | [WP08 Logger Instrumentation and Adoption](workpacks/08-logger-instrumentation-and-adoption.md) | 8/12 | `07-logger-instrumentation-pattern.md` |
 | partial-proof | [WP10 Proof Trace Pipeline](workpacks/10-proof-trace-pipeline.md) | 0/13 | `09-proof-trace-pipeline.md` |
 | partial-proof | [WP06 Validation and Enforcement](workpacks/06-validation-and-enforcement.md) | 11/12 | `04-validation-and-enforcement.md` |
 
@@ -44,7 +44,7 @@ The boxes column mirrors the current checklist completion count from `CHECKLIST_
 Current audit note:
 
 ```text
-WP03, WP06, WP07, and WP10 now have canonical proof roots in this checkout. WP03 is still only partial-proof because the portal dev-log consumer slice is proved while the agent-service-to-logging-core row remains intentionally open outside this delegated boundary. WP06 is now partial-proof because the logging-owned proof-inventory checker/query path is real, but npm run validate:logging still fails at lint:dev-log-routing against an unimplemented portal endpoint outside this delegated boundary. The remaining blocking proof-inventory error is WP08, whose partial-proof status still outruns the missing on-disk proof root.
+WP03, WP06, WP07, WP08, and WP10 now have canonical proof roots in this checkout. WP03 is still only partial-proof because the portal dev-log consumer slice is proved while the agent-service-to-logging-core row remains intentionally open outside this delegated boundary. WP06 is now partial-proof because the logging-owned proof-inventory checker/query path is real, but npm run validate:logging still fails at lint:dev-log-routing against an unimplemented portal endpoint outside this delegated boundary. WP08 is now honest partial-proof because its canonical root proves the portal dev logger path, the logging-domain source/context storage/query path, and the agent-service startup/dev-log path without claiming repo-wide instrumentation adoption.
 ```
 
 Default order:

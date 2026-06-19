@@ -190,6 +190,7 @@ pub mod request {
     pub const STATUS_DENIED: &str = "denied";
     pub const STATUS_MODIFIED: &str = "modified";
     pub const STATUS_EXPIRED: &str = "expired";
+    pub const STATUS_REPLAY_REJECTED: &str = "replay-rejected";
 }
 
 pub mod delivery {

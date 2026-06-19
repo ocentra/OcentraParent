@@ -3,6 +3,7 @@ use ocentra_parent_agent_protocol::{
     TrackingPolicyRuleRef, TrackingPolicySeverity, TrackingPolicyViolationDetectedEvent,
     TrackingPolicyViolationId, TrackingTimestamp,
 };
+use ocentra_tracking_core::parent_acknowledgement::record_parent_acknowledgement;
 
 #[test]
 fn parent_acknowledgement_is_idempotent_for_same_policy_violation() {
@@ -35,8 +36,8 @@ fn parent_acknowledgement_is_idempotent_for_same_policy_violation() {
         .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
     };
 
-    let first = ocentra_tracking_core::record_parent_acknowledgement(&violation);
-    let second = ocentra_tracking_core::record_parent_acknowledgement(&violation);
+    let first = record_parent_acknowledgement(&violation);
+    let second = record_parent_acknowledgement(&violation);
 
     assert_eq!(first.acknowledgement_id, second.acknowledgement_id);
     assert_eq!(

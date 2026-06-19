@@ -1,14 +1,23 @@
 use ocentra_network_evidence::{
-    map_network_evidence_grade_to_policy, plan_network_android_vpn_service_gate,
-    NetworkAndroidVpnServiceCapabilityState, NetworkAndroidVpnServiceGateBoundaryReason,
-    NetworkAndroidVpnServiceGateInput, NetworkAndroidVpnServiceGateProof,
-    NetworkAndroidVpnServiceGateState, NetworkAndroidVpnServiceRequiredArtifact,
-    NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMappingInput,
+    android_vpn_service_gate::{
+        plan_network_android_vpn_service_gate, NetworkAndroidVpnServiceCapabilityState,
+        NetworkAndroidVpnServiceGateBoundaryReason, NetworkAndroidVpnServiceGateInput,
+        NetworkAndroidVpnServiceGateProof, NetworkAndroidVpnServiceGateState,
+        NetworkAndroidVpnServiceRequiredArtifact,
+    },
+    dns::NetworkEvidenceGrade,
+    policy::{
+        map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
+        NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
+    },
 };
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, NetworkAndroidVpnServiceGateCapabilityStatusState,
-    NetworkAndroidVpnServiceGateStatus, NetworkAndroidVpnServiceGateStatusState,
+    constants,
+    network_android_vpn_service_gate_status::{
+        NetworkAndroidVpnServiceGateCapabilityStatusState, NetworkAndroidVpnServiceGateStatus,
+        NetworkAndroidVpnServiceGateStatusState,
+    },
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields, LogLevel,
 };
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
@@ -145,7 +154,7 @@ fn gate_input() -> NetworkAndroidVpnServiceGateInput {
     }
 }
 
-fn policy_mapping() -> ocentra_network_evidence::NetworkEvidencePolicyMapping {
+fn policy_mapping() -> NetworkEvidencePolicyMapping {
     map_network_evidence_grade_to_policy(NetworkEvidencePolicyMappingInput {
         policy_decision_ref: constants::network_flow::TEST_ANDROID_VPN_SERVICE_POLICY_DECISION_REF
             .to_string(),

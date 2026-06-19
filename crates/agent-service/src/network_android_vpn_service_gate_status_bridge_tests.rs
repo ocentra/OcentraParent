@@ -1,8 +1,11 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    NetworkAndroidVpnServiceGateCapabilityStatusState, NetworkAndroidVpnServiceGateStatus,
-    NetworkAndroidVpnServiceGateStatusState, AGENT_PROTOCOL_SCHEMA_VERSION,
+    constants,
+    network_android_vpn_service_gate_status::{
+        NetworkAndroidVpnServiceGateCapabilityStatusState, NetworkAndroidVpnServiceGateStatus,
+        NetworkAndroidVpnServiceGateStatusState,
+    },
+    policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
+    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use serde::de::DeserializeOwned;
 

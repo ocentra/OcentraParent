@@ -1,8 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    child_domain_observed_event, constants, ChildDomainAiAnalysisRequirement, ChildDomainEventType,
+use ocentra_child_runtime::child_domain_runtime_flow as ocentra_child_runtime;
+use ocentra_network_core::network_runtime::{network_observed_event, NetworkObservationIntent};
+use ocentra_parent_agent_protocol::child_domain_runtime::{
+    child_domain_observed_event, ChildDomainAiAnalysisRequirement, ChildDomainEventType,
     ChildDomainObservedEventProfile, ChildDomainObservedSignal,
     ChildDomainPolicyEvaluationRequirement, ChildDomainRefSuffix, ChildRuntimeDomain,
 };
+use ocentra_parent_agent_protocol::constants;
 
 #[tokio::test]
 async fn child_domain_runtime_flow_keeps_feature_ai_policy_and_notification_decoupled_by_events() {
@@ -125,9 +128,7 @@ async fn child_domain_ai_only_flow_does_not_publish_policy_or_notification() {
 
 #[tokio::test]
 async fn child_domain_observe_only_intent_records_evidence_without_side_effects() {
-    let event = ocentra_network_core::network_observed_event(
-        ocentra_network_core::NetworkObservationIntent::TelemetryObservationOnly,
-    );
+    let event = network_observed_event(NetworkObservationIntent::TelemetryObservationOnly);
 
     let report = ocentra_child_runtime::publish_child_domain_observed_event(event)
         .await

@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePackageSourceCaptureStatusProofReadModel } from './app-install-purchase-package-source-capture-status-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const PackageSourceAdapterExecutionProofVersion = 'app-install-purchase-package-source-adapter-execution-proof';
 const SourcePackageSourceCaptureStatusProofVersion = 'app-install-purchase-package-source-capture-status-proof';
 const PackageSourceAdapterExecutionTimestamp = '2026-06-05T15:15:00.000Z';

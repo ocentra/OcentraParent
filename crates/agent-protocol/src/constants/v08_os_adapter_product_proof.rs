@@ -85,8 +85,7 @@ pub const PROOF_UNMANAGED_EXACT: &str =
 pub const PROOF_RESTART_RECOVERY: &str =
     "Restart recovery test preserving action/result/audit/timer identity.";
 pub const PROOF_PARENT_CANCEL: &str = "Parent cancel path that records rollback and audit state.";
-pub const PROOF_AUDIT_CUSTODY: &str =
-    "Audit event and journal sequence for attempted, succeeded, unavailable, expired, and cancelled paths.";
+pub const PROOF_AUDIT_CUSTODY: &str = "Audit event and journal sequence for attempted, succeeded, unavailable, expired, and cancelled paths.";
 pub const PROOF_ROLLBACK_ARTIFACT_GATE: &str =
     "Artifact gate proof before any broad rollback or anti-tamper product claim.";
 
@@ -102,8 +101,7 @@ pub const CLAIM_MANAGED_BROWSER_COMMAND: &str =
     "A managed-browser service-command target string is not exact URL enforcement proof.";
 pub const CLAIM_MANAGED_EXACT_URL: &str =
     "Exact URL, active tab, and page-title control require the managed browser boundary.";
-pub const CLAIM_UNMANAGED_PROCESS: &str =
-    "Unmanaged browser proof is process-only and cannot become URL/tab/title/download/page evidence.";
+pub const CLAIM_UNMANAGED_PROCESS: &str = "Unmanaged browser proof is process-only and cannot become URL/tab/title/download/page evidence.";
 pub const CLAIM_UNMANAGED_EXACT: &str =
     "Process/window/network evidence does not prove exact unmanaged browser activity.";
 pub const CLAIM_RESTART_RECOVERY: &str =
@@ -119,8 +117,7 @@ pub const FALLBACK_OWNED_PROCESS: &str =
     "Reject missing pid/name mismatch and return unavailable on unsupported hosts.";
 pub const FALLBACK_APP_TIME_LIMIT: &str =
     "Return unavailable when active timer state or platform adapter cannot support the request.";
-pub const FALLBACK_BROAD_APP: &str =
-    "Return manual-required or unavailable and avoid adapter requests until OS-approved proof exists.";
+pub const FALLBACK_BROAD_APP: &str = "Return manual-required or unavailable and avoid adapter requests until OS-approved proof exists.";
 pub const FALLBACK_NETWORK_DOMAIN: &str =
     "Return manual-required or unavailable until a host network control adapter has proof.";
 pub const FALLBACK_MANAGED_BROWSER_COMMAND: &str =
@@ -129,8 +126,7 @@ pub const FALLBACK_MANAGED_EXACT_URL: &str =
     "Keep exact URL control manual-required unless managed browser proof is present.";
 pub const FALLBACK_UNMANAGED_PROCESS: &str =
     "Restrict control to pid/name guardrails and preserve exact browser evidence as not-claimed.";
-pub const FALLBACK_UNMANAGED_EXACT: &str =
-    "Use managed browser or another explicit browser integration before representing exact evidence.";
+pub const FALLBACK_UNMANAGED_EXACT: &str = "Use managed browser or another explicit browser integration before representing exact evidence.";
 pub const FALLBACK_RESTART_RECOVERY: &str =
     "Return unavailable when persisted timer state is missing or inconsistent.";
 pub const FALLBACK_PARENT_CANCEL: &str =

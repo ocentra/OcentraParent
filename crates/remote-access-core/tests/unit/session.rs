@@ -1,26 +1,20 @@
-use ocentra_eventing::DomainEvent;
-use ocentra_family_identity_core::ChildDisclosureState;
+use ocentra_eventing::envelope::DomainEvent;
+use ocentra_family_identity_core::family_identity::ChildDisclosureState;
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
-use ocentra_remote_access_core::{
+use ocentra_remote_access_core::remote_access_session::{
     evaluate_remote_access_session, plan_remote_access_session_effects,
-    resolve_remote_access_session_request, RemoteAccessAggregateId, RemoteAccessAutoExpiryState,
+    resolve_remote_access_session_request, RemoteAccessAutoExpiryState,
     RemoteAccessDisclosureBannerState, RemoteAccessInputAuthorityState,
     RemoteAccessInputBridgeState, RemoteAccessRelayRequirementState, RemoteAccessRelayState,
-    RemoteAccessReplayState, RemoteAccessSessionAuthorizationState, RemoteAccessSessionId,
-    RemoteAccessSessionRequest, RemoteAccessSessionRequestedEvent, RemoteAccessViewStreamState,
+    RemoteAccessReplayState, RemoteAccessSessionAuthorizationState, RemoteAccessSessionRequest,
+    RemoteAccessViewStreamState,
 };
 
 #[test]
 fn remote_access_requires_parent_child_relay_and_bounded_duration() {
-    let decision = evaluate_remote_access_session(RemoteAccessSessionRequest {
-        parent_authority_state: ParentAuthorityState::Authorized,
-        child_disclosure_state: ChildDisclosureState::Disclosed,
-        relay_state: RemoteAccessRelayState::Available,
-        replay_state: RemoteAccessReplayState::Fresh,
-        input_authority_state: RemoteAccessInputAuthorityState::ViewOnly,
-        requested_minutes: 15,
-        maximum_minutes: 30,
-    });
+    let decision = evaluate_remote_access_session(super::allowed_request(
+        RemoteAccessInputAuthorityState::ViewOnly,
+    ));
 
     assert_eq!(
         decision.authorization_state,
@@ -39,13 +33,9 @@ fn remote_access_requires_parent_child_relay_and_bounded_duration() {
 #[test]
 fn remote_access_rejects_unbounded_session_duration() {
     let decision = evaluate_remote_access_session(RemoteAccessSessionRequest {
-        parent_authority_state: ParentAuthorityState::Authorized,
-        child_disclosure_state: ChildDisclosureState::Disclosed,
-        relay_state: RemoteAccessRelayState::Available,
-        replay_state: RemoteAccessReplayState::Fresh,
-        input_authority_state: RemoteAccessInputAuthorityState::ViewOnly,
+        replay_state: RemoteAccessReplayState::Replayed,
         requested_minutes: 45,
-        maximum_minutes: 30,
+        ..super::allowed_request(RemoteAccessInputAuthorityState::ViewOnly)
     });
 
     assert_eq!(
@@ -61,13 +51,8 @@ fn remote_access_rejects_unbounded_session_duration() {
 #[test]
 fn remote_access_rejects_when_child_disclosure_is_missing() {
     let decision = evaluate_remote_access_session(RemoteAccessSessionRequest {
-        parent_authority_state: ParentAuthorityState::Authorized,
         child_disclosure_state: ChildDisclosureState::NotDisclosed,
-        relay_state: RemoteAccessRelayState::Available,
-        replay_state: RemoteAccessReplayState::Fresh,
-        input_authority_state: RemoteAccessInputAuthorityState::ViewOnly,
-        requested_minutes: 15,
-        maximum_minutes: 30,
+        ..super::allowed_request(RemoteAccessInputAuthorityState::ViewOnly)
     });
 
     assert_eq!(
@@ -83,13 +68,8 @@ fn remote_access_rejects_when_child_disclosure_is_missing() {
 #[test]
 fn remote_access_rejects_and_requires_relay_when_relay_is_unavailable() {
     let decision = evaluate_remote_access_session(RemoteAccessSessionRequest {
-        parent_authority_state: ParentAuthorityState::Authorized,
-        child_disclosure_state: ChildDisclosureState::Disclosed,
         relay_state: RemoteAccessRelayState::Unavailable,
-        replay_state: RemoteAccessReplayState::Fresh,
-        input_authority_state: RemoteAccessInputAuthorityState::ViewOnly,
-        requested_minutes: 15,
-        maximum_minutes: 30,
+        ..super::allowed_request(RemoteAccessInputAuthorityState::ViewOnly)
     });
 
     assert_eq!(
@@ -109,13 +89,8 @@ fn remote_access_rejects_and_requires_relay_when_relay_is_unavailable() {
 #[test]
 fn remote_access_rejects_zero_duration_request() {
     let decision = evaluate_remote_access_session(RemoteAccessSessionRequest {
-        parent_authority_state: ParentAuthorityState::Authorized,
-        child_disclosure_state: ChildDisclosureState::Disclosed,
-        relay_state: RemoteAccessRelayState::Available,
-        replay_state: RemoteAccessReplayState::Fresh,
-        input_authority_state: RemoteAccessInputAuthorityState::ViewOnly,
         requested_minutes: 0,
-        maximum_minutes: 30,
+        ..super::allowed_request(RemoteAccessInputAuthorityState::ViewOnly)
     });
 
     assert_eq!(
@@ -131,13 +106,8 @@ fn remote_access_rejects_zero_duration_request() {
 #[test]
 fn remote_access_rejects_replayed_session_request() {
     let decision = evaluate_remote_access_session(RemoteAccessSessionRequest {
-        parent_authority_state: ParentAuthorityState::Authorized,
-        child_disclosure_state: ChildDisclosureState::Disclosed,
-        relay_state: RemoteAccessRelayState::Available,
         replay_state: RemoteAccessReplayState::Replayed,
-        input_authority_state: RemoteAccessInputAuthorityState::ViewOnly,
-        requested_minutes: 15,
-        maximum_minutes: 30,
+        ..super::allowed_request(RemoteAccessInputAuthorityState::ViewOnly)
     });
 
     assert_eq!(
@@ -154,12 +124,7 @@ fn remote_access_rejects_replayed_session_request() {
 fn remote_input_authority_does_not_bypass_session_gates() {
     let decision = evaluate_remote_access_session(RemoteAccessSessionRequest {
         parent_authority_state: ParentAuthorityState::Unauthorized,
-        child_disclosure_state: ChildDisclosureState::Disclosed,
-        relay_state: RemoteAccessRelayState::Available,
-        replay_state: RemoteAccessReplayState::Fresh,
-        input_authority_state: RemoteAccessInputAuthorityState::InputAllowed,
-        requested_minutes: 15,
-        maximum_minutes: 30,
+        ..super::allowed_request(RemoteAccessInputAuthorityState::InputAllowed)
     });
 
     assert_eq!(
@@ -174,15 +139,9 @@ fn remote_input_authority_does_not_bypass_session_gates() {
 
 #[test]
 fn allowed_view_only_session_starts_view_stream_without_input_bridge() {
-    let plan = plan_remote_access_session_effects(RemoteAccessSessionRequest {
-        parent_authority_state: ParentAuthorityState::Authorized,
-        child_disclosure_state: ChildDisclosureState::Disclosed,
-        relay_state: RemoteAccessRelayState::Available,
-        replay_state: RemoteAccessReplayState::Fresh,
-        input_authority_state: RemoteAccessInputAuthorityState::ViewOnly,
-        requested_minutes: 15,
-        maximum_minutes: 30,
-    });
+    let plan = plan_remote_access_session_effects(super::allowed_request(
+        RemoteAccessInputAuthorityState::ViewOnly,
+    ));
 
     assert_eq!(plan.view_stream_state, RemoteAccessViewStreamState::Start);
     assert_eq!(
@@ -197,15 +156,9 @@ fn allowed_view_only_session_starts_view_stream_without_input_bridge() {
 
 #[test]
 fn allowed_input_session_starts_input_bridge_after_all_gates_pass() {
-    let plan = plan_remote_access_session_effects(RemoteAccessSessionRequest {
-        parent_authority_state: ParentAuthorityState::Authorized,
-        child_disclosure_state: ChildDisclosureState::Disclosed,
-        relay_state: RemoteAccessRelayState::Available,
-        replay_state: RemoteAccessReplayState::Fresh,
-        input_authority_state: RemoteAccessInputAuthorityState::InputAllowed,
-        requested_minutes: 15,
-        maximum_minutes: 30,
-    });
+    let plan = plan_remote_access_session_effects(super::allowed_request(
+        RemoteAccessInputAuthorityState::InputAllowed,
+    ));
 
     assert_eq!(plan.view_stream_state, RemoteAccessViewStreamState::Start);
     assert_eq!(plan.input_bridge_state, RemoteAccessInputBridgeState::Start);
@@ -213,21 +166,10 @@ fn allowed_input_session_starts_input_bridge_after_all_gates_pass() {
 
 #[test]
 fn remote_access_session_request_resolves_authorization_and_effect_plan_event() {
-    let request = RemoteAccessSessionRequestedEvent {
-        aggregate_id: RemoteAccessAggregateId::parse("remote-access-child-default")
-            .expect("remote access aggregate"),
-        session_id: RemoteAccessSessionId::parse("remote-access-session-default")
-            .expect("remote access session"),
-        request: RemoteAccessSessionRequest {
-            parent_authority_state: ParentAuthorityState::Authorized,
-            child_disclosure_state: ChildDisclosureState::Disclosed,
-            relay_state: RemoteAccessRelayState::Available,
-            replay_state: RemoteAccessReplayState::Fresh,
-            input_authority_state: RemoteAccessInputAuthorityState::InputAllowed,
-            requested_minutes: 15,
-            maximum_minutes: 30,
-        },
-    };
+    let request = super::requested_event(
+        super::REMOTE_ACCESS_CHILD_AGGREGATE_ID,
+        super::allowed_request(RemoteAccessInputAuthorityState::InputAllowed),
+    );
 
     let resolved = resolve_remote_access_session_request(&request);
 
@@ -247,7 +189,7 @@ fn remote_access_session_request_resolves_authorization_and_effect_plan_event() 
             .expect("remote access request contract")
             .event_type
             .as_str(),
-        "remote-access.session.requested"
+        super::REMOTE_ACCESS_REQUESTED_EVENT_TYPE
     );
     assert_eq!(
         resolved
@@ -255,6 +197,6 @@ fn remote_access_session_request_resolves_authorization_and_effect_plan_event() 
             .expect("remote access authorization contract")
             .event_type
             .as_str(),
-        "remote-access.authorization.resolved"
+        super::REMOTE_ACCESS_RESOLVED_EVENT_TYPE
     );
 }

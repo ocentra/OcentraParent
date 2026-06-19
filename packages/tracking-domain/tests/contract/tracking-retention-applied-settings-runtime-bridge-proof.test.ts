@@ -6,12 +6,14 @@ import {
   buildTrackingRetentionAppliedSettingsRuntimeBridgeProof,
 } from '../../src/tracking-retention-applied-settings-runtime-bridge-proof';
 import { buildTrackingRetentionProductSettingsWritableExecutionProof } from '../../src/tracking-retention-product-settings-writable-execution-proof';
+import {
+  TrackingRetentionProofRefs,
+  trackingRetentionAcceptedLocalServiceWriteResult,
+} from '../../src/tracking-retention-proof-catalog';
 
 const GeneratedAt = '2026-06-08T20:10:00.000Z';
-const SourceLocalServiceStateProofRef =
-  'output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json';
-const SourceWritableExecutionProofRef =
-  'output/tracking-plan-proof/tracking-retention-product-settings-writable-execution-proof/proof.json';
+const SourceLocalServiceStateProofRef = TrackingRetentionProofRefs.LocalServiceState;
+const SourceWritableExecutionProofRef = TrackingRetentionProofRefs.ProductSettingsWritableExecution;
 
 describe('tracking retention applied settings runtime bridge proof', () => {
   it('bridges local applied settings into runtime artifact accounting without claiming product readiness', () => {
@@ -90,37 +92,7 @@ function writableExecutionProof(): unknown {
 function localServiceStateProof(): unknown {
   return buildTrackingRetentionLocalServiceStateProof(
     GeneratedAt,
-    'output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json',
-    writeResult()
+    TrackingRetentionProofRefs.WriteCommand,
+    trackingRetentionAcceptedLocalServiceWriteResult()
   );
-}
-
-function writeResult(): unknown {
-  return {
-    schemaVersion: 1,
-    commandId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
-    settingsKind: AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
-    writeState: AgentTrackingRetentionSettingsWriteDefaults.WriteStateAccepted,
-    sourceWriterIntentRefs: [AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef],
-    sourceReadModelProofRefs: AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs,
-    sourceMutationProofRefs: [AgentTrackingRetentionSettingsWriteDefaults.MutationProofRef],
-    appliedRetentionWindowHours: 168,
-    appliedDeleteAfterAlertResolved: false,
-    parentExportPrepared: false,
-    remoteSyncEnabled: false,
-    remoteAiEnabled: false,
-    localServiceStateRevision: 1,
-    localServiceStateSnapshotRef: AgentTrackingRetentionSettingsWriteDefaults.LocalServiceStateSnapshotRef,
-    durableSettingsStoreRef: AgentTrackingRetentionSettingsWriteDefaults.DurableSettingsStoreRef,
-    durableSettingsPersisted: true,
-    commandTransportClaimed: true,
-    serviceMutationExecuted: true,
-    platformRuntimeClaimed: false,
-    childDeviceDeliveryClaimed: false,
-    providerDeliveryClaimed: false,
-    notificationReceiptClaimed: false,
-    physicalDeviceClaimed: false,
-    authorityClaimed: false,
-    productClaimReady: false,
-  };
 }

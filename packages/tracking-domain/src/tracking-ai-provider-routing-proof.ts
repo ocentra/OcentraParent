@@ -10,7 +10,7 @@ import {
   TrackingPolicySchemaVersion,
 } from './tracking-location-policy';
 import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from './tracking-location-policy-primitives';
-import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const CustodyRefSchema = brandedNonEmptyStringSchema('TrackingAiCustodyRef');
 const CustodyRefParsedSchema = withParser(CustodyRefSchema);

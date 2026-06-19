@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import { LanBrowserAddDeviceReadModelSchema } from '../../src/lan-pairing-device';
 import {
-  LanBrowserAddDeviceReadModelSchema,
   LanSignedDiscoveryRelayAdapterKindSchema,
   LanSignedDiscoveryRelayCacheCheckSchema,
   LanSignedDiscoveryRelayRouteSafetyCheckSchema,
   LanSignedDiscoveryRelaySignedProofCheckSchema,
   LanSignedDiscoveryRelaySpineSchema,
-} from '../../src/lan-pairing';
+} from '../../src/lan-signed-discovery-relay-spine';
 
 const generatedAt = '2026-06-02T11:40:00.000Z';
 const routeId = 'lan-route-local-network';

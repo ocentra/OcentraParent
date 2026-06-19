@@ -1,7 +1,7 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyRuleIdSchema } from '@ocentra-parent/policy-domain/policy';
 import { ChildProfileReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   LocalAiDegradedStateSchema,
   LocalAiConfidenceSchema,

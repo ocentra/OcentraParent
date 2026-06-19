@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::NetworkEvidenceGrade;
+use crate::dns::NetworkEvidenceGrade;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkCascadeSourceKind {

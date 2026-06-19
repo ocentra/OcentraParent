@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ParentContractSchemaVersion,
   ParentEvidenceReferenceKind,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   DataCustodyBoundarySchema,
   DataCustodyBundleState,

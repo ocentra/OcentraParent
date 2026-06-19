@@ -4,7 +4,7 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityJournalLine, APP_GAME_TEST_DISPLAY_LABEL,
+    constants, journal::ActivityJournalLine, APP_GAME_TEST_DISPLAY_LABEL,
     APP_GAME_WINDOWS_REGISTRY_DISPLAY_NAME_VALUE, APP_GAME_WINDOWS_REGISTRY_DWORD_ENABLED_VALUE,
     APP_GAME_WINDOWS_REGISTRY_DWORD_PREFIX, APP_GAME_WINDOWS_REGISTRY_EXPORT_HEADER,
     APP_GAME_WINDOWS_REGISTRY_FILE_EXTENSION, APP_GAME_WINDOWS_REGISTRY_INSTALL_LOCATION_VALUE,
@@ -12,7 +12,11 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_WINDOWS_REGISTRY_UNINSTALL_PATH,
 };
 
-use crate::{ActivityJournal, ActivityStore, JournalKey, JOURNAL_KEY_BYTES};
+use crate::{
+    activity_store::ActivityStore,
+    journal::ActivityJournal,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+};
 
 pub(super) fn registry_export() -> String {
     let mut export = registry_header();

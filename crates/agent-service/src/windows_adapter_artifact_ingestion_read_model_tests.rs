@@ -1,9 +1,14 @@
+use ocentra_parent_agent_protocol::windows_adapter_artifact_ingestion::WindowsAdapterArtifactIngestionProof;
 use ocentra_parent_agent_protocol::{
     constants::{
         windows_adapter_artifact_gate as artifact_gate,
         windows_adapter_artifact_ingestion as artifact_ingestion,
     },
-    policy_constants as policy, WindowsAdapterArtifactGateDecision, WindowsAdapterArtifactKind,
+    policy_constants as policy,
+    windows_adapter_artifact_gate::{
+        WindowsAdapterArtifactGateDecision, WindowsAdapterArtifactGateEntry,
+        WindowsAdapterArtifactKind,
+    },
     WindowsAdapterCapabilitySurface,
 };
 
@@ -140,9 +145,9 @@ fn windows_adapter_artifact_ingestion_builds_domain_and_managed_browser_gate_inp
 }
 
 fn gate_entry_for(
-    proof: &ocentra_parent_agent_protocol::WindowsAdapterArtifactIngestionProof,
+    proof: &WindowsAdapterArtifactIngestionProof,
     surface: WindowsAdapterCapabilitySurface,
-) -> &ocentra_parent_agent_protocol::WindowsAdapterArtifactGateEntry {
+) -> &WindowsAdapterArtifactGateEntry {
     proof
         .gate_proof
         .entries

@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{NetworkCascadeNextCheck, NetworkCrossSliceEvidenceBundle, NetworkEvidenceGrade};
+use crate::bundle::NetworkCrossSliceEvidenceBundle;
+use crate::cascade::NetworkCascadeNextCheck;
+use crate::dns::NetworkEvidenceGrade;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkScreenSummaryTriggerStatus {

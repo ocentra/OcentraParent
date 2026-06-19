@@ -1,19 +1,19 @@
-use ocentra_eventing::DomainEvent;
-use ocentra_lan_core::{
+use ocentra_eventing::envelope::DomainEvent;
+use ocentra_lan_core::lan_pairing::{
     evaluate_lan_discovery, lan_discovery_decision_recorded_event, LanAggregateId,
     LanDiscoveryActionState, LanDiscoveryDecisionId, LanDiscoveryInput, LanInterfaceState,
     LanPairingActionState, LanPeerTrustState, LanRelayState,
 };
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainAiAnalysisRequirement, ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
 };
 
 #[test]
 fn lan_observation_records_presence_evidence_and_requests_policy() {
-    let observed = ocentra_lan_core::default_lan_observed_event();
-    let evidence = ocentra_lan_core::lan_evidence_recorded_event(&observed);
-    let ai = ocentra_lan_core::lan_ai_analysis_requested_event(&evidence);
-    let policy = ocentra_lan_core::lan_policy_evaluation_requested_event(&evidence)
+    let observed = ocentra_lan_core::lan_pairing::default_lan_observed_event();
+    let evidence = ocentra_lan_core::lan_pairing::lan_evidence_recorded_event(&observed);
+    let ai = ocentra_lan_core::lan_pairing::lan_ai_analysis_requested_event(&evidence);
+    let policy = ocentra_lan_core::lan_pairing::lan_policy_evaluation_requested_event(&evidence)
         .expect("LAN policy request is expected");
 
     assert_eq!(
@@ -42,13 +42,13 @@ fn lan_observation_records_presence_evidence_and_requests_policy() {
 
 #[test]
 fn lan_unknown_peer_requests_ai_before_policy() {
-    let observed = ocentra_lan_core::lan_observed_event(
-        ocentra_lan_core::LanObservationIntent::UnknownPeerRequiresAi,
+    let observed = ocentra_lan_core::lan_pairing::lan_observed_event(
+        ocentra_lan_core::lan_pairing::LanObservationIntent::UnknownPeerRequiresAi,
     );
-    let evidence = ocentra_lan_core::lan_evidence_recorded_event(&observed);
-    let ai = ocentra_lan_core::lan_ai_analysis_requested_event(&evidence)
+    let evidence = ocentra_lan_core::lan_pairing::lan_evidence_recorded_event(&observed);
+    let ai = ocentra_lan_core::lan_pairing::lan_ai_analysis_requested_event(&evidence)
         .expect("unknown LAN peer requires AI boundary");
-    let policy = ocentra_lan_core::lan_policy_evaluation_requested_event(&evidence);
+    let policy = ocentra_lan_core::lan_pairing::lan_policy_evaluation_requested_event(&evidence);
 
     assert_eq!(
         evidence.ai_analysis_requirement,
@@ -68,12 +68,12 @@ fn lan_unknown_peer_requests_ai_before_policy() {
 
 #[test]
 fn lan_discovery_observation_only_records_no_ai_or_policy_work() {
-    let observed = ocentra_lan_core::lan_observed_event(
-        ocentra_lan_core::LanObservationIntent::DiscoveryObservationOnly,
+    let observed = ocentra_lan_core::lan_pairing::lan_observed_event(
+        ocentra_lan_core::lan_pairing::LanObservationIntent::DiscoveryObservationOnly,
     );
-    let evidence = ocentra_lan_core::lan_evidence_recorded_event(&observed);
-    let ai = ocentra_lan_core::lan_ai_analysis_requested_event(&evidence);
-    let policy = ocentra_lan_core::lan_policy_evaluation_requested_event(&evidence);
+    let evidence = ocentra_lan_core::lan_pairing::lan_evidence_recorded_event(&observed);
+    let ai = ocentra_lan_core::lan_pairing::lan_ai_analysis_requested_event(&evidence);
+    let policy = ocentra_lan_core::lan_pairing::lan_policy_evaluation_requested_event(&evidence);
 
     assert_eq!(
         evidence.ai_analysis_requirement,

@@ -6,7 +6,7 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformProofReadinessProofReadModel } from './app-install-purchase-platform-proof-readiness';
 import { AppInstallPurchaseProductClaimPortalTestReadinessProofReadModel } from './app-install-purchase-product-claim-portal-test-readiness-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const ProofVersion = 'app-install-purchase-product-claim-platform-preclaim-proof';
 const SourcePortalTestReadinessProofVersion = 'app-install-purchase-product-claim-portal-test-readiness-proof';

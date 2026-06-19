@@ -6,7 +6,7 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProductClaimPlatformLimitationFallbackProofReadModel } from './app-install-purchase-product-claim-platform-limitation-fallback-proof';
 import { AppInstallPurchaseProductClaimProviderStoreProofReadModel } from './app-install-purchase-product-claim-provider-store-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const ProofVersion = 'app-install-purchase-provider-store-api-execution-proof';
 const SourceProviderStoreProofVersion = 'app-install-purchase-product-claim-provider-store-proof';

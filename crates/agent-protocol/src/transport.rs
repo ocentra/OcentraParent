@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{AgentLogSnapshot, LogFields};
+use crate::{
+    AgentLogSnapshot, LogFields, PolicyAssistantConfirmationState, PolicyRequestOrigin,
+    PolicyRequestStatus,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AgentPeerRole {
@@ -182,6 +185,8 @@ pub enum AgentCommandName {
     AgentParentAssistantAnswerGenerate,
     #[serde(rename = "agent.policy.preview.read-model.get")]
     AgentPolicyPreviewReadModelGet,
+    #[serde(rename = "agent.policy.request.assistant-preview.confirm")]
+    AgentPolicyRequestAssistantPreviewConfirm,
     #[serde(rename = "agent.browser-policy.get")]
     AgentBrowserPolicyGet,
     #[serde(rename = "agent.browser-policy.preview")]
@@ -370,6 +375,8 @@ pub enum AgentEventName {
     AgentParentAssistantAnswerReported,
     #[serde(rename = "agent.policy.preview.read-model.reported")]
     AgentPolicyPreviewReadModelReported,
+    #[serde(rename = "agent.policy.request.assistant-preview.confirm.reported")]
+    AgentPolicyRequestAssistantPreviewConfirmReported,
     #[serde(rename = "agent.browser-policy.reported")]
     AgentBrowserPolicyReported,
     #[serde(rename = "agent.browser-policy.previewed")]
@@ -434,6 +441,144 @@ pub enum AgentEventName {
     AgentLanAiJobReported,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PolicyRequestAssistantPreviewConfirmRequestKind {
+    #[serde(rename = "ask-parent")]
+    AskParent,
+    #[serde(rename = "bonus-time")]
+    BonusTime,
+    #[serde(rename = "temporary-override")]
+    TemporaryOverride,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PolicyRequestAssistantPreviewConfirmTargetKind {
+    #[serde(rename = "child-profile")]
+    ChildProfile,
+    #[serde(rename = "device")]
+    Device,
+    #[serde(rename = "app")]
+    App,
+    #[serde(rename = "site")]
+    Site,
+    #[serde(rename = "category")]
+    Category,
+    #[serde(rename = "resource")]
+    Resource,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PolicyRequestAssistantPreviewConfirmAction {
+    #[serde(rename = "allow")]
+    Allow,
+    #[serde(rename = "warn")]
+    Warn,
+    #[serde(rename = "ask-parent")]
+    AskParent,
+    #[serde(rename = "time-limit")]
+    TimeLimit,
+    #[serde(rename = "block")]
+    Block,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PolicyRequestAssistantPreviewConfirmActorRole {
+    #[serde(rename = "parent")]
+    Parent,
+    #[serde(rename = "co-parent")]
+    CoParent,
+    #[serde(rename = "observer")]
+    Observer,
+    #[serde(rename = "child")]
+    Child,
+    #[serde(rename = "support")]
+    Support,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PolicyRequestAssistantPreviewConfirmActorState {
+    #[serde(rename = "active")]
+    Active,
+    #[serde(rename = "revoked")]
+    Revoked,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PolicyRequestAssistantPreviewConfirmResultState {
+    #[serde(rename = "confirmed")]
+    Confirmed,
+    #[serde(rename = "rejected")]
+    Rejected,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PolicyRequestAssistantPreviewConfirmClaimState {
+    #[serde(rename = "claimed")]
+    Claimed,
+    #[serde(rename = "unclaimed")]
+    Unclaimed,
+}
+
+pub type PolicyPreviewRequestStatusValue = PolicyRequestStatus;
+pub type PolicyPreviewAssistantConfirmationStateValue = PolicyAssistantConfirmationState;
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PolicyRequestAssistantPreviewConfirmRequest {
+    pub schema_version: u16,
+    pub command_id: String,
+    pub request_id: String,
+    pub submission_key: String,
+    pub household_id: String,
+    pub child_profile_id: String,
+    pub device_id: Option<String>,
+    pub source_document_id: String,
+    pub policy_version: u64,
+    pub request_kind: PolicyRequestAssistantPreviewConfirmRequestKind,
+    pub target_kind: PolicyRequestAssistantPreviewConfirmTargetKind,
+    pub target_reference_id: String,
+    pub requested_action: PolicyRequestAssistantPreviewConfirmAction,
+    pub rule_id: Option<String>,
+    pub requested_bonus_minutes: Option<u16>,
+    pub requested_at: String,
+    pub expires_at: String,
+    pub origin: PolicyRequestOrigin,
+    pub assistant_preview_id: String,
+    pub assistant_confirmation_state: PolicyPreviewAssistantConfirmationStateValue,
+    pub request_status: PolicyPreviewRequestStatusValue,
+    pub audit_reference_ids: Vec<String>,
+    pub confirmation_actor_id: String,
+    pub confirmation_actor_role: PolicyRequestAssistantPreviewConfirmActorRole,
+    pub confirmation_actor_state: PolicyRequestAssistantPreviewConfirmActorState,
+    pub confirmation_audit_reference_id: String,
+    pub confirmed_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PolicyRequestAssistantPreviewConfirmResult {
+    pub schema_version: u16,
+    pub command_id: String,
+    pub request_id: String,
+    pub assistant_preview_id: Option<String>,
+    pub result_state: PolicyRequestAssistantPreviewConfirmResultState,
+    pub policy_request_status: PolicyPreviewRequestStatusValue,
+    pub policy_assistant_confirmation_state: PolicyPreviewAssistantConfirmationStateValue,
+    pub policy_audit_reference_id: Option<String>,
+    pub confirmed_at: Option<String>,
+    pub rejection_reason: Option<String>,
+    pub command_transport_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub service_validation_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub activity_store_mutation_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub upstream_writer_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub read_model_projection_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub portal_writable_ui_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub child_device_delivery_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub provider_delivery_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub platform_enforcement_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub product_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AgentCommandEnvelope {
@@ -459,4 +604,72 @@ pub struct AgentEventEnvelope {
     pub severity: crate::LogLevel,
     pub payload: LogFields,
     pub snapshot: Option<AgentLogSnapshot>,
+}
+
+#[cfg(test)]
+mod policy_request_assistant_preview_confirm_tests {
+    use super::*;
+
+    #[test]
+    fn policy_request_assistant_preview_confirm_command_and_event_names_serialize_to_contract_shape(
+    ) {
+        let command =
+            serde_json::to_value(AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm)
+                .expect("policy request confirm command serializes");
+        let event =
+            serde_json::to_value(AgentEventName::AgentPolicyRequestAssistantPreviewConfirmReported)
+                .expect("policy request confirm event serializes");
+
+        assert_eq!(command, "agent.policy.request.assistant-preview.confirm");
+        assert_eq!(
+            event,
+            "agent.policy.request.assistant-preview.confirm.reported"
+        );
+    }
+
+    #[test]
+    fn policy_request_assistant_preview_confirm_result_serializes_without_product_overclaims() {
+        let result = PolicyRequestAssistantPreviewConfirmResult {
+            schema_version: 1,
+            command_id: "policy-request-assistant-preview-confirm-command".to_string(),
+            request_id: "policy-request-1".to_string(),
+            assistant_preview_id: Some("assistant-preview-1".to_string()),
+            result_state: PolicyRequestAssistantPreviewConfirmResultState::Confirmed,
+            policy_request_status: PolicyPreviewRequestStatusValue::PendingParentReview,
+            policy_assistant_confirmation_state:
+                PolicyPreviewAssistantConfirmationStateValue::ParentConfirmed,
+            policy_audit_reference_id: Some("audit.policy-request.confirmed".to_string()),
+            confirmed_at: Some("2026-06-18T00:05:00Z".to_string()),
+            rejection_reason: None,
+            command_transport_claim_state: PolicyRequestAssistantPreviewConfirmClaimState::Claimed,
+            service_validation_claim_state: PolicyRequestAssistantPreviewConfirmClaimState::Claimed,
+            activity_store_mutation_claim_state:
+                PolicyRequestAssistantPreviewConfirmClaimState::Unclaimed,
+            upstream_writer_claim_state: PolicyRequestAssistantPreviewConfirmClaimState::Unclaimed,
+            read_model_projection_claim_state:
+                PolicyRequestAssistantPreviewConfirmClaimState::Unclaimed,
+            portal_writable_ui_claim_state:
+                PolicyRequestAssistantPreviewConfirmClaimState::Unclaimed,
+            child_device_delivery_claim_state:
+                PolicyRequestAssistantPreviewConfirmClaimState::Unclaimed,
+            provider_delivery_claim_state:
+                PolicyRequestAssistantPreviewConfirmClaimState::Unclaimed,
+            platform_enforcement_claim_state:
+                PolicyRequestAssistantPreviewConfirmClaimState::Unclaimed,
+            product_claim_state: PolicyRequestAssistantPreviewConfirmClaimState::Unclaimed,
+        };
+
+        let serialized =
+            serde_json::to_value(result).expect("policy request confirm result serializes");
+
+        assert_eq!(serialized["resultState"], "confirmed");
+        assert_eq!(serialized["policyRequestStatus"], "pending-parent-review");
+        assert_eq!(
+            serialized["policyAssistantConfirmationState"],
+            "parent-confirmed"
+        );
+        assert_eq!(serialized["commandTransportClaimState"], "claimed");
+        assert_eq!(serialized["serviceValidationClaimState"], "claimed");
+        assert_eq!(serialized["productClaimState"], "unclaimed");
+    }
 }

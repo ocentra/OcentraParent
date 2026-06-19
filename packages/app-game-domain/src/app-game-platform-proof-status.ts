@@ -16,7 +16,7 @@ import { type AppGameLinuxForegroundCaptureReadiness } from './app-game-linux-fo
 import { type AppGameLinuxWslRuntimeProof } from './app-game-linux-wsl-runtime-proof';
 import { type AppGameWindowsBroadBlockingAuthorityPreflightReadModel } from './app-game-windows-broad-blocking-authority-preflight';
 import { type AppGameWindowsLocalPolicyEvidenceProof } from './app-game-windows-local-policy-evidence-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGamePlatformProofStatusSchemaVersionSchema = withParser(
   Schema.Literal('app-game-platform-proof-status')
@@ -357,7 +357,6 @@ function androidProofRefs(
   return refs;
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function androidOpenGaps(
   proof: AppGameAndroidPhysicalDeviceProof,
   replay?: AppGameAndroidUsageEventsReplayReadModel,

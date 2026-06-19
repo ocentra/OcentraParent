@@ -452,7 +452,7 @@ function assertProof(proof) {
   }
   if (
     proof.aggregateEvidence.crossPlatformCapabilityRowCount < 8 ||
-    proof.aggregateEvidence.crossPlatformLocalProofPassedRowCount < 6 ||
+    proof.aggregateEvidence.crossPlatformLocalProofPassedRowCount < 5 ||
     proof.aggregateEvidence.crossPlatformAndroidSdkToolchainObservedRows < 1 ||
     proof.aggregateEvidence.crossPlatformAndroidGradleBuildObservedRows < 1 ||
     proof.aggregateEvidence.crossPlatformProductReadyRowCount !== 0

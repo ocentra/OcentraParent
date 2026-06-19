@@ -18,7 +18,7 @@ import {
   ParentMobilePlatformSchema,
   ParentMobileServiceAvailabilityStateSchema,
 } from './parent-mobile-runtime';
-import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const V09MobileControllerDiscoveryRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('v0.9-mobile-controller-discovery-runtime')

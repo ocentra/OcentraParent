@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidPhysicalDeviceProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-physical-device-proof')
@@ -115,7 +115,6 @@ export function summarizeAppGameAndroidPhysicalDeviceProof(proof: AppGameAndroid
   } as const;
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function androidPhysicalDeviceProofIsHonest(proof: AppGameAndroidPhysicalDeviceProofCandidate): boolean {
   return (
     proof.targetKind === 'physical-device' &&

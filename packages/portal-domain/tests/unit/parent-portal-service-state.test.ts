@@ -15,12 +15,17 @@ import {
   PortalRoute,
   resolveParentPortalServiceState,
 } from '../../src/contracts';
+import { resolveLiveActivityState } from '../../src/live-activity-state';
+import { parentPortalManageLaneForRoute, parentPortalRouteContext } from '../../src/parent-portal-data';
+import { portalRouteFromHashPath } from '../../src/routes';
 
 describe('portal service-backed parent portal state', () => {
   parentPortalServiceRowTests();
   parentPortalLanAddDeviceRowTests();
+  parentPortalLanParserOwnershipTests();
   parentPortalActivityNetworkRowTests();
   parentPortalProductShellRowTests();
+  parentPortalRouteOwnershipNormalizationTests();
   parentPortalBrowserInventoryRowTests();
 });
 
@@ -86,7 +91,9 @@ function parentPortalProductShellRowTests(): void {
     for (const route of productShellRoutes()) {
       const routeContext = PARENT_PORTAL_ROUTE_CONTEXT[route];
       const control = selectableTargets.get(routeContext?.selectedControlId ?? '');
-      expect(control).toBeDefined();
+      if (control === undefined) {
+        throw new Error(`Missing selectable control for route ${route} and id ${routeContext?.selectedControlId ?? ''}`);
+      }
       if (!rowAreas.has(normalizedPortalTarget(control?.name ?? ''))) {
         missingTargets.push(`${route}:${routeContext?.selectedControlId ?? ''}:${control?.name ?? ''}`);
       }
@@ -127,6 +134,45 @@ function parentPortalProductShellRowTests(): void {
       gapCount: 0,
       trend: 'degraded',
     });
+  });
+}
+
+function parentPortalRouteOwnershipNormalizationTests(): void {
+  it('keeps manage-lane ownership in portal-domain route contracts', () => {
+    expect(parentPortalManageLaneForRoute(PortalRoute.Browser)).toBe('childPolicy');
+    expect(parentPortalManageLaneForRoute(PortalRoute.Notifications)).toBe('portal');
+    expect(parentPortalManageLaneForRoute(PortalRoute.Subscription)).toBe('portal');
+    expect(parentPortalManageLaneForRoute(PortalRoute.Devices)).toBe('deviceOps');
+    expect(parentPortalManageLaneForRoute(PortalRoute.PolicyTracking)).toBe('childPolicy');
+    expect(parentPortalManageLaneForRoute(PortalRoute.Overview)).toBeNull();
+  });
+
+  it('parses portal hash routes and hydrates normalized current-route lane context', () => {
+    expect(portalRouteFromHashPath('#/browser?panel=inventory')).toBe(PortalRoute.Browser);
+    expect(portalRouteFromHashPath('#/notification-channels?panel=alerts')).toBe(PortalRoute.NotificationChannels);
+    expect(portalRouteFromHashPath('#/subscription')).toBe(PortalRoute.Subscription);
+    expect(portalRouteFromHashPath('#/unknown')).toBeNull();
+    expect(parentPortalRouteContext(PortalRoute.Browser)).toMatchObject({
+      selectedControlId: 'managed-web',
+      manageLane: 'childPolicy',
+    });
+    expect(parentPortalRouteContext(PortalRoute.Notifications)).toMatchObject({
+      selectedControlId: 'notifications',
+      manageLane: 'portal',
+    });
+    expect(parentPortalRouteContext(PortalRoute.Subscription)).toMatchObject({
+      selectedControlId: 'subscription-plans',
+      manageLane: 'portal',
+    });
+    expect(parentPortalRouteContext(PortalRoute.Devices)).toMatchObject({
+      selectedControlId: 'lan-pairing',
+      manageLane: 'deviceOps',
+    });
+    expect(parentPortalRouteContext(PortalRoute.PolicyTracking)).toMatchObject({
+      selectedControlId: 'policy-tracking',
+      manageLane: 'childPolicy',
+    });
+    expect(parentPortalRouteContext(PortalRoute.Overview).manageLane).toBeNull();
   });
 }
 
@@ -180,6 +226,39 @@ function parentPortalBrowserInventoryRowTests(): void {
 function parentPortalLanAddDeviceRowTests(): void {
   parentPortalLanSelectedDeviceRowTests();
   parentPortalLanDiscoveryScanRowTests();
+}
+
+function parentPortalLanParserOwnershipTests(): void {
+  it('recovers legacy LAN add-device payloads inside portal-domain without an app-owned parser', () => {
+    const state = resolveLiveActivityState([
+      payloadEvent(AgentEvent.LanPairingStatusReported, {
+        [AgentProtocolDefaults.Field.LanAddDeviceReadModel]: JSON.stringify(legacyLanAddDeviceReadModel()),
+      }),
+    ]);
+
+    expect(state.lanPairingStatusEvent?.event).toBe(AgentEvent.LanPairingStatusReported);
+    expect(state.lanAddDeviceReadModel?.addDeviceState).toBe('paired');
+    expect(state.lanAddDeviceReadModel?.scanSummary.scannedDeviceCount).toBe(3);
+    expect(state.lanAddDeviceReadModel?.selectedDeviceReadiness.routeId).toBe('lan-route-local-network');
+    expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.displayName).toBe('GAMEDEV');
+    expect(state.lanAddDeviceReadModel?.signedDiscoveryRelaySpine?.signedProofRows[0]?.proofState).toBe(
+      'manual-required'
+    );
+  });
+
+  it('keeps incomplete legacy LAN payloads unclaimed inside portal-domain', () => {
+    const state = resolveLiveActivityState([
+      payloadEvent(AgentEvent.LanPairingStatusReported, {
+        [AgentProtocolDefaults.Field.LanAddDeviceReadModel]: JSON.stringify({
+          ...legacyLanAddDeviceReadModel(),
+          scanSummary: null,
+        }),
+      }),
+    ]);
+
+    expect(state.lanPairingStatusEvent?.event).toBe(AgentEvent.LanPairingStatusReported);
+    expect(state.lanAddDeviceReadModel).toBeNull();
+  });
 }
 
 function parentPortalLanSelectedDeviceRowTests(): void {
@@ -317,6 +396,85 @@ function lanReadModelWithScanSummary(scannedDeviceCount: number): string {
   });
 }
 
+function legacyLanAddDeviceReadModel() {
+  return {
+    addDeviceState: 'paired',
+    discoverySource: 'physical-household-lan',
+    localServiceDiscoveryState: 'paired',
+    physicalHouseholdLanState: 'discovered',
+    cloudRelayState: 'unavailable',
+    scanSummary: {
+      schemaVersion: 1,
+      sourceLabels: ['local-service', 'windows-neighbor-table'],
+      scannedDeviceCount: 3,
+      agentDeviceCount: 1,
+      passiveDeviceCount: 1,
+      infrastructureDeviceCount: 1,
+      unsupportedDeviceCount: 0,
+    },
+    discoveredDevices: [
+      {
+        deviceId: 'local-dev-agent',
+        displayName: 'GAMEDEV',
+        reachability: 'online',
+      },
+    ],
+    canonicalHouseholdDevices: [
+      {
+        displayName: 'GAMEDEV',
+        roleBadges: ['child-agent'],
+        sourceLabels: ['local-service'],
+        networkIdentity: {
+          ipAddresses: ['192.168.2.45'],
+          reachability: 'online',
+          evidenceRecords: [],
+        },
+      },
+    ],
+    pairingRequests: [],
+    trustedDeviceRegistry: [],
+    householdDeviceDecisions: [],
+    signedDiscoveryRelaySpine: {
+      signedProofRows: [
+        {
+          check: 'signed-hello-manual-required',
+          proofState: 'manual-required',
+        },
+      ],
+      routeSafetyRows: [
+        {
+          check: 'route-custody-manual-required',
+          custodyLabel: 'manual-proof',
+        },
+      ],
+      relayCacheRows: [
+        {
+          check: 'relay-cache-unavailable',
+          decisionState: 'manual-required',
+        },
+      ],
+    },
+    trustedDeviceIds: ['local-dev-agent'],
+    revokedDeviceIds: [],
+    selectedDeviceReadiness: {
+      schemaVersion: 1,
+      selectedChildDeviceId: 'local-dev-agent',
+      routeId: 'lan-route-local-network',
+      pairingId: null,
+      trustState: 'unpaired',
+      reachability: 'online',
+      readyForControl: false,
+      staleAt: null,
+      offlineAt: null,
+    },
+    controllerAuthority: 'parent-approved',
+    observerAuthority: 'family-observer',
+    routeRequirementLabels: ['Only trusted signed child-agent routes become controllable'],
+    auditCheckLabels: ['Signed hello manual proof required'],
+    honestNonClaims: ['Signed child hello still requires a second device for proof'],
+  } as const;
+}
+
 function parentPortalActivityNetworkRowTests(): void {
   it('surfaces degraded Activity and network adapter states from service events', () => {
     const state = resolveParentPortalServiceState({
@@ -431,14 +589,18 @@ function selectableParentPortalTargets(): ReadonlyMap<string, { readonly name: s
 function rowByPrimaryArea(rows: readonly { readonly primaryArea?: string }[], primaryArea: string) {
   const normalized = normalizedPortalTarget(primaryArea);
   const row = rows.find((entry) => normalizedPortalTarget(entry.primaryArea ?? '') === normalized);
-  expect(row).toBeDefined();
+  if (row === undefined) {
+    throw new Error(`Missing parent portal row for primary area ${primaryArea}`);
+  }
   return row;
 }
 
 function rowByLabel(rows: readonly { readonly label?: string }[], label: string) {
   const normalized = normalizedPortalTarget(label);
   const row = rows.find((entry) => normalizedPortalTarget(entry.label ?? '') === normalized);
-  expect(row).toBeDefined();
+  if (row === undefined) {
+    throw new Error(`Missing parent portal row for label ${label}`);
+  }
   return row;
 }
 

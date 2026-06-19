@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_request_id, child_domain_child_device_id, child_domain_child_profile_id,
     child_domain_evidence_ref, child_domain_fact_ref_from_ai_request_id, child_domain_observed_at,
     child_domain_policy_request_id, child_domain_policy_violation_id_from_policy_request_id,

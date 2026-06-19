@@ -11,7 +11,7 @@ use ocentra_parent_agent_protocol::{
     V08EnforcementProductControlParentAction, V08EnforcementProductControlSurface,
 };
 
-use crate::validate_enforcement_policy_dispatch_read_model;
+use crate::enforcement_policy_dispatch::validate_enforcement_policy_dispatch_read_model;
 
 #[test]
 fn validates_dispatch_ready_dry_run_manual_report_only_rejected_and_recovery_states() {

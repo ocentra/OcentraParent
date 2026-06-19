@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   ScreenLiveViewOptInSettingSchema,
-  ScreenOptionalVisibilityModeSchemaVersion,
   ScreenRawScreenshotRetentionOptInSettingSchema,
 } from '../../src/screen-evidence';
+import { ScreenOptionalVisibilityModeSchemaVersion } from '../../src/screen-optional-visibility-mode-values';
 
 const ChangedAt = '2026-06-05T03:44:00Z';
 

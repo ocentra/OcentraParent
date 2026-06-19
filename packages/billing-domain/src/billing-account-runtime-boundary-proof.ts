@@ -8,7 +8,7 @@ import type {
   BillingAccountRuntimeOperation,
   BillingAccountRuntimeStatus,
 } from './billing-account-runtime-boundary-values';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const decodeParentTimestamp = Schema.decodeUnknownSync(ParentTimestampSchema);
 const Timestamp = decodeParentTimestamp('2026-06-03T13:39:17.000Z');

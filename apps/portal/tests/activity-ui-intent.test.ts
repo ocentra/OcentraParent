@@ -1,8 +1,13 @@
+import { readFileSync } from 'node:fs';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import {
   ActivityScreenReadModelSchema,
   ActivitySurfaceSchemaVersion,
 } from '@ocentra-parent/activity-domain/activity-surface';
+import { DeviceChoiceGrid } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/DeviceChoiceGrid/DeviceChoiceGrid';
+import type { DeviceSlot } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/DeviceChoiceGrid/DeviceChoiceGridTypes';
 import {
   createParentPortalActivityUiIntent,
   createParentPortalCanonicalDeviceSlots,
@@ -31,6 +36,10 @@ const ActivityRequest = {
   rangeStart: '2026-06-01T00:00:00Z',
   rangeEnd: '2026-06-01T15:00:00Z',
 } as const;
+
+const LongLanSelectedLabel =
+  'Media Room Tablet With An Intentionally Long Hostname That Should Still Render As Text';
+
 describe('parent portal Activity UI intent', () => {
   parentPortalActivityIntentTests();
   parentPortalLanPairingIntentTests();
@@ -229,6 +238,149 @@ function parentPortalRuntimeCanonicalTargetTests(): void {
       },
     });
   });
+
+  it('keeps ignored passive LAN neighbors visible but outside canonical policy-target scopes', () => {
+    const baseModel = canonicalRuntimeLanAddDeviceReadModel();
+    const slots = createParentPortalLanPairingUiSlots([], {
+      ...baseModel,
+      householdDeviceDecisions: [
+        ...baseModel.householdDeviceDecisions,
+        {
+          ...lanNeighborHouseholdDecision(),
+          actionId: 'lan-action-ignore-hpsujan',
+          actionKind: 'ignore',
+          displayName: 'HPSUJAN',
+        },
+      ],
+    });
+    const lanNeighbor = slots.find((slot) => slot.value === 'lan-physical-mac-54271e97c331');
+
+    expect(lanNeighbor).toMatchObject({
+      label: 'HPSUJAN',
+      status: 'unsupported',
+      badge: 'ignored',
+      device: {
+        sourceState: 'ignored',
+        parentDecision: 'ignore: HPSUJAN',
+        detectedName: 'HPSUJAN',
+        portalEligible: false,
+      },
+    });
+    expect(createParentPortalCanonicalDeviceSlots([], slots)).not.toContainEqual(
+      expect.objectContaining({ value: 'lan-physical-mac-54271e97c331' })
+    );
+  });
+
+  it('keeps revoked LAN devices visible without promoting them into policy-target scopes', () => {
+    const baseModel = canonicalRuntimeLanAddDeviceReadModel();
+    const slots = createParentPortalLanPairingUiSlots([], {
+      ...baseModel,
+      householdDeviceDecisions: [
+        ...baseModel.householdDeviceDecisions,
+        {
+          ...lanNeighborHouseholdDecision(),
+          actionId: 'lan-action-revoke-hpsujan',
+          actionKind: 'revoke',
+          displayName: 'HPSUJAN',
+          revokedAt: '2026-06-01T15:25:00Z',
+        },
+      ],
+    });
+    const lanNeighbor = slots.find((slot) => slot.value === 'lan-physical-mac-54271e97c331');
+
+    expect(lanNeighbor).toMatchObject({
+      label: 'HPSUJAN',
+      status: 'unsupported',
+      badge: 'revoked',
+      device: {
+        sourceState: 'revoked',
+        parentDecision: 'revoke revoked',
+        detectedName: 'HPSUJAN',
+        portalEligible: false,
+      },
+    });
+    expect(createParentPortalCanonicalDeviceSlots([], slots)).not.toContainEqual(
+      expect.objectContaining({ value: 'lan-physical-mac-54271e97c331' })
+    );
+  });
+
+  it('keeps stale and offline passive LAN neighbor reachability distinct', () => {
+    const staleSlots = createPassiveNeighborStateSlots('stale');
+    const offlineSlots = createPassiveNeighborStateSlots('offline');
+
+    expect(staleSlots.find((slot) => slot.value === 'lan-physical-mac-54271e97c331')).toMatchObject({
+      status: 'available',
+      badge: 'stale',
+      device: {
+        sourceState: 'stale',
+      },
+    });
+    expect(offlineSlots.find((slot) => slot.value === 'lan-physical-mac-54271e97c331')).toMatchObject({
+      status: 'offline',
+      badge: 'offline',
+      device: {
+        sourceState: 'offline',
+      },
+    });
+  });
+
+  it('renders dense LAN grids with long selected labels without inventing hardware details', () => {
+    const markup = renderDenseLanGridMarkup();
+
+    expect(markup).toContain(LongLanSelectedLabel);
+    expect(markup).toContain('Garage desktop');
+    expect(markup).toContain('Family iPad');
+    expect(markup).toContain('textLength=');
+    expect(markup).not.toContain('AMD Ryzen 9 3900X 12-Core Processor');
+    expect(markup).not.toContain('GeForce RTX 2070 SUPER');
+  });
+
+  it('keeps missing LAN hardware rows on the Not reported fallback instead of inventing values', () => {
+    const rendererSource = readFileSync(
+      new URL(
+        '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx',
+        import.meta.url
+      ),
+      'utf8'
+    );
+
+    expect(rendererSource).toContain("function lanPairingMissingDeviceValue(value?: string): string {");
+    expect(rendererSource).toContain("return trimmed ? trimmed : 'Not reported';");
+    expect(rendererSource).toContain("{ label: 'CPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.cpuModel), tone: 'purple' }");
+    expect(rendererSource).toContain(
+      "{ label: 'Memory', value: lanPairingMissingDeviceValue(selectedDevice.device?.memoryTotal), tone: 'gold' }"
+    );
+    expect(rendererSource).toContain("{ label: 'GPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.gpuModel), tone: 'purple' }");
+  });
+
+  it('routes service-backed source and custody labels into the selected-device LAN surface helpers', () => {
+    const rendererSource = readFileSync(
+      new URL(
+        '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx',
+        import.meta.url
+      ),
+      'utf8'
+    );
+
+    expect(rendererSource).toContain("{ label: 'Source', value: lanPairingDeviceSource(selectedDevice), tone: 'purple' }");
+    expect(rendererSource).toContain("{ label: 'Custody', value: lanPairingDeviceCustody(selectedDevice), tone: 'cyan' }");
+    expect(rendererSource).toContain("{ label: 'Custody', value: lanPairingDeviceCustody(selectedDevice), tone: 'purple' }");
+  });
+
+  it('keeps dedicated LAN control-state labels for ignored revoked stale and offline surfaces', () => {
+    const rendererSource = readFileSync(
+      new URL(
+        '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx',
+        import.meta.url
+      ),
+      'utf8'
+    );
+
+    expect(rendererSource).toContain("if (state === 'ignored') return 'Ignored';");
+    expect(rendererSource).toContain("if (state === 'revoked') return 'Revoked';");
+    expect(rendererSource).toContain("if (state === 'stale') return 'Stale';");
+    expect(rendererSource).toContain("if (slot.status === 'offline' || state === 'offline') return 'Offline';");
+  });
 }
 
 function expectCanonicalHouseholdSpineTargetSlots(): void {
@@ -332,6 +484,102 @@ function expectLanSignedDiscoveryRelaySlotEvidence(): void {
     requirementLabel: 'Only trusted signed child-agent routes become controllable',
     evidenceLabel: 'Selected route remains parent-local custody',
   });
+}
+
+function createPassiveNeighborStateSlots(reachability: 'stale' | 'offline') {
+  const baseModel = canonicalRuntimeLanAddDeviceReadModel();
+  const lanNeighbor = lanNeighborCanonicalHouseholdDevice();
+
+  return createParentPortalLanPairingUiSlots([], {
+    ...baseModel,
+    canonicalHouseholdDevices: [
+      localAgentCanonicalHouseholdDevice(),
+      {
+        ...lanNeighbor,
+        networkIdentity: {
+          ...lanNeighbor.networkIdentity,
+          reachability,
+        },
+      },
+      routerCanonicalHouseholdDevice(),
+    ],
+  });
+}
+
+function renderDenseLanGridMarkup(): string {
+  const baseSlots = createParentPortalLanPairingUiSlots([], canonicalRuntimeLanAddDeviceReadModel());
+  const localAgent = baseSlots.find((slot) => slot.value === 'lan-physical-mac-b42e993e72b9');
+  const lanNeighbor = baseSlots.find((slot) => slot.value === 'lan-physical-mac-54271e97c331');
+  const router = baseSlots.find((slot) => slot.value === 'lan-physical-mac-001122334455');
+  if (!localAgent || !lanNeighbor || !router || !lanNeighbor.device) {
+    throw new Error('Expected canonical LAN slots for dense-grid proof');
+  }
+
+  const denseSlots: DeviceSlot[] = [
+    localAgent,
+    {
+      ...lanNeighbor,
+      value: 'lan-physical-mac-aa11bb22cc33',
+      label: LongLanSelectedLabel,
+      slotIndex: 1,
+      device: {
+        ...lanNeighbor.device,
+        id: 'lan-physical-mac-aa11bb22cc33',
+        name: LongLanSelectedLabel,
+        hostname: LongLanSelectedLabel,
+        detectedName: LongLanSelectedLabel,
+        ip: '192.168.2.66',
+        mac: 'aa-11-bb-22-cc-33',
+        status: 'available',
+      },
+    },
+    {
+      ...lanNeighbor,
+      value: 'lan-physical-mac-dd44ee55ff66',
+      label: 'Garage desktop',
+      slotIndex: 2,
+      device: {
+        ...lanNeighbor.device,
+        id: 'lan-physical-mac-dd44ee55ff66',
+        name: 'Garage desktop',
+        hostname: 'GARAGE-DESKTOP',
+        detectedName: 'GARAGE-DESKTOP',
+        ip: '192.168.2.67',
+        mac: 'dd-44-ee-55-ff-66',
+        status: 'available',
+      },
+    },
+    {
+      ...lanNeighbor,
+      value: 'lan-physical-mac-112233445566',
+      label: 'Family iPad',
+      slotIndex: 3,
+      device: {
+        ...lanNeighbor.device,
+        id: 'lan-physical-mac-112233445566',
+        name: 'Family iPad',
+        hostname: 'FAMILY-IPAD',
+        detectedName: 'FAMILY-IPAD',
+        ip: '192.168.2.68',
+        mac: '11-22-33-44-55-66',
+        platform: 'ios',
+        type: 'tablet',
+        parentDeviceKind: 'tablet',
+        status: 'available',
+      },
+    },
+    router,
+  ];
+
+  return renderToStaticMarkup(
+    createElement(DeviceChoiceGrid, {
+      slots: denseSlots,
+      defaultValue: 'lan-physical-mac-aa11bb22cc33',
+      showScopeSelector: false,
+      showAddControls: false,
+      scopeValues: ['lan'],
+    })
+  );
 }
 
 function expectLocalAgentRuntimeSlot(slots: ReturnType<typeof createParentPortalLanPairingUiSlots>): void {

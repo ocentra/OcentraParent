@@ -13,14 +13,21 @@ import {
   RequiredNotificationLocalOutboxSchedulerStates,
 } from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof-values';
 import {
+  NotificationLocalOutboxSchedulerEntryIdSchema,
+  NotificationLocalOutboxSchedulerNonClaimSchema,
   NotificationLocalOutboxSchedulerProofSchema,
+  NotificationLocalOutboxSchedulerProofSchemaVersionSchema,
+  NotificationLocalOutboxSchedulerReadModelIdSchema,
   NotificationLocalOutboxSchedulerRecordSchema,
+  NotificationLocalOutboxSchedulerStateSchema,
+  type NotificationLocalOutboxSchedulerNonClaim,
+  type NotificationLocalOutboxSchedulerProof,
   type NotificationLocalOutboxSchedulerRecord,
   type NotificationLocalOutboxSchedulerState,
 } from './notification-local-outbox-scheduler-proof-schemas';
 import { NotificationLocalOutboxProviderChannels } from './notification-local-outbox-adapter-proof-values';
 import { type V3NotificationProviderChannel } from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export {
   NotificationLocalOutboxSchedulerEntryIdSchema,
@@ -30,13 +37,13 @@ export {
   NotificationLocalOutboxSchedulerReadModelIdSchema,
   NotificationLocalOutboxSchedulerRecordSchema,
   NotificationLocalOutboxSchedulerStateSchema,
-} from './notification-local-outbox-scheduler-proof-schemas';
+};
 export type {
   NotificationLocalOutboxSchedulerNonClaim,
   NotificationLocalOutboxSchedulerProof,
   NotificationLocalOutboxSchedulerRecord,
   NotificationLocalOutboxSchedulerState,
-} from './notification-local-outbox-scheduler-proof-schemas';
+};
 export { NotificationLocalOutboxSchedulerKnownGaps };
 
 type SchedulerInput = (typeof NotificationLocalOutboxSchedulerProofRows)[number];

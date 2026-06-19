@@ -1,27 +1,19 @@
 #![forbid(unsafe_code)]
 
-mod runtime_decision;
+pub mod runtime_decision;
 
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,
     child_domain_evidence_recorded_event, child_domain_observed_event,
     ChildDomainAiAnalysisRequestedEvent, ChildDomainAiAnalysisRequirement,
     ChildDomainEvidenceRecordedEvent, ChildDomainObservedEvent, ChildDomainObservedEventProfile,
     ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequestedEvent,
-    ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
+    ChildDomainPolicyEvaluationRequirement, ChildDomainRefSuffix, ChildRuntimeDomain,
 };
 use serde::{Deserialize, Serialize};
 
 pub const CRATE_NAME: &str = "ocentra-screen-core";
-
-pub use runtime_decision::{
-    evaluate_screen_runtime, screen_runtime_decision_recorded_event,
-    screen_runtime_input_from_capture, screen_runtime_observed_event, ScreenAggregateId,
-    ScreenAiHandoffState, ScreenCaptureScheduleState, ScreenContentSignalState,
-    ScreenPolicyHandoffState, ScreenRuntimeActionState, ScreenRuntimeDecision,
-    ScreenRuntimeDecisionId, ScreenRuntimeDecisionRecordedEvent, ScreenRuntimeInput,
-};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ScreenObservationIntent {
@@ -60,7 +52,7 @@ pub fn screen_observed_profile(intent: ScreenObservationIntent) -> ChildDomainOb
     };
 
     ChildRuntimeDomain::Screen.observed_profile(
-        ocentra_parent_agent_protocol::ChildDomainRefSuffix::ScreenSubject,
+        ChildDomainRefSuffix::ScreenSubject,
         observed_state,
         ai_analysis_requirement,
         policy_evaluation_requirement,

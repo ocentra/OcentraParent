@@ -22,8 +22,7 @@ pub const REFUSAL_UNSUPPORTED_SURFACE: &str =
 pub const REFUSAL_KIND_SURFACE_MISMATCH: &str =
     "artifact kind is not valid for the requested surface";
 
-pub const CLAIM_BOUNDARY: &str =
-    "Artifact ingestion constructs custodied evidence for the gate but never upgrades product claims by itself.";
+pub const CLAIM_BOUNDARY: &str = "Artifact ingestion constructs custodied evidence for the gate but never upgrades product claims by itself.";
 
 pub const TEST_INGESTED_AT: &str = "2026-05-29T23:59:00Z";
 pub const TEST_MISMATCHED_SUBJECT_REF: &str = "test-mismatched-windows-target-subject";

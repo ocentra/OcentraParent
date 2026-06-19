@@ -1,12 +1,14 @@
-import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
-import { AgentProtocolSchemaVersion } from '../../src/primitives';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import {
   AgentAppGameChildRuntimeTransportReceiptPayloadField,
+  AgentAppGameChildRuntimeTransportReceiptReceiptContractRef,
+  AgentAppGameChildRuntimeTransportReceiptSchemaVersion,
   AgentAppGameChildRuntimeTransportReceiptState,
-  parseAgentAppGameChildRuntimeTransportReceiptEvent,
-} from '../../src/app-game-child-runtime-transport-receipt';
+  AgentAppGameChildRuntimeTransportReceiptTransportContractRef,
+} from '@ocentra-parent/schema-domain/app-game-child-runtime-transport-receipt';
+import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
+import { parseAgentAppGameChildRuntimeTransportReceiptEvent } from '../../src/app-game-child-runtime-transport-receipt';
 
 const Source = {
   peerId: 'agent-service',
@@ -19,7 +21,7 @@ const Target = {
 } as const;
 
 const ChildRuntimeTransportReceiptReadModel = {
-  schemaVersion: AppGameSchemaVersion,
+  schemaVersion: AgentAppGameChildRuntimeTransportReceiptSchemaVersion,
   readModelId: 'app-game-child-runtime-transport-receipt',
   generatedAt: '2026-06-08T23:15:00.000Z',
   sourceReadModelIds: ['app-game-child-device-runtime-writer'],
@@ -117,18 +119,18 @@ function childRuntimeTransportReceiptEvent(serializedReadModel: string): AgentEv
 
 function childRuntimeRow(suffix: string, boundaryState: string) {
   return {
-    schemaVersion: AppGameSchemaVersion,
+    schemaVersion: AgentAppGameChildRuntimeTransportReceiptSchemaVersion,
     rowId: `app-game-child-runtime-transport-receipt-${suffix}`,
     sourceRuntimeWriterRowId: `app-game-child-device-runtime-writer-${suffix}`,
     boundaryState,
     productMeanings: ['native-app', 'native-game'],
     requiredTransportRefs:
       boundaryState === AgentAppGameChildRuntimeTransportReceiptState.TransportRequired
-        ? ['child-runtime-transport-contract-ref']
+        ? [AgentAppGameChildRuntimeTransportReceiptTransportContractRef]
         : ['child-runtime-transport-not-executed'],
     requiredReceiptRefs:
       boundaryState === AgentAppGameChildRuntimeTransportReceiptState.TransportRequired
-        ? ['child-runtime-delivery-receipt-contract-ref']
+        ? [AgentAppGameChildRuntimeTransportReceiptReceiptContractRef]
         : ['child-runtime-transport-not-executed'],
     openGaps: ['child-runtime-transport-not-executed', 'child-runtime-receipt-not-ingested'],
     runtimeTransportExecuted: false,

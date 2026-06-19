@@ -35,6 +35,7 @@ import { PortalAuthDialog } from './PortalAuthDialog';
 import { PortalFrameBackdrop, PortalFrameBoundsOverlay } from './PortalFrameSurface';
 import { PortalFrameTunerRoute } from './PortalFrameTunerRoute';
 import { PortalSidebar } from './PortalSidebar';
+import { PortalShellStatusBar } from './PortalShellStatusBar';
 import { PortalUnifiedShell } from './PortalUnifiedChrome';
 import {
   carouselStyle,
@@ -182,6 +183,7 @@ function PortalProductRouteShell({
         routeTransitionActive={headerRouteTransitionActive}
         theme={theme}
       >
+        <PortalShellStatusBar route={route} state={state} />
         <ParentPortalRoute
           actions={actions}
           controls={controls}
@@ -208,6 +210,7 @@ function PortalProtocolRouteShell(props: PortalProtocolRouteShellProps): ReactEl
         routeTransitionActive={props.headerRouteTransitionActive}
         theme={props.theme}
       >
+        <PortalShellStatusBar route={props.route} state={props.state} />
         <div className={PortalDom.Classes.AppFrame} style={appFrameStyle}>
           <PortalSidebar
             actions={props.actions}

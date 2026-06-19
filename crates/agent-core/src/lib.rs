@@ -60,9 +60,9 @@ mod browser_windows_shortcut_source;
 mod enforcement_adapter;
 mod enforcement_app_time_limit;
 mod enforcement_boundary;
-mod enforcement_policy_dispatch;
-mod enforcement_readiness;
-mod enforcement_timer_state;
+pub mod enforcement_policy_dispatch;
+pub mod enforcement_readiness;
+pub mod enforcement_timer_state;
 mod household_ai_provider_route;
 mod household_ai_provider_route_labels;
 mod household_ai_provider_route_state;
@@ -197,14 +197,6 @@ pub use enforcement_boundary::{
     EnforcementAuthorizationOutcome, EnforcementBoundaryInput, EnforcementBoundaryOutcome,
     EnforcementBoundaryRejection,
 };
-pub use enforcement_policy_dispatch::{
-    validate_enforcement_policy_dispatch_read_model, EnforcementPolicyDispatchValidation,
-};
-pub use enforcement_readiness::broad_os_adapter_readiness;
-pub use enforcement_timer_state::{
-    active_timer_state_from_outcome, cancelled_timer_outcome, expired_timer_outcome,
-    restart_recovered_timer_outcome, EnforcementTimerTransitionIds,
-};
 pub use household_ai_provider_route::{
     select_household_ai_provider_route, HouseholdAiProviderCandidate,
     HouseholdAiRouteCandidateDecision, HouseholdAiRouteRequest, HouseholdAiRouteSelection,
@@ -302,7 +294,6 @@ pub use parent_child_event_runtime::{
     ParentChildRuntimeInput, ParentChildRuntimeReport,
 };
 pub use parent_child_event_runtime_phase::ParentChildRuntimePhase;
-pub use policy_dry_run_evaluator::{evaluate_policy_dry_run, PolicyDryRunEvaluationInput};
 pub use process_capture::{
     collect_process_snapshot, process_observation_event, process_snapshot_events,
     ProcessObservation,

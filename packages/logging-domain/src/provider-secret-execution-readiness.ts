@@ -4,6 +4,10 @@ import {
   withParser,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 const providerSecretExecutionText = <Brand extends string>(brand: Brand) =>
   NonEmptyStringSchema.pipe(Schema.brand(brand));
@@ -168,7 +172,7 @@ export function providerSecretExecutionReadinessCoversRequiredStates(
 function providerSecretExecutionReadinessEntryIsSafe(entry: ProviderSecretExecutionReadinessEntryCandidate): boolean {
   return (
     !providerSecretExecutionReadinessHasClaimUpgrade(entry) &&
-    providerSecretExecutionRequiredValuesArePresent(entry.disclosedDataClasses) &&
+    supportProofRequiredValuesArePresent(entry.disclosedDataClasses, ProviderSecretExecutionRequiredDataClasses) &&
     providerSecretExecutionRefsArePresent(entry) &&
     providerSecretExecutionStatesAreCoherent(entry)
   );
@@ -177,7 +181,7 @@ function providerSecretExecutionReadinessEntryIsSafe(entry: ProviderSecretExecut
 function providerSecretExecutionReadinessHasClaimUpgrade(
   entry: ProviderSecretExecutionReadinessEntryCandidate
 ): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsProviderSecrets,
     entry.containsPaymentProviderTokens,
     entry.containsRawChildActivity,
@@ -195,7 +199,7 @@ function providerSecretExecutionReadinessHasClaimUpgrade(
     entry.remoteSupportSessionExecuted,
     entry.productionSlaClaimed,
     entry.ocentraHostedFamilyDataDefault,
-  ].some(Boolean);
+  ]);
 }
 
 function providerSecretExecutionRefsArePresent(entry: ProviderSecretExecutionReadinessEntryCandidate): boolean {
@@ -233,15 +237,5 @@ function providerSecretExecutionPreflightStatesAreCoherent(
   }
 
   return entry.executionState === 'manual-required';
-}
-
-function providerSecretExecutionRequiredValuesArePresent(
-  actualValues: ReadonlyArray<ProviderSecretExecutionDataClass>
-): boolean {
-  const actual = new Set(actualValues);
-  return (
-    actual.size === actualValues.length &&
-    ProviderSecretExecutionRequiredDataClasses.every((value) => actual.has(value))
-  );
 }
 

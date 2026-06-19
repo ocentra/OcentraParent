@@ -8,7 +8,7 @@ import {
   AppGameAndroidPhysicalDeviceProofSchema,
   type AppGameAndroidPhysicalDeviceProof,
 } from './app-game-android-physical-device-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidAccessibilityOverlayPreflightSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-accessibility-overlay-preflight')

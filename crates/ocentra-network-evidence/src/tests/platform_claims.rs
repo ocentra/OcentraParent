@@ -1,18 +1,35 @@
 use crate::{
-    build_network_platform_claim_manifest, map_network_evidence_grade_to_policy,
-    plan_network_android_vpn_service_gate, plan_network_apple_network_extension_gate,
-    plan_network_linux_adapter_gate, plan_network_windows_firewall_adapter_proof,
-    plan_network_windows_wfp_gate, NetworkAndroidVpnServiceCapabilityState,
-    NetworkAndroidVpnServiceGateInput, NetworkAppleNetworkExtensionCapabilityState,
-    NetworkAppleNetworkExtensionGateInput, NetworkAppleNetworkExtensionPlatform,
-    NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping,
-    NetworkEvidencePolicyMappingInput, NetworkLinuxAdapterCapabilityState,
-    NetworkLinuxAdapterGateInput, NetworkLinuxAdapterKind, NetworkPlatformClaimManifestError,
-    NetworkPlatformClaimManifestInput, NetworkPlatformClaimProofSource, NetworkPlatformClaimState,
-    NetworkPlatformClaimTarget, NetworkPlatformUnsupportedClaims,
-    NetworkWindowsFirewallAdapterAction, NetworkWindowsFirewallAdapterProofInput,
-    NetworkWindowsFirewallCapabilityState, NetworkWindowsFirewallTargetKind,
-    NetworkWindowsWfpGateCapabilityState, NetworkWindowsWfpGateInput,
+    android_vpn_service_gate::{
+        plan_network_android_vpn_service_gate, NetworkAndroidVpnServiceCapabilityState,
+        NetworkAndroidVpnServiceGateInput,
+    },
+    apple_network_extension_gate::{
+        plan_network_apple_network_extension_gate, NetworkAppleNetworkExtensionCapabilityState,
+        NetworkAppleNetworkExtensionGateInput, NetworkAppleNetworkExtensionPlatform,
+    },
+    dns::NetworkEvidenceGrade,
+    linux_adapter_gate::{
+        plan_network_linux_adapter_gate, NetworkLinuxAdapterCapabilityState,
+        NetworkLinuxAdapterGateInput, NetworkLinuxAdapterKind,
+    },
+    platform_claims::{
+        build_network_platform_claim_manifest, NetworkPlatformClaimManifestError,
+        NetworkPlatformClaimManifestInput, NetworkPlatformClaimProofSource,
+        NetworkPlatformClaimState, NetworkPlatformClaimTarget, NetworkPlatformUnsupportedClaims,
+    },
+    policy::{
+        map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
+        NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
+    },
+    windows_firewall_adapter::{
+        plan_network_windows_firewall_adapter_proof, NetworkWindowsFirewallAdapterAction,
+        NetworkWindowsFirewallAdapterProofInput, NetworkWindowsFirewallCapabilityState,
+        NetworkWindowsFirewallProofState, NetworkWindowsFirewallTargetKind,
+    },
+    windows_wfp_gate::{
+        plan_network_windows_wfp_gate, NetworkWindowsWfpGateCapabilityState,
+        NetworkWindowsWfpGateInput,
+    },
 };
 
 #[test]
@@ -196,7 +213,7 @@ fn platform_claim_manifest_rejects_proof_source_that_publishes_enforcement_comma
 fn platform_claim_manifest_rejects_non_ready_adapter_authorization() {
     let mut proof = plan_network_windows_firewall_adapter_proof(windows_firewall_input())
         .expect("complete Windows Firewall input should build proof");
-    proof.proof_state = crate::NetworkWindowsFirewallProofState::DryRun;
+    proof.proof_state = NetworkWindowsFirewallProofState::DryRun;
     proof.adapter_apply_authorized = true;
 
     assert_eq!(

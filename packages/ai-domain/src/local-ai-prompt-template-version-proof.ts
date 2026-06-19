@@ -13,7 +13,7 @@ import {
   LocalAiPromptVersionSchema,
   LocalAiProviderIdSchema,
 } from './local-ai-primitives';
-import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const LocalAiPromptTemplateProofCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const LocalAiPromptTemplateRefSchema = brandedNonEmptyStringSchema('LocalAiPromptTemplateRef');

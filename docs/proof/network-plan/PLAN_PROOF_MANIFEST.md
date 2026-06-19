@@ -4,14 +4,14 @@
 
 - proof root restored for incremental slice work
 - current active slice: `01-network-foundation-shim-cleanup`
-- current slice state: `in-progress`
-- current unresolved decision: `@ocentra-parent/parent-domain` `./network-control-catalog` public-export boundary
+- current slice state: `done`
+- current unresolved decision: none inside the slice; the stale `@ocentra-parent/parent-domain` `./network-control-catalog` export was retired in favor of canonical `@ocentra-parent/network-domain` subpaths
 
 ## Slice Map
 
 | Slice | Workpack | Proof doc | Artifact root | Status |
 | --- | --- | --- | --- | --- |
-| `01-network-foundation-shim-cleanup` | `WP01` with `WP08` boundary note | `01-network-foundation-shim-cleanup.md` | `output/network-plan-proof/01-network-foundation-shim-cleanup/` | `in-progress` |
+| `01-network-foundation-shim-cleanup` | `WP01` with `WP08` boundary note | `01-network-foundation-shim-cleanup.md` | `output/network-plan-proof/01-network-foundation-shim-cleanup/` | `done` |
 
 ## Generator / Command Map
 

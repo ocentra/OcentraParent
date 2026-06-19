@@ -1,11 +1,11 @@
-use ocentra_child_enforcement_core::{
+use ocentra_child_enforcement_core::enforcement_action::{
     evaluate_enforcement_action, record_enforcement_action_decision, EnforcementActionInput,
     EnforcementActionMode, EnforcementActionRequestId, EnforcementActionRequestedEvent,
     EnforcementAdapterExecutionState, EnforcementAdapterState, EnforcementAggregateId,
     EnforcementAuditRecordState, EnforcementIdempotencyState, EnforcementRollbackRequirementState,
     EnforcementRollbackState,
 };
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 
 #[test]

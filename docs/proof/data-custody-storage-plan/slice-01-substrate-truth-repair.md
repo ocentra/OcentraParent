@@ -26,7 +26,7 @@
 - Repaired the stale endpoint proof test path from `tests/sync-export.test.ts` to `tests/unit/sync-export.test.ts`.
 - Repaired `storage-custody-core` Rust tests by importing `DomainEvent` from `ocentra_eventing::envelope`.
 - Updated direct-owner known-gap wording so generated proof artifacts no longer falsely describe these contracts as `parent-domain proof`.
-- Kept `parent-owned-local-export-runtime` explicit as a remaining `parent-domain` holdout while still collecting targeted proof for it.
+- Recorded `parent-owned-local-export-runtime` as an explicit `parent-domain` holdout at the time while still collecting targeted proof for it; that explicit boundary later enabled the focused executor/proof follow-on without widening this substrate slice.
 
 ## Validation
 
@@ -56,7 +56,7 @@
 
 ## Surviving Gaps
 
-- `packages/parent-domain/src/parent-owned-local-export-runtime.ts` is still a real ownership holdout; this slice proves it honestly but does not extract it.
+- The former `packages/parent-domain/src/parent-owned-local-export-runtime.ts` holdout is now backed by a focused executor and proof harness, but this substrate slice still does not claim retention scheduler runtime, parent-visible controls, connector/provider runtime, portal/UI truth, or hosted custody.
 - The repaired proofs remain contract proofs. They still do not claim provider runtime, delete executor runtime, report compiler runtime, cloud worker behavior, portal UI, or hosted family/activity custody.
 - `WP01`, `WP02`, `WP07`, and `WP08` remain open and are not implied complete by these artifacts.
 

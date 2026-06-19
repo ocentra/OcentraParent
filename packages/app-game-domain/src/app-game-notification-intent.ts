@@ -27,7 +27,7 @@ import {
   appGameNotificationIntentStatusIsHonest,
 } from './app-game-notification-intent-rules';
 import { ParentActionReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { V3NotificationProviderChannelSchema } from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
 
 export const AppGameNotificationIntentIdSchema = brandedNonEmptyStringSchema('AppGameNotificationIntentId');

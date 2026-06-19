@@ -23,7 +23,7 @@ import {
   type AgentCommandEnvelope,
   type AgentEventEnvelope,
 } from './contracts';
-import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/event-domain/primitives';
+import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/schema-domain/event-primitives';
 
 export const ParentAssistantAdapterPayloadField = {
   ActionPreview: AgentProtocolDefaults.Field.ParentAssistantActionPreview,

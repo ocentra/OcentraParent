@@ -359,28 +359,23 @@ pub fn tracking_observation_portal_notification_candidate_state(
 }
 
 fn tracking_child_device_id(value: TrackingRuntimeRef) -> TrackingChildDeviceId {
-    let value = value.as_contract_text();
-    TrackingChildDeviceId::parse(value).expect(value)
+    parse_contract_text(value.as_contract_text(), TrackingChildDeviceId::parse)
 }
 
 fn tracking_child_profile_id(value: TrackingRuntimeRef) -> TrackingChildProfileId {
-    let value = value.as_contract_text();
-    TrackingChildProfileId::parse(value).expect(value)
+    parse_contract_text(value.as_contract_text(), TrackingChildProfileId::parse)
 }
 
 fn tracking_observation_id(value: TrackingRuntimeRef) -> TrackingObservationId {
-    let value = value.as_contract_text();
-    TrackingObservationId::parse(value).expect(value)
+    parse_contract_text(value.as_contract_text(), TrackingObservationId::parse)
 }
 
 fn tracking_timestamp(value: TrackingTimestampKind) -> TrackingTimestamp {
-    let value = value.as_contract_text();
-    TrackingTimestamp::parse(value).expect(value)
+    parse_contract_text(value.as_contract_text(), TrackingTimestamp::parse)
 }
 
 fn tracking_expected_place_ref(value: TrackingRuntimeRef) -> TrackingExpectedPlaceRef {
-    let value = value.as_contract_text();
-    TrackingExpectedPlaceRef::parse(value).expect(value)
+    parse_contract_text(value.as_contract_text(), TrackingExpectedPlaceRef::parse)
 }
 
 fn tracking_evidence_ref(observation_id: &TrackingObservationId) -> TrackingEvidenceRef {
@@ -388,13 +383,11 @@ fn tracking_evidence_ref(observation_id: &TrackingObservationId) -> TrackingEvid
 }
 
 fn tracking_location_relation(value: TrackingLocationRelationKind) -> TrackingLocationRelation {
-    let value = value.as_contract_text();
-    TrackingLocationRelation::parse(value).expect(value)
+    parse_contract_text(value.as_contract_text(), TrackingLocationRelation::parse)
 }
 
 fn tracking_ai_purpose(value: TrackingAiPurposeKind) -> TrackingAiPurpose {
-    let value = value.as_contract_text();
-    TrackingAiPurpose::parse(value).expect(value)
+    parse_contract_text(value.as_contract_text(), TrackingAiPurpose::parse)
 }
 
 fn tracking_ai_request_id(evidence_ref: &TrackingEvidenceRef) -> TrackingAiRequestId {
@@ -402,15 +395,13 @@ fn tracking_ai_request_id(evidence_ref: &TrackingEvidenceRef) -> TrackingAiReque
 }
 
 fn tracking_uncertainty_code(value: TrackingUncertaintyKind) -> TrackingUncertaintyCode {
-    let value = value.as_contract_text();
-    TrackingUncertaintyCode::parse(value).expect(value)
+    parse_contract_text(value.as_contract_text(), TrackingUncertaintyCode::parse)
 }
 
 fn tracking_notification_channel(
     value: TrackingNotificationChannelKind,
 ) -> TrackingNotificationChannel {
-    let value = value.as_contract_text();
-    TrackingNotificationChannel::parse(value).expect(value)
+    parse_contract_text(value.as_contract_text(), TrackingNotificationChannel::parse)
 }
 
 fn tracking_acknowledgement_id(
@@ -424,19 +415,20 @@ fn tracking_check_in_id(observation_id: &TrackingObservationId) -> TrackingCheck
 }
 
 fn tracking_capability_status(value: &'static str) -> TrackingCapabilityStatus {
-    TrackingCapabilityStatus::parse(value).expect(value)
+    parse_contract_text(value, TrackingCapabilityStatus::parse)
 }
 
 fn tracking_acknowledgement_state(
     value: TrackingAcknowledgementStateValue,
 ) -> TrackingAcknowledgementState {
-    let value = value.as_contract_text();
-    TrackingAcknowledgementState::parse(value).expect(value)
+    parse_contract_text(
+        value.as_contract_text(),
+        TrackingAcknowledgementState::parse,
+    )
 }
 
 fn tracking_check_in_state(value: TrackingCheckInStateValue) -> TrackingCheckInState {
-    let value = value.as_contract_text();
-    TrackingCheckInState::parse(value).expect(value)
+    parse_contract_text(value.as_contract_text(), TrackingCheckInState::parse)
 }
 
 fn infer_tracking_location_relation(
@@ -543,4 +535,14 @@ fn default_tracking_expected_place_evaluation_from_relation(
             ..default_expected_place_evaluation()
         }
     }
+}
+
+fn parse_contract_text<T, E>(
+    value: &'static str,
+    parse: impl FnOnce(&'static str) -> Result<T, E>,
+) -> T
+where
+    E: core::fmt::Debug,
+{
+    parse(value).expect(value)
 }

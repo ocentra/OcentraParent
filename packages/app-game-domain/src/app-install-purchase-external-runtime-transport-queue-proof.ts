@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProofReadModel } from './app-install-purchase-external-runtime-writer-delivery-blocker-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ExternalRuntimeTransportQueueProofVersion = 'app-install-purchase-external-runtime-transport-queue-proof';
 const SourceExternalRuntimeWriterDeliveryBlockerProofVersion =
   'app-install-purchase-external-runtime-writer-delivery-blocker-proof';

@@ -3,8 +3,12 @@ use ocentra_parent_agent_protocol::{
         windows_adapter_artifact_gate as artifact_gate,
         windows_adapter_capability as windows_adapter,
     },
-    policy_constants as policy, WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateDecision,
-    WindowsAdapterArtifactGateEntry, WindowsAdapterArtifactGateProof, WindowsAdapterArtifactKind,
+    policy_constants as policy,
+    windows_adapter_artifact_gate::{
+        WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateDecision,
+        WindowsAdapterArtifactGateEntry, WindowsAdapterArtifactGateProof,
+        WindowsAdapterArtifactKind,
+    },
     WindowsAdapterCapabilityProof, WindowsAdapterCapabilityProofEntry,
     WindowsAdapterCapabilitySurface,
 };

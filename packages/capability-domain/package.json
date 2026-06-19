@@ -5,9 +5,13 @@
   "type": "module",
   "description": "Shared capability names, statuses, and capability catalog contracts.",
   "exports": {
-    "./*": {
-      "import": "./dist/src/*.js",
-      "types": "./dist/src/*.d.ts"
+    "./capabilities": {
+      "import": "./dist/src/capabilities.js",
+      "types": "./dist/src/capabilities.d.ts"
+    },
+    "./capability-data": {
+      "import": "./dist/src/capability-data.js",
+      "types": "./dist/src/capability-data.d.ts"
     },
     "./package-info": {
       "import": "./dist/src/package-info.js",

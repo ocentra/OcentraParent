@@ -1,4 +1,5 @@
 import { decodeDisplayText, decodeTextTokenId, type DisplayText } from './contracts';
+import { resolveDisplayTextFromMap } from './text-family';
 
 export const SocialDashboardUxTextToken = {
   Title: decodeTextTokenId('browser.social.dashboard.title'),
@@ -50,9 +51,5 @@ export const SocialDashboardUxText: Record<SocialDashboardUxTextTokenValue, Disp
 const MissingSocialDashboardUxTextTokenMessage = decodeDisplayText('Missing social dashboard UX text token.');
 
 export function resolveSocialDashboardUxText(token: SocialDashboardUxTextTokenValue): DisplayText {
-  const text = SocialDashboardUxText[token];
-  if (text === undefined) {
-    throw new Error(MissingSocialDashboardUxTextTokenMessage);
-  }
-  return text;
+  return resolveDisplayTextFromMap(SocialDashboardUxText, token, MissingSocialDashboardUxTextTokenMessage);
 }

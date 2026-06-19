@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { LocalAiDegradedState } from '../../src/local-ai-primitives';
-import { LocalAiSafetyResultSchema } from '@ocentra-parent/ai-domain/local-ai';
+import { LocalAiSafetyResultSchema } from '../../src/local-ai';
 
 const evidenceReference = {
   evidenceReferenceId: 'evidence-1',

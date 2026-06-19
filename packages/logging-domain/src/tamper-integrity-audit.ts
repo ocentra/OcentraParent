@@ -5,6 +5,11 @@ import {
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
+
 const tamperIntegrityAuditText = <Brand extends string>(brand: Brand) =>
   NonEmptyStringSchema.pipe(Schema.brand(brand));
 export const TamperIntegrityAuditReadModelIdSchema = tamperIntegrityAuditText('TamperIntegrityAuditReadModelId');
@@ -150,7 +155,7 @@ export const TamperIntegrityAuditReadModelSchema = withParser(
     ),
     Schema.filter(
       (readModel) =>
-        requiredValuesArePresent(
+        supportProofRequiredValuesArePresent(
           readModel.entries.map((entry) => entry.signalKind),
           RequiredSignalKinds
         ) || 'Expected tamper integrity audit to cover every required integrity/tamper signal kind'
@@ -169,7 +174,7 @@ function tamperIntegrityAuditEntryIsSafe(entry: TamperIntegrityAuditEntryCandida
 }
 
 function tamperIntegrityAuditHasClaimUpgrade(entry: TamperIntegrityAuditEntryCandidate): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.providerDeliveryClaimed,
     entry.stealthBehaviorClaimed,
     entry.privilegeEscalationClaimed,
@@ -182,7 +187,7 @@ function tamperIntegrityAuditHasClaimUpgrade(entry: TamperIntegrityAuditEntryCan
     entry.commandLinesIncluded,
     entry.privatePathsIncluded,
     entry.messageContentsIncluded,
-  ].some(Boolean);
+  ]);
 }
 
 function tamperIntegrityAuditHasRequiredRefs(entry: TamperIntegrityAuditEntryCandidate): boolean {
@@ -195,7 +200,7 @@ function tamperIntegrityAuditHasRequiredRefs(entry: TamperIntegrityAuditEntryCan
 }
 
 function tamperIntegrityAuditHasRequiredPayloadFields(entry: TamperIntegrityAuditEntryCandidate): boolean {
-  return requiredValuesArePresent(entry.redactionSafePayloadFields, RequiredPayloadFields);
+  return supportProofRequiredValuesArePresent(entry.redactionSafePayloadFields, RequiredPayloadFields);
 }
 
 function tamperIntegrityAuditHasRequiredNonClaims(entry: TamperIntegrityAuditEntryCandidate): boolean {
@@ -270,14 +275,6 @@ function tamperIntegrityAuditTamperStateIsCoherent(
   return (
     entry.signalKind !== 'tamper-manual-required' || (entry.tamperState === 'manual-required' && manualProofPresent)
   );
-}
-
-function requiredValuesArePresent<T extends string>(
-  actualValues: ReadonlyArray<T>,
-  requiredValues: ReadonlyArray<T>
-): boolean {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }
 
 export type TamperIntegrityAuditSignalKind = Infer<typeof TamperIntegrityAuditSignalKindSchema>;

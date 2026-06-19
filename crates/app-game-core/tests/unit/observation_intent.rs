@@ -2,7 +2,7 @@ use ocentra_app_game_core::{
     app_game_ai_analysis_requested_event, app_game_evidence_recorded_event,
     app_game_observed_event, app_game_policy_evaluation_requested_event, AppGameObservationIntent,
 };
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainAiAnalysisRequirement, ChildDomainObservedSignal,
     ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
 };

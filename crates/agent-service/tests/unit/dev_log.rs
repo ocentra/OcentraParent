@@ -6,14 +6,13 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{constants, LogFields};
-use ocentra_parent_agent_service::dev_log::{
-    write_agent_debug, write_agent_error, write_agent_info, write_agent_warn,
-};
 use ocentra_parent_logging_core::{
-    dev_log::resolve_compat_dev_log_path,
+    compat_dev_log::resolve_compat_dev_log_path,
     path::{LOG_ROOT_ENV, LOG_SCOPE_ENV},
     source::LogSource,
 };
+
+use super::{write_agent_debug, write_agent_error, write_agent_info, write_agent_warn};
 
 fn dev_log_test_lock() -> &'static Mutex<()> {
     static LOCK: OnceLock<Mutex<()>> = OnceLock::new();

@@ -7,7 +7,7 @@ import {
 import { AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel } from './app-install-purchase-child-device-delivery-runtime-writer-proof';
 import { AppInstallPurchasePackageSourceAdapterExecutionProofReadModel } from './app-install-purchase-package-source-adapter-execution-proof';
 import { AppInstallPurchasePlatformLimitationActionProofReadModel } from './app-install-purchase-platform-limitation-action-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ChildDeviceDeliveryReadinessProofVersion = 'app-install-purchase-child-device-delivery-readiness-proof';
 const SourceChildDeviceDeliveryRuntimeWriterProofVersion =
   'app-install-purchase-child-device-delivery-runtime-writer-proof';

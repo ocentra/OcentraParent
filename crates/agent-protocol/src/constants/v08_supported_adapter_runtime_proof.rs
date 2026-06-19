@@ -179,52 +179,31 @@ pub const REQUIREMENT_IOS_FAMILY_CONTROLS: &str = "Family Controls entitlement a
 pub const REQUIREMENT_IOS_DEVICE_ACTIVITY: &str = "DeviceActivity artifact";
 pub const REQUIREMENT_IOS_NETWORK_EXTENSION: &str = "Network Extension artifact";
 
-pub const CLAIM_APP_GAME_TIMER: &str =
-    "App/game support is limited to owned-process identity, app-session evidence, timer state, audit refs, and recoverable expiry; it is not broad installed-app blocking.";
-pub const CLAIM_NETWORK_OBSERVE: &str =
-    "Network/domain support is observe-only policy handoff over stored flow evidence; it is not DNS, VPN, packet, or host filter enforcement.";
-pub const CLAIM_BROAD_APP_MANUAL: &str =
-    "Broad installed-app blocking remains manual-required because scoped process/timer proof does not prove package-wide blocking.";
-pub const CLAIM_HOST_NETWORK_MANUAL: &str =
-    "Host network/domain blocking remains manual-required because flow evidence and policy handoff are not filter apply proof.";
-pub const CLAIM_BROAD_APP_ARTIFACT_STATUS: &str =
-    "Windows app artifacts can make a broad-app target ready for manual review only; they do not prove broad installed-app blocking.";
-pub const CLAIM_HOST_NETWORK_ARTIFACT_STATUS: &str =
-    "Windows network/domain artifacts can make a host-filter target ready for manual review only; they do not prove DNS, VPN, packet, or domain blocking.";
-pub const CLAIM_MANAGED_BROWSER_ARTIFACT_STATUS: &str =
-    "Windows managed-browser artifacts can make exact-URL control ready for manual review only; they do not prove active-tab enforcement.";
-pub const CLAIM_EXACT_ACTIVE_TAB_NOT_CLAIMED: &str =
-    "Exact active-tab enforcement is not claimed by supported app/game or network observe-only runtime proof.";
-pub const CLAIM_PERMISSION_DEGRADED: &str =
-    "Supported-boundary adapters can degrade when permissions or dependencies are missing; degraded state is not enforcement success.";
+pub const CLAIM_APP_GAME_TIMER: &str = "App/game support is limited to owned-process identity, app-session evidence, timer state, audit refs, and recoverable expiry; it is not broad installed-app blocking.";
+pub const CLAIM_NETWORK_OBSERVE: &str = "Network/domain support is observe-only policy handoff over stored flow evidence; it is not DNS, VPN, packet, or host filter enforcement.";
+pub const CLAIM_BROAD_APP_MANUAL: &str = "Broad installed-app blocking remains manual-required because scoped process/timer proof does not prove package-wide blocking.";
+pub const CLAIM_HOST_NETWORK_MANUAL: &str = "Host network/domain blocking remains manual-required because flow evidence and policy handoff are not filter apply proof.";
+pub const CLAIM_BROAD_APP_ARTIFACT_STATUS: &str = "Windows app artifacts can make a broad-app target ready for manual review only; they do not prove broad installed-app blocking.";
+pub const CLAIM_HOST_NETWORK_ARTIFACT_STATUS: &str = "Windows network/domain artifacts can make a host-filter target ready for manual review only; they do not prove DNS, VPN, packet, or domain blocking.";
+pub const CLAIM_MANAGED_BROWSER_ARTIFACT_STATUS: &str = "Windows managed-browser artifacts can make exact-URL control ready for manual review only; they do not prove active-tab enforcement.";
+pub const CLAIM_EXACT_ACTIVE_TAB_NOT_CLAIMED: &str = "Exact active-tab enforcement is not claimed by supported app/game or network observe-only runtime proof.";
+pub const CLAIM_PERMISSION_DEGRADED: &str = "Supported-boundary adapters can degrade when permissions or dependencies are missing; degraded state is not enforcement success.";
 pub const CLAIM_LINUX_UNAVAILABLE: &str =
     "Linux host adapter support is unavailable in this proof and cannot inherit Windows results.";
-pub const CLAIM_MACOS_UNSUPPORTED: &str =
-    "macOS host adapter support is unsupported in this proof and cannot reuse Windows host evidence.";
-pub const CLAIM_MOBILE_MANUAL: &str =
-    "Mobile child control remains manual-required and is not proved by Windows host supported-boundary adapters.";
+pub const CLAIM_MACOS_UNSUPPORTED: &str = "macOS host adapter support is unsupported in this proof and cannot reuse Windows host evidence.";
+pub const CLAIM_MOBILE_MANUAL: &str = "Mobile child control remains manual-required and is not proved by Windows host supported-boundary adapters.";
 
-pub const FALLBACK_APP_GAME_TIMER: &str =
-    "Targets without process/session identity or timer custody return manual-required or degraded instead of escalating to broad block.";
-pub const FALLBACK_NETWORK_OBSERVE: &str =
-    "Network controls without a host filter adapter report manual-required for enforcement while preserving observe-only evidence refs.";
-pub const FALLBACK_BROAD_APP_MANUAL: &str =
-    "The runtime refuses broad app blocking claims until target host apply, rollback, and audit artifacts exist.";
-pub const FALLBACK_HOST_NETWORK_MANUAL: &str =
-    "The runtime refuses network/domain blocking claims until a host filter or DNS adapter proves apply and rollback.";
-pub const FALLBACK_BROAD_APP_ARTIFACT_STATUS: &str =
-    "Missing, mismatched, or uncustodied app artifacts stay refused and complete artifact sets remain manual-review-only.";
-pub const FALLBACK_HOST_NETWORK_ARTIFACT_STATUS: &str =
-    "Missing, mismatched, or uncustodied network artifacts stay refused and complete artifact sets remain manual-review-only.";
-pub const FALLBACK_MANAGED_BROWSER_ARTIFACT_STATUS: &str =
-    "Missing, mismatched, or uncustodied managed-browser artifacts stay refused and complete artifact sets remain manual-review-only.";
-pub const FALLBACK_EXACT_ACTIVE_TAB_NOT_CLAIMED: &str =
-    "The runtime may report managed-session or process fallback states, but exact active-tab enforcement remains not-claimed.";
-pub const FALLBACK_PERMISSION_DEGRADED: &str =
-    "The runtime emits degraded capability and keeps evidence capture or observe-only paths available where possible.";
+pub const FALLBACK_APP_GAME_TIMER: &str = "Targets without process/session identity or timer custody return manual-required or degraded instead of escalating to broad block.";
+pub const FALLBACK_NETWORK_OBSERVE: &str = "Network controls without a host filter adapter report manual-required for enforcement while preserving observe-only evidence refs.";
+pub const FALLBACK_BROAD_APP_MANUAL: &str = "The runtime refuses broad app blocking claims until target host apply, rollback, and audit artifacts exist.";
+pub const FALLBACK_HOST_NETWORK_MANUAL: &str = "The runtime refuses network/domain blocking claims until a host filter or DNS adapter proves apply and rollback.";
+pub const FALLBACK_BROAD_APP_ARTIFACT_STATUS: &str = "Missing, mismatched, or uncustodied app artifacts stay refused and complete artifact sets remain manual-review-only.";
+pub const FALLBACK_HOST_NETWORK_ARTIFACT_STATUS: &str = "Missing, mismatched, or uncustodied network artifacts stay refused and complete artifact sets remain manual-review-only.";
+pub const FALLBACK_MANAGED_BROWSER_ARTIFACT_STATUS: &str = "Missing, mismatched, or uncustodied managed-browser artifacts stay refused and complete artifact sets remain manual-review-only.";
+pub const FALLBACK_EXACT_ACTIVE_TAB_NOT_CLAIMED: &str = "The runtime may report managed-session or process fallback states, but exact active-tab enforcement remains not-claimed.";
+pub const FALLBACK_PERMISSION_DEGRADED: &str = "The runtime emits degraded capability and keeps evidence capture or observe-only paths available where possible.";
 pub const FALLBACK_LINUX_UNAVAILABLE: &str =
     "Linux targets report unavailable until a target-specific adapter proves support.";
 pub const FALLBACK_MACOS_UNSUPPORTED: &str =
     "macOS targets report unsupported until a macOS-specific adapter and artifacts exist.";
-pub const FALLBACK_MOBILE_MANUAL: &str =
-    "Mobile targets keep privileged platform states manual-required until real mobile artifacts exist.";
+pub const FALLBACK_MOBILE_MANUAL: &str = "Mobile targets keep privileged platform states manual-required until real mobile artifacts exist.";

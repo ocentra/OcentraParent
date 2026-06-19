@@ -4,7 +4,7 @@ import {
   withParser,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentDeviceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentDeviceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { ChildProfileReferenceSchema, ParentDeviceReferenceSchema } from '@ocentra-parent/family-domain/references';
 import {
   LanPairingAddressRefSchema,

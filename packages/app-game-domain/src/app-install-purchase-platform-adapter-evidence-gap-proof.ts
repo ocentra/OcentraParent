@@ -6,7 +6,7 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformProofReadinessProofReadModel } from './app-install-purchase-platform-proof-readiness';
 import { AppInstallPurchaseProviderStoreApiExecutionProofReadModel } from './app-install-purchase-provider-store-api-execution-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const ProofVersion = 'app-install-purchase-platform-adapter-evidence-gap-proof';
 const SourceProviderStoreApiExecutionProofVersion = 'app-install-purchase-provider-store-api-execution-proof';

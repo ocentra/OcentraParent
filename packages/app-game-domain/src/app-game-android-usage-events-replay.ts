@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { type AppGameAndroidPhysicalDeviceProof } from './app-game-android-physical-device-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidUsageEventsReplaySchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-usage-events-replay')

@@ -10,7 +10,7 @@ import {
   AppInstallPurchaseWindowsPackageSourceRuntimeHandoffProofSchema,
   type AppInstallPurchaseWindowsPackageSourceRuntimeHandoffProof,
 } from './app-install-purchase-windows-package-source-adapter-evidence';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const ProofVersion = 'app-install-purchase-provider-store-platform-evidence-proof';
 const SourceProviderStoreExecutionPreflightProofVersion =

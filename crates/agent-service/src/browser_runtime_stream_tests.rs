@@ -457,6 +457,13 @@ fn policy_preview_read_model_for_browser(
             policy_request_origin: None,
             policy_assistant_confirmation_state: None,
             policy_request_status: None,
+            policy_approval_id: None,
+            policy_override_id: None,
+            policy_replay_of_approval_id: None,
+            policy_reviewed_by_actor_id: None,
+            policy_reviewed_by_actor_role: None,
+            policy_reviewed_at: None,
+            policy_audit_reference_id: None,
             network_evidence_mapping: None,
         }],
     }

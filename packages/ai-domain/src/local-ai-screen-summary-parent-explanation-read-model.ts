@@ -1,6 +1,6 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { PolicyDecisionHandoffStateSchema } from '@ocentra-parent/policy-domain/policy';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ScreenSummaryParentExplanationReadModelClaimBoundarySchema,
   ScreenSummaryParentExplanationReadModelDisplayStateSchema,

@@ -1,13 +1,15 @@
-use crate::{NetworkLiveCaptureProof, NetworkLiveCaptureProofState};
+use crate::live_capture::{NetworkLiveCaptureProof, NetworkLiveCaptureProofState};
 
 mod types;
 mod validation;
 
-pub use types::{
-    NetworkLiveCaptureExecutionError, NetworkLiveCaptureExecutionInput,
-    NetworkLiveCaptureExecutionProof, NetworkLiveCaptureExecutionRequiredArtifact,
-    NetworkLiveCaptureExecutionSource, NetworkLiveCaptureExecutionState,
-};
+pub type NetworkLiveCaptureExecutionError = types::NetworkLiveCaptureExecutionError;
+pub type NetworkLiveCaptureExecutionInput = types::NetworkLiveCaptureExecutionInput;
+pub type NetworkLiveCaptureExecutionProof = types::NetworkLiveCaptureExecutionProof;
+pub type NetworkLiveCaptureExecutionRequiredArtifact =
+    types::NetworkLiveCaptureExecutionRequiredArtifact;
+pub type NetworkLiveCaptureExecutionSource = types::NetworkLiveCaptureExecutionSource;
+pub type NetworkLiveCaptureExecutionState = types::NetworkLiveCaptureExecutionState;
 
 use validation::{missing_artifacts, validate_input};
 

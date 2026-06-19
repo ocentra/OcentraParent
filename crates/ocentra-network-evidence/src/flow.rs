@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
+use crate::dns::NetworkEvidenceGrade;
 use crate::packet::{parse_network_packet, PacketParseError, TransportPacketMetadata};
 use crate::pcap::{parse_pcap_packets, PcapReplayError};
-use crate::NetworkEvidenceGrade;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkFlowProtocol {

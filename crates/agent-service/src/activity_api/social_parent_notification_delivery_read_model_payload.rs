@@ -37,9 +37,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
 
-mod social_report_writer_delivery_event_handoff;
+pub(crate) mod social_report_writer_delivery_event_handoff;
 
-pub use social_report_writer_delivery_event_handoff::{
+use self::social_report_writer_delivery_event_handoff::{
     request_social_report_writer_delivery_read_model_from_service,
     social_report_writer_delivery_read_model_from_service, SocialReportWriterDeliveryReadModel,
     SocialReportWriterDeliveryReadModelRow,

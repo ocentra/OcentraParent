@@ -2,15 +2,16 @@ use std::env;
 use std::sync::Mutex;
 
 use ocentra_parent_agent_protocol::constants;
-
-use super::live_view_runtime::{
-    ScreenLiveViewRuntimeBlockReason, ScreenLiveViewRuntimeMode, ScreenLiveViewRuntimeSessionState,
+use ocentra_screen_live_view_core::live_view_runtime::{
+    evaluate_screen_live_view_runtime, ScreenLiveViewRuntimeBlockReason,
+    ScreenLiveViewRuntimeInput, ScreenLiveViewRuntimeMode, ScreenLiveViewRuntimeSessionState,
 };
-use super::live_view_service_runtime::run_screen_live_view_worker_runtime;
-use super::live_view_worker::{
+use ocentra_screen_live_view_core::live_view_worker::{
     ScreenLiveViewWorkerExecutionBlockReason, ScreenLiveViewWorkerExecutionState,
     ScreenLiveViewWorkerStartupBlockReason, ScreenLiveViewWorkerStartupState,
 };
+
+use super::live_view_service_runtime::run_screen_live_view_worker_runtime;
 
 static LIVE_VIEW_ENV_LOCK: Mutex<()> = Mutex::new(());
 
@@ -74,8 +75,7 @@ fn service_runtime_preserves_runtime_blocking_reasons() {
         set_lan_defaults();
         env::remove_var(constants::screen_flow::SCREEN_LIVE_VIEW_DELETION_PROOF_ENV);
 
-        let runtime_decision =
-            super::live_view_runtime::evaluate_screen_live_view_runtime(record_input());
+        let runtime_decision = evaluate_screen_live_view_runtime(record_input());
         let record = run_screen_live_view_worker_runtime();
 
         assert_eq!(
@@ -139,7 +139,7 @@ fn service_runtime_refuses_unsafe_worker_options_even_after_startup_gates() {
     });
 }
 
-fn record_input() -> super::live_view_runtime::ScreenLiveViewRuntimeInput {
+fn record_input() -> ScreenLiveViewRuntimeInput {
     run_screen_live_view_worker_runtime().runtime_input
 }
 

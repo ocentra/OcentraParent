@@ -1,5 +1,6 @@
 use std::fs::remove_file;
 
+use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEvidenceKind, ActivityEvidenceRef, AppGameAiClassifierResult,
     AppGameControlActionResult, AppGameControlApprovalAuthority, AppGameControlApprovalDecision,
@@ -47,7 +48,11 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_TEST_WINDOWS_ROW_ID,
 };
 
-use crate::{ActivityJournal, ActivityStore, JournalKey, JOURNAL_KEY_BYTES};
+use crate::{
+    activity_store::ActivityStore,
+    journal::ActivityJournal,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+};
 
 use super::app_game_journal_sqlite_ingest::{
     app_game_ai_classifier_result_journal_event, app_game_approval_action_result_journal_event,
@@ -437,12 +442,7 @@ fn source_evidence(evidence_id: &str) -> ActivityEvidenceRef {
     }
 }
 
-fn append_and_replay(
-    events: &[ActivityEvent],
-) -> (
-    ActivityStore,
-    Vec<ocentra_parent_agent_protocol::ActivityJournalLine>,
-) {
+fn append_and_replay(events: &[ActivityEvent]) -> (ActivityStore, Vec<ActivityJournalLine>) {
     let mut path = std::env::temp_dir();
     let mut file_name = constants::journal::TEST_FILE_PREFIX.to_string();
     file_name.push_str(&std::process::id().to_string());

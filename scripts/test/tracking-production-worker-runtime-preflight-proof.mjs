@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
@@ -22,20 +23,21 @@ async function main() {
   await mkdir(output33, { recursive: true });
 
   run('node', ['scripts/test/tracking-production-worker-runtime-artifact-gate-proof.mjs']);
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-production-worker-runtime-preflight-proof',
-    'tracking-production-worker-runtime-artifact-gate-proof',
+    'tests/contract/tracking-production-worker-runtime-preflight-proof.test.ts',
   ]);
 
-  const proofModule = await importDist('tracking-production-worker-runtime-preflight-proof.js');
+  const proofModule = await tsImport(
+    pathToFileURL(
+      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-production-worker-runtime-preflight-proof.ts')
+    ).href,
+    import.meta.url
+  );
   const runtimeGateProof = JSON.parse(
     await readFile(
       path.join(
@@ -153,10 +155,6 @@ function manualValidationRunbook(proof) {
     lines.push('');
   }
   return `${lines.join('\n')}\n`;
-}
-
-function importDist(name) {
-  return import(pathToFileURL(path.join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
 }
 
 function run(command, args) {

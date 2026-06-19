@@ -1,4 +1,4 @@
-use ocentra_family_identity_core::ChildDisclosureState;
+use ocentra_family_identity_core::family_identity::ChildDisclosureState;
 use ocentra_parent_agent_protocol::{
     constants, tracking_temporary_live_session_id_from_child_device_id, TrackingChildDeviceId,
     TrackingTemporaryLiveSessionId, TrackingTemporaryLiveState,

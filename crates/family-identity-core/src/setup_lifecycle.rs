@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{AuditRequirementState, FamilyActorRole, HouseholdMembership};
+use crate::family_identity::{FamilyActorRole, HouseholdMembership};
+use crate::household_authority::AuditRequirementState;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SetupInvitePurpose {

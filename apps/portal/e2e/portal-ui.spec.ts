@@ -8,12 +8,14 @@ test.setTimeout(420_000);
 
 const portalShellReadyTimeoutMs = 90_000;
 const defaultPortalPort = '4490';
+const manageTargetSelectionStorageKey = 'ocentra.parent.portal.manage-target-selection.v1';
 
 test('portal UI connects to the real agent and renders command results', async ({ context, page }) => {
   const browserFailures = collectBrowserFailures(page);
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: portalOrigin() });
   await page.goto('/#/commands');
   await page.evaluate((storageKey) => window.localStorage.removeItem(storageKey), PortalTheme.LocalStorageKey);
+  await page.evaluate((storageKey) => window.sessionStorage.removeItem(storageKey), manageTargetSelectionStorageKey);
   await page.reload();
   await expect(page.getByRole('button', { exact: true, name: 'Home' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
@@ -32,8 +34,11 @@ test('portal UI connects to the real agent and renders command results', async (
   await assertTabbedCommandResults(page);
   await assertRawEventLog(page);
   await assertOverview(page);
-  await assertDevicesRoute(page);
+  await assertManageRouteRequiresExplicitDeviceSelection(page);
+  const selectedDeviceLabel = await assertDevicesRoute(page);
+  await assertSelectedDeviceContextPersistsAcrossRoutes(page, selectedDeviceLabel);
   await assertRouteScaffolds(page);
+  await assertMobileShellStatusLayout(page);
 
   expect(browserFailures).toEqual([]);
 });
@@ -80,6 +85,7 @@ async function assertAuthDialog(page: Page): Promise<void> {
 
 async function assertCommandControls(page: Page): Promise<void> {
   await expect(commandControlButton(page, 'Reconnect')).toBeVisible();
+  await assertShellStatus(page, 'control: dev-commands');
   await expectCommandControlEnabled(page, 'Check health');
   await expectCommandControlEnabled(page, 'Get log snapshot');
   await expectCommandControlEnabled(page, 'Send connectivity check');
@@ -278,16 +284,32 @@ async function assertActivityCommandResult(
 async function assertOverview(page: Page): Promise<void> {
   await page.goto('/#/overview');
   const surface = page.locator('svg.parent-portal-svg-surface');
-  await expect(surface).toBeVisible();
+  await expect(surface).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
   await expect(surface.locator('text').filter({ hasText: 'Current device state' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
 }
 
-async function assertDevicesRoute(page: Page): Promise<void> {
-  await page.goto('/#/devices');
+async function assertManageRouteRequiresExplicitDeviceSelection(page: Page): Promise<void> {
+  await page.goto('/#/browser-settings');
   const surface = page.locator('svg.parent-portal-svg-surface');
-  await expect(surface).toBeVisible();
+  await expect(surface).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
+  await expect(page.getByText('Per Device').first()).toBeVisible();
+  await expectSurfaceTextToContain(surface, 'Browser target');
+  await expectSurfaceTextToContain(surface, 'No device selected');
+}
+
+async function assertDevicesRoute(page: Page): Promise<string> {
+  await page.goto('/#/devices');
+  await assertShellStatus(page, 'control: lan-pairing');
+  const surface = page.locator('svg.parent-portal-svg-surface');
+  await expect(surface).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
   await expect(surface.locator('text').filter({ hasText: 'SELECTED DEVICE CONTEXT' }).first()).toBeVisible();
   await expect(
     surface
@@ -307,9 +329,105 @@ async function assertDevicesRoute(page: Page): Promise<void> {
       .filter({ hasText: /CONTROL/i })
       .first()
   ).toBeVisible();
-  for (const tabLabel of ['Info', 'Pair', 'Update', 'Capability']) {
+  for (const tabLabel of ['Info', 'Update', 'Capability']) {
     await expect(surface.locator('text').filter({ hasText: tabLabel }).first()).toBeVisible();
   }
+  const pairTab = surface.getByRole('tab', { exact: true, name: 'Show LAN pairing Pair' });
+  if ((await pairTab.count()) > 0) {
+    await expect(pairTab).toBeVisible();
+  } else {
+    await expect(surface.locator('text').filter({ hasText: 'Policy target' }).first()).toBeVisible();
+  }
+
+  return selectLanDeviceForContextProof(page, surface);
+}
+
+async function assertSelectedDeviceContextPersistsAcrossRoutes(
+  page: Page,
+  selectedDeviceLabel: string
+): Promise<void> {
+  await assertSelectedDeviceContextOnManageRoute(page, '/#/browser-settings', selectedDeviceLabel, 'Browser target');
+  await assertSelectedDeviceContextOnManageRoute(page, '/#/ai-runtime', selectedDeviceLabel, 'AI device');
+  await assertSelectedDeviceContextOnManageRoute(page, '/#/entitlements', selectedDeviceLabel, 'Account device');
+  await assertSelectedDeviceContextOnActivityRoute(page, selectedDeviceLabel);
+}
+
+async function selectLanDeviceForContextProof(
+  page: Page,
+  surface: Locator
+): Promise<string> {
+  const scanButton = page.getByRole('button', { name: 'Scan Local Area Network' });
+  await expect(scanButton).toBeVisible();
+  await scanButton.click({ force: true });
+  const deviceChoice = surface.getByRole('button', { name: /^Select (?!LAN ).+/ }).first();
+  await expect(deviceChoice).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
+  const ariaLabel = (await deviceChoice.getAttribute('aria-label')) ?? '';
+  const selectedDeviceLabel = ariaLabel.replace(/^Select /u, '');
+  await deviceChoice.click({ force: true });
+  await expectSurfaceTextToContain(surface, selectedDeviceLabel);
+  return selectedDeviceLabel;
+}
+
+async function assertSelectedDeviceContextOnManageRoute(
+  page: Page,
+  path: string,
+  selectedDeviceLabel: string,
+  expectedTargetLabel: string
+): Promise<void> {
+  await page.goto(path);
+  const surface = page.locator('svg.parent-portal-svg-surface');
+  await expect(surface).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
+  await expect(page.getByText('Per Device').first()).toBeVisible();
+  await expectSurfaceTextToContain(surface, `${expectedTargetLabel}: ${selectedDeviceLabel}`);
+  await expectSurfaceTextNotToContain(surface, `${expectedTargetLabel}: No device selected`);
+}
+
+async function assertSelectedDeviceContextOnActivityRoute(page: Page, selectedDeviceLabel: string): Promise<void> {
+  await page.goto('/#/activity');
+  const surface = page.locator('svg.parent-portal-svg-surface');
+  await expect(surface).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
+  await expectSurfaceTextToContain(surface, `Report device: ${selectedDeviceLabel}`);
+  await expectSurfaceTextNotToContain(surface, 'Report device: Whole family');
+  await expectSurfaceTextNotToContain(surface, 'Report device: No device selected');
+}
+
+async function assertShellStatus(page: Page, expectedControlDetail: string): Promise<void> {
+  const shellStatus = page.getByLabel('Shell status');
+  await expect(shellStatus).toBeVisible();
+  await expect(shellStatus.getByText('Parent access', { exact: true })).toBeVisible();
+  await expect(shellStatus.getByText('Connection', { exact: true })).toBeVisible();
+  await expect(shellStatus.getByText('Household', { exact: true })).toBeVisible();
+  await expect(shellStatus.getByText('Child device', { exact: true })).toBeVisible();
+  await expect(shellStatus.getByText('Route capability', { exact: true })).toBeVisible();
+  await expect(shellStatus.getByText('Data source', { exact: true })).toBeVisible();
+  await expect(shellStatus.getByText(expectedControlDetail)).toBeVisible();
+}
+
+async function assertMobileShellStatusLayout(page: Page): Promise<void> {
+  await page.goto('/#/commands');
+  await page.setViewportSize({ width: 390, height: 844 });
+  const shellStatus = page.getByLabel('Shell status');
+  await expect(shellStatus).toBeVisible();
+  await expect(shellStatus.locator('.shell-status-card')).toHaveCount(6);
+  await page.setViewportSize({ width: 1280, height: 720 });
+}
+
+async function surfaceText(surface: Locator): Promise<string> {
+  return (await surface.locator('text').allTextContents()).join(' ');
+}
+
+async function expectSurfaceTextToContain(surface: Locator, expected: string): Promise<void> {
+  await expect.poll(() => surfaceText(surface), { timeout: portalShellReadyTimeoutMs }).toContain(expected);
+}
+
+async function expectSurfaceTextNotToContain(surface: Locator, unexpected: string): Promise<void> {
+  await expect.poll(() => surfaceText(surface), { timeout: portalShellReadyTimeoutMs }).not.toContain(unexpected);
 }
 
 async function assertCopyButton(page: Page, commandResult: Locator, eventName: string): Promise<void> {

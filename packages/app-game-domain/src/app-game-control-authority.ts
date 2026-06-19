@@ -41,11 +41,9 @@ import {
   ParentContractSchemaVersionSchema,
   ParentPolicyVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyTargetSchema } from '@ocentra-parent/policy-domain/policy';
 
-export * from './app-game-control-platform-authority';
-export * from './app-game-control-approval-flow';
 const ApprovalFlowRefsSchema = Schema.Array(AppGameControlApprovalFlowReferenceSchema);
 const OptionalApprovalFlowRefsSchema = Schema.optionalWith(ApprovalFlowRefsSchema, { default: () => [] });
 

@@ -1,5 +1,6 @@
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDetails, PortalReadableValues } from './details';
+import type { PortalShellParentAccessState } from './parent-portal-shell-status';
 
 const ReasonField = 'reason';
 
@@ -58,6 +59,7 @@ const PreviewState = {
     Denied: 'denied',
     Modified: 'modified',
     Expired: 'expired',
+    ReplayRejected: 'replay-rejected',
   },
 } as const;
 
@@ -71,6 +73,14 @@ const PreviewDetails = {
   RequestOrigin: decodeDisplayText('Request origin'),
   AssistantConfirmation: decodeDisplayText('Assistant confirmation'),
   RequestStatus: decodeDisplayText('Request status'),
+  ApprovalId: decodeDisplayText('Approval ID'),
+  OverrideId: decodeDisplayText('Override ID'),
+  ReplayOfApproval: decodeDisplayText('Replay of approval'),
+  ReviewedBy: decodeDisplayText('Reviewed by'),
+  ReviewedAt: decodeDisplayText('Reviewed at'),
+  AuditReference: decodeDisplayText('Audit reference'),
+  ParentAccess: decodeDisplayText('Parent access'),
+  WriteAuthority: decodeDisplayText('Write authority'),
 } as const;
 
 const PreviewReadableValues: Readonly<Record<string, DisplayText>> = {
@@ -109,11 +119,18 @@ const PreviewReadableValues: Readonly<Record<string, DisplayText>> = {
   approved: decodeDisplayText('Approved'),
   denied: decodeDisplayText('Denied'),
   modified: decodeDisplayText('Modified'),
+  'replay-rejected': decodeDisplayText('Replay rejected'),
 } as const;
 
 const ProductClaim = decodeDisplayText(
   'Policy preview is advisory parent-surface state only. It does not claim enforcement, adapter execution, provider delivery, or child-device application.'
 );
+const ParentAccessReadableValues: Readonly<Record<PortalShellParentAccessState, DisplayText>> = {
+  'active-controller': decodeDisplayText('Active controller'),
+  'observer-only': decodeDisplayText('Observer only'),
+  unauthenticated: decodeDisplayText('Unauthenticated'),
+  'proof-missing': decodeDisplayText('Proof missing'),
+} as const;
 
 export type PolicyPreviewPanelEvent = {
   readonly payload: Record<string, unknown>;
@@ -138,6 +155,13 @@ export type PolicyPreviewPanelReadModel = {
   readonly policyRequestOrigin?: string | null;
   readonly policyAssistantConfirmationState?: string | null;
   readonly policyRequestStatus?: string | null;
+  readonly policyApprovalId?: string | null;
+  readonly policyOverrideId?: string | null;
+  readonly policyReplayOfApprovalId?: string | null;
+  readonly policyReviewedByActorId?: string | null;
+  readonly policyReviewedByActorRole?: string | null;
+  readonly policyReviewedAt?: string | null;
+  readonly policyAuditReferenceId?: string | null;
 };
 
 export type PolicyPreviewPanelDetail = {
@@ -163,7 +187,8 @@ export type PolicyPreviewPanelIntent = {
 
 export function createPolicyPreviewPanelIntent(
   event: PolicyPreviewPanelEvent | null,
-  readModel: PolicyPreviewPanelReadModel | null
+  readModel: PolicyPreviewPanelReadModel | null,
+  parentAccessState: PortalShellParentAccessState = 'proof-missing'
 ): PolicyPreviewPanelIntent {
   const base = baseIntent();
 
@@ -175,10 +200,11 @@ export function createPolicyPreviewPanelIntent(
       summaryDetails: [
         detail(PortalDetails.Status, requiredReadableValue('unavailable')),
         detail(PortalDetails.Reason, summary),
+        detail(PreviewDetails.ParentAccess, parentAccessReadableValue(parentAccessState)),
         ...boundaryDetails(),
         detail(PortalDetails.ProductClaim, ProductClaim),
       ],
-      cards: [boundaryCard()],
+      cards: [accessCard(parentAccessState, null), boundaryCard()],
     };
   }
 
@@ -190,10 +216,11 @@ export function createPolicyPreviewPanelIntent(
       summaryDetails: [
         detail(PortalDetails.Status, requiredReadableValue('unavailable')),
         detail(PortalDetails.Reason, summary),
+        detail(PreviewDetails.ParentAccess, parentAccessReadableValue(parentAccessState)),
         ...boundaryDetails(),
         detail(PortalDetails.ProductClaim, ProductClaim),
       ],
-      cards: [boundaryCard()],
+      cards: [accessCard(parentAccessState, null), boundaryCard()],
     };
   }
 
@@ -208,10 +235,11 @@ export function createPolicyPreviewPanelIntent(
         optionalValue(readModel.parentRuleContextReferenceCount?.toString() ?? null)
       ),
       detail(PortalDetails.ParentRuleContextRefIds, optionalValue(readModel.parentRuleContextRefIds)),
+      detail(PreviewDetails.ParentAccess, parentAccessReadableValue(parentAccessState)),
       ...boundaryDetails(),
       detail(PortalDetails.ProductClaim, ProductClaim),
     ],
-    cards: [previewCard(readModel), sourceCard(readModel), boundaryCard()],
+    cards: [previewCard(readModel), sourceCard(readModel), accessCard(parentAccessState, readModel), boundaryCard()],
   };
 }
 
@@ -251,6 +279,12 @@ function previewCard(readModel: PolicyPreviewPanelReadModel): PolicyPreviewPanel
         previewReadableValue(readModel.policyAssistantConfirmationState ?? null)
       ),
       detail(PreviewDetails.RequestStatus, previewReadableValue(readModel.policyRequestStatus ?? null)),
+      detail(PreviewDetails.ApprovalId, optionalValue(readModel.policyApprovalId ?? null)),
+      detail(PreviewDetails.OverrideId, optionalValue(readModel.policyOverrideId ?? null)),
+      detail(PreviewDetails.ReplayOfApproval, optionalValue(readModel.policyReplayOfApprovalId ?? null)),
+      detail(PreviewDetails.ReviewedBy, reviewedByValue(readModel)),
+      detail(PreviewDetails.ReviewedAt, optionalValue(readModel.policyReviewedAt ?? null)),
+      detail(PreviewDetails.AuditReference, optionalValue(readModel.policyAuditReferenceId ?? null)),
     ],
   };
 }
@@ -270,10 +304,35 @@ function sourceCard(readModel: PolicyPreviewPanelReadModel): PolicyPreviewPanelC
 
   return {
     title: decodeDisplayText('Source lifecycle'),
-    summary: displayText(`Source lifecycle: ${String(previewReadableValue(sourceStatus))}`),
+    summary: sourceLifecycleSummary(sourceStatus),
     details: [
       detail(PreviewDetails.SourceStatus, previewReadableValue(sourceStatus)),
       detail(PreviewDetails.SourceSurface, previewReadableValue(readModel.policySourceSurface ?? null)),
+    ],
+  };
+}
+
+function accessCard(
+  parentAccessState: PortalShellParentAccessState,
+  readModel: PolicyPreviewPanelReadModel | null
+): PolicyPreviewPanelCard {
+  return {
+    title: decodeDisplayText('Approval authority'),
+    summary: accessSummary(parentAccessState, readModel),
+    details: [
+      detail(PreviewDetails.ParentAccess, parentAccessReadableValue(parentAccessState)),
+      detail(
+        PreviewDetails.AssistantConfirmation,
+        previewReadableValue(readModel?.policyAssistantConfirmationState ?? null)
+      ),
+      detail(PreviewDetails.RequestStatus, previewReadableValue(readModel?.policyRequestStatus ?? null)),
+      detail(PreviewDetails.ApprovalId, optionalValue(readModel?.policyApprovalId ?? null)),
+      detail(PreviewDetails.OverrideId, optionalValue(readModel?.policyOverrideId ?? null)),
+      detail(PreviewDetails.ReplayOfApproval, optionalValue(readModel?.policyReplayOfApprovalId ?? null)),
+      detail(PreviewDetails.ReviewedBy, reviewedByValue(readModel)),
+      detail(PreviewDetails.ReviewedAt, optionalValue(readModel?.policyReviewedAt ?? null)),
+      detail(PreviewDetails.AuditReference, optionalValue(readModel?.policyAuditReferenceId ?? null)),
+      detail(PreviewDetails.WriteAuthority, accessWriteAuthority(parentAccessState, readModel)),
     ],
   };
 }
@@ -316,6 +375,81 @@ function previewSummary(readModel: PolicyPreviewPanelReadModel): DisplayText {
   return decodeDisplayText('Preview remains advisory and not enforced.');
 }
 
+function sourceLifecycleSummary(sourceStatus: string): DisplayText {
+  if (sourceStatus === PreviewState.SourceStatus.Delivered) {
+    return decodeDisplayText('Delivered is reported, but active enforcement is separate.');
+  }
+  if (sourceStatus === PreviewState.SourceStatus.Acknowledged) {
+    return decodeDisplayText('Acknowledged delivery is reported, but active enforcement is separate.');
+  }
+  if (
+    sourceStatus === PreviewState.SourceStatus.Active ||
+    sourceStatus === PreviewState.SourceStatus.PartiallyActive
+  ) {
+    return decodeDisplayText('Active lifecycle is adapter-owned and stays distinct from delivery or audit claims.');
+  }
+  return displayText(`Source lifecycle: ${String(previewReadableValue(sourceStatus))}`);
+}
+
+function accessSummary(
+  parentAccessState: PortalShellParentAccessState,
+  readModel: PolicyPreviewPanelReadModel | null
+): DisplayText {
+  if (parentAccessState === 'observer-only') {
+    return decodeDisplayText('Observer-only parents can review policy explanation but cannot confirm or save writes.');
+  }
+  if (parentAccessState === 'unauthenticated') {
+    return decodeDisplayText('Sign-in is required before reviewing or confirming policy changes.');
+  }
+  if (parentAccessState === 'proof-missing') {
+    return decodeDisplayText('Parent authority proof is missing, so the portal cannot claim write permission.');
+  }
+  if (readModel?.policyRequestStatus === PreviewState.RequestStatus.ReplayRejected) {
+    return decodeDisplayText('The latest approval attempt was rejected as a replay, so no new override was created.');
+  }
+  if (readModel?.policyAssistantConfirmationState === PreviewState.AssistantConfirmationState.ParentConfirmationRequired) {
+    return decodeDisplayText('Controller authority is present, but parent confirmation is still required before any write.');
+  }
+  if (
+    readModel?.policyAuditReferenceId !== null &&
+    readModel?.policyAuditReferenceId !== undefined &&
+    (readModel?.policyRequestStatus === PreviewState.RequestStatus.Approved ||
+      readModel?.policyRequestStatus === PreviewState.RequestStatus.Modified ||
+      readModel?.policyRequestStatus === PreviewState.RequestStatus.Denied)
+  ) {
+    return decodeDisplayText('Controller review is recorded with reviewer and audit details, but delivery and enforcement remain separate states.');
+  }
+  if (
+    readModel?.policyAssistantConfirmationState === PreviewState.AssistantConfirmationState.ParentConfirmed ||
+    readModel?.policyRequestStatus === PreviewState.RequestStatus.Approved
+  ) {
+    return decodeDisplayText('Controller confirmation is recorded, but delivery and enforcement remain separate states.');
+  }
+  return decodeDisplayText('Controller authority is present, but the portal still treats this policy path as preview-only.');
+}
+
+function accessWriteAuthority(
+  parentAccessState: PortalShellParentAccessState,
+  readModel: PolicyPreviewPanelReadModel | null
+): DisplayText {
+  if (parentAccessState === 'observer-only') {
+    return decodeDisplayText('Observer scope is read-only and cannot confirm or save policy writes.');
+  }
+  if (parentAccessState === 'unauthenticated') {
+    return decodeDisplayText('Sign-in required before any review or confirmation action.');
+  }
+  if (parentAccessState === 'proof-missing') {
+    return decodeDisplayText('Write authority is unavailable until household role proof is visible.');
+  }
+  if (readModel?.policyAssistantConfirmationState === PreviewState.AssistantConfirmationState.ParentConfirmed) {
+    return decodeDisplayText('Parent-confirmed preview is visible, but the portal still has no typed write command.');
+  }
+  if (readModel?.policyAssistantConfirmationState === PreviewState.AssistantConfirmationState.ParentConfirmationRequired) {
+    return decodeDisplayText('Parent confirmation is required before any write.');
+  }
+  return decodeDisplayText('Preview-only route; no typed write command is exposed from this surface.');
+}
+
 function hasConflictFinding(readModel: PolicyPreviewPanelReadModel): boolean {
   const findingKinds = readModel.policyPreviewFindingKinds?.toLowerCase() ?? '';
   const explanationCode = readModel.policyPreviewTargetExplanationCode?.toLowerCase() ?? '';
@@ -344,6 +478,22 @@ function previewReadableValue(value: string | null): DisplayText {
     return optionalValue(null);
   }
   return PreviewReadableValues[value] ?? PortalReadableValues[value] ?? displayText(value);
+}
+
+function parentAccessReadableValue(value: PortalShellParentAccessState): DisplayText {
+  return ParentAccessReadableValues[value];
+}
+
+function reviewedByValue(readModel: PolicyPreviewPanelReadModel | null): DisplayText {
+  const actorId = readModel?.policyReviewedByActorId ?? null;
+  const actorRole = readModel?.policyReviewedByActorRole ?? null;
+  if (actorId === null && actorRole === null) {
+    return optionalValue(null);
+  }
+  if (actorId !== null && actorRole !== null) {
+    return displayText(`${actorId} (${actorRole})`);
+  }
+  return optionalValue(actorId ?? actorRole);
 }
 
 function optionalValue(value: string | null): DisplayText {

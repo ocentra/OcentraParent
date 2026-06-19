@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
@@ -15,8 +16,8 @@ const commands = [];
 const initialGitStatusShort = gitOutput(['status', '--short']);
 
 const sourceProofRefs = [
-  'packages/parent-domain/src/production-support-status-backend-durable-queue-runtime-proof.ts',
-  'packages/parent-domain/src/production-support-status-backend-durable-queue-runtime-read-model.ts',
+  'packages/production-domain/src/production-support-status-backend-durable-queue-runtime-proof.ts',
+  'packages/production-domain/src/production-support-status-backend-durable-queue-runtime-read-model.ts',
   'test-results/tracking-provider-runtime-readiness-blocker-proof/proof.json',
   'test-results/tracking-escalation-runtime-readiness-blocker-proof/proof.json',
   'test-results/tracking-retention-durable-settings-proof/proof.json',
@@ -33,14 +34,31 @@ async function main() {
   await mkdir(focusedProofDir, { recursive: true });
   await mkdir(wp33ProofDir, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  runNpmCommand(run, ['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
+  runNpmCommand(run, [
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/tracking-domain',
+    '--',
+    'tests/contract/tracking-production-durable-workers-readiness-blocker-proof.test.ts',
+  ]);
+  run('node', ['scripts/test/tracking-escalation-runtime-readiness-blocker-proof.mjs']);
+  run('node', ['scripts/test/tracking-retention-durable-settings-proof.mjs']);
+  run('node', ['scripts/test/tracking-production-worker-runtime-preflight-proof.mjs']);
 
   await assertSourceProofsExist();
   const productionWorkerRuntimeArtifactGateProof = await readJson(productionWorkerRuntimeArtifactGateProofRef);
-  const trackingProductionModule = await importDist('tracking-production-durable-workers-readiness-blocker-proof.js');
-  const productionSupportReadModelModule = await importDist(
-    'production-support-status-backend-durable-queue-runtime-read-model.js'
+  const trackingProductionModule = await tsImport(
+    pathToFileURL(
+      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-production-durable-workers-readiness-blocker-proof.ts')
+    ).href,
+    import.meta.url
+  );
+  const productionSupportReadModelModule = await tsImport(
+    pathToFileURL(
+      join(repoRoot, 'packages', 'production-domain', 'src', 'production-support-status-backend-durable-queue-runtime-read-model.ts')
+    ).href,
+    import.meta.url
   );
   const proof = buildProof(
     trackingProductionModule,
@@ -160,10 +178,6 @@ function rowsFrom(sourceProof) {
   if (Array.isArray(sourceProof.readModel?.rows)) return sourceProof.readModel.rows;
   if (Array.isArray(sourceProof.rows)) return sourceProof.rows;
   throw new Error(`Production worker runtime artifact gate proof has no rows: ${sourceProof.proofMode ?? 'unknown'}`);
-}
-
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
 }
 
 function run(command, args) {

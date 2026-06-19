@@ -1,4 +1,4 @@
-use ocentra_browser_core::{
+use ocentra_browser_core::performance_budget::{
     browser_performance_fixture_budget_matrix, evaluate_browser_performance_budget,
     BrowserPerformanceBudgetCheck, BrowserPerformanceBudgetError, BrowserPerformanceBudgetState,
 };

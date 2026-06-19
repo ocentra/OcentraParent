@@ -5,6 +5,11 @@ import {
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
+
 const deleteExecutorText = <Brand extends string>(brand: Brand) => NonEmptyStringSchema.pipe(Schema.brand(brand));
 
 export const DeleteExecutorReadModelIdSchema = deleteExecutorText('DeleteExecutorReadModelId');
@@ -163,7 +168,7 @@ function deleteExecutorRowIsSupportSafe(
   requiredDataClasses: ReadonlyArray<DeleteExecutorDataClass>
 ): boolean {
   return (
-    requiredValuesArePresent(row.disclosedDataClasses, requiredDataClasses) &&
+    supportProofRequiredValuesArePresent(row.disclosedDataClasses, requiredDataClasses) &&
     deleteExecutorRefsArePresent(row) &&
     deleteExecutorManualProofIsPresent(row) &&
     !deleteExecutorHasOverclaim(row)
@@ -196,7 +201,7 @@ function deleteExecutorManualProofIsPresent(row: DeleteExecutorRowCandidate): bo
 }
 
 function deleteExecutorHasOverclaim(row: DeleteExecutorRowCandidate): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     row.realDeleteExecuted,
     row.durableQueueExecuted,
     row.payloadDeletionExecuted,
@@ -211,14 +216,6 @@ function deleteExecutorHasOverclaim(row: DeleteExecutorRowCandidate): boolean {
     row.containsRawSupportBundlePayload,
     row.containsProviderSecrets,
     row.containsRemoteSupportTranscripts,
-  ].some(Boolean);
-}
-
-function requiredValuesArePresent<T extends string>(
-  actualValues: ReadonlyArray<T>,
-  requiredValues: ReadonlyArray<T>
-): boolean {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
+  ]);
 }
 

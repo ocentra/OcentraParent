@@ -4,7 +4,7 @@ import {
   AgentEventEnvelopeSchema,
   AgentProtocolSchemaVersion,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
-import { PortalCommandResultEvents, isCommandResultEvent, latestCommandResult } from '../../src/contracts';
+import { PortalCommandResultEvents, isCommandResultEvent, latestCommandResult } from '../../src/command-results';
 
 describe('portal command result contract', () => {
   it('recognizes portal-selectable command result events from the canonical list', () => {

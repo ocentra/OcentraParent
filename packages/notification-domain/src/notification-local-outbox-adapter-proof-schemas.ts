@@ -10,7 +10,7 @@ import {
   RequiredNotificationLocalOutboxNonClaims,
   RequiredNotificationLocalOutboxStates,
 } from './notification-local-outbox-adapter-proof-values';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   FamilyReferenceSchema,
   ParentActionReferenceSchema,

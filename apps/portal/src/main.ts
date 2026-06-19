@@ -1,6 +1,7 @@
 import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AgentProtocolDefaults, decodeAgentWebSocketUrl } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { DevLogField, DevLogMessage } from '@ocentra-parent/logging-domain/contracts';
 import {
   PortalDom,
   PortalEnvironment,
@@ -12,7 +13,7 @@ import {
   type PortalRoute as PortalRouteValue,
   type PortalThemeValue,
 } from '@ocentra-parent/portal-domain/contracts';
-import { DevLogField, DevLogMessage, writePortalDevLog } from './dev-logger';
+import { writePortalDevLog } from './dev-logger';
 import { fadePortalBackgroundBootLayer, removePortalBackgroundBootLayer } from './portal-background-boot';
 import { PortalBackgroundDevTool } from './PortalBackgroundDevTool';
 import { PortalApp } from './PortalApp';

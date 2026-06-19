@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidChildRuntimeLocalReceiptAckProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-child-runtime-local-receipt-ack-proof')
@@ -173,7 +173,6 @@ function androidChildRuntimeLocalReceiptAckProofRefs(input: {
   return refs;
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function androidChildRuntimeLocalReceiptAckProofIsHonest(proof: AndroidChildRuntimeLocalReceiptAckCandidate): boolean {
   return (
     proof.receiptAppendState === 'local-receipt-append-recorded' &&

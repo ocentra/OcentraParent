@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { LanBrowserAddDeviceReadModelSchema, LanPairingProductionDiscoveryStates } from '../../src/lan-pairing';
+import { LanBrowserAddDeviceReadModelSchema } from '../../src/lan-pairing-device';
+import { LanPairingProductionDiscoveryStates } from '../../src/lan-pairing-values';
 
 const generatedAt = '2026-06-01T15:20:00.000Z';
 

@@ -110,6 +110,10 @@ fn target_type_and_value(
     fields: &LogFields,
     row: &PolicyPreviewStoreRow,
 ) -> Option<(PolicyTargetType, String)> {
+    if let Some(target) = explicit_target_type_and_value(fields) {
+        return Some(target);
+    }
+
     match subject_kind {
         constants::activity_subject_kind::PROCESS => Some((
             PolicyTargetType::Process,
@@ -132,6 +136,13 @@ fn target_type_and_value(
         }
         _ => None,
     }
+}
+
+fn explicit_target_type_and_value(fields: &LogFields) -> Option<(PolicyTargetType, String)> {
+    let target_type = string_field(fields, constants::field::POLICY_TARGET_TYPE)
+        .and_then(|value| PolicyTargetType::from_protocol_str(&value))?;
+    let target_value = string_field(fields, constants::field::POLICY_TARGET_VALUE)?;
+    Some((target_type, target_value))
 }
 
 fn url_target(

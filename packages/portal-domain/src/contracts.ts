@@ -11,8 +11,6 @@ export {
   type PortalClipboardText,
   type PortalDetailValue,
 } from './detail-values';
-export { PortalActivitySurfaceDefaultRequestPayload, PortalCommandButtons, PortalOverviewCommands } from './commands';
-export { PortalCommandResultEvents, isCommandResultEvent, latestCommandResult } from './command-results';
 export { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
 export { PortalDiagnostics } from './diagnostics';
 export {
@@ -124,7 +122,6 @@ export {
   resolveParentPortalServiceState,
   type ParentPortalServiceState,
 } from './parent-portal-service-state';
-export { networkEvidenceDrawerSummary, type NetworkEvidenceDrawerSummary } from './network-evidence-drawer';
 export {
   TrackingStatusProofArtifacts,
   TrackingStatusProofArtifactSchema,
@@ -159,30 +156,6 @@ export {
   type TrackingRetentionSettingsWritePreflight,
 } from './tracking-retention-settings-hosted-ui-proof';
 export {
-  TrackingMissingDeviceHostedUiDetails,
-  TrackingNotificationParentSurfaceHostedUiDetails,
-  TrackingParentActionReadinessHostedUiDetails,
-  trackingChildCheckInProof,
-  trackingChildRuntimeUiProof,
-  trackingMissingDeviceHostedUiProof,
-  trackingNotificationParentSurfaceHostedUiProof,
-  trackingParentActionReadinessHostedUiProof,
-  trackingReportExportHostedUiProof,
-  trackingReportPolicyConsumerHostedUiProof,
-  type TrackingChildCheckInProof,
-  type TrackingChildRuntimeUiProof,
-  type TrackingMissingDeviceHostedUiProof,
-  type TrackingMissingDeviceHostedUiRow,
-  type TrackingNotificationParentSurfaceHostedUiProof,
-  type TrackingNotificationParentSurfaceHostedUiRow,
-  type TrackingParentActionReadinessHostedUiProof,
-  type TrackingParentActionReadinessHostedUiRow,
-  type TrackingReportExportHostedUiProof,
-  type TrackingReportExportHostedUiRow,
-  type TrackingReportPolicyConsumerHostedUiProof,
-  type TrackingReportPolicyConsumerHostedUiRow,
-} from './tracking-hosted-ui-proofs';
-export {
   PARENT_PORTAL_NAV_LABELS,
   type ParentPortalHashRoutePath,
   type ParentPortalNavGroup,
@@ -191,15 +164,6 @@ export {
   type ParentPortalNavLabel,
   type ParentPortalNavSectionLabel,
 } from './parent-portal-nav';
-export {
-  PARENT_PORTAL_GUIDE_QUERY,
-  PARENT_PORTAL_GUIDE_TOPICS,
-  PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES,
-  PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS,
-  type ParentPortalGuideNote,
-  type ParentPortalGuidePage,
-  type ParentPortalGuideTopic,
-} from './parent-portal-guides';
 export {
   parseActivityMemoryGraphReadModel,
   type PortalActivityMemoryGraphEdge,

@@ -6,7 +6,7 @@ import {
   buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoff,
 } from '../../src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff';
 import { AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelSchema } from '../../src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const UpstreamProtocolReadModelPath = new URL(
   '../../../test-results/app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model-proof/timer-service-readiness-protocol-read-model.json',

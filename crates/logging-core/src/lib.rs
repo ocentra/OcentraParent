@@ -2,6 +2,7 @@
 
 pub mod agent_run;
 pub mod artifact;
+pub mod compat_dev_log;
 pub mod dev_log;
 pub mod diagnostic;
 pub mod event;

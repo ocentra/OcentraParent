@@ -9,7 +9,7 @@ import {
   AppInstallPurchaseApprovalContractProofReadModel,
   AppInstallPurchaseApprovalProofKnownGaps,
 } from './app-install-purchase-approval-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { appInstallPurchaseRuntimeProofIsHonest } from './app-install-purchase-runtime-proof-rules';
 const RuntimeSchemaVersion = 'app-install-purchase-runtime-proof';
 const RuntimeBoundary =

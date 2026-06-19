@@ -14,6 +14,7 @@ import {
   RequiredStatelessReportCompilerStatuses,
   StatelessReportCompilerKnownGaps,
 } from './stateless-report-compiler-status-values';
+import { countProductionProofValues } from './production-proof-shape';
 import {
   FamilyReferenceSchema,
   ParentAccountReferenceSchema,
@@ -21,7 +22,7 @@ import {
   ParentDeviceReferenceSchema,
   ParentEvidenceReferenceSchema,
 } from '@ocentra-parent/family-domain/references';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export { StatelessReportCompilerKnownGaps };
 
@@ -301,7 +302,7 @@ export const StatelessReportCompilerContractProofReadModel = StatelessReportComp
 export function summarizeStatelessReportCompilerStatuses(
   rows: ReadonlyArray<StatelessReportCompilerStatusRow>
 ): Record<StatelessReportCompilerStatus, number> {
-  return countBy(
+  return countProductionProofValues(
     rows.map((row) => row.status),
     RequiredStatelessReportCompilerStatuses
   );
@@ -310,7 +311,7 @@ export function summarizeStatelessReportCompilerStatuses(
 export function summarizeStatelessReportCompilerRequestedDataClasses(
   request: StatelessReportCompilerRequest
 ): Record<ParentOwnedSyncExportDataClass, number> {
-  return countBy(request.requestedDataClasses, [
+  return countProductionProofValues(request.requestedDataClasses, [
     'encrypted-journal-segment',
     'sqlite-query-row',
     'parent-rule',
@@ -497,13 +498,5 @@ function tempArtifacts(deleted: boolean) {
     outputDeletedAt: deleted ? Timestamp : null,
     deletionConfirmed: deleted,
   };
-}
-
-function countBy<const T extends string>(values: readonly T[], expected: readonly T[]): Record<T, number> {
-  const counts = Object.fromEntries(expected.map((value) => [value, 0])) as Record<T, number>;
-  for (const value of values) {
-    counts[value] += 1;
-  }
-  return counts;
 }
 

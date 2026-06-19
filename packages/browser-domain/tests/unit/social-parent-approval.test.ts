@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SocialParentApprovalDecisionSchema, SocialParentApprovalRequestSchema } from '../../src/social-parent-approval';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 describe('social parent approval request and decision contracts', () => {
   it('accepts pending social account signup requests with evidence refs', acceptsPendingSignupRequest);

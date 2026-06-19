@@ -1,4 +1,5 @@
 import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { DevLogField, DevLogMessage } from '@ocentra-parent/logging-domain/contracts';
 import {
   PortalDom,
   PortalFormatting,
@@ -7,11 +8,11 @@ import {
   PortalTiming,
   createAppGameTimerParentPreferenceSetupCommandResultDetails,
   decodePortalClipboardText,
-  latestCommandResult,
   type AppGameTimerParentSurfacePanelDetail,
 } from '@ocentra-parent/portal-domain/contracts';
+import { latestCommandResult } from '@ocentra-parent/portal-domain/command-results';
 import { writeClipboardText } from './clipboard';
-import { DevLogField, DevLogMessage, writePortalDevLog } from './dev-logger';
+import { writePortalDevLog } from './dev-logger';
 import type { PortalRuntimeState } from './portal-state';
 
 export function renderCommandResultPanel(container: HTMLElement, state: PortalRuntimeState): void {

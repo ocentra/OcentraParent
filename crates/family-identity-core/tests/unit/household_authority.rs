@@ -1,9 +1,11 @@
-use ocentra_family_identity_core::{
-    authorize_household_action, ActorAccountState, AuditRequirementState, ChildProfileBindingState,
-    DeviceOwnershipScope, DeviceTrustState, ElevatedConfirmationState, FamilyActorRole,
+use ocentra_family_identity_core::family_identity::{
+    ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
+    FamilyActorRole, HouseholdMembership, SessionFreshnessState,
+};
+use ocentra_family_identity_core::household_authority::{
+    authorize_household_action, AuditRequirementState, ElevatedConfirmationState,
     HouseholdAuthorityAction, HouseholdAuthorityInput, HouseholdAuthorizationFailureReason,
-    HouseholdAuthorizationState, HouseholdMembership, ParentControllerLeaseState,
-    SessionFreshnessState,
+    HouseholdAuthorizationState, ParentControllerLeaseState,
 };
 
 fn trusted_parent_input(action: HouseholdAuthorityAction) -> HouseholdAuthorityInput {

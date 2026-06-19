@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{DnsObservation, NetworkEvidenceGrade, NetworkFlowProtocol, NetworkFlowSession};
+use crate::dns::{DnsObservation, NetworkEvidenceGrade};
+use crate::flow::{NetworkFlowProtocol, NetworkFlowSession};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkZeekLogKind {

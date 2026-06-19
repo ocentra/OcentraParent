@@ -1,11 +1,12 @@
-use ocentra_app_core::{
+use ocentra_app_core::runtime_decision::{
     app_runtime_decision_recorded_event, app_runtime_observed_event, evaluate_app_runtime,
     AppAggregateId, AppAiHandoffState, AppCapabilityState, AppClassificationState,
-    AppForegroundState, AppObservationIntent, AppPolicyHandoffState, AppRuntimeActionState,
-    AppRuntimeDecisionId, AppRuntimeInput,
+    AppForegroundState, AppPolicyHandoffState, AppRuntimeActionState, AppRuntimeDecisionId,
+    AppRuntimeInput,
 };
-use ocentra_eventing::DomainEvent;
-use ocentra_parent_agent_protocol::{
+use ocentra_app_core::AppObservationIntent;
+use ocentra_eventing::envelope::DomainEvent;
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_evidence_ref_from_observation_id, child_domain_observation_id_from_subject_ref,
     ChildRuntimeDomain,
 };

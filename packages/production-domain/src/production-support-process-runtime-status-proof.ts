@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ForbiddenProductionSupportProcessRuntimeStatusDataClasses,
   ProductionSupportProcessRuntimeStatusDataClassSchema,
@@ -13,8 +13,6 @@ import {
   RequiredProductionSupportProcessRuntimeStatusNonClaims,
   RequiredProductionSupportProcessRuntimeStatusSurfaces,
 } from './production-support-process-runtime-status-values';
-
-export * from './production-support-process-runtime-status-values';
 
 type ProductionSupportProcessRuntimeStatusProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly surface: string }>;

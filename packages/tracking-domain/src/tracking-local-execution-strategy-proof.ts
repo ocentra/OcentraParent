@@ -9,7 +9,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 const TrackingLocalExecutionStrategyCount = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
 export const TrackingLocalExecutionStrategyAreaSchema = withParser(

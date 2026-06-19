@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { type AppGameLinuxWslRuntimeProof } from './app-game-linux-wsl-runtime-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameLinuxForegroundCaptureReadinessSchemaVersionSchema = withParser(
   Schema.Literal('app-game-linux-foreground-capture-readiness')

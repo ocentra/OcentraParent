@@ -12,7 +12,7 @@ import {
   LocalAiProviderSchedulerStatusSchema,
 } from '@ocentra-parent/ai-domain/local-ai-provider-scheduler';
 import { LocalProviderCapabilitySchema, LocalModelRuntimeStatusSchema } from '@ocentra-parent/ai-domain/local-ai-runtime';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const LocalAiContractProofCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const LocalAiContractCompletenessProofIdSchema = brandedNonEmptyStringSchema('LocalAiContractCompletenessProofId');

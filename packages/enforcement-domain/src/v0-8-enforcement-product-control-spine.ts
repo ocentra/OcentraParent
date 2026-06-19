@@ -16,7 +16,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const V08EnforcementProductControlSpineReadModelIdSchema = brandedNonEmptyStringSchema('V08EnforcementProductControlSpineReadModelId');
 export const V08EnforcementProductControlSpineEntryIdSchema = brandedNonEmptyStringSchema('V08EnforcementProductControlSpineEntryId');

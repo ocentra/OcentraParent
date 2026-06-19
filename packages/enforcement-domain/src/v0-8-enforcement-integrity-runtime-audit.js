@@ -1,5 +1,5 @@
 import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
-import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema, } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema, } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { V08IntegrityAlertStatusBridgeReadModel, V08IntegrityAlertStatusBridgeReadModelSchema, } from './v0-8-integrity-alert-status-bridge';
 import { V08NotificationProviderStatusBoundaryReadModel, V08NotificationProviderStatusBoundaryReadModelSchema, } from '@ocentra-parent/notification-domain/v0-8-notification-provider-status-boundary';
 export const V08EnforcementIntegrityRuntimeAuditReadModelIdSchema = brandedNonEmptyStringSchema('V08EnforcementIntegrityRuntimeAuditReadModelId');

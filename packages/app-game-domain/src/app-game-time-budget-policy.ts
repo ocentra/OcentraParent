@@ -9,7 +9,7 @@ import {
   ParentContractSchemaVersionSchema,
   ParentPolicyVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { PolicyRuleIdSchema, PolicyScheduleIdSchema } from '@ocentra-parent/policy-domain/policy';
 import {
   AppGameTimeBudgetApprovalState,

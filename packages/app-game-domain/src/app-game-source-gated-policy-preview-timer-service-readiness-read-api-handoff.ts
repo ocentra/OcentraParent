@@ -30,7 +30,7 @@ import {
   appGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffMatchesServiceHandlerHandoff,
   type AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffStateValue,
 } from './app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffIdSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffId');

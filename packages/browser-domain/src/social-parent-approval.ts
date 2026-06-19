@@ -13,7 +13,7 @@ import {
   ParentDeviceIdSchema,
   ParentEvidenceReferenceIdSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 const OptionalSocialParentApprovalTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);
 const SocialParentApprovalEvidenceRefsSchema = Schema.Array(ParentEvidenceReferenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social parent approval evidence refs')

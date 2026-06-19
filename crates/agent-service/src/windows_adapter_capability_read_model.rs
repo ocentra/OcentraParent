@@ -1,4 +1,4 @@
-use ocentra_parent_agent_core::broad_os_adapter_readiness;
+use ocentra_parent_agent_core::enforcement_readiness::broad_os_adapter_readiness;
 use ocentra_parent_agent_protocol::{
     constants::{enforcement, host_identity, windows_adapter_capability as windows_adapter},
     policy_constants as policy, EnforcementAdapterKind, EnforcementBroadAdapterCapability,

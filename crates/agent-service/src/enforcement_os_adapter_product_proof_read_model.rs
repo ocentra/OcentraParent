@@ -1,17 +1,19 @@
-use ocentra_parent_agent_core::broad_os_adapter_readiness;
+use ocentra_parent_agent_core::enforcement_readiness::broad_os_adapter_readiness;
 use ocentra_parent_agent_protocol::{
     constants::{
         enforcement, v08_os_adapter_product_proof as proof, windows_adapter_artifact_gate,
         windows_adapter_capability,
     },
-    policy_constants, EnforcementAdapterKind, EnforcementBroadAdapterCapability,
+    policy_constants,
+    windows_adapter_artifact_gate::WindowsAdapterArtifactGateProof,
+    EnforcementAdapterKind, EnforcementBroadAdapterCapability,
     EnforcementBroadAdapterReadinessEntry, EnforcementBroadOsAdapterReadinessMatrix,
     EnforcementCapabilityState, EnforcementReadinessProofLevel, EnforcementReadinessRuntimeOwner,
     EnforcementReadinessState, EnforcementResultStatus, EnforcementRollbackState,
     V08OsAdapterProductProofAuditState, V08OsAdapterProductProofEntry,
     V08OsAdapterProductProofParentOverrideState, V08OsAdapterProductProofReadModel,
     V08OsAdapterProductProofSurface, V08OsAdapterProductProofTimerRecoveryState,
-    WindowsAdapterArtifactGateProof, WindowsAdapterCapabilityProof,
+    WindowsAdapterCapabilityProof,
 };
 
 use crate::{

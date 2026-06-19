@@ -12,7 +12,7 @@ import {
   comparePolicyActionStrictness,
   selectStricterPolicyAction,
 } from '@ocentra-parent/policy-domain/policy';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ScreenAiStricterParentRuleProofIdSchema = brandedNonEmptyStringSchema('ScreenAiStricterParentRuleProofId');
 
 export const ScreenAiStricterParentRuleClaimBoundarySchema = withParser(

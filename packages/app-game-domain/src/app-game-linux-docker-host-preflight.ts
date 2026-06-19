@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameLinuxDockerHostPreflightSchemaVersionSchema = withParser(
   Schema.Literal('app-game-linux-docker-host-preflight')
@@ -187,7 +187,6 @@ function linuxDockerPreflightGaps(
   return gaps;
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function linuxDockerHostPreflightIsHonest(readModel: AppGameLinuxDockerHostPreflightCandidate): boolean {
   return (
     linuxDockerStateIsConsistent(readModel) &&

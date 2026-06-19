@@ -5,7 +5,10 @@ import {
   brandedNonEmptyStringSchema,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import {
+  ParentEvidenceReferenceIdSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   TrackingPolicyAuditRefSchema,
   TrackingPolicyReasonCodeSchema,

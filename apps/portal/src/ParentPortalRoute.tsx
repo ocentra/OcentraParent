@@ -10,6 +10,7 @@ import {
   type PortalRoute as PortalRouteValue,
   type PortalConnectionState as PortalConnectionStateValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import { resolveParentPortalShellStatus } from '@ocentra-parent/portal-domain/parent-portal-shell-status';
 import { ParentPortalSvgSurface } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface';
 import type { ParentPortalSvgControls } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
 import { resolveLiveActivityState } from './live-activity-state';
@@ -84,6 +85,11 @@ export function ParentPortalRoute({
 }: ParentPortalRouteProps): ReactElement {
   const routeContext = parentPortalRouteContext(route);
   const activityState = resolveLiveActivityState(state.events);
+  const shellStatus = resolveParentPortalShellStatus({
+    route,
+    connectionState: state.connectionState,
+    events: state.events,
+  });
   const browserPanelEvent = resolveBrowserPanelEvent(state.selectedCommandResultEvent);
   const serviceState = resolveParentPortalServiceState({
     connectionState: state.connectionState,
@@ -185,6 +191,7 @@ export function ParentPortalRoute({
           actions={actions}
           commandEnabled={state.socket?.readyState === WebSocket.OPEN}
           liveActivity={activityState}
+          parentAccessState={shellStatus.parentAccessState}
         />
       ) : null}
       {shouldRenderAiRuntimeRoute(route) ? (

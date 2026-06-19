@@ -23,7 +23,7 @@ import {
   SocialAlertReportPayloadField,
   SocialAlertReportReasonCode,
 } from '../../src/social-alert-report-intent';
-import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const ReadyRow = SocialReportWriterDeliveryProofReadModel.reportWriterDeliveryRows[0];
 const ManualRow = SocialReportWriterDeliveryProofReadModel.reportWriterDeliveryRows[1];

@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { EnforcementCapabilityStateSchema, EnforcementModeSchema } from '@ocentra-parent/enforcement-domain/enforcement';
-import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { platformAuthorityRowIsConsistent } from './app-game-control-platform-authority-rules';
 
 export const AppGamePlatformAuthorityTierSchema = withParser(

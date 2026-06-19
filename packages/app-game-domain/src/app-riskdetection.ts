@@ -18,7 +18,7 @@ import {
   AppRiskDetectionSurfaceState,
   appRiskDetectionCandidateIsHonest,
 } from './app-riskdetection-rules';
-import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppRiskDetectionCandidateIdSchema = brandedNonEmptyStringSchema('AppRiskDetectionCandidateId');
 export const AppRiskDetectionMatrixIdSchema = brandedNonEmptyStringSchema('AppRiskDetectionMatrixId');

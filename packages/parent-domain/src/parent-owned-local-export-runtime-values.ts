@@ -24,6 +24,5 @@ export const ParentOwnedLocalExportRuntimeKnownGaps = [
   'No cloud transfer, connector OAuth, provider API, or remote report compiler runtime is implemented by this parent-domain proof.',
   'No portal UI, CLI control, account backend, or subscription enforcement path is claimed.',
   'No Ocentra-hosted custody of family activity data, generated reports, exported bundles, or source evidence is claimed.',
-  'Real filesystem writer, retention scheduler, delete executor, and durable audit persistence remain future work.',
-  'Physical Windows export/delete smoke proof and parent-visible status controls remain required before product claims.',
+  'Retention scheduler and parent-visible status controls remain future work before broader product export/delete claims.',
 ] as const;

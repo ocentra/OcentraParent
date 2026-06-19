@@ -22,7 +22,7 @@ import {
   appGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffMatchesResponseConsumerHandoff,
   type AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffStateValue,
 } from './app-game-timer-service-read-api-response-consumer-parent-surface-handoff-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 type ResponseConsumerHandoffRow = Infer<typeof ResponseConsumerHandoffRowSchema>;
 

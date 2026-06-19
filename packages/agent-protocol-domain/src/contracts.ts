@@ -43,7 +43,7 @@ import {
   AgentWebSocketUrlSchema,
   SerializedAgentMessage,
   SerializedAgentMessageSchema,
-} from '@ocentra-parent/event-domain/primitives';
+} from '@ocentra-parent/schema-domain/event-primitives';
 import {
   AgentLanBrowserAddDeviceRequest,
   AgentLanBrowserAddDeviceRequestSchema,
@@ -457,6 +457,7 @@ export const AgentCommandNameLiteral = {
   LocalAiChatGenerate: 'agent.local-ai.chat.generate',
   ParentAssistantAnswerGenerate: 'agent.parent-assistant.answer.generate',
   PolicyPreviewReadModelGet: 'agent.policy.preview.read-model.get',
+  PolicyRequestAssistantPreviewConfirm: 'agent.policy.request.assistant-preview.confirm',
   BrowserPolicyGet: 'agent.browser-policy.get',
   BrowserPolicyPreview: 'agent.browser-policy.preview',
   BrowserPolicyPatch: 'agent.browser-policy.patch',
@@ -543,6 +544,8 @@ export const AgentEventNameLiteral = {
   LocalAiChatGenerationReported: 'agent.local-ai.chat.generation.reported',
   ParentAssistantAnswerReported: 'agent.parent-assistant.answer.reported',
   PolicyPreviewReadModelReported: 'agent.policy.preview.read-model.reported',
+  PolicyRequestAssistantPreviewConfirmReported:
+    'agent.policy.request.assistant-preview.confirm.reported',
   BrowserPolicyReported: 'agent.browser-policy.reported',
   BrowserPolicyPreviewed: 'agent.browser-policy.previewed',
   BrowserPolicyPatchAccepted: 'agent.browser-policy.patch.accepted',
@@ -651,6 +654,7 @@ export const AgentCommandNameSchema = withParser(
     AgentCommandNameLiteral.LocalAiChatGenerate,
     AgentCommandNameLiteral.ParentAssistantAnswerGenerate,
     AgentCommandNameLiteral.PolicyPreviewReadModelGet,
+    AgentCommandNameLiteral.PolicyRequestAssistantPreviewConfirm,
     AgentCommandNameLiteral.BrowserPolicyGet,
     AgentCommandNameLiteral.BrowserPolicyPreview,
     AgentCommandNameLiteral.BrowserPolicyPatch,
@@ -746,6 +750,7 @@ export const AgentEventNameSchema = withParser(
     AgentEventNameLiteral.LocalAiChatGenerationReported,
     AgentEventNameLiteral.ParentAssistantAnswerReported,
     AgentEventNameLiteral.PolicyPreviewReadModelReported,
+    AgentEventNameLiteral.PolicyRequestAssistantPreviewConfirmReported,
     AgentEventNameLiteral.BrowserPolicyReported,
     AgentEventNameLiteral.BrowserPolicyPreviewed,
     AgentEventNameLiteral.BrowserPolicyPatchAccepted,
@@ -1001,6 +1006,9 @@ export const AgentCommand = {
   LocalAiChatGenerate: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LocalAiChatGenerate),
   ParentAssistantAnswerGenerate: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantAnswerGenerate),
   PolicyPreviewReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.PolicyPreviewReadModelGet),
+  PolicyRequestAssistantPreviewConfirm: AgentCommandNameSchema.parse(
+    AgentCommandNameLiteral.PolicyRequestAssistantPreviewConfirm
+  ),
   BrowserPolicyGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserPolicyGet),
   BrowserPolicyPreview: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserPolicyPreview),
   BrowserPolicyPatch: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserPolicyPatch),
@@ -1158,6 +1166,9 @@ export const AgentEvent = {
   LocalAiChatGenerationReported: AgentEventNameSchema.parse(AgentEventNameLiteral.LocalAiChatGenerationReported),
   ParentAssistantAnswerReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ParentAssistantAnswerReported),
   PolicyPreviewReadModelReported: AgentEventNameSchema.parse(AgentEventNameLiteral.PolicyPreviewReadModelReported),
+  PolicyRequestAssistantPreviewConfirmReported: AgentEventNameSchema.parse(
+    AgentEventNameLiteral.PolicyRequestAssistantPreviewConfirmReported
+  ),
   BrowserPolicyReported: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserPolicyReported),
   BrowserPolicyPreviewed: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserPolicyPreviewed),
   BrowserPolicyPatchAccepted: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserPolicyPatchAccepted),

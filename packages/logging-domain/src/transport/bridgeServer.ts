@@ -9,10 +9,8 @@ import {
   parseSuiteTypeOrNull,
   parseTestLogScopeOrDefault,
 } from '../test-log/types';
-import {
-  BridgeEntryArraySchema,
-  bridgeEntryToStoredLog,
-} from './bridgeLogPayload';
+import { bridgeEntryToStoredLog } from '../test-log/bridgeConvert';
+import { BridgeEntryArraySchema } from './bridgeLogPayload';
 
 export interface BridgeServerOptions {
   readonly host?: string;

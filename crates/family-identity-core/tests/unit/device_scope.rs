@@ -1,5 +1,5 @@
 use ocentra_eventing::envelope::DomainEvent;
-use ocentra_family_identity_core::{
+use ocentra_family_identity_core::family_identity::{
     authorize_child_device_scope, record_device_scope_decision, ActorAccountState,
     ChildProfileBindingState, DeviceOwnershipScope, DeviceScopeAuthorizationState,
     DeviceScopeEvaluationId, DeviceScopeEvaluationRequestedEvent, DeviceScopeInput,

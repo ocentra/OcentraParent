@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ForbiddenPublicationWorkflowDataClasses,
   ProductionSupportPublicationWorkflowDataClassSchema,
@@ -13,8 +13,6 @@ import {
   RequiredPublicationWorkflowItems,
   RequiredPublicationWorkflowNonClaims,
 } from './production-support-publication-workflow-values';
-
-export * from './production-support-publication-workflow-values';
 
 type PublicationWorkflowProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly item: string }>;

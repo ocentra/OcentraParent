@@ -1,4 +1,4 @@
-import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
+import { EventingEventTypeSchema } from '@ocentra-parent/schema-domain/eventing';
 import {
   type Infer,
   Schema,
@@ -12,7 +12,7 @@ import {
   AgentPeerIdSchema,
   AgentPlatformSchema,
   AgentRouteSchema,
-} from '@ocentra-parent/event-domain/primitives';
+} from '@ocentra-parent/schema-domain/event-primitives';
 
 const AgentTrackingSharedRuntimeEventTypeLiteral = {
   PolicyEvaluationRequested: 'policy.evaluation.requested',

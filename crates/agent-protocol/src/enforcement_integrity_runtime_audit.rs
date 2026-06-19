@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ParentPlatform, V08IntegrityAlertStatusBridgeReadModel,
-    V08NotificationProviderStatusBoundaryReadModel,
+    integrity_alert_status_bridge::V08IntegrityAlertStatusBridgeReadModel,
+    notification_provider_status_boundary::V08NotificationProviderStatusBoundaryReadModel,
+    ParentPlatform,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

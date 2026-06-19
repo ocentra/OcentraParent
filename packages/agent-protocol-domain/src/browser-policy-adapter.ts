@@ -14,7 +14,7 @@ import {
   type AgentEventEnvelope,
   type AgentEventName,
 } from './contracts';
-import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/event-domain/primitives';
+import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/schema-domain/event-primitives';
 
 export type BrowserPolicyAdapterFailureReason =
   | 'wrong-event'

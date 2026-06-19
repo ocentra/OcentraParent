@@ -1,7 +1,7 @@
 import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
-import { AgentProtocolSchemaVersion } from '../../src/primitives';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import {
   AgentAppGameBoundaryReadModelKind,
   parseAgentAppGameBoundaryReadModelEvent,

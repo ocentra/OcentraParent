@@ -9,7 +9,12 @@ import {
   ParentControlCapabilityStatusSchema,
   ParentControlPlatformSchema,
 } from '@ocentra-parent/capability-domain/capabilities';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  enforcementProofClaimFlagsAreUnset,
+  enforcementProofEntriesHaveUniqueField,
+  enforcementProofRequiredUniqueValuesAreCovered,
+} from './enforcement-proof-shape';
 const tamperUninstallArtifactText = <Brand extends string>(brand: Brand) =>
   NonEmptyStringSchema.pipe(Schema.brand(brand));
 
@@ -110,12 +115,12 @@ export const TamperUninstallArtifactStatusReadModelSchema = withParser(
   }).pipe(
     Schema.filter(
       (readModel) =>
-        new Set(readModel.entries.map((entry) => entry.statusEntryId)).size === readModel.entries.length ||
+        enforcementProofEntriesHaveUniqueField(readModel.entries, (entry) => entry.statusEntryId) ||
         'Expected tamper uninstall artifact status entry ids to be unique'
     ),
     Schema.filter(
       (readModel) =>
-        requiredValuesArePresent(
+        enforcementProofRequiredUniqueValuesAreCovered(
           readModel.entries.map((entry) => entry.surface),
           RequiredSurfaces
         ) || 'Expected tamper uninstall artifact status to cover every required platform/removal surface'
@@ -135,7 +140,7 @@ function tamperUninstallArtifactStatusEntryIsHonest(entry: TamperUninstallArtifa
 }
 
 function tamperUninstallArtifactStatusHasClaimUpgrade(entry: TamperUninstallArtifactStatusEntryCandidate): boolean {
-  return [
+  return !enforcementProofClaimFlagsAreUnset([
     entry.uninstallDetectionClaimed,
     entry.tamperResistanceClaimed,
     entry.stealthPersistenceClaimed,
@@ -143,7 +148,7 @@ function tamperUninstallArtifactStatusHasClaimUpgrade(entry: TamperUninstallArti
     entry.adminRemovalBlockingClaimed,
     entry.providerDeliveryClaimed,
     entry.rawChildDataIncluded,
-  ].some(Boolean);
+  ]);
 }
 
 function tamperUninstallArtifactStatusMatchesState(entry: TamperUninstallArtifactStatusEntryCandidate): boolean {
@@ -159,11 +164,6 @@ function tamperUninstallArtifactStatusMatchesState(entry: TamperUninstallArtifac
     return entry.artifactState === 'device-proof-required' && entry.parentVisibleStatus === 'device-proof-needed';
   }
   return entry.artifactState === 'manual-required' && entry.parentVisibleStatus === 'artifact-needed';
-}
-
-function requiredValuesArePresent<T extends string>(actualValues: ReadonlyArray<T>, requiredValues: ReadonlyArray<T>) {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }
 
 export type TamperUninstallArtifactSurface = Infer<typeof TamperUninstallArtifactSurfaceSchema>;

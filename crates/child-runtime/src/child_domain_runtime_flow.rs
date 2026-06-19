@@ -1,5 +1,6 @@
 use std::sync::{Arc, Mutex};
 
+use crate::event_flow_scaffold;
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
     envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::CorrelationId,
@@ -7,8 +8,9 @@ use ocentra_eventing::{
     ids::RuntimeRole, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
     ids::TargetHandler,
 };
-use ocentra_parent_agent_protocol::{
-    child_domain_policy_evaluation_requested_from_ai_result_event_if_required, constants,
+use ocentra_network_core::network_runtime;
+use ocentra_parent_agent_protocol::child_domain_runtime::{
+    child_domain_policy_evaluation_requested_from_ai_result_event_if_required,
     ChildDomainAiAnalysisCompletedEvent, ChildDomainAiAnalysisRequestedEvent,
     ChildDomainAiRequestId, ChildDomainEventType, ChildDomainEvidenceRecordedEvent,
     ChildDomainEvidenceRef, ChildDomainNotificationRequestedEvent, ChildDomainObservationId,
@@ -16,6 +18,7 @@ use ocentra_parent_agent_protocol::{
     ChildDomainPolicyRequestId, ChildDomainPolicyViolationDetectedEvent,
     ChildDomainPolicyViolationId, ChildRuntimeDomain,
 };
+use ocentra_parent_agent_protocol::constants;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ChildDomainRuntimeFlowReport {
@@ -117,7 +120,7 @@ pub async fn publish_default_child_domain_runtime_flows(
         ocentra_app_game_core::default_app_game_observed_event(),
         ocentra_browser_core::default_browser_observed_event(),
         ocentra_lan_core::default_lan_observed_event(),
-        ocentra_network_core::default_network_observed_event(),
+        network_runtime::default_network_observed_event(),
         ocentra_screen_core::default_screen_observed_event(),
         ocentra_screen_live_view_core::default_screen_live_view_observed_event(),
     ];
@@ -217,7 +220,9 @@ async fn subscribe_child_domain_ai(
             let state = state.clone();
             async move {
                 let completed =
-                    ocentra_child_ai_core::complete_child_domain_ai_analysis(context.payload());
+                    ocentra_child_ai_core::child_domain_analysis::complete_child_domain_ai_analysis(
+                        context.payload(),
+                    );
                 state.record_ai_analysis_completed(completed.clone());
                 context
                     .publisher()
@@ -346,7 +351,7 @@ async fn subscribe_child_domain_notification(
             let state = state.clone();
             async move {
                 let notification =
-                    ocentra_child_notification_core::request_child_domain_parent_notification(
+                    ocentra_child_notification_core::child_domain_notification::request_child_domain_parent_notification(
                         context.payload(),
                     );
                 state.record_notification(notification.clone());
@@ -381,75 +386,80 @@ struct ChildDomainRuntimeFlowState {
 
 impl ChildDomainRuntimeFlowState {
     fn record_evidence(&self, event: ChildDomainEvidenceRecordedEvent) {
-        *self
-            .evidence_recorded
-            .lock()
-            .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.evidence_recorded,
+            event,
+            constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+        );
     }
 
     fn record_ai_analysis_request(&self, event: ChildDomainAiAnalysisRequestedEvent) {
-        *self
-            .ai_analysis_requested
-            .lock()
-            .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.ai_analysis_requested,
+            event,
+            constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+        );
     }
 
     fn record_ai_analysis_completed(&self, event: ChildDomainAiAnalysisCompletedEvent) {
-        *self
-            .ai_analysis_completed
-            .lock()
-            .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.ai_analysis_completed,
+            event,
+            constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+        );
     }
 
     fn record_policy_evaluation_request(&self, event: ChildDomainPolicyEvaluationRequestedEvent) {
-        *self
-            .policy_evaluation_requested
-            .lock()
-            .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.policy_evaluation_requested,
+            event,
+            constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+        );
     }
 
     fn record_policy_violation(&self, event: ChildDomainPolicyViolationDetectedEvent) {
-        *self
-            .policy_violation_detected
-            .lock()
-            .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.policy_violation_detected,
+            event,
+            constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+        );
     }
 
     fn record_notification(&self, event: ChildDomainNotificationRequestedEvent) {
-        *self
-            .notification_requested
-            .lock()
-            .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.notification_requested,
+            event,
+            constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+        );
     }
 
     fn evidence_recorded(&self) -> Result<ChildDomainEvidenceRecordedEvent, EventingError> {
-        required_child_domain_event(&self.evidence_recorded)
+        event_flow_scaffold::required_optional_event(
+            &self.evidence_recorded,
+            constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+            constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
+            constants::child_domain_runtime::SIGNAL_OBSERVE_ONLY,
+        )
     }
 
     fn ai_analysis_requested(&self) -> Option<ChildDomainAiAnalysisRequestedEvent> {
-        self.ai_analysis_requested.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.ai_analysis_requested)
     }
 
     fn ai_analysis_completed(&self) -> Option<ChildDomainAiAnalysisCompletedEvent> {
-        self.ai_analysis_completed.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.ai_analysis_completed)
     }
 
     fn policy_evaluation_requested(&self) -> Option<ChildDomainPolicyEvaluationRequestedEvent> {
-        self.policy_evaluation_requested.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.policy_evaluation_requested)
     }
 
     fn policy_violation_detected(&self) -> Option<ChildDomainPolicyViolationDetectedEvent> {
-        self.policy_violation_detected.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.policy_violation_detected)
     }
 
     fn notification_requested(&self) -> Option<ChildDomainNotificationRequestedEvent> {
-        self.notification_requested.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.notification_requested)
     }
 }
 
@@ -465,9 +475,7 @@ fn child_domain_evidence_recorded_event(
             Ok(ocentra_browser_core::browser_evidence_recorded_event(event))
         }
         ChildRuntimeDomain::Lan => Ok(ocentra_lan_core::lan_evidence_recorded_event(event)),
-        ChildRuntimeDomain::Network => {
-            Ok(ocentra_network_core::network_evidence_recorded_event(event))
-        }
+        ChildRuntimeDomain::Network => Ok(network_runtime::network_evidence_recorded_event(event)),
         ChildRuntimeDomain::Screen => {
             Ok(ocentra_screen_core::screen_evidence_recorded_event(event))
         }
@@ -489,9 +497,9 @@ fn child_domain_ai_analysis_requested_event(
             ocentra_browser_core::browser_ai_analysis_requested_event(event),
         ),
         ChildRuntimeDomain::Lan => Ok(ocentra_lan_core::lan_ai_analysis_requested_event(event)),
-        ChildRuntimeDomain::Network => Ok(
-            ocentra_network_core::network_ai_analysis_requested_event(event),
-        ),
+        ChildRuntimeDomain::Network => {
+            Ok(network_runtime::network_ai_analysis_requested_event(event))
+        }
         ChildRuntimeDomain::Screen => Ok(ocentra_screen_core::screen_ai_analysis_requested_event(
             event,
         )),
@@ -517,9 +525,9 @@ fn child_domain_policy_evaluation_requested_event(
         ChildRuntimeDomain::Lan => Ok(ocentra_lan_core::lan_policy_evaluation_requested_event(
             event,
         )),
-        ChildRuntimeDomain::Network => {
-            Ok(ocentra_network_core::network_policy_evaluation_requested_event(event))
-        }
+        ChildRuntimeDomain::Network => Ok(
+            network_runtime::network_policy_evaluation_requested_event(event),
+        ),
         ChildRuntimeDomain::Screen => {
             Ok(ocentra_screen_core::screen_policy_evaluation_requested_event(event))
         }
@@ -529,20 +537,6 @@ fn child_domain_policy_evaluation_requested_event(
             ),
         ),
     }
-}
-
-fn required_child_domain_event<E>(value: &Arc<Mutex<Option<E>>>) -> Result<E, EventingError>
-where
-    E: Clone,
-{
-    value
-        .lock()
-        .expect(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED)
-        .clone()
-        .ok_or_else(|| EventingError::InvalidValue {
-            field: constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED,
-            value: constants::child_domain_runtime::SIGNAL_OBSERVE_ONLY.to_string(),
-        })
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

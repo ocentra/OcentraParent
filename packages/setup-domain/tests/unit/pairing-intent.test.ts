@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import {
+  ParentContractSchemaVersion,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
+import { parseUnknown } from '@ocentra-parent/schema-domain/effect';
 import { ParentStepUpMethod } from '@ocentra-parent/family-domain/household-authority';
 import {
   deriveParentStepUpAssertionFromSetupPairingApproval,
@@ -177,7 +181,7 @@ describe('setup pairing intent contracts', () => {
     const resolution = deriveParentStepUpAssertionFromSetupPairingApproval({
       challenge: ApprovalChallenge,
       response: ApprovalResponse,
-      observedAt: '2026-06-01T00:04:30Z',
+      observedAt: parseUnknown(ParentTimestampSchema, '2026-06-01T00:04:30Z'),
     });
 
     expect(resolution.failureReason).toBeNull();
@@ -190,7 +194,7 @@ describe('setup pairing intent contracts', () => {
     const expiredResolution = deriveParentStepUpAssertionFromSetupPairingApproval({
       challenge: ApprovalChallenge,
       response: ApprovalResponse,
-      observedAt: '2026-06-01T00:05:30Z',
+      observedAt: parseUnknown(ParentTimestampSchema, '2026-06-01T00:05:30Z'),
     });
     const wrongTargetResolution = deriveParentStepUpAssertionFromSetupPairingApproval({
       challenge: ApprovalChallenge,
@@ -202,7 +206,7 @@ describe('setup pairing intent contracts', () => {
           displayName: 'Alex',
         },
       }),
-      observedAt: '2026-06-01T00:04:30Z',
+      observedAt: parseUnknown(ParentTimestampSchema, '2026-06-01T00:04:30Z'),
     });
 
     expect(expiredResolution.failureReason).toBe(SetupPairingFailureReason.ApprovalExpired);

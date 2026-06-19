@@ -1,4 +1,4 @@
-import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
+import { EventingEventTypeSchema } from '@ocentra-parent/schema-domain/eventing';
 import {
   type Infer,
   Schema,

@@ -120,7 +120,7 @@ function expectChildRuntimeAggregate(proof: TrackingProductReadinessClosureProof
 
 function expectCrossPlatformAggregate(proof: TrackingProductReadinessClosureProof): void {
   expect(proof.aggregateEvidence.crossPlatformCapabilityRowCount).toBe(8);
-  expect(proof.aggregateEvidence.crossPlatformLocalProofPassedRowCount).toBe(6);
+  expect(proof.aggregateEvidence.crossPlatformLocalProofPassedRowCount).toBe(5);
   expect(proof.aggregateEvidence.crossPlatformCiRunnableRowCount).toBe(6);
   expect(proof.aggregateEvidence.crossPlatformCiManualRequiredRowCount).toBe(1);
   expect(proof.aggregateEvidence.crossPlatformHostToolUnavailableRowCount).toBe(1);
@@ -225,7 +225,7 @@ function localPlatformAggregateEvidence() {
     parentChildLocalRuntimeChildAgentPhaseCount: 4,
     parentChildLocalRuntimeProductReadyRowCount: 0,
     crossPlatformCapabilityRowCount: 8,
-    crossPlatformLocalProofPassedRowCount: 6,
+    crossPlatformLocalProofPassedRowCount: 5,
     crossPlatformCiRunnableRowCount: 6,
     crossPlatformCiManualRequiredRowCount: 1,
     crossPlatformHostToolUnavailableRowCount: 1,

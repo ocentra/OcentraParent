@@ -134,6 +134,22 @@ impl PolicyTargetType {
             Self::Device => policy_constants::TARGET_TYPE_DEVICE,
         }
     }
+
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            policy_constants::TARGET_TYPE_APP => Some(Self::App),
+            policy_constants::TARGET_TYPE_PROCESS => Some(Self::Process),
+            policy_constants::TARGET_TYPE_WINDOW => Some(Self::Window),
+            policy_constants::TARGET_TYPE_DOMAIN => Some(Self::Domain),
+            policy_constants::TARGET_TYPE_SITE => Some(Self::Site),
+            policy_constants::TARGET_TYPE_CATEGORY => Some(Self::Category),
+            policy_constants::TARGET_TYPE_VIDEO => Some(Self::Video),
+            policy_constants::TARGET_TYPE_CHANNEL => Some(Self::Channel),
+            policy_constants::TARGET_TYPE_ACTIVITY_TYPE => Some(Self::ActivityType),
+            policy_constants::TARGET_TYPE_DEVICE => Some(Self::Device),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

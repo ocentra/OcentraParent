@@ -5,10 +5,6 @@
   "type": "module",
   "description": "Parent product contract boundary placeholder.",
   "exports": {
-    "./app-control-catalog": {
-      "import": "./dist/app-control-catalog.js",
-      "types": "./dist/app-control-catalog.d.ts"
-    },
     "./app-game-control-authority": {
       "import": "./dist/app-game-control-authority.js",
       "types": "./dist/app-game-control-authority.d.ts"
@@ -705,10 +701,6 @@
       "import": "./dist/lan-pairing.js",
       "types": "./dist/lan-pairing.d.ts"
     },
-    "./network-control-catalog": {
-      "import": "./dist/network-control-catalog.js",
-      "types": "./dist/network-control-catalog.d.ts"
-    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
@@ -941,10 +933,6 @@
       "import": "./dist/parent-mobile-controller-observer-handoff-runtime.js",
       "types": "./dist/parent-mobile-controller-observer-handoff-runtime.d.ts"
     },
-    "./parent-owned-sync-export": {
-      "import": "./dist/parent-owned-sync-export.js",
-      "types": "./dist/parent-owned-sync-export.d.ts"
-    },
     "./parent-owned-local-export-runtime": {
       "import": "./dist/parent-owned-local-export-runtime.js",
       "types": "./dist/parent-owned-local-export-runtime.d.ts"
@@ -972,14 +960,6 @@
     "./policy": {
       "import": "./dist/policy.js",
       "types": "./dist/policy.d.ts"
-    },
-    "./reference-primitives": {
-      "import": "./dist/reference-primitives.js",
-      "types": "./dist/reference-primitives.d.ts"
-    },
-    "./references": {
-      "import": "./dist/references.js",
-      "types": "./dist/references.d.ts"
     },
     "./screen-control-catalog": {
       "import": "./dist/screen-control-catalog.js",

@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const proofMode = 'tracking-android-physical-device-runtime-proof';
@@ -52,14 +53,13 @@ async function main() {
   await mkdir(output33, { recursive: true });
 
   runNpm(['run', 'release:package:android']);
-  runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
   runNpm([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-android-physical-device-runtime-proof',
+    'tests/contract/tracking-android-physical-device-runtime-proof.test.ts',
   ]);
 
   const tools = resolveAndroidTools();
@@ -190,10 +190,11 @@ async function main() {
 }
 
 async function buildProof(runtime) {
-  const proofModule = await import(
+  const proofModule = await tsImport(
     pathToFileURL(
-      path.join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-android-physical-device-runtime-proof.js')
-    ).href
+      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-android-physical-device-runtime-proof.ts')
+    ).href,
+    import.meta.url
   );
   requiredArtifactRefs = proofModule.RequiredTrackingAndroidPhysicalDeviceRuntimeArtifactRefs;
   return {

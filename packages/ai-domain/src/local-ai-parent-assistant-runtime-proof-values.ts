@@ -20,7 +20,7 @@ import {
   type LocalAiParentAssistantRuntimeProofRequirement,
   type LocalAiParentAssistantRuntimeProofStatus,
 } from './local-ai-parent-assistant-runtime-proof';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 type ParentAssistantActionPreviewResult = Infer<typeof ParentAssistantActionPreviewResultSchema>;
 

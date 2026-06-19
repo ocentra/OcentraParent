@@ -59,7 +59,7 @@ import {
   type TrackingControlRuntimeOwner,
   type TrackingControlUpdateCommand,
 } from './tracking-control-catalog-schema';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export {
   TrackingControlCapabilitySchema,

@@ -4,6 +4,10 @@ import {
   withParser,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 const supportBackendProviderRuntimeReadinessText = <Brand extends string>(brand: Brand) =>
   NonEmptyStringSchema.pipe(Schema.brand(brand));
@@ -189,7 +193,10 @@ function supportBackendProviderRuntimeReadinessEntryIsSafe(
 ): boolean {
   return (
     !supportBackendProviderRuntimeReadinessHasClaimUpgrade(entry) &&
-    supportBackendProviderRuntimeReadinessRequiredValuesArePresent(entry.disclosedDataClasses) &&
+    supportProofRequiredValuesArePresent(
+      entry.disclosedDataClasses,
+      SupportBackendProviderRuntimeReadinessRequiredDataClasses
+    ) &&
     supportBackendProviderRuntimeReadinessRefsArePresent(entry) &&
     supportBackendProviderRuntimeReadinessStatesAreCoherent(entry)
   );
@@ -198,7 +205,7 @@ function supportBackendProviderRuntimeReadinessEntryIsSafe(
 function supportBackendProviderRuntimeReadinessHasClaimUpgrade(
   entry: SupportBackendProviderRuntimeReadinessEntryCandidate
 ): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsProviderSecrets,
     entry.containsPaymentProviderTokens,
     entry.containsRawChildActivity,
@@ -214,7 +221,7 @@ function supportBackendProviderRuntimeReadinessHasClaimUpgrade(
     entry.remoteSupportSessionExecuted,
     entry.productionSlaClaimed,
     entry.ocentraHostedFamilyDataDefault,
-  ].some(Boolean);
+  ]);
 }
 
 function supportBackendProviderRuntimeReadinessRefsArePresent(
@@ -265,15 +272,5 @@ function supportBackendProviderRuntimeReadinessManualStatesAreCoherent(
     entry.remoteSupportState,
     entry.productionSlaState,
   ].includes('manual-required');
-}
-
-function supportBackendProviderRuntimeReadinessRequiredValuesArePresent(
-  actualValues: ReadonlyArray<SupportBackendProviderRuntimeReadinessDataClass>
-): boolean {
-  const actual = new Set(actualValues);
-  return (
-    actual.size === actualValues.length &&
-    SupportBackendProviderRuntimeReadinessRequiredDataClasses.every((value) => actual.has(value))
-  );
 }
 

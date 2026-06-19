@@ -1,14 +1,22 @@
 use ocentra_network_evidence::{
-    map_network_evidence_grade_to_policy, plan_network_windows_wfp_gate, NetworkEvidenceGrade,
-    NetworkEvidencePolicyAction, NetworkEvidencePolicyMappingInput,
-    NetworkWindowsWfpGateBoundaryReason, NetworkWindowsWfpGateCapabilityState,
-    NetworkWindowsWfpGateInput, NetworkWindowsWfpGateProof, NetworkWindowsWfpGateState,
-    NetworkWindowsWfpRequiredArtifact,
+    dns::NetworkEvidenceGrade,
+    policy::{
+        map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
+        NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
+    },
+    windows_wfp_gate::{
+        plan_network_windows_wfp_gate, NetworkWindowsWfpGateBoundaryReason,
+        NetworkWindowsWfpGateCapabilityState, NetworkWindowsWfpGateInput,
+        NetworkWindowsWfpGateProof, NetworkWindowsWfpGateState, NetworkWindowsWfpRequiredArtifact,
+    },
 };
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, NetworkWindowsWfpGateCapabilityStatusState, NetworkWindowsWfpGateStatus,
-    NetworkWindowsWfpGateStatusState,
+    constants,
+    network_windows_wfp_gate_status::{
+        NetworkWindowsWfpGateCapabilityStatusState, NetworkWindowsWfpGateStatus,
+        NetworkWindowsWfpGateStatusState,
+    },
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields, LogLevel,
 };
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
@@ -140,7 +148,7 @@ fn gate_input() -> NetworkWindowsWfpGateInput {
     }
 }
 
-fn policy_mapping() -> ocentra_network_evidence::NetworkEvidencePolicyMapping {
+fn policy_mapping() -> NetworkEvidencePolicyMapping {
     map_network_evidence_grade_to_policy(NetworkEvidencePolicyMappingInput {
         policy_decision_ref: constants::network_flow::TEST_WINDOWS_WFP_POLICY_DECISION_REF
             .to_string(),

@@ -2,65 +2,48 @@ import {
   type Infer,
   Schema,
   withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
+  brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import {
+  AgentTrackingDeleteAfterAlertResolutionState,
+  AgentTrackingDurableSettingsPersistenceState,
+  AgentTrackingExecutionClaimState,
+  AgentTrackingParentExportState,
+  AgentTrackingRetentionSettingsWriteDefaults,
+  AgentTrackingRetentionSettingsWriteResultSchema,
+} from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import {
   TrackingRetentionSettingsKindSchema,
   TrackingRetentionSettingsProofRefSchema,
 } from './tracking-retention-settings-read-model-proof';
-const AgentProtocolSchemaVersion = 1;
 
 export const TrackingRetentionLocalServiceStateProofIdSchema = brandedNonEmptyStringSchema('TrackingRetentionLocalServiceStateProofId');
 
 export const TrackingRetentionLocalServiceStateSnapshotRefSchema = brandedNonEmptyStringSchema('TrackingRetentionLocalServiceStateSnapshotRef');
 
 export const TrackingRetentionLocalServiceStateWriteResultSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
-    commandId: NonEmptyStringSchema,
-    settingsKind: TrackingRetentionSettingsKindSchema,
-    writeState: Schema.Literal(AgentTrackingRetentionSettingsWriteDefaults.WriteStateAccepted),
-    sourceWriterIntentRefs: Schema.Array(TrackingRetentionSettingsProofRefSchema),
-    sourceReadModelProofRefs: Schema.Array(TrackingRetentionSettingsProofRefSchema),
-    sourceMutationProofRefs: Schema.Array(TrackingRetentionSettingsProofRefSchema),
-    appliedRetentionWindowHours: Schema.Union(Schema.Number.pipe(Schema.int(), Schema.positive()), Schema.Null),
-    appliedDeleteAfterAlertResolved: Schema.Boolean,
-    parentExportPrepared: Schema.Boolean,
-    remoteSyncEnabled: Schema.Literal(false),
-    remoteAiEnabled: Schema.Literal(false),
-    localServiceStateRevision: Schema.Number.pipe(Schema.int(), Schema.positive()),
-    localServiceStateSnapshotRef: TrackingRetentionLocalServiceStateSnapshotRefSchema,
-    durableSettingsStoreRef: TrackingRetentionLocalServiceStateSnapshotRefSchema,
-    durableSettingsPersisted: Schema.Boolean,
-    commandTransportClaimed: Schema.Literal(true),
-    serviceMutationExecuted: Schema.Literal(true),
-    platformRuntimeClaimed: Schema.Literal(false),
-    childDeviceDeliveryClaimed: Schema.Literal(false),
-    providerDeliveryClaimed: Schema.Literal(false),
-    notificationReceiptClaimed: Schema.Literal(false),
-    physicalDeviceClaimed: Schema.Literal(false),
-    authorityClaimed: Schema.Literal(false),
-    productClaimReady: Schema.Literal(false),
-  })
-    .pipe(
-      Schema.filter(
-        (result) => result.sourceReadModelProofRefs.length > 0 || 'Local state proof needs source read-model refs'
-      )
+  AgentTrackingRetentionSettingsWriteResultSchema.pipe(
+    Schema.filter((result) => result.commandId.length > 0 || 'Local state proof needs a command id'),
+    Schema.filter((result) => result.sourceReadModelProofRefs.length > 0 || 'Local state proof needs source read-model refs'),
+    Schema.filter((result) => result.sourceMutationProofRefs.length > 0 || 'Local state proof needs source mutation refs'),
+    Schema.filter(
+      (result) =>
+        result.durableSettingsPersistenceState === AgentTrackingDurableSettingsPersistenceState.Persisted ||
+        'Local state proof needs durable settings persistence'
+    ),
+    Schema.filter(
+      (result) =>
+        result.commandTransportClaimState === AgentTrackingExecutionClaimState.Claimed ||
+        'Local state proof needs command transport'
+    ),
+    Schema.filter(
+      (result) =>
+        result.serviceMutationExecutionState === AgentTrackingExecutionClaimState.Claimed ||
+        'Local state proof needs service mutation execution'
     )
-    .pipe(
-      Schema.filter(
-        (result) => result.sourceMutationProofRefs.length > 0 || 'Local state proof needs source mutation refs'
-      )
-    )
-    .pipe(
-      Schema.filter(
-        (result) => result.durableSettingsPersisted || 'Local state proof needs durable settings persistence'
-      )
-    )
+  )
 );
 
 export const TrackingRetentionLocalServiceStateRowSchema = withParser(
@@ -187,14 +170,17 @@ function localStateRow(
     localServiceStateSnapshotRef: writeResult.localServiceStateSnapshotRef,
     durableSettingsStoreRef: writeResult.durableSettingsStoreRef,
     appliedRetentionWindowHours: writeResult.appliedRetentionWindowHours,
-    appliedDeleteAfterAlertResolved: writeResult.appliedDeleteAfterAlertResolved,
-    parentExportPrepared: writeResult.parentExportPrepared,
+    appliedDeleteAfterAlertResolved:
+      writeResult.appliedDeleteAfterAlertResolutionState ===
+      AgentTrackingDeleteAfterAlertResolutionState.DeleteAfterAlertResolved,
+    parentExportPrepared: writeResult.parentExportState === AgentTrackingParentExportState.Prepared,
     remoteSyncEnabled: false,
     remoteAiEnabled: false,
     writeCommandAccepted: true,
     serviceMutationExecuted: true,
     localServiceStateReadbackClaimed: true,
-    durableSettingsPersisted: writeResult.durableSettingsPersisted,
+    durableSettingsPersisted:
+      writeResult.durableSettingsPersistenceState === AgentTrackingDurableSettingsPersistenceState.Persisted,
     platformRuntimeClaimed: false,
     childDeviceDeliveryClaimed: false,
     providerDeliveryClaimed: false,

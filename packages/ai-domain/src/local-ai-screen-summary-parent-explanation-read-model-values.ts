@@ -13,7 +13,7 @@ import {
   PolicyReasonCodeSchema,
   PolicyRuleIdSchema,
 } from '@ocentra-parent/policy-domain/policy';
-import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ScreenSummaryParentExplanationClaimBoundarySchema,
   ScreenSummaryParentExplanationReasonSchema,

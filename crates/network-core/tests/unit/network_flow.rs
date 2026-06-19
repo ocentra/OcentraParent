@@ -1,11 +1,11 @@
-use ocentra_network_core::{
+use ocentra_network_core::network_runtime::{
     default_network_observed_event, network_ai_analysis_requested_event,
     network_evidence_recorded_event, network_observed_event,
     network_policy_evaluation_requested_event, network_runtime_evidence_recorded_event,
     NetworkAdapterState, NetworkCapturePermissionState, NetworkObservationIntent,
     NetworkParserState, NetworkRuntimeInput,
 };
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainAiAnalysisRequirement, ChildDomainObservedSignal,
     ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
 };

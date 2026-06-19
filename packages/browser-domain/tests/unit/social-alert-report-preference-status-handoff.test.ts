@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   SocialAlertReportPreferencePreflightReadModelSchema,
   SocialAlertReportPreferencePreflightStatus,

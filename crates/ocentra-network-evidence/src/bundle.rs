@@ -1,10 +1,11 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
+use crate::cascade::{
     route_network_evidence_cascade, NetworkCascadeNextCheck, NetworkCascadeSignalStrength,
-    NetworkCascadeSource, NetworkCascadeSourceKind, NetworkEvidenceCascadeInput,
-    NetworkEvidenceGrade,
+    NetworkCascadeSource, NetworkCascadeSourceKind, NetworkEvidenceCascadeError,
+    NetworkEvidenceCascadeInput,
 };
+use crate::dns::NetworkEvidenceGrade;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NetworkCrossSliceEvidenceSource {
@@ -77,13 +78,13 @@ pub fn build_network_cross_slice_evidence_bundle(
         sources: cascade_sources,
     })
     .map_err(|error| match error {
-        crate::NetworkEvidenceCascadeError::EmptySourceRef => {
+        NetworkEvidenceCascadeError::EmptySourceRef => {
             NetworkCrossSliceEvidenceBundleError::EmptyEvidenceRef
         }
-        crate::NetworkEvidenceCascadeError::UnsupportedNetworkExactUrlClaim(source_kind) => {
+        NetworkEvidenceCascadeError::UnsupportedNetworkExactUrlClaim(source_kind) => {
             NetworkCrossSliceEvidenceBundleError::UnsupportedNetworkExactUrlClaim(source_kind)
         }
-        crate::NetworkEvidenceCascadeError::UnsupportedDecryptedPayloadClaim => {
+        NetworkEvidenceCascadeError::UnsupportedDecryptedPayloadClaim => {
             NetworkCrossSliceEvidenceBundleError::UnsupportedDecryptedPayloadClaim
         }
     })?;

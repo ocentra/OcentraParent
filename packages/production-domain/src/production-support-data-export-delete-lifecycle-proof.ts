@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ForbiddenProductionSupportDataExportDeleteLifecycleDataClasses,
   ProductionSupportDataExportDeleteLifecycleDataClassSchema,
@@ -14,8 +14,6 @@ import {
   RequiredProductionSupportDataExportDeleteLifecycleNonClaims,
   RequiredProductionSupportDataExportDeleteLifecycleSurfaces,
 } from './production-support-data-export-delete-lifecycle-values';
-
-export * from './production-support-data-export-delete-lifecycle-values';
 
 type ProductionSupportDataExportDeleteLifecycleProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly surface: string }>;

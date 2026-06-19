@@ -4,6 +4,10 @@ import type {
   SupportBackendUploadStatusEntryCandidate,
   SupportBackendUploadStatusState,
 } from './support-backend-upload-status.js';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 export function supportBackendUploadStatusEntryIsSafe(
   entry: SupportBackendUploadStatusEntryCandidate,
@@ -11,7 +15,7 @@ export function supportBackendUploadStatusEntryIsSafe(
 ): boolean {
   return (
     !supportBackendUploadStatusHasClaimUpgrade(entry) &&
-    requiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
+    supportProofRequiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
     supportBackendUploadStatusRefsArePresent(entry) &&
     supportBackendUploadStatusStatesAreCoherent(entry)
   );
@@ -33,7 +37,7 @@ export function supportBackendUploadStatusCoversRequiredStates(
 }
 
 function supportBackendUploadStatusHasClaimUpgrade(entry: SupportBackendUploadStatusEntryCandidate): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsTokens,
     entry.containsRawChildActivity,
     entry.containsRawUrls,
@@ -51,7 +55,7 @@ function supportBackendUploadStatusHasClaimUpgrade(entry: SupportBackendUploadSt
     entry.accountLookupExecuted,
     entry.billingProviderExecuted,
     entry.ocentraHostedFamilyDataDefault,
-  ].some(Boolean);
+  ]);
 }
 
 function supportBackendUploadStatusRefsArePresent(entry: SupportBackendUploadStatusEntryCandidate): boolean {
@@ -150,12 +154,4 @@ function supportBackendUploadProviderUnavailableStateIsCoherent(
       entry.retryRefs.length > 0 &&
       entry.failureRefs.length > 0)
   );
-}
-
-function requiredValuesArePresent<T extends string>(
-  actualValues: ReadonlyArray<T>,
-  requiredValues: ReadonlyArray<T>
-): boolean {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }

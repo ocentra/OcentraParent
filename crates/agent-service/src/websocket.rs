@@ -4,11 +4,23 @@ use ocentra_parent_agent_protocol::{
     LogFieldValue, LogLevel,
 };
 
+mod policy_request_confirm;
 mod tracking_retention_settings_write;
 
+use self::policy_request_confirm::build_policy_request_assistant_preview_confirm_report;
 use self::tracking_retention_settings_write::build_tracking_retention_settings_write_report;
 
 use crate::{
+    activity_api::activity_memory_graph_report::build_activity_memory_graph_report,
+    activity_api::app_game_adapter_dispatch_execute_payload::build_activity_app_game_adapter_dispatch_execute_report,
+    activity_api::app_game_adapter_dispatch_preflight_payload::build_activity_app_game_adapter_dispatch_preflight_report,
+    activity_api::app_game_adapter_dispatch_result_payload::build_activity_app_game_adapter_dispatch_result_report,
+    activity_api::app_game_adapter_execution_readiness_payload::build_activity_app_game_adapter_execution_readiness_report,
+    activity_api::app_game_child_runtime_transport_receipt_payload::build_activity_app_game_child_runtime_transport_receipt_report,
+    activity_api::app_game_platform_proof_status_payload::build_activity_app_game_platform_proof_status_report,
+    activity_api::app_game_timer_parent_preference_setup_request::build_activity_app_game_timer_parent_preference_setup_request_report,
+    activity_api::app_game_timer_parent_surface_payload::build_activity_app_game_timer_parent_surface_report,
+    activity_api::browser_intervention_report::build_browser_intervention_read_model_report,
     activity_api::social_alert_report_parent_surface_read_model_payload::build_browser_social_alert_report_parent_surface_read_model_report,
     activity_api::social_alert_report_read_model_payload::build_browser_social_alert_report_read_model_report,
     activity_api::social_audit_explanation_read_model_payload::build_browser_social_audit_explanation_read_model_report,
@@ -16,20 +28,11 @@ use crate::{
     activity_api::social_parent_notification_delivery_read_model_payload::build_browser_social_parent_notification_delivery_read_model_report,
     activity_api::social_source_custody_mutation_payload::build_browser_social_source_custody_mutation_report,
     activity_api::{
-        build_activity_app_game_adapter_dispatch_execute_report,
-        build_activity_app_game_adapter_dispatch_preflight_report,
-        build_activity_app_game_adapter_dispatch_result_report,
-        build_activity_app_game_adapter_execution_readiness_report,
         build_activity_app_game_boundary_read_model_report,
-        build_activity_app_game_child_runtime_transport_receipt_report,
         build_activity_app_game_notification_readiness_report,
-        build_activity_app_game_platform_proof_status_report,
-        build_activity_app_game_policy_readiness_report,
-        build_activity_app_game_timer_parent_preference_setup_request_report,
-        build_activity_app_game_timer_parent_surface_report, build_activity_ingest_status_report,
-        build_activity_memory_graph_report, build_activity_recent_summary_report,
-        build_activity_tracking_read_model_report, build_browser_evidence_recent_report,
-        build_browser_intervention_read_model_report, build_browser_inventory_read_model_report,
+        build_activity_app_game_policy_readiness_report, build_activity_ingest_status_report,
+        build_activity_recent_summary_report, build_activity_tracking_read_model_report,
+        build_browser_evidence_recent_report, build_browser_inventory_read_model_report,
         build_network_flow_read_model_report, build_network_runtime_event_chain_stream_report,
     },
     activity_surface_api::{
@@ -43,10 +46,11 @@ use crate::{
     browser_policy_runtime::BrowserPolicyRuntime,
     browser_runtime::build_browser_managed_status_report,
     browser_runtime_stream_api::build_browser_runtime_event_chain_stream_report,
+    enforcement_api::enforcement_broad_adapter_proof_report::build_enforcement_broad_adapter_proof_report,
+    enforcement_api::enforcement_supported_adapter_runtime_proof_report::build_enforcement_supported_adapter_runtime_proof_report,
     enforcement_api::{
-        build_enforcement_audit_report, build_enforcement_broad_adapter_proof_report,
-        build_enforcement_policy_dispatch_report, build_enforcement_product_control_spine_report,
-        build_enforcement_supported_adapter_runtime_proof_report,
+        build_enforcement_audit_report, build_enforcement_policy_dispatch_report,
+        build_enforcement_product_control_spine_report,
     },
     enforcement_timer_api::build_enforcement_timer_report,
     event_builder::{build_event, portal_peer},
@@ -74,10 +78,45 @@ use crate::{
 #[cfg(test)]
 mod test_helpers;
 #[cfg(test)]
-pub(crate) use test_helpers::{
-    handle_command_text_for_test, handle_command_text_with_browser_policy_for_test,
-    handle_command_text_with_screen_settings_for_test,
-};
+pub(crate) async fn handle_command_text_for_test(
+    text: &str,
+    lan_pairing: LanPairingRuntime,
+    origin: Option<String>,
+) -> AgentEventEnvelope {
+    test_helpers::handle_command_text_for_test(text, lan_pairing, origin).await
+}
+
+#[cfg(test)]
+pub(crate) async fn handle_command_text_with_browser_policy_for_test(
+    text: &str,
+    lan_pairing: LanPairingRuntime,
+    browser_policy: BrowserPolicyRuntime,
+    origin: Option<String>,
+) -> AgentEventEnvelope {
+    test_helpers::handle_command_text_with_browser_policy_for_test(
+        text,
+        lan_pairing,
+        browser_policy,
+        origin,
+    )
+    .await
+}
+
+#[cfg(test)]
+pub(crate) async fn handle_command_text_with_screen_settings_for_test(
+    text: &str,
+    lan_pairing: LanPairingRuntime,
+    screen_settings: ScreenSettingsRuntime,
+    origin: Option<String>,
+) -> AgentEventEnvelope {
+    test_helpers::handle_command_text_with_screen_settings_for_test(
+        text,
+        lan_pairing,
+        screen_settings,
+        origin,
+    )
+    .await
+}
 
 pub async fn handle_socket(
     mut socket: WebSocket,
@@ -230,7 +269,8 @@ async fn build_command_event(
         | AgentCommandName::AgentParentAssistantAnswerGenerate
         | AgentCommandName::AgentParentAssistantMessageSend
         | AgentCommandName::AgentParentAssistantQuickActionStart
-        | AgentCommandName::AgentPolicyPreviewReadModelGet => {
+        | AgentCommandName::AgentPolicyPreviewReadModelGet
+        | AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm => {
             build_ai_command_report(command).await
         }
         command_name if is_browser_policy_command(&command_name) => {
@@ -536,6 +576,9 @@ async fn build_ai_command_report(command: AgentCommandEnvelope) -> AgentEventEnv
         }
         AgentCommandName::AgentPolicyPreviewReadModelGet => {
             build_policy_preview_read_model_report(command).await
+        }
+        AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm => {
+            build_policy_request_assistant_preview_confirm_report(command).await
         }
         _ => build_log_snapshot_report(command),
     }

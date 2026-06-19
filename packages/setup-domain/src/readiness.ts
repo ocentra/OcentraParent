@@ -7,7 +7,7 @@ import {
 import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { SetupPairingState, SetupPairingStateSchema, SetupPairingIntentIdSchema } from './pairing-intent';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 

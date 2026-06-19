@@ -8,7 +8,7 @@ import {
   AppGameLinuxForegroundCaptureReadinessSchema,
   type AppGameLinuxForegroundCaptureReadiness,
 } from './app-game-linux-foreground-capture-readiness';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameLinuxForegroundSourcePreflightSchemaVersionSchema = withParser(
   Schema.Literal('app-game-linux-foreground-source-preflight')

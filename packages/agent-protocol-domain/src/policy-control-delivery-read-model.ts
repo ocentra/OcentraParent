@@ -9,7 +9,7 @@ import {
   AgentPeerSchema,
   AgentProtocolSchemaVersion,
   AgentTimestampSchema,
-} from '@ocentra-parent/event-domain/primitives';
+} from '@ocentra-parent/schema-domain/event-primitives';
 import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
 const PolicyControlDeliveryCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());

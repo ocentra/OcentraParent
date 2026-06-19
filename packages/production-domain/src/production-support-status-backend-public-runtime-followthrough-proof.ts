@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ForbiddenStatusBackendPublicRuntimeFollowthroughDataClasses,
   ProductionSupportStatusBackendPublicRuntimeFollowthroughDataClassSchema,
@@ -14,8 +14,6 @@ import {
   StatusBackendPublicRuntimeFollowthroughManualRequirementSchema,
   StatusBackendPublicRuntimeFollowthroughReferenceSchema,
 } from './production-support-status-backend-public-runtime-followthrough-values';
-
-export * from './production-support-status-backend-public-runtime-followthrough-values';
 
 type StatusBackendPublicRuntimeFollowthroughProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly target: string; readonly followthroughState: string }>;

@@ -4,7 +4,7 @@ import { PlatformExtensionGeneratedAt } from './app-game-platform-extension-rout
 import { IosPlatformExtensionRows } from './app-game-platform-extension-routing-ios-data';
 import { LinuxPlatformExtensionRows } from './app-game-platform-extension-routing-linux-data';
 import { MacosPlatformExtensionRows } from './app-game-platform-extension-routing-macos-data';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGamePlatformExtensionRoutingMatrix = AppGamePlatformExtensionRoutingMatrixSchema.parse({
   schemaVersion: ParentContractSchemaVersion.V0_6,

@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
@@ -27,23 +28,21 @@ async function main() {
   await mkdir(output33, { recursive: true });
 
   run('node', ['scripts/test/tracking-retention-settings-write-command-proof.mjs']);
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-retention-local-service-state-proof',
+    'tests/contract/tracking-retention-local-service-state-proof.test.ts',
   ]);
 
   const sourceWriteProof = JSON.parse(await readFile(writeProofPath, 'utf8'));
-  const proofModule = await import(
+  const proofModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-retention-local-service-state-proof.js')
-    ).href
+      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-retention-local-service-state-proof.ts')
+    ).href,
+    import.meta.url
   );
   const proof = {
     ...proofModule.buildTrackingRetentionLocalServiceStateProof(

@@ -2,6 +2,7 @@ import type { BridgeEntry, BridgeLogPayload } from '../transport/bridgeLogPayloa
 import {
   RunType,
   TestLogScope,
+  TestLogSchemaVersion,
   type RunType as RunTypeValue,
   type StoredTestLogLine,
   type TestLogScope as TestLogScopeValue,
@@ -19,7 +20,7 @@ export function bridgePayloadToStoredLog(
   options: BridgePayloadToStoredLogOptions
 ): StoredTestLogLine {
   return {
-    schemaVersion: 1,
+    schemaVersion: TestLogSchemaVersion,
     type: 'log',
     scope: options.consumer ?? TestLogScope.ParentTest,
     runId: options.runId,
@@ -42,6 +43,15 @@ export function bridgePayloadToStoredLog(
     origin: payload.origin,
     environment: payload.environment,
   };
+}
+
+export function bridgeEntryToStoredLog(entry: BridgeEntry): StoredTestLogLine {
+  return bridgePayloadToStoredLog(entry.log, {
+    testName: entry.testName,
+    runId: entry.runId,
+    consumer: entry.consumer,
+    runType: entry.runType,
+  });
 }
 
 export function storedLogToBridgePayload(log: StoredTestLogLine): BridgeLogPayload {

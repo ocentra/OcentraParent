@@ -59,8 +59,7 @@ pub const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_GENERATED_AT: &str = "2026-06-08
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_SENT_AT: &str = "2026-06-08T10:44:01Z";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_PORTAL_PEER: &str = "portal-dev";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_DEVICE_ID: &str = "child-device";
-pub const APP_GAME_ADAPTER_DISPATCH_RESULT_CLAIM_SCOPED_TIMER: &str =
-    "Dispatch command-result is limited to scoped Windows owned-process app/game time-limit rows and reuses agent.enforcement.execute.";
+pub const APP_GAME_ADAPTER_DISPATCH_RESULT_CLAIM_SCOPED_TIMER: &str = "Dispatch command-result is limited to scoped Windows owned-process app/game time-limit rows and reuses agent.enforcement.execute.";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_CLAIM_BLOCKED: &str =
     "Adapter dispatch command-result is blocked before runtime for this app/game row.";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_FALLBACK_SCOPED_TIMER: &str =

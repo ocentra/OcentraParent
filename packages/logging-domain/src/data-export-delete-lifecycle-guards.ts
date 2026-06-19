@@ -4,6 +4,10 @@ import type {
   DataExportDeleteLifecycleEntryCandidate,
   DataExportDeleteLifecycleState,
 } from './data-export-delete-lifecycle.js';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 export function dataExportDeleteLifecycleEntryIsSafe(
   entry: DataExportDeleteLifecycleEntryCandidate,
@@ -11,7 +15,7 @@ export function dataExportDeleteLifecycleEntryIsSafe(
 ): boolean {
   return (
     !dataExportDeleteLifecycleHasClaimUpgrade(entry) &&
-    requiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
+    supportProofRequiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
     dataExportDeleteLifecycleRefsArePresent(entry) &&
     dataExportDeleteLifecycleStatesAreCoherent(entry)
   );
@@ -27,7 +31,7 @@ export function dataExportDeleteLifecycleCoversRequiredStates(
 }
 
 function dataExportDeleteLifecycleHasClaimUpgrade(entry: DataExportDeleteLifecycleEntryCandidate): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsTokens,
     entry.containsRawChildActivity,
     entry.containsRawUrls,
@@ -48,7 +52,7 @@ function dataExportDeleteLifecycleHasClaimUpgrade(entry: DataExportDeleteLifecyc
     entry.remoteSupportSessionExecuted,
     entry.childActivityCustodyClaimed,
     entry.ocentraHostedFamilyDataDefault,
-  ].some(Boolean);
+  ]);
 }
 
 function dataExportDeleteLifecycleRefsArePresent(entry: DataExportDeleteLifecycleEntryCandidate): boolean {
@@ -81,12 +85,4 @@ function dataExportDeleteLifecycleTerminalRowsAreCoherent(entry: DataExportDelet
     return true;
   }
   return entry.runtimeRefs.length > 0 && entry.auditRefs.length > 0;
-}
-
-function requiredValuesArePresent<T extends string>(
-  actualValues: ReadonlyArray<T>,
-  requiredValues: ReadonlyArray<T>
-): boolean {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }

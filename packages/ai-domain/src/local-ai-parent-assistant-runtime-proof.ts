@@ -18,7 +18,7 @@ import {
   ParentAssistantAnswerSchema,
   ParentAssistantProviderStatusSchema,
 } from './parent-assistant';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const LocalAiParentAssistantRuntimeProofReadModelIdSchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofReadModelId');
 export const LocalAiParentAssistantRuntimeProofEntryIdSchema = brandedNonEmptyStringSchema('LocalAiParentAssistantRuntimeProofEntryId');

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SocialAuditExplanationSnapshotSchema } from '@ocentra-parent/browser-domain/social-audit-explanation-read-model';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from '../../src/contracts';
-import { AgentProtocolSchemaVersion } from '../../src/primitives';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 
 const Source = {
   peerId: 'agent-service',

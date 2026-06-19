@@ -14,7 +14,11 @@ import {
   SocialAlertReportPayloadField,
   SocialAlertReportReasonCode,
 } from '../../src/social-alert-report-intent';
-import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/family-domain/reference-primitives';
+import {
+  ParentContractSchemaVersion,
+  ParentEvidenceReferenceKind,
+  ParentPlatform,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-07T05:46:00Z';
 const MinimalPayloadFields = Object.values(SocialAlertReportPayloadField);

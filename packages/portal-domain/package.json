@@ -29,6 +29,14 @@
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
     },
+    "./command-results": {
+      "import": "./dist/command-results.js",
+      "types": "./dist/command-results.d.ts"
+    },
+    "./commands": {
+      "import": "./dist/commands.js",
+      "types": "./dist/commands.d.ts"
+    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
@@ -36,6 +44,38 @@
     "./live-activity-state": {
       "import": "./dist/live-activity-state.js",
       "types": "./dist/live-activity-state.d.ts"
+    },
+    "./network-evidence-drawer": {
+      "import": "./dist/network-evidence-drawer.js",
+      "types": "./dist/network-evidence-drawer.d.ts"
+    },
+    "./tracking-child-check-in-proof": {
+      "import": "./dist/tracking-child-check-in-proof.js",
+      "types": "./dist/tracking-child-check-in-proof.d.ts"
+    },
+    "./tracking-missing-device-hosted-ui-proof": {
+      "import": "./dist/tracking-missing-device-hosted-ui-proof.js",
+      "types": "./dist/tracking-missing-device-hosted-ui-proof.d.ts"
+    },
+    "./tracking-notification-parent-surface-hosted-ui-proof": {
+      "import": "./dist/tracking-notification-parent-surface-hosted-ui-proof.js",
+      "types": "./dist/tracking-notification-parent-surface-hosted-ui-proof.d.ts"
+    },
+    "./tracking-parent-action-readiness-hosted-ui-proof": {
+      "import": "./dist/tracking-parent-action-readiness-hosted-ui-proof.js",
+      "types": "./dist/tracking-parent-action-readiness-hosted-ui-proof.d.ts"
+    },
+    "./tracking-report-export-hosted-ui-proof": {
+      "import": "./dist/tracking-report-export-hosted-ui-proof.js",
+      "types": "./dist/tracking-report-export-hosted-ui-proof.d.ts"
+    },
+    "./tracking-report-policy-consumer-hosted-ui-proof": {
+      "import": "./dist/tracking-report-policy-consumer-hosted-ui-proof.js",
+      "types": "./dist/tracking-report-policy-consumer-hosted-ui-proof.d.ts"
+    },
+    "./parent-portal-shell-status": {
+      "import": "./dist/parent-portal-shell-status.js",
+      "types": "./dist/parent-portal-shell-status.d.ts"
     },
     "./browser-action-intent-stream-status": {
       "import": "./dist/browser-action-intent-stream-status.js",

@@ -17,7 +17,7 @@ import {
   ParentContractSchemaVersion,
   ParentEvidenceReferenceKind,
   ParentPlatform,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-03T09:05:00Z';
 const PolicyVersion = 'app-game-time-budget-policy-v1';

@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{NetworkCrossSliceEvidenceBundle, NetworkEvidenceGrade};
+use crate::bundle::NetworkCrossSliceEvidenceBundle;
+use crate::dns::NetworkEvidenceGrade;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkLocalAiQueueStatus {

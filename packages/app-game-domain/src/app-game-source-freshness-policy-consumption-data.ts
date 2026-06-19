@@ -10,7 +10,7 @@ import {
   AppGameSourceFreshnessRequirementKind as RequirementKind,
   AppGameSourceFreshnessSourceKind as SourceKind,
 } from './app-game-source-freshness-policy-consumption-values';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const GeneratedAt = '2026-06-04T12:55:00.000Z';
 const FreshObservedAt = '2026-06-04T12:54:00.000Z';

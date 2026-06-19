@@ -8,7 +8,7 @@ import {
   V08OsAdapterManualArtifactGateReadModel,
   type V08OsAdapterManualArtifactGateEntry,
 } from '@ocentra-parent/enforcement-domain/v0-8-os-adapter-manual-artifact-gates';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAppleCiPlatformProofPreflightSchemaVersionSchema = withParser(
   Schema.Literal('app-game-apple-ci-platform-proof-preflight')

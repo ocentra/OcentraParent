@@ -10,7 +10,7 @@ import {
   ParentContractSchemaVersionSchema,
   ParentEvidenceReferenceIdSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { SocialParentPolicyDecisionCandidateSchema } from './social-policy-compiler';
 import {
   SocialParentPolicyDecisionCandidateIdSchema,

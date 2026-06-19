@@ -1,7 +1,9 @@
 use crate::{
-    constants, NetworkWindowsFirewallLabCommandStatusKind,
-    NetworkWindowsFirewallLabCommandStatusRow, NetworkWindowsFirewallLabStatus,
-    NetworkWindowsFirewallLabStatusState,
+    constants,
+    network_windows_firewall_lab_status::{
+        NetworkWindowsFirewallLabCommandStatusKind, NetworkWindowsFirewallLabCommandStatusRow,
+        NetworkWindowsFirewallLabStatus, NetworkWindowsFirewallLabStatusState,
+    },
 };
 
 #[test]

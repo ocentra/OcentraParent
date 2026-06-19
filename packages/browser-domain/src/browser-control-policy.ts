@@ -68,7 +68,7 @@ import {
   browserControlManifestAllowsWritesTo,
   type BrowserControlAuthoringManifest,
 } from './browser-control-manifest';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserControlBudgetSchema = withParser(
   Schema.Struct({

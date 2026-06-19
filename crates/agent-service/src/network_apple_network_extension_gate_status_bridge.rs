@@ -1,16 +1,24 @@
 use ocentra_network_evidence::{
-    map_network_evidence_grade_to_policy, plan_network_apple_network_extension_gate,
-    NetworkAppleNetworkExtensionCapabilityState, NetworkAppleNetworkExtensionGateBoundaryReason,
-    NetworkAppleNetworkExtensionGateInput, NetworkAppleNetworkExtensionGateProof,
-    NetworkAppleNetworkExtensionGateState, NetworkAppleNetworkExtensionPlatform,
-    NetworkAppleNetworkExtensionRequiredArtifact, NetworkEvidenceGrade,
-    NetworkEvidencePolicyAction, NetworkEvidencePolicyMappingInput,
+    apple_network_extension_gate::{
+        plan_network_apple_network_extension_gate, NetworkAppleNetworkExtensionCapabilityState,
+        NetworkAppleNetworkExtensionGateBoundaryReason, NetworkAppleNetworkExtensionGateInput,
+        NetworkAppleNetworkExtensionGateProof, NetworkAppleNetworkExtensionGateState,
+        NetworkAppleNetworkExtensionPlatform, NetworkAppleNetworkExtensionRequiredArtifact,
+    },
+    dns::NetworkEvidenceGrade,
+    policy::{
+        map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
+        NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
+    },
 };
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, NetworkAppleNetworkExtensionGateCapabilityStatusState,
-    NetworkAppleNetworkExtensionGateStatus, NetworkAppleNetworkExtensionGateStatusState,
-    NetworkAppleNetworkExtensionPlatformStatus,
+    constants,
+    network_apple_network_extension_gate_status::{
+        NetworkAppleNetworkExtensionGateCapabilityStatusState,
+        NetworkAppleNetworkExtensionGateStatus, NetworkAppleNetworkExtensionGateStatusState,
+        NetworkAppleNetworkExtensionPlatformStatus,
+    },
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields, LogLevel,
 };
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
@@ -160,7 +168,7 @@ fn gate_input() -> NetworkAppleNetworkExtensionGateInput {
     }
 }
 
-fn policy_mapping() -> ocentra_network_evidence::NetworkEvidencePolicyMapping {
+fn policy_mapping() -> NetworkEvidencePolicyMapping {
     map_network_evidence_grade_to_policy(NetworkEvidencePolicyMappingInput {
         policy_decision_ref:
             constants::network_flow::TEST_APPLE_NETWORK_EXTENSION_POLICY_DECISION_REF.to_string(),

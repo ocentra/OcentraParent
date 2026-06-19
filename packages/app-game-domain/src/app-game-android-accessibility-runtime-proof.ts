@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidAccessibilityRuntimeProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-accessibility-runtime-proof')
@@ -187,7 +187,6 @@ function accessibilityRuntimeSummary(
   return 'Android Accessibility service is declared in the package, but enablement or event sample proof is still missing before overlay runtime can be claimed.';
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function accessibilityRuntimeProofIsHonest(proof: AccessibilityRuntimeCandidate): boolean {
   return (
     proof.declarationState === 'accessibility-service-declared' &&

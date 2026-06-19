@@ -3,7 +3,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { SocialAlertReportDeliveryClaimState, SocialAlertReportIntentStatus } from './social-alert-report-intent';
 import {
   SocialAlertReportDeliveryClaimStateSchema,

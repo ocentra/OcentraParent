@@ -4,7 +4,7 @@ import {
   FamilyIdSchema,
   ParentEvidenceReferenceIdSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   SocialDashboardPanelActionSchema,
   SocialDashboardPanelIdSchema,

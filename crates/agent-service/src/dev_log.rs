@@ -51,3 +51,7 @@ fn into_core_field_value(value: ProtocolLogFieldValue) -> LogFieldValue {
         ProtocolLogFieldValue::Null(value) => LogFieldValue::Null(value),
     }
 }
+
+#[cfg(test)]
+#[path = "../tests/unit/dev_log.rs"]
+mod dev_log_tests;

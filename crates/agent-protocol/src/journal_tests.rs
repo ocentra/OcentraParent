@@ -1,6 +1,9 @@
 use super::{
-    ActivityJournalCipher, ActivityJournalLine, ActivityJournalRotationPolicy,
-    ActivityJournalStatus, ACTIVITY_JOURNAL_SCHEMA_VERSION,
+    journal::{
+        ActivityJournalCipher, ActivityJournalLine, ActivityJournalRotationPolicy,
+        ActivityJournalStatus,
+    },
+    ACTIVITY_JOURNAL_SCHEMA_VERSION,
 };
 
 #[test]

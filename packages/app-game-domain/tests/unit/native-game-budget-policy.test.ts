@@ -8,7 +8,7 @@ import {
   NativeGameBudgetSignalKind,
   NativeGameBudgetSignalPolicyRole,
 } from '../../src/native-game-budget-policy-rules';
-import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-03T07:30:00Z';
 const PolicyVersion = 'native-game-budget-policy-version-1';

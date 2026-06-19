@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseRuntimeProofReadModel } from './app-install-purchase-runtime-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const PlatformArtifactSchemaVersion = 'app-install-purchase-platform-artifact-proof';
 const SourceRuntimeProofVersion = 'app-install-purchase-runtime-proof';
 const PlatformArtifactTimestamp = '2026-06-04T07:05:00.000Z';

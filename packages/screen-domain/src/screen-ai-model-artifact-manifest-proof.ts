@@ -20,7 +20,7 @@ import {
   LocalModelRuntimeStatusSchema,
   LocalProviderCapabilitySchema,
 } from '@ocentra-parent/ai-domain/local-ai-runtime';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ScreenAiModelManifestProofIdSchema = brandedNonEmptyStringSchema('ScreenAiModelManifestProofId');
 
 export const ScreenAiModelManifestClaimBoundarySchema = withParser(

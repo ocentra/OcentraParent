@@ -22,8 +22,6 @@ import {
   ScreenRawScreenshotRetentionModeSchema,
 } from './screen-optional-visibility-mode-values';
 
-export * from './screen-optional-visibility-mode-values';
-
 const RequiredFalse = Schema.Literal(false);
 const RequiredTrue = Schema.Literal(true);
 const OptionalApprovalRefSchema = Schema.Union(ScreenOptionalVisibilityApprovalRefSchema, Schema.Null);

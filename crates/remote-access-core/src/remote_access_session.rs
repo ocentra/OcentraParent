@@ -9,7 +9,7 @@
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
-use ocentra_family_identity_core::ChildDisclosureState;
+use ocentra_family_identity_core::family_identity::ChildDisclosureState;
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 use serde::{Deserialize, Serialize};
 

@@ -21,7 +21,7 @@ import {
   LocalAiTimestampSchema,
 } from './local-ai-primitives';
 import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyRuleIdSchema } from '@ocentra-parent/policy-domain/policy';
-import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
 const ReportCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 

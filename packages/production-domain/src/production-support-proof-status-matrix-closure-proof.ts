@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ProductionSupportProofStatusMatrixClosureAreaSchema,
   ProductionSupportProofStatusMatrixClosureNonClaimSchema,
@@ -11,8 +11,6 @@ import {
   RequiredProofStatusMatrixClosureNonClaims,
   RequiredProofStatusMatrixClosureSourceProofs,
 } from './production-support-proof-status-matrix-closure-values';
-
-export * from './production-support-proof-status-matrix-closure-values';
 
 type MatrixClosureCandidate = {
   readonly rows: ReadonlyArray<{ readonly area: string; readonly sourceProofRefs: ReadonlyArray<string> }>;

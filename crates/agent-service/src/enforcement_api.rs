@@ -29,7 +29,7 @@ mod enforcement_broad_adapter_proof_payload;
 mod enforcement_broad_adapter_proof_read_model;
 #[cfg(test)]
 mod enforcement_broad_adapter_proof_read_model_tests;
-mod enforcement_broad_adapter_proof_report;
+pub(crate) mod enforcement_broad_adapter_proof_report;
 mod enforcement_integrity_runtime_audit_read_model;
 #[cfg(test)]
 mod enforcement_integrity_runtime_audit_read_model_tests;
@@ -38,7 +38,7 @@ mod enforcement_product_control_payload;
 mod enforcement_supported_adapter_runtime_proof_read_model;
 #[cfg(test)]
 mod enforcement_supported_adapter_runtime_proof_read_model_tests;
-mod enforcement_supported_adapter_runtime_proof_report;
+pub(crate) mod enforcement_supported_adapter_runtime_proof_report;
 mod integrity_alert_status_bridge_read_model;
 #[cfg(test)]
 mod integrity_alert_status_bridge_read_model_tests;
@@ -46,12 +46,10 @@ mod notification_provider_status_boundary_read_model;
 #[cfg(test)]
 mod notification_provider_status_boundary_read_model_tests;
 
-pub use self::enforcement_broad_adapter_proof_report::build_enforcement_broad_adapter_proof_report;
 use self::enforcement_pre_action_journal::journal_before_action_outcome;
 use self::enforcement_product_control_payload::{
     enforcement_policy_dispatch_payload, enforcement_product_control_spine_payload,
 };
-pub use self::enforcement_supported_adapter_runtime_proof_report::build_enforcement_supported_adapter_runtime_proof_report;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct EnforcementJournalPaths {

@@ -4,7 +4,6 @@ use ocentra_parent_agent_protocol::{
 };
 use rusqlite::Connection;
 
-#[allow(dead_code)]
 pub(crate) mod app_game_journal_sqlite_ingest;
 #[cfg(test)]
 mod app_game_journal_sqlite_ingest_tests;
@@ -14,12 +13,10 @@ mod app_game_session_rollups;
 mod app_game_session_time;
 mod app_game_sessionization;
 // WP06 stages the typed parser before live Windows source readers call it.
-#[allow(dead_code)]
 pub(crate) mod app_game_windows_inventory;
 #[cfg(test)]
 mod app_game_windows_inventory_tests;
 // WP41 adds a bounded live Windows shortcut inventory source.
-#[allow(dead_code)]
 pub(crate) mod app_game_windows_inventory_source;
 #[cfg(test)]
 mod app_game_windows_inventory_source_tests;
@@ -28,73 +25,188 @@ mod app_game_windows_registry_export;
 #[cfg(windows)]
 mod app_game_windows_registry_live;
 mod app_game_windows_registry_record;
-#[allow(dead_code)]
 pub(crate) mod app_game_windows_registry_source;
 #[cfg(test)]
 mod app_game_windows_registry_source_test_support;
 #[cfg(test)]
 mod app_game_windows_registry_source_tests;
 // WP07 stages Store/UWP package parsing before live package readers call it.
-#[allow(dead_code)]
 pub(crate) mod app_game_windows_store_inventory;
 #[cfg(test)]
 mod app_game_windows_store_inventory_tests;
 // WP43 adds a bounded live Windows packaged-app manifest source.
-#[allow(dead_code)]
 mod app_game_windows_store_package_manifest;
-#[allow(dead_code)]
 pub(crate) mod app_game_windows_store_package_source;
 #[cfg(test)]
 mod app_game_windows_store_package_source_tests;
 // WP08 stages process runtime evidence before live process capture calls it.
-#[allow(dead_code)]
 pub(crate) mod app_game_windows_process_runtime;
 #[cfg(test)]
 mod app_game_windows_process_runtime_tests;
 // WP32 adds a real process snapshot source that feeds the staged runtime rows.
-#[allow(dead_code)]
 pub(crate) mod app_game_windows_process_source;
 #[cfg(test)]
 mod app_game_windows_process_source_tests;
 // WP09 stages foreground-window evidence before live window capture calls it.
-#[allow(dead_code)]
 pub(crate) mod app_game_windows_foreground;
 #[cfg(test)]
 mod app_game_windows_foreground_tests;
 // WP36 adds a real foreground-window source that feeds the staged rows.
-#[allow(dead_code)]
 pub(crate) mod app_game_windows_foreground_source;
 #[cfg(test)]
 mod app_game_windows_foreground_source_tests;
 // WP10 stages launcher evidence before live launcher manifest readers call it.
 #[cfg(test)]
 mod app_game_sessionization_tests;
-#[allow(dead_code)]
 pub(crate) mod app_game_windows_launcher;
 #[cfg(test)]
 mod app_game_windows_launcher_tests;
 
 use crate::{activity_store_app_game_rows::app_game_rows, ActivityStoreError};
 
-pub use app_game_windows_foreground_source::{
-    live_windows_foreground_window_journal_event, AppGameLiveForegroundWindowError,
+use app_game_windows_foreground_source::{
+    live_windows_foreground_window_journal_event as live_windows_foreground_window_journal_event_impl,
+    AppGameLiveForegroundWindowError as AppGameLiveForegroundWindowErrorImpl,
 };
-pub use app_game_windows_inventory_source::{
-    live_windows_inventory_journal_events_from_roots,
-    live_windows_inventory_journal_events_with_limit, AppGameLiveInventorySourceError,
+use app_game_windows_inventory_source::{
+    live_windows_inventory_journal_events_from_roots as live_windows_inventory_journal_events_from_roots_impl,
+    live_windows_inventory_journal_events_with_limit as live_windows_inventory_journal_events_with_limit_impl,
+    AppGameLiveInventorySourceError as AppGameLiveInventorySourceErrorImpl,
 };
-pub use app_game_windows_process_source::{
-    live_windows_process_snapshot_journal_events_with_limit, AppGameLiveProcessSnapshotError,
+use app_game_windows_process_source::{
+    live_windows_process_snapshot_journal_events_with_limit as live_windows_process_snapshot_journal_events_with_limit_impl,
+    AppGameLiveProcessSnapshotError as AppGameLiveProcessSnapshotErrorImpl,
 };
-pub use app_game_windows_registry_source::{
-    live_windows_registry_inventory_journal_events_from_roots,
-    live_windows_registry_inventory_journal_events_with_limit,
+use app_game_windows_registry_source::{
+    live_windows_registry_inventory_journal_events_from_roots as live_windows_registry_inventory_journal_events_from_roots_impl,
+    live_windows_registry_inventory_journal_events_with_limit as live_windows_registry_inventory_journal_events_with_limit_impl,
+    AppGameLiveRegistryInventorySourceError as AppGameLiveRegistryInventorySourceErrorImpl,
+};
+use app_game_windows_store_package_source::{
+    live_windows_store_package_journal_events_from_roots as live_windows_store_package_journal_events_from_roots_impl,
+    live_windows_store_package_journal_events_with_limit as live_windows_store_package_journal_events_with_limit_impl,
+    AppGameLiveStorePackageSourceError as AppGameLiveStorePackageSourceErrorImpl,
+};
+
+pub type AppGameLiveForegroundWindowError = AppGameLiveForegroundWindowErrorImpl;
+pub type AppGameLiveInventorySourceError = AppGameLiveInventorySourceErrorImpl;
+pub type AppGameLiveProcessSnapshotError = AppGameLiveProcessSnapshotErrorImpl;
+pub type AppGameLiveRegistryInventorySourceError = AppGameLiveRegistryInventorySourceErrorImpl;
+pub type AppGameLiveStorePackageSourceError = AppGameLiveStorePackageSourceErrorImpl;
+
+pub(crate) fn live_windows_foreground_window_journal_event(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+) -> Result<Option<ocentra_parent_agent_protocol::ActivityEvent>, AppGameLiveForegroundWindowError>
+{
+    live_windows_foreground_window_journal_event_impl(device_id, platform, observed_at)
+}
+
+pub(crate) fn live_windows_inventory_journal_events_with_limit(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+) -> Result<Vec<ocentra_parent_agent_protocol::ActivityEvent>, AppGameLiveInventorySourceError> {
+    live_windows_inventory_journal_events_with_limit_impl(device_id, platform, observed_at, limit)
+}
+
+pub(crate) fn live_windows_inventory_journal_events_from_roots(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    roots: &[std::path::PathBuf],
+    limit: usize,
+) -> Result<Vec<ocentra_parent_agent_protocol::ActivityEvent>, AppGameLiveInventorySourceError> {
+    live_windows_inventory_journal_events_from_roots_impl(
+        device_id,
+        platform,
+        observed_at,
+        roots,
+        limit,
+    )
+}
+
+pub(crate) fn live_windows_process_snapshot_journal_events_with_limit(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+) -> Result<Vec<ocentra_parent_agent_protocol::ActivityEvent>, AppGameLiveProcessSnapshotError> {
+    live_windows_process_snapshot_journal_events_with_limit_impl(
+        device_id,
+        platform,
+        observed_at,
+        limit,
+    )
+}
+
+pub(crate) fn live_windows_registry_inventory_journal_events_with_limit(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+) -> Result<
+    Vec<ocentra_parent_agent_protocol::ActivityEvent>,
     AppGameLiveRegistryInventorySourceError,
-};
-pub use app_game_windows_store_package_source::{
-    live_windows_store_package_journal_events_from_roots,
-    live_windows_store_package_journal_events_with_limit, AppGameLiveStorePackageSourceError,
-};
+> {
+    live_windows_registry_inventory_journal_events_with_limit_impl(
+        device_id,
+        platform,
+        observed_at,
+        limit,
+    )
+}
+
+pub(crate) fn live_windows_registry_inventory_journal_events_from_roots(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    roots: &[std::path::PathBuf],
+    limit: usize,
+) -> Result<
+    Vec<ocentra_parent_agent_protocol::ActivityEvent>,
+    AppGameLiveRegistryInventorySourceError,
+> {
+    live_windows_registry_inventory_journal_events_from_roots_impl(
+        device_id,
+        platform,
+        observed_at,
+        roots,
+        limit,
+    )
+}
+
+pub(crate) fn live_windows_store_package_journal_events_with_limit(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+) -> Result<Vec<ocentra_parent_agent_protocol::ActivityEvent>, AppGameLiveStorePackageSourceError> {
+    live_windows_store_package_journal_events_with_limit_impl(
+        device_id,
+        platform,
+        observed_at,
+        limit,
+    )
+}
+
+pub(crate) fn live_windows_store_package_journal_events_from_roots(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    roots: &[std::path::PathBuf],
+    limit: usize,
+) -> Result<Vec<ocentra_parent_agent_protocol::ActivityEvent>, AppGameLiveStorePackageSourceError> {
+    live_windows_store_package_journal_events_from_roots_impl(
+        device_id,
+        platform,
+        observed_at,
+        roots,
+        limit,
+    )
+}
 
 pub(crate) fn app_game_session_report(
     connection: &Connection,

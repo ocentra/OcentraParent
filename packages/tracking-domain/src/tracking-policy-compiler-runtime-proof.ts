@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   PolicyCompiledArtifactSchema,
   PolicyCompilerDomain,
@@ -99,7 +99,7 @@ export const TrackingPolicyCompilerRuntimeProofRequestSchema = withParser(
     .pipe(
       Schema.filter(
         (request) =>
-          request.compiledArtifact.sourcePolicyVersion === request.rule.policyVersion ||
+          sameContractIdentity(request.compiledArtifact.sourcePolicyVersion, request.rule.policyVersion) ||
           'Tracking runtime-proof requests need compiled artifacts from the same source policy version as the requested rule'
       )
     )
@@ -219,7 +219,11 @@ function compiledArtifactContainsRequestedRule(
   compiledArtifact: PolicyCompiledArtifact,
   ruleId: TrackingPolicyRule['ruleId']
 ): boolean {
-  return compiledArtifact.rules.some((rule) => rule.ruleId === ruleId);
+  return compiledArtifact.rules.some((rule) => sameContractIdentity(rule.ruleId, ruleId));
+}
+
+function sameContractIdentity(left: string, right: string): boolean {
+  return left === right;
 }
 
 function actionFor(

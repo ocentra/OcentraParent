@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
@@ -26,23 +27,21 @@ async function main() {
   await mkdir(output33, { recursive: true });
 
   run('node', ['scripts/test/tracking-retention-product-settings-writable-execution-proof.mjs']);
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-retention-applied-settings-runtime-bridge-proof',
+    'tests/contract/tracking-retention-applied-settings-runtime-bridge-proof.test.ts',
   ]);
 
   const writableExecutionProof = JSON.parse(await readFile(sourceWritableExecutionProofPath, 'utf8'));
-  const proofModule = await import(
+  const proofModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-retention-applied-settings-runtime-bridge-proof.js')
-    ).href
+      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-retention-applied-settings-runtime-bridge-proof.ts')
+    ).href,
+    import.meta.url
   );
   const proof = {
     ...proofModule.buildTrackingRetentionAppliedSettingsRuntimeBridgeProof(

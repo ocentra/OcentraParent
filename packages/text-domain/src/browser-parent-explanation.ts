@@ -1,4 +1,5 @@
 import { decodeDisplayText, decodeTextTokenId, type DisplayText } from './contracts';
+import { resolveDisplayTextFromMap } from './text-family';
 
 export const BrowserParentExplanationTextToken = {
   Title: decodeTextTokenId('browser.parent.explanation.title'),
@@ -32,9 +33,9 @@ const MissingBrowserParentExplanationTextTokenMessage = decodeDisplayText(
 );
 
 export function resolveBrowserParentExplanationText(token: BrowserParentExplanationTextTokenValue): DisplayText {
-  const text = BrowserParentExplanationText[token];
-  if (text === undefined) {
-    throw new Error(MissingBrowserParentExplanationTextTokenMessage);
-  }
-  return text;
+  return resolveDisplayTextFromMap(
+    BrowserParentExplanationText,
+    token,
+    MissingBrowserParentExplanationTextTokenMessage
+  );
 }

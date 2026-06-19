@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentEvidenceReferenceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const SocialIosScreenTimeCapabilityMatrixSchemaVersionSchema = withParser(
   Schema.Literal('social-ios-screen-time-capability-matrix')

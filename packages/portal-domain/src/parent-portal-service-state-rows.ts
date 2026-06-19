@@ -6,8 +6,8 @@ import {
   type AgentProtocolLogFields,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { PARENT_PORTAL_ROUTE, type ParentPortalRow, type ParentPortalTone } from './parent-portal-data';
-import { PARENT_PORTAL_SERVICE_STATE } from './parent-portal-service-state-constants';
 import type { ParentPortalServiceConnectionState, ParentPortalServiceStateInput } from './parent-portal-service-state';
+import { PARENT_PORTAL_SERVICE_STATE } from './parent-portal-service-state';
 import { parentPortalProductShellRows } from './parent-portal-product-shell-rows';
 
 export function parentPortalServiceRows(input: ParentPortalServiceStateInput): ParentPortalRow[] {

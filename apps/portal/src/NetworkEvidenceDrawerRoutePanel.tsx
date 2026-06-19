@@ -5,12 +5,14 @@ import {
   PortalText,
   PortalTextToken,
   isPortalNetworkEvidenceDrawerRoute,
-  networkEvidenceDrawerSummary,
-  type NetworkEvidenceDrawerSummary,
   type PortalDetailValue,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import {
+  networkEvidenceDrawerSummary,
+  type NetworkEvidenceDrawerSummary,
+} from '@ocentra-parent/portal-domain/network-evidence-drawer';
 import type { PortalLiveActivityState } from './live-activity-state';
 
 export function shouldRenderNetworkEvidenceDrawerRoute(route: PortalRouteValue): boolean {

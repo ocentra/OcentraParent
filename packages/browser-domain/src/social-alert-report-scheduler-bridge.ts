@@ -13,7 +13,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
 import {
   SocialAlertReportLocalOutboxBridgeReadModelSchema,
@@ -32,10 +32,12 @@ export const SocialAlertReportSchedulerBridgeStatusSchema = withParser(
   Schema.Literal(...Object.values(SocialAlertReportSchedulerBridgeStatus))
 );
 
-// prettier-ignore
-export const SocialAlertReportSchedulerBridgeIdSchema = brandedNonEmptyStringSchema('SocialAlertReportSchedulerBridgeId');
-// prettier-ignore
-export const SocialAlertReportSchedulerBridgeReferenceSchema = brandedNonEmptyStringSchema('SocialAlertReportSchedulerBridgeReference');
+export const SocialAlertReportSchedulerBridgeIdSchema = brandedNonEmptyStringSchema(
+  'SocialAlertReportSchedulerBridgeId'
+);
+export const SocialAlertReportSchedulerBridgeReferenceSchema = brandedNonEmptyStringSchema(
+  'SocialAlertReportSchedulerBridgeReference'
+);
 
 const SocialAlertReportSchedulerBridgeRowBaseSchema = Schema.Struct({
   schedulerBridgeRecordId: SocialAlertReportSchedulerBridgeReferenceSchema,

@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ProductionReleasePublicStatusFreshnessNonClaimSchema,
   ProductionReleasePublicStatusFreshnessSchemaVersionSchema,
@@ -11,8 +11,6 @@ import {
   RequiredPublicStatusFreshnessNonClaims,
   RequiredPublicStatusFreshnessSurfaces,
 } from './production-release-public-status-freshness-values';
-
-export * from './production-release-public-status-freshness-values';
 
 type PublicStatusFreshnessProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly surface: string }>;

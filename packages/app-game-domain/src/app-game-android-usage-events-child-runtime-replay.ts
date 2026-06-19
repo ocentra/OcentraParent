@@ -8,7 +8,7 @@ import {
   AppGameAndroidUsageEventsReplayReadModelSchema,
   type AppGameAndroidUsageEventsReplayReadModel,
 } from './app-game-android-usage-events-replay';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidUsageEventsChildRuntimeReplaySchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-usage-events-child-runtime-replay')

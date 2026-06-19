@@ -17,7 +17,7 @@ import {
   ParentContractSchemaVersion,
   ParentEvidenceReferenceKind,
   ParentPlatform,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Family = {
   familyId: 'family-local-1',

@@ -3,11 +3,13 @@ use ocentra_parent_agent_protocol::{
     TrackingEvidenceRef, TrackingPolicyRuleRef, TrackingPolicySeverity,
     TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId, TrackingTimestamp,
 };
-use ocentra_tracking_core::TrackingParentNotificationDecisionState;
+use ocentra_tracking_core::alerting::{
+    evaluate_tracking_alert, TrackingParentNotificationDecisionState,
+};
 
 #[test]
 fn review_policy_violation_maps_to_watch_alert_when_notification_is_allowed() {
-    let decision = ocentra_tracking_core::evaluate_tracking_alert(
+    let decision = evaluate_tracking_alert(
         &tracking_policy_violation(
             constants::tracking_runtime::POLICY_SEVERITY_REVIEW,
             vec![tracking_evidence_ref()],
@@ -28,7 +30,7 @@ fn review_policy_violation_maps_to_watch_alert_when_notification_is_allowed() {
 
 #[test]
 fn duplicate_alert_suppression_preserves_urgent_severity() {
-    let decision = ocentra_tracking_core::evaluate_tracking_alert(
+    let decision = evaluate_tracking_alert(
         &tracking_policy_violation(
             constants::tracking_runtime::POLICY_SEVERITY_URGENT,
             vec![tracking_evidence_ref()],
@@ -49,7 +51,7 @@ fn duplicate_alert_suppression_preserves_urgent_severity() {
 
 #[test]
 fn missing_evidence_is_downgraded_to_info_and_suppressed() {
-    let decision = ocentra_tracking_core::evaluate_tracking_alert(
+    let decision = evaluate_tracking_alert(
         &tracking_policy_violation(
             constants::tracking_runtime::POLICY_SEVERITY_CRITICAL,
             vec![],
@@ -70,14 +72,14 @@ fn missing_evidence_is_downgraded_to_info_and_suppressed() {
 
 #[test]
 fn warning_and_critical_policy_severities_map_through_to_alert_severity() {
-    let warning = ocentra_tracking_core::evaluate_tracking_alert(
+    let warning = evaluate_tracking_alert(
         &tracking_policy_violation(
             constants::tracking_runtime::POLICY_SEVERITY_WARNING,
             vec![tracking_evidence_ref()],
         ),
         0,
     );
-    let critical = ocentra_tracking_core::evaluate_tracking_alert(
+    let critical = evaluate_tracking_alert(
         &tracking_policy_violation(
             constants::tracking_runtime::POLICY_SEVERITY_CRITICAL,
             vec![tracking_evidence_ref()],

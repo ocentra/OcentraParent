@@ -5,7 +5,8 @@ import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
 const lanDomainRoot = join(repoRoot, 'packages', 'lan-domain');
-const lanPairingModulePath = join(lanDomainRoot, 'dist', 'lan-pairing.js');
+const sourceMatrixModulePath = join(lanDomainRoot, 'dist', 'lan-discovery-source-matrix.js');
+const pairingDeviceModulePath = join(lanDomainRoot, 'dist', 'lan-pairing-device.js');
 const outputDir = join(repoRoot, 'output', 'lan-plan-proof', '01-lan-b1-proof-regeneration');
 const proofPath = join(outputDir, '01-lan-source-matrix-plan-completion-proof.json');
 const commands = [];
@@ -21,9 +22,10 @@ async function main() {
     lanDomainRoot
   );
 
-  const contract = await import(moduleUrl(lanPairingModulePath));
-  const matrix = contract.LanDiscoverySourceMatrixSchema.parse(sourceMatrixFixture());
-  const readModel = contract.LanBrowserAddDeviceReadModelSchema.parse({
+  const sourceMatrixContract = await import(moduleUrl(sourceMatrixModulePath));
+  const pairingDeviceContract = await import(moduleUrl(pairingDeviceModulePath));
+  const matrix = sourceMatrixContract.LanDiscoverySourceMatrixSchema.parse(sourceMatrixFixture());
+  const readModel = pairingDeviceContract.LanBrowserAddDeviceReadModelSchema.parse({
     ...addDeviceReadModelFixture(),
     lanDiscoverySourceMatrix: matrix,
   });
@@ -87,7 +89,7 @@ async function main() {
 }
 
 async function ensureLanDomainBuild() {
-  if (existsSync(lanPairingModulePath)) {
+  if (existsSync(sourceMatrixModulePath) && existsSync(pairingDeviceModulePath)) {
     return;
   }
   await runCommand('cmd', ['/c', 'npm', 'run', 'build'], lanDomainRoot);

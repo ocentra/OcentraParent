@@ -22,7 +22,7 @@ import {
   ParentContractSchemaVersion,
   ParentEvidenceReferenceKind,
   ParentPlatform,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-07T20:13:00Z';
 

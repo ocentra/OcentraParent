@@ -16,9 +16,9 @@ import {
   createAppGameTimerParentPreferenceSetupCommandResultDetails,
   createAppGameTimerParentPreferenceSetupRequestPayload,
   createAppGameTimerParentSurfacePanelIntent,
-  isCommandResultEvent,
   PortalRoute,
 } from '@ocentra-parent/portal-domain/contracts';
+import { isCommandResultEvent } from '@ocentra-parent/portal-domain/command-results';
 import { shouldRenderAppGameTimerParentSurfaceRoute } from '../src/AppGameTimerParentSurfaceRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 
@@ -594,10 +594,8 @@ function expectTimerParentSurfaceRows(rows: ReturnType<typeof createAppGameTimer
   expect(rows.map((row) => row.title)).toEqual(['identity-study-timer', 'identity-voxel-quest']);
   const firstRow = rows[0];
   const secondRow = rows[1];
-  expect(firstRow).toBeDefined();
-  expect(secondRow).toBeDefined();
   if (firstRow === undefined || secondRow === undefined) {
-    return;
+    throw new Error('timer parent surface rows missing');
   }
   expect(rowPairs(firstRow)).toContainEqual(['Target type', 'Native app']);
   expect(rowPairs(firstRow)).toContainEqual(['Status', 'Ready for parent surface']);
@@ -610,9 +608,8 @@ function expectParentActionRows(
 ) {
   expect(rows.map((row) => row.title)).toEqual(['app-game-child-ux-parent-surface-action-result-app-game-1']);
   const row = rows[0];
-  expect(row).toBeDefined();
   if (row === undefined) {
-    return;
+    throw new Error('parent action row missing');
   }
   expect(rowPairs(row)).toContainEqual(['Target type', 'Native game']);
   expect(rowPairs(row)).toContainEqual(['Status', 'Manual action required']);
@@ -641,9 +638,8 @@ function expectParentPreferenceSetupRows(
 ) {
   expect(rows.map((row) => row.title)).toEqual(['app-game-child-ux-parent-preference-setup-action-result-app-game-1']);
   const row = rows[0];
-  expect(row).toBeDefined();
   if (row === undefined) {
-    return;
+    throw new Error('parent preference setup row missing');
   }
   expect(rowPairs(row)).toContainEqual(['Target type', 'Native game']);
   expect(rowPairs(row)).toContainEqual(['Parent preference setup draft status', 'Preference setup required']);

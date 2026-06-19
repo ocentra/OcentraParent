@@ -6,7 +6,7 @@ import {
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 
-import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const ScreenControlCatalogIdSchema = withParser(
   brandedNonEmptyStringSchema('ScreenControlCatalogId')

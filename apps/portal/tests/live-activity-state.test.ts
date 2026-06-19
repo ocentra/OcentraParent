@@ -438,9 +438,8 @@ function expectBrowserEvidenceReadModel(readModel: ResolvedLiveActivityState['br
 }
 
 function expectBrowserEvidenceRow(latestRow: BrowserEvidenceRow | undefined) {
-  expect(latestRow).toBeDefined();
   if (latestRow === undefined) {
-    return;
+    throw new Error('Expected a browser evidence row to be present.');
   }
   expect(latestRow.url).toBe('https://example.test/learn');
   expect(latestRow.activeState).toBe('unknown');

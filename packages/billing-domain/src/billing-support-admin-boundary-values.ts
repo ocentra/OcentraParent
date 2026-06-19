@@ -4,56 +4,57 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
+import {
+  BillingSupportAdminAuditReferenceSchema as BillingSupportAdminSharedAuditReferenceSchema,
+  BillingSupportAdminChildActivityCustodyExcludedSchema,
+  BillingSupportAdminPortalUiNotImplementedSchema,
+  BillingSupportAdminProviderNotExecutedSchema,
+  BillingSupportAdminProviderSecretCustodyAbsentSchema,
+  BillingSupportAdminSharedNonClaimValues,
+  BillingSupportAdminSharedDataClassSchema,
+  summarizeBillingSupportAdminValues,
+} from './billing-support-admin-common-values';
 
 export const BillingSupportAdminSchemaVersionSchema = withParser(
   Schema.Literal('billing-support-admin-boundary-proof')
 );
+const BillingSupportAdminActionValues = [
+  'support-case-triage',
+  'account-status-review',
+  'billing-escalation-request',
+  'provider-contact-manual-required',
+  'entitlement-admin-override-manual-required',
+  'refund-credit-manual-required',
+] as const;
+const BillingSupportAdminRuntimeStateValues = [
+  'read-only-local-proof',
+  'manual-required',
+  'not-implemented',
+] as const;
+const BillingSupportAdminNonClaimValues = [
+  ...BillingSupportAdminSharedNonClaimValues,
+  'no-billing-provider-contact',
+  'no-account-backend-admin-runtime',
+] as const;
 export const BillingSupportAdminActionSchema = withParser(
-  Schema.Literal(
-    'support-case-triage',
-    'account-status-review',
-    'billing-escalation-request',
-    'provider-contact-manual-required',
-    'entitlement-admin-override-manual-required',
-    'refund-credit-manual-required'
-  )
+  Schema.Literal(...BillingSupportAdminActionValues)
 );
 export const BillingSupportAdminRuntimeStateSchema = withParser(
-  Schema.Literal('read-only-local-proof', 'manual-required', 'not-implemented')
+  Schema.Literal(...BillingSupportAdminRuntimeStateValues)
 );
-export const BillingSupportAdminDataClassSchema = withParser(
-  Schema.Literal(
-    'support-case-status-ref',
-    'account-status-ref',
-    'subscription-status-ref',
-    'entitlement-snapshot-ref',
-    'device-limit-decision-ref',
-    'billing-failure-state-ref',
-    'redaction-audit-ref'
-  )
-);
+export const BillingSupportAdminDataClassSchema = BillingSupportAdminSharedDataClassSchema;
 export const BillingSupportAdminNonClaimSchema = withParser(
-  Schema.Literal(
-    'no-stripe-sdk',
-    'no-provider-secrets',
-    'no-billing-provider-contact',
-    'no-account-backend-admin-runtime',
-    'no-entitlement-admin-override-runtime',
-    'no-refund-credit-runtime',
-    'no-portal-admin-ui',
-    'no-support-backend-upload',
-    'no-child-activity-custody'
-  )
+  Schema.Literal(...BillingSupportAdminNonClaimValues)
 );
-export const BillingSupportAdminProviderSecretCustodySchema = withParser(Schema.Literal('not-present'));
-export const BillingSupportAdminPortalUiClaimSchema = withParser(Schema.Literal('not-implemented'));
-export const BillingSupportAdminProviderContactClaimSchema = withParser(Schema.Literal('not-executed'));
-export const BillingSupportAdminBackendUploadClaimSchema = withParser(Schema.Literal('not-executed'));
-export const BillingSupportAdminChildActivityCustodyClaimSchema = withParser(Schema.Literal('not-included'));
+export const BillingSupportAdminProviderSecretCustodySchema = BillingSupportAdminProviderSecretCustodyAbsentSchema;
+export const BillingSupportAdminPortalUiClaimSchema = BillingSupportAdminPortalUiNotImplementedSchema;
+export const BillingSupportAdminProviderContactClaimSchema = BillingSupportAdminProviderNotExecutedSchema;
+export const BillingSupportAdminBackendUploadClaimSchema = BillingSupportAdminProviderNotExecutedSchema;
+export const BillingSupportAdminChildActivityCustodyClaimSchema = BillingSupportAdminChildActivityCustodyExcludedSchema;
 
 export const BillingSupportAdminBoundaryIdSchema = brandedNonEmptyStringSchema('BillingSupportAdminBoundaryId');
 export const BillingSupportAdminCaseReferenceSchema = brandedNonEmptyStringSchema('BillingSupportAdminCaseReference');
-export const BillingSupportAdminAuditReferenceSchema = brandedNonEmptyStringSchema('BillingSupportAdminAuditReference');
+export const BillingSupportAdminAuditReferenceSchema = BillingSupportAdminSharedAuditReferenceSchema;
 
 export type BillingSupportAdminAction = Infer<typeof BillingSupportAdminActionSchema>;
 export type BillingSupportAdminRuntimeState = Infer<typeof BillingSupportAdminRuntimeStateSchema>;
@@ -63,31 +64,12 @@ export type BillingSupportAdminNonClaim = Infer<typeof BillingSupportAdminNonCla
 export function summarizeBillingSupportAdminActions(
   rows: ReadonlyArray<{ readonly action: BillingSupportAdminAction }>
 ): Record<BillingSupportAdminAction, number> {
-  const counts = {
-    'support-case-triage': 0,
-    'account-status-review': 0,
-    'billing-escalation-request': 0,
-    'provider-contact-manual-required': 0,
-    'entitlement-admin-override-manual-required': 0,
-    'refund-credit-manual-required': 0,
-  };
-  for (const row of rows) {
-    counts[row.action] += 1;
-  }
-  return counts;
+  return summarizeBillingSupportAdminValues(BillingSupportAdminActionValues, rows, 'action');
 }
 
 export function summarizeBillingSupportAdminRuntimeStates(
   rows: ReadonlyArray<{ readonly runtimeState: BillingSupportAdminRuntimeState }>
 ): Record<BillingSupportAdminRuntimeState, number> {
-  const counts = {
-    'read-only-local-proof': 0,
-    'manual-required': 0,
-    'not-implemented': 0,
-  };
-  for (const row of rows) {
-    counts[row.runtimeState] += 1;
-  }
-  return counts;
+  return summarizeBillingSupportAdminValues(BillingSupportAdminRuntimeStateValues, rows, 'runtimeState');
 }
 

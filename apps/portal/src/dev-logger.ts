@@ -2,9 +2,7 @@ import {
   DevLogBridge,
   DevLogEndpoint,
   DevLogHttp,
-  DevLogField,
   DevLogIdPrefix,
-  DevLogMessage,
   LogLevel,
   LogSource,
   decodeLogEntryId,
@@ -16,8 +14,6 @@ import {
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
 import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
-
-export { DevLogField, DevLogMessage };
 
 const PortalDevLogBridge = DevLogBridge;
 

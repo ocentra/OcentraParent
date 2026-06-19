@@ -8,7 +8,7 @@ import { SocialAlertReportPreferenceStatusHandoffReadModelSchema } from '../../s
 import { SocialAlertReportPreferencePreflightStatus } from '../../src/social-alert-report-preference-preflight';
 import { SocialAlertReportProviderPreflightStatus } from '../../src/social-alert-report-provider-preflight-proof';
 import { SocialAlertReportProviderStatusHandoffReadModelSchema } from '../../src/social-alert-report-provider-status-handoff-proof';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-07T07:24:00Z';
 const SurfaceOptions = {

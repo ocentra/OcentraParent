@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeWriterTransportExecutionProofReadModel } from './app-install-purchase-external-runtime-writer-transport-execution-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const ExecutionReceiptGateProofVersion = 'app-install-purchase-execution-receipt-gate-proof';
 const SourceWriterTransportExecutionProofVersion =

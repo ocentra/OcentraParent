@@ -26,7 +26,7 @@ import {
   type BillingSupportAdminStatusRow,
   type BillingSupportAdminStatusRuntimeState,
 } from './billing-support-admin-status-values';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { FamilyReferenceSchema, ParentAccountReferenceSchema } from '@ocentra-parent/family-domain/references';
 
 const decodeParentTimestamp = Schema.decodeUnknownSync(ParentTimestampSchema);

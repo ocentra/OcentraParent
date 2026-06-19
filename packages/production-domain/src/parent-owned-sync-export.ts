@@ -10,7 +10,8 @@ import {
   ParentDeviceReferenceSchema,
   ParentEvidenceReferenceSchema,
 } from '@ocentra-parent/family-domain/references';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import { countProductionProofValues } from './production-proof-shape';
 
 export const ParentOwnedSyncExportSchemaVersionSchema = withParser(
   Schema.Literal('parent-owned-sync-export-manifest-proof')
@@ -1031,7 +1032,7 @@ export const ParentOwnedSyncExportKnownGaps = [
 export function summarizeParentOwnedSyncExportDataClasses(
   items: ReadonlyArray<ParentOwnedSyncExportItemDescriptor>
 ): Record<ParentOwnedSyncExportDataClass, number> {
-  return countBy(
+  return countProductionProofValues(
     items.map((itemEntry) => itemEntry.dataClass),
     RequiredDataClasses
   );
@@ -1040,7 +1041,7 @@ export function summarizeParentOwnedSyncExportDataClasses(
 export function summarizeParentOwnedSyncExportConnectorStatuses(
   rows: ReadonlyArray<ParentOwnedSyncExportConnectorStatusRow>
 ): Record<ParentOwnedSyncExportConnectorStatus, number> {
-  return countBy(
+  return countProductionProofValues(
     rows.map((row) => row.status),
     ['ready', 'revoked', 'wrong-account', 'folder-unavailable', 'partial-upload', 'disabled', 'not-configured'] as const
   );
@@ -1049,7 +1050,7 @@ export function summarizeParentOwnedSyncExportConnectorStatuses(
 export function summarizeParentOwnedSyncExportRecoveryBundleStates(
   bundles: ReadonlyArray<ParentOwnedSyncExportRecoveryBundle>
 ): Record<ParentOwnedSyncExportRecoveryBundleState, number> {
-  return countBy(
+  return countProductionProofValues(
     bundles.map((bundle) => bundle.bundleState),
     [
       'bundleQueued',
@@ -1070,7 +1071,7 @@ export function summarizeParentOwnedSyncExportRecoveryBundleStates(
 export function summarizeParentOwnedSyncExportRecoveryHandoffStates(
   bundles: ReadonlyArray<ParentOwnedSyncExportRecoveryBundle>
 ): Record<ParentOwnedSyncExportRecoveryHandoffState, number> {
-  return countBy(
+  return countProductionProofValues(
     bundles.map((bundle) => bundle.handoff.handoffState),
     [
       'preview-only',
@@ -1267,12 +1268,3 @@ function recoveryBundle(
     auditRefs: [EvidenceRef],
   });
 }
-
-function countBy<const T extends string>(values: readonly T[], expected: readonly T[]): Record<T, number> {
-  const counts = Object.fromEntries(expected.map((value) => [value, 0])) as Record<T, number>;
-  for (const value of values) {
-    counts[value] += 1;
-  }
-  return counts;
-}
-

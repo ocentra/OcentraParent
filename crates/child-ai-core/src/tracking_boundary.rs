@@ -7,6 +7,14 @@ use ocentra_parent_agent_protocol::{
 pub fn classify_tracking_nearby_place(
     event: &TrackingAiAnalysisRequestedEvent,
 ) -> Result<TrackingNearbyPlaceClassifiedEvent, EventingError> {
+    validate_tracking_nearby_place_classification_request(event)?;
+
+    Ok(ocentra_tracking_core::classify_tracking_nearby_place_request(event))
+}
+
+fn validate_tracking_nearby_place_classification_request(
+    event: &TrackingAiAnalysisRequestedEvent,
+) -> Result<(), EventingError> {
     if event.allowed_analysis_purpose.as_str()
         != constants::tracking_runtime::ALLOWED_AI_PURPOSE_NEARBY_PLACE_CLASSIFICATION
     {
@@ -38,5 +46,6 @@ pub fn classify_tracking_nearby_place(
             value: String::from("empty"),
         });
     }
-    Ok(ocentra_tracking_core::classify_tracking_nearby_place_request(event))
+
+    Ok(())
 }

@@ -4,6 +4,10 @@ import type {
   SupportBackendUploadCustodyAuditEntryCandidate,
   SupportBackendUploadCustodyAuditState,
 } from './support-backend-upload-custody-audit.js';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 export function supportBackendUploadCustodyAuditEntryIsSafe(
   entry: SupportBackendUploadCustodyAuditEntryCandidate,
@@ -11,7 +15,7 @@ export function supportBackendUploadCustodyAuditEntryIsSafe(
 ): boolean {
   return (
     !supportBackendUploadCustodyAuditHasClaimUpgrade(entry) &&
-    requiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
+    supportProofRequiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
     supportBackendUploadCustodyAuditRefsArePresent(entry) &&
     supportBackendUploadCustodyAuditStatesAreCoherent(entry)
   );
@@ -33,7 +37,7 @@ export function supportBackendUploadCustodyAuditCoversRequiredStates(
 function supportBackendUploadCustodyAuditHasClaimUpgrade(
   entry: SupportBackendUploadCustodyAuditEntryCandidate
 ): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsTokens,
     entry.containsRawChildActivity,
     entry.containsRawUrls,
@@ -55,7 +59,7 @@ function supportBackendUploadCustodyAuditHasClaimUpgrade(
     entry.billingProviderContactExecuted,
     entry.remoteSupportSessionExecuted,
     entry.productionSlaClaimed,
-  ].some(Boolean);
+  ]);
 }
 
 function supportBackendUploadCustodyAuditRefsArePresent(
@@ -123,12 +127,4 @@ function supportBackendUploadCustodyAuditExportIsCoherent(
       entry.auditRefs.length > 0 &&
       entry.manualProofRequirements.length > 0)
   );
-}
-
-function requiredValuesArePresent<T extends string>(
-  actualValues: ReadonlyArray<T>,
-  requiredValues: ReadonlyArray<T>
-): boolean {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }

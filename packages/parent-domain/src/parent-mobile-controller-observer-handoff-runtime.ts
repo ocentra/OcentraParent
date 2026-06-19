@@ -30,7 +30,7 @@ import {
   type ParentMobileServiceBridgeAssistantJobState,
   type ParentMobileServiceBridgeRuntimeOwner,
 } from './parent-mobile-service-bridge-runtime';
-import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const ParentMobileControllerObserverHandoffRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('parent-mobile-controller-observer-handoff-proof')

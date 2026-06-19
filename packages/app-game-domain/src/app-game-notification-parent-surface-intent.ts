@@ -19,7 +19,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
 import {
   V08NotificationProviderStatusSchema,
@@ -59,10 +59,12 @@ export const AppGameNotificationParentSurfacePreferenceVisibilitySchema = withPa
   Schema.Literal('preference-setup-required', 'preference-disabled-visible')
 );
 
-// prettier-ignore
-export const AppGameNotificationParentSurfaceIntentIdSchema = brandedNonEmptyStringSchema('AppGameNotificationParentSurfaceIntentId');
-// prettier-ignore
-export const AppGameNotificationParentSurfaceIntentReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationParentSurfaceIntentReference');
+export const AppGameNotificationParentSurfaceIntentIdSchema = brandedNonEmptyStringSchema(
+  'AppGameNotificationParentSurfaceIntentId'
+);
+export const AppGameNotificationParentSurfaceIntentReferenceSchema = brandedNonEmptyStringSchema(
+  'AppGameNotificationParentSurfaceIntentReference'
+);
 
 const AppGameNotificationParentSurfaceIntentRowBaseSchema = Schema.Struct({
   surfaceRowId: AppGameNotificationParentSurfaceIntentReferenceSchema,

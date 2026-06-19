@@ -1,7 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, ChildCommandDecision, ChildCommandKind, ParentChildCommandDeliveryState,
-    ParentChildCommandTransportBoundary, ParentCommandValidationState,
+use ocentra_parent_agent_protocol::parent_controller_events::{
+    ParentActionReceivedEvent, ParentChildCommandDeliveryState,
+    ParentChildCommandForwardRequestedEvent, ParentChildCommandForwardedEvent,
+    ParentChildCommandTransportBoundary, ParentCommandValidatedEvent, ParentCommandValidationState,
+    ParentReadModelProjectedEvent,
 };
+use ocentra_parent_agent_protocol::{constants, ChildCommandDecision, ChildCommandKind};
 
 use super::{
     publish_parent_child_runtime_for_validated_intent, ParentChildRuntimeEventPayload,
@@ -177,9 +180,7 @@ fn decode_payloads(report: &ParentChildRuntimeReport) -> Vec<ParentChildRuntimeE
         .collect()
 }
 
-fn parent_action(
-    payloads: &[ParentChildRuntimeEventPayload],
-) -> ocentra_parent_agent_protocol::ParentActionReceivedEvent {
+fn parent_action(payloads: &[ParentChildRuntimeEventPayload]) -> ParentActionReceivedEvent {
     payloads
         .iter()
         .find_map(|payload| match payload {
@@ -189,9 +190,7 @@ fn parent_action(
         .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES)
 }
 
-fn parent_validated(
-    payloads: &[ParentChildRuntimeEventPayload],
-) -> ocentra_parent_agent_protocol::ParentCommandValidatedEvent {
+fn parent_validated(payloads: &[ParentChildRuntimeEventPayload]) -> ParentCommandValidatedEvent {
     payloads
         .iter()
         .find_map(|payload| match payload {
@@ -203,7 +202,7 @@ fn parent_validated(
 
 fn parent_forward_requested(
     payloads: &[ParentChildRuntimeEventPayload],
-) -> ocentra_parent_agent_protocol::ParentChildCommandForwardRequestedEvent {
+) -> ParentChildCommandForwardRequestedEvent {
     payloads
         .iter()
         .find_map(|payload| match payload {
@@ -217,7 +216,7 @@ fn parent_forward_requested(
 
 fn parent_forwarded(
     payloads: &[ParentChildRuntimeEventPayload],
-) -> ocentra_parent_agent_protocol::ParentChildCommandForwardedEvent {
+) -> ParentChildCommandForwardedEvent {
     payloads
         .iter()
         .find_map(|payload| match payload {
@@ -279,9 +278,7 @@ fn child_health(
         .expect(constants::parent_controller::ERROR_PARENT_CHILD_RUNTIME_PAYLOAD_DECODES)
 }
 
-fn parent_read_model(
-    payloads: &[ParentChildRuntimeEventPayload],
-) -> ocentra_parent_agent_protocol::ParentReadModelProjectedEvent {
+fn parent_read_model(payloads: &[ParentChildRuntimeEventPayload]) -> ParentReadModelProjectedEvent {
     payloads
         .iter()
         .find_map(|payload| match payload {

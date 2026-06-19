@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
@@ -32,16 +33,13 @@ async function main() {
   await mkdir(output33, { recursive: true });
   await mkdir(namedProofRoot, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-child-runtime-product-readiness-blocker-proof',
+    'tests/contract/tracking-child-runtime-product-readiness-blocker-proof.test.ts',
   ]);
 
   const sourceSnapshotRequirementsProof = JSON.parse(await readFile(sourceSnapshotRequirementsProofPath, 'utf8'));
@@ -66,10 +64,11 @@ async function buildProof(
   sourceAndroidEmulatorBridgeProof,
   sourceParentChildLocalRuntimeBridgeProof
 ) {
-  const proofModule = await import(
+  const proofModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-child-runtime-product-readiness-blocker-proof.js')
-    ).href
+      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-child-runtime-product-readiness-blocker-proof.ts')
+    ).href,
+    import.meta.url
   );
   return {
     ...proofModule.buildTrackingChildRuntimeProductReadinessBlockerProof(
@@ -182,8 +181,8 @@ function sourceSnapshot(proof) {
     `- childRuntimePresentArtifactCount: ${proof.childRuntimePresentArtifactCount}`,
     `- childRuntimeMissingArtifactCount: ${proof.childRuntimeMissingArtifactCount}`,
     `- androidBridgeChildRuntimeMissingArtifactCount: ${proof.androidEmulatorBridgeAccounting.childRuntimeMissingArtifactCount}`,
-    '- proof module: packages/parent-domain/src/tracking-child-runtime-product-readiness-blocker-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-child-runtime-product-readiness-blocker-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-child-runtime-product-readiness-blocker-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-child-runtime-product-readiness-blocker-proof.test.ts',
     '- proof harness: scripts/test/tracking-child-runtime-product-readiness-blocker-proof.mjs',
     '',
   ].join('\n');

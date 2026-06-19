@@ -6,7 +6,7 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import { LanPairingRejectionReasonSchema, LanPairingRouteIdSchema } from '@ocentra-parent/lan-domain/lan-pairing-values';
 import { ParentMobileCommandAuthorityStateSchema } from './parent-mobile-runtime';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   V09HouseholdDiscoveryMobileControllerCloudRelayDecisionSchema,
   V09HouseholdDiscoveryMobileControllerRouteCheckSchema,

@@ -6,7 +6,8 @@ alwaysApply: false
 
 # Ocentra Parent Domain Boundaries
 
-Shared meaning lives in domain packages and protocol crates, not in app code.
+Shared schema truth lives in `@ocentra-parent/schema-domain` for TypeScript and
+`crates/agent-protocol` for Rust, not in app code or peer domain packages.
 
 ## TypeScript Rules
 
@@ -22,27 +23,45 @@ Shared meaning lives in domain packages and protocol crates, not in app code.
 
 | Package | Owns |
 | --- | --- |
-| `@ocentra-parent/schema-domain` | Effect Schema helpers and branded decode helpers |
+| `@ocentra-parent/schema-domain` | all canonical TypeScript runtime schemas, Effect Schema helpers, branded decode helpers, and shared contract parsers organized by domain folder |
 | `@ocentra-parent/endpoint-domain` | endpoint paths, route ids, headers, query brands |
-| `@ocentra-parent/agent-protocol-domain` | WebSocket command and event contracts |
+| `@ocentra-parent/agent-protocol-domain` | transport adapters, protocol mapping helpers, and consumer-facing parsers built from canonical contracts |
 | `@ocentra-parent/text-domain` | schema-backed display text tokens |
 | `@ocentra-parent/portal-domain` | portal route ids, DOM ids, dev command descriptors |
-| `@ocentra-parent/logging-domain` | structured log contracts shared across runtimes |
-| `@ocentra-parent/parent-domain` | family, parent, child, and device product contracts |
-| `@ocentra-parent/activity-domain` | activity event and policy observation contracts |
+| `@ocentra-parent/logging-domain` | structured log/redaction helpers and log composition built from canonical contracts |
+| `@ocentra-parent/parent-domain` | family, parent, child, and device business logic, projections, and helpers built from canonical contracts |
+| `@ocentra-parent/activity-domain` | activity mapping, aggregation, projections, and helpers built from canonical contracts |
+
+TypeScript rule of record:
+
+- No package other than `@ocentra-parent/schema-domain` may own a runtime
+  schema, branded value parser, or contract shape that crosses a package
+  boundary.
+- Domain packages may keep projection or adapter-local helpers, but they must
+  import canonical contracts instead of defining peer-owned schema authorities.
+- If two TypeScript packages or one TypeScript package and one Rust boundary
+  need the same shape, promote it into `@ocentra-parent/schema-domain` first.
 
 ## Rust Rules
 
 - Runtime strings live in `crates/agent-protocol` constants.
-- Serde structs live beside the protocol boundary.
+- Serde structs for shared protocol or wire contracts live in
+  `crates/agent-protocol`.
 - The Rust service should consume protocol constants and structs, not invent local strings.
 - Platform-neutral concepts belong outside Windows-specific modules.
+- Rust mirrors of TypeScript-owned contracts must preserve the exact encoded
+  JSON shape: field names, discriminants, nullability, and versioning.
+- Shared TS/Rust contracts must be guarded by fixture, schema-generation, or
+  drift-check coverage so the two owners cannot silently diverge.
 
 ## Change Order
 
-1. Add or update domain contract.
-2. Add or update parser/brand tests.
-3. Mirror into Rust protocol if the Rust service crosses the boundary.
-4. Update portal/service consumers.
-5. Run the validation gate.
-
+1. Add or update the canonical TypeScript contract in
+   `@ocentra-parent/schema-domain`.
+2. Add or update parser/brand tests plus shared fixture or drift-check
+   coverage.
+3. Mirror into `crates/agent-protocol` if the Rust service crosses the
+   boundary.
+4. Add or update Rust-side parity coverage for the mirrored contract.
+5. Update package, portal, and service consumers.
+6. Run the validation gate.

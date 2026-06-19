@@ -1,6 +1,6 @@
+use ocentra_parent_agent_protocol::parent_controller_events::ParentReadModelProjectedEvent;
 use ocentra_parent_agent_protocol::{
     constants, ChildCommandAcceptedEvent, ChildCommandKind, ChildCommandReceivedEvent,
-    ParentReadModelProjectedEvent,
 };
 
 use super::action_handoff_child_status_types::{

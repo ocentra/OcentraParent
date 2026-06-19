@@ -11,7 +11,7 @@ import {
   ParentControlCapabilityStatusSchema,
   ParentControlPlatformSchema,
 } from '@ocentra-parent/capability-domain/capabilities';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const V08BrowserEnforcementTimerRecoveryProofReadModelIdSchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofReadModelId');
 export const V08BrowserEnforcementTimerRecoveryProofEntryIdSchema = brandedNonEmptyStringSchema('V08BrowserEnforcementTimerRecoveryProofEntryId');

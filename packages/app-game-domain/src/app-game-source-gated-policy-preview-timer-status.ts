@@ -20,7 +20,7 @@ import {
   appGameSourceGatedPolicyPreviewTimerStatusHasNoRuntimeClaims,
   appGameSourceGatedPolicyPreviewTimerStatusMatchesHandoff,
 } from './app-game-source-gated-policy-preview-timer-status-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameSourceGatedPolicyPreviewTimerStatusIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerStatusId');
 export const AppGameSourceGatedPolicyPreviewTimerStatusRowIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerStatusRowId');

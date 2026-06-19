@@ -6,8 +6,12 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityJournalCipher, ActivityJournalLine,
-    ActivityJournalRotationPolicy, ActivityJournalStatus, ACTIVITY_JOURNAL_SCHEMA_VERSION,
+    constants,
+    journal::{
+        ActivityJournalCipher, ActivityJournalLine, ActivityJournalRotationPolicy,
+        ActivityJournalStatus,
+    },
+    ActivityEvent, ACTIVITY_JOURNAL_SCHEMA_VERSION,
 };
 
 use crate::{

@@ -122,34 +122,21 @@ pub const REQUIREMENT_APP_STORE_CONNECT: &str = "App Store Connect evidence";
 pub const REQUIREMENT_APP_STORE_REVIEW: &str = "App Store review path";
 pub const REQUIREMENT_APPLE_RELEASE: &str = "release artifact";
 
-pub const CLAIM_WINDOWS_OWNED_PROCESS: &str =
-    "Windows owned-process terminate is limited to pid/name guarded process control and is not broad app blocking.";
-pub const CLAIM_WINDOWS_APP_TIME_LIMIT: &str =
-    "Windows app time-limit proof covers timer lifecycle, restart recovery, parent cancel, expiry, and audit only.";
-pub const CLAIM_WINDOWS_MANAGED_BROWSER: &str =
-    "Managed-browser control is limited to the Ocentra-owned managed browser boundary and is not unmanaged exact URL proof.";
-pub const CLAIM_WINDOWS_UNMANAGED_BROWSER: &str =
-    "Unmanaged browser detection is process-only and cannot prove URL, active tab, title, page, HTTPS content, or intent.";
-pub const CLAIM_WINDOWS_BROAD_APP: &str =
-    "Broad installed-app blocking remains manual-required beyond owned-process terminate and app timer proof.";
-pub const CLAIM_WINDOWS_NETWORK_DOMAIN: &str =
-    "Network/domain blocking remains manual-required and is not proved by network observation metadata.";
-pub const CLAIM_LINUX_SCAFFOLD: &str =
-    "Linux package preview is scaffold evidence only and cannot inherit Windows enforcement behavior.";
-pub const CLAIM_MACOS_SCAFFOLD: &str =
-    "macOS package preview is scaffold evidence only and cannot inherit Windows enforcement behavior.";
-pub const CLAIM_ANDROID_DEVICE_OWNER: &str =
-    "Android device-owner enforcement is manual-required and not implied by parent mobile or protocol scaffold.";
-pub const CLAIM_ANDROID_PACKAGE: &str =
-    "Android package lifecycle remains manual-required before any child enforcement support upgrade.";
+pub const CLAIM_WINDOWS_OWNED_PROCESS: &str = "Windows owned-process terminate is limited to pid/name guarded process control and is not broad app blocking.";
+pub const CLAIM_WINDOWS_APP_TIME_LIMIT: &str = "Windows app time-limit proof covers timer lifecycle, restart recovery, parent cancel, expiry, and audit only.";
+pub const CLAIM_WINDOWS_MANAGED_BROWSER: &str = "Managed-browser control is limited to the Ocentra-owned managed browser boundary and is not unmanaged exact URL proof.";
+pub const CLAIM_WINDOWS_UNMANAGED_BROWSER: &str = "Unmanaged browser detection is process-only and cannot prove URL, active tab, title, page, HTTPS content, or intent.";
+pub const CLAIM_WINDOWS_BROAD_APP: &str = "Broad installed-app blocking remains manual-required beyond owned-process terminate and app timer proof.";
+pub const CLAIM_WINDOWS_NETWORK_DOMAIN: &str = "Network/domain blocking remains manual-required and is not proved by network observation metadata.";
+pub const CLAIM_LINUX_SCAFFOLD: &str = "Linux package preview is scaffold evidence only and cannot inherit Windows enforcement behavior.";
+pub const CLAIM_MACOS_SCAFFOLD: &str = "macOS package preview is scaffold evidence only and cannot inherit Windows enforcement behavior.";
+pub const CLAIM_ANDROID_DEVICE_OWNER: &str = "Android device-owner enforcement is manual-required and not implied by parent mobile or protocol scaffold.";
+pub const CLAIM_ANDROID_PACKAGE: &str = "Android package lifecycle remains manual-required before any child enforcement support upgrade.";
 pub const CLAIM_ANDROID_STORE: &str =
     "Android store distribution is planned and cannot be used as enforcement support evidence.";
-pub const CLAIM_IOS_FAMILY: &str =
-    "iOS Family Controls support is manual-required and cannot be inferred from simulator/package scaffolds.";
-pub const CLAIM_IOS_SIGNING: &str =
-    "iOS signing and entitlements are manual-required before any privileged child enforcement claim.";
-pub const CLAIM_IOS_TESTFLIGHT: &str =
-    "iOS TestFlight distribution is manual-required before mobile enforcement support can be claimed.";
+pub const CLAIM_IOS_FAMILY: &str = "iOS Family Controls support is manual-required and cannot be inferred from simulator/package scaffolds.";
+pub const CLAIM_IOS_SIGNING: &str = "iOS signing and entitlements are manual-required before any privileged child enforcement claim.";
+pub const CLAIM_IOS_TESTFLIGHT: &str = "iOS TestFlight distribution is manual-required before mobile enforcement support can be claimed.";
 pub const CLAIM_IOS_STORE: &str =
     "iOS store distribution is planned and is not privileged enforcement proof.";
 
@@ -159,10 +146,8 @@ pub const FALLBACK_WINDOWS_APP_TIME_LIMIT: &str =
     "Return unavailable when timer state, persisted state, or adapter support is missing.";
 pub const FALLBACK_WINDOWS_MANAGED_BROWSER: &str =
     "Return manual-required when active-tab or exact URL apply/rollback proof is missing.";
-pub const FALLBACK_WINDOWS_UNMANAGED_BROWSER: &str =
-    "Keep exact unmanaged browser evidence not-claimed unless explicit browser integration proof exists.";
-pub const FALLBACK_WINDOWS_BROAD_APP: &str =
-    "Return manual-required until package identity, apply, rollback, and audit custody artifacts exist.";
+pub const FALLBACK_WINDOWS_UNMANAGED_BROWSER: &str = "Keep exact unmanaged browser evidence not-claimed unless explicit browser integration proof exists.";
+pub const FALLBACK_WINDOWS_BROAD_APP: &str = "Return manual-required until package identity, apply, rollback, and audit custody artifacts exist.";
 pub const FALLBACK_WINDOWS_NETWORK_DOMAIN: &str =
     "Return manual-required until DNS/VPN/filter apply, rollback, and custody evidence exists.";
 pub const FALLBACK_LINUX_SCAFFOLD: &str =
@@ -173,8 +158,7 @@ pub const FALLBACK_ANDROID_DEVICE_OWNER: &str =
     "Return manual-required until real device-owner or managed-profile proof exists.";
 pub const FALLBACK_ANDROID_PACKAGE: &str =
     "Return manual-required until emulator or physical-device package lifecycle artifacts exist.";
-pub const FALLBACK_ANDROID_STORE: &str =
-    "Do not invoke privileged mobile enforcement until store/signing proof and device capability proof exist.";
+pub const FALLBACK_ANDROID_STORE: &str = "Do not invoke privileged mobile enforcement until store/signing proof and device capability proof exist.";
 pub const FALLBACK_IOS_FAMILY: &str =
     "Return manual-required until approved entitlement and device proof exist.";
 pub const FALLBACK_IOS_SIGNING: &str =

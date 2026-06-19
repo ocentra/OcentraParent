@@ -12,8 +12,12 @@ import {
   ParentStepUpMethod,
   SessionFreshnessState,
 } from '@ocentra-parent/family-domain/household-authority';
-import { ParentActorRole, ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentActorRole, ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
+  RecoveryBundleFailureReason,
+  RecoveryBundleHandoffTarget,
+  RecoveryBundleState,
+  RecoveryDeleteExportState,
   RecoveryIdentityProofState,
   RecoveryKind,
   RecoveryOperationSchema,
@@ -74,6 +78,12 @@ const BaseAuthorityInput = HouseholdAuthorityInputSchema.parse({
   capabilityGranted: true,
   action: DeviceAuthorityAction.PairChildDevice,
 });
+
+type ChecklistEntry = {
+  readonly checklistItemId: string;
+  readonly state?: string;
+  readonly supportCode?: string;
+};
 
 const BaseInput = SetupFamilyReadinessInputSchema.parse({
   schemaVersion: ParentContractSchemaVersion.V0_6,
@@ -171,7 +181,9 @@ describe('setup family bridge', () => {
     expect(report.recoveryState).toBe(SetupRecoveryState.Normal);
     expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Ready);
     expect(deriveSetupChildInstallJourneyStage(report)).toBe(SetupChildInstallJourneyStage.Paired);
-    expect(report.checklist.find((entry) => entry.checklistItemId === 'setup-pairing-state')?.state).toBe('complete');
+    expect(
+      report.checklist.find((entry: ChecklistEntry) => entry.checklistItemId === 'setup-pairing-state')?.state
+    ).toBe('complete');
   });
 
   it('keeps an accepted child invite blocked until fresh step-up is supplied even when the parent device is trusted', () => {
@@ -235,9 +247,9 @@ describe('setup family bridge', () => {
     expect(projection.recoveryState).toBe(SetupRecoveryState.Normal);
     expect(deriveSetupReadinessOverallState(report)).toBe(SetupReadinessOverallState.Blocked);
     expect(deriveSetupChildInstallJourneyStage(report)).toBe(SetupChildInstallJourneyStage.Paired);
-    expect(report.checklist.find((entry) => entry.checklistItemId === 'setup-pairing-state')?.supportCode).toBe(
-      'accepted'
-    );
+    expect(
+      report.checklist.find((entry: ChecklistEntry) => entry.checklistItemId === 'setup-pairing-state')?.supportCode
+    ).toBe('accepted');
   });
 
   it('accepts a phone QR approval bridge as fresh step-up for a desktop pairing action', () => {
@@ -401,6 +413,10 @@ describe('setup family bridge', () => {
       identityProofState: RecoveryIdentityProofState.Verified,
       supportChannel: RecoverySupportChannel.SupportAssisted,
       deleteExportHandoffRequired: true,
+      bundleHandoffTarget: RecoveryBundleHandoffTarget.DeviceTrustRecoveryPersistence,
+      bundleState: RecoveryBundleState.ApplyPending,
+      bundleFailureReason: null,
+      deleteExportState: RecoveryDeleteExportState.DeletePending,
       openedAt: '2026-06-13T20:01:00.000Z',
       closedAt: null,
     });
@@ -438,5 +454,88 @@ describe('setup family bridge', () => {
     expect(recoveryOperation.kind).toBe(SetupRecoveryKind.PermissionLoss);
     expect(recoveryOperation.state).toBe(SetupRecoveryState.InProgress);
     expect(recoveryOperation.resolvedAt).toBeNull();
+  });
+
+  it('only marks recovery recovered after applied bundle and delete settlement, and blocks wrong-key restores', () => {
+    const acceptedInvite = SetupInviteSchema.parse({
+      ...BaseInvite,
+      state: SetupInviteState.Accepted,
+    });
+    const completedRecovery = RecoveryOperationSchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      recoveryOperationId: 'family-recovery-completed',
+      family: { familyId: 'family-main' },
+      requestedBy: { actorId: 'actor-owner', role: ParentActorRole.Parent },
+      requesterMembershipState: HouseholdMembershipState.Active,
+      relatedAccount: { parentAccountId: 'parent-account-1' },
+      relatedDevice: {
+        deviceId: 'device-child-1',
+        childProfileId: 'child-1',
+        label: 'Sam Android',
+        platform: 'android',
+      },
+      kind: RecoveryKind.CompromisedAccount,
+      state: 'completed',
+      ownerApprovalRequired: false,
+      identityProofState: RecoveryIdentityProofState.Verified,
+      supportChannel: RecoverySupportChannel.SelfServe,
+      deleteExportHandoffRequired: true,
+      bundleHandoffTarget: RecoveryBundleHandoffTarget.DeviceTrustRecoveryPersistence,
+      bundleState: RecoveryBundleState.Applied,
+      bundleFailureReason: null,
+      deleteExportState: RecoveryDeleteExportState.DeletePending,
+      openedAt: '2026-06-13T20:01:00.000Z',
+      closedAt: '2026-06-13T20:09:00.000Z',
+    });
+
+    const pendingDeleteReport = createSetupReadinessReportFromFamilyContext({
+      ...BaseInput,
+      setupInvite: acceptedInvite,
+      parentStepUpAssertion: LocalStepUpAssertion,
+      recoveryOperation: completedRecovery,
+    });
+
+    expect(pendingDeleteReport.pairingState).toBe(SetupPairingState.Accepted);
+    expect(pendingDeleteReport.recoveryState).toBe(SetupRecoveryState.InProgress);
+    expect(pendingDeleteReport.dataCustodySyncState).toBe(SetupDataCustodySyncState.Blocked);
+    expect(deriveSetupReadinessOverallState(pendingDeleteReport)).toBe(SetupReadinessOverallState.Blocked);
+
+    const settledRecovery = RecoveryOperationSchema.parse({
+      ...completedRecovery,
+      recoveryOperationId: 'family-recovery-completed-settled',
+      deleteExportState: RecoveryDeleteExportState.DeleteConfirmed,
+    });
+
+    const settledReport = createSetupReadinessReportFromFamilyContext({
+      ...BaseInput,
+      setupInvite: acceptedInvite,
+      parentStepUpAssertion: LocalStepUpAssertion,
+      recoveryOperation: settledRecovery,
+    });
+
+    expect(settledReport.pairingState).toBe(SetupPairingState.Recovered);
+    expect(settledReport.recoveryState).toBe(SetupRecoveryState.Recovered);
+    expect(settledReport.dataCustodySyncState).toBe(SetupDataCustodySyncState.Synced);
+    expect(deriveSetupReadinessOverallState(settledReport)).toBe(SetupReadinessOverallState.Ready);
+
+    const wrongKeyRecovery = RecoveryOperationSchema.parse({
+      ...completedRecovery,
+      recoveryOperationId: 'family-recovery-wrong-key',
+      deleteExportHandoffRequired: false,
+      bundleState: RecoveryBundleState.Rejected,
+      bundleFailureReason: RecoveryBundleFailureReason.WrongKey,
+      deleteExportState: RecoveryDeleteExportState.None,
+    });
+
+    const wrongKeyReport = createSetupReadinessReportFromFamilyContext({
+      ...BaseInput,
+      setupInvite: acceptedInvite,
+      parentStepUpAssertion: LocalStepUpAssertion,
+      recoveryOperation: wrongKeyRecovery,
+    });
+
+    expect(wrongKeyReport.recoveryState).toBe(SetupRecoveryState.Required);
+    expect(wrongKeyReport.dataCustodySyncState).toBe(SetupDataCustodySyncState.Blocked);
+    expect(deriveSetupReadinessOverallState(wrongKeyReport)).toBe(SetupReadinessOverallState.Blocked);
   });
 });

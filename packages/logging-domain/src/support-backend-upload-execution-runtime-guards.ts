@@ -4,6 +4,10 @@ import type {
   SupportBackendUploadExecutionRuntimeEntryCandidate,
   SupportBackendUploadExecutionRuntimeState,
 } from './support-backend-upload-execution-runtime.js';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 export function supportBackendUploadExecutionRuntimeEntryIsSafe(
   entry: SupportBackendUploadExecutionRuntimeEntryCandidate,
@@ -11,7 +15,7 @@ export function supportBackendUploadExecutionRuntimeEntryIsSafe(
 ): boolean {
   return (
     !supportBackendUploadExecutionRuntimeHasClaimUpgrade(entry) &&
-    requiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
+    supportProofRequiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
     supportBackendUploadExecutionRuntimeRefsArePresent(entry) &&
     supportBackendUploadExecutionRuntimeStatesAreCoherent(entry)
   );
@@ -35,7 +39,7 @@ export function supportBackendUploadExecutionRuntimeCoversRequiredStates(
 function supportBackendUploadExecutionRuntimeHasClaimUpgrade(
   entry: SupportBackendUploadExecutionRuntimeEntryCandidate
 ): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsTokens,
     entry.containsRawChildActivity,
     entry.containsRawUrls,
@@ -55,7 +59,7 @@ function supportBackendUploadExecutionRuntimeHasClaimUpgrade(
     entry.remoteSupportSessionExecuted,
     entry.productionSlaClaimed,
     entry.ocentraHostedFamilyDataDefault,
-  ].some(Boolean);
+  ]);
 }
 
 function supportBackendUploadExecutionRuntimeRefsArePresent(
@@ -150,12 +154,4 @@ function supportBackendUploadExecutionRuntimeAbandonIsCoherent(
     entry.runtimeState !== 'operator-abandoned' ||
     (entry.retryState === 'retry-exhausted' && entry.abandonState === 'abandoned' && entry.abandonRefs.length > 0)
   );
-}
-
-function requiredValuesArePresent<T extends string>(
-  actualValues: ReadonlyArray<T>,
-  requiredValues: ReadonlyArray<T>
-): boolean {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }

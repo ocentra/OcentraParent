@@ -1,14 +1,18 @@
 use std::fs::remove_file;
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityJournalLine, APP_GAME_CAPABILITY_STATUS_AVAILABLE,
+    constants, journal::ActivityJournalLine, APP_GAME_CAPABILITY_STATUS_AVAILABLE,
     APP_GAME_CATALOG_UNAVAILABLE, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
     APP_GAME_EXECUTABLE_PATH_REF_PREFIX, APP_GAME_FOREGROUND_NOT_CLAIMED,
     APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT, APP_GAME_RUNTIME_RUNNING,
     APP_GAME_TEST_RUNTIME_EVIDENCE_ID,
 };
 
-use crate::{ActivityJournal, ActivityStore, JournalKey, JOURNAL_KEY_BYTES};
+use crate::{
+    activity_store::ActivityStore,
+    journal::ActivityJournal,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+};
 
 use super::{
     app_game_journal_sqlite_ingest::app_game_journal_sqlite_read_model,

@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   AppGameCategoryCandidateSchema,
   AppGameCategoryCandidateSetSchema,
+} from '../../src/app-game-category-risk';
+import {
   AppGameCategoryCandidateState,
   AppGameCategoryEnforcementState,
   AppGameCategoryFamily,
@@ -10,10 +12,10 @@ import {
   AppGameContextSignalKind,
   AppGameNativeAppCategory,
   AppGameNativeGameCategory,
-  AppGameProductKind,
   AppGameRiskSignalKind,
-  AppGameSchemaVersion,
-} from '../../src/app-game';
+} from '../../src/app-game-category-risk-primitives';
+import { AppGameProductKind } from '../../src/app-game-identity-primitives';
+import { AppGameSchemaVersion } from '../../src/app-game-primitives';
 import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
 
 const CatalogEvidence = {

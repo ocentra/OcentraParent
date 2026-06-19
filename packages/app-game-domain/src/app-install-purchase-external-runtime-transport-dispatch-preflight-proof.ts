@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeTransportQueueProofReadModel } from './app-install-purchase-external-runtime-transport-queue-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const DispatchPreflightProofVersion = 'app-install-purchase-external-runtime-transport-dispatch-preflight-proof';
 const SourceTransportQueueProofVersion = 'app-install-purchase-external-runtime-transport-queue-proof';

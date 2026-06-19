@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
+import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
+import { AppGameForegroundEvidenceSchema } from '../../src/app-game-foreground';
 import {
   AppGameCapabilityStatus,
   AppGameCatalogReadyState,
   AppGameClassificationState,
-  AppGameForegroundEvidenceSchema,
   AppGameForegroundState,
   AppGameObservationMode,
   AppGameRuntimeState,
   AppGameSchemaVersion,
-} from '../../src/app-game';
-import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
+} from '../../src/app-game-primitives';
 
 const ForegroundEvidenceRef = {
   evidenceId: 'journal-entry-app-game-foreground-1',

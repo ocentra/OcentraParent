@@ -8,7 +8,7 @@ import {
 import { LocalAiEvaluationInputSchema } from './local-ai';
 import { LocalAiPromptVersionSchema } from './local-ai-primitives';
 import { LocalModelRuntimeStatusSchema, type LocalModelRuntimeStatus } from './local-ai-runtime';
-import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const LocalAiTextLlmAdapterRequestIdSchema = brandedNonEmptyStringSchema('LocalAiTextLlmAdapterRequestId');
 export const LocalAiTextLlmAdapterTraceRefSchema = brandedNonEmptyStringSchema('LocalAiTextLlmAdapterTraceRef');

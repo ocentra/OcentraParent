@@ -19,7 +19,7 @@ import {
   ParentActorRole,
   ParentContractSchemaVersion,
   ParentEvidenceReferenceKind,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-07T01:39:00Z';
 

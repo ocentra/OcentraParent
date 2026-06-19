@@ -1,12 +1,11 @@
 use std::env;
 
 use ocentra_parent_agent_protocol::constants;
-
-use super::live_view_runtime::{
+use ocentra_screen_live_view_core::live_view_runtime::{
     evaluate_screen_live_view_runtime, ScreenLiveViewRuntimeInput, ScreenLiveViewRuntimeMode,
     ScreenLiveViewRuntimePermission, ScreenLiveViewRuntimeTransport,
 };
-use super::live_view_worker::{
+use ocentra_screen_live_view_core::live_view_worker::{
     evaluate_screen_live_view_worker_startup, start_screen_live_view_worker,
     ScreenLiveViewWorkerExecutionInput, ScreenLiveViewWorkerExecutionRecord,
     ScreenLiveViewWorkerStartupDecision, ScreenLiveViewWorkerStartupInput,

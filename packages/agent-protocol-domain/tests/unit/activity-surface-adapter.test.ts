@@ -5,6 +5,8 @@ import {
   ActivitySurfaceAdapterEventParser,
   ActivitySurfaceAdapterOperationId,
   ActivitySurfaceAdapterOperationManifest,
+} from '../../src/activity-surface-adapter-manifest';
+import {
   createActivityDeviceRequest,
   createActivityFamilyRequest,
   createActivityReadModelCommand,

@@ -1,5 +1,7 @@
 use ocentra_eventing::error::EventingError;
-use ocentra_parent_agent_protocol::ChildDomainPolicyViolationDetectedEvent;
+use ocentra_parent_agent_protocol::child_domain_runtime::{
+    ChildDomainEventType, ChildDomainPolicyViolationDetectedEvent,
+};
 use ocentra_policy_control_core::policy_request::{
     policy_request_schema_version, validate_child_policy_request, ChildPolicyRequest,
     PolicyAssistantConfirmationState, PolicyAssistantPreviewId, PolicyDurationMinutes,
@@ -35,13 +37,14 @@ pub fn build_policy_control_request_from_child_violation(
     input: ChildPolicyControlRequestInput,
 ) -> Result<ChildPolicyRequest, EventingError> {
     validate_child_policy_violation(violation)?;
+    let (assistant_confirmation_state, status, origin_name) = request_origin_metadata(input.origin);
 
     let request = ChildPolicyRequest {
         schema_version: policy_request_schema_version()?,
         request_id: policy_request_id(violation)?,
         submission_key: submission_key(
             violation,
-            input.origin,
+            origin_name,
             input.assistant_preview_id.as_ref(),
         )?,
         household_id: input.household_id,
@@ -51,8 +54,8 @@ pub fn build_policy_control_request_from_child_violation(
         policy_version: input.policy_version,
         origin: input.origin,
         assistant_preview_id: input.assistant_preview_id,
-        assistant_confirmation_state: assistant_confirmation_state(input.origin),
-        status: request_status(input.origin),
+        assistant_confirmation_state,
+        status,
         scope: PolicyRequestScope {
             request_kind: input.request_kind,
             target: input.target,
@@ -74,9 +77,7 @@ pub fn build_policy_control_request_from_child_violation(
 fn validate_child_policy_violation(
     violation: &ChildDomainPolicyViolationDetectedEvent,
 ) -> Result<(), EventingError> {
-    if violation.event_type
-        != ocentra_parent_agent_protocol::ChildDomainEventType::policy_violation_detected()
-    {
+    if violation.event_type != ChildDomainEventType::policy_violation_detected() {
         return Err(EventingError::InvalidValue {
             field: "policy_control_request.event_type",
             value: violation.event_type.as_str().to_string(),
@@ -105,13 +106,13 @@ fn policy_request_id(
 
 fn submission_key(
     violation: &ChildDomainPolicyViolationDetectedEvent,
-    origin: PolicyRequestOrigin,
+    origin_name: &'static str,
     assistant_preview_id: Option<&PolicyAssistantPreviewId>,
 ) -> Result<PolicyRequestSubmissionKey, EventingError> {
     let mut value = format!(
         "{}{}:{}",
         POLICY_CONTROL_SUBMISSION_KEY_PREFIX,
-        origin_name(origin),
+        origin_name,
         violation.violation_id.as_str()
     );
 
@@ -123,26 +124,24 @@ fn submission_key(
     PolicyRequestSubmissionKey::parse(value)
 }
 
-fn assistant_confirmation_state(origin: PolicyRequestOrigin) -> PolicyAssistantConfirmationState {
+fn request_origin_metadata(
+    origin: PolicyRequestOrigin,
+) -> (
+    PolicyAssistantConfirmationState,
+    PolicyRequestStatus,
+    &'static str,
+) {
     match origin {
-        PolicyRequestOrigin::Child => PolicyAssistantConfirmationState::NotRequired,
-        PolicyRequestOrigin::AssistantDraft => {
-            PolicyAssistantConfirmationState::ParentConfirmationRequired
-        }
-    }
-}
-
-fn request_status(origin: PolicyRequestOrigin) -> PolicyRequestStatus {
-    match origin {
-        PolicyRequestOrigin::Child => PolicyRequestStatus::PendingParentReview,
-        PolicyRequestOrigin::AssistantDraft => PolicyRequestStatus::PreviewOnly,
-    }
-}
-
-fn origin_name(origin: PolicyRequestOrigin) -> &'static str {
-    match origin {
-        PolicyRequestOrigin::Child => "child",
-        PolicyRequestOrigin::AssistantDraft => "assistant-draft",
+        PolicyRequestOrigin::Child => (
+            PolicyAssistantConfirmationState::NotRequired,
+            PolicyRequestStatus::PendingParentReview,
+            "child",
+        ),
+        PolicyRequestOrigin::AssistantDraft => (
+            PolicyAssistantConfirmationState::ParentConfirmationRequired,
+            PolicyRequestStatus::PreviewOnly,
+            "assistant-draft",
+        ),
     }
 }
 

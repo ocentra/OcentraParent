@@ -27,7 +27,7 @@ import {
   ParentPlatform,
   ParentPlatformSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const EnforcementHostAdapterPreflightIdSchema = brandedNonEmptyStringSchema('EnforcementHostAdapterPreflightId');
 export const EnforcementHostAdapterPreflightMatrixIdSchema = brandedNonEmptyStringSchema('EnforcementHostAdapterPreflightMatrixId');

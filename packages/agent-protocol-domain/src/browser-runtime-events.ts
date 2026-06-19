@@ -1,5 +1,5 @@
 import { ChildDomainRuntimeEventTypeLiteral } from '@ocentra-parent/child-runtime-domain/child-domain-runtime-events';
-import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
+import { EventingEventTypeSchema } from '@ocentra-parent/schema-domain/eventing';
 import { type LogFields } from '@ocentra-parent/logging-domain/contracts';
 import {
   type Infer,

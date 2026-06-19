@@ -1,15 +1,21 @@
 import {
   ProviderSecretRotationRevocationRequiredDataClasses,
-  type ProviderSecretRotationRevocationDataClass,
   type ProviderSecretRotationRevocationStatusEntryCandidate,
 } from './provider-secret-rotation-revocation-status.js';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 export function providerSecretRotationRevocationStatusEntryIsSafe(
   entry: ProviderSecretRotationRevocationStatusEntryCandidate
 ): boolean {
   return (
     !providerSecretRotationRevocationStatusHasClaimUpgrade(entry) &&
-    providerSecretRotationRevocationRequiredValuesArePresent(entry.disclosedDataClasses) &&
+    supportProofRequiredValuesArePresent(
+      entry.disclosedDataClasses,
+      ProviderSecretRotationRevocationRequiredDataClasses
+    ) &&
     providerSecretRotationRevocationRefsArePresent(entry) &&
     providerSecretRotationRevocationStatesAreCoherent(entry)
   );
@@ -18,7 +24,7 @@ export function providerSecretRotationRevocationStatusEntryIsSafe(
 function providerSecretRotationRevocationStatusHasClaimUpgrade(
   entry: ProviderSecretRotationRevocationStatusEntryCandidate
 ): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsProviderSecrets,
     entry.containsPaymentProviderTokens,
     entry.containsRawChildActivity,
@@ -36,7 +42,7 @@ function providerSecretRotationRevocationStatusHasClaimUpgrade(
     entry.remoteSupportSessionExecuted,
     entry.productionSlaClaimed,
     entry.ocentraHostedFamilyDataDefault,
-  ].some(Boolean);
+  ]);
 }
 
 function providerSecretRotationRevocationRefsArePresent(
@@ -90,14 +96,4 @@ function providerSecretOperatorApprovalStateIsCoherent(
   }
 
   return true;
-}
-
-function providerSecretRotationRevocationRequiredValuesArePresent(
-  actualValues: ReadonlyArray<ProviderSecretRotationRevocationDataClass>
-): boolean {
-  const actual = new Set(actualValues);
-  return (
-    actual.size === actualValues.length &&
-    ProviderSecretRotationRevocationRequiredDataClasses.every((value) => actual.has(value))
-  );
 }

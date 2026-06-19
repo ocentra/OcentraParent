@@ -1,9 +1,11 @@
+use super::local_ai_runtime_provider_proof::{
+    LocalAiRuntimeProviderProofEntry, LocalAiRuntimeProviderProofReadModel,
+    LocalAiRuntimeProviderProofRequirement, LocalAiRuntimeProviderProofStatus,
+};
 use super::{
     constants, DeviceRuntimeRole, LocalAiDegradedState, LocalAiProviderSchedulerJobClass,
     LocalAiProviderSchedulerLifecycle, LocalAiProviderSchedulerQueue,
     LocalAiProviderSchedulerStatus, LocalAiProviderSingletonScope, LocalAiResourceClass,
-    LocalAiRuntimeProviderProofEntry, LocalAiRuntimeProviderProofReadModel,
-    LocalAiRuntimeProviderProofRequirement, LocalAiRuntimeProviderProofStatus,
 };
 
 #[test]

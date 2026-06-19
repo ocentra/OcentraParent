@@ -185,6 +185,26 @@ impl PolicySourceStatus {
             Self::ManualRequired => policy_control::source::STATUS_MANUAL_REQUIRED,
         }
     }
+
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            policy_control::source::STATUS_DRAFT => Some(Self::Draft),
+            policy_control::source::STATUS_PREVIEW => Some(Self::Preview),
+            policy_control::source::STATUS_CONFIRMED => Some(Self::Confirmed),
+            policy_control::source::STATUS_QUEUED => Some(Self::Queued),
+            policy_control::source::STATUS_DELIVERED => Some(Self::Delivered),
+            policy_control::source::STATUS_ACKNOWLEDGED => Some(Self::Acknowledged),
+            policy_control::source::STATUS_ACTIVE => Some(Self::Active),
+            policy_control::source::STATUS_PARTIALLY_ACTIVE => Some(Self::PartiallyActive),
+            policy_control::source::STATUS_REJECTED => Some(Self::Rejected),
+            policy_control::source::STATUS_SUPERSEDED => Some(Self::Superseded),
+            policy_control::source::STATUS_ROLLED_BACK => Some(Self::RolledBack),
+            policy_control::source::STATUS_STALE => Some(Self::Stale),
+            policy_control::source::STATUS_EXPIRED => Some(Self::Expired),
+            policy_control::source::STATUS_MANUAL_REQUIRED => Some(Self::ManualRequired),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -208,6 +228,16 @@ impl PolicySourceSurface {
             Self::DomainCache => policy_control::source::SURFACE_DOMAIN_CACHE,
         }
     }
+
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            policy_control::source::SURFACE_PARENT_PORTAL => Some(Self::ParentPortal),
+            policy_control::source::SURFACE_PARENT_COMPANION => Some(Self::ParentCompanion),
+            policy_control::source::SURFACE_AI_PREVIEW => Some(Self::AiPreview),
+            policy_control::source::SURFACE_DOMAIN_CACHE => Some(Self::DomainCache),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -223,6 +253,14 @@ impl PolicyRequestOrigin {
         match self {
             Self::Child => "child",
             Self::AssistantDraft => "assistant-draft",
+        }
+    }
+
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            "child" => Some(Self::Child),
+            "assistant-draft" => Some(Self::AssistantDraft),
+            _ => None,
         }
     }
 }
@@ -245,6 +283,15 @@ impl PolicyAssistantConfirmationState {
             Self::ParentConfirmed => "parent-confirmed",
         }
     }
+
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            "not-required" => Some(Self::NotRequired),
+            "parent-confirmation-required" => Some(Self::ParentConfirmationRequired),
+            "parent-confirmed" => Some(Self::ParentConfirmed),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -261,6 +308,8 @@ pub enum PolicyRequestStatus {
     Modified,
     #[serde(rename = "expired")]
     Expired,
+    #[serde(rename = "replay-rejected")]
+    ReplayRejected,
 }
 
 impl PolicyRequestStatus {
@@ -272,6 +321,22 @@ impl PolicyRequestStatus {
             Self::Denied => policy_control::request::STATUS_DENIED,
             Self::Modified => policy_control::request::STATUS_MODIFIED,
             Self::Expired => policy_control::request::STATUS_EXPIRED,
+            Self::ReplayRejected => policy_control::request::STATUS_REPLAY_REJECTED,
+        }
+    }
+
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            policy_control::request::STATUS_PREVIEW_ONLY => Some(Self::PreviewOnly),
+            policy_control::request::STATUS_PENDING_PARENT_REVIEW => {
+                Some(Self::PendingParentReview)
+            }
+            policy_control::request::STATUS_APPROVED => Some(Self::Approved),
+            policy_control::request::STATUS_DENIED => Some(Self::Denied),
+            policy_control::request::STATUS_MODIFIED => Some(Self::Modified),
+            policy_control::request::STATUS_EXPIRED => Some(Self::Expired),
+            policy_control::request::STATUS_REPLAY_REJECTED => Some(Self::ReplayRejected),
+            _ => None,
         }
     }
 }
@@ -296,6 +361,13 @@ pub struct PolicyPreviewReadModelRow {
     pub policy_request_origin: Option<PolicyRequestOrigin>,
     pub policy_assistant_confirmation_state: Option<PolicyAssistantConfirmationState>,
     pub policy_request_status: Option<PolicyRequestStatus>,
+    pub policy_approval_id: Option<String>,
+    pub policy_override_id: Option<String>,
+    pub policy_replay_of_approval_id: Option<String>,
+    pub policy_reviewed_by_actor_id: Option<String>,
+    pub policy_reviewed_by_actor_role: Option<String>,
+    pub policy_reviewed_at: Option<String>,
+    pub policy_audit_reference_id: Option<String>,
     pub network_evidence_mapping: Option<PolicyPreviewNetworkEvidenceMapping>,
 }
 

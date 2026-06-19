@@ -1,4 +1,5 @@
-import { PortalCommandButtons, PortalDom, PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import { PortalCommandButtons } from '@ocentra-parent/portal-domain/commands';
+import { PortalDom, PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
 import { renderCommandResultPanel } from './command-result-panel';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';

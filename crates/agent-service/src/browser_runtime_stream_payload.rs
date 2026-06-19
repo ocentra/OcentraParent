@@ -7,9 +7,12 @@ use ocentra_parent_agent_core::{
     BrowserRuntimeReport, BrowserRuntimeSocialProviderReceiptStatusResponse,
     ParentChildRuntimeEventPayload, ParentChildRuntimeInput,
 };
+use ocentra_parent_agent_protocol::parent_controller_events::{
+    ParentControllerActionKind, ParentControllerSource,
+};
 use ocentra_parent_agent_protocol::{
     constants, BrowserEvidenceReadModel, ChildCommandKind, LogFieldValue, LogFields,
-    ParentControllerActionKind, ParentControllerSource, PolicyPreviewReadModel,
+    PolicyPreviewReadModel,
 };
 use serde::{Deserialize, Serialize};
 

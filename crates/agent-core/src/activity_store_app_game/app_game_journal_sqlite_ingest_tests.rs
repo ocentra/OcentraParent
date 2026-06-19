@@ -1,5 +1,6 @@
 use std::fs::remove_file;
 
+use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEvidenceKind, ActivityEvidenceRef,
     AppGameForegroundEvidenceRow, AppGameInventoryCategoryCandidate, AppGameInventoryEvidenceRow,
@@ -24,7 +25,11 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_TITLE_CAPTURE_TITLE_REF,
 };
 
-use crate::{ActivityJournal, ActivityStore, JournalKey, JOURNAL_KEY_BYTES};
+use crate::{
+    activity_store::ActivityStore,
+    journal::ActivityJournal,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+};
 
 use super::app_game_journal_sqlite_ingest::{
     app_game_foreground_journal_event, app_game_inventory_journal_event,
@@ -214,10 +219,7 @@ fn invalid_inventory_evidence_is_rejected_before_sqlite_ingest() {
 fn append_and_replay(
     events: &[ActivityEvent],
     suffix: &str,
-) -> (
-    ActivityStore,
-    Vec<ocentra_parent_agent_protocol::ActivityJournalLine>,
-) {
+) -> (ActivityStore, Vec<ActivityJournalLine>) {
     let path = temp_journal_path(suffix);
     cleanup_journal_files(&path);
     let key = test_key();

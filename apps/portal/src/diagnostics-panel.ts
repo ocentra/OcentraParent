@@ -6,10 +6,11 @@ import {
   PortalTiming,
   decodePortalDetailValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import { DevLogField, DevLogMessage } from '@ocentra-parent/logging-domain/contracts';
 import { writeClipboardText } from './clipboard';
 import { appendDetail } from './detail-list';
 import { buildDiagnosticsExport } from './diagnostics-export';
-import { DevLogField, DevLogMessage, writePortalDevLog } from './dev-logger';
+import { writePortalDevLog } from './dev-logger';
 import type { PortalRuntimeState } from './portal-state';
 
 export function renderDiagnosticsPanel(container: HTMLElement, state: PortalRuntimeState): void {

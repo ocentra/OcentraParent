@@ -130,7 +130,7 @@ fn assert_receipt_ledger_matches_projection(
             Err(_) => {
                 return Err(
                     NetworkRuntimeRemoteDeliveryReceiptLedgerError::ReceiptProjectionMismatch,
-                )
+                );
             }
         };
         if record.sequence != expected_sequence

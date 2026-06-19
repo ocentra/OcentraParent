@@ -30,13 +30,13 @@
 Current status:
 
 ```text
-WP06 now has a canonical proof root plus live agent-query/MCP proof-inventory detection, and the logging plan docs no longer need to imply that WP06 is proof-missing; the remaining blocking proof-inventory error is the stale WP08 partial-proof claim
+WP06 now has a canonical proof root plus live agent-query/MCP proof-inventory detection, and WP08 now has its canonical partial-proof root; the remaining proof-inventory restoration queue is the still-missing WP01/WP02/WP04/WP05/WP09 roots
 ```
 
 Expected result:
 
 ```text
-WP08 either gets a real canonical proof root or drops back from partial-proof to an honest lower status
+the remaining proof-missing workpacks either get real canonical proof roots or drop back from any overstated status
 the remaining proof-missing workpacks keep explicit no-claim language until proof is restored
 proof-inventory wrappers stay useful by reporting only real blocking gaps
 ```
@@ -93,4 +93,5 @@ unless the assigned workpack is explicitly proof-routing-only.
 - [ ] Rebuild the remaining missing proof roots or remove the claims that say they already exist.
 - [x] Write the canonical WP03 portal-dev-log consumer proof root and truth-sync the workpack/checklist for that bounded slice.
 - [x] Write the canonical WP06 validation/enforcement proof root and truth-sync the bounded workpack/checklist state.
+- [x] Write the canonical WP08 logger instrumentation proof root and truth-sync the bounded partial-proof state.
 - [x] Fix the standalone proof-trace smoke claim with a self-seeding clean-workspace harness and canonical proof roots.

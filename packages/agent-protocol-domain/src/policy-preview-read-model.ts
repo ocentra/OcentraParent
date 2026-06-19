@@ -37,6 +37,13 @@ const PolicyPreviewField = {
   RequestOrigin: AgentProtocolDefaults.Field.PolicyRequestOrigin,
   AssistantConfirmationState: AgentProtocolDefaults.Field.PolicyAssistantConfirmationState,
   RequestStatus: AgentProtocolDefaults.Field.PolicyRequestStatus,
+  ApprovalId: AgentProtocolDefaults.Field.PolicyApprovalId,
+  OverrideId: AgentProtocolDefaults.Field.PolicyOverrideId,
+  ReplayOfApprovalId: AgentProtocolDefaults.Field.PolicyReplayOfApprovalId,
+  ReviewedByActorId: AgentProtocolDefaults.Field.PolicyReviewedByActorId,
+  ReviewedByActorRole: AgentProtocolDefaults.Field.PolicyReviewedByActorRole,
+  ReviewedAt: AgentProtocolDefaults.Field.PolicyReviewedAt,
+  AuditReferenceId: AgentProtocolDefaults.Field.PolicyAuditReferenceId,
   NetworkEvidenceGrade: AgentProtocolDefaults.Field.NetworkEvidenceGrade,
   NetworkRequestedPolicyAction: AgentProtocolDefaults.Field.NetworkRequestedPolicyAction,
   NetworkMappedPolicyAction: AgentProtocolDefaults.Field.NetworkMappedPolicyAction,
@@ -54,6 +61,8 @@ const NullableBooleanSchema = Schema.Union(Schema.Boolean, Schema.Null);
 const FalseOrNullSchema = Schema.Union(Schema.Literal(false), Schema.Null);
 const NullablePolicyTargetTypeSchema = Schema.Union(
   Schema.Literal(
+    PolicyPreviewDefaults.TargetType.App,
+    PolicyPreviewDefaults.TargetType.Device,
     PolicyPreviewDefaults.TargetType.Url,
     PolicyPreviewDefaults.TargetType.Domain,
     PolicyPreviewDefaults.TargetType.Site,
@@ -171,7 +180,8 @@ const NullablePolicyRequestStatusSchema = Schema.Union(
     PolicyPreviewDefaults.RequestStatus.Approved,
     PolicyPreviewDefaults.RequestStatus.Denied,
     PolicyPreviewDefaults.RequestStatus.Modified,
-    PolicyPreviewDefaults.RequestStatus.Expired
+    PolicyPreviewDefaults.RequestStatus.Expired,
+    PolicyPreviewDefaults.RequestStatus.ReplayRejected
   ),
   Schema.Null
 );
@@ -210,6 +220,13 @@ const PortalPolicyPreviewReadModelSchema = withParser(
     policyRequestOrigin: NullablePolicyRequestOriginSchema,
     policyAssistantConfirmationState: NullablePolicyAssistantConfirmationStateSchema,
     policyRequestStatus: NullablePolicyRequestStatusSchema,
+    policyApprovalId: NullableTextSchema,
+    policyOverrideId: NullableTextSchema,
+    policyReplayOfApprovalId: NullableTextSchema,
+    policyReviewedByActorId: NullableTextSchema,
+    policyReviewedByActorRole: NullableTextSchema,
+    policyReviewedAt: NullableTextSchema,
+    policyAuditReferenceId: NullableTextSchema,
     networkEvidenceGrade: NullableNetworkEvidenceGradeSchema,
     networkRequestedPolicyAction: NullablePolicyActionSchema,
     networkMappedPolicyAction: NullablePolicyActionSchema,
@@ -263,6 +280,13 @@ export function parsePolicyPreviewReadModel(payload: AgentProtocolLogFields): Po
     policyRequestOrigin: valueOrNull(payload[PolicyPreviewField.RequestOrigin]),
     policyAssistantConfirmationState: valueOrNull(payload[PolicyPreviewField.AssistantConfirmationState]),
     policyRequestStatus: valueOrNull(payload[PolicyPreviewField.RequestStatus]),
+    policyApprovalId: valueOrNull(payload[PolicyPreviewField.ApprovalId]),
+    policyOverrideId: valueOrNull(payload[PolicyPreviewField.OverrideId]),
+    policyReplayOfApprovalId: valueOrNull(payload[PolicyPreviewField.ReplayOfApprovalId]),
+    policyReviewedByActorId: valueOrNull(payload[PolicyPreviewField.ReviewedByActorId]),
+    policyReviewedByActorRole: valueOrNull(payload[PolicyPreviewField.ReviewedByActorRole]),
+    policyReviewedAt: valueOrNull(payload[PolicyPreviewField.ReviewedAt]),
+    policyAuditReferenceId: valueOrNull(payload[PolicyPreviewField.AuditReferenceId]),
     networkEvidenceGrade: valueOrNull(payload[PolicyPreviewField.NetworkEvidenceGrade]),
     networkRequestedPolicyAction: valueOrNull(payload[PolicyPreviewField.NetworkRequestedPolicyAction]),
     networkMappedPolicyAction: valueOrNull(payload[PolicyPreviewField.NetworkMappedPolicyAction]),

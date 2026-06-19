@@ -1,6 +1,6 @@
 use ocentra_network_evidence::{
-    normalize_domain_with_public_suffix, DomainNormalizationError, NetworkEvidenceGrade,
-    PublicSuffixModel,
+    dns::NetworkEvidenceGrade,
+    domain::{normalize_domain_with_public_suffix, DomainNormalizationError, PublicSuffixModel},
 };
 
 const MIXED_CASE_DOMAIN_WITH_TRAILING_DOT: &str = "  Video.Example.Co.UK. ";

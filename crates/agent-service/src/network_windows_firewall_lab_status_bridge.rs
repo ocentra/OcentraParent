@@ -1,19 +1,28 @@
 use ocentra_network_evidence::{
-    map_network_evidence_grade_to_policy, plan_network_windows_firewall_adapter_proof,
-    prove_network_windows_firewall_lab_execution, NetworkEvidenceGrade,
-    NetworkEvidencePolicyAction, NetworkEvidencePolicyMappingInput,
-    NetworkWindowsFirewallAdapterAction, NetworkWindowsFirewallAdapterProof,
-    NetworkWindowsFirewallAdapterProofInput, NetworkWindowsFirewallCapabilityState,
-    NetworkWindowsFirewallLabCommandEvidence, NetworkWindowsFirewallLabCommandKind,
-    NetworkWindowsFirewallLabExecutionInput, NetworkWindowsFirewallLabExecutionProof,
-    NetworkWindowsFirewallLabExecutionState, NetworkWindowsFirewallLabUnsupportedClaims,
-    NetworkWindowsFirewallTargetKind,
+    dns::NetworkEvidenceGrade,
+    policy::{
+        map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
+        NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
+    },
+    windows_firewall_adapter::{
+        plan_network_windows_firewall_adapter_proof, NetworkWindowsFirewallAdapterAction,
+        NetworkWindowsFirewallAdapterProof, NetworkWindowsFirewallAdapterProofInput,
+        NetworkWindowsFirewallCapabilityState, NetworkWindowsFirewallTargetKind,
+    },
+    windows_firewall_lab_execution::{
+        prove_network_windows_firewall_lab_execution, NetworkWindowsFirewallLabCommandEvidence,
+        NetworkWindowsFirewallLabCommandKind, NetworkWindowsFirewallLabExecutionInput,
+        NetworkWindowsFirewallLabExecutionProof, NetworkWindowsFirewallLabExecutionState,
+        NetworkWindowsFirewallLabUnsupportedClaims,
+    },
 };
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, NetworkWindowsFirewallLabCommandStatusKind,
-    NetworkWindowsFirewallLabCommandStatusRow, NetworkWindowsFirewallLabStatus,
-    NetworkWindowsFirewallLabStatusState,
+    constants,
+    network_windows_firewall_lab_status::{
+        NetworkWindowsFirewallLabCommandStatusKind, NetworkWindowsFirewallLabCommandStatusRow,
+        NetworkWindowsFirewallLabStatus, NetworkWindowsFirewallLabStatusState,
+    },
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields, LogLevel,
 };
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
@@ -150,12 +159,11 @@ fn adapter_input() -> NetworkWindowsFirewallAdapterProofInput {
     }
 }
 
-fn policy_mapping() -> ocentra_network_evidence::NetworkEvidencePolicyMapping {
+fn policy_mapping() -> NetworkEvidencePolicyMapping {
     map_network_evidence_grade_to_policy(NetworkEvidencePolicyMappingInput {
         policy_decision_ref: constants::network_flow::TEST_WINDOWS_FIREWALL_POLICY_DECISION_REF
             .to_string(),
-        parent_rule_ref: constants::network_flow::TEST_WINDOWS_FIREWALL_PARENT_RULE_REF
-            .to_string(),
+        parent_rule_ref: constants::network_flow::TEST_WINDOWS_FIREWALL_PARENT_RULE_REF.to_string(),
         evidence_refs: vec![
             constants::network_flow::TEST_WINDOWS_FIREWALL_EVIDENCE_REF.to_string(),
         ],

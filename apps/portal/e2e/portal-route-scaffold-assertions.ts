@@ -631,8 +631,14 @@ async function assertManageTargetSelectorSemantics(page: Page): Promise<void> {
   await expect(surface.locator('text').filter({ hasText: 'SELECTED DEVICE CONTEXT' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'SOURCE' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'CONTROL' }).first()).toBeVisible();
-  for (const tabLabel of ['Info', 'Pair', 'Update', 'Capability']) {
+  for (const tabLabel of ['Info', 'Update', 'Capability']) {
     await expect(surface.locator('text').filter({ hasText: tabLabel }).first()).toBeVisible();
+  }
+  const pairTab = surface.getByRole('tab', { exact: true, name: 'Show LAN pairing Pair' });
+  if ((await pairTab.count()) > 0) {
+    await expect(pairTab).toBeVisible();
+  } else {
+    await expect(surface.locator('text').filter({ hasText: 'Policy target' }).first()).toBeVisible();
   }
   await expect(surface.locator('text').filter({ hasText: 'Local device' })).toHaveCount(0);
   await expect(surface.locator('text').filter({ hasText: 'This parent portal' })).toHaveCount(0);

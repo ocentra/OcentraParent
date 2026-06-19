@@ -13,7 +13,6 @@ import {
 } from './ndjsonPaths';
 import { readTestLogEntriesFromFile } from './ndjsonWriter';
 import {
-  TestLogScope,
   type StoredTestLogLine,
   type TestLogScope as TestLogScopeType,
   type TestLogStats,
@@ -482,5 +481,3 @@ export async function withTestLogDuckDb<T>(
     await db.close();
   }
 }
-
-export { getDefaultDbPath, TestLogScope };

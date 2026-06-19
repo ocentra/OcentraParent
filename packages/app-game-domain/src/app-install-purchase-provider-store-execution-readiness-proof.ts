@@ -8,7 +8,7 @@ import { AppInstallPurchaseApprovedApiEntitlementProofReadModel } from './app-in
 import { AppInstallPurchasePackageSourceAdapterExecutionProofReadModel } from './app-install-purchase-package-source-adapter-execution-proof';
 import { AppInstallPurchaseParentActionDeliveryReadinessProofReadModel } from './app-install-purchase-parent-action-delivery-readiness-proof';
 import { AppInstallPurchaseStoreStatusHandoffProofReadModel } from './app-install-purchase-store-status-handoff-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ProviderStoreExecutionReadinessProofVersion = 'app-install-purchase-provider-store-execution-readiness-proof';
 const SourceApprovedApiEntitlementProofVersion = 'app-install-purchase-approved-api-entitlement-proof';
 const SourceStoreStatusHandoffProofVersion = 'app-install-purchase-store-status-handoff-proof';

@@ -1,11 +1,11 @@
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,
     child_domain_evidence_recorded_event, child_domain_observed_event,
     ChildDomainAiAnalysisRequestedEvent, ChildDomainAiAnalysisRequirement,
-    ChildDomainEvidenceRecordedEvent, ChildDomainObservedEvent, ChildDomainObservedSignal,
-    ChildDomainPolicyEvaluationRequestedEvent, ChildDomainPolicyEvaluationRequirement,
-    ChildDomainRefSuffix, ChildRuntimeDomain,
+    ChildDomainEvidenceRecordedEvent, ChildDomainObservedEvent, ChildDomainObservedEventProfile,
+    ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequestedEvent,
+    ChildDomainPolicyEvaluationRequirement, ChildDomainRefSuffix, ChildRuntimeDomain,
 };
 use serde::{Deserialize, Serialize};
 
@@ -104,7 +104,7 @@ pub fn network_observed_event(intent: NetworkObservationIntent) -> ChildDomainOb
 
 pub fn network_observed_profile(
     intent: NetworkObservationIntent,
-) -> ocentra_parent_agent_protocol::ChildDomainObservedEventProfile {
+) -> ChildDomainObservedEventProfile {
     let (observed_state, ai_analysis_requirement, policy_evaluation_requirement) = match intent {
         NetworkObservationIntent::FlowRequiresPolicy => (
             ChildDomainObservedSignal::RequiresPolicy,

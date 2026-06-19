@@ -15,7 +15,7 @@ import {
   BillingLocalSafetyBehaviorSchema,
   BillingStripeSdkClaimSchema,
 } from './billing-entitlement-values';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   BillingEntitlementRuntimeAuditReferenceSchema,
   BillingEntitlementRuntimeBoundaryIdSchema,

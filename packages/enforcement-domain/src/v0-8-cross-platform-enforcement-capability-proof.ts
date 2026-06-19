@@ -16,7 +16,11 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  enforcementProofClaimFlagsAreUnset,
+  enforcementProofEntriesHaveUniqueField,
+} from './enforcement-proof-shape';
 
 export const V08CrossPlatformEnforcementCapabilityProofReadModelIdSchema = brandedNonEmptyStringSchema('V08CrossPlatformEnforcementCapabilityProofReadModelId');
 export const V08CrossPlatformEnforcementCapabilityProofEntryIdSchema = brandedNonEmptyStringSchema('V08CrossPlatformEnforcementCapabilityProofEntryId');
@@ -104,7 +108,7 @@ export const V08CrossPlatformEnforcementCapabilityProofReadModelSchema = withPar
   }).pipe(
     Schema.filter(
       (readModel) =>
-        new Set(readModel.entries.map((entry) => entry.proofEntryId)).size === readModel.entries.length ||
+        enforcementProofEntriesHaveUniqueField(readModel.entries, (entry) => entry.proofEntryId) ||
         'Expected cross-platform enforcement capability proof entry ids to be unique'
     )
   )
@@ -123,12 +127,12 @@ function crossPlatformCapabilityEntryIsHonest(
 function crossPlatformCapabilityEntryHasClaimUpgrade(
   entry: V08CrossPlatformEnforcementCapabilityProofEntryCandidate
 ): boolean {
-  return [
+  return !enforcementProofClaimFlagsAreUnset([
     entry.broadBlockingClaimed,
     entry.exactUrlClaimed,
     entry.privilegedMobileClaimed,
     entry.productionDistributionClaimed,
-  ].some(Boolean);
+  ]);
 }
 
 function crossPlatformCapabilityClaimStateIsHonest(

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { LanBrowserAddDeviceRuntimeRequestSchema, LanBrowserDiscoveryScanRequestSchema } from '../../src/lan-pairing';
+import {
+  LanBrowserAddDeviceRuntimeRequestSchema,
+  LanBrowserDiscoveryScanRequestSchema,
+} from '../../src/lan-pairing-browser-runtime';
 
 describe('parent-domain browser-first LAN runtime requests', () => {
   it('parses service scan and add-device requests without visible portal fixtures', () => {

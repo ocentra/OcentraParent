@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{NetworkLiveCapturePlatform, NetworkLiveCaptureProof};
+use crate::live_capture::{NetworkLiveCapturePlatform, NetworkLiveCaptureProof};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkLiveCaptureExecutionSource {

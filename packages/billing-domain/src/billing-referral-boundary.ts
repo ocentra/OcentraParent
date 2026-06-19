@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema,
   withParser,
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   BillingAuditReferenceSchema,
   NonNegativeBillingCountSchema,

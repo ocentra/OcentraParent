@@ -1,7 +1,9 @@
-use ocentra_child_runtime::{
+use ocentra_child_runtime::child_domain_runtime_flow::{
     publish_child_domain_observed_event, publish_default_child_domain_runtime_flows,
 };
-use ocentra_parent_agent_protocol::{ChildDomainObservedSignal, ChildRuntimeDomain};
+use ocentra_parent_agent_protocol::child_domain_runtime::{
+    ChildDomainObservedSignal, ChildRuntimeDomain,
+};
 
 #[tokio::test]
 async fn default_child_domain_runtime_flows_cover_child_owned_domains() {

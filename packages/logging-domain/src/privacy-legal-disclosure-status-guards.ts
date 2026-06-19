@@ -4,6 +4,10 @@ import type {
   PrivacyLegalDisclosureEntryCandidate,
   PrivacyLegalDisclosureState,
 } from './privacy-legal-disclosure-status.js';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 export function privacyLegalDisclosureEntryIsSafe(
   entry: PrivacyLegalDisclosureEntryCandidate,
@@ -11,7 +15,7 @@ export function privacyLegalDisclosureEntryIsSafe(
 ): boolean {
   return (
     !privacyLegalDisclosureHasClaimUpgrade(entry) &&
-    requiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
+    supportProofRequiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
     privacyLegalDisclosureRefsArePresent(entry) &&
     privacyLegalDisclosureStatesAreCoherent(entry)
   );
@@ -32,7 +36,7 @@ export function privacyLegalDisclosureCoversRequiredStates(entries: readonly Pri
 }
 
 function privacyLegalDisclosureHasClaimUpgrade(entry: PrivacyLegalDisclosureEntryCandidate): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsTokens,
     entry.containsRawChildActivity,
     entry.containsRawUrls,
@@ -54,7 +58,7 @@ function privacyLegalDisclosureHasClaimUpgrade(entry: PrivacyLegalDisclosureEntr
     entry.remoteSupportSessionExecuted,
     entry.productionSlaClaimed,
     entry.childActivityCustodyClaimed,
-  ].some(Boolean);
+  ]);
 }
 
 function privacyLegalDisclosureRefsArePresent(entry: PrivacyLegalDisclosureEntryCandidate): boolean {
@@ -83,12 +87,4 @@ function privacyLegalDisclosureManualRowsAreCoherent(entry: PrivacyLegalDisclosu
 
 function privacyLegalDisclosureFailureRowsAreCoherent(entry: PrivacyLegalDisclosureEntryCandidate): boolean {
   return entry.disclosureState !== 'disclosure-failed' || entry.failureRefs.length > 0;
-}
-
-function requiredValuesArePresent<T extends string>(
-  actualValues: ReadonlyArray<T>,
-  requiredValues: ReadonlyArray<T>
-): boolean {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }

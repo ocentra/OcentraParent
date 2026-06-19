@@ -43,7 +43,7 @@ function acceptsTheLocalExportDeleteRuntimeProof(): void {
       'generated-summary': 8,
     });
     expect(ParentOwnedLocalExportRuntimeKnownGaps).toContain(
-      'Real filesystem writer, retention scheduler, delete executor, and durable audit persistence remain future work.'
+      'Retention scheduler and parent-visible status controls remain future work before broader product export/delete claims.'
     );
   });
 }

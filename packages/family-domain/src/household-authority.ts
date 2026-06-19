@@ -816,7 +816,7 @@ export function authorizeHouseholdAction(input: HouseholdAuthorityInput): Househ
   }
 
   if (
-    requiresChildProfileDeviceScope(parsedInput.action) &&
+    requiresBoundChildScope(parsedInput.action) &&
     parsedInput.deviceOwnershipScope !== DeviceOwnershipScope.ChildProfileDevice
   ) {
     return rejectedHouseholdAction(HouseholdAuthorizationFailureReason.WrongDeviceScope, parsedInput.action);
@@ -914,10 +914,6 @@ function requiresBoundChildScope(action: DeviceAuthorityAction): boolean {
     action === DeviceAuthorityAction.StartRemoteView ||
     action === DeviceAuthorityAction.StartRemoteControl
   );
-}
-
-function requiresChildProfileDeviceScope(action: DeviceAuthorityAction): boolean {
-  return requiresBoundChildScope(action);
 }
 
 function requiresControllerLease(action: DeviceAuthorityAction): boolean {

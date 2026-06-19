@@ -76,6 +76,36 @@ fn policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement() 
         Some(&LogFieldValue::Null(()))
     );
     assert_eq!(
+        payload.get(constants::field::POLICY_APPROVAL_ID),
+        Some(&LogFieldValue::String("approval-1".to_string()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_OVERRIDE_ID),
+        Some(&LogFieldValue::String("override-1".to_string()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_REPLAY_OF_APPROVAL_ID),
+        Some(&LogFieldValue::String("approval-0".to_string()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_REVIEWED_BY_ACTOR_ID),
+        Some(&LogFieldValue::String("parent-1".to_string()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_REVIEWED_BY_ACTOR_ROLE),
+        Some(&LogFieldValue::String("parent".to_string()))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_REVIEWED_AT),
+        Some(&LogFieldValue::String(
+            "2026-06-18T10:00:00.000Z".to_string()
+        ))
+    );
+    assert_eq!(
+        payload.get(constants::field::POLICY_AUDIT_REFERENCE_ID),
+        Some(&LogFieldValue::String("audit-1".to_string()))
+    );
+    assert_eq!(
         payload.get(constants::field::NETWORK_EVIDENCE_GRADE),
         Some(&LogFieldValue::String(
             policy::NETWORK_EVIDENCE_GRADE_B.to_string()
@@ -169,6 +199,13 @@ fn read_model_with_network_mapping() -> PolicyPreviewReadModel {
             policy_request_origin: None::<PolicyRequestOrigin>,
             policy_assistant_confirmation_state: None::<PolicyAssistantConfirmationState>,
             policy_request_status: None::<PolicyRequestStatus>,
+            policy_approval_id: Some("approval-1".to_string()),
+            policy_override_id: Some("override-1".to_string()),
+            policy_replay_of_approval_id: Some("approval-0".to_string()),
+            policy_reviewed_by_actor_id: Some("parent-1".to_string()),
+            policy_reviewed_by_actor_role: Some("parent".to_string()),
+            policy_reviewed_at: Some("2026-06-18T10:00:00.000Z".to_string()),
+            policy_audit_reference_id: Some("audit-1".to_string()),
             network_evidence_mapping: Some(PolicyPreviewNetworkEvidenceMapping {
                 evidence_grade: policy::NETWORK_EVIDENCE_GRADE_B.to_string(),
                 requested_action: policy::ACTION_BLOCK.to_string(),

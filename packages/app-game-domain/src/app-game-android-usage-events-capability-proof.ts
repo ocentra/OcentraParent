@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   AppGameAndroidUsageEventsCommandName,
   AppGameAndroidUsageEventsEventName,
@@ -146,7 +146,6 @@ export function summarizeAppGameAndroidUsageEventsCapabilityReadModel(
   } as const;
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function androidUsageEventsCapabilityReadModelIsHonest(
   readModel: AppGameAndroidUsageEventsCapabilityCandidate
 ): boolean {

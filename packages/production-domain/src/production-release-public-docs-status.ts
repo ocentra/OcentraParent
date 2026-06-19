@@ -1,5 +1,6 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import { countProductionProofValues } from './production-proof-shape';
 import {
   ForbiddenPublicDocsStatusDataClasses,
   ProductionReleasePublicDocsStatusAudienceSchema,
@@ -15,8 +16,6 @@ import {
   RequiredPublicDocsStatusDocuments,
   RequiredPublicDocsStatusNonClaims,
 } from './production-release-public-docs-status-values';
-
-export * from './production-release-public-docs-status-values';
 
 type PublicDocsStatusProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly document: string }>;
@@ -106,12 +105,9 @@ export const decodeProductionReleasePublicDocsStatusProof = Schema.decodeUnknown
 export function summarizeProductionReleasePublicDocsStatusRows(
   rows: ReadonlyArray<ProductionReleasePublicDocsStatusRow>
 ): Record<ProductionReleasePublicDocsStatusDocument, number> {
-  return RequiredPublicDocsStatusDocuments.reduce(
-    (summary, documentName) => ({
-      ...summary,
-      [documentName]: rows.filter((row) => row.document === documentName).length,
-    }),
-    {} as Record<ProductionReleasePublicDocsStatusDocument, number>
+  return countProductionProofValues(
+    rows.map((row) => row.document),
+    RequiredPublicDocsStatusDocuments
   );
 }
 

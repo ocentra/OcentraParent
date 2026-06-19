@@ -16,7 +16,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const V08OsAdapterManualArtifactGateReadModelIdSchema = brandedNonEmptyStringSchema('V08OsAdapterManualArtifactGateReadModelId');
 export const V08OsAdapterManualArtifactGateEntryIdSchema = brandedNonEmptyStringSchema('V08OsAdapterManualArtifactGateEntryId');

@@ -6,7 +6,11 @@ import {
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 
-import { ParentContractSchemaVersionSchema, ParentDeviceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import {
+  ParentContractSchemaVersionSchema,
+  ParentDeviceIdSchema,
+  ParentTimestampSchema,
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const TrackingControlCatalogIdSchema = withParser(
   brandedNonEmptyStringSchema('TrackingControlCatalogId')

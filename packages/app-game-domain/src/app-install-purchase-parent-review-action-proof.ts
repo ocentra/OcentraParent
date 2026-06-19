@@ -12,7 +12,7 @@ import {
 import { AppInstallPurchaseApprovalContractProofReadModel } from './app-install-purchase-approval-proof';
 import { AppInstallPurchaseApprovedApiEntitlementProofReadModel } from './app-install-purchase-approved-api-entitlement-proof';
 import { AppInstallPurchaseReportRuntimeProofReadModel } from './app-install-purchase-report-runtime-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ParentReviewActionProofVersion = 'app-install-purchase-parent-review-action-proof';
 const SourceApprovalContractProofVersion = 'app-install-purchase-approval-contract-proof';
 const SourceApprovedApiEntitlementProofVersion = 'app-install-purchase-approved-api-entitlement-proof';

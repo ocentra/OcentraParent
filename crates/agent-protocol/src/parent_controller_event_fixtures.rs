@@ -1,9 +1,12 @@
 use crate::{
-    constants, ParentActionReceivedEvent, ParentChildCommandDeliveryState,
-    ParentChildCommandForwardRequestedEvent, ParentChildCommandForwardedEvent,
-    ParentChildCommandTransportBoundary, ParentCommandRejectedEvent, ParentCommandValidatedEvent,
-    ParentCommandValidationState, ParentControllerActionKind, ParentControllerSource,
-    ParentProjectionKind, ParentReadModelProjectedEvent,
+    constants,
+    parent_controller_events::{
+        ParentActionReceivedEvent, ParentChildCommandDeliveryState,
+        ParentChildCommandForwardRequestedEvent, ParentChildCommandForwardedEvent,
+        ParentChildCommandTransportBoundary, ParentCommandRejectedEvent,
+        ParentCommandValidatedEvent, ParentCommandValidationState, ParentControllerActionKind,
+        ParentControllerSource, ParentProjectionKind, ParentReadModelProjectedEvent,
+    },
 };
 
 pub(super) fn parent_action_received_event() -> ParentActionReceivedEvent {

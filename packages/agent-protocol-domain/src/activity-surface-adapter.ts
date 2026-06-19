@@ -22,6 +22,7 @@ import type {
   ActivityHistoricalReportList,
   ActivityNetworkReadModel,
   ActivityReportDocument,
+  ActivityReportSection,
   ActivityReportSourceState,
   ActivityScreenReadModel,
   ActivitySurfaceRequest,
@@ -34,9 +35,12 @@ import {
   type AgentCommandEnvelope,
   type AgentEventEnvelope,
 } from './contracts';
-import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/event-domain/primitives';
-
-export * from './activity-surface-adapter-manifest';
+import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/schema-domain/event-primitives';
+import {
+  ActivitySurfaceAdapterOperationId,
+  ActivitySurfaceAdapterOperationManifest,
+  type ActivitySurfaceAdapterOperation,
+} from './activity-surface-adapter-manifest';
 
 export type ActivitySurfaceReportFrequency = 'daily' | 'weekly' | 'monthly';
 export const ActivitySurfaceReadModelKindName = {
@@ -429,7 +433,7 @@ function reportDocumentState(report: ActivityReportDocument, event: AgentEventEn
     }
   }
 
-  if (report.sections.some((section) => section.state === 'ready')) {
+  if (report.sections.some((section: ActivityReportSection) => section.state === 'ready')) {
     return ActivityReadModelStateSchema.parse('ready');
   }
 
@@ -445,25 +449,15 @@ function adapterFailure(reason: ActivitySurfaceAdapterFailureReason): ActivitySu
 }
 
 function reportCommandForFrequency(frequency: ActivitySurfaceReportFrequency): AgentCommandEnvelope['command'] {
-  if (frequency === 'weekly') return AgentCommand.ActivityReportWeeklyGenerate;
-  if (frequency === 'monthly') return AgentCommand.ActivityReportMonthlyGenerate;
-  return AgentCommand.ActivityReportDailyGenerate;
+  return operationById(reportOperationIdForFrequency(frequency)).command;
 }
 
 function readModelCommandForKind(kind: ActivitySurfaceReadModelKind): AgentCommandEnvelope['command'] {
-  if (kind === ActivitySurfaceReadModelKindName.Screen) return AgentCommand.ActivityScreenReadModelGet;
-  if (kind === ActivitySurfaceReadModelKindName.AppUse) return AgentCommand.ActivityAppUseReadModelGet;
-  if (kind === ActivitySurfaceReadModelKindName.Browser) return AgentCommand.ActivityBrowserReadModelGet;
-  if (kind === ActivitySurfaceReadModelKindName.Games) return AgentCommand.ActivityGamesReadModelGet;
-  return AgentCommand.ActivityNetworkReadModelGet;
+  return readModelOperationForKind(kind).command;
 }
 
 function readModelEventForKind(kind: ActivitySurfaceReadModelKind): AgentEventEnvelope['event'] {
-  if (kind === ActivitySurfaceReadModelKindName.Screen) return AgentEvent.ActivityScreenReadModelReported;
-  if (kind === ActivitySurfaceReadModelKindName.AppUse) return AgentEvent.ActivityAppUseReadModelReported;
-  if (kind === ActivitySurfaceReadModelKindName.Browser) return AgentEvent.ActivityBrowserReadModelReported;
-  if (kind === ActivitySurfaceReadModelKindName.Games) return AgentEvent.ActivityGamesReadModelReported;
-  return AgentEvent.ActivityNetworkReadModelReported;
+  return readModelOperationForKind(kind).successEvent;
 }
 
 function readModelSchemaForKind(
@@ -474,4 +468,28 @@ function readModelSchemaForKind(
   if (kind === ActivitySurfaceReadModelKindName.Browser) return ActivityBrowserReadModelSchema;
   if (kind === ActivitySurfaceReadModelKindName.Games) return ActivityGamesReadModelSchema;
   return ActivityNetworkReadModelSchema;
+}
+
+function reportOperationIdForFrequency(
+  frequency: ActivitySurfaceReportFrequency
+): ActivitySurfaceAdapterOperation['operationId'] {
+  if (frequency === 'weekly') return ActivitySurfaceAdapterOperationId.GetWeeklyReport;
+  if (frequency === 'monthly') return ActivitySurfaceAdapterOperationId.GetMonthlyReport;
+  return ActivitySurfaceAdapterOperationId.GetDailyReport;
+}
+
+function readModelOperationForKind(kind: ActivitySurfaceReadModelKind): ActivitySurfaceAdapterOperation {
+  const operation = ActivitySurfaceAdapterOperationManifest.find((candidate) => candidate.readModelKind === kind);
+  if (operation === undefined) {
+    throw new Error('Activity surface adapter manifest is missing a read-model operation');
+  }
+  return operation;
+}
+
+function operationById(operationId: ActivitySurfaceAdapterOperation['operationId']): ActivitySurfaceAdapterOperation {
+  const operation = ActivitySurfaceAdapterOperationManifest.find((candidate) => candidate.operationId === operationId);
+  if (operation === undefined) {
+    throw new Error('Activity surface adapter manifest is missing an operation');
+  }
+  return operation;
 }

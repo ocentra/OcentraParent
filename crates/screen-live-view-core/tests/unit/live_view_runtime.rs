@@ -1,4 +1,4 @@
-use ocentra_screen_live_view_core::{
+use ocentra_screen_live_view_core::live_view_runtime::{
     evaluate_screen_live_view_runtime, ScreenLiveViewRuntimeBlockReason,
     ScreenLiveViewRuntimeInput, ScreenLiveViewRuntimeMode, ScreenLiveViewRuntimePermission,
     ScreenLiveViewRuntimeSessionState, ScreenLiveViewRuntimeTransport,

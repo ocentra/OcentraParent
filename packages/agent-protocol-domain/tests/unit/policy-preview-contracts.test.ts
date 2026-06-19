@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { AgentProtocolDefaults } from '../../src/contracts';
 import { parsePolicyPreviewReadModel } from '../../src/policy-preview-read-model';
 
 describe('policy preview parser defaults', () => {
@@ -15,6 +16,13 @@ describe('policy preview parser defaults', () => {
       policyRequestOrigin: 'assistant-draft',
       policyAssistantConfirmationState: 'parent-confirmation-required',
       policyRequestStatus: 'preview-only',
+      policyApprovalId: 'approval-1',
+      policyOverrideId: 'override-1',
+      policyReplayOfApprovalId: null,
+      policyReviewedByActorId: 'parent-1',
+      policyReviewedByActorRole: 'parent',
+      policyReviewedAt: '2026-06-18T10:00:00.000Z',
+      policyAuditReferenceId: 'audit-1',
       dryRun: true,
       enforcementHandoffState: 'disabled-preview-only',
       networkAdapterActionAuthorized: false,
@@ -33,6 +41,13 @@ describe('policy preview parser defaults', () => {
       policyRequestOrigin: 'assistant-draft',
       policyAssistantConfirmationState: 'parent-confirmation-required',
       policyRequestStatus: 'preview-only',
+      policyApprovalId: 'approval-1',
+      policyOverrideId: 'override-1',
+      policyReplayOfApprovalId: null,
+      policyReviewedByActorId: 'parent-1',
+      policyReviewedByActorRole: 'parent',
+      policyReviewedAt: '2026-06-18T10:00:00.000Z',
+      policyAuditReferenceId: 'audit-1',
     });
   });
 
@@ -49,6 +64,13 @@ describe('policy preview parser defaults', () => {
       policyRequestOrigin: null,
       policyAssistantConfirmationState: null,
       policyRequestStatus: null,
+      policyApprovalId: null,
+      policyOverrideId: null,
+      policyReplayOfApprovalId: null,
+      policyReviewedByActorId: null,
+      policyReviewedByActorRole: null,
+      policyReviewedAt: null,
+      policyAuditReferenceId: null,
       networkAdapterActionAuthorized: false,
       networkEnforcementCommandAuthorized: false,
     });
@@ -71,7 +93,60 @@ describe('policy preview parser defaults', () => {
       policyRequestOrigin: null,
       policyAssistantConfirmationState: null,
       policyRequestStatus: null,
+      policyApprovalId: null,
+      policyOverrideId: null,
+      policyReplayOfApprovalId: null,
+      policyReviewedByActorId: null,
+      policyReviewedByActorRole: null,
+      policyReviewedAt: null,
+      policyAuditReferenceId: null,
     });
     expect(invalid).toBeNull();
+  });
+
+  it('accepts replay-rejected request status with replay lineage fields', () => {
+    const parsed = parsePolicyPreviewReadModel({
+      returned: 1,
+      policyRequestStatus: 'replay-rejected',
+      policyApprovalId: 'approval-3',
+      policyReplayOfApprovalId: 'approval-1',
+      networkAdapterActionAuthorized: false,
+      networkEnforcementCommandAuthorized: false,
+    });
+
+    expect(parsed).not.toBeNull();
+    expect(parsed).toMatchObject({
+      policyRequestStatus: 'replay-rejected',
+      policyApprovalId: 'approval-3',
+      policyReplayOfApprovalId: 'approval-1',
+    });
+  });
+
+  it('accepts app and device target types for confirmed preview rows', () => {
+    const appTarget = parsePolicyPreviewReadModel({
+      returned: 1,
+      targetType: AgentProtocolDefaults.PolicyPreview.TargetType.App,
+      targetValue: 'discord.exe',
+      networkAdapterActionAuthorized: false,
+      networkEnforcementCommandAuthorized: false,
+    });
+    const deviceTarget = parsePolicyPreviewReadModel({
+      returned: 1,
+      targetType: AgentProtocolDefaults.PolicyPreview.TargetType.Device,
+      targetValue: 'child-phone-1',
+      networkAdapterActionAuthorized: false,
+      networkEnforcementCommandAuthorized: false,
+    });
+
+    expect(appTarget).not.toBeNull();
+    expect(appTarget).toMatchObject({
+      targetType: 'app',
+      targetValue: 'discord.exe',
+    });
+    expect(deviceTarget).not.toBeNull();
+    expect(deviceTarget).toMatchObject({
+      targetType: 'device',
+      targetValue: 'child-phone-1',
+    });
   });
 });

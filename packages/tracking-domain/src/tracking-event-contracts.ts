@@ -1,5 +1,5 @@
-import { AgentEventDeliveryMode, AgentEventEnvelopeSchema } from '@ocentra-parent/event-domain/primitives';
-import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
+import { AgentEventDeliveryMode, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/event-primitives';
+import { EventingEventTypeSchema } from '@ocentra-parent/schema-domain/eventing';
 import {
   AgentTrackingConfigUpdateRequestSchema,
   AgentTrackingConfigUpdateEventType,
@@ -116,7 +116,7 @@ export const TrackingRuntimeEventEnvelopeSchema = withParser(
 );
 
 export type TrackingEventName = Infer<typeof TrackingEventNameSchema>;
-export type TrackingRuntimeEnabledState = Infer<typeof TrackingRuntimeEnabledStateSchema>;
+export type TrackingRuntimeEnabledState = Infer<typeof AgentTrackingRuntimeEnabledStateSchema>;
 export type TrackingRuntimeConfigUpdatedPayload = Infer<typeof TrackingRuntimeConfigUpdatedPayloadSchema>;
 export type TrackingRuntimeConfigUpdatedEvent = Infer<typeof TrackingRuntimeConfigUpdatedEventSchema>;
 export type TrackingRuntimeChildConfigUpdatedEvent = Infer<
@@ -159,4 +159,4 @@ export const TrackingEventName = {
   ),
 } as const;
 
-export { AgentTrackingRuntimeEnabledState as TrackingRuntimeEnabledState };
+export const TrackingRuntimeEnabledState = AgentTrackingRuntimeEnabledState;

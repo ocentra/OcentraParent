@@ -1,16 +1,27 @@
 use ocentra_network_evidence::{
-    map_network_evidence_grade_to_policy, plan_network_linux_adapter_gate,
-    prove_network_linux_nftables_lab_execution, NetworkEvidenceGrade, NetworkEvidencePolicyAction,
-    NetworkEvidencePolicyMappingInput, NetworkLinuxAdapterCapabilityState,
-    NetworkLinuxAdapterGateInput, NetworkLinuxAdapterGateProof, NetworkLinuxAdapterKind,
-    NetworkLinuxNftablesLabCommandEvidence, NetworkLinuxNftablesLabCommandKind,
-    NetworkLinuxNftablesLabExecutionInput, NetworkLinuxNftablesLabExecutionProof,
-    NetworkLinuxNftablesLabExecutionState, NetworkLinuxNftablesLabUnsupportedClaims,
+    dns::NetworkEvidenceGrade,
+    linux_adapter_gate::{
+        plan_network_linux_adapter_gate, NetworkLinuxAdapterCapabilityState,
+        NetworkLinuxAdapterGateInput, NetworkLinuxAdapterGateProof, NetworkLinuxAdapterKind,
+    },
+    linux_nftables_lab_execution::{
+        prove_network_linux_nftables_lab_execution, NetworkLinuxNftablesLabCommandEvidence,
+        NetworkLinuxNftablesLabCommandKind, NetworkLinuxNftablesLabExecutionInput,
+        NetworkLinuxNftablesLabExecutionProof, NetworkLinuxNftablesLabExecutionState,
+        NetworkLinuxNftablesLabUnsupportedClaims,
+    },
+    policy::{
+        map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
+        NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
+    },
 };
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, NetworkLinuxNftablesLabCommandStatusKind, NetworkLinuxNftablesLabCommandStatusRow,
-    NetworkLinuxNftablesLabStatus, NetworkLinuxNftablesLabStatusState,
+    constants,
+    network_linux_nftables_lab_status::{
+        NetworkLinuxNftablesLabCommandStatusKind, NetworkLinuxNftablesLabCommandStatusRow,
+        NetworkLinuxNftablesLabStatus, NetworkLinuxNftablesLabStatusState,
+    },
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields, LogLevel,
 };
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
@@ -149,7 +160,7 @@ fn gate_input() -> NetworkLinuxAdapterGateInput {
     }
 }
 
-fn policy_mapping() -> ocentra_network_evidence::NetworkEvidencePolicyMapping {
+fn policy_mapping() -> NetworkEvidencePolicyMapping {
     map_network_evidence_grade_to_policy(NetworkEvidencePolicyMappingInput {
         policy_decision_ref: constants::network_flow::TEST_LINUX_ADAPTER_POLICY_DECISION_REF
             .to_string(),

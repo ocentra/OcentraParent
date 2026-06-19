@@ -18,7 +18,7 @@ import {
   parseAgentAppGameAdapterDispatchResultEvent,
 } from '../../src/app-game-adapter-dispatch-result';
 import { AgentCommand, AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
-import { AgentProtocolSchemaVersion } from '../../src/primitives';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 
 const Source = {
   peerId: 'agent-service',

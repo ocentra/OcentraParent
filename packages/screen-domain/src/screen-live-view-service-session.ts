@@ -8,20 +8,22 @@ import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primiti
 import { ScreenEvidenceCustodyStateSchema } from './screen-evidence-states';
 import { ScreenLiveViewPermissionEvidenceKindSchema } from './screen-live-view-platform-permission';
 import {
+  screenLiveViewDisabledCoreFieldsAreConsistent,
+  screenLiveViewDisablesFrameStorageAndRemoteControl,
+  screenLiveViewHasViewerAuditAndTransportProof,
+  ScreenLiveViewOptionalAuditRefSchema,
+  ScreenLiveViewOptionalProofRefSchema,
+  ScreenLiveViewRequiredFalseSchema,
+  ScreenLiveViewRequiredTrueSchema,
+} from './screen-live-view-readiness-core';
+import {
   ScreenLiveViewModeSchema,
   ScreenLiveViewTransportModeSchema,
-  ScreenOptionalVisibilityAuditRefSchema,
-  ScreenOptionalVisibilityPlatformProofRefSchema,
   ScreenOptionalVisibilityRetentionBehaviorSchema,
   ScreenOptionalVisibilitySourceLabelSchema,
 } from './screen-optional-visibility-mode-values';
 
 export const ScreenLiveViewServiceSessionSchemaVersion = 1;
-
-const RequiredFalse = Schema.Literal(false);
-const RequiredTrue = Schema.Literal(true);
-const OptionalLiveViewProofRefSchema = Schema.Union(ScreenOptionalVisibilityPlatformProofRefSchema, Schema.Null);
-const OptionalLiveViewAuditRefSchema = Schema.Union(ScreenOptionalVisibilityAuditRefSchema, Schema.Null);
 
 export const ScreenLiveViewServiceSessionStateSchema = withParser(
   Schema.Literal('disabled', 'loopbackTransportOnly', 'serviceRuntimeReady')
@@ -42,16 +44,16 @@ const ScreenLiveViewServiceSessionGateBaseSchema = Schema.Struct({
   sourceLabel: ScreenOptionalVisibilitySourceLabelSchema,
   custodyState: ScreenEvidenceCustodyStateSchema,
   frameRetentionBehavior: ScreenOptionalVisibilityRetentionBehaviorSchema,
-  platformPermissionProofRef: OptionalLiveViewProofRefSchema,
-  viewerAuditRef: OptionalLiveViewAuditRefSchema,
-  liveTransportProofRef: OptionalLiveViewProofRefSchema,
+  platformPermissionProofRef: ScreenLiveViewOptionalProofRefSchema,
+  viewerAuditRef: ScreenLiveViewOptionalAuditRefSchema,
+  liveTransportProofRef: ScreenLiveViewOptionalProofRefSchema,
   serviceSessionState: ScreenLiveViewServiceSessionStateSchema,
   parentUiPersistenceState: ScreenLiveViewParentUiPersistenceStateSchema,
   relayCacheState: ScreenLiveViewRelayCacheStateSchema,
-  rawFrameDeletedAfterTransport: RequiredTrue,
-  cacheRawFrames: RequiredFalse,
-  sessionRecordingAllowed: RequiredFalse,
-  remoteInputControlAllowed: RequiredFalse,
+  rawFrameDeletedAfterTransport: ScreenLiveViewRequiredTrueSchema,
+  cacheRawFrames: ScreenLiveViewRequiredFalseSchema,
+  sessionRecordingAllowed: ScreenLiveViewRequiredFalseSchema,
+  remoteInputControlAllowed: ScreenLiveViewRequiredFalseSchema,
   productLiveViewReady: Schema.Boolean,
   reason: NonEmptyStringSchema,
 });
@@ -86,18 +88,12 @@ export function screenLiveViewServiceSessionGateIsConsistent(value: ScreenLiveVi
 
 function disabledLiveViewServiceSessionGateIsConsistent(value: ScreenLiveViewServiceSessionGateInput): boolean {
   return (
-    value.transportMode === 'none' &&
+    screenLiveViewDisabledCoreFieldsAreConsistent(value) &&
     value.permissionEvidenceKind === 'missing' &&
-    value.sourceLabel === 'unavailable' &&
-    value.custodyState === 'unavailable' &&
-    value.frameRetentionBehavior === 'noFrameRetention' &&
     value.platformPermissionProofRef === null &&
-    value.viewerAuditRef === null &&
-    value.liveTransportProofRef === null &&
     value.serviceSessionState === 'disabled' &&
     value.parentUiPersistenceState === 'notRequired' &&
-    value.relayCacheState === 'notUsed' &&
-    !value.productLiveViewReady
+    value.relayCacheState === 'notUsed'
   );
 }
 
@@ -105,11 +101,11 @@ function enabledLiveViewServiceSessionEvidenceIsPresent(value: ScreenLiveViewSer
   return (
     value.permissionEvidenceKind === 'live-view-permission' &&
     value.platformPermissionProofRef !== null &&
-    value.viewerAuditRef !== null &&
-    value.liveTransportProofRef !== null &&
+    screenLiveViewHasViewerAuditAndTransportProof(value) &&
     value.serviceSessionState === 'serviceRuntimeReady' &&
     value.parentUiPersistenceState === 'proved' &&
-    value.frameRetentionBehavior === 'noFrameRetention' &&
+    value.rawFrameDeletedAfterTransport &&
+    screenLiveViewDisablesFrameStorageAndRemoteControl(value) &&
     value.productLiveViewReady
   );
 }

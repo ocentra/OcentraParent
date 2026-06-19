@@ -1,17 +1,19 @@
 import { describe, expect, it } from 'vitest';
+import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import {
   TrackingRetentionDurableSettingsRowSchema,
   buildTrackingRetentionDurableSettingsProof,
   type TrackingRetentionDurableSettingsProof,
 } from '../../src/tracking-retention-durable-settings-proof';
 import { buildTrackingRetentionLocalServiceStateProof } from '../../src/tracking-retention-local-service-state-proof';
-import { AgentTrackingRetentionSettingsWriteDefaults } from '../../src/tracking-retention-settings-read-model-proof';
+import {
+  TrackingRetentionProofRefs,
+  trackingRetentionAcceptedLocalServiceWriteResult,
+} from '../../src/tracking-retention-proof-catalog';
 
 const GeneratedAt = '2026-06-07T10:20:00.000Z';
-const SourceWriteCommandProofRef =
-  'output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json';
-const SourceLocalServiceStateProofRef =
-  'output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json';
+const SourceWriteCommandProofRef = TrackingRetentionProofRefs.WriteCommand;
+const SourceLocalServiceStateProofRef = TrackingRetentionProofRefs.LocalServiceState;
 
 describe('tracking retention durable settings proof', () => {
   it('derives local durable settings rows from local service state readback', () => {
@@ -61,7 +63,11 @@ function durableProof(): TrackingRetentionDurableSettingsProof {
   return buildTrackingRetentionDurableSettingsProof(
     GeneratedAt,
     SourceLocalServiceStateProofRef,
-    buildTrackingRetentionLocalServiceStateProof(GeneratedAt, SourceWriteCommandProofRef, writeResult())
+    buildTrackingRetentionLocalServiceStateProof(
+      GeneratedAt,
+      SourceWriteCommandProofRef,
+      trackingRetentionAcceptedLocalServiceWriteResult()
+    )
   );
 }
 
@@ -85,34 +91,4 @@ function expectDurableSettingsRow(proof: TrackingRetentionDurableSettingsProof):
   expect(row.durabilityFailureVisible).toBe(false);
   expect(row.productSettingsWritable).toBe(false);
   expect(row.productClaimReady).toBe(false);
-}
-
-function writeResult(): unknown {
-  return {
-    schemaVersion: 1,
-    commandId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
-    settingsKind: AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
-    writeState: AgentTrackingRetentionSettingsWriteDefaults.WriteStateAccepted,
-    sourceWriterIntentRefs: [AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef],
-    sourceReadModelProofRefs: AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs,
-    sourceMutationProofRefs: [AgentTrackingRetentionSettingsWriteDefaults.MutationProofRef],
-    appliedRetentionWindowHours: 168,
-    appliedDeleteAfterAlertResolved: false,
-    parentExportPrepared: false,
-    remoteSyncEnabled: false,
-    remoteAiEnabled: false,
-    localServiceStateRevision: 1,
-    localServiceStateSnapshotRef: AgentTrackingRetentionSettingsWriteDefaults.LocalServiceStateSnapshotRef,
-    durableSettingsStoreRef: AgentTrackingRetentionSettingsWriteDefaults.DurableSettingsStoreRef,
-    durableSettingsPersisted: true,
-    commandTransportClaimed: true,
-    serviceMutationExecuted: true,
-    platformRuntimeClaimed: false,
-    childDeviceDeliveryClaimed: false,
-    providerDeliveryClaimed: false,
-    notificationReceiptClaimed: false,
-    physicalDeviceClaimed: false,
-    authorityClaimed: false,
-    productClaimReady: false,
-  };
 }

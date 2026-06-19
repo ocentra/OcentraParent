@@ -22,7 +22,7 @@ import {
   AppGameSourceFreshnessRequirementState,
   AppGameSourceFreshnessSourceKind,
 } from './app-game-source-freshness-policy-consumption-values';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const NonNegativeSourceFreshnessNumber = Schema.Number.pipe(
   Schema.filter((value) => (Number.isFinite(value) && value >= 0) || 'Expected a non-negative finite number')
 );

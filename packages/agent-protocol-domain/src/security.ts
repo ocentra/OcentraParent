@@ -2,7 +2,7 @@ import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-p
 import {
   ParentEvidenceReferenceIdSchema,
   ParentEvidenceReferenceKindSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   LanPairingAuditEventTypeSchema as AgentLanPairingAuditEventTypeSchema,
 } from '@ocentra-parent/lan-domain/lan-pairing-values';
@@ -14,7 +14,7 @@ import {
   AgentProtocolSchemaVersion,
   AgentRouteSchema,
   AgentTimestampSchema,
-} from '@ocentra-parent/event-domain/primitives';
+} from '@ocentra-parent/schema-domain/event-primitives';
 
 export const AgentPairingIdSchema = NonEmptyStringSchema.pipe(Schema.brand('AgentPairingId'));
 export const AgentPairingTokenHashSchema = NonEmptyStringSchema.pipe(Schema.brand('AgentPairingTokenHash'));

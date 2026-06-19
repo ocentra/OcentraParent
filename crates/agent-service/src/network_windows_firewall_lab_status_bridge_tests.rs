@@ -1,8 +1,11 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    NetworkWindowsFirewallLabCommandStatusKind, NetworkWindowsFirewallLabStatus,
-    NetworkWindowsFirewallLabStatusState, AGENT_PROTOCOL_SCHEMA_VERSION,
+    constants,
+    network_windows_firewall_lab_status::{
+        NetworkWindowsFirewallLabCommandStatusKind, NetworkWindowsFirewallLabStatus,
+        NetworkWindowsFirewallLabStatusState,
+    },
+    policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
+    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use serde::de::DeserializeOwned;
 

@@ -4,6 +4,10 @@ import {
   withParser,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 const providerSecretCustodyText = <Brand extends string>(brand: Brand) =>
   NonEmptyStringSchema.pipe(Schema.brand(brand));
@@ -162,14 +166,14 @@ export function providerSecretCustodyStatusCoversRequiredStates(
 function providerSecretCustodyStatusEntryIsSafe(entry: ProviderSecretCustodyStatusEntryCandidate): boolean {
   return (
     !providerSecretCustodyStatusHasClaimUpgrade(entry) &&
-    providerSecretCustodyRequiredValuesArePresent(entry.disclosedDataClasses) &&
+    supportProofRequiredValuesArePresent(entry.disclosedDataClasses, ProviderSecretCustodyRequiredDataClasses) &&
     providerSecretCustodyRefsArePresent(entry) &&
     providerSecretCustodyStatesAreCoherent(entry)
   );
 }
 
 function providerSecretCustodyStatusHasClaimUpgrade(entry: ProviderSecretCustodyStatusEntryCandidate): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsProviderSecrets,
     entry.containsPaymentProviderTokens,
     entry.containsRawChildActivity,
@@ -187,7 +191,7 @@ function providerSecretCustodyStatusHasClaimUpgrade(entry: ProviderSecretCustody
     entry.remoteSupportSessionExecuted,
     entry.productionSlaClaimed,
     entry.ocentraHostedFamilyDataDefault,
-  ].some(Boolean);
+  ]);
 }
 
 function providerSecretCustodyRefsArePresent(entry: ProviderSecretCustodyStatusEntryCandidate): boolean {
@@ -229,14 +233,5 @@ function providerSecretCustodyRotationStatesAreCoherent(entry: ProviderSecretCus
   }
 
   return true;
-}
-
-function providerSecretCustodyRequiredValuesArePresent(
-  actualValues: ReadonlyArray<ProviderSecretCustodyDataClass>
-): boolean {
-  const actual = new Set(actualValues);
-  return (
-    actual.size === actualValues.length && ProviderSecretCustodyRequiredDataClasses.every((value) => actual.has(value))
-  );
 }
 

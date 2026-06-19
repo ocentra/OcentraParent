@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ForbiddenStatusBackendDeadLetterDataClasses,
   ProductionSupportStatusBackendDeadLetterDataClassSchema,
@@ -14,8 +14,6 @@ import {
   StatusBackendDeadLetterManualRequirementSchema,
   StatusBackendDeadLetterReferenceSchema,
 } from './production-support-status-backend-dead-letter-values';
-
-export * from './production-support-status-backend-dead-letter-values';
 
 type StatusBackendDeadLetterProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly target: string; readonly deadLetterState: string }>;

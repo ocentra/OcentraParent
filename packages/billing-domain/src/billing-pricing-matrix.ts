@@ -1,4 +1,4 @@
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   BillingDeviceLimitDecisionSchema,

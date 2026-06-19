@@ -42,32 +42,46 @@ This is universal, not Cloudflare-only. Pure schemas, constants, brands, generat
 
 - Shared API paths, route ids, event names, log shapes, policy ids, and device
   identifiers do not belong directly in app or crate code.
-- Shared TypeScript contracts live under `packages/*-domain`.
+- Shared TypeScript contracts, branded values, parser entrypoints, and
+  cross-package schema shapes live only under `@ocentra-parent/schema-domain`,
+  organized by domain folder.
+- Domain packages may consume central schemas and add domain-local mapping,
+  projection, helper, or adapter logic, but they must not become peer-owned
+  schema authorities or exported schema owners for cross-package shapes.
+- If two TypeScript packages or one TypeScript package and one Rust boundary
+  need the same schema, promote it into `@ocentra-parent/schema-domain` before
+  reuse. There are no package-local exceptions for shared schema authority.
 - Rust-facing protocol shapes go under `crates/agent-protocol` only after the
-  TypeScript contract is explicit and test-backed.
+  TypeScript contract is explicit in `@ocentra-parent/schema-domain`,
+  test-backed, and mirrored with exact encoded-shape parity.
+- Matching TypeScript and Rust contracts must preserve the same encoded field
+  names, discriminants, nullability, and version semantics. Drift coverage is
+  required through fixtures, generated schema comparison, or equivalent parity
+  tests.
 - Use Effect Schema for TypeScript runtime validation. Do not add Zod.
 - Do not create manual branded-string aliases. Use Effect Schema brands and
   decode helpers.
 - Runtime source must not contain inline string literals for text, ids, routes,
-  fields, commands, or events; domain packages own those.
+  fields, commands, or events; canonical contract owners own those.
 - App/runtime TypeScript source must not annotate values as raw `string`; use a
   branded domain type or keep external input as `unknown` until parsed.
 - Rust runtime strings live in `crates/agent-protocol` constants.
 - Do not use mocks, fakes, stubs, spies, MSW, Nock, Sinon, `vi.mock`, `vi.fn`, or
   equivalent test doubles.
 - Cross-responsibility behavior must be command/event/request/read-model driven.
-  Direct imports are allowed for schemas, constants, brands, and typed contracts;
-  direct imports are not allowed for another owner's runtime behavior.
+  Direct imports are allowed for schemas, constants, brands, and typed
+  contracts from their canonical owner; direct imports are not allowed for
+  another owner's runtime behavior.
 
 ## Package responsibility router
 
 | Package                                 | Owns                                                             |
 | --------------------------------------- | ---------------------------------------------------------------- |
-| `@ocentra-parent/schema-domain`         | Shared Effect Schema wrappers and decode helpers.                |
-| `@ocentra-parent/endpoint-domain`       | API path, route id, header, query, endpoint brands.              |
-| `@ocentra-parent/agent-protocol-domain` | WebSocket command/event contracts shared by portal and Rust.     |
-| `@ocentra-parent/text-domain`           | Schema-backed display text tokens.                               |
-| `@ocentra-parent/portal-domain`         | Portal routes, DOM constants, dev command button contracts.      |
-| `@ocentra-parent/parent-domain`         | Parent/family/device product contracts.                          |
-| `@ocentra-parent/activity-domain`       | Device activity event schemas and query contracts.               |
-| `@ocentra-parent/logging-domain`        | Universal structured logging, redaction, proof-chain, app-log, and test-log contracts shared by TS and Rust-facing code. |
+| `@ocentra-parent/schema-domain`         | Shared Effect Schema wrappers, brand/decode helpers, and every canonical TypeScript runtime contract organized by domain folder. |
+| `@ocentra-parent/endpoint-domain`       | Endpoint-specific constant catalogs and helpers that consume canonical contracts. |
+| `@ocentra-parent/agent-protocol-domain` | Protocol adapters and transport-facing mapping built from canonical contracts. |
+| `@ocentra-parent/text-domain`           | Display text tokens and text-catalog helpers.                    |
+| `@ocentra-parent/portal-domain`         | Portal routes, DOM constants, and dev command button contracts.  |
+| `@ocentra-parent/parent-domain`         | Parent/family/device business logic, projections, and helpers that consume canonical contracts. |
+| `@ocentra-parent/activity-domain`       | Activity-specific projections, mapping helpers, and package-local logic that consume canonical contracts. |
+| `@ocentra-parent/logging-domain`        | Logging catalogs, redaction helpers, and proof-chain composition built on canonical contracts. |

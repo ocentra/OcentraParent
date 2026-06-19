@@ -1,19 +1,30 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AgentTrackingDurableSettingsPersistenceState,
+  AgentTrackingExecutionClaimState,
+  AgentTrackingRetentionSettingsWriteDefaults,
+} from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
+import {
   TrackingRetentionLocalServiceStateRowSchema,
   TrackingRetentionLocalServiceStateWriteResultSchema,
   buildTrackingRetentionLocalServiceStateProof,
   type TrackingRetentionLocalServiceStateProof,
 } from '../../src/tracking-retention-local-service-state-proof';
-import { AgentTrackingRetentionSettingsWriteDefaults } from '../../src/tracking-retention-settings-read-model-proof';
+import {
+  TrackingRetentionProofRefs,
+  trackingRetentionAcceptedLocalServiceWriteResult,
+} from '../../src/tracking-retention-proof-catalog';
 
 const GeneratedAt = '2026-06-07T09:05:00.000Z';
-const SourceProofRef =
-  'output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json';
+const SourceProofRef = TrackingRetentionProofRefs.WriteCommand;
 
 describe('tracking retention local service state readback proof', () => {
   it('derives local service state readback from an accepted write command result', () => {
-    const proof = buildTrackingRetentionLocalServiceStateProof(GeneratedAt, SourceProofRef, writeResult());
+    const proof = buildTrackingRetentionLocalServiceStateProof(
+      GeneratedAt,
+      SourceProofRef,
+      trackingRetentionAcceptedLocalServiceWriteResult()
+    );
 
     expect(proof.proofMode).toBe('tracking-retention-local-service-state-proof');
     expect(proof.proofClaims).toEqual({
@@ -28,7 +39,7 @@ describe('tracking retention local service state readback proof', () => {
   });
 
   it('rejects missing revision, missing durable persistence, and product claims', () => {
-    const acceptedResult = writeResult();
+    const acceptedResult = trackingRetentionAcceptedLocalServiceWriteResult();
 
     expect(
       TrackingRetentionLocalServiceStateWriteResultSchema.safeParse({
@@ -39,19 +50,23 @@ describe('tracking retention local service state readback proof', () => {
     expect(
       TrackingRetentionLocalServiceStateWriteResultSchema.safeParse({
         ...acceptedResult,
-        durableSettingsPersisted: false,
+        durableSettingsPersistenceState: AgentTrackingDurableSettingsPersistenceState.Missing,
       }).success
     ).toBe(false);
     expect(
       TrackingRetentionLocalServiceStateWriteResultSchema.safeParse({
         ...acceptedResult,
-        productClaimReady: true,
+        productClaimState: AgentTrackingExecutionClaimState.Claimed,
       }).success
     ).toBe(false);
   });
 
   it('rejects readback rows that hide applied retention values', () => {
-    const proof = buildTrackingRetentionLocalServiceStateProof(GeneratedAt, SourceProofRef, writeResult());
+    const proof = buildTrackingRetentionLocalServiceStateProof(
+      GeneratedAt,
+      SourceProofRef,
+      trackingRetentionAcceptedLocalServiceWriteResult()
+    );
     const [row] = proof.rows;
 
     expect(
@@ -104,34 +119,4 @@ function expectNoProductClaims(row: {
   expect(row.physicalDeviceClaimed).toBe(false);
   expect(row.authorityClaimed).toBe(false);
   expect(row.productClaimReady).toBe(false);
-}
-
-function writeResult(): unknown {
-  return {
-    schemaVersion: 1,
-    commandId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
-    settingsKind: AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
-    writeState: AgentTrackingRetentionSettingsWriteDefaults.WriteStateAccepted,
-    sourceWriterIntentRefs: [AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef],
-    sourceReadModelProofRefs: AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs,
-    sourceMutationProofRefs: [AgentTrackingRetentionSettingsWriteDefaults.MutationProofRef],
-    appliedRetentionWindowHours: 168,
-    appliedDeleteAfterAlertResolved: false,
-    parentExportPrepared: false,
-    remoteSyncEnabled: false,
-    remoteAiEnabled: false,
-    localServiceStateRevision: 1,
-    localServiceStateSnapshotRef: AgentTrackingRetentionSettingsWriteDefaults.LocalServiceStateSnapshotRef,
-    durableSettingsStoreRef: AgentTrackingRetentionSettingsWriteDefaults.DurableSettingsStoreRef,
-    durableSettingsPersisted: true,
-    commandTransportClaimed: true,
-    serviceMutationExecuted: true,
-    platformRuntimeClaimed: false,
-    childDeviceDeliveryClaimed: false,
-    providerDeliveryClaimed: false,
-    notificationReceiptClaimed: false,
-    physicalDeviceClaimed: false,
-    authorityClaimed: false,
-    productClaimReady: false,
-  };
 }

@@ -1,3 +1,4 @@
+use ocentra_child_runtime::tracking_runtime_flow as ocentra_child_runtime;
 use ocentra_eventing::{
     bus::EventBus, envelope::EventMetadata, envelope::EventSource, error::EventingError,
     ids::CorrelationId, ids::EventCustody, ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId,
@@ -13,6 +14,7 @@ use ocentra_parent_agent_protocol::{
     TrackingChildCheckInRequestedEvent, TrackingExpectedPlaceState, TrackingPolicyViolationId,
     TrackingReasonCode, TrackingTimestamp, TrackingTransitionKind,
 };
+use ocentra_tracking_core::alerting::TrackingParentNotificationDecisionState;
 
 #[tokio::test]
 async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_events() {
@@ -443,7 +445,7 @@ async fn tracking_runtime_flow_suppresses_duplicate_parent_notifications_on_repe
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .parent_notification_state,
-        ocentra_tracking_core::TrackingParentNotificationDecisionState::Allowed
+        TrackingParentNotificationDecisionState::Allowed
     );
     assert!(first_report.parent_notification_requested.is_some());
     assert_eq!(
@@ -461,7 +463,7 @@ async fn tracking_runtime_flow_suppresses_duplicate_parent_notifications_on_repe
             .as_ref()
             .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
             .parent_notification_state,
-        ocentra_tracking_core::TrackingParentNotificationDecisionState::SuppressedDuplicate
+        TrackingParentNotificationDecisionState::SuppressedDuplicate
     );
     assert!(second_report.policy_violation_detected.is_some());
     assert!(second_report.parent_notification_requested.is_none());

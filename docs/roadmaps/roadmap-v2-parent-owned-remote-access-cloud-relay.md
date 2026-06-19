@@ -214,15 +214,20 @@ the V2 contract set grows enough to justify a later remote/connectivity domain.
 
 Protocol ownership:
 
-- `@ocentra-parent/agent-protocol-domain` owns command/event schemas.
-- `crates/agent-protocol` owns Rust-facing route/session/capability structs and
-  constants.
-- `@ocentra-parent/logging-domain` owns redacted relay/session/audit log shapes.
+- `@ocentra-parent/schema-domain` owns command/event/session/capability
+  schemas.
+- `@ocentra-parent/agent-protocol-domain` owns protocol adapters and
+  transport-facing mapping built from those schemas.
+- `crates/agent-protocol` owns Rust-facing mirror structs and constants for the
+  same contracts.
+- `@ocentra-parent/logging-domain` owns redacted relay/session/audit log shapes
+  built from canonical contracts.
 - `@ocentra-parent/portal-domain` owns route IDs, DOM IDs, command descriptors,
   and display text tokens.
 
 Worker/cloud/runtime code must consume those contracts instead of inventing
-parallel JSON payloads.
+parallel JSON payloads. Matching TypeScript and Rust contracts must keep the
+same encoded shape and stay under drift-check coverage.
 
 ## Failure Behavior
 

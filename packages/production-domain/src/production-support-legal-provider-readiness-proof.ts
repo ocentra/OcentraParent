@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ForbiddenProductionSupportLegalProviderReadinessDataClasses,
   ProductionSupportLegalProviderReadinessDataClassSchema,
@@ -13,8 +13,6 @@ import {
   RequiredProductionSupportLegalProviderReadinessNonClaims,
   RequiredProductionSupportLegalProviderReadinessSurfaces,
 } from './production-support-legal-provider-readiness-values';
-
-export * from './production-support-legal-provider-readiness-values';
 
 type ProductionSupportLegalProviderReadinessProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly surface: string }>;

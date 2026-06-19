@@ -1,4 +1,4 @@
-use ocentra_parent_agent_core::validate_enforcement_policy_dispatch_read_model;
+use ocentra_parent_agent_core::enforcement_policy_dispatch::validate_enforcement_policy_dispatch_read_model;
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope,
     AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,

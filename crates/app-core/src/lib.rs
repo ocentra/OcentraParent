@@ -1,31 +1,52 @@
 #![forbid(unsafe_code)]
 
-mod runtime_decision;
+pub mod runtime_decision;
 
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,
     child_domain_evidence_recorded_event, child_domain_observed_event,
     ChildDomainAiAnalysisRequestedEvent, ChildDomainAiAnalysisRequirement,
     ChildDomainEvidenceRecordedEvent, ChildDomainObservedEvent, ChildDomainObservedEventProfile,
     ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequestedEvent,
-    ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
+    ChildDomainPolicyEvaluationRequirement, ChildDomainRefSuffix, ChildRuntimeDomain,
 };
 
 pub const CRATE_NAME: &str = "ocentra-app-core";
-
-pub use runtime_decision::{
-    app_runtime_decision_recorded_event, app_runtime_observed_event, evaluate_app_runtime,
-    AppAggregateId, AppAiHandoffState, AppCapabilityState, AppClassificationState,
-    AppForegroundState, AppPolicyHandoffState, AppRuntimeActionState, AppRuntimeDecision,
-    AppRuntimeDecisionId, AppRuntimeDecisionRecordedEvent, AppRuntimeInput,
-};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum AppObservationIntent {
     ForegroundAppRequiresPolicy,
     UnknownAppRequiresAi,
     InventoryObservationOnly,
+}
+
+impl AppObservationIntent {
+    fn observed_requirements(
+        self,
+    ) -> (
+        ChildDomainObservedSignal,
+        ChildDomainAiAnalysisRequirement,
+        ChildDomainPolicyEvaluationRequirement,
+    ) {
+        match self {
+            AppObservationIntent::ForegroundAppRequiresPolicy => (
+                ChildDomainObservedSignal::RequiresPolicy,
+                ChildDomainAiAnalysisRequirement::NotRequired,
+                ChildDomainPolicyEvaluationRequirement::Required,
+            ),
+            AppObservationIntent::UnknownAppRequiresAi => (
+                ChildDomainObservedSignal::RequiresAi,
+                ChildDomainAiAnalysisRequirement::Required,
+                ChildDomainPolicyEvaluationRequirement::Required,
+            ),
+            AppObservationIntent::InventoryObservationOnly => (
+                ChildDomainObservedSignal::ObserveOnly,
+                ChildDomainAiAnalysisRequirement::NotRequired,
+                ChildDomainPolicyEvaluationRequirement::NotRequired,
+            ),
+        }
+    }
 }
 
 pub fn default_app_observed_event() -> ChildDomainObservedEvent {
@@ -37,26 +58,11 @@ pub fn app_observed_event(intent: AppObservationIntent) -> ChildDomainObservedEv
 }
 
 pub fn app_observed_profile(intent: AppObservationIntent) -> ChildDomainObservedEventProfile {
-    let (observed_state, ai_analysis_requirement, policy_evaluation_requirement) = match intent {
-        AppObservationIntent::ForegroundAppRequiresPolicy => (
-            ChildDomainObservedSignal::RequiresPolicy,
-            ChildDomainAiAnalysisRequirement::NotRequired,
-            ChildDomainPolicyEvaluationRequirement::Required,
-        ),
-        AppObservationIntent::UnknownAppRequiresAi => (
-            ChildDomainObservedSignal::RequiresAi,
-            ChildDomainAiAnalysisRequirement::Required,
-            ChildDomainPolicyEvaluationRequirement::Required,
-        ),
-        AppObservationIntent::InventoryObservationOnly => (
-            ChildDomainObservedSignal::ObserveOnly,
-            ChildDomainAiAnalysisRequirement::NotRequired,
-            ChildDomainPolicyEvaluationRequirement::NotRequired,
-        ),
-    };
+    let (observed_state, ai_analysis_requirement, policy_evaluation_requirement) =
+        intent.observed_requirements();
 
     ChildRuntimeDomain::App.observed_profile(
-        ocentra_parent_agent_protocol::ChildDomainRefSuffix::AppSubject,
+        ChildDomainRefSuffix::AppSubject,
         observed_state,
         ai_analysis_requirement,
         policy_evaluation_requirement,

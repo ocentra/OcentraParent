@@ -8,6 +8,16 @@ mod app_game_adapter_dispatch_result;
 mod app_game_adapter_execution_readiness;
 #[path = "contract/child_domain_runtime_events.rs"]
 mod child_domain_runtime_events;
+#[path = "contract/lan_pairing.rs"]
+mod lan_pairing;
+#[path = "contract/lan_pairing_browser_add_device_state.rs"]
+mod lan_pairing_browser_add_device_state;
+#[path = "contract/lan_pairing_browser_runtime.rs"]
+mod lan_pairing_browser_runtime;
+#[path = "contract/lan_pairing_household_proof.rs"]
+mod lan_pairing_household_proof;
+#[path = "contract/lan_pairing_provider_selection.rs"]
+mod lan_pairing_provider_selection;
 #[path = "contract/social_alert_report_read_model.rs"]
 mod social_alert_report_read_model;
 #[path = "contract/social_audit_explanation_read_model.rs"]

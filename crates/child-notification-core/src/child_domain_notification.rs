@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_notification_requested_event, ChildDomainNotificationRequestedEvent,
     ChildDomainPolicyViolationDetectedEvent,
 };

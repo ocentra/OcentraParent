@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ActivityQuerySchemaVersion } from '@ocentra-parent/activity-domain/query';
-import { AgentProtocolSchemaVersion } from '../../src/primitives';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
 import { parseAgentActivityTrackingReadModelEvent } from '../../src/tracking-read-model';
 

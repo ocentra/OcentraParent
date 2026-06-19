@@ -59,27 +59,7 @@ import {
   type NetworkControlRuntimeOwner,
   type NetworkControlUpdateCommand,
 } from './network-control-catalog-schema';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
-
-export {
-  NetworkControlCapabilitySchema,
-  NetworkControlCatalogSchema,
-  NetworkControlEffectivePolicySchema,
-  NetworkControlPolicyValueSchema,
-  NetworkControlUpdateCommandSchema,
-} from './network-control-catalog-schema';
-export type {
-  NetworkControlCapability,
-  NetworkControlCatalog,
-  NetworkControlCatalogGroup,
-  NetworkControlCatalogSection,
-  NetworkControlCatalogSetting,
-  NetworkControlCatalogTab,
-  NetworkControlEffectivePolicy,
-  NetworkControlOption,
-  NetworkControlPolicyValue,
-  NetworkControlUpdateCommand,
-} from './network-control-catalog-schema';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 type GroupDraft = Omit<NetworkControlCatalogGroup, 'settings'> & {
   readonly settings: NetworkControlCatalogSetting[];

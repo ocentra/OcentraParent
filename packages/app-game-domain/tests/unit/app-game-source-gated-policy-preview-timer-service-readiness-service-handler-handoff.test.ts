@@ -6,7 +6,7 @@ import {
   AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceHandlerHandoffState,
   buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceHandlerHandoff,
 } from '../../src/app-game-source-gated-policy-preview-timer-service-readiness-service-handler-handoff';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const UpstreamProtocolCommandHandoffPath = new URL(
   '../../../test-results/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff-proof/timer-service-readiness-protocol-command-handoff.json',

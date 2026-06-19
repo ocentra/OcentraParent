@@ -1,6 +1,6 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { BrowserGameCloudPlatformSchema } from './browser-game-cloud-gaming-gate-values';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   BrowserGameCloudPatternConfidenceSchema,
   BrowserGameCloudPatternEvidenceRefsSchema,

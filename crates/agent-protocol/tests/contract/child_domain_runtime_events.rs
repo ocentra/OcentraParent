@@ -1,6 +1,6 @@
 use ocentra_eventing::envelope::DomainEvent;
 use ocentra_eventing::error::EventingError;
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_analysis_completed_event, child_domain_ai_analysis_requested_event,
     child_domain_ai_request_id_from_evidence_ref, child_domain_evidence_recorded_event,
     child_domain_evidence_ref_from_observation_id,
@@ -8,9 +8,10 @@ use ocentra_parent_agent_protocol::{
     child_domain_notification_requested_event, child_domain_observation_id_from_subject_ref,
     child_domain_observed_event, child_domain_policy_evaluation_requested_from_ai_result_event,
     child_domain_policy_request_id_from_fact_ref, child_domain_policy_violation_detected_event,
-    child_domain_policy_violation_id_from_policy_request_id, constants, ChildDomainEventType,
-    ChildDomainObservedEvent, ChildRuntimeDomain, AGENT_PROTOCOL_SCHEMA_VERSION,
+    child_domain_policy_violation_id_from_policy_request_id, ChildDomainEventType,
+    ChildDomainObservedEvent, ChildRuntimeDomain,
 };
+use ocentra_parent_agent_protocol::{constants, AGENT_PROTOCOL_SCHEMA_VERSION};
 
 #[test]
 fn child_domain_events_expose_eventing_contract_keys_without_local_shape_duplication() {

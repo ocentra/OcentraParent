@@ -7,7 +7,7 @@ import {
 import { AppInstallPurchasePlatformLimitationActionProofReadModel } from './app-install-purchase-platform-limitation-action-proof';
 import { AppInstallPurchaseProductClaimPlatformPreclaimProofReadModel } from './app-install-purchase-product-claim-platform-preclaim-proof';
 import { AppInstallPurchaseProductClaimSafeParentWorkflowProofReadModel } from './app-install-purchase-product-claim-safe-parent-workflow-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const ProofVersion = 'app-install-purchase-product-claim-platform-limitation-fallback-proof';
 const SourcePlatformPreclaimProofVersion = 'app-install-purchase-product-claim-platform-preclaim-proof';

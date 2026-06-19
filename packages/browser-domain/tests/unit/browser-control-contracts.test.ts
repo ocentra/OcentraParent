@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { BaselineBrowserControlAuthoringManifest } from '../../src/browser-control-baseline-manifest';
 import {
   BrowserControlAuthoringManifestSchema,
-  BrowserControlCandidateMvpItems,
-  BrowserControlCatalogMajorSections,
-  BrowserControlCoverageMatrix,
   BrowserControlManifestDefaults,
   browserControlVisibleSectionIds,
 } from '../../src/browser-control-manifest';
+import {
+  BrowserControlCandidateMvpItems,
+  BrowserControlCatalogMajorSections,
+  BrowserControlCoverageMatrix,
+} from '../../src/browser-control-coverage-matrix';
 import {
   BrowserControlCapabilityRegistrySchema,
   BrowserControlEffectivePolicySchema,

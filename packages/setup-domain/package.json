@@ -5,13 +5,21 @@
   "type": "module",
   "description": "Setup, install, pairing, onboarding, and provisioning contract boundary.",
   "exports": {
-    "./*": {
-      "import": "./dist/*.js",
-      "types": "./dist/*.d.ts"
+    "./pairing-intent": {
+      "import": "./dist/pairing-intent.js",
+      "types": "./dist/pairing-intent.d.ts"
     },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
+    },
+    "./readiness": {
+      "import": "./dist/readiness.js",
+      "types": "./dist/readiness.d.ts"
+    },
+    "./setup-state-machine": {
+      "import": "./dist/setup-state-machine.js",
+      "types": "./dist/setup-state-machine.d.ts"
     }
   },
   "scripts": {

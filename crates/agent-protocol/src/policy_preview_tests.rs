@@ -62,6 +62,18 @@ fn policy_preview_read_model_serializes_stored_evidence_rows() {
         serde_json::Value::Null
     );
     assert_eq!(
+        serialized["rows"][0]["policyApprovalId"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        serialized["rows"][0]["policyOverrideId"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        serialized["rows"][0]["policyAuditReferenceId"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
         serialized["rows"][0]["decision"]["enforcementHandoffState"],
         policy::HANDOFF_DISABLED
     );
@@ -140,6 +152,13 @@ fn policy_preview_read_model() -> PolicyPreviewReadModel {
             policy_request_origin: None::<PolicyRequestOrigin>,
             policy_assistant_confirmation_state: None::<PolicyAssistantConfirmationState>,
             policy_request_status: None::<PolicyRequestStatus>,
+            policy_approval_id: None,
+            policy_override_id: None,
+            policy_replay_of_approval_id: None,
+            policy_reviewed_by_actor_id: None,
+            policy_reviewed_by_actor_role: None,
+            policy_reviewed_at: None,
+            policy_audit_reference_id: None,
             network_evidence_mapping: Some(PolicyPreviewNetworkEvidenceMapping {
                 evidence_grade: policy::NETWORK_EVIDENCE_GRADE_B.to_string(),
                 requested_action: policy::ACTION_BLOCK.to_string(),

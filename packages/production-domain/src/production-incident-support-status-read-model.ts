@@ -1,5 +1,5 @@
 import { Schema } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ProductionIncidentSupportStatusProofSchema,
   type ProductionIncidentSupportStatusRow,

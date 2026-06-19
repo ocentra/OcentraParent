@@ -5,10 +5,6 @@
   "type": "module",
   "description": "App and native-game inventory, policy, runtime, and parent-surface contracts.",
   "exports": {
-    "./*": {
-      "import": "./dist/*.js",
-      "types": "./dist/*.d.ts"
-    },
     "./app-game": {
       "import": "./dist/app-game.js",
       "types": "./dist/app-game.d.ts"

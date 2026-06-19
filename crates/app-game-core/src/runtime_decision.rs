@@ -1,6 +1,7 @@
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
+use ocentra_parent_agent_protocol::child_domain_runtime::ChildDomainObservedEvent;
 use serde::{Deserialize, Serialize};
 
 use crate::{app_game_observed_event, AppGameObservationIntent};
@@ -194,9 +195,7 @@ pub fn evaluate_app_game_runtime(input: AppGameRuntimeInput) -> AppGameRuntimeDe
     }
 }
 
-pub fn app_game_runtime_observed_event(
-    input: AppGameRuntimeInput,
-) -> ocentra_parent_agent_protocol::ChildDomainObservedEvent {
+pub fn app_game_runtime_observed_event(input: AppGameRuntimeInput) -> ChildDomainObservedEvent {
     app_game_observed_event(evaluate_app_game_runtime(input).observation_intent)
 }
 

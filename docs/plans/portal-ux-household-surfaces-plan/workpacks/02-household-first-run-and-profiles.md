@@ -50,14 +50,14 @@ are live, unavailable, or manual-required.
 
 ## Requirement Checklist
 
-- [ ] Show household and child profile state.
-- [ ] Show parent role and observer/co-parent distinction.
-- [ ] Show setup incomplete and recovery-needed states.
-- [ ] Keep child-device authority separate from account membership.
-- [ ] Add tests for empty and partially configured households.
-- [ ] Show next action for each first-run state without pretending setup is complete.
-- [ ] Prove invite/pairing/session expiry handling.
-- [ ] Preserve child safety copy without exposing private child data.
+- [x] Show household and child profile state.
+- [x] Show parent role and observer/co-parent distinction.
+- [x] Show setup incomplete and recovery-needed states.
+- [x] Keep child-device authority separate from account membership.
+- [x] Add tests for empty and partially configured households.
+- [x] Show next action for each first-run state without pretending setup is complete.
+- [x] Prove invite/pairing/session expiry handling.
+- [x] Preserve child safety copy without exposing private child data.
 
 ## Acceptance And Proof
 
@@ -75,6 +75,14 @@ Expected proof names:
 - `portal.first-run.recovery-expired-negative`
 
 Proof must include screenshots/DOM snapshots for each selected state, source fixture/live route, role used, and unavailable/manual-required notes.
+
+Current checkpoint truth on this branch/worktree (2026-06-18):
+
+- Focused proof is now recorded under `output/portal-ux-household-surfaces-plan-proof/02-household-first-run-and-profiles/`.
+- The current packet proves the Start route projects the typed first-run setup state machine and the required first-run states on current source, including no account, no household, no child profile, unpaired device, service-unavailable/manual-required, and recovery-expired-negative visibility.
+- The current packet also proves the role/authZ matrix and authority split: signed-in-without-household, co-parent invite, observer read-only scope, support-admin separation, revoked child state, stale parent state, wrong-account/recovery-required, and direct-entry-required all remain explicit instead of collapsing into a fake ready claim.
+- The route keeps account membership, household authority, child profile identity, child device trust, session freshness, and sibling-plan handoffs explicit; it does not promote them into a product-complete onboarding claim.
+- This checklist row is now closed on this branch/worktree because the typed `portal-domain` intent model, rendered Start route, focused unit/route tests, and the targeted Playwright proof all rerun green.
 
 ## Failure Conditions
 

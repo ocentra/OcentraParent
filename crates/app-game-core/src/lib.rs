@@ -1,32 +1,54 @@
 #![forbid(unsafe_code)]
 
-mod runtime_decision;
+pub mod runtime_decision;
 
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,
     child_domain_evidence_recorded_event, child_domain_observed_event,
     ChildDomainAiAnalysisRequestedEvent, ChildDomainAiAnalysisRequirement,
     ChildDomainEvidenceRecordedEvent, ChildDomainObservedEvent, ChildDomainObservedEventProfile,
     ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequestedEvent,
-    ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
+    ChildDomainPolicyEvaluationRequirement, ChildDomainRefSuffix, ChildRuntimeDomain,
 };
 
 pub const CRATE_NAME: &str = "ocentra-app-game-core";
 
-pub use runtime_decision::{
-    app_game_runtime_decision_recorded_event, app_game_runtime_observed_event,
-    evaluate_app_game_runtime, AppGameAggregateId, AppGameAiHandoffState, AppGameCapabilityState,
-    AppGameClassificationState, AppGameForegroundState, AppGamePolicyHandoffState,
-    AppGameRuntimeActionState, AppGameRuntimeDecision, AppGameRuntimeDecisionId,
-    AppGameRuntimeDecisionRecordedEvent, AppGameRuntimeInput,
-};
+struct AppGameObservedRequirements {
+    observed_state: ChildDomainObservedSignal,
+    ai_analysis_requirement: ChildDomainAiAnalysisRequirement,
+    policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement,
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum AppGameObservationIntent {
     ForegroundUsageRequiresPolicy,
     AmbiguousUsageRequiresAi,
     InventoryObservationOnly,
+}
+
+impl AppGameObservationIntent {
+    fn observed_requirements(self) -> AppGameObservedRequirements {
+        match self {
+            AppGameObservationIntent::ForegroundUsageRequiresPolicy => {
+                AppGameObservedRequirements {
+                    observed_state: ChildDomainObservedSignal::RequiresPolicy,
+                    ai_analysis_requirement: ChildDomainAiAnalysisRequirement::NotRequired,
+                    policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
+                }
+            }
+            AppGameObservationIntent::AmbiguousUsageRequiresAi => AppGameObservedRequirements {
+                observed_state: ChildDomainObservedSignal::RequiresAi,
+                ai_analysis_requirement: ChildDomainAiAnalysisRequirement::Required,
+                policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
+            },
+            AppGameObservationIntent::InventoryObservationOnly => AppGameObservedRequirements {
+                observed_state: ChildDomainObservedSignal::ObserveOnly,
+                ai_analysis_requirement: ChildDomainAiAnalysisRequirement::NotRequired,
+                policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::NotRequired,
+            },
+        }
+    }
 }
 
 pub fn default_app_game_observed_event() -> ChildDomainObservedEvent {
@@ -40,29 +62,13 @@ pub fn app_game_observed_event(intent: AppGameObservationIntent) -> ChildDomainO
 pub fn app_game_observed_profile(
     intent: AppGameObservationIntent,
 ) -> ChildDomainObservedEventProfile {
-    let (observed_state, ai_analysis_requirement, policy_evaluation_requirement) = match intent {
-        AppGameObservationIntent::ForegroundUsageRequiresPolicy => (
-            ChildDomainObservedSignal::RequiresPolicy,
-            ChildDomainAiAnalysisRequirement::NotRequired,
-            ChildDomainPolicyEvaluationRequirement::Required,
-        ),
-        AppGameObservationIntent::AmbiguousUsageRequiresAi => (
-            ChildDomainObservedSignal::RequiresAi,
-            ChildDomainAiAnalysisRequirement::Required,
-            ChildDomainPolicyEvaluationRequirement::Required,
-        ),
-        AppGameObservationIntent::InventoryObservationOnly => (
-            ChildDomainObservedSignal::ObserveOnly,
-            ChildDomainAiAnalysisRequirement::NotRequired,
-            ChildDomainPolicyEvaluationRequirement::NotRequired,
-        ),
-    };
+    let requirements = intent.observed_requirements();
 
     ChildRuntimeDomain::AppGame.observed_profile(
-        ocentra_parent_agent_protocol::ChildDomainRefSuffix::AppGameSubject,
-        observed_state,
-        ai_analysis_requirement,
-        policy_evaluation_requirement,
+        ChildDomainRefSuffix::AppGameSubject,
+        requirements.observed_state,
+        requirements.ai_analysis_requirement,
+        requirements.policy_evaluation_requirement,
     )
 }
 

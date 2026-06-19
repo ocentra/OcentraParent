@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ForbiddenRuntimeClosureDataClasses,
   ProductionSupportStatusBackendRuntimeClosureDataClassSchema,
@@ -15,8 +15,6 @@ import {
   RuntimeClosureManualRequirementSchema,
   RuntimeClosureReferenceSchema,
 } from './production-support-status-backend-runtime-closure-values';
-
-export * from './production-support-status-backend-runtime-closure-values';
 
 type RuntimeClosureProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly target: string; readonly closureState: string }>;

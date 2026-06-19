@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidUsageEventsPackageRuntimeProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-usage-events-package-runtime-proof')
@@ -156,7 +156,6 @@ function packageRuntimeSummary(
   return 'Android package install and launch are observed, but UsageStats grant or live package sample proof is still missing.';
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function packageRuntimeProofIsHonest(readModel: PackageRuntimeCandidate): boolean {
   const grantAndSampleConsistent =
     readModel.permissionCheckState === 'usage-stats-granted' ||

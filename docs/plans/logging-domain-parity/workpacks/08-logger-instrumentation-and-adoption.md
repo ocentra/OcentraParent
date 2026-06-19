@@ -168,13 +168,70 @@ Known gaps/manual-required states:
 
 ## Current audit note
 
-This workpack's main live claim is real: `crates/agent-service/src/dev_log.rs`
-delegates to the shared Rust logging core, and the dedicated
-`cargo test -p ocentra-parent-agent-service dev_log` check passed during the
-June 16, 2026 audit. The supporting `tests/unit/dev_log.rs` layout also exists
-in the current tree.
+This workpack now has a canonical partial-proof root under
+`output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/`.
+The current bounded proof is real:
 
-The appended completion block was still overstated because the named proof root
-`output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/` is
-absent in this checkout. Treat WP08 as partially re-verified instrumentation
-adoption, not as full repo instrumentation completion.
+- `packages/logging-domain/tests/unit/logger.test.ts` proves a registered
+  TypeScript source survives bridge storage with source/context/file path
+  metadata.
+- `apps/portal/tests/logging/portal-dev-log-route.test.ts` proves portal dev
+  logging emits bridge-compatible rows with source/context/file metadata through
+  the shared parent logger path.
+- `crates/agent-service/src/service_runtime.rs` now emits structured startup
+  fields through the existing logging-core-backed `dev_log` writer.
+- `crates/agent-service/tests/unit/dev_log.rs` is now mounted and proved by the
+  exact `write_agent_info_writes_dev_log_ndjson_line` unit test instead of
+  existing only as dead layout inventory.
+- the shared query service and MCP server now have a canonical source/context
+  proof against a temporary local bridge root.
+
+Treat WP08 as honest `partial-proof`, not as full repo instrumentation
+completion. The proof root narrows the claim to the portal dev logger path, the
+logging-domain storage/query path, and the agent-service startup/dev-log path.
+
+## Current completion block
+
+```text
+Workpack id and branch:
+WP08 / codex/tracking-plan-full-continuation-a
+
+Touched files:
+- crates/agent-service/src/service_runtime.rs
+- crates/agent-service/src/dev_log.rs
+- crates/agent-service/tests/unit/service_runtime.rs
+- crates/agent-service/tests/unit/dev_log.rs
+- output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/00-instrumentation-surface-map.json
+- output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/01-typescript-logger-pattern-proof.json
+- output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/02-rust-logger-pattern-proof.json
+- output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/03-storage-observability-proof.json
+- output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/04-mcp-source-context-proof.json
+- output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/16-validation-commands.log
+
+Validation commands and results:
+- pass: cargo test -p ocentra-parent-agent-service startup_log_fields_include_context_and_bound_port --lib
+- pass: cargo test -p ocentra-parent-agent-service write_agent_info_writes_dev_log_ndjson_line --lib
+- pass: cargo lint-architecture crates/agent-service/src/service_runtime.rs crates/agent-service/src/dev_log.rs crates/agent-service/tests/unit/service_runtime.rs crates/agent-service/tests/unit/dev_log.rs
+- pass: npm run test --workspace @ocentra-parent/logging-domain -- tests/unit/logger.test.ts
+- pass: npm run test --workspace @ocentra-parent/portal -- tests/logging/portal-dev-log-route.test.ts
+- pass: inline node proof harness for source/context storage and MCP query proof
+
+Proof artifacts:
+- output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/00-instrumentation-surface-map.json
+- output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/01-typescript-logger-pattern-proof.json
+- output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/02-rust-logger-pattern-proof.json
+- output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/03-storage-observability-proof.json
+- output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/04-mcp-source-context-proof.json
+- output/logging-domain-parity-proof/08-logger-instrumentation-and-adoption/16-validation-commands.log
+
+Product/runtime claims:
+- portal dev logging is proved on the shared parent logger path
+- one TypeScript storage/query path is proved for source/context metadata
+- agent-service startup/dev-log path is proved through logging-core-backed output
+
+Known gaps/manual-required states:
+- repo-wide instrumentation adoption is still not proved
+- agent-service startup/health/dev diagnostics are only partially covered here
+- validation/evidence script run_id and command_id adoption is still open
+- WP06 root lint:dev-log-routing remains outside this bounded WP08 proof
+```

@@ -1,9 +1,12 @@
 use std::collections::BTreeMap;
 
 use ocentra_parent_agent_protocol::{
-    constants::v08_notification_provider_status_boundary as boundary, policy_constants,
-    V08NotificationEscalationReadiness, V08NotificationProviderStatus,
-    V08NotificationProviderStatusBoundaryEntry, V08NotificationQuietHoursReadiness,
+    constants::v08_notification_provider_status_boundary as boundary,
+    notification_provider_status_boundary::{
+        V08NotificationEscalationReadiness, V08NotificationProviderStatus,
+        V08NotificationProviderStatusBoundaryEntry, V08NotificationQuietHoursReadiness,
+    },
+    policy_constants,
 };
 
 use super::notification_provider_status_boundary_read_model::v08_notification_provider_status_boundary_read_model;

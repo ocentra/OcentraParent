@@ -3,7 +3,7 @@ import {
   AgentEventDeliveryMode,
   AgentPeerRoleLiteral,
   AgentRouteLiteral,
-} from '@ocentra-parent/event-domain/primitives';
+} from '@ocentra-parent/schema-domain/event-primitives';
 import {
   AgentTrackingAiBoundaryMode,
   AgentTrackingNotificationMode,

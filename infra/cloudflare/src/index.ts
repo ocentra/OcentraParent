@@ -2149,5 +2149,3 @@ export default {
     return;
   },
 };
-
-export { handleRequest, parseContentLengthHeader, resolveResponseOrigin };

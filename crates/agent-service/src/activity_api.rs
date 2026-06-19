@@ -28,19 +28,19 @@ use ocentra_parent_agent_protocol::{
     AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, BrowserInventoryReadModel, LogLevel,
 };
 
-mod activity_memory_graph_report;
-mod app_game_adapter_dispatch_execute_payload;
-mod app_game_adapter_dispatch_preflight_payload;
+pub(crate) mod activity_memory_graph_report;
+pub(crate) mod app_game_adapter_dispatch_execute_payload;
+pub(crate) mod app_game_adapter_dispatch_preflight_payload;
 #[cfg(test)]
 mod app_game_adapter_dispatch_preflight_payload_tests;
 #[cfg(test)]
 mod app_game_adapter_dispatch_preflight_service_tests;
-mod app_game_adapter_dispatch_result_payload;
+pub(crate) mod app_game_adapter_dispatch_result_payload;
 #[cfg(test)]
 mod app_game_adapter_dispatch_result_payload_tests;
 #[cfg(test)]
 mod app_game_adapter_dispatch_result_service_tests;
-mod app_game_adapter_execution_readiness_payload;
+pub(crate) mod app_game_adapter_execution_readiness_payload;
 #[cfg(test)]
 mod app_game_adapter_execution_readiness_payload_tests;
 #[cfg(test)]
@@ -51,7 +51,7 @@ mod app_game_boundary_read_model_payload;
 mod app_game_boundary_read_model_payload_tests;
 #[cfg(test)]
 mod app_game_boundary_read_model_service_tests;
-mod app_game_child_runtime_transport_receipt_payload;
+pub(crate) mod app_game_child_runtime_transport_receipt_payload;
 #[cfg(test)]
 mod app_game_child_runtime_transport_receipt_payload_tests;
 #[cfg(test)]
@@ -61,7 +61,7 @@ mod app_game_notification_readiness_payload;
 mod app_game_notification_readiness_payload_tests;
 #[cfg(test)]
 mod app_game_notification_readiness_service_tests;
-mod app_game_platform_proof_status_payload;
+pub(crate) mod app_game_platform_proof_status_payload;
 #[cfg(test)]
 mod app_game_platform_proof_status_payload_tests;
 #[cfg(test)]
@@ -79,13 +79,13 @@ mod app_game_timer_parent_preference_setup_request_status;
 #[cfg(test)]
 mod app_game_timer_parent_preference_setup_request_tests;
 mod app_game_timer_parent_surface_action_results;
-mod app_game_timer_parent_surface_payload;
+pub(crate) mod app_game_timer_parent_surface_payload;
 #[cfg(test)]
 mod app_game_timer_parent_surface_payload_tests;
 #[cfg(test)]
 mod app_game_timer_parent_surface_service_tests;
 mod browser_intervention_payload;
-mod browser_intervention_report;
+pub(crate) mod browser_intervention_report;
 pub(crate) mod social_alert_report_parent_surface_read_model_payload;
 #[cfg(test)]
 mod social_alert_report_parent_surface_read_model_payload_tests;
@@ -125,17 +125,6 @@ use self::app_game_policy_readiness_payload::{
     app_game_policy_readiness_from_service_model, app_game_policy_readiness_payload,
 };
 use self::app_game_timer_parent_preference_setup_request_outbox::setup_outbox_has_records;
-pub use self::app_game_timer_parent_surface_payload::build_activity_app_game_timer_parent_surface_report;
-pub use activity_memory_graph_report::build_activity_memory_graph_report;
-pub use app_game_adapter_dispatch_execute_payload::build_activity_app_game_adapter_dispatch_execute_report;
-pub use app_game_adapter_dispatch_preflight_payload::build_activity_app_game_adapter_dispatch_preflight_report;
-pub use app_game_adapter_dispatch_result_payload::build_activity_app_game_adapter_dispatch_result_report;
-pub use app_game_adapter_execution_readiness_payload::build_activity_app_game_adapter_execution_readiness_report;
-pub use app_game_child_runtime_transport_receipt_payload::build_activity_app_game_child_runtime_transport_receipt_report;
-pub use app_game_platform_proof_status_payload::build_activity_app_game_platform_proof_status_report;
-pub use app_game_timer_parent_preference_setup_request::build_activity_app_game_timer_parent_preference_setup_request_report;
-pub use browser_intervention_report::build_browser_intervention_read_model_report;
-
 pub async fn build_activity_ingest_status_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {

@@ -1,4 +1,4 @@
-import { ParentPlatform as ParentPlatformValue } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatform as ParentPlatformValue } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { route } from './app-game-platform-extension-routing-data-support';
 
 export const MacosPlatformExtensionRows = [

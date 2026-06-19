@@ -48,14 +48,14 @@ service/read-model state.
 
 ## Requirement Checklist
 
-- [ ] Show connection and source state consistently.
-- [ ] Keep route ids, DOM ids, and display tokens domain-owned.
-- [ ] Avoid fake route-local success.
-- [ ] Support desktop and mobile navigation without overlap.
-- [ ] Add Playwright checks for shell state.
-- [ ] Prove selected household/device changes do not leak stale state across routes.
-- [ ] Prove unauthenticated and no-household states.
-- [ ] Route public website, desktop shell, and portal app responsibilities separately.
+- [x] Show connection and source state consistently.
+- [x] Keep route ids, DOM ids, and display tokens domain-owned.
+- [x] Avoid fake route-local success.
+- [x] Support desktop and mobile navigation without overlap.
+- [x] Add Playwright checks for shell state.
+- [x] Prove selected household/device changes do not leak stale state across routes.
+- [x] Prove unauthenticated and no-household states.
+- [x] Route public website, desktop shell, and portal app responsibilities separately.
 
 ## Acceptance And Proof
 
@@ -71,6 +71,16 @@ Expected proof names:
 - `portal.shell.no-fake-success-negative`
 
 Proof must include route URLs, screenshots or DOM snapshots, selected state fixtures/live source, and missing-service behavior.
+
+Current checkpoint truth on this branch/worktree (2026-06-18):
+
+- Focused proof is recorded under `output/portal-ux-household-surfaces-plan-proof/01-service-backed-shell-and-navigation/`.
+- The current packet proves real shell-state/navigation behavior on `/#/commands`, `/#/overview`, and `/#/devices`, including the service-backed shell labels, the repaired overview route crash, the real devices-route contract where `Pair` is conditional on the selected device readiness, and the mobile shell-status layout check that runs inside Playwright.
+- The current packet now covers the named shell proof lines in this workpack on this branch/worktree: `portal.shell.service-backed-navigation`, `portal.shell.unauthenticated-state`, `portal.shell.no-household-state`, `portal.shell.selected-device-switch`, `portal.shell.mobile-desktop-layout`, and `portal.shell.no-fake-success-negative`.
+- The public family site responsibility is explicitly routed to `setup-install-provisioning-plan`: `family.ocentra.ca` is a public family information/download/account-entry surface, not account/family authority, and it routes registration/login to account identity plus package/signing/update and pairing/device-trust claims to their owning plans.
+- The desktop shell/package responsibility is explicitly routed to `parent-desktop-runtime-package-plan` (canonical scope: parent client runtime distribution): that plan owns the parent client distribution boundary and the desktop shell/package, local-service bridge, launch smoke, update boundary, and signing claims for the parent desktop artifact.
+- The portal app responsibility stays in this plan: `SetupFirstRunRoutePanel` renders only on `PortalRoute.Start`, and the current route-panel unit/e2e proof already displays the exact handoff labels `account-identity-family-plan` and `parent-desktop-runtime-package-plan` instead of collapsing those ownership boundaries into one portal success claim.
+- This checklist row is now closed on this branch/worktree because the public website, desktop shell, and portal app responsibilities are named separately in the owning plan docs and echoed by the portal start-route handoff proof.
 
 ## Failure Conditions
 

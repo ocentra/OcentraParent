@@ -6,7 +6,7 @@ import {
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { DeviceTrustState, type DeviceTrustState as FamilyDeviceTrustState } from '@ocentra-parent/family-domain/household-authority';
-import { ChildProfileIdSchema, ParentDeviceIdSchema, ParentDeviceLabelSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ChildProfileIdSchema, ParentDeviceIdSchema, ParentDeviceLabelSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   LanPairingDeviceReachabilitySchema,
   LanPairingNetworkModeSchema,

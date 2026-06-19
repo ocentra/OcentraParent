@@ -2,9 +2,16 @@ use crate::{
     AgentCommandName, AgentEventName, AppGameChildRuntimeTransportReceiptReadModel,
     AppGameChildRuntimeTransportReceiptRow, APP_GAME_ADAPTER_PRODUCT_NATIVE_APP,
     APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME,
+    APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_CAPABILITY_REQUIRED,
+    APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_CUSTODY_LABEL,
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_RECEIPT_NOT_INGESTED,
+    APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_PLATFORM_CHANNEL_NOT_PROVED,
+    APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_PROVIDER_NOT_EXECUTED,
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_TRANSPORT_NOT_EXECUTED,
+    APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_PARITY_MANIFEST,
+    APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_PAYLOAD_FIELD,
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL_ID,
+    APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_REF_SOURCE_WRITER,
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_REF_RECEIPT_CONTRACT,
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_REF_TRANSPORT_CONTRACT,
     APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_TRANSPORT_REQUIRED, APP_GAME_SCHEMA_VERSION,
@@ -25,6 +32,78 @@ fn app_game_child_runtime_transport_receipt_command_and_event_names_are_stable()
         )
         .expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
         "agent.activity.app-game.child-runtime-transport-receipt.read-model.reported"
+    );
+}
+
+#[test]
+fn app_game_child_runtime_transport_receipt_parity_manifest_matches_contract_constants() {
+    let manifest: serde_json::Value =
+        serde_json::from_str(APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_PARITY_MANIFEST)
+            .expect("child runtime transport receipt parity manifest parses");
+
+    assert_eq!(
+        manifest,
+        serde_json::json!({
+            "schemaVersion": APP_GAME_SCHEMA_VERSION,
+            "payloadField": APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_PAYLOAD_FIELD,
+            "readModelId": APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_READ_MODEL_ID,
+            "sourceRuntimeWriterRef": APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_REF_SOURCE_WRITER,
+            "custodyLabel": APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_CUSTODY_LABEL,
+            "capabilityStatus": APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_CAPABILITY_REQUIRED,
+            "stateValues": [
+                APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_TRANSPORT_REQUIRED,
+                "manual-required",
+                "unavailable"
+            ],
+            "productMeanings": [
+                APP_GAME_ADAPTER_PRODUCT_NATIVE_APP,
+                APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME
+            ],
+            "canonicalRefs": [
+                APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_REF_TRANSPORT_CONTRACT,
+                APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_REF_RECEIPT_CONTRACT
+            ],
+            "canonicalGaps": [
+                APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_TRANSPORT_NOT_EXECUTED,
+                APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_RECEIPT_NOT_INGESTED,
+                APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_PROVIDER_NOT_EXECUTED,
+                APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_GAP_PLATFORM_CHANNEL_NOT_PROVED
+            ],
+            "rowFields": [
+                "schemaVersion",
+                "rowId",
+                "sourceRuntimeWriterRowId",
+                "boundaryState",
+                "productMeanings",
+                "requiredTransportRefs",
+                "requiredReceiptRefs",
+                "openGaps",
+                "runtimeTransportExecuted",
+                "runtimeReceiptIngested",
+                "providerDeliveryExecuted",
+                "platformDeliveryChannelClaimed"
+            ],
+            "readModelFields": [
+                "schemaVersion",
+                "readModelId",
+                "generatedAt",
+                "sourceReadModelIds",
+                "custodyLabel",
+                "capabilityStatus",
+                "returned",
+                "transportRequiredCount",
+                "manualRequiredCount",
+                "unavailableCount",
+                "runtimeTransportExecuted",
+                "runtimeReceiptIngested",
+                "providerDeliveryExecuted",
+                "platformDeliveryChannelClaimed",
+                "adapterDispatchClaimed",
+                "platformEnforcementClaimed",
+                "rawPrivateSourceRowsIncluded",
+                "rows"
+            ]
+        })
     );
 }
 

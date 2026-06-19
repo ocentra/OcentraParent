@@ -174,6 +174,16 @@ export function portalRouteHashPathWithQuery(route: PortalRoute, query: string):
   return `${PortalRouteHashPrefix}${route}${PortalRouteHashQuerySeparator}${query}`;
 }
 
+export function portalRouteFromHashPath(routeHash: string): PortalRoute | null {
+  const normalizedHash = routeHash.replace(/^#\/?/u, '');
+  const route = normalizedHash.split(PortalRouteHashQuerySeparator)[0] ?? '';
+  const parsedRoute = PortalRouteSchema.safeParse(route);
+  if (!parsedRoute.success) {
+    return null;
+  }
+  return PortalRoutes.some((portalRoute) => portalRoute === parsedRoute.data) ? parsedRoute.data : null;
+}
+
 export const PortalRoutes = [
   PortalRoute.Overview,
   PortalRoute.Assistant,

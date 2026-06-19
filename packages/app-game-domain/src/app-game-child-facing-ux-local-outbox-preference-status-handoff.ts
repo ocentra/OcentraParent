@@ -16,7 +16,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
 import {
   V3NotificationProviderChannelSchema,
@@ -355,7 +355,6 @@ function preferenceStatusEntryKeepsDeliveryUnclaimed(entry: PreferenceStatusEntr
   );
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function childUxPreferenceStatusHandoffReadModelIsHonest(
   readModel: Infer<typeof AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelBaseSchema>
 ): boolean {

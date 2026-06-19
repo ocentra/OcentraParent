@@ -1,6 +1,9 @@
 use crate::{
-    constants, NetworkLinuxNftablesLabCommandStatusKind, NetworkLinuxNftablesLabCommandStatusRow,
-    NetworkLinuxNftablesLabStatus, NetworkLinuxNftablesLabStatusState,
+    constants,
+    network_linux_nftables_lab_status::{
+        NetworkLinuxNftablesLabCommandStatusKind, NetworkLinuxNftablesLabCommandStatusRow,
+        NetworkLinuxNftablesLabStatus, NetworkLinuxNftablesLabStatusState,
+    },
 };
 
 #[test]

@@ -1,4 +1,4 @@
-import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
+import { EventingEventTypeSchema } from '@ocentra-parent/schema-domain/eventing';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
 export const AppGameAndroidUsageEventsCommandName = {

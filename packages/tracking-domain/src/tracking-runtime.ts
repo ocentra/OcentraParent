@@ -16,7 +16,7 @@ const HalfCircleDegrees = 180;
 const RadiansPerDegree = Math.PI / HalfCircleDegrees;
 type TrackingReasonCode = ReturnType<typeof TrackingReasonCodeSchema.parse>;
 const MillisecondsPerSecond = 1_000;
-const ManualReviewCapabilityStatuses = new Set([
+const ManualReviewCapabilityStatuses: ReadonlySet<TrackingLocationEvidence['capabilityStatus']> = new Set([
   'stale',
   'last-known',
   'offline-last-known-only',

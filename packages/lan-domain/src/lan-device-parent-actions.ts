@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ChildProfileIdSchema, ParentActorIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ChildProfileIdSchema, ParentActorIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { HouseholdCanonicalDeviceIdSchema } from './household-device-spine';
 import { LanPairingSchemaVersionSchema, LanPairingTimestampSchema } from './lan-pairing-values';
 

@@ -4,6 +4,10 @@ import type {
   SupportIncidentWorkflowEntryCandidate,
   SupportIncidentWorkflowState,
 } from './support-incident-workflow.js';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 export function supportIncidentWorkflowEntryIsSafe(
   entry: SupportIncidentWorkflowEntryCandidate,
@@ -11,7 +15,7 @@ export function supportIncidentWorkflowEntryIsSafe(
 ): boolean {
   return (
     !supportIncidentWorkflowHasClaimUpgrade(entry) &&
-    requiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
+    supportProofRequiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
     supportIncidentWorkflowRefsArePresent(entry) &&
     supportIncidentWorkflowStatesAreCoherent(entry)
   );
@@ -30,7 +34,7 @@ export function supportIncidentWorkflowCoversRequiredStates(entries: readonly Su
 }
 
 function supportIncidentWorkflowHasClaimUpgrade(entry: SupportIncidentWorkflowEntryCandidate): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsTokens,
     entry.containsChildActivity,
     entry.containsRawUrls,
@@ -49,7 +53,7 @@ function supportIncidentWorkflowHasClaimUpgrade(entry: SupportIncidentWorkflowEn
     entry.remoteSupportSessionStarted,
     entry.productionSlaClaimed,
     entry.ocentraHostedChildActivityCustody,
-  ].some(Boolean);
+  ]);
 }
 
 function supportIncidentWorkflowRefsArePresent(entry: SupportIncidentWorkflowEntryCandidate): boolean {
@@ -101,12 +105,4 @@ function supportIncidentAccountStateIsCoherent(entry: SupportIncidentWorkflowEnt
     entry.workflowState !== 'account-lookup-manual-required' ||
     (entry.accountLookupState === 'manual-required' && entry.accountRefs.length > 0)
   );
-}
-
-function requiredValuesArePresent<T extends string>(
-  actualValues: ReadonlyArray<T>,
-  requiredValues: ReadonlyArray<T>
-): boolean {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }

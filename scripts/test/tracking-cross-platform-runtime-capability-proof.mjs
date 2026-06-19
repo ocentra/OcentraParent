@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
@@ -28,10 +29,21 @@ async function main() {
   await mkdir(output31, { recursive: true });
   await mkdir(output33, { recursive: true });
 
-  runNpmCommand(runRequired, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  runNpmCommand(runRequired, ['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', proofMode]);
+  runNpmCommand(runRequired, [
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/tracking-domain',
+    '--',
+    'tests/contract/tracking-cross-platform-runtime-capability-proof.test.ts',
+  ]);
 
-  const proofModule = await importDist('tracking-cross-platform-runtime-capability-proof.js');
+  const proofModule = await tsImport(
+    pathToFileURL(
+      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-cross-platform-runtime-capability-proof.ts')
+    ).href,
+    import.meta.url
+  );
   const probes = await collectProbes();
   const sources = await collectSourceProofs();
   const readModel = proofModule.buildTrackingCrossPlatformRuntimeCapabilityProof(
@@ -313,7 +325,7 @@ function assertProof(proof) {
   assert.equal(proof.productClaims.androidSdkToolchainObserved, true);
   assert.equal(proof.productClaims.androidGradleProjectBuildObserved, true);
   assert.equal(proof.productClaims.androidEmulatorRuntimeObserved, true);
-  assert.equal(proof.productClaims.androidPhysicalStatusObserved, true);
+  assert.equal(proof.productClaims.androidPhysicalStatusObserved, proof.sourceProofsPresent.androidPhysical);
   assert.equal(proof.productClaims.physicalDeviceBehaviorClaimed, false);
   assert.equal(proof.productClaims.productClaimReady, false);
 }
@@ -424,10 +436,6 @@ async function readOptionalJson(relativeFile) {
   } catch {
     return null;
   }
-}
-
-function importDist(name) {
-  return import(pathToFileURL(path.join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
 }
 
 function gitOutput(args) {

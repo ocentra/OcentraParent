@@ -6,7 +6,7 @@ import {
   AgentAppGameAdapterExecutionState,
 } from '../../src/app-game-adapter-execution-readiness';
 import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
-import { AgentProtocolSchemaVersion } from '../../src/primitives';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import {
   AgentAppGameAdapterDispatchDecision,
   AgentAppGameAdapterDispatchOutcomeState,

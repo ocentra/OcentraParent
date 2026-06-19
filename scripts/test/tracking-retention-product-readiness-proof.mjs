@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
@@ -32,16 +33,13 @@ async function main() {
   await mkdir(output33, { recursive: true });
 
   run('node', ['scripts/test/tracking-retention-durable-settings-proof.mjs']);
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-retention-product-readiness-proof',
+    'tests/contract/tracking-retention-product-readiness-proof.test.ts',
   ]);
 
   const durableSettingsProof = JSON.parse(await readFile(durableSettingsProofPath, 'utf8'));
@@ -54,9 +52,11 @@ async function main() {
 }
 
 async function buildProof(durableSettingsProof) {
-  const proofModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-retention-product-readiness-proof.js'))
-      .href
+  const proofModule = await tsImport(
+    pathToFileURL(
+      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-retention-product-readiness-proof.ts')
+    ).href,
+    import.meta.url
   );
   return {
     ...proofModule.buildTrackingRetentionProductReadinessProof(

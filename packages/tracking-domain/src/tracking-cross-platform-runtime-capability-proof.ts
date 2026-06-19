@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 const CountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 

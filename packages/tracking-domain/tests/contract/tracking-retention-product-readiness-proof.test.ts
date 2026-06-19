@@ -7,15 +7,15 @@ import {
 } from '../../src/tracking-retention-product-readiness-proof';
 import { buildTrackingRetentionDurableSettingsProof } from '../../src/tracking-retention-durable-settings-proof';
 import { buildTrackingRetentionLocalServiceStateProof } from '../../src/tracking-retention-local-service-state-proof';
-import { AgentTrackingRetentionSettingsWriteDefaults } from '../../src/tracking-retention-settings-read-model-proof';
+import {
+  TrackingRetentionProofRefs,
+  trackingRetentionAcceptedLocalServiceWriteResult,
+} from '../../src/tracking-retention-proof-catalog';
 
 const GeneratedAt = '2026-06-07T15:30:00.000Z';
-const SourceWriteCommandProofRef =
-  'output/tracking-plan-proof/07-retention-and-custody-model/21-retention-settings-write-command-proof.json';
-const SourceLocalServiceStateProofRef =
-  'output/tracking-plan-proof/07-retention-and-custody-model/22-retention-local-service-state-proof.json';
-const SourceDurableSettingsProofRef =
-  'output/tracking-plan-proof/07-retention-and-custody-model/23-retention-durable-settings-proof.json';
+const SourceWriteCommandProofRef = TrackingRetentionProofRefs.WriteCommand;
+const SourceLocalServiceStateProofRef = TrackingRetentionProofRefs.LocalServiceState;
+const SourceDurableSettingsProofRef = TrackingRetentionProofRefs.DurableSettings;
 
 describe('tracking retention product readiness proof', () => {
   it('keeps durable local settings separate from product-ready retention claims', () => {
@@ -67,7 +67,11 @@ function readinessProof(): TrackingRetentionProductReadinessProof {
     buildTrackingRetentionDurableSettingsProof(
       GeneratedAt,
       SourceLocalServiceStateProofRef,
-      buildTrackingRetentionLocalServiceStateProof(GeneratedAt, SourceWriteCommandProofRef, writeResult())
+      buildTrackingRetentionLocalServiceStateProof(
+        GeneratedAt,
+        SourceWriteCommandProofRef,
+        trackingRetentionAcceptedLocalServiceWriteResult()
+      )
     )
   );
 }
@@ -84,34 +88,4 @@ function expectReadinessRow(proof: TrackingRetentionProductReadinessProof): void
   expect(row.notificationReceiptClaimed).toBe(false);
   expect(row.productionWorkerClaimed).toBe(false);
   expect(row.productClaimReady).toBe(false);
-}
-
-function writeResult(): unknown {
-  return {
-    schemaVersion: 1,
-    commandId: AgentTrackingRetentionSettingsWriteDefaults.CommandId,
-    settingsKind: AgentTrackingRetentionSettingsWriteDefaults.SettingsKindRetentionWindow,
-    writeState: AgentTrackingRetentionSettingsWriteDefaults.WriteStateAccepted,
-    sourceWriterIntentRefs: [AgentTrackingRetentionSettingsWriteDefaults.WriterIntentRef],
-    sourceReadModelProofRefs: AgentTrackingRetentionSettingsWriteDefaults.ReadModelProofRefs,
-    sourceMutationProofRefs: [AgentTrackingRetentionSettingsWriteDefaults.MutationProofRef],
-    appliedRetentionWindowHours: 168,
-    appliedDeleteAfterAlertResolved: false,
-    parentExportPrepared: false,
-    remoteSyncEnabled: false,
-    remoteAiEnabled: false,
-    localServiceStateRevision: 1,
-    localServiceStateSnapshotRef: AgentTrackingRetentionSettingsWriteDefaults.LocalServiceStateSnapshotRef,
-    durableSettingsStoreRef: AgentTrackingRetentionSettingsWriteDefaults.DurableSettingsStoreRef,
-    durableSettingsPersisted: true,
-    commandTransportClaimed: true,
-    serviceMutationExecuted: true,
-    platformRuntimeClaimed: false,
-    childDeviceDeliveryClaimed: false,
-    providerDeliveryClaimed: false,
-    notificationReceiptClaimed: false,
-    physicalDeviceClaimed: false,
-    authorityClaimed: false,
-    productClaimReady: false,
-  };
 }

@@ -1,10 +1,13 @@
-use ocentra_family_identity_core::ChildDisclosureState;
+use ocentra_family_identity_core::family_identity::ChildDisclosureState;
 use ocentra_parent_agent_protocol::{
     constants, tracking_temporary_live_session_id_from_child_device_id, TrackingChildDeviceId,
     TrackingTemporaryLiveState,
 };
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
-use ocentra_tracking_core::TrackingHighCadenceState;
+use ocentra_tracking_core::temporary_live::{
+    evaluate_temporary_live_tracking_session, TrackingHighCadenceState,
+    TrackingTemporaryLiveSessionInput,
+};
 
 fn child_device_id() -> TrackingChildDeviceId {
     TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
@@ -13,15 +16,13 @@ fn child_device_id() -> TrackingChildDeviceId {
 
 #[test]
 fn temporary_live_tracking_auto_stops_without_authority_or_disclosure() {
-    let decision = ocentra_tracking_core::evaluate_temporary_live_tracking_session(
-        ocentra_tracking_core::TrackingTemporaryLiveSessionInput {
-            child_device_id: child_device_id(),
-            requested_duration_minutes: 15,
-            elapsed_minutes: 1,
-            parent_authority_state: ParentAuthorityState::Authorized,
-            child_disclosure_state: ChildDisclosureState::NotDisclosed,
-        },
-    );
+    let decision = evaluate_temporary_live_tracking_session(TrackingTemporaryLiveSessionInput {
+        child_device_id: child_device_id(),
+        requested_duration_minutes: 15,
+        elapsed_minutes: 1,
+        parent_authority_state: ParentAuthorityState::Authorized,
+        child_disclosure_state: ChildDisclosureState::NotDisclosed,
+    });
 
     assert_eq!(
         decision.session_state,
@@ -42,15 +43,13 @@ fn temporary_live_tracking_auto_stops_without_authority_or_disclosure() {
 
 #[test]
 fn temporary_live_tracking_expires_at_duration_boundary() {
-    let decision = ocentra_tracking_core::evaluate_temporary_live_tracking_session(
-        ocentra_tracking_core::TrackingTemporaryLiveSessionInput {
-            child_device_id: child_device_id(),
-            requested_duration_minutes: 15,
-            elapsed_minutes: 15,
-            parent_authority_state: ParentAuthorityState::Authorized,
-            child_disclosure_state: ChildDisclosureState::Disclosed,
-        },
-    );
+    let decision = evaluate_temporary_live_tracking_session(TrackingTemporaryLiveSessionInput {
+        child_device_id: child_device_id(),
+        requested_duration_minutes: 15,
+        elapsed_minutes: 15,
+        parent_authority_state: ParentAuthorityState::Authorized,
+        child_disclosure_state: ChildDisclosureState::Disclosed,
+    });
 
     assert_eq!(
         decision.session_state,

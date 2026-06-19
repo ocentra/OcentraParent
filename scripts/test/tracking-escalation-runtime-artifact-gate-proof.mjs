@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = process.cwd();
@@ -23,19 +24,21 @@ async function main() {
   await mkdir(output33, { recursive: true });
 
   run('node', ['scripts/test/tracking-escalation-runtime-readiness-blocker-proof.mjs']);
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
-    'tracking-escalation-runtime-artifact-gate-proof',
+    'tests/contract/tracking-escalation-runtime-artifact-gate-proof.test.ts',
   ]);
 
-  const proofModule = await importDist('tracking-escalation-runtime-artifact-gate-proof.js');
+  const proofModule = await tsImport(
+    pathToFileURL(
+      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-escalation-runtime-artifact-gate-proof.ts')
+    ).href,
+    import.meta.url
+  );
   const sourceProof = await assertSourceRuntimeReadinessProofExists(
     proofModule.RequiredTrackingEscalationRuntimeArtifactPlan.sourceRuntimeReadinessProofRef
   );
@@ -181,10 +184,6 @@ async function writeArtifacts(proof) {
     `${commands.map((entry) => entry.command).join('\n')}\n`,
     'utf8'
   );
-}
-
-function importDist(name) {
-  return import(pathToFileURL(path.join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
 }
 
 function run(command, args) {

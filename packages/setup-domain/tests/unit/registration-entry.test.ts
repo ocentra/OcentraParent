@@ -5,7 +5,7 @@ import {
   HouseholdRole,
   SessionFreshnessState,
 } from '@ocentra-parent/family-domain/household-authority';
-import { ParentActorRole, ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentActorRole, ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   RecoveryIdentityProofState,
   RecoveryKind,
@@ -29,6 +29,8 @@ import {
   RegistrationSetupState,
   registrationEntryRouteContract,
 } from '../../src/registration-entry';
+import { SetupPairingIntentIdSchema } from '../../src/pairing-intent';
+import { parseUnknown } from '@ocentra-parent/schema-domain/effect';
 
 const ParentAccount = { parentAccountId: 'parent-account-1' } as const;
 const Family = { familyId: 'family-main' } as const;
@@ -147,7 +149,7 @@ describe('setup registration entry contracts', () => {
       family: Family,
       childProfile: ChildProfile,
       childDevice: ChildDevice,
-      pairingIntentId: 'pairing-intent-1',
+      pairingIntentId: parseUnknown(SetupPairingIntentIdSchema, 'pairing-intent-1'),
     });
     const degraded = evaluateRegistrationIdentityHandoff({
       ...BaseHandoff,
@@ -294,7 +296,7 @@ describe('setup registration entry contracts', () => {
       family: Family,
       childProfile: ChildProfile,
       childDevice: ChildDevice,
-      pairingIntentId: 'pairing-intent-1',
+      pairingIntentId: parseUnknown(SetupPairingIntentIdSchema, 'pairing-intent-1'),
       recoveryOperation: BaseRecoveryOperation,
     });
 

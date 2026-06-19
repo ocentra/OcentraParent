@@ -1,8 +1,20 @@
+use crate::notification_provider_status_boundary::{
+    V08NotificationEscalationReadiness, V08NotificationProviderDeliveryClaim,
+    V08NotificationProviderStatus, V08NotificationProviderStatusBoundaryEntry,
+    V08NotificationProviderStatusBoundaryReadModel, V08NotificationProviderStatusProofState,
+    V08NotificationQuietHoursReadiness,
+};
 use crate::{
     constants::{
         self, v08_enforcement_integrity_runtime_audit as proof,
         v08_integrity_alert_status_bridge as bridge,
         v08_notification_provider_status_boundary as boundary,
+    },
+    integrity_alert_status_bridge::{
+        V08IntegrityAlertAuditState, V08IntegrityAlertDeliveryState,
+        V08IntegrityAlertNotificationIntentState, V08IntegrityAlertParentVisibleStatus,
+        V08IntegrityAlertState, V08IntegrityAlertStatusBridgeEntry,
+        V08IntegrityAlertStatusBridgeReadModel,
     },
     policy_constants, ParentPlatform, V08EnforcementIntegrityRuntimeAuditAuditState,
     V08EnforcementIntegrityRuntimeAuditChildState, V08EnforcementIntegrityRuntimeAuditEntry,
@@ -11,13 +23,6 @@ use crate::{
     V08EnforcementIntegrityRuntimeAuditIntentState, V08EnforcementIntegrityRuntimeAuditReadModel,
     V08EnforcementIntegrityRuntimeAuditResult, V08EnforcementIntegrityRuntimeAuditRollbackState,
     V08EnforcementIntegrityRuntimeAuditSurface, V08EnforcementIntegrityRuntimeAuditTimerState,
-    V08IntegrityAlertAuditState, V08IntegrityAlertDeliveryState,
-    V08IntegrityAlertNotificationIntentState, V08IntegrityAlertParentVisibleStatus,
-    V08IntegrityAlertState, V08IntegrityAlertStatusBridgeEntry,
-    V08IntegrityAlertStatusBridgeReadModel, V08NotificationEscalationReadiness,
-    V08NotificationProviderDeliveryClaim, V08NotificationProviderStatus,
-    V08NotificationProviderStatusBoundaryEntry, V08NotificationProviderStatusBoundaryReadModel,
-    V08NotificationProviderStatusProofState, V08NotificationQuietHoursReadiness,
 };
 
 #[test]

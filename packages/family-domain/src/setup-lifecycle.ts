@@ -114,6 +114,35 @@ export const RecoveryDataCustodyHandoffStateLiteral = {
   HouseholdTransferHandoffRequired: 'household-transfer-handoff-required',
 } as const;
 
+export const RecoveryBundleHandoffTargetLiteral = {
+  None: 'none',
+  SetupRestorePreview: 'setup-restore-preview',
+  DeviceTrustRecoveryPersistence: 'device-trust-recovery-persistence',
+  ParentLocalDeleteRuntime: 'parent-local-delete-runtime',
+} as const;
+
+export const RecoveryBundleStateLiteral = {
+  None: 'none',
+  PreviewOnly: 'preview-only',
+  ApplyPending: 'apply-pending',
+  Applied: 'applied',
+  PartialRestore: 'partial-restore',
+  Rejected: 'rejected',
+  ManualRequired: 'manual-required',
+} as const;
+
+export const RecoveryBundleFailureReasonLiteral = {
+  WrongHousehold: 'wrong-household',
+  WrongKey: 'wrong-key',
+  CorruptBundle: 'corrupt-bundle',
+} as const;
+
+export const RecoveryDeleteExportStateLiteral = {
+  None: 'none',
+  DeletePending: 'delete-pending',
+  DeleteConfirmed: 'delete-confirmed',
+} as const;
+
 export const RecoveryFailureReasonLiteral = {
   RecoveryNotActive: 'recovery-not-active',
   WrongHousehold: 'wrong-household',
@@ -243,6 +272,43 @@ export const RecoveryDataCustodyHandoffStateSchema = withParser(
   )
 );
 
+export const RecoveryBundleHandoffTargetSchema = withParser(
+  Schema.Literal(
+    RecoveryBundleHandoffTargetLiteral.None,
+    RecoveryBundleHandoffTargetLiteral.SetupRestorePreview,
+    RecoveryBundleHandoffTargetLiteral.DeviceTrustRecoveryPersistence,
+    RecoveryBundleHandoffTargetLiteral.ParentLocalDeleteRuntime
+  )
+);
+
+export const RecoveryBundleStateSchema = withParser(
+  Schema.Literal(
+    RecoveryBundleStateLiteral.None,
+    RecoveryBundleStateLiteral.PreviewOnly,
+    RecoveryBundleStateLiteral.ApplyPending,
+    RecoveryBundleStateLiteral.Applied,
+    RecoveryBundleStateLiteral.PartialRestore,
+    RecoveryBundleStateLiteral.Rejected,
+    RecoveryBundleStateLiteral.ManualRequired
+  )
+);
+
+export const RecoveryBundleFailureReasonSchema = withParser(
+  Schema.Literal(
+    RecoveryBundleFailureReasonLiteral.WrongHousehold,
+    RecoveryBundleFailureReasonLiteral.WrongKey,
+    RecoveryBundleFailureReasonLiteral.CorruptBundle
+  )
+);
+
+export const RecoveryDeleteExportStateSchema = withParser(
+  Schema.Literal(
+    RecoveryDeleteExportStateLiteral.None,
+    RecoveryDeleteExportStateLiteral.DeletePending,
+    RecoveryDeleteExportStateLiteral.DeleteConfirmed
+  )
+);
+
 export const RecoveryFailureReasonSchema = withParser(
   Schema.Literal(
     RecoveryFailureReasonLiteral.RecoveryNotActive,
@@ -317,6 +383,18 @@ export const RecoveryOperationSchema = withParser(
     identityProofState: RecoveryIdentityProofStateSchema,
     supportChannel: RecoverySupportChannelSchema,
     deleteExportHandoffRequired: Schema.Boolean,
+    bundleHandoffTarget: Schema.optionalWith(RecoveryBundleHandoffTargetSchema, {
+      default: () => RecoveryBundleHandoffTargetLiteral.None,
+    }),
+    bundleState: Schema.optionalWith(RecoveryBundleStateSchema, {
+      default: () => RecoveryBundleStateLiteral.None,
+    }),
+    bundleFailureReason: Schema.optionalWith(Schema.Union(RecoveryBundleFailureReasonSchema, Schema.Null), {
+      default: () => null,
+    }),
+    deleteExportState: Schema.optionalWith(RecoveryDeleteExportStateSchema, {
+      default: () => RecoveryDeleteExportStateLiteral.None,
+    }),
     openedAt: ParentTimestampSchema,
     closedAt: Schema.Union(ParentTimestampSchema, Schema.Null),
   })
@@ -377,6 +455,10 @@ export type RecoverySupportChannel = Infer<typeof RecoverySupportChannelSchema>;
 export type RecoveryDecisionState = Infer<typeof RecoveryDecisionStateSchema>;
 export type RecoveryChildEvidenceAccessState = Infer<typeof RecoveryChildEvidenceAccessStateSchema>;
 export type RecoveryDataCustodyHandoffState = Infer<typeof RecoveryDataCustodyHandoffStateSchema>;
+export type RecoveryBundleHandoffTarget = Infer<typeof RecoveryBundleHandoffTargetSchema>;
+export type RecoveryBundleState = Infer<typeof RecoveryBundleStateSchema>;
+export type RecoveryBundleFailureReason = Infer<typeof RecoveryBundleFailureReasonSchema>;
+export type RecoveryDeleteExportState = Infer<typeof RecoveryDeleteExportStateSchema>;
 export type RecoveryFailureReason = Infer<typeof RecoveryFailureReasonSchema>;
 export type SetupAuditEventKind = Infer<typeof SetupAuditEventKindSchema>;
 export type SetupInvite = Infer<typeof SetupInviteSchema>;
@@ -480,6 +562,39 @@ export const RecoveryDataCustodyHandoffState = {
   ),
 } as const;
 
+export const RecoveryBundleHandoffTarget = {
+  None: RecoveryBundleHandoffTargetSchema.parse(RecoveryBundleHandoffTargetLiteral.None),
+  SetupRestorePreview: RecoveryBundleHandoffTargetSchema.parse(RecoveryBundleHandoffTargetLiteral.SetupRestorePreview),
+  DeviceTrustRecoveryPersistence: RecoveryBundleHandoffTargetSchema.parse(
+    RecoveryBundleHandoffTargetLiteral.DeviceTrustRecoveryPersistence
+  ),
+  ParentLocalDeleteRuntime: RecoveryBundleHandoffTargetSchema.parse(
+    RecoveryBundleHandoffTargetLiteral.ParentLocalDeleteRuntime
+  ),
+} as const;
+
+export const RecoveryBundleState = {
+  None: RecoveryBundleStateSchema.parse(RecoveryBundleStateLiteral.None),
+  PreviewOnly: RecoveryBundleStateSchema.parse(RecoveryBundleStateLiteral.PreviewOnly),
+  ApplyPending: RecoveryBundleStateSchema.parse(RecoveryBundleStateLiteral.ApplyPending),
+  Applied: RecoveryBundleStateSchema.parse(RecoveryBundleStateLiteral.Applied),
+  PartialRestore: RecoveryBundleStateSchema.parse(RecoveryBundleStateLiteral.PartialRestore),
+  Rejected: RecoveryBundleStateSchema.parse(RecoveryBundleStateLiteral.Rejected),
+  ManualRequired: RecoveryBundleStateSchema.parse(RecoveryBundleStateLiteral.ManualRequired),
+} as const;
+
+export const RecoveryBundleFailureReason = {
+  WrongHousehold: RecoveryBundleFailureReasonSchema.parse(RecoveryBundleFailureReasonLiteral.WrongHousehold),
+  WrongKey: RecoveryBundleFailureReasonSchema.parse(RecoveryBundleFailureReasonLiteral.WrongKey),
+  CorruptBundle: RecoveryBundleFailureReasonSchema.parse(RecoveryBundleFailureReasonLiteral.CorruptBundle),
+} as const;
+
+export const RecoveryDeleteExportState = {
+  None: RecoveryDeleteExportStateSchema.parse(RecoveryDeleteExportStateLiteral.None),
+  DeletePending: RecoveryDeleteExportStateSchema.parse(RecoveryDeleteExportStateLiteral.DeletePending),
+  DeleteConfirmed: RecoveryDeleteExportStateSchema.parse(RecoveryDeleteExportStateLiteral.DeleteConfirmed),
+} as const;
+
 export const RecoveryFailureReason = {
   RecoveryNotActive: RecoveryFailureReasonSchema.parse(RecoveryFailureReasonLiteral.RecoveryNotActive),
   WrongHousehold: RecoveryFailureReasonSchema.parse(RecoveryFailureReasonLiteral.WrongHousehold),
@@ -568,7 +683,11 @@ export function recoveryRequiresOwnerApproval(input: RecoveryOperation): boolean
 export function recoveryDataCustodyHandoffState(input: RecoveryOperation): RecoveryDataCustodyHandoffState {
   const recovery = RecoveryOperationSchema.parse(input);
 
-  return dataCustodyHandoffState(recovery.kind, recovery.deleteExportHandoffRequired);
+  return dataCustodyHandoffState(
+    recovery.kind,
+    recovery.deleteExportHandoffRequired,
+    recovery.deleteExportState
+  );
 }
 
 export function recoveryRequiresAuditedSupport(input: RecoveryOperation): boolean {
@@ -608,6 +727,37 @@ export function deviceTrustStateForRecoveryState(state: RecoveryState): FamilyDe
   return DeviceTrustState.Revoked;
 }
 
+export function deviceTrustStateForRecoveryOperation(input: RecoveryOperation): FamilyDeviceTrustState {
+  const recovery = RecoveryOperationSchema.parse(input);
+
+  if (recovery.state === RecoveryState.Revoked) {
+    return DeviceTrustState.Revoked;
+  }
+
+  if (recovery.bundleFailureReason !== null) {
+    return DeviceTrustState.ResetRequired;
+  }
+
+  switch (recovery.bundleState) {
+    case RecoveryBundleState.PreviewOnly:
+    case RecoveryBundleState.ApplyPending:
+    case RecoveryBundleState.PartialRestore:
+    case RecoveryBundleState.Rejected:
+    case RecoveryBundleState.ManualRequired:
+      return DeviceTrustState.ResetRequired;
+    case RecoveryBundleState.Applied:
+      return dataCustodyHandoffState(
+        recovery.kind,
+        recovery.deleteExportHandoffRequired,
+        recovery.deleteExportState
+      ) === RecoveryDataCustodyHandoffState.None && recovery.state === RecoveryState.Completed
+        ? DeviceTrustState.Pending
+        : DeviceTrustState.ResetRequired;
+    default:
+      return deviceTrustStateForRecoveryState(recovery.state);
+  }
+}
+
 export function evaluateRecoveryOperation(input: RecoveryAuthorizationInput): RecoveryDecision {
   const parsedInput = RecoveryAuthorizationInputSchema.parse(input);
   const ownerApprovalRequired = requiresOwnerApproval(parsedInput.kind, parsedInput.ownerApprovalRequired);
@@ -618,7 +768,8 @@ export function evaluateRecoveryOperation(input: RecoveryAuthorizationInput): Re
   );
   const custodyHandoffState = dataCustodyHandoffState(
     parsedInput.kind,
-    parsedInput.deleteExportHandoffRequired
+    parsedInput.deleteExportHandoffRequired,
+    RecoveryDeleteExportState.None
   );
 
   if (parsedInput.state === RecoveryState.Revoked) {
@@ -761,13 +912,14 @@ function requiresOwnerApproval(kind: RecoveryKind, ownerApprovalRequired: boolea
 
 function dataCustodyHandoffState(
   kind: RecoveryKind,
-  deleteExportHandoffRequired: boolean
+  deleteExportHandoffRequired: boolean,
+  deleteExportState: RecoveryDeleteExportState
 ): RecoveryDataCustodyHandoffState {
   if (kind === RecoveryKind.HouseholdTransfer) {
     return RecoveryDataCustodyHandoffState.HouseholdTransferHandoffRequired;
   }
 
-  if (deleteExportHandoffRequired) {
+  if (deleteExportHandoffRequired && deleteExportState !== RecoveryDeleteExportState.DeleteConfirmed) {
     return RecoveryDataCustodyHandoffState.ExportDeleteHandoffRequired;
   }
 

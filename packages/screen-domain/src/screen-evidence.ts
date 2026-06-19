@@ -25,4 +25,3 @@ export * from './screen-ios-replaykit-capability-proof';
 export * from './screen-android-mediaprojection-capability-proof';
 export * from './screen-macos-capture-capability-proof';
 export * from './screen-linux-capture-capability-proof';
-export * from './screen-managed-browser-cdp-capture';

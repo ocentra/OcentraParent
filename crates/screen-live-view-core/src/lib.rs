@@ -1,33 +1,19 @@
 #![forbid(unsafe_code)]
 
-mod live_view_runtime;
-mod live_view_worker;
+pub mod live_view_runtime;
+pub mod live_view_worker;
 
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_analysis_requested_event_if_required,
     child_domain_direct_policy_evaluation_requested_event_if_required,
     child_domain_evidence_recorded_event, child_domain_observed_event,
     ChildDomainAiAnalysisRequestedEvent, ChildDomainAiAnalysisRequirement,
     ChildDomainEvidenceRecordedEvent, ChildDomainObservedEvent, ChildDomainObservedEventProfile,
     ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequestedEvent,
-    ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
+    ChildDomainPolicyEvaluationRequirement, ChildDomainRefSuffix, ChildRuntimeDomain,
 };
 
 pub const CRATE_NAME: &str = "ocentra-screen-live-view-core";
-
-pub use live_view_runtime::{
-    evaluate_screen_live_view_runtime, ScreenLiveViewRuntimeBlockReason,
-    ScreenLiveViewRuntimeDecision, ScreenLiveViewRuntimeInput, ScreenLiveViewRuntimeMode,
-    ScreenLiveViewRuntimePermission, ScreenLiveViewRuntimeSessionState,
-    ScreenLiveViewRuntimeTransport,
-};
-pub use live_view_worker::{
-    evaluate_screen_live_view_worker_startup, start_screen_live_view_worker,
-    ScreenLiveViewWorkerExecutionBlockReason, ScreenLiveViewWorkerExecutionInput,
-    ScreenLiveViewWorkerExecutionRecord, ScreenLiveViewWorkerExecutionState,
-    ScreenLiveViewWorkerStartupBlockReason, ScreenLiveViewWorkerStartupDecision,
-    ScreenLiveViewWorkerStartupInput, ScreenLiveViewWorkerStartupState,
-};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ScreenLiveViewObservationIntent {
@@ -64,7 +50,7 @@ pub fn screen_live_view_observed_profile(
     };
 
     ChildRuntimeDomain::ScreenLiveView.observed_profile(
-        ocentra_parent_agent_protocol::ChildDomainRefSuffix::ScreenLiveViewSubject,
+        ChildDomainRefSuffix::ScreenLiveViewSubject,
         observed_state,
         ai_analysis_requirement,
         policy_evaluation_requirement,

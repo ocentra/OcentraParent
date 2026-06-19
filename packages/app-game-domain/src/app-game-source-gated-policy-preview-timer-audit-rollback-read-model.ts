@@ -23,7 +23,7 @@ import {
   appGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelHasNoRuntimeClaims,
   appGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelMatchesHandoff,
 } from './app-game-source-gated-policy-preview-timer-audit-rollback-read-model-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelIdSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelId');

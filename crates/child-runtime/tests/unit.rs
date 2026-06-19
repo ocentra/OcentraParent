@@ -1,11 +1,15 @@
+use ocentra_child_runtime::tracking_config_update_flow as child_runtime_config;
+use ocentra_child_runtime::tracking_runtime_flow as child_runtime_tracking;
 use ocentra_evidence::PrivatePayloadState;
 use ocentra_parent_agent_protocol::{
-    constants, default_tracking_config_update_request, tracking_ai_request_id_from_evidence_ref,
-    tracking_evidence_ref_from_observation_id, tracking_notification_id_from_violation_id,
-    tracking_violation_id_from_ai_request_and_rule_ref, AgentCommandEnvelope, AgentCommandName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields, TrackingAiBoundaryMode,
-    TrackingConfigEffectiveState, TrackingConfigUpdateEventName, TrackingConfigUpdateRequest,
-    TrackingConfigUpdateResponseState, TrackingDurableSettingsPersistenceState,
+    child_tracking_config_updated_event_from_parent, constants,
+    default_tracking_config_update_request, parent_tracking_config_updated_event_from_command,
+    tracking_ai_request_id_from_evidence_ref, tracking_evidence_ref_from_observation_id,
+    tracking_notification_id_from_violation_id, tracking_violation_id_from_ai_request_and_rule_ref,
+    AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
+    AgentRoute, LogFields, TrackingAiBoundaryMode, TrackingConfigEffectiveState,
+    TrackingConfigUpdateEventName, TrackingConfigUpdateRequest, TrackingConfigUpdateResponseState,
+    TrackingConfigUpdateTargetScope, TrackingDurableSettingsPersistenceState,
     TrackingNotificationChannel, TrackingNotificationMode, TrackingParentActionRequirement,
     TrackingPlaceCategory, TrackingPolicyRuleRef, TrackingRuntimeEnabledState, TrackingRuntimeMode,
     AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -29,12 +33,10 @@ async fn child_runtime_routes_parent_config_event_through_named_subscribers_to_c
 {
     let request: TrackingConfigUpdateRequest = default_tracking_config_update_request();
     let command = command_envelope(request.clone());
-    let parent_event =
-        ocentra_child_runtime::parent_tracking_config_updated_event_from_command(&command, request);
-    let child_event =
-        ocentra_child_runtime::child_tracking_config_updated_event_from_parent(&parent_event);
+    let parent_event = parent_tracking_config_updated_event_from_command(&command, request);
+    let child_event = child_tracking_config_updated_event_from_parent(&parent_event);
     let flow_report =
-        ocentra_child_runtime::publish_parent_tracking_config_updated_event(&parent_event)
+        child_runtime_config::publish_parent_tracking_config_updated_event(&parent_event)
             .await
             .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED);
     let applied_report = flow_report.applied_report;
@@ -126,16 +128,15 @@ async fn child_runtime_routes_parent_config_event_through_named_subscribers_to_c
             .durable_settings_persistence_state,
         TrackingDurableSettingsPersistenceState::Persisted
     );
-    assert!(ocentra_child_runtime::tracking_retention_settings_durable_store_path().exists());
+    assert!(child_runtime_config::tracking_retention_settings_durable_store_path().exists());
 }
 
 #[tokio::test]
 async fn parent_tracking_config_flow_can_attach_once_to_runtime_owned_bus() {
     let request: TrackingConfigUpdateRequest = default_tracking_config_update_request();
     let command = command_envelope(request.clone());
-    let parent_event =
-        ocentra_child_runtime::parent_tracking_config_updated_event_from_command(&command, request);
-    let runtime_flow = ocentra_child_runtime::TrackingConfigUpdateEventFlow::new()
+    let parent_event = parent_tracking_config_updated_event_from_command(&command, request);
+    let runtime_flow = child_runtime_config::TrackingConfigUpdateEventFlow::new()
         .await
         .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED);
     let metrics_before = runtime_flow.metrics_snapshot().await;
@@ -159,11 +160,11 @@ async fn parent_tracking_config_flow_can_attach_once_to_runtime_owned_bus() {
     );
     assert_eq!(
         flow_report.child_event.target.scope,
-        ocentra_child_runtime::TrackingConfigUpdateTargetScope::ChildDevice
+        TrackingConfigUpdateTargetScope::ChildDevice
     );
     assert_eq!(
         flow_report.applied_event.target.scope,
-        ocentra_child_runtime::TrackingConfigUpdateTargetScope::ChildDevice
+        TrackingConfigUpdateTargetScope::ChildDevice
     );
     assert_eq!(journal.len(), 3);
     assert_eq!(
@@ -185,11 +186,10 @@ async fn child_runtime_applies_disabled_tracking_runtime_config_without_rejectin
     let mut request: TrackingConfigUpdateRequest = default_tracking_config_update_request();
     request.runtime_config.tracking_enabled_state = TrackingRuntimeEnabledState::Disabled;
     let command = command_envelope(request.clone());
-    let parent_event =
-        ocentra_child_runtime::parent_tracking_config_updated_event_from_command(&command, request);
+    let parent_event = parent_tracking_config_updated_event_from_command(&command, request);
 
     let flow_report =
-        ocentra_child_runtime::publish_parent_tracking_config_updated_event(&parent_event)
+        child_runtime_config::publish_parent_tracking_config_updated_event(&parent_event)
             .await
             .expect(constants::tracking_config_update::ERROR_PARENT_CONFIG_EVENT_APPLIED);
 
@@ -209,7 +209,7 @@ async fn child_runtime_applies_disabled_tracking_runtime_config_without_rejectin
 #[tokio::test]
 async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notification_boundaries() {
     let event = ocentra_tracking_core::default_location_observed_event();
-    let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(event)
+    let flow_report = child_runtime_tracking::publish_child_tracking_location_observed_event(event)
         .await
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let expected_evidence_ref = tracking_evidence_ref_from_observation_id(
@@ -388,7 +388,7 @@ async fn child_runtime_keeps_observe_only_tracking_flow_out_of_policy_and_notifi
     let mut event = ocentra_tracking_core::default_location_observed_event();
     event.config.tracking_enabled_state = TrackingRuntimeEnabledState::Enabled;
     event.config.tracking_mode = TrackingRuntimeMode::ObserveOnly;
-    let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(event)
+    let flow_report = child_runtime_tracking::publish_child_tracking_location_observed_event(event)
         .await
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
@@ -404,7 +404,7 @@ async fn child_runtime_keeps_observe_only_tracking_flow_out_of_policy_and_notifi
 async fn child_runtime_keeps_ai_disabled_tracking_flow_out_of_ai_policy_and_notification() {
     let mut event = ocentra_tracking_core::default_location_observed_event();
     event.config.ai_boundary_mode = TrackingAiBoundaryMode::Disabled;
-    let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(event)
+    let flow_report = child_runtime_tracking::publish_child_tracking_location_observed_event(event)
         .await
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
@@ -418,7 +418,7 @@ async fn child_runtime_keeps_ai_disabled_tracking_flow_out_of_ai_policy_and_noti
 async fn child_runtime_honors_disabled_notification_mode_without_suppressing_policy_detection() {
     let mut event = ocentra_tracking_core::default_location_observed_event();
     event.config.notification_mode = TrackingNotificationMode::Disabled;
-    let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(event)
+    let flow_report = child_runtime_tracking::publish_child_tracking_location_observed_event(event)
         .await
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 

@@ -215,10 +215,8 @@ pub const PRODUCTION_PROOF_CAPABILITY_STORE_SIGNING: &str = "store-signing";
 pub const PRODUCTION_PROOF_STATE_CI_MECHANICAL: &str = "ci-mechanical-proof";
 pub const PRODUCTION_PROOF_STATE_MANUAL_REQUIRED: &str = "manual-required";
 pub const PRODUCTION_PROOF_STATE_NOT_IMPLEMENTED: &str = "not-implemented";
-pub const PRODUCTION_PROOF_LABEL_SIGNED_HELLO: &str =
-    "signed LAN hello is manual-required until a second installed child agent signs a family-scoped hello";
-pub const PRODUCTION_PROOF_LABEL_SIGNED_HEARTBEAT: &str =
-    "signed LAN heartbeat is manual-required until a second installed child agent emits a signed heartbeat";
+pub const PRODUCTION_PROOF_LABEL_SIGNED_HELLO: &str = "signed LAN hello is manual-required until a second installed child agent signs a family-scoped hello";
+pub const PRODUCTION_PROOF_LABEL_SIGNED_HEARTBEAT: &str = "signed LAN heartbeat is manual-required until a second installed child agent emits a signed heartbeat";
 pub const PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR: &str =
     "Windows neighbor table scan feeds passive LAN evidence into the read model";
 pub const PRODUCTION_PROOF_LABEL_ROUTER_NEIGHBOR: &str =
@@ -257,10 +255,8 @@ pub const PRODUCTION_PROOF_LABEL_IOS_PARITY: &str =
     "iOS child-agent parity is manual-required until entitlement and device artifacts exist";
 pub const PRODUCTION_PROOF_LABEL_STORE_SIGNING: &str =
     "store signing remains manual-required until signing and store artifacts exist";
-pub const PRODUCTION_PROOF_ARTIFACT_SIGNED_HELLO: &str =
-    "Attach signed hello payload, nonce, signature, family hash, route id, and service log from a second physical child agent.";
-pub const PRODUCTION_PROOF_ARTIFACT_SIGNED_HEARTBEAT: &str =
-    "Attach signed heartbeat payload, expiry/replay evidence, route id, and service log from a second physical child agent.";
+pub const PRODUCTION_PROOF_ARTIFACT_SIGNED_HELLO: &str = "Attach signed hello payload, nonce, signature, family hash, route id, and service log from a second physical child agent.";
+pub const PRODUCTION_PROOF_ARTIFACT_SIGNED_HEARTBEAT: &str = "Attach signed heartbeat payload, expiry/replay evidence, route id, and service log from a second physical child agent.";
 pub const PRODUCTION_PROOF_ARTIFACT_MDNS: &str =
     "Attach captured mDNS/DNS-SD discovery packet or parser fixture from the household LAN.";
 pub const PRODUCTION_PROOF_ARTIFACT_SSDP: &str =
@@ -273,22 +269,16 @@ pub const PRODUCTION_PROOF_ARTIFACT_ANDROID_PARITY: &str =
     "Attach real Android child-agent device proof, permissions, package, and transport artifacts.";
 pub const PRODUCTION_PROOF_ARTIFACT_IOS_PARITY: &str =
     "Attach real iOS entitlement, device, package, and transport artifacts.";
-pub const PRODUCTION_PROOF_ARTIFACT_STORE_SIGNING: &str =
-    "Attach signing, Play/TestFlight/App Store, installer, and checksum artifacts before release claims.";
+pub const PRODUCTION_PROOF_ARTIFACT_STORE_SIGNING: &str = "Attach signing, Play/TestFlight/App Store, installer, and checksum artifacts before release claims.";
 pub const PRODUCTION_PROOF_CLAIM_PASSIVE_NEIGHBOR: &str =
     "passive Windows neighbor evidence is represented in typed LAN read-model state";
-pub const PRODUCTION_PROOF_CLAIM_REGISTRY_ROUTE: &str =
-    "trusted registry, route custody, stale/offline, and parent decisions are represented in typed LAN read-model state";
-pub const PRODUCTION_PROOF_NON_CLAIM_PHYSICAL: &str =
-    "physical household LAN readiness remains manual-required until two physical child-agent hosts and router/firewall artifacts are attached";
-pub const PRODUCTION_PROOF_NON_CLAIM_SIGNED: &str =
-    "signed LAN hello and heartbeat remain manual-required until a second installed child agent signs them";
+pub const PRODUCTION_PROOF_CLAIM_REGISTRY_ROUTE: &str = "trusted registry, route custody, stale/offline, and parent decisions are represented in typed LAN read-model state";
+pub const PRODUCTION_PROOF_NON_CLAIM_PHYSICAL: &str = "physical household LAN readiness remains manual-required until two physical child-agent hosts and router/firewall artifacts are attached";
+pub const PRODUCTION_PROOF_NON_CLAIM_SIGNED: &str = "signed LAN hello and heartbeat remain manual-required until a second installed child agent signs them";
 pub const PRODUCTION_PROOF_NON_CLAIM_CLOUD: &str =
     "cloud relay routing storage and authentication are not implemented in this LAN proof";
-pub const PRODUCTION_PROOF_NON_CLAIM_ANDROID: &str =
-    "Android child-agent parity remains manual-required until real device permission and transport artifacts are attached";
-pub const PRODUCTION_PROOF_NON_CLAIM_IOS: &str =
-    "iOS child-agent parity remains manual-required until entitlement device and transport artifacts are attached";
+pub const PRODUCTION_PROOF_NON_CLAIM_ANDROID: &str = "Android child-agent parity remains manual-required until real device permission and transport artifacts are attached";
+pub const PRODUCTION_PROOF_NON_CLAIM_IOS: &str = "iOS child-agent parity remains manual-required until entitlement device and transport artifacts are attached";
 pub const PRODUCTION_PROOF_NON_CLAIM_STORE: &str =
     "store signing remains manual-required until signing store and release artifacts are attached";
 pub const SIGNED_DISCOVERY_RELAY_NON_CLAIM_PARENT_STORAGE: &str =
@@ -299,18 +289,13 @@ pub const LAN_SOURCE_MATRIX_CLAIM_WEAK_SOURCES: &str =
     "weak LAN discovery sources cannot confirm child identity or assign child profiles";
 pub const LAN_SOURCE_MATRIX_NON_CLAIM_PACKET_MODE: &str =
     "packet-mode ARP sweep and passive listeners remain gated until packet driver artifacts exist";
-pub const LAN_SOURCE_MATRIX_NON_CLAIM_PHYSICAL: &str =
-    "physical household LAN completion remains manual-required until real two-host proof is attached";
-pub const LAN_SOURCE_MATRIX_NON_CLAIM_MDNS_SSDP: &str =
-    "mDNS/SSDP advertisement and responder behavior remains manual-required until fixtures and LAN captures exist";
-pub const LAN_SOURCE_MATRIX_ARTIFACT_PACKET_MODE: &str =
-    "Attach packet-driver or controlled packet IO proof with selected interface, subnet cap, timing, and malformed packet fixtures.";
+pub const LAN_SOURCE_MATRIX_NON_CLAIM_PHYSICAL: &str = "physical household LAN completion remains manual-required until real two-host proof is attached";
+pub const LAN_SOURCE_MATRIX_NON_CLAIM_MDNS_SSDP: &str = "mDNS/SSDP advertisement and responder behavior remains manual-required until fixtures and LAN captures exist";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_PACKET_MODE: &str = "Attach packet-driver or controlled packet IO proof with selected interface, subnet cap, timing, and malformed packet fixtures.";
 pub const LAN_SOURCE_MATRIX_ARTIFACT_MDNS_SSDP: &str =
     "Attach mDNS/DNS-SD and SSDP/UPnP fixtures or LAN captures with sanitized host/service names.";
-pub const LAN_SOURCE_MATRIX_ARTIFACT_SIGNED_CHILD: &str =
-    "Attach signed child-agent hello and heartbeat payloads with nonce, family hash, route id, and replay rejection logs.";
-pub const LAN_SOURCE_MATRIX_ARTIFACT_PHYSICAL: &str =
-    "Attach two physical child-agent host proof, router/firewall reachability, screenshots, and generated proof JSON.";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_SIGNED_CHILD: &str = "Attach signed child-agent hello and heartbeat payloads with nonce, family hash, route id, and replay rejection logs.";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_PHYSICAL: &str = "Attach two physical child-agent host proof, router/firewall reachability, screenshots, and generated proof JSON.";
 pub const LAN_SOURCE_MATRIX_TITLE_01: &str = "Contract boundary and Effect schemas";
 pub const LAN_SOURCE_MATRIX_TITLE_02: &str = "Evidence model and device record";
 pub const LAN_SOURCE_MATRIX_TITLE_03: &str = "Interface detection";

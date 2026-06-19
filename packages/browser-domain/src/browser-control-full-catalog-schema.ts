@@ -11,7 +11,7 @@ import {
   BrowserControlOptionIdSchema,
   BrowserControlSectionIdSchema,
 } from './browser-control-identifiers';
-import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const BrowserControlFullCatalogControlKindSchema = withParser(
   Schema.Literal(

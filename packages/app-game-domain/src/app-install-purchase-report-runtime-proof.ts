@@ -11,7 +11,7 @@ import {
   StatelessReportCompilerSchemaVersionSchema,
 } from '@ocentra-parent/production-domain/stateless-report-compiler-status';
 import { RequiredStatelessReportCompilerStatuses } from '@ocentra-parent/production-domain/stateless-report-compiler-status-values';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ReportRuntimeSchemaVersion = 'app-install-purchase-report-runtime-proof';
 const SourceChildArtifactProofVersion = 'app-install-purchase-child-artifact-delivery-proof';
 const SourcePlatformArtifactProofVersion = 'app-install-purchase-platform-artifact-proof';

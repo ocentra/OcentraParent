@@ -7,7 +7,7 @@ import {
 } from './local-ai-activity-memory-graph';
 import { readLocalAiActivityMemoryGraph } from './local-ai-activity-memory-graph-read';
 import { LocalAiGraphReferenceSchema } from './local-ai-references';
-import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const LocalAiGraphReferenceContractClaimBoundariesSchema = withParser(
   Schema.Struct({

@@ -1,4 +1,4 @@
-use ocentra_network_evidence::parse_http_host;
+use ocentra_network_evidence::http::parse_http_host;
 
 const HTTP_REQUEST_WITH_HOST: &[u8] = b"GET /watch HTTP/1.1\r\nHost: Video.Example.TEST\r\n\r\n";
 const HTTP_REQUEST_WITHOUT_HOST: &[u8] = b"GET /watch HTTP/1.1\r\nUser-Agent: Ocentra\r\n\r\n";

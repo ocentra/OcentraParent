@@ -4,7 +4,7 @@ import {
   AgentPeerSchema,
   AgentProtocolSchemaVersion,
   AgentWebSocketUrlSchema,
-} from '@ocentra-parent/event-domain/primitives';
+} from '@ocentra-parent/schema-domain/event-primitives';
 import { AgentLanHouseholdDeviceActionKindSchema } from './lan-pairing-browser-add-device-state';
 import {
   AgentLanPairingIntentKindSchema,
@@ -455,6 +455,15 @@ export const AgentProtocolDefaults = {
     PolicyRequestOrigin: 'policyRequestOrigin',
     PolicyAssistantConfirmationState: 'policyAssistantConfirmationState',
     PolicyRequestStatus: 'policyRequestStatus',
+    PolicyApprovalId: 'policyApprovalId',
+    PolicyOverrideId: 'policyOverrideId',
+    PolicyReplayOfApprovalId: 'policyReplayOfApprovalId',
+    PolicyReviewedByActorId: 'policyReviewedByActorId',
+    PolicyReviewedByActorRole: 'policyReviewedByActorRole',
+    PolicyReviewedAt: 'policyReviewedAt',
+    PolicyAuditReferenceId: 'policyAuditReferenceId',
+    PolicyRequestAssistantPreviewConfirmRequest: 'policyRequestAssistantPreviewConfirmRequest',
+    PolicyRequestAssistantPreviewConfirmResult: 'policyRequestAssistantPreviewConfirmResult',
     ParentActionReferenceId: 'parentActionReferenceId',
     ParentActionCreatedAt: 'parentActionCreatedAt',
     ParentActorId: 'parentActorId',
@@ -544,6 +553,8 @@ export const AgentProtocolDefaults = {
   },
   PolicyPreview: {
     TargetType: {
+      App: 'app',
+      Device: 'device',
       Url: 'url',
       Domain: 'domain',
       Site: 'site',
@@ -628,6 +639,7 @@ export const AgentProtocolDefaults = {
       Denied: 'denied',
       Modified: 'modified',
       Expired: 'expired',
+      ReplayRejected: 'replay-rejected',
     },
     HandoffState: {
       DisabledPreviewOnly: 'disabled-preview-only',

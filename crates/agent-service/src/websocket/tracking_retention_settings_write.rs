@@ -1,4 +1,9 @@
-use ocentra_child_runtime::TrackingConfigUpdateEventFlowReport;
+use ocentra_child_runtime::tracking_config_update_flow::TrackingConfigUpdateEventFlowReport;
+use ocentra_parent_agent_protocol::parent_controller_events::{
+    ParentActionReceivedEvent, ParentChildCommandForwardRequestedEvent,
+    ParentChildCommandTransportBoundary, ParentCommandRejectedEvent, ParentCommandValidatedEvent,
+    ParentCommandValidationState, ParentControllerActionKind, ParentControllerSource,
+};
 use ocentra_parent_agent_protocol::{
     constants, default_tracking_retention_settings_write_request, default_tracking_runtime_config,
     parent_tracking_config_updated_event_from_command, tracking_durable_settings_store_ref,
@@ -6,9 +11,6 @@ use ocentra_parent_agent_protocol::{
     tracking_retention_accepted_at, tracking_retention_write_state_accepted,
     tracking_retention_write_state_rejected, AgentCommandEnvelope, AgentEventEnvelope,
     AgentEventName, ChildCommandKind, ChildCommandReceivedEvent, LogFieldValue, LogLevel,
-    ParentActionReceivedEvent, ParentChildCommandForwardRequestedEvent,
-    ParentChildCommandTransportBoundary, ParentCommandRejectedEvent, ParentCommandValidatedEvent,
-    ParentCommandValidationState, ParentControllerActionKind, ParentControllerSource,
     ParentTrackingConfigUpdatedEvent, TrackingConfigAckState,
     TrackingConfigAuditEntryCommittedEvent, TrackingConfigChangeApprovedEvent,
     TrackingConfigChangeRejectedEvent, TrackingConfigChangeRequestedEvent,
@@ -407,7 +409,7 @@ fn tracking_service_idempotency_key(
 
 #[cfg(test)]
 mod tests {
-    use ocentra_child_runtime::tracking_retention_settings_durable_store_path;
+    use ocentra_child_runtime::tracking_config_update_flow::tracking_retention_settings_durable_store_path;
     use ocentra_parent_agent_protocol::{
         AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
         AgentRoute, LogFields, TrackingConfigAckState, TrackingConfigAuditOutcome,

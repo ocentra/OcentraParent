@@ -1,7 +1,7 @@
 import {
   AgentDeviceIdSchema as EventAgentDeviceIdSchema,
   AgentPlatformSchema as EventAgentPlatformSchema,
-} from '@ocentra-parent/event-domain/primitives';
+} from '@ocentra-parent/schema-domain/event-primitives';
 import {
   type Infer,
   Schema,
@@ -40,6 +40,19 @@ export const LogSourceSchema = withParser(
   )
 );
 
+const createLogEntrySchema = () =>
+  withParser(
+    Schema.Struct({
+      schemaVersion: Schema.Literal(1),
+      id: LogEntryIdSchema,
+      timestamp: LogTimestampSchema,
+      level: LogLevelSchema,
+      source: LogSourceSchema,
+      message: LogMessageSchema,
+      fields: LogFieldsSchema,
+    })
+  );
+
 export const AgentIdentitySchema = withParser(
   Schema.Struct({
     deviceId: AgentDeviceIdSchema,
@@ -49,16 +62,7 @@ export const AgentIdentitySchema = withParser(
   })
 );
 
-export const AgentLogEntrySchema = withParser(
-  Schema.Struct({
-    id: LogEntryIdSchema,
-    timestamp: LogTimestampSchema,
-    level: LogLevelSchema,
-    source: LogSourceSchema,
-    message: LogMessageSchema,
-    fields: LogFieldsSchema,
-  })
-);
+export const AgentLogEntrySchema = createLogEntrySchema();
 
 export const AgentLogSnapshotSchema = withParser(
   Schema.Struct({
@@ -68,17 +72,7 @@ export const AgentLogSnapshotSchema = withParser(
   })
 );
 
-export const DevLogEntrySchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(1),
-    id: LogEntryIdSchema,
-    timestamp: LogTimestampSchema,
-    level: LogLevelSchema,
-    source: LogSourceSchema,
-    message: LogMessageSchema,
-    fields: LogFieldsSchema,
-  })
-);
+export const DevLogEntrySchema = createLogEntrySchema();
 
 export type LogFieldValue = Infer<typeof LogFieldValueSchema>;
 export type LogFields = Infer<typeof LogFieldsSchema>;

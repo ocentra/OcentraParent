@@ -5,6 +5,7 @@ use ocentra_parent_agent_protocol::{
     TrackingParentActionRequirement, TrackingPlaceCategory, TrackingProviderRef,
     TrackingReasonCode,
 };
+use ocentra_tracking_core::ai_boundary::validate_tracking_ai_result_as_evidence;
 
 #[test]
 fn tracking_accepts_ai_result_only_as_evidence_when_refs_match_request() {
@@ -15,8 +16,7 @@ fn tracking_accepts_ai_result_only_as_evidence_when_refs_match_request() {
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let result = ai_result_for_request(&request);
 
-    let decision =
-        ocentra_tracking_core::validate_tracking_ai_result_as_evidence(&request, &result);
+    let decision = validate_tracking_ai_result_as_evidence(&request, &result);
 
     assert_eq!(
         decision.decision_state,
@@ -39,8 +39,7 @@ fn tracking_rejects_ai_result_with_hallucinated_evidence_ref() {
                 .expect(constants::tracking_runtime::DEFAULT_GEOFENCE_RULE_REF),
         ];
 
-    let decision =
-        ocentra_tracking_core::validate_tracking_ai_result_as_evidence(&request, &result);
+    let decision = validate_tracking_ai_result_as_evidence(&request, &result);
 
     assert_eq!(
         decision.decision_state,
@@ -59,8 +58,7 @@ fn tracking_rejects_ai_result_without_evidence_refs() {
     let mut result = ai_result_for_request(&request);
     result.evidence_refs = Vec::new();
 
-    let decision =
-        ocentra_tracking_core::validate_tracking_ai_result_as_evidence(&request, &result);
+    let decision = validate_tracking_ai_result_as_evidence(&request, &result);
 
     assert_eq!(
         decision.decision_state,
@@ -81,8 +79,7 @@ fn tracking_rejects_ai_result_with_stale_correlation() {
         TrackingAiRequestId::parse(constants::tracking_runtime::DEFAULT_NEARBY_PLACE_REQUEST_ID)
             .expect(constants::tracking_runtime::DEFAULT_NEARBY_PLACE_REQUEST_ID);
 
-    let decision =
-        ocentra_tracking_core::validate_tracking_ai_result_as_evidence(&request, &result);
+    let decision = validate_tracking_ai_result_as_evidence(&request, &result);
 
     assert_eq!(
         decision.decision_state,
@@ -103,8 +100,7 @@ fn tracking_rejects_ai_result_with_mismatched_source_observed_at() {
         ocentra_parent_agent_protocol::TrackingTimestamp::parse("2026-06-12T12:05:00Z")
             .expect("valid timestamp");
 
-    let decision =
-        ocentra_tracking_core::validate_tracking_ai_result_as_evidence(&request, &result);
+    let decision = validate_tracking_ai_result_as_evidence(&request, &result);
 
     assert_eq!(
         decision.decision_state,
@@ -125,8 +121,7 @@ fn tracking_rejects_ai_result_with_wrong_child_or_device_ref() {
         TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_PARENT_DEFINED_PLACE_ID)
             .expect(constants::tracking_runtime::DEFAULT_PARENT_DEFINED_PLACE_ID);
 
-    let decision =
-        ocentra_tracking_core::validate_tracking_ai_result_as_evidence(&request, &result);
+    let decision = validate_tracking_ai_result_as_evidence(&request, &result);
 
     assert_eq!(
         decision.decision_state,

@@ -11,7 +11,7 @@ import {
   NotificationLocalOutboxSeveritySchema,
   NotificationLocalOutboxStateSchema,
 } from './notification-local-outbox-adapter-proof-schemas';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   RequiredNotificationLocalOutboxSchedulerNonClaims,
   RequiredNotificationLocalOutboxSchedulerStates,

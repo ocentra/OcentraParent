@@ -1,4 +1,4 @@
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { SetupPairingState } from '@ocentra-parent/setup-domain/pairing-intent';
 import {
   createSetupReadinessChecklist,

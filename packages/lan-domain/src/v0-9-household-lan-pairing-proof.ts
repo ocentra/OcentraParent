@@ -10,7 +10,7 @@ import {
   LanPairingRejectionReasonSchema,
   LanPairingRouteIdSchema,
 } from '@ocentra-parent/lan-domain/lan-pairing-values';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { V09RuntimeProofStateSchema } from './v0-9-mobile-controller-discovery-runtime';
 
 export const V09HouseholdLanPairingProofIdSchema = withParser(Schema.Literal('v0-9-household-lan-pairing-proof'));

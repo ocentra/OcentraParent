@@ -8,7 +8,8 @@ import {
   type ParentPortalNavItem,
   type ParentPortalNavLabel,
 } from './parent-portal-nav';
-import { PARENT_PORTAL_GUIDE_TOPICS, type ParentPortalGuideTopic } from './parent-portal-guides';
+import type { ParentPortalGuideTopic } from './parent-portal-guide-types';
+import { PARENT_PORTAL_GUIDE_TOPICS } from './parent-portal-guides';
 import { PARENT_PORTAL_MANAGE_QUICK_CONTROLS, PARENT_PORTAL_MANAGE_ROWS } from './parent-portal-manage-data';
 
 export type ParentPortalTone = 'cyan' | 'gold' | 'purple' | 'red' | 'muted';
@@ -48,6 +49,7 @@ export type ParentPortalIconName =
   | 'enforcement';
 export type ParentPortalRowSource = 'api' | 'fallbackRows' | 'aiBenchmarkRows';
 export type ParentPortalPageMode = 'parentOverview' | 'parentManage' | 'parentGuide';
+export type ParentPortalManageLane = 'portal' | 'childPolicy' | 'deviceOps';
 
 export type ParentPortalRow = {
   label: string;
@@ -172,6 +174,7 @@ export type ParentPortalRouteContext = {
   readonly pageMode: ParentPortalPageMode;
   readonly navLabel: ParentPortalNavLabel;
   readonly selectedControlId: string;
+  readonly manageLane: ParentPortalManageLane | null;
 };
 
 export const PARENT_PORTAL_ROUTE = {
@@ -249,10 +252,58 @@ export const PARENT_PORTAL_ROUTE_CONTEXT: Readonly<Partial<Record<PortalRouteVal
 } as const;
 
 export function parentPortalRouteContext(route: PortalRouteValue): ParentPortalRouteContext {
-  return (
+  const context =
     PARENT_PORTAL_ROUTE_CONTEXT[route] ??
-    routeContext('parentOverview', PARENT_PORTAL_NAV_LABELS.Overview, 'managed-web')
-  );
+    routeContext('parentOverview', PARENT_PORTAL_NAV_LABELS.Overview, 'managed-web');
+  return {
+    ...context,
+    manageLane: context.pageMode === 'parentManage' ? parentPortalManageLaneForRoute(route) : null,
+  };
+}
+
+export function parentPortalManageLaneForRoute(route: PortalRouteValue): ParentPortalManageLane | null {
+  switch (route) {
+    case PortalRoute.Devices:
+    case PortalRoute.LanPairing:
+    case PortalRoute.CapabilityStatus:
+    case PortalRoute.RemoteAccess:
+    case PortalRoute.PlatformsInstall:
+    case PortalRoute.InstallUpdates:
+      return 'deviceOps';
+    case PortalRoute.Activity:
+    case PortalRoute.Browser:
+    case PortalRoute.BrowserSettings:
+    case PortalRoute.PolicyApps:
+    case PortalRoute.PolicyGames:
+    case PortalRoute.PolicyScreen:
+    case PortalRoute.PolicyNetwork:
+    case PortalRoute.PolicyTracking:
+    case PortalRoute.PolicyRemoteScreen:
+    case PortalRoute.RuleManagement:
+    case PortalRoute.Schedules:
+    case PortalRoute.Approvals:
+    case PortalRoute.Enforcement:
+    case PortalRoute.ScreenAnalysis:
+    case PortalRoute.AppGameSessions:
+    case PortalRoute.NetworkActivity:
+    case PortalRoute.MemorySettings:
+    case PortalRoute.AiRuntime:
+    case PortalRoute.ApiProviders:
+    case PortalRoute.ReportCompiler:
+      return 'childPolicy';
+    case PortalRoute.Notifications:
+    case PortalRoute.NotificationChannels:
+    case PortalRoute.DriveConnections:
+    case PortalRoute.ExportRetention:
+    case PortalRoute.AuditHistory:
+    case PortalRoute.Subscription:
+    case PortalRoute.Entitlements:
+    case PortalRoute.Diagnostics:
+    case PortalRoute.SettingsRules:
+      return 'portal';
+    default:
+      return null;
+  }
 }
 
 export const PARENT_PORTAL_ROWS: ParentPortalRow[] = [
@@ -735,5 +786,5 @@ function routeContext(
   navLabel: ParentPortalNavLabel,
   selectedControlId: string
 ): ParentPortalRouteContext {
-  return { pageMode, navLabel, selectedControlId };
+  return { pageMode, navLabel, selectedControlId, manageLane: null };
 }

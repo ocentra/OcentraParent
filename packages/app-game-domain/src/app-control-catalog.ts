@@ -45,29 +45,7 @@ import {
   type AppControlPolicyValue,
   type AppControlUpdateCommand,
 } from './app-control-catalog-schema';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
-
-export {
-  AppControlAuthoringCatalogSchema,
-  AppControlCapabilitySchema,
-  AppControlEffectivePolicySchema,
-  AppControlPolicyValueSchema,
-  AppControlUpdateCommandSchema,
-} from './app-control-catalog-schema';
-export type {
-  AppControlAuthoringCatalog,
-  AppControlCapability,
-  AppControlCapabilityState,
-  AppControlCardKind,
-  AppControlCatalogGroup,
-  AppControlCatalogOption,
-  AppControlCatalogSection,
-  AppControlCatalogSetting,
-  AppControlEffectivePolicy,
-  AppControlKind,
-  AppControlPolicyValue,
-  AppControlUpdateCommand,
-} from './app-control-catalog-schema';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 type GroupDraft = Omit<AppControlCatalogGroup, 'settings'> & {
   readonly settings: AppControlCatalogSetting[];

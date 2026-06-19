@@ -1,5 +1,5 @@
-import { AgentEventDeliveryMode, AgentEventEnvelopeSchema } from '@ocentra-parent/event-domain/primitives';
-import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
+import { AgentEventDeliveryMode, AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/event-primitives';
+import { EventingEventTypeSchema } from '@ocentra-parent/schema-domain/eventing';
 import { type Infer, brandedNonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
 export const ChildDomainChildDeviceIdSchema = brandedNonEmptyStringSchema('ChildDomainChildDeviceId');

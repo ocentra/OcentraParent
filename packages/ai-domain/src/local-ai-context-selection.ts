@@ -6,9 +6,9 @@ import type {
   LocalAiEvidenceCustody,
   LocalAiParentRuleContextRef,
   LocalAiStoredEvidenceContextBuildInput,
-} from '@ocentra-parent/ai-domain/local-ai-context';
+} from './local-ai-context';
 import type { LocalAiGraphReference, LocalAiMemoryReference } from './local-ai-references';
-import type { LocalModelRuntimeStatus } from '@ocentra-parent/ai-domain/local-ai-runtime';
+import type { LocalModelRuntimeStatus } from './local-ai-runtime';
 
 const HostedNonActivityCustody = 'ocentra-hosted-non-activity';
 

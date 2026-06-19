@@ -1,6 +1,9 @@
 use crate::{
-    constants, NetworkWindowsWfpGateCapabilityStatusState, NetworkWindowsWfpGateStatus,
-    NetworkWindowsWfpGateStatusState,
+    constants,
+    network_windows_wfp_gate_status::{
+        NetworkWindowsWfpGateCapabilityStatusState, NetworkWindowsWfpGateStatus,
+        NetworkWindowsWfpGateStatusState,
+    },
 };
 
 #[test]

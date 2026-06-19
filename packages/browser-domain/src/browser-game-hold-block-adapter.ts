@@ -5,7 +5,7 @@ import {
   ParentDeviceIdSchema,
   ParentEvidenceReferenceIdSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   BrowserGameHoldBlockActionSchema,
   BrowserGameHoldBlockAdapterPlanIdSchema,

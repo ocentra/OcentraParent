@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidChildRuntimeLocalNotificationRequestQueueProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-child-runtime-local-notification-request-queue-proof')
@@ -136,7 +136,6 @@ export function summarizeAppGameAndroidChildRuntimeLocalNotificationRequestQueue
   } as const;
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function localRequestQueueProofIsHonest(proof: LocalRequestQueueCandidate): boolean {
   return (
     proof.packageId === 'ca.ocentra.parent.agent' &&

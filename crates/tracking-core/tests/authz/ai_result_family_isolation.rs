@@ -4,6 +4,7 @@ use ocentra_parent_agent_protocol::{
     TrackingParentActionRequirement, TrackingPlaceCategory, TrackingProviderRef,
     TrackingReasonCode,
 };
+use ocentra_tracking_core::ai_boundary::validate_tracking_ai_result_as_evidence;
 
 #[test]
 fn ai_result_from_wrong_child_or_device_is_rejected_before_policy() {
@@ -53,8 +54,7 @@ fn ai_result_from_wrong_child_or_device_is_rejected_before_policy() {
         parent_action_requirement: TrackingParentActionRequirement::Required,
     };
 
-    let decision =
-        ocentra_tracking_core::validate_tracking_ai_result_as_evidence(&request, &result);
+    let decision = validate_tracking_ai_result_as_evidence(&request, &result);
 
     assert_eq!(
         decision.decision_state,

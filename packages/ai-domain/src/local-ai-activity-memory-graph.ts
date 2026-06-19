@@ -10,7 +10,7 @@ import {
   LocalAiDerivedIndexVersionSchema,
   LocalAiTimestampSchema,
 } from './local-ai-primitives';
-import { ParentPolicyVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPolicyVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ChildProfileReferenceSchema,
   ParentActionReferenceSchema,

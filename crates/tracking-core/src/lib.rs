@@ -6,23 +6,23 @@
     clippy::needless_pass_by_value
 )]
 
-mod ai_boundary;
-mod alerting;
-mod child_check_in;
+pub mod ai_boundary;
+pub mod alerting;
+pub mod child_check_in;
 mod expected_place;
 mod geofence;
 mod local_place;
 mod location_validation;
 mod missing_device;
 mod nearby_place;
-mod parent_acknowledgement;
-mod read_model;
+pub mod parent_acknowledgement;
+pub mod read_model;
 mod read_model_guard;
 mod read_model_rows;
 mod retention_settings;
 mod runtime_flow;
 mod status;
-mod temporary_live;
+pub mod temporary_live;
 
 pub const CRATE_NAME: &str = "ocentra-tracking-core";
 
@@ -30,11 +30,6 @@ pub fn evidence_crate_name() -> &'static str {
     ocentra_evidence::CRATE_NAME
 }
 
-pub use ai_boundary::{validate_tracking_ai_result_as_evidence, TrackingAiBoundaryDecision};
-pub use alerting::{
-    evaluate_tracking_alert, TrackingAlertDecision, TrackingParentNotificationDecisionState,
-};
-pub use child_check_in::record_child_check_in;
 pub use expected_place::{
     default_expected_place_evaluation, evaluate_expected_place_state,
     expected_place_window_contains_minute, TrackingExpectedPlaceEvaluation,
@@ -58,8 +53,6 @@ pub use nearby_place::{
     classify_tracking_nearby_place_request, request_nearby_place_provider_analysis,
     TrackingNearbyPlaceProviderAvailabilityState, TrackingNearbyPlaceProviderDecision,
 };
-pub use parent_acknowledgement::record_parent_acknowledgement;
-pub use read_model::tracking_read_model_for_connection;
 pub use read_model_guard::{
     evaluate_tracking_read_model_differential, evaluate_tracking_read_model_schema,
     TrackingReadModelDifferentialDecision, TrackingReadModelDifferentialState,
@@ -89,8 +82,4 @@ pub use status::{
     TrackingConnectivityState, TrackingDeviceStatusDecision, TrackingDeviceStatusInput,
     TrackingLowPowerModeState, TrackingPermissionState, TrackingPlatformState, TrackingRadioState,
     TrackingRuntimeServiceState,
-};
-pub use temporary_live::{
-    evaluate_temporary_live_tracking_session, TrackingHighCadenceState,
-    TrackingTemporaryLiveSessionDecision, TrackingTemporaryLiveSessionInput,
 };

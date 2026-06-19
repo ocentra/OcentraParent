@@ -140,18 +140,18 @@ test-results/logging-domain-parity-<proof-mode>/
 
 ## WP08 Logger Instrumentation and Adoption
 
-- [ ] Parent TypeScript logger usage pattern implemented or documented at API boundary.
-- [ ] Parent Rust logger usage pattern implemented through logging-core.
-- [ ] Portal dev/runtime logging uses parent logger instead of ad hoc fetch/console path.
+- [x] Parent TypeScript logger usage pattern implemented or documented at API boundary.
+- [x] Parent Rust logger usage pattern implemented through logging-core.
+- [x] Portal dev/runtime logging uses parent logger instead of ad hoc fetch/console path.
 - [ ] Agent-service startup/health/dev diagnostics use logging-core.
 - [ ] Validation/evidence scripts log run_id and command_id where useful.
-- [ ] At least one TypeScript runtime path produces source/context fields queryable from storage.
-- [ ] At least one Rust service path produces source/context fields queryable from storage or fixture output.
-- [ ] Tests verify registered source/context fields are preserved.
+- [x] At least one TypeScript runtime path produces source/context fields queryable from storage.
+- [x] At least one Rust service path produces source/context fields queryable from storage or fixture output.
+- [x] Tests verify registered source/context fields are preserved.
 - [ ] Checks prevent new raw console logging in touched logging surfaces.
 - [ ] Checks prevent ad hoc JSON log writers outside logging-domain/logging-core.
-- [ ] MCP or CLI query proof shows useful source/context values.
-- [ ] Proof root and workpack completion section filled.
+- [x] MCP or CLI query proof shows useful source/context values.
+- [x] Proof root and workpack completion section filled.
 
 ## WP10 Proof Trace Pipeline
 

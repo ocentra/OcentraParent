@@ -9,7 +9,7 @@ import {
   ParentContractSchemaVersionSchema,
   ParentPlatformSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   V08IntegrityAlertStatusBridgeReadModel,
   V08IntegrityAlertStatusBridgeReadModelSchema,

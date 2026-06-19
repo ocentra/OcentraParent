@@ -7,13 +7,19 @@ import {
   EventingEventIdSchema,
   EventingIdempotencyKeySchema,
   EventingRecordedAtSchema,
-} from '@ocentra-parent/event-domain/eventing';
+} from '@ocentra-parent/schema-domain/eventing';
 import {
   ChildProfileIdSchema,
   FamilyIdSchema,
   ParentDeviceIdSchema,
   ParentPolicyVersionSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  hasUniqueValues,
+  literalSchema,
+  literalValues,
+  parsedLiteralRecord,
+} from './literal-contracts';
 import {
   PolicyApprovalIdSchema,
   PolicyAuditReferenceIdSchema,
@@ -61,35 +67,9 @@ export const PolicyEventKindLiteral = {
   ManualRequired: 'policy.manual-required',
 } as const;
 
-export const PolicyEventKindSchema = withParser(
-  Schema.Literal(
-    PolicyEventKindLiteral.DraftCreated,
-    PolicyEventKindLiteral.PreviewRequested,
-    PolicyEventKindLiteral.PreviewGenerated,
-    PolicyEventKindLiteral.Confirmed,
-    PolicyEventKindLiteral.VersionSuperseded,
-    PolicyEventKindLiteral.CompilerRequested,
-    PolicyEventKindLiteral.CompilerCompleted,
-    PolicyEventKindLiteral.DeliveryQueued,
-    PolicyEventKindLiteral.DeliverySent,
-    PolicyEventKindLiteral.DeliveryAcknowledged,
-    PolicyEventKindLiteral.DeliveryRejected,
-    PolicyEventKindLiteral.DeliveryExpired,
-    PolicyEventKindLiteral.DeliveryRetryScheduled,
-    PolicyEventKindLiteral.DomainApplied,
-    PolicyEventKindLiteral.DomainPartial,
-    PolicyEventKindLiteral.RollbackRequested,
-    PolicyEventKindLiteral.RollbackApplied,
-    PolicyEventKindLiteral.AskParentRequested,
-    PolicyEventKindLiteral.AskParentApproved,
-    PolicyEventKindLiteral.AskParentDenied,
-    PolicyEventKindLiteral.OverrideCreated,
-    PolicyEventKindLiteral.OverrideExpired,
-    PolicyEventKindLiteral.AuditRecorded,
-    PolicyEventKindLiteral.DeadLetterRecorded,
-    PolicyEventKindLiteral.ManualRequired
-  )
-);
+const PolicyEventKindValues = literalValues(PolicyEventKindLiteral);
+
+export const PolicyEventKindSchema = literalSchema(PolicyEventKindLiteral);
 
 export const PolicyConsumerDomainLiteral = {
   App: 'app',
@@ -100,16 +80,9 @@ export const PolicyConsumerDomainLiteral = {
   Ai: 'ai',
 } as const;
 
-export const PolicyConsumerDomainSchema = withParser(
-  Schema.Literal(
-    PolicyConsumerDomainLiteral.App,
-    PolicyConsumerDomainLiteral.Browser,
-    PolicyConsumerDomainLiteral.Network,
-    PolicyConsumerDomainLiteral.Tracking,
-    PolicyConsumerDomainLiteral.Screen,
-    PolicyConsumerDomainLiteral.Ai
-  )
-);
+const PolicyConsumerDomainValues = literalValues(PolicyConsumerDomainLiteral);
+
+export const PolicyConsumerDomainSchema = literalSchema(PolicyConsumerDomainLiteral);
 
 export const PolicyEventDeadLetterReasonLiteral = {
   DuplicateIdempotency: 'duplicate-idempotency',
@@ -120,16 +93,9 @@ export const PolicyEventDeadLetterReasonLiteral = {
   ManualRequired: 'manual-required',
 } as const;
 
-export const PolicyEventDeadLetterReasonSchema = withParser(
-  Schema.Literal(
-    PolicyEventDeadLetterReasonLiteral.DuplicateIdempotency,
-    PolicyEventDeadLetterReasonLiteral.ReplayRejected,
-    PolicyEventDeadLetterReasonLiteral.StaleSequence,
-    PolicyEventDeadLetterReasonLiteral.UnsupportedTarget,
-    PolicyEventDeadLetterReasonLiteral.MissingSubscriber,
-    PolicyEventDeadLetterReasonLiteral.ManualRequired
-  )
-);
+const PolicyEventDeadLetterReasonValues = literalValues(PolicyEventDeadLetterReasonLiteral);
+
+export const PolicyEventDeadLetterReasonSchema = literalSchema(PolicyEventDeadLetterReasonLiteral);
 
 export const PolicyEventScopeLiteral = {
   SourceDocument: 'source-document',
@@ -309,57 +275,17 @@ export const PolicyEventFamilyNamespace = {
   Policy: PolicyEventFamilyNamespaceSchema.parse(PolicyEventFamilyNamespaceLiteral.Policy),
 } as const;
 
-export const PolicyEventKind = {
-  DraftCreated: PolicyEventKindSchema.parse(PolicyEventKindLiteral.DraftCreated),
-  PreviewRequested: PolicyEventKindSchema.parse(PolicyEventKindLiteral.PreviewRequested),
-  PreviewGenerated: PolicyEventKindSchema.parse(PolicyEventKindLiteral.PreviewGenerated),
-  Confirmed: PolicyEventKindSchema.parse(PolicyEventKindLiteral.Confirmed),
-  VersionSuperseded: PolicyEventKindSchema.parse(PolicyEventKindLiteral.VersionSuperseded),
-  CompilerRequested: PolicyEventKindSchema.parse(PolicyEventKindLiteral.CompilerRequested),
-  CompilerCompleted: PolicyEventKindSchema.parse(PolicyEventKindLiteral.CompilerCompleted),
-  DeliveryQueued: PolicyEventKindSchema.parse(PolicyEventKindLiteral.DeliveryQueued),
-  DeliverySent: PolicyEventKindSchema.parse(PolicyEventKindLiteral.DeliverySent),
-  DeliveryAcknowledged: PolicyEventKindSchema.parse(PolicyEventKindLiteral.DeliveryAcknowledged),
-  DeliveryRejected: PolicyEventKindSchema.parse(PolicyEventKindLiteral.DeliveryRejected),
-  DeliveryExpired: PolicyEventKindSchema.parse(PolicyEventKindLiteral.DeliveryExpired),
-  DeliveryRetryScheduled: PolicyEventKindSchema.parse(PolicyEventKindLiteral.DeliveryRetryScheduled),
-  DomainApplied: PolicyEventKindSchema.parse(PolicyEventKindLiteral.DomainApplied),
-  DomainPartial: PolicyEventKindSchema.parse(PolicyEventKindLiteral.DomainPartial),
-  RollbackRequested: PolicyEventKindSchema.parse(PolicyEventKindLiteral.RollbackRequested),
-  RollbackApplied: PolicyEventKindSchema.parse(PolicyEventKindLiteral.RollbackApplied),
-  AskParentRequested: PolicyEventKindSchema.parse(PolicyEventKindLiteral.AskParentRequested),
-  AskParentApproved: PolicyEventKindSchema.parse(PolicyEventKindLiteral.AskParentApproved),
-  AskParentDenied: PolicyEventKindSchema.parse(PolicyEventKindLiteral.AskParentDenied),
-  OverrideCreated: PolicyEventKindSchema.parse(PolicyEventKindLiteral.OverrideCreated),
-  OverrideExpired: PolicyEventKindSchema.parse(PolicyEventKindLiteral.OverrideExpired),
-  AuditRecorded: PolicyEventKindSchema.parse(PolicyEventKindLiteral.AuditRecorded),
-  DeadLetterRecorded: PolicyEventKindSchema.parse(PolicyEventKindLiteral.DeadLetterRecorded),
-  ManualRequired: PolicyEventKindSchema.parse(PolicyEventKindLiteral.ManualRequired),
-} as const;
+export const PolicyEventKind = parsedLiteralRecord(PolicyEventKindLiteral, (value) =>
+  PolicyEventKindSchema.parse(value)
+);
 
-export const PolicyConsumerDomain = {
-  App: PolicyConsumerDomainSchema.parse(PolicyConsumerDomainLiteral.App),
-  Browser: PolicyConsumerDomainSchema.parse(PolicyConsumerDomainLiteral.Browser),
-  Network: PolicyConsumerDomainSchema.parse(PolicyConsumerDomainLiteral.Network),
-  Tracking: PolicyConsumerDomainSchema.parse(PolicyConsumerDomainLiteral.Tracking),
-  Screen: PolicyConsumerDomainSchema.parse(PolicyConsumerDomainLiteral.Screen),
-  Ai: PolicyConsumerDomainSchema.parse(PolicyConsumerDomainLiteral.Ai),
-} as const;
+export const PolicyConsumerDomain = parsedLiteralRecord(PolicyConsumerDomainLiteral, (value) =>
+  PolicyConsumerDomainSchema.parse(value)
+);
 
-export const PolicyEventDeadLetterReason = {
-  DuplicateIdempotency: PolicyEventDeadLetterReasonSchema.parse(
-    PolicyEventDeadLetterReasonLiteral.DuplicateIdempotency
-  ),
-  ReplayRejected: PolicyEventDeadLetterReasonSchema.parse(PolicyEventDeadLetterReasonLiteral.ReplayRejected),
-  StaleSequence: PolicyEventDeadLetterReasonSchema.parse(PolicyEventDeadLetterReasonLiteral.StaleSequence),
-  UnsupportedTarget: PolicyEventDeadLetterReasonSchema.parse(
-    PolicyEventDeadLetterReasonLiteral.UnsupportedTarget
-  ),
-  MissingSubscriber: PolicyEventDeadLetterReasonSchema.parse(
-    PolicyEventDeadLetterReasonLiteral.MissingSubscriber
-  ),
-  ManualRequired: PolicyEventDeadLetterReasonSchema.parse(PolicyEventDeadLetterReasonLiteral.ManualRequired),
-} as const;
+export const PolicyEventDeadLetterReason = parsedLiteralRecord(PolicyEventDeadLetterReasonLiteral, (value) =>
+  PolicyEventDeadLetterReasonSchema.parse(value)
+);
 
 export const PolicyEventScope = {
   SourceDocument: PolicyEventSourceDocumentScopeSchema.parse({
@@ -535,33 +461,46 @@ export type PolicyEventFamilyVariant = {
   eventType: PolicyEventKind;
 };
 
-const POLICY_EVENT_KIND_VALUES = [
-  PolicyEventKind.DraftCreated,
-  PolicyEventKind.PreviewRequested,
-  PolicyEventKind.PreviewGenerated,
-  PolicyEventKind.Confirmed,
-  PolicyEventKind.VersionSuperseded,
-  PolicyEventKind.CompilerRequested,
-  PolicyEventKind.CompilerCompleted,
-  PolicyEventKind.DeliveryQueued,
-  PolicyEventKind.DeliverySent,
-  PolicyEventKind.DeliveryAcknowledged,
-  PolicyEventKind.DeliveryRejected,
-  PolicyEventKind.DeliveryExpired,
-  PolicyEventKind.DeliveryRetryScheduled,
-  PolicyEventKind.DomainApplied,
-  PolicyEventKind.DomainPartial,
-  PolicyEventKind.RollbackRequested,
-  PolicyEventKind.RollbackApplied,
-  PolicyEventKind.AskParentRequested,
-  PolicyEventKind.AskParentApproved,
-  PolicyEventKind.AskParentDenied,
-  PolicyEventKind.OverrideCreated,
-  PolicyEventKind.OverrideExpired,
-  PolicyEventKind.AuditRecorded,
-  PolicyEventKind.DeadLetterRecorded,
-  PolicyEventKind.ManualRequired,
-] as const;
+const POLICY_EVENT_KIND_VALUES = Object.freeze(PolicyEventKindValues);
+
+const POLICY_EVENT_SCOPE_FAMILY_BY_KIND: Readonly<Record<PolicyEventKind, PolicyEventScopeKind>> = {
+  [PolicyEventKindLiteral.DraftCreated]: PolicyEventScopeLiteral.SourceDocument,
+  [PolicyEventKindLiteral.PreviewRequested]: PolicyEventScopeLiteral.SourceDocument,
+  [PolicyEventKindLiteral.PreviewGenerated]: PolicyEventScopeLiteral.SourceDocument,
+  [PolicyEventKindLiteral.Confirmed]: PolicyEventScopeLiteral.SourceDocument,
+  [PolicyEventKindLiteral.VersionSuperseded]: PolicyEventScopeLiteral.SourceDocument,
+  [PolicyEventKindLiteral.CompilerRequested]: PolicyEventScopeLiteral.SourceDocument,
+  [PolicyEventKindLiteral.CompilerCompleted]: PolicyEventScopeLiteral.SourceDocument,
+  [PolicyEventKindLiteral.DeliveryQueued]: PolicyEventScopeLiteral.Delivery,
+  [PolicyEventKindLiteral.DeliverySent]: PolicyEventScopeLiteral.Delivery,
+  [PolicyEventKindLiteral.DeliveryAcknowledged]: PolicyEventScopeLiteral.Delivery,
+  [PolicyEventKindLiteral.DeliveryRejected]: PolicyEventScopeLiteral.Delivery,
+  [PolicyEventKindLiteral.DeliveryExpired]: PolicyEventScopeLiteral.Delivery,
+  [PolicyEventKindLiteral.DeliveryRetryScheduled]: PolicyEventScopeLiteral.Delivery,
+  [PolicyEventKindLiteral.DomainApplied]: PolicyEventScopeLiteral.Delivery,
+  [PolicyEventKindLiteral.DomainPartial]: PolicyEventScopeLiteral.Delivery,
+  [PolicyEventKindLiteral.RollbackRequested]: PolicyEventScopeLiteral.Rollback,
+  [PolicyEventKindLiteral.RollbackApplied]: PolicyEventScopeLiteral.Rollback,
+  [PolicyEventKindLiteral.AskParentRequested]: PolicyEventScopeLiteral.Request,
+  [PolicyEventKindLiteral.AskParentApproved]: PolicyEventScopeLiteral.Request,
+  [PolicyEventKindLiteral.AskParentDenied]: PolicyEventScopeLiteral.Request,
+  [PolicyEventKindLiteral.OverrideCreated]: PolicyEventScopeLiteral.Override,
+  [PolicyEventKindLiteral.OverrideExpired]: PolicyEventScopeLiteral.Override,
+  [PolicyEventKindLiteral.AuditRecorded]: PolicyEventScopeLiteral.SourceDocument,
+  [PolicyEventKindLiteral.DeadLetterRecorded]: PolicyEventScopeLiteral.SourceDocument,
+  [PolicyEventKindLiteral.ManualRequired]: PolicyEventScopeLiteral.SourceDocument,
+};
+
+const POLICY_EVENT_REASON_CODE_BY_KIND: Readonly<Partial<Record<PolicyEventKind, string>>> = {
+  [PolicyEventKindLiteral.DeliveryRejected]: 'delivery-rejected',
+  [PolicyEventKindLiteral.DeliveryExpired]: 'delivery-expired',
+  [PolicyEventKindLiteral.DeliveryRetryScheduled]: 'delivery-retry-scheduled',
+  [PolicyEventKindLiteral.DomainPartial]: 'domain-partial',
+  [PolicyEventKindLiteral.RollbackApplied]: 'rollback-applied',
+  [PolicyEventKindLiteral.AskParentDenied]: 'ask-parent-denied',
+  [PolicyEventKindLiteral.OverrideExpired]: 'override-expired',
+  [PolicyEventKindLiteral.ManualRequired]: 'manual-required',
+};
 
 function policyEventIsConsistent(event: Infer<typeof PolicyEventBaseSchema>): boolean {
   if (policyEventScopeFamily(event.scope) !== policyEventExpectedScopeFamily(event.kind)) {
@@ -607,76 +546,15 @@ function policyEventScopeFamily(scope: PolicyEventScope): PolicyEventScopeKind {
 }
 
 function policyEventExpectedScopeFamily(kind: PolicyEventKind): PolicyEventScopeKind {
-  switch (kind) {
-    case PolicyEventKind.AskParentRequested:
-    case PolicyEventKind.AskParentApproved:
-    case PolicyEventKind.AskParentDenied:
-      return PolicyEventScopeLiteral.Request;
-    case PolicyEventKind.OverrideCreated:
-    case PolicyEventKind.OverrideExpired:
-      return PolicyEventScopeLiteral.Override;
-    case PolicyEventKind.DeliveryQueued:
-    case PolicyEventKind.DeliverySent:
-    case PolicyEventKind.DeliveryAcknowledged:
-    case PolicyEventKind.DeliveryRejected:
-    case PolicyEventKind.DeliveryExpired:
-    case PolicyEventKind.DeliveryRetryScheduled:
-    case PolicyEventKind.DomainApplied:
-    case PolicyEventKind.DomainPartial:
-      return PolicyEventScopeLiteral.Delivery;
-    case PolicyEventKind.RollbackRequested:
-    case PolicyEventKind.RollbackApplied:
-      return PolicyEventScopeLiteral.Rollback;
-    case PolicyEventKind.DraftCreated:
-    case PolicyEventKind.PreviewRequested:
-    case PolicyEventKind.PreviewGenerated:
-    case PolicyEventKind.Confirmed:
-    case PolicyEventKind.VersionSuperseded:
-    case PolicyEventKind.CompilerRequested:
-    case PolicyEventKind.CompilerCompleted:
-    case PolicyEventKind.AuditRecorded:
-    case PolicyEventKind.DeadLetterRecorded:
-    case PolicyEventKind.ManualRequired:
-      return PolicyEventScopeLiteral.SourceDocument;
-    default:
-      throw new Error(`Unsupported policy event kind: ${kind}`);
-  }
+  return POLICY_EVENT_SCOPE_FAMILY_BY_KIND[kind];
 }
 
 function policyEventKindRequiresReason(kind: PolicyEventKind): boolean {
-  return (
-    kind === PolicyEventKind.DeliveryRejected ||
-    kind === PolicyEventKind.DeliveryExpired ||
-    kind === PolicyEventKind.DeliveryRetryScheduled ||
-    kind === PolicyEventKind.DomainPartial ||
-    kind === PolicyEventKind.AskParentDenied ||
-    kind === PolicyEventKind.OverrideExpired ||
-    kind === PolicyEventKind.ManualRequired ||
-    kind === PolicyEventKind.RollbackApplied
-  );
+  return POLICY_EVENT_REASON_CODE_BY_KIND[kind] !== undefined;
 }
 
 function policyEventKindReasonCodeValue(kind: PolicyEventKind): string {
-  switch (kind) {
-    case PolicyEventKind.DeliveryRejected:
-      return 'delivery-rejected';
-    case PolicyEventKind.DeliveryExpired:
-      return 'delivery-expired';
-    case PolicyEventKind.DeliveryRetryScheduled:
-      return 'delivery-retry-scheduled';
-    case PolicyEventKind.DomainPartial:
-      return 'domain-partial';
-    case PolicyEventKind.AskParentDenied:
-      return 'ask-parent-denied';
-    case PolicyEventKind.OverrideExpired:
-      return 'override-expired';
-    case PolicyEventKind.ManualRequired:
-      return 'manual-required';
-    case PolicyEventKind.RollbackApplied:
-      return 'rollback-applied';
-    default:
-      return 'policy-event';
-  }
+  return POLICY_EVENT_REASON_CODE_BY_KIND[kind] ?? 'policy-event';
 }
 
 function policyEventAggregateKeyValue(scope: PolicyEventScope): string {
@@ -764,5 +642,5 @@ function joinAuditReferenceIds(auditReferenceIds: readonly PolicyAuditReferenceI
 }
 
 function hasUniqueAuditReferenceIds(auditReferenceIds: readonly PolicyAuditReferenceId[]): boolean {
-  return auditReferenceIds.length > 0 && new Set(auditReferenceIds).size === auditReferenceIds.length;
+  return auditReferenceIds.length > 0 && hasUniqueValues(auditReferenceIds);
 }

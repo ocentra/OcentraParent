@@ -10,7 +10,7 @@ import {
   V08OsAdapterManualArtifactGateReadModel,
   type V08OsAdapterManualArtifactGateEntry,
 } from '@ocentra-parent/enforcement-domain/v0-8-os-adapter-manual-artifact-gates';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameWindowsBroadBlockingAuthorityPreflightSchemaVersionSchema = withParser(
   Schema.Literal('app-game-windows-broad-blocking-authority-preflight')
@@ -275,7 +275,6 @@ function windowsBroadBlockingPreflightRowIsHonest(row: WindowsBroadBlockingPrefl
   );
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function windowsBroadBlockingPreflightReadModelIsHonest(
   readModel: WindowsBroadBlockingPreflightReadModelCandidate
 ): boolean {

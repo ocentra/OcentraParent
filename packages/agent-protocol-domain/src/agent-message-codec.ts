@@ -51,7 +51,7 @@ function parseAgentEventInput(data: unknown): unknown {
     return data;
   }
 
-  return JSON.parse(decodeSerializedAgentMessage(data)) as unknown;
+  return JSON.parse(String(decodeSerializedAgentMessage(data))) as unknown;
 }
 
 function createMessageId(): AgentMessageId {

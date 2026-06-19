@@ -21,7 +21,7 @@ import {
   appGameSourceGatedPolicyPreviewTimerRuntimeReadinessHasNoRuntimeClaims,
   appGameSourceGatedPolicyPreviewTimerRuntimeReadinessMatchesStatus,
 } from './app-game-source-gated-policy-preview-timer-runtime-readiness-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessIdSchema =
   brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessId');

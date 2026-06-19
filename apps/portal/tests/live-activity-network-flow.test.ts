@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/network-domain/network-flow';
-import { networkEvidenceDrawerSummary, PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+import { networkEvidenceDrawerSummary } from '@ocentra-parent/portal-domain/network-evidence-drawer';
 import {
   AgentEvent,
   AgentEventEnvelopeSchema,

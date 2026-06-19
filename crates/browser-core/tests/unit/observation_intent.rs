@@ -2,7 +2,7 @@ use ocentra_browser_core::{
     browser_ai_analysis_requested_event, browser_evidence_recorded_event, browser_observed_event,
     browser_policy_evaluation_requested_event, BrowserObservationIntent,
 };
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainAiAnalysisRequirement, ChildDomainObservedSignal,
     ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
 };

@@ -1,7 +1,10 @@
 use crate::{
-    constants, NetworkAppleNetworkExtensionGateCapabilityStatusState,
-    NetworkAppleNetworkExtensionGateStatus, NetworkAppleNetworkExtensionGateStatusState,
-    NetworkAppleNetworkExtensionPlatformStatus,
+    constants,
+    network_apple_network_extension_gate_status::{
+        NetworkAppleNetworkExtensionGateCapabilityStatusState,
+        NetworkAppleNetworkExtensionGateStatus, NetworkAppleNetworkExtensionGateStatusState,
+        NetworkAppleNetworkExtensionPlatformStatus,
+    },
 };
 
 #[test]

@@ -1,4 +1,5 @@
 import { decodeDisplayText, decodeTextTokenId, type DisplayText } from './contracts';
+import { resolveDisplayTextFromMap } from './text-family';
 
 export const BrowserChildUxTextToken = {
   Opening: decodeTextTokenId('browser.child.opening.title'),
@@ -33,9 +34,5 @@ export const BrowserChildUxText: Record<BrowserChildUxTextTokenValue, DisplayTex
 const MissingBrowserChildUxTextTokenMessage = decodeDisplayText('Missing browser child UX text token.');
 
 export function resolveBrowserChildUxText(token: BrowserChildUxTextTokenValue): DisplayText {
-  const text = BrowserChildUxText[token];
-  if (text === undefined) {
-    throw new Error(MissingBrowserChildUxTextTokenMessage);
-  }
-  return text;
+  return resolveDisplayTextFromMap(BrowserChildUxText, token, MissingBrowserChildUxTextTokenMessage);
 }

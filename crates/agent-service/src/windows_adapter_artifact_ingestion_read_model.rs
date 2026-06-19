@@ -1,12 +1,15 @@
+use ocentra_parent_agent_protocol::windows_adapter_artifact_ingestion::{
+    WindowsAdapterArtifactIngestionAcceptedRecord, WindowsAdapterArtifactIngestionProof,
+    WindowsAdapterArtifactIngestionRecord, WindowsAdapterArtifactIngestionRejection,
+};
 use ocentra_parent_agent_protocol::{
     constants::{
         windows_adapter_artifact_gate as artifact_gate,
         windows_adapter_artifact_ingestion as artifact_ingestion,
     },
-    policy_constants as policy, WindowsAdapterArtifactEvidence,
-    WindowsAdapterArtifactIngestionAcceptedRecord, WindowsAdapterArtifactIngestionProof,
-    WindowsAdapterArtifactIngestionRecord, WindowsAdapterArtifactIngestionRejection,
-    WindowsAdapterArtifactKind, WindowsAdapterCapabilitySurface,
+    policy_constants as policy,
+    windows_adapter_artifact_gate::{WindowsAdapterArtifactEvidence, WindowsAdapterArtifactKind},
+    WindowsAdapterCapabilitySurface,
 };
 
 use crate::windows_adapter_artifact_gate_read_model::evaluate_windows_adapter_artifact_gate;

@@ -16,7 +16,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const V08BrowserDomainAdapterProofReadModelIdSchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofReadModelId');
 export const V08BrowserDomainAdapterProofEntryIdSchema = brandedNonEmptyStringSchema('V08BrowserDomainAdapterProofEntryId');

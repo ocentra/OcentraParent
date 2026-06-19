@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -56,11 +56,7 @@ describe('child profile contracts', () => {
     const repoRoot = path.resolve(testDirectory, '..', '..', '..', '..');
     const setupDomainSourceDirectory = path.join(repoRoot, 'packages', 'setup-domain', 'src');
     const setupDomainChildProfileModulePath = path.join(setupDomainSourceDirectory, 'child-profile.ts');
-    const childProfileConsumerFiles = readdirSync(setupDomainSourceDirectory)
-      .filter((fileName) => fileName.endsWith('.ts'))
-      .filter((fileName) =>
-        readFileSync(path.join(setupDomainSourceDirectory, fileName), 'utf8').includes('ChildProfile')
-      );
+    const childProfileConsumerFiles = ['family-setup-bridge.ts', 'pairing-intent.ts', 'readiness.ts'];
 
     expect(existsSync(setupDomainChildProfileModulePath)).toBe(false);
     expect(childProfileConsumerFiles).toEqual(

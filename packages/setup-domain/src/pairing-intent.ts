@@ -13,7 +13,7 @@ import {
 import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
 function brandedNonEmptyStringSchema<const Brand extends string>(brand: Brand) {

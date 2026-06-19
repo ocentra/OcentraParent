@@ -1,4 +1,4 @@
-use ocentra_child_runtime::TrackingRuntimeEventFlow;
+use ocentra_child_runtime::tracking_runtime_flow::TrackingRuntimeEventFlow;
 use ocentra_eventing::{
     bus::EventBus, envelope::DomainEvent, error::EventingError, request::RequestCompletionOutcome,
 };

@@ -28,8 +28,6 @@ import {
   AppGameSchemaVersion,
 } from './app-game-primitives';
 
-export * from './app-game-category-risk-primitives';
-
 export const AppGameCategoryParentOverrideSchema = withParser(
   Schema.Struct({
     parentLabel: AppGameParentLabelSchema,

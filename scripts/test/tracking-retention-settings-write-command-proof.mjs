@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
@@ -23,27 +24,25 @@ async function main() {
   await mkdir(output32, { recursive: true });
   await mkdir(output33, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/agent-protocol-domain']);
-  run('cmd', [
-    '/c',
-    'npm',
+  runNpmCommand(run, [
     'run',
     'test',
     '--workspace',
     '@ocentra-parent/agent-protocol-domain',
     '--',
-    'tracking-retention-settings-write-command',
+    'tests/unit/tracking-retention-settings-write-command.test.ts',
   ]);
   run('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'retention_settings_write', '--', '--nocapture']);
   run('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'retention_settings_write', '--', '--nocapture']);
 
-  const protocolModule = await import(
+  const protocolModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'agent-protocol-domain', 'dist', 'tracking-retention-settings-write-command.js')
-    ).href
+      join(repoRoot, 'packages', 'agent-protocol-domain', 'src', 'tracking-retention-settings-write-command.ts')
+    ).href,
+    import.meta.url
   );
-  const request = protocolModule.AgentTrackingRetentionSettingsWriteRequestSchema.parse(writeRequest());
-  const result = protocolModule.AgentTrackingRetentionSettingsWriteResultSchema.parse(writeResult());
+  const request = protocolModule.AgentTrackingRetentionSettingsWriteRequestSchema.parse(writeRequest(protocolModule));
+  const result = protocolModule.AgentTrackingRetentionSettingsWriteResultSchema.parse(writeResult(protocolModule, request));
   const proof = {
     schemaVersion: result.schemaVersion,
     proofMode,
@@ -54,21 +53,32 @@ async function main() {
     request,
     result,
     proofClaims: {
-      commandTransportClaimed: result.commandTransportClaimed,
-      serviceWritePreflightClaimed: result.serviceWritePreflightClaimed,
-      serviceMutationExecuted: result.serviceMutationExecuted,
+      commandTransportClaimed:
+        result.commandTransportClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
+      serviceWritePreflightClaimed:
+        result.serviceWritePreflightClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
+      serviceMutationExecuted:
+        result.serviceMutationExecutionState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
       localServiceStateRevisionRecorded: result.localServiceStateRevision !== null,
     },
     productClaims: {
-      durableSettingsPersisted: result.durableSettingsPersisted,
-      portalWritableUiClaimed: result.portalWritableUiClaimed,
-      platformRuntimeClaimed: result.platformRuntimeClaimed,
-      childDeviceDeliveryClaimed: result.childDeviceDeliveryClaimed,
-      providerDeliveryClaimed: result.providerDeliveryClaimed,
-      notificationReceiptClaimed: result.notificationReceiptClaimed,
-      physicalDeviceClaimed: result.physicalDeviceClaimed,
-      authorityClaimed: result.authorityClaimed,
-      productClaimReady: result.productClaimReady,
+      durableSettingsPersisted:
+        result.durableSettingsPersistenceState === protocolModule.AgentTrackingDurableSettingsPersistenceState.Persisted,
+      portalWritableUiClaimed:
+        result.portalWritableUiClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
+      platformRuntimeClaimed:
+        result.platformRuntimeClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
+      childDeviceDeliveryClaimed:
+        result.childDeviceDeliveryClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
+      providerDeliveryClaimed:
+        result.providerDeliveryClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
+      notificationReceiptClaimed:
+        result.notificationReceiptClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
+      physicalDeviceClaimed:
+        result.physicalDeviceClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
+      authorityClaimed:
+        result.authorityClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
+      productClaimReady: result.productClaimState === protocolModule.AgentTrackingExecutionClaimState.Claimed,
     },
     commands,
     artifactPaths: {
@@ -91,16 +101,17 @@ async function main() {
   console.log('evidence=test-results/tracking-retention-settings-write-command-proof/proof.json');
 }
 
-function writeRequest() {
+function writeRequest(protocolModule) {
   return {
     schemaVersion: 1,
     commandId: 'tracking-retention-settings-write-command',
     settingsKind: 'retention-window-setting',
     requestedRetentionWindowHours: 168,
-    requestedDeleteAfterAlertResolved: false,
-    requestedParentExport: false,
-    requestedRemoteSyncEnabled: false,
-    requestedRemoteAiEnabled: false,
+    requestedDeleteAfterAlertResolutionState:
+      protocolModule.AgentTrackingDeleteAfterAlertResolutionState.RetainAfterAlertResolved,
+    requestedParentExportState: protocolModule.AgentTrackingParentExportState.NotPrepared,
+    requestedRemoteSyncState: protocolModule.AgentTrackingRemoteSyncState.Disabled,
+    requestedRemoteAiState: protocolModule.AgentTrackingRemoteAiState.Disabled,
     sourceWriterIntentRefs: ['tracking-retention-settings-write-retention-window'],
     sourceReadModelProofRefs: [
       'output/tracking-plan-proof/07-retention-and-custody-model/18-retention-settings-read-model-proof.json',
@@ -109,8 +120,7 @@ function writeRequest() {
   };
 }
 
-function writeResult() {
-  const request = writeRequest();
+function writeResult(protocolModule, request) {
   return {
     schemaVersion: 1,
     commandId: request.commandId,
@@ -123,33 +133,34 @@ function writeResult() {
       'output/tracking-plan-proof/07-retention-and-custody-model/20-retention-settings-mutation-proof.json',
     ],
     appliedRetentionWindowHours: request.requestedRetentionWindowHours,
-    appliedDeleteAfterAlertResolved: request.requestedDeleteAfterAlertResolved,
-    parentExportPrepared: request.requestedParentExport,
-    remoteSyncEnabled: false,
-    remoteAiEnabled: false,
+    appliedDeleteAfterAlertResolutionState: request.requestedDeleteAfterAlertResolutionState,
+    parentExportState: request.requestedParentExportState,
+    remoteSyncState: request.requestedRemoteSyncState,
+    remoteAiState: request.requestedRemoteAiState,
     localServiceStateRevision: 1,
     localServiceStateSnapshotRef: 'agent-service-local-retention-settings-state',
     durableSettingsStoreRef: 'agent-service-local-retention-settings-durable-json',
-    durableSettingsPersisted: true,
-    commandTransportClaimed: true,
-    serviceWritePreflightClaimed: true,
-    serviceMutationExecuted: true,
-    portalWritableUiClaimed: false,
-    platformRuntimeClaimed: false,
-    childDeviceDeliveryClaimed: false,
-    providerDeliveryClaimed: false,
-    notificationReceiptClaimed: false,
-    physicalDeviceClaimed: false,
-    authorityClaimed: false,
-    productClaimReady: false,
+    durableSettingsPersistenceState: protocolModule.AgentTrackingDurableSettingsPersistenceState.Persisted,
+    childConfigAckState: protocolModule.AgentTrackingConfigAckState.Received,
+    commandTransportClaimState: protocolModule.AgentTrackingExecutionClaimState.Claimed,
+    serviceWritePreflightClaimState: protocolModule.AgentTrackingExecutionClaimState.Claimed,
+    serviceMutationExecutionState: protocolModule.AgentTrackingExecutionClaimState.Claimed,
+    portalWritableUiClaimState: protocolModule.AgentTrackingExecutionClaimState.Unclaimed,
+    platformRuntimeClaimState: protocolModule.AgentTrackingExecutionClaimState.Unclaimed,
+    childDeviceDeliveryClaimState: protocolModule.AgentTrackingExecutionClaimState.Unclaimed,
+    providerDeliveryClaimState: protocolModule.AgentTrackingExecutionClaimState.Unclaimed,
+    notificationReceiptClaimState: protocolModule.AgentTrackingExecutionClaimState.Unclaimed,
+    physicalDeviceClaimState: protocolModule.AgentTrackingExecutionClaimState.Unclaimed,
+    authorityClaimState: protocolModule.AgentTrackingExecutionClaimState.Unclaimed,
+    productClaimState: protocolModule.AgentTrackingExecutionClaimState.Unclaimed,
   };
 }
 
 function assertProof(proof) {
-  if (!proof.result.commandTransportClaimed || !proof.result.serviceWritePreflightClaimed) {
+  if (proof.result.commandTransportClaimState !== 'claimed' || proof.result.serviceWritePreflightClaimState !== 'claimed') {
     throw new Error('Retention write command proof must claim command transport and service preflight.');
   }
-  if (!proof.result.serviceMutationExecuted) {
+  if (proof.result.serviceMutationExecutionState !== 'claimed') {
     throw new Error('Retention write command proof must execute the local service mutation.');
   }
   if (proof.result.appliedRetentionWindowHours !== proof.request.requestedRetentionWindowHours) {
@@ -161,13 +172,13 @@ function assertProof(proof) {
   if (proof.result.localServiceStateSnapshotRef !== 'agent-service-local-retention-settings-state') {
     throw new Error('Retention write command proof must record the local service state snapshot ref.');
   }
-  if (!proof.result.durableSettingsPersisted) {
+  if (proof.result.durableSettingsPersistenceState !== 'persisted') {
     throw new Error('Retention write command proof must claim local durable settings persistence.');
   }
   if (proof.result.durableSettingsStoreRef !== 'agent-service-local-retention-settings-durable-json') {
     throw new Error('Retention write command proof must record the durable settings store ref.');
   }
-  if (proof.result.remoteSyncEnabled || proof.result.remoteAiEnabled) {
+  if (proof.result.remoteSyncState !== 'disabled' || proof.result.remoteAiState !== 'disabled') {
     throw new Error('Retention write command proof must keep remote sync and remote AI disabled.');
   }
   const { durableSettingsPersisted, ...remainingProductClaims } = proof.productClaims;

@@ -7,6 +7,14 @@ import {
 import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
 import { ScreenEvidenceCustodyStateSchema } from './screen-evidence-states';
 import {
+  screenLiveViewDisabledCoreFieldsAreConsistent,
+  screenLiveViewDisablesFrameStorageAndRemoteControl,
+  screenLiveViewHasViewerAuditAndTransportProof,
+  ScreenLiveViewOptionalAuditRefSchema,
+  ScreenLiveViewOptionalProofRefSchema,
+  ScreenLiveViewRequiredFalseSchema,
+} from './screen-live-view-readiness-core';
+import {
   ScreenLiveViewModeSchema,
   ScreenLiveViewTransportModeSchema,
   ScreenOptionalVisibilityAuditRefSchema,
@@ -18,9 +26,6 @@ import {
 
 export const ScreenLiveViewPermissionGateSchemaVersion = 1;
 export const ScreenLiveViewProductionReadinessEvidenceSchemaVersion = 1;
-const RequiredFalse = Schema.Literal(false);
-const OptionalLiveViewProofRefSchema = Schema.Union(ScreenOptionalVisibilityPlatformProofRefSchema, Schema.Null);
-const OptionalLiveViewAuditRefSchema = Schema.Union(ScreenOptionalVisibilityAuditRefSchema, Schema.Null);
 
 export const ScreenLiveViewPlatformKindSchema = withParser(
   Schema.Literal('windows', 'macos', 'linux-x11', 'linux-wayland', 'android-mediaprojection', 'ios-replaykit')
@@ -42,16 +47,16 @@ const ScreenLiveViewPlatformPermissionGateBaseSchema = Schema.Struct({
   transportMode: ScreenLiveViewTransportModeSchema,
   permissionEvidenceKind: ScreenLiveViewPermissionEvidenceKindSchema,
   platformProofState: ScreenOptionalVisibilityPlatformProofStateSchema,
-  platformProofRef: OptionalLiveViewProofRefSchema,
-  viewerAuditRef: OptionalLiveViewAuditRefSchema,
+  platformProofRef: ScreenLiveViewOptionalProofRefSchema,
+  viewerAuditRef: ScreenLiveViewOptionalAuditRefSchema,
   sourceLabel: ScreenOptionalVisibilitySourceLabelSchema,
   custodyState: ScreenEvidenceCustodyStateSchema,
   frameRetentionBehavior: ScreenOptionalVisibilityRetentionBehaviorSchema,
-  liveTransportProofRef: OptionalLiveViewProofRefSchema,
+  liveTransportProofRef: ScreenLiveViewOptionalProofRefSchema,
   explicitViewerDisclosure: Schema.Boolean,
-  cacheRawFrames: RequiredFalse,
-  sessionRecordingAllowed: RequiredFalse,
-  remoteInputControlAllowed: RequiredFalse,
+  cacheRawFrames: ScreenLiveViewRequiredFalseSchema,
+  sessionRecordingAllowed: ScreenLiveViewRequiredFalseSchema,
+  remoteInputControlAllowed: ScreenLiveViewRequiredFalseSchema,
   productLiveViewReady: Schema.Boolean,
   reason: NonEmptyStringSchema,
 });
@@ -66,8 +71,8 @@ const ScreenLiveViewPromptArtifactSchema = Schema.Struct({
   capturedAt: ActivityTimestampSchema,
   operatorAuditRef: ScreenOptionalVisibilityAuditRefSchema,
   permissionEvidenceKind: Schema.Literal('live-view-permission'),
-  rawFrameIncluded: RequiredFalse,
-  containsUserPrivateContent: RequiredFalse,
+  rawFrameIncluded: ScreenLiveViewRequiredFalseSchema,
+  containsUserPrivateContent: ScreenLiveViewRequiredFalseSchema,
 });
 
 const ScreenLiveViewProductionReadinessEvidenceBaseSchema = Schema.Struct({
@@ -79,7 +84,7 @@ const ScreenLiveViewProductionReadinessEvidenceBaseSchema = Schema.Struct({
   physicalDeviceParityProofRef: ScreenOptionalVisibilityPlatformProofRefSchema,
   privacyLegalApprovalRef: ScreenOptionalVisibilityAuditRefSchema,
   productionWorkerStartProofRef: ScreenOptionalVisibilityPlatformProofRefSchema,
-  relayCacheExecutionProofRef: OptionalLiveViewProofRefSchema,
+  relayCacheExecutionProofRef: ScreenLiveViewOptionalProofRefSchema,
   productLiveViewReady: Schema.Boolean,
 });
 
@@ -153,17 +158,11 @@ export function screenLiveViewProductionReadinessEvidenceIsConsistent(
 
 function disabledLiveViewPermissionGateIsConsistent(value: ScreenLiveViewPlatformPermissionGateInput): boolean {
   return (
-    value.transportMode === 'none' &&
+    screenLiveViewDisabledCoreFieldsAreConsistent(value) &&
     value.permissionEvidenceKind === 'missing' &&
     value.platformProofState === 'notRequired' &&
     value.platformProofRef === null &&
-    value.viewerAuditRef === null &&
-    value.sourceLabel === 'unavailable' &&
-    value.custodyState === 'unavailable' &&
-    value.frameRetentionBehavior === 'noFrameRetention' &&
-    value.liveTransportProofRef === null &&
-    !value.explicitViewerDisclosure &&
-    !value.productLiveViewReady
+    !value.explicitViewerDisclosure
   );
 }
 
@@ -184,9 +183,8 @@ function enabledLiveViewProofInputsAreReady(value: ScreenLiveViewPlatformPermiss
     value.permissionEvidenceKind === 'live-view-permission' &&
     value.platformProofState === 'operatorVerified' &&
     value.platformProofRef !== null &&
-    value.viewerAuditRef !== null &&
-    value.frameRetentionBehavior === 'noFrameRetention' &&
-    value.liveTransportProofRef !== null &&
+    screenLiveViewHasViewerAuditAndTransportProof(value) &&
+    screenLiveViewDisablesFrameStorageAndRemoteControl(value) &&
     value.explicitViewerDisclosure
   );
 }

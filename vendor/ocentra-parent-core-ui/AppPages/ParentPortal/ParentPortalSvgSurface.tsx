@@ -84,6 +84,9 @@ import {
   PortalUnifiedChrome,
   type ParentAssistantPortalQuickActionId,
 } from '@ocentra-parent/portal-domain/contracts';
+import { parentPortalManageLaneForRoute } from '../../../../packages/portal-domain/src/parent-portal-data';
+import { createPolicyWorkspacePreviewRows } from '../../../../packages/portal-domain/src/policy-preview-workspace';
+import { portalRouteFromHashPath } from '../../../../packages/portal-domain/src/routes';
 import {
   BrowserPolicyDefaultAnswers,
   browserPolicyQuestionState,
@@ -1267,6 +1270,13 @@ function initialNavItemForContext(
   }
   return navItems.find((item) => item.label === initialNavLabel);
 }
+
+const MANAGE_DEVICE_OPS_ROUTE_KEYS = new Set([
+  'lan-pairing',
+  'capability-status',
+  'platforms-install',
+  'install-updates',
+]);
 
 function deviceOpsNavItemForRoute(navItems: NavItem[], routePath: string): NavItem | undefined {
   if (!MANAGE_DEVICE_OPS_ROUTE_KEYS.has(assetKey(routePath))) return undefined;
@@ -3866,6 +3876,37 @@ type ManageTargetSelection = {
   readonly browser: string;
 };
 
+const PARENT_PORTAL_MANAGE_TARGET_SELECTION_STORAGE_KEY = 'ocentra.parent.portal.manage-target-selection.v1';
+
+function readStoredManageTargetSelection(): ManageTargetSelection | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.sessionStorage.getItem(PARENT_PORTAL_MANAGE_TARGET_SELECTION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<ManageTargetSelection> | null;
+    if (!parsed || (parsed.scope !== 'global' && parsed.scope !== 'perDevice')) return null;
+    return {
+      scope: parsed.scope,
+      device: typeof parsed.device === 'string' ? parsed.device : '',
+      browser: typeof parsed.browser === 'string' ? parsed.browser : 'Chrome',
+    };
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredManageTargetSelection(selection: ManageTargetSelection): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.setItem(
+      PARENT_PORTAL_MANAGE_TARGET_SELECTION_STORAGE_KEY,
+      JSON.stringify(selection)
+    );
+  } catch {
+    // Ignore storage write failures and keep the in-memory selection authoritative.
+  }
+}
+
 type ManageTargetChoice = {
   readonly label: string;
   readonly detail: string;
@@ -3908,78 +3949,11 @@ const MANAGE_LANES: readonly {
   { id: 'deviceOps', label: 'DEVICE', detail: '', tone: 'purple' },
 ];
 
-const MANAGE_ROUTE_KEYS = new Set([
-  'activity',
-  'browser-settings',
-  'policy-apps',
-  'policy-games',
-  'policy-screen',
-  'policy-network',
-  'policy-tracking',
-  'policy-remote-screen',
-  'rule-management',
-  'schedules',
-  'approvals',
-  'enforcement',
-  'screen-analysis',
-  'app-game-sessions',
-  'network-activity',
-  'memory-settings',
-  'ai-runtime',
-  'api-providers',
-  'remote-access',
-  'subscription',
-  'platforms-install',
-  'devices',
-  'lan-pairing',
-  'capability-status',
-  'notifications',
-  'notification-channels',
-  'drive-connections',
-  'export-retention',
-  'report-compiler',
-  'audit-history',
-  'entitlements',
-  'install-updates',
-  'diagnostics',
-  'settings-rules',
-]);
-
-const MANAGE_DEVICE_OPS_ROUTE_KEYS = new Set([
-  'devices',
-  'lan-pairing',
-  'capability-status',
-  'remote-access',
-  'platforms-install',
-  'install-updates',
-]);
-
-const MANAGE_CHILD_POLICY_ROUTE_KEYS = new Set([
-  'activity',
-  'browser-settings',
-  'policy-apps',
-  'policy-games',
-  'policy-screen',
-  'policy-network',
-  'policy-tracking',
-  'policy-remote-screen',
-  'rule-management',
-  'schedules',
-  'approvals',
-  'enforcement',
-  'screen-analysis',
-  'app-game-sessions',
-  'network-activity',
-  'report-compiler',
-  'ai-runtime',
-  'memory-settings',
-]);
-
-function manageLaneForRouteKey(routeKey: string): ManageLaneId | null {
-  if (MANAGE_DEVICE_OPS_ROUTE_KEYS.has(routeKey)) return 'deviceOps';
-  if (MANAGE_CHILD_POLICY_ROUTE_KEYS.has(routeKey)) return 'childPolicy';
-  if (MANAGE_ROUTE_KEYS.has(routeKey)) return 'portal';
-  return null;
+function manageLaneForRoutePath(routePath: string | undefined): ManageLaneId | null {
+  if (typeof routePath !== 'string') return null;
+  const route = portalRouteFromHashPath(routePath);
+  if (route === null) return null;
+  return parentPortalManageLaneForRoute(route);
 }
 
 function guideRoutePathForManageKey(activeNavLabel: string, selectedControlName: string): string {
@@ -4112,7 +4086,7 @@ function manageLaneForKey(activeNavLabel: string, selectedControlName: string): 
 }
 
 function manageLaneForControl(control: ControlArea | QuickControl): ManageLaneId {
-  const routeLane = manageLaneForRouteKey(assetKey(control.routePath));
+  const routeLane = manageLaneForRoutePath(control.routePath);
   if (routeLane) return routeLane;
   return manageLaneForKey(
     control.name,
@@ -4198,7 +4172,9 @@ function uniqueManageDeviceChoices(choices: readonly string[]): readonly string[
 }
 
 function manageDefaultDeviceSelection(spec: ManageControlSpec, runtimeSlots: readonly DeviceSlot[] = []): string {
-  return manageDeviceChoices(spec.devices, runtimeSlots)[0] ?? '';
+  void spec;
+  void runtimeSlots;
+  return '';
 }
 
 function manageInitialScopeForSpec(
@@ -4249,6 +4225,10 @@ function reportPlanSeatSlots(planSeatLimit: number): DeviceSlot[] {
 
 function reportSelectedSlotValue(slots: readonly DeviceSlot[], device: string): string | undefined {
   return slots.find((slot) => slot.label === device || slot.device?.name === device)?.value;
+}
+
+function selectedDeviceIdentity(slot: DeviceSlot | null | undefined): string {
+  return slot?.device?.name ?? slot?.label ?? '';
 }
 
 function reportDeviceSelectionAvailable(slots: readonly DeviceSlot[], device: string): boolean {
@@ -4512,10 +4492,14 @@ function lanPairingDeviceSource(slot: DeviceSlot): string {
 
 function lanPairingDeviceControlState(slot: DeviceSlot): string {
   const state = slot.device?.sourceState || slot.badge || slot.status;
-  if (lanPairingDeviceIsInfrastructure(slot) || slot.status === 'unsupported') return 'Visible only';
+  if (lanPairingDeviceIsInfrastructure(slot)) return 'Visible only';
+  if (state === 'ignored') return 'Ignored';
+  if (state === 'revoked') return 'Revoked';
   if (state === 'manual-required') return 'Manual required';
+  if (state === 'stale') return 'Stale';
   if (state === 'unavailable' || state === 'degraded') return lanPairingHumanLabel(state);
-  if (slot.status === 'offline') return 'Offline';
+  if (slot.status === 'offline' || state === 'offline') return 'Offline';
+  if (slot.status === 'unsupported') return 'Visible only';
   if (slot.status === 'connected' && lanPairingDeviceHasAgent(slot)) return 'Policy target';
   if (lanPairingDeviceHasAgent(slot)) return 'Setup needed';
   return 'Visible only';
@@ -7221,6 +7205,12 @@ function managePolicyAreaIcon(activeNavLabel: string, selectedControlName: strin
 }
 
 function manageWorkspaceTargetOptions(kind: ManageWorkspaceKind): readonly ManageWorkspaceTargetOption[] {
+  if (kind === 'account') {
+    return [
+      { id: 'family', label: 'Family', detail: 'Family plan, support, and gate defaults.', tone: 'cyan' },
+      { id: 'perDevice', label: 'Per Device', detail: 'Child seat, entitlement, and support scope.', tone: 'gold' },
+    ];
+  }
   if (kind === 'policy') {
     return [
       { id: 'family', label: 'Family', detail: 'Family default policy.', tone: 'cyan' },
@@ -7249,6 +7239,17 @@ function manageWorkspaceTargetLabel(target: ManageWorkspaceTarget): string {
   return 'Family';
 }
 
+function sharedWorkspaceTargetForOptions(
+  targetOptions: readonly ManageWorkspaceTargetOption[],
+  sharedTargetSelection: ManageTargetSelection
+): ManageWorkspaceTarget {
+  const defaultTarget = targetOptions[0]?.id ?? 'family';
+  if (!targetOptions.some((option) => option.id === 'perDevice')) {
+    return defaultTarget;
+  }
+  return sharedTargetSelection.scope === 'perDevice' ? 'perDevice' : defaultTarget;
+}
+
 function manageWorkspaceSummary(
   kind: ManageWorkspaceKind,
   activeTab: string,
@@ -7264,9 +7265,10 @@ function manageWorkspaceSummary(
     return 'Parent profile defaults, privacy posture, login protection, and console preferences.';
   }
   if (kind === 'account') {
-    if (activeTab === 'access') return 'Entitlements, grace mode, seat limits, and feature gates.';
-    if (activeTab === 'support') return 'Send a parent-authored support message from this screen.';
-    return 'Trial, plan cards, device seats, external AI credits, and upgrade/downgrade intent.';
+    const target = manageWorkspaceTargetLabel(workspaceTarget).toLowerCase();
+    if (activeTab === 'access') return `Review ${target} entitlements, grace mode, seat limits, and feature gates.`;
+    if (activeTab === 'support') return `Send a parent-authored support message for the ${target} account scope.`;
+    return `Review ${target} trial posture, plan cards, device seats, external AI credits, and upgrade intent.`;
   }
   if (kind === 'data') {
     const target = manageWorkspaceTargetLabel(workspaceTarget).toLowerCase();
@@ -9877,6 +9879,98 @@ function BrowserPolicyMatrixShell({
   );
 }
 
+function policyWorkspacePreviewBannerHeight(w: number, rowCount: number): number {
+  if (rowCount === 0) return 0;
+  const columns = w >= 920 ? 2 : 1;
+  const rows = Math.ceil(rowCount / columns);
+  const cardH = columns === 1 ? 76 : 82;
+  const cardGap = 10;
+  return rows * cardH + Math.max(0, rows - 1) * cardGap;
+}
+
+function PolicyWorkspacePreviewBanner({
+  x,
+  y,
+  w,
+  rows,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  rows: readonly {
+    label: string;
+    value: string;
+    body: string;
+    tone: Tone;
+  }[];
+  cfg: ParentPortalSvgControls;
+}) {
+  const columns = w >= 920 ? 2 : 1;
+  const cardGap = 10;
+  const cardW = (w - cardGap * Math.max(0, columns - 1)) / Math.max(1, columns);
+  const cardH = columns === 1 ? 76 : 82;
+  return (
+    <g aria-label="Policy preview workspace banner">
+      {rows.map((row, index) => {
+        const column = index % columns;
+        const bannerRow = Math.floor(index / columns);
+        const cardX = x + column * (cardW + cardGap);
+        const cardY = y + bannerRow * (cardH + cardGap);
+        const rowColor = toneColor(row.tone, cfg);
+        const valueSize = fitSingleLineTextSize(row.value, cardW - 36, 11.4, 13.8, 0.56);
+        const bodyLines = wrapCardText(row.body, cardW - 24, 10.2, columns === 1 ? 2 : 3);
+        return (
+          <g key={`policy-preview-workspace-row:${row.label}:${index}`}>
+            <rect
+              x={cardX}
+              y={cardY}
+              width={cardW}
+              height={cardH}
+              rx={6}
+              fill="rgba(3, 19, 35, 0.76)"
+              stroke={rowColor}
+              strokeWidth={0.86}
+              opacity={0.98}
+            />
+            <path
+              d={`M ${cardX + 10} ${cardY + 8} H ${cardX + cardW - 10}`}
+              stroke={cfg.colors.bodyText}
+              strokeWidth={0.82}
+              strokeLinecap="round"
+              opacity={0.16}
+            />
+            <text x={cardX + 14} y={cardY + 18} fontSize={9.5} fontWeight={950} fill={rowColor}>
+              {truncateTextForWidth(row.label.toUpperCase(), cardW * 0.34, 9.5, 0.56)}
+            </text>
+            <text
+              x={cardX + 14}
+              y={cardY + 36}
+              fontSize={valueSize}
+              fontWeight={940}
+              fill={cfg.colors.bodyText}
+            >
+              {truncateTextForWidth(row.value, cardW - 28, valueSize, 0.56)}
+            </text>
+            {bodyLines.map((line, lineIndex) => (
+              <text
+                key={`policy-preview-workspace-row-body:${row.label}:${lineIndex}`}
+                x={cardX + 14}
+                y={cardY + 52 + lineIndex * 13}
+                fontSize={10.2}
+                fontWeight={720}
+                fill={cfg.colors.mutedText}
+              >
+                {line}
+              </text>
+            ))}
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
 function BrowserPolicyBudgetMatrix({
   policyAreaLabel,
   x,
@@ -11458,6 +11552,9 @@ function ManageWorkspacePanel({
   activeNavLabel,
   selectedControlName,
   runtimeDeviceSlots,
+  sharedTargetSelection,
+  onSharedTargetChange,
+  activityState,
   cfg,
 }: {
   x: number;
@@ -11472,6 +11569,9 @@ function ManageWorkspacePanel({
   activeNavLabel: string;
   selectedControlName: string;
   runtimeDeviceSlots: readonly DeviceSlot[];
+  sharedTargetSelection: ManageTargetSelection;
+  onSharedTargetChange?: (selection: ManageTargetSelection) => void;
+  activityState?: ParentPortalActivityState | null;
   cfg: ParentPortalSvgControls;
 }) {
   const tabs = manageWorkspaceTabs(kind);
@@ -11479,12 +11579,16 @@ function ManageWorkspacePanel({
   const workspaceScopeValues = targetOptions.some((option) => option.id === 'portal')
     ? FAMILY_DEVICE_SCOPE_VALUES
     : undefined;
-  const [workspaceTarget, setWorkspaceTarget] = useState<ManageWorkspaceTarget>(() => targetOptions[0]?.id ?? 'family');
-  const [workspaceSelectedDeviceValue, setWorkspaceSelectedDeviceValue] = useState<string | undefined>();
+  const [workspaceTarget, setWorkspaceTarget] = useState<ManageWorkspaceTarget>(() =>
+    sharedWorkspaceTargetForOptions(targetOptions, sharedTargetSelection)
+  );
+  const [workspaceSelectedDeviceValue, setWorkspaceSelectedDeviceValue] = useState<string | undefined>(() =>
+    reportSelectedSlotValue(runtimeDeviceSlots, sharedTargetSelection.device)
+  );
   useEffect(() => {
-    setWorkspaceTarget(targetOptions[0]?.id ?? 'family');
-    setWorkspaceSelectedDeviceValue(undefined);
-  }, [targetOptions]);
+    setWorkspaceTarget(sharedWorkspaceTargetForOptions(targetOptions, sharedTargetSelection));
+    setWorkspaceSelectedDeviceValue(reportSelectedSlotValue(runtimeDeviceSlots, sharedTargetSelection.device));
+  }, [activeNavLabel, kind, runtimeDeviceSlots, selectedControlName, sharedTargetSelection, targetOptions]);
   const activeTab =
     tabs.find((tab) => tab.id === activeTabId) ?? tabs.find((tab) => tab.id === defaultTabId) ?? tabs[0];
   const activeTabKey = activeTab?.id ?? defaultTabId;
@@ -11495,6 +11599,10 @@ function ManageWorkspacePanel({
   const hasTargetSelector = targetOptions.length > 0;
   const policyAreaLabel = kind === 'policy' ? managePolicyAreaLabel(activeNavLabel, selectedControlName) : '';
   const policyAreaActive = kind === 'policy';
+  const policyPreviewRows = useMemo(
+    () => (kind === 'policy' ? createPolicyWorkspacePreviewRows(activityState?.policyPreviewReadModel ?? null) : []),
+    [activityState?.policyPreviewReadModel, kind]
+  );
   const policyRulesChoiceMode = policyAreaActive && activeTabKey === 'rules';
   const policyMatrixMode =
     policyAreaActive &&
@@ -11508,9 +11616,6 @@ function ManageWorkspacePanel({
   const [policyPrimaryChoice, setPolicyPrimaryChoice] = useState(policyPrimaryOptions[0]?.value ?? '');
   const [policySecondaryChoice, setPolicySecondaryChoice] = useState(policySecondaryOptions[0]?.value ?? '');
   const [browserRulesEnforcementChoice, setBrowserRulesEnforcementChoice] = useState('observe');
-  useEffect(() => {
-    setWorkspaceSelectedDeviceValue(undefined);
-  }, [kind, activeNavLabel, selectedControlName]);
   useEffect(() => {
     setPolicyPrimaryChoice(policyPrimaryOptions[0]?.value ?? '');
   }, [policyPrimaryOptions]);
@@ -11562,11 +11667,8 @@ function ManageWorkspacePanel({
     width: workspaceAvailableW,
     height: workspaceSelectorH,
   };
-  const firstWorkspaceSelectableSlot = workspaceSlots.find((slot) => slot.device && slot.status !== 'empty');
   const workspaceSelectedValue =
-    workspaceTargetKey === 'perDevice'
-      ? (workspaceSelectedDeviceValue ?? firstWorkspaceSelectableSlot?.value)
-      : undefined;
+    workspaceTargetKey === 'perDevice' ? (workspaceSelectedDeviceValue ?? '') : '';
   const workspaceSelectedSlot = workspaceSlots.find((slot) => slot.value === workspaceSelectedValue) ?? null;
   const workspaceSelectedLabel = workspaceSelectedSlot?.label ?? null;
   const tabColumns = compact ? Math.min(3, tabs.length) : Math.min(tabs.length, kind === 'ai' ? 4 : tabs.length);
@@ -11640,8 +11742,14 @@ function ManageWorkspacePanel({
     : workspaceBodyX + 22 + policyChoiceW + policyChoiceGap;
   const policySecondaryY = policyChoicesStacked ? policyChoiceBarY + 58 : policyChoiceBarY;
   const policyChoiceDisabled = workspaceTargetKey === 'perDevice' && !workspaceSelectedSlot;
-  const browserRulesChoiceTop = bodyY + 16;
-  const policyRowsTop = bodyY + bodyHeaderH + 10;
+  const policyBannerX = workspaceBodyX + 28;
+  const policyBannerW = workspaceBodyW - 56;
+  const policyPreviewBannerH =
+    policyAreaActive && policyPreviewRows.length > 0 ? policyWorkspacePreviewBannerHeight(policyBannerW, policyPreviewRows.length) : 0;
+  const policyContentTop = bodyY + bodyHeaderH + 10;
+  const policySurfaceTop = policyContentTop + (policyPreviewBannerH > 0 ? policyPreviewBannerH + 10 : 0);
+  const browserRulesChoiceTop = policySurfaceTop;
+  const policyRowsTop = policySurfaceTop;
   const policyRowGap = 10;
   const policyRowColumns = workspaceBodyW > 1060 ? 2 : 1;
   const policyRowW = Math.max(1, (workspaceBodyW - 28 * 2 - policyRowGap * (policyRowColumns - 1)) / policyRowColumns);
@@ -11676,13 +11784,20 @@ function ManageWorkspacePanel({
                   const nextTarget =
                     nextScopeValue === 'parent' ? 'perDevice' : nextScopeValue === 'portal' ? 'portal' : 'family';
                   setWorkspaceTarget(nextTarget);
-                  if (nextTarget !== 'perDevice') {
-                    setWorkspaceSelectedDeviceValue(undefined);
-                  }
+                  onSharedTargetChange?.({
+                    ...sharedTargetSelection,
+                    scope: nextTarget === 'perDevice' ? 'perDevice' : 'global',
+                    device: selectedDeviceIdentity(workspaceSelectedSlot) || sharedTargetSelection.device,
+                  });
                 }}
                 onChange={(choice) => {
                   setWorkspaceTarget('perDevice');
                   setWorkspaceSelectedDeviceValue(choice.value);
+                  onSharedTargetChange?.({
+                    ...sharedTargetSelection,
+                    scope: 'perDevice',
+                    device: selectedDeviceIdentity(choice),
+                  });
                 }}
                 config={manageDeviceGridConfig(workspaceAvailableW, workspaceSelectorH, {
                   statusOrder: {
@@ -12050,6 +12165,15 @@ function ManageWorkspacePanel({
           {line}
         </text>
       ))}
+      {policyAreaActive && policyPreviewRows.length > 0 ? (
+        <PolicyWorkspacePreviewBanner
+          x={policyBannerX}
+          y={policyContentTop}
+          w={policyBannerW}
+          rows={policyPreviewRows}
+          cfg={cfg}
+        />
+      ) : null}
       {!policyCustomSurfaceMode ? (
         <path
           d={`M ${workspaceBodyX + 22} ${bodyY + bodyHeaderH} H ${workspaceBodyX + workspaceBodyW - 22}`}
@@ -12303,19 +12427,17 @@ function ManageTargetPanel({
           tabIndex={0}
           aria-label={`Use ${option.label} scope`}
           aria-pressed={targetSelection.scope === option.scope}
-          onClick={(event) => {
-            event.stopPropagation();
-            onTargetChange({
-              ...targetSelection,
-              scope: option.scope,
-              device:
-                option.scope === 'perDevice'
-                  ? (deviceChoices.find((device) => device === targetSelection.device) ??
-                    deviceChoices[0] ??
-                    targetSelection.device)
-                  : targetSelection.device,
-            });
-          }}
+            onClick={(event) => {
+              event.stopPropagation();
+              onTargetChange({
+                ...targetSelection,
+                scope: option.scope,
+                device:
+                  option.scope === 'perDevice'
+                    ? (deviceChoices.find((device) => device === targetSelection.device) ?? '')
+                    : targetSelection.device,
+              });
+            }}
           onKeyDown={(event) => {
             if (event.key !== 'Enter' && event.key !== ' ') return;
             event.preventDefault();
@@ -12549,18 +12671,31 @@ function ManageControlPanel({
   );
   const lanPairingPortalIds = useMemo(() => createParentPortalLanPairingPortalIds(lanPairingSlots), [lanPairingSlots]);
   const firstLanPairingSelectableSlot = lanPairingSlots.find((slot) => slot.status !== 'empty') ?? null;
+  const preferredLanPairingSelectedSlot = useMemo(
+    () =>
+      lanPairingSlots.find((slot) => selectedDeviceIdentity(slot) === targetSelection.device) ??
+      firstLanPairingSelectableSlot,
+    [firstLanPairingSelectableSlot, lanPairingSlots, targetSelection.device]
+  );
   useEffect(() => {
-    if (!isLanPairingPanel || !firstLanPairingSelectableSlot) return;
+    if (!isLanPairingPanel || !preferredLanPairingSelectedSlot) return;
     if (lanPairingSelectedSlot && lanPairingSlots.some((slot) => slot.value === lanPairingSelectedSlot.value)) return;
-    setLanPairingSelectedSlot(firstLanPairingSelectableSlot);
-  }, [firstLanPairingSelectableSlot, isLanPairingPanel, lanPairingSelectedSlot, lanPairingSlots]);
+    setLanPairingSelectedSlot(preferredLanPairingSelectedSlot);
+  }, [isLanPairingPanel, lanPairingSelectedSlot, lanPairingSlots, preferredLanPairingSelectedSlot]);
+  useEffect(() => {
+    if (!isLanPairingPanel || !lanPairingSelectedSlot) return;
+    const selectedDevice = selectedDeviceIdentity(lanPairingSelectedSlot);
+    if (!selectedDevice) return;
+    if (targetSelection.scope === 'perDevice' && targetSelection.device === selectedDevice) return;
+    onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: selectedDevice });
+  }, [isLanPairingPanel, lanPairingSelectedSlot, onTargetChange, targetSelection]);
   const openLanPairingDeviceEditDialog = useCallback(
     (choice: DeviceSlot) => {
       setLanPairingSelectedSlot(choice);
       setLanPairingEditSlot(choice);
       setLanPairingHouseholdNameDraft(lanPairingHouseholdNameDraftFor(choice));
       setLanPairingDeviceKindDraft(lanPairingDeviceKindDraftFor(choice));
-      onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+      onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: selectedDeviceIdentity(choice) });
       setLastAction(`${choice.label} edit`);
       setSyncStatus('Editing device identity');
     },
@@ -12716,11 +12851,7 @@ function ManageControlPanel({
     () => reportSlots.filter((slot) => slot.device).map((slot) => slot.value),
     [reportSlots]
   );
-  const firstReportSelectableSlot = reportSlots.find((slot) => slot.device && slot.status !== 'empty');
-  const reportSelectedValue =
-    reportScopeValue === 'device'
-      ? (reportSelectedSlotValue(reportSlots, targetSelection.device) ?? firstReportSelectableSlot?.value)
-      : undefined;
+  const reportSelectedValue = reportScopeValue === 'device' ? (reportSelectedSlotValue(reportSlots, targetSelection.device) ?? '') : '';
   const reportSelectedSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
   const activityReportFiles = activityUiIntent.reportFiles;
   const activityReportSelectedFile =
@@ -12910,18 +13041,18 @@ function ManageControlPanel({
                 onChange={(choice) => {
                   setLanPairingSelectedSlot(choice);
                   if (choice.status === 'unsupported') {
-                    onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                    onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: selectedDeviceIdentity(choice) });
                     setLastAction(`${choice.label} cannot run the child agent`);
                     setSyncStatus('Unsupported LAN device');
                     return;
                   }
-                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: selectedDeviceIdentity(choice) });
                   setLastAction(`${choice.label} selected`);
                   setSyncStatus('Draft changed');
                 }}
                 onAddToPortal={(choice) => {
                   setLanPairingSelectedSlot(choice);
-                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: selectedDeviceIdentity(choice) });
                   const payload = lanPairingAddDeviceCommandPayload(choice);
                   if (!payload) {
                     setLastAction(`${choice.label} has no controllable LAN route`);
@@ -13354,7 +13485,7 @@ function ManageControlPanel({
                   setSyncStatus('Report scope changed');
                 }}
                 onChange={(choice) => {
-                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: selectedDeviceIdentity(choice) });
                   setLastAction(`${choice.label} report target`);
                   setSyncStatus('Report target changed');
                 }}
@@ -14015,6 +14146,9 @@ function ManageControlPanel({
           activeNavLabel={activeNavLabel}
           selectedControlName={selectedControlName}
           runtimeDeviceSlots={runtimeDeviceSlots}
+          sharedTargetSelection={targetSelection}
+          onSharedTargetChange={onTargetChange}
+          activityState={activityState}
           cfg={cfg}
         />
       ) : (
@@ -17565,6 +17699,12 @@ function MainBoard({
   const activeFrameTitle =
     manageWorkspaceKind === 'policy' ? managePolicyAreaLabel(activeNavLabel, selectedControlName) : activeFrameRawTitle;
   const manageWorkspaceFullFrameMode = Boolean(manageWorkspaceKind);
+  const manageWorkspaceSupportsPerDevice = useMemo(
+    () =>
+      manageWorkspaceKind !== null &&
+      manageWorkspaceTargetOptions(manageWorkspaceKind).some((option) => option.id === 'perDevice'),
+    [manageWorkspaceKind]
+  );
   const manageWorkspaceHeaderIcon =
     manageWorkspaceKind === 'portal'
       ? PortalGatewayIcon
@@ -17587,11 +17727,17 @@ function MainBoard({
     () => manageBrowserTargetsForKey(activeNavLabel, selectedControlName),
     [activeNavLabel, selectedControlName]
   );
-  const [manageTargetSelection, setManageTargetSelection] = useState<ManageTargetSelection>(() => ({
-    scope: 'perDevice',
-    device: '',
-    browser: 'Chrome',
-  }));
+  const [manageTargetSelection, setManageTargetSelection] = useState<ManageTargetSelection>(
+    () =>
+      readStoredManageTargetSelection() ?? {
+        scope: 'perDevice',
+        device: '',
+        browser: 'Chrome',
+      }
+  );
+  useEffect(() => {
+    writeStoredManageTargetSelection(manageTargetSelection);
+  }, [manageTargetSelection]);
   const manageTargetContextKey = `${manageMode ? 'manage' : 'browse'}:${activeNavLabel}:${selectedControlName}:${
     manageCurrentSpec?.title ?? ''
   }:${manageLane}`;
@@ -17600,20 +17746,28 @@ function MainBoard({
     if (!manageMode || !manageCurrentSpec) return;
     const contextChanged = previousManageTargetContextKeyRef.current !== manageTargetContextKey;
     previousManageTargetContextKeyRef.current = manageTargetContextKey;
-    const defaultScope = isReportsManageTitle(manageCurrentSpec.title)
-      ? 'global'
-      : manageInitialScopeForSpec(manageLane, manageCurrentSpec, manageRuntimeDeviceSlots);
+    const defaultScope = manageInitialScopeForSpec(manageLane, manageCurrentSpec, manageRuntimeDeviceSlots);
     const defaultDevice = isLanPairingManageTitle(manageCurrentSpec.title)
       ? ''
       : manageDefaultDeviceSelection(manageCurrentSpec, manageRuntimeDeviceSlots);
     const defaultBrowser = manageBrowserTargets[0]?.label ?? 'All targets';
     setManageTargetSelection((current) => {
-      const nextScope = contextChanged ? defaultScope : current.scope;
+      const preservePerDeviceReportScope =
+        isReportsManageTitle(manageCurrentSpec.title) && current.scope === 'perDevice' && current.device.length > 0;
+      const preservePerDeviceWorkspaceScope =
+        manageWorkspaceSupportsPerDevice && current.scope === 'perDevice' && current.device.length > 0;
+      const nextScope =
+        contextChanged && (preservePerDeviceReportScope || preservePerDeviceWorkspaceScope)
+          ? 'perDevice'
+          : contextChanged
+            ? defaultScope
+            : current.scope;
+      const deviceChoicesAvailable = manageDeviceChoices(manageCurrentSpec.devices, manageRuntimeDeviceSlots).length > 0;
       const currentDeviceAvailable = reportDeviceSelectionAvailable(manageRuntimeDeviceSlots, current.device);
       const nextDevice =
-        isLanPairingManageTitle(manageCurrentSpec.title) || nextScope !== 'perDevice'
+        nextScope !== 'perDevice'
           ? defaultDevice
-          : currentDeviceAvailable
+          : currentDeviceAvailable || (current.device.length > 0 && !deviceChoicesAvailable)
             ? current.device
             : defaultDevice;
       const nextBrowser =
@@ -17636,6 +17790,7 @@ function MainBoard({
     manageMode,
     manageRuntimeDeviceSlots,
     manageTargetContextKey,
+    manageWorkspaceSupportsPerDevice,
   ]);
   const controlBrowserMode = !guideMode && !manageMode && (tableVariant === 'controls' || aiBrowserMode);
   const expandedControlCategory =
@@ -17672,8 +17827,7 @@ function MainBoard({
       : controlBrowserMode
         ? `control:${normalizeSelectionId(selectedControlId)}`
         : `row:${selectedRowId}`;
-  const managePortalSection =
-    manageMode && (assetKey(activeNavItem?.sectionLabel) === 'portal' || manageWorkspaceFullFrameMode);
+  const managePortalSection = manageMode && (manageLane === 'portal' || manageWorkspaceFullFrameMode);
   const lanPairingDeviceGridMode =
     manageMode && manageCurrentSpec ? isLanPairingManageTitle(manageCurrentSpec.title) : false;
   const activityManageGridMode =

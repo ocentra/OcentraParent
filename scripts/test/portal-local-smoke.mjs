@@ -31,6 +31,7 @@ import {
   spawnVitePortal,
   stopProcessTreeAndWait,
 } from './agent-service-process.mjs';
+import { PortalSmokeTargets, createPortalSmokeCommandEnvelope } from './websocket-command-envelope.mjs';
 
 const agentPort = resolveParentDevPort(
   process.env[ParentDevEnv.AgentPort],
@@ -168,7 +169,9 @@ function assertTypedActivityAdapterStates() {
 
     const sendCurrentStep = () => {
       const step = steps[stepIndex];
-      socket.send(JSON.stringify(commandEnvelope(step.messageId, step.command, activityPayload())));
+      socket.send(
+        JSON.stringify(createPortalSmokeCommandEnvelope(step.messageId, step.command, activityPayload()))
+      );
     };
 
     socket.addEventListener('open', sendCurrentStep);
@@ -243,14 +246,14 @@ function assertTypedLanBrowserDiscoveryReadModel() {
     socket.addEventListener('open', () => {
       socket.send(
         JSON.stringify(
-          commandEnvelope(
+          createPortalSmokeCommandEnvelope(
             'cmd-portal-smoke-lan-browser-discovery',
             AgentCommand.LanPairingBrowserDiscoveryScan,
             {
               schemaVersion: 1,
               requestedDiscoverySource: 'local-service',
             },
-            localNetworkTarget()
+            PortalSmokeTargets.LocalNetworkWindowsAgent
           )
         )
       );
@@ -378,26 +381,6 @@ function activityPayload() {
     [AgentProtocolDefaults.Field.FamilyId]: 'family-local',
     [AgentProtocolDefaults.Field.RangeStart]: '1970-01-01T00:00:00Z',
     [AgentProtocolDefaults.Field.RangeEnd]: new Date().toISOString(),
-  };
-}
-
-function localNetworkTarget() {
-  return { deviceId: 'local-dev-agent', platform: 'windows', route: 'local-network' };
-}
-
-function localhostTarget() {
-  return { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' };
-}
-
-function commandEnvelope(messageId, command, payload, target = localhostTarget()) {
-  return {
-    schemaVersion: 1,
-    messageId,
-    sentAt: new Date().toISOString(),
-    source: { peerId: 'portal-dev', role: 'portal' },
-    target,
-    command,
-    payload,
   };
 }
 

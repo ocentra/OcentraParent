@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExternalRuntimeDeliveryHandoffProofReadModel } from './app-install-purchase-external-runtime-delivery-handoff-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const WriterDeliveryBoundaryProofVersion = 'app-install-purchase-external-runtime-writer-delivery-boundary-proof';
 const SourceDeliveryHandoffProofVersion = 'app-install-purchase-external-runtime-delivery-handoff-proof';
 const WriterDeliveryBoundaryTimestamp = '2026-06-07T10:45:00.000Z';

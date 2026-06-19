@@ -9,7 +9,7 @@ import {
   ParentContractSchemaVersionSchema,
   ParentPlatformSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   V08SupportedAdapterRuntimeProofReadModel,
   type V08SupportedAdapterRuntimeProofEntry,
@@ -93,7 +93,6 @@ export const AppGameAdapterExecutionReadinessReadModelSchema = withParser(
   )
 );
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function appGameAdapterExecutionReadinessRowIsHonest(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
   if (appGameAdapterExecutionReadinessRowHasClaimUpgrade(row)) return false;
 

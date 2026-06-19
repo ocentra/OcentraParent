@@ -4,6 +4,10 @@ import type {
   StatusBackendRedactionManifestEntryCandidate,
   StatusBackendRedactionManifestState,
 } from './status-backend-redaction-manifest.js';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 export function statusBackendRedactionManifestEntryIsSafe(
   entry: StatusBackendRedactionManifestEntryCandidate,
@@ -11,7 +15,7 @@ export function statusBackendRedactionManifestEntryIsSafe(
 ): boolean {
   return (
     !statusBackendRedactionManifestHasClaimUpgrade(entry) &&
-    requiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
+    supportProofRequiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
     statusBackendRedactionManifestRefsArePresent(entry) &&
     statusBackendRedactionManifestStatesAreCoherent(entry)
   );
@@ -32,7 +36,7 @@ export function statusBackendRedactionManifestCoversRequiredStates(
 }
 
 function statusBackendRedactionManifestHasClaimUpgrade(entry: StatusBackendRedactionManifestEntryCandidate): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsTokens,
     entry.containsRawChildActivity,
     entry.containsRawSupportBundles,
@@ -57,7 +61,7 @@ function statusBackendRedactionManifestHasClaimUpgrade(entry: StatusBackendRedac
     entry.remoteSupportSessionExecuted,
     entry.productionSlaClaimed,
     entry.ocentraHostedFamilyDataDefault,
-  ].some(Boolean);
+  ]);
 }
 
 function statusBackendRedactionManifestRefsArePresent(entry: StatusBackendRedactionManifestEntryCandidate): boolean {
@@ -126,12 +130,4 @@ function statusBackendRedactionManifestBackendUnavailableIsCoherent(
       entry.redactionReviewState === 'manual-required' &&
       entry.manualProofRequirements.length > 0)
   );
-}
-
-function requiredValuesArePresent<T extends string>(
-  actualValues: ReadonlyArray<T>,
-  requiredValues: ReadonlyArray<T>
-): boolean {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }

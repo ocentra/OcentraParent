@@ -9,14 +9,22 @@
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
-use ocentra_family_identity_core::{
-    authorize_household_action, authorize_session_token_action, authorize_setup_invite,
-    evaluate_recovery_operation, DeviceOwnershipScope, DeviceTrustState, HouseholdAuthorityInput,
-    HouseholdAuthorizationFailureReason, HouseholdAuthorizationState, HouseholdMembership,
-    RecoveryDataCustodyHandoffState, RecoveryKind as FamilyRecoveryKind,
+use ocentra_family_identity_core::family_identity::{
+    DeviceOwnershipScope, DeviceTrustState, HouseholdMembership,
+};
+use ocentra_family_identity_core::household_authority::{
+    authorize_household_action, HouseholdAuthorityDecision, HouseholdAuthorityInput,
+    HouseholdAuthorizationFailureReason, HouseholdAuthorizationState,
+};
+use ocentra_family_identity_core::session_lifecycle::{
+    authorize_session_token_action, SessionTokenFailureReason, SessionTokenInput,
+};
+use ocentra_family_identity_core::setup_lifecycle::{
+    authorize_setup_invite, evaluate_recovery_operation, RecoveryDataCustodyHandoffState,
+    RecoveryDecision, RecoveryKind as FamilyRecoveryKind,
     RecoveryOperation as FamilyRecoveryOperation, RecoveryState as FamilyRecoveryState,
-    RecoverySupportChannel, SessionTokenFailureReason, SessionTokenInput, SetupInviteFailureReason,
-    SetupInviteInput, SetupInvitePurpose, SetupInviteState, SetupInviteTargetRole,
+    RecoverySupportChannel, SetupInviteFailureReason, SetupInviteInput, SetupInvitePurpose,
+    SetupInviteState, SetupInviteTargetRole,
 };
 use serde::{Deserialize, Serialize};
 
@@ -479,7 +487,9 @@ pub struct ProvisioningActionPlannedEvent {
 
 impl DomainEvent for ProvisioningReadinessEvaluatedEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
-        provisioning_event_contract(PROVISIONING_READINESS_EVALUATED_EVENT_TYPE)
+        provisioning_event_contract(EventType::parse(
+            PROVISIONING_READINESS_EVALUATED_EVENT_TYPE,
+        )?)
     }
 
     fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
@@ -488,7 +498,7 @@ impl DomainEvent for ProvisioningReadinessEvaluatedEvent {
 
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         provisioning_idempotency_key(
-            PROVISIONING_READINESS_EVALUATED_EVENT_TYPE,
+            EventType::parse(PROVISIONING_READINESS_EVALUATED_EVENT_TYPE)?,
             &self.evaluation_id,
         )
     }
@@ -496,7 +506,7 @@ impl DomainEvent for ProvisioningReadinessEvaluatedEvent {
 
 impl DomainEvent for ProvisioningActionPlannedEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
-        provisioning_event_contract(PROVISIONING_ACTION_PLANNED_EVENT_TYPE)
+        provisioning_event_contract(EventType::parse(PROVISIONING_ACTION_PLANNED_EVENT_TYPE)?)
     }
 
     fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
@@ -504,7 +514,10 @@ impl DomainEvent for ProvisioningActionPlannedEvent {
     }
 
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        provisioning_idempotency_key(PROVISIONING_ACTION_PLANNED_EVENT_TYPE, &self.action_plan_id)
+        provisioning_idempotency_key(
+            EventType::parse(PROVISIONING_ACTION_PLANNED_EVENT_TYPE)?,
+            &self.action_plan_id,
+        )
     }
 }
 
@@ -912,20 +925,22 @@ fn provisioning_recovery_action(
     }
 }
 
-fn provisioning_event_contract(event_type: &str) -> Result<EventContract, EventingError> {
+fn provisioning_event_contract(event_type: EventType) -> Result<EventContract, EventingError> {
     Ok(EventContract::new(
-        EventType::parse(event_type)?,
+        event_type,
         SchemaVersion::new(PROVISIONING_SCHEMA_VERSION)?,
     ))
 }
 
 fn provisioning_idempotency_key(
-    event_type: &str,
+    event_type: EventType,
     unique_ref: impl std::fmt::Display,
 ) -> Result<IdempotencyKey, EventingError> {
     IdempotencyKey::parse(format!(
         "{}{}{}",
-        event_type, PROVISIONING_IDEMPOTENCY_SEPARATOR, unique_ref
+        event_type.as_str(),
+        PROVISIONING_IDEMPOTENCY_SEPARATOR,
+        unique_ref
     ))
 }
 
@@ -953,8 +968,8 @@ fn provisioning_child_app_readiness_state(
 
 fn provisioning_account_state_from_family_context(
     input: ProvisioningFamilyContextInput,
-    authority_decision: ocentra_family_identity_core::HouseholdAuthorityDecision,
-    recovery_decision: Option<ocentra_family_identity_core::RecoveryDecision>,
+    authority_decision: HouseholdAuthorityDecision,
+    recovery_decision: Option<RecoveryDecision>,
     session_failure_reason: Option<SessionTokenFailureReason>,
 ) -> AccountReadinessState {
     if !input.account_matches_invite_target {
@@ -1000,7 +1015,7 @@ fn provisioning_account_state_from_family_context(
 
 fn provisioning_pairing_state_from_family_context(
     input: ProvisioningFamilyContextInput,
-    authority_decision: ocentra_family_identity_core::HouseholdAuthorityDecision,
+    authority_decision: HouseholdAuthorityDecision,
     session_failure_reason: Option<SessionTokenFailureReason>,
 ) -> PairingLifecycleState {
     let invite_failure_reason = provisioning_setup_invite_failure_reason(input.setup_invite_input);
@@ -1106,7 +1121,7 @@ fn provisioning_pairing_state_from_family_context(
 
 fn provisioning_custody_state_from_family_context(
     input: ProvisioningFamilyContextInput,
-    recovery_decision: Option<ocentra_family_identity_core::RecoveryDecision>,
+    recovery_decision: Option<RecoveryDecision>,
 ) -> DataCustodySyncState {
     if matches!(
         recovery_decision,

@@ -146,6 +146,34 @@ fn row_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<FieldPair> {
             })),
         ),
         (
+            constants::field::POLICY_APPROVAL_ID,
+            optional_string(row.and_then(|value| value.policy_approval_id.as_ref())),
+        ),
+        (
+            constants::field::POLICY_OVERRIDE_ID,
+            optional_string(row.and_then(|value| value.policy_override_id.as_ref())),
+        ),
+        (
+            constants::field::POLICY_REPLAY_OF_APPROVAL_ID,
+            optional_string(row.and_then(|value| value.policy_replay_of_approval_id.as_ref())),
+        ),
+        (
+            constants::field::POLICY_REVIEWED_BY_ACTOR_ID,
+            optional_string(row.and_then(|value| value.policy_reviewed_by_actor_id.as_ref())),
+        ),
+        (
+            constants::field::POLICY_REVIEWED_BY_ACTOR_ROLE,
+            optional_string(row.and_then(|value| value.policy_reviewed_by_actor_role.as_ref())),
+        ),
+        (
+            constants::field::POLICY_REVIEWED_AT,
+            optional_string(row.and_then(|value| value.policy_reviewed_at.as_ref())),
+        ),
+        (
+            constants::field::POLICY_AUDIT_REFERENCE_ID,
+            optional_string(row.and_then(|value| value.policy_audit_reference_id.as_ref())),
+        ),
+        (
             constants::field::POLICY_EVIDENCE_REFERENCE_COUNT,
             optional_u64(row.map(|value| value.evidence_references.len() as u64)),
         ),

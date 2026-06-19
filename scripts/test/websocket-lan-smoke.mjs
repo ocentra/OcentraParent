@@ -14,6 +14,7 @@ import {
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
 import { resolveDebugAgentServicePath } from './agent-service-process.mjs';
+import { sendAgentWebSocketCommand, withTimeout } from './websocket-smoke-client.mjs';
 
 const port = ParentDevPort.LanWebSocketSmokeAgent;
 const allowedOrigin = createHttpOrigin(ParentDevHost.Loopback);
@@ -121,59 +122,17 @@ async function runLanWebSocketSmoke(events) {
 }
 
 function sendLanCommand(command, events) {
-  return withTimeout(
-    new Promise((resolve, reject) => {
-      const socket = new WebSocket(wsUrl, { headers: { Origin: allowedOrigin } });
-      let result;
-      let settled = false;
-
-      socket.addEventListener('open', () => {
-        socket.send(JSON.stringify(command));
-      });
-
-      socket.addEventListener('message', (message) => {
-        let parsed;
-        try {
-          parsed = AgentEventEnvelopeSchema.parse(JSON.parse(String(message.data)));
-        } catch (error) {
-          if (!settled) {
-            settled = true;
-            socket.close();
-            reject(error);
-          }
-          return;
-        }
-        events.push(parsed.event);
-        if (parsed.event === 'agent.connection.ready') {
-          return;
-        }
-        result = parsed;
-        socket.close();
-      });
-
-      socket.addEventListener('close', () => {
-        if (settled) {
-          return;
-        }
-        settled = true;
-        if (result !== undefined) {
-          resolve(result);
-          return;
-        }
-        reject(new Error(`LAN WebSocket ${command.command} closed before a command response`));
-      });
-
-      socket.addEventListener('error', () => {
-        if (settled) {
-          return;
-        }
-        settled = true;
-        reject(new Error(`LAN WebSocket ${command.command} failed`));
-      });
-    }),
-    commandTimeoutMs,
-    () => lanTimeoutMessage(`LAN WebSocket ${command.command}`, events)
-  );
+  return sendAgentWebSocketCommand({
+    wsUrl,
+    headers: { Origin: allowedOrigin },
+    command,
+    events,
+    parseMessage: (message) => AgentEventEnvelopeSchema.parse(JSON.parse(String(message.data))),
+    timeoutMs: commandTimeoutMs,
+    timeoutMessage: () => lanTimeoutMessage(`LAN WebSocket ${command.command}`, events),
+    errorMessage: `LAN WebSocket ${command.command} failed`,
+    closeMessage: `LAN WebSocket ${command.command} closed before a command response`,
+  });
 }
 
 function lanTimeoutMessage(scope, events) {
@@ -325,14 +284,4 @@ function collectOutput(child) {
   child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
   child.stderr.on('data', (chunk) => chunks.push(String(chunk)));
   return () => chunks.join('');
-}
-
-function withTimeout(promise, timeoutMs, message) {
-  let timer;
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => {
-      timer = setTimeout(() => reject(new Error(typeof message === 'function' ? message() : message)), timeoutMs);
-    }),
-  ]).finally(() => clearTimeout(timer));
 }

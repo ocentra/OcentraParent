@@ -10,12 +10,6 @@ const fixturePath = path.join(
 
 export const NetworkEvidenceDrawerProofFixture = Object.freeze(JSON.parse(readFileSync(fixturePath, 'utf8')));
 
-export const PortalNetworkActivitySeed = Object.freeze({
-  EventId: NetworkEvidenceDrawerProofFixture.eventId,
-  EvidenceId: NetworkEvidenceDrawerProofFixture.evidenceId,
-  JournalEvidenceId: NetworkEvidenceDrawerProofFixture.journalEvidenceId,
-});
-
 export function networkActivityObservedAt(now = new Date()) {
   return new Date(now.getTime() + NetworkEvidenceDrawerProofFixture.observedAtFutureOffsetMs).toISOString();
 }

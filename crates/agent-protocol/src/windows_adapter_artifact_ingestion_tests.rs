@@ -1,10 +1,14 @@
+use super::windows_adapter_artifact_gate::{
+    WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateProof, WindowsAdapterArtifactKind,
+};
+use super::windows_adapter_artifact_ingestion::{
+    WindowsAdapterArtifactIngestionAcceptedRecord, WindowsAdapterArtifactIngestionProof,
+    WindowsAdapterArtifactIngestionRecord, WindowsAdapterArtifactIngestionRejection,
+};
 use super::{
     constants, constants::windows_adapter_artifact_gate as artifact_gate,
     constants::windows_adapter_artifact_ingestion as artifact_ingestion,
-    policy_constants as policy, WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateProof,
-    WindowsAdapterArtifactIngestionAcceptedRecord, WindowsAdapterArtifactIngestionProof,
-    WindowsAdapterArtifactIngestionRecord, WindowsAdapterArtifactIngestionRejection,
-    WindowsAdapterArtifactKind, WindowsAdapterCapabilitySurface,
+    policy_constants as policy, WindowsAdapterCapabilitySurface,
 };
 
 #[test]

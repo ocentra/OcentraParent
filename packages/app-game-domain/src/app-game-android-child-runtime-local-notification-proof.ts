@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidChildRuntimeLocalNotificationProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-child-runtime-local-notification-proof')
@@ -128,7 +128,6 @@ export function summarizeAppGameAndroidChildRuntimeLocalNotificationProof(
   } as const;
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function localNotificationProofIsHonest(proof: LocalNotificationCandidate): boolean {
   return (
     proof.packageId === 'ca.ocentra.parent.agent' &&

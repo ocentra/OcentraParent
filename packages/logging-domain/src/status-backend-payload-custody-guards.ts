@@ -4,6 +4,10 @@ import type {
   StatusBackendPayloadCustodyEntryCandidate,
   StatusBackendPayloadCustodyState,
 } from './status-backend-payload-custody.js';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 export function statusBackendPayloadCustodyEntryIsSafe(
   entry: StatusBackendPayloadCustodyEntryCandidate,
@@ -11,7 +15,7 @@ export function statusBackendPayloadCustodyEntryIsSafe(
 ): boolean {
   return (
     !statusBackendPayloadCustodyHasClaimUpgrade(entry) &&
-    requiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
+    supportProofRequiredValuesArePresent(entry.disclosedDataClasses, requiredDataClasses) &&
     statusBackendPayloadCustodyRefsArePresent(entry) &&
     statusBackendPayloadCustodyStatesAreCoherent(entry)
   );
@@ -32,7 +36,7 @@ export function statusBackendPayloadCustodyCoversRequiredStates(
 }
 
 function statusBackendPayloadCustodyHasClaimUpgrade(entry: StatusBackendPayloadCustodyEntryCandidate): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsTokens,
     entry.containsRawChildActivity,
     entry.containsRawSupportBundles,
@@ -56,7 +60,7 @@ function statusBackendPayloadCustodyHasClaimUpgrade(entry: StatusBackendPayloadC
     entry.remoteSupportSessionExecuted,
     entry.productionSlaClaimed,
     entry.ocentraHostedFamilyDataDefault,
-  ].some(Boolean);
+  ]);
 }
 
 function statusBackendPayloadCustodyRefsArePresent(entry: StatusBackendPayloadCustodyEntryCandidate): boolean {
@@ -122,12 +126,4 @@ function statusBackendPayloadCustodyBackendUnavailableIsCoherent(
       entry.auditExportState === 'manual-required' &&
       entry.manualProofRequirements.length > 0)
   );
-}
-
-function requiredValuesArePresent<T extends string>(
-  actualValues: ReadonlyArray<T>,
-  requiredValues: ReadonlyArray<T>
-): boolean {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }

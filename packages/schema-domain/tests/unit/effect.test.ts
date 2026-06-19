@@ -32,6 +32,14 @@ describe('schema-domain effect helpers', () => {
     expect(schema.safeParse({ enabled: 'yes' }).success).toBe(false);
   });
 
+  it('withParser: preserves schema usability as a nested field', () => {
+    const statusSchema = withParser(Schema.Literal('ready', 'empty'));
+    const schema = Schema.Struct({ status: statusSchema });
+
+    expect(parseUnknown(schema, { status: 'ready' })).toEqual({ status: 'ready' });
+    expect(safeParseUnknown(schema, { status: 'missing' }).success).toBe(false);
+  });
+
   it('NonEmptyStringSchema: rejects empty shared text values', () => {
     expect(safeParseUnknown(NonEmptyStringSchema, 'contract-ref').success).toBe(true);
     expect(safeParseUnknown(NonEmptyStringSchema, '').success).toBe(false);

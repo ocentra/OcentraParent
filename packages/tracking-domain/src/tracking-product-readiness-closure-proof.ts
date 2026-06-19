@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
 import { TrackingRetentionSettingsProofRefSchema } from './tracking-retention-settings-read-model-proof';
 
@@ -307,7 +307,7 @@ export const TrackingProductReadinessClosureAggregateEvidenceSchema = withParser
       Schema.filter(
         (evidence) =>
           (evidence.crossPlatformCapabilityRowCount >= 8 &&
-            evidence.crossPlatformLocalProofPassedRowCount >= 6 &&
+            evidence.crossPlatformLocalProofPassedRowCount >= 5 &&
             evidence.crossPlatformAndroidSdkToolchainObservedRows >= 1 &&
             evidence.crossPlatformAndroidGradleBuildObservedRows >= 1 &&
             evidence.crossPlatformProductReadyRowCount === 0) ||

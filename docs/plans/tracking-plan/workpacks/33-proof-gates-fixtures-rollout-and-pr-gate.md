@@ -1043,11 +1043,12 @@ test:tracking-plan-hosted-ui-proof` passed.
       proof, authority proof, and product-ready tracking remain proof-gated.
 - [ ] Workpack id and branch:
       `codex/tracking-plan-full-continuation-a`.
-- [ ] Touched files: escalation runtime blocker proof model/test, focused proof
-      script, product-readiness closure proof model, closure harness, owning
-      tracking feature doc, implementation checklist, WP27, this proof-gate
-      doc, generated escalation blocker proof artifacts, and refreshed closure
-      proof artifacts.
+- [ ] Touched files: tracking-domain escalation runtime readiness blocker proof
+      model, focused contract test, proof script, product-readiness closure
+      proof model, closure harness, owning tracking feature doc,
+      implementation checklist, WP27, this proof-gate doc, generated
+      escalation blocker proof artifacts, and refreshed closure proof
+      artifacts.
 - [ ] Validation commands and results:
       `node scripts/test/tracking-escalation-runtime-readiness-blocker-proof.mjs`
       passed; `node scripts/test/tracking-product-readiness-closure-proof.mjs`

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::NetworkWindowsFirewallAdapterProof;
+use crate::windows_firewall_adapter::NetworkWindowsFirewallAdapterProof;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkWindowsFirewallLabExecutionState {

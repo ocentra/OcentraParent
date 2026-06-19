@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ForbiddenPublicationExecutionStatusDataClasses,
   ProductionSupportPublicationExecutionStatusDataClassSchema,
@@ -14,8 +14,6 @@ import {
   RequiredPublicationExecutionStatusNonClaims,
   RequiredPublicationExecutionStatusTargets,
 } from './production-support-publication-execution-status-values';
-
-export * from './production-support-publication-execution-status-values';
 
 type PublicationExecutionStatusProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly target: string; readonly lifecycleStatus: string }>;

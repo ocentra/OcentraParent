@@ -1,5 +1,12 @@
 import { type Infer, Schema, brandedNonEmptyStringSchema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ChildProfileIdSchema, ParentDeviceIdSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ChildProfileIdSchema, ParentDeviceIdSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import {
+  hasExactlySameValues,
+  hasUniqueValues,
+  literalSchema,
+  literalValues,
+  parsedLiteralRecord,
+} from './literal-contracts';
 import { PolicyAuditReferenceIdSchema } from './authority';
 import {
   PolicyActionSchema,
@@ -73,29 +80,24 @@ export const PolicyCompilerNoClaimLabelLiteral = {
   PlatformSupportNotClaimed: 'platform-support-not-claimed',
 } as const;
 
-export const PolicyCompilerDomainSchema = withParser(
-  Schema.Literal(...Object.values(PolicyCompilerDomainLiteral))
-);
+const PolicyCompilerDomainValues = literalValues(PolicyCompilerDomainLiteral);
+const PolicyCompilerRuleStatusValues = literalValues(PolicyCompilerRuleStatusLiteral);
+const PolicyCompilerCapabilityStateValues = literalValues(PolicyCompilerCapabilityStateLiteral);
+const PolicyCompilerSourceStatusValues = literalValues(PolicyCompilerSourceStatusLiteral);
+const PolicyCompilerTargetKindValues = literalValues(PolicyCompilerTargetKindLiteral);
+const PolicyCompilerNoClaimLabelValues = literalValues(PolicyCompilerNoClaimLabelLiteral);
 
-export const PolicyCompilerRuleStatusSchema = withParser(
-  Schema.Literal(...Object.values(PolicyCompilerRuleStatusLiteral))
-);
+export const PolicyCompilerDomainSchema = literalSchema(PolicyCompilerDomainLiteral);
 
-export const PolicyCompilerCapabilityStateSchema = withParser(
-  Schema.Literal(...Object.values(PolicyCompilerCapabilityStateLiteral))
-);
+export const PolicyCompilerRuleStatusSchema = literalSchema(PolicyCompilerRuleStatusLiteral);
 
-export const PolicyCompilerSourceStatusSchema = withParser(
-  Schema.Literal(...Object.values(PolicyCompilerSourceStatusLiteral))
-);
+export const PolicyCompilerCapabilityStateSchema = literalSchema(PolicyCompilerCapabilityStateLiteral);
 
-export const PolicyCompilerTargetKindSchema = withParser(
-  Schema.Literal(...Object.values(PolicyCompilerTargetKindLiteral))
-);
+export const PolicyCompilerSourceStatusSchema = literalSchema(PolicyCompilerSourceStatusLiteral);
 
-export const PolicyCompilerNoClaimLabelSchema = withParser(
-  Schema.Literal(...Object.values(PolicyCompilerNoClaimLabelLiteral))
-);
+export const PolicyCompilerTargetKindSchema = literalSchema(PolicyCompilerTargetKindLiteral);
+
+export const PolicyCompilerNoClaimLabelSchema = literalSchema(PolicyCompilerNoClaimLabelLiteral);
 
 export const PolicyCompilerTargetSchema = withParser(
   Schema.Struct({
@@ -251,58 +253,28 @@ export type PolicyCompilerRollbackRef = Infer<typeof PolicyCompilerRollbackRefSc
 export type PolicyCompilerScheduleWindow = Infer<typeof PolicyCompilerScheduleWindowSchema>;
 export type PolicyCompiledArtifact = Infer<typeof PolicyCompiledArtifactSchema>;
 
-export const PolicyCompilerDomain = Object.freeze(
-  Object.fromEntries(
-    Object.values(PolicyCompilerDomainLiteral).map((value) => [constantKey(value), PolicyCompilerDomainSchema.parse(value)])
-  )
-) as Readonly<Record<keyof typeof PolicyCompilerDomainLiteral, PolicyCompilerDomain>>;
+export const PolicyCompilerDomain = parsedLiteralRecord(PolicyCompilerDomainLiteral, (value) =>
+  PolicyCompilerDomainSchema.parse(value)
+);
 
-export const PolicyCompilerRuleStatus = Object.freeze(
-  Object.fromEntries(
-    Object.values(PolicyCompilerRuleStatusLiteral).map((value) => [
-      constantKey(value),
-      PolicyCompilerRuleStatusSchema.parse(value),
-    ])
-  )
-) as Readonly<Record<keyof typeof PolicyCompilerRuleStatusLiteral, PolicyCompilerRuleStatus>>;
+export const PolicyCompilerRuleStatus = parsedLiteralRecord(PolicyCompilerRuleStatusLiteral, (value) =>
+  PolicyCompilerRuleStatusSchema.parse(value)
+);
 
-export const PolicyCompilerCapabilityState = Object.freeze(
-  Object.fromEntries(
-    Object.values(PolicyCompilerCapabilityStateLiteral).map((value) => [
-      constantKey(value),
-      PolicyCompilerCapabilityStateSchema.parse(value),
-    ])
-  )
-) as Readonly<
-  Record<keyof typeof PolicyCompilerCapabilityStateLiteral, PolicyCompilerCapabilityState>
->;
+export const PolicyCompilerCapabilityState = parsedLiteralRecord(PolicyCompilerCapabilityStateLiteral, (value) =>
+  PolicyCompilerCapabilityStateSchema.parse(value)
+);
 
-export const PolicyCompilerNoClaimLabel = Object.freeze(
-  Object.fromEntries(
-    Object.values(PolicyCompilerNoClaimLabelLiteral).map((value) => [
-      constantKey(value),
-      PolicyCompilerNoClaimLabelSchema.parse(value),
-    ])
-  )
-) as Readonly<Record<keyof typeof PolicyCompilerNoClaimLabelLiteral, PolicyCompilerNoClaimLabel>>;
+export const PolicyCompilerNoClaimLabel = parsedLiteralRecord(PolicyCompilerNoClaimLabelLiteral, (value) =>
+  PolicyCompilerNoClaimLabelSchema.parse(value)
+);
 
 export function parsePolicyCompiledArtifact(input: unknown): PolicyCompiledArtifact {
   return PolicyCompiledArtifactSchema.parse(input);
 }
 
 function hasExactlyRequiredNoClaimLabels(labels: readonly PolicyCompilerNoClaimLabel[]): boolean {
-  const required = new Set(Object.values(PolicyCompilerNoClaimLabelLiteral));
-  if (labels.length !== required.size) {
-    return false;
-  }
-
-  for (const label of labels) {
-    if (!required.delete(label)) {
-      return false;
-    }
-  }
-
-  return required.size === 0;
+  return hasExactlySameValues(labels, PolicyCompilerNoClaimLabelValues);
 }
 
 function hasAlignedRuleCapabilityStateAndStatus(rule: PolicyCompilerRuleCandidate): boolean {
@@ -332,29 +304,14 @@ function hasAlignedRuleStatusAndReasonCode(rule: PolicyCompilerRuleCandidate): b
 }
 
 function hasUniqueAuditReferenceIds(auditReferenceIds: readonly string[]): boolean {
-  return auditReferenceIds.length > 0 && new Set(auditReferenceIds).size === auditReferenceIds.length;
+  return auditReferenceIds.length > 0 && hasUniqueValues(auditReferenceIds);
 }
 
 function hasExactlyOneSupportMatrixRowPerTargetKind(
   rows: readonly PolicyCompilerSupportMatrixRow[]
 ): boolean {
-  const required = new Set(Object.values(PolicyCompilerTargetKindLiteral));
-  if (rows.length !== required.size) {
-    return false;
-  }
-
-  for (const row of rows) {
-    if (!required.delete(row.targetKind)) {
-      return false;
-    }
-  }
-
-  return required.size === 0;
-}
-
-function constantKey(value: string): string {
-  return value
-    .split('-')
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-    .join('');
+  return hasExactlySameValues(
+    rows.map((row) => row.targetKind),
+    PolicyCompilerTargetKindValues
+  );
 }

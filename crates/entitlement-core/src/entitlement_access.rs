@@ -1,10 +1,10 @@
 #![forbid(unsafe_code)]
 
-//! Subscription and entitlement ownership boundary.
+//! Entitlement capability decision boundary.
 //!
-//! This crate owns local entitlement state, plan capability gates, offline
-//! grace policy, and payment-result contract consumption. Payment providers
-//! stay outside child runtime business logic.
+//! This crate owns the entitlement capability gate and typed decision-recording
+//! for evaluation requests. Broader payment and policy ownership stay outside
+//! this crate.
 
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;

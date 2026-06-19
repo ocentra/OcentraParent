@@ -1,3 +1,3 @@
 #![forbid(unsafe_code)]
 
-include!("network_runtime.rs");
+pub mod network_runtime;

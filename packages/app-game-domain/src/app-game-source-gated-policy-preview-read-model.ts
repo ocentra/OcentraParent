@@ -35,7 +35,7 @@ import {
   appGameSourceGatedPolicyPreviewReadModelRowMatchesGateState,
   countAppGameSourceGatedPolicyPreviewReadModelRows,
 } from './app-game-source-gated-policy-preview-read-model-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameSourceGatedPolicyPreviewReadModelIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewReadModelId');
 export const AppGameSourceGatedPolicyPreviewReadModelRowIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewReadModelRowId');

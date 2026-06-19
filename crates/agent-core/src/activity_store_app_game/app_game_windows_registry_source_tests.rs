@@ -52,11 +52,9 @@ fn registry_inventory_source_builds_inventory_rows_without_raw_paths_or_use_clai
         .executable_path_ref
         .as_ref()
         .is_some_and(|value| value.starts_with(APP_GAME_EXECUTABLE_PATH_REF_PREFIX)));
-    assert!(
-        !rows[0].executable_path_ref.as_ref().is_some_and(
-            |value| value.contains(constants::activity_store::TEST_APP_GAME_PROCESS_PATH)
-        )
-    );
+    assert!(!rows[0].executable_path_ref.as_ref().is_some_and(|value| {
+        value.contains(constants::activity_store::TEST_APP_GAME_PROCESS_PATH)
+    }));
     assert_eq!(rows[0].runtime_state, APP_GAME_RUNTIME_NOT_CLAIMED);
     assert_eq!(rows[0].foreground_state, APP_GAME_FOREGROUND_NOT_CLAIMED);
     assert_eq!(rows[0].running_duration_ms, 0);

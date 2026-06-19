@@ -23,7 +23,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 const RuntimeStatusRowCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 
 export const LocalAiRuntimeStatusSurfaceReadModelIdSchema = brandedNonEmptyStringSchema('LocalAiRuntimeStatusSurfaceReadModelId');

@@ -4,7 +4,7 @@ import {
   SessionFreshnessState,
   SessionFreshnessStateSchema,
 } from '@ocentra-parent/family-domain/household-authority';
-import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ChildProfileReferenceSchema,
   FamilyReferenceSchema,

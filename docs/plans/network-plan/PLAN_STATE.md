@@ -39,16 +39,16 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 
 - the canonical TypeScript source package is `packages/network-domain`, not the `packages/activity-domain` paths still named elsewhere in this plan;
 - real network code exists across `packages/network-domain`, `crates/agent-protocol`, `crates/agent-core`, `crates/agent-service`, `crates/ocentra-network-evidence`, and `apps/portal`;
-- the proof root was missing at audit time, but `docs/proof/network-plan/` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` were restored as a slice-01 skeleton on 2026-06-17;
-- only the slice-01 proof skeleton exists right now; broader plan proof bundles are still missing;
+- the proof root was missing at audit time, but `docs/proof/network-plan/` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` were restored on 2026-06-17 and now record the bounded parent-domain frontage retirement;
+- only the slice-01 proof pack exists right now; broader plan proof bundles are still missing;
 - `implementation-checklist.md` shows 127/128 checked boxes, but that count is not a truthful completion signal while source paths, proof routing, and workpack state are out of sync.
 
 ## Current slice checkpoint
 
-- 2026-06-17 `network-foundation-shim-cleanup` is limited to the parent-domain TypeScript ownership boundary plus the initial proof-root skeleton.
-- This slice converts `packages/parent-domain/src/network-flow.ts` and `packages/parent-domain/src/network-contracts.ts` off banned `export *` shims without widening into Rust, portal, or platform proof.
-- The single remaining contradiction inside this slice boundary is the published `@ocentra-parent/parent-domain` `./network-control-catalog` surface, because `packages/parent-domain/src/network-control-catalog.ts`, `network-control-catalog-data.ts`, `network-control-catalog-metadata.ts`, and `network-control-catalog-schema.ts` still fail the re-export gate and this slice must not widen beyond the exact control-catalog boundary to invent a replacement API.
-- Proof skeleton for this slice lives at `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` with artifacts under `output/network-plan-proof/01-network-foundation-shim-cleanup/`.
+- 2026-06-17 `network-foundation-shim-cleanup` is limited to the parent-domain TypeScript ownership boundary plus the initial proof-root restoration; current source truth now carries that slice through the dead-frontage retirement.
+- This slice retires `packages/parent-domain/src/network-flow.ts` and `packages/parent-domain/src/network-contracts.ts` because `@ocentra-parent/parent-domain` does not publish `./network-flow` or `./network-contracts`, and no live in-repo consumers were found for those parent-domain paths; it does not widen into Rust, portal, or platform proof.
+- The former `@ocentra-parent/parent-domain` `./network-control-catalog` contradiction is already retired as well; canonical `network-flow`, `network-contracts`, and control-catalog ownership remains only in `@ocentra-parent/network-domain`.
+- Proof pack for this slice lives at `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` with artifacts under `output/network-plan-proof/01-network-foundation-shim-cleanup/`.
 
 ## What is already present in source
 

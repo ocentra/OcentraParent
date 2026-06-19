@@ -1,6 +1,9 @@
 use crate::{
-    constants, NetworkAndroidVpnServiceGateCapabilityStatusState,
-    NetworkAndroidVpnServiceGateStatus, NetworkAndroidVpnServiceGateStatusState,
+    constants,
+    network_android_vpn_service_gate_status::{
+        NetworkAndroidVpnServiceGateCapabilityStatusState, NetworkAndroidVpnServiceGateStatus,
+        NetworkAndroidVpnServiceGateStatusState,
+    },
 };
 
 #[test]

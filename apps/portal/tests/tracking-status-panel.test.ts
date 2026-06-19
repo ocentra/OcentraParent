@@ -10,21 +10,23 @@ import {
 import {
   PortalRoute,
   TrackingStatusProofArtifacts,
-  trackingChildCheckInProof,
-  trackingChildRuntimeUiProof,
   trackingFamilyDashboardHostedRollupProof,
   trackingEvidenceDrawerHostedUiProof,
-  trackingMissingDeviceHostedUiProof,
-  trackingNotificationParentSurfaceHostedUiProof,
-  trackingParentActionReadinessHostedUiProof,
   trackingRetentionSettingsHostedUiProof,
-  trackingReportExportHostedUiProof,
-  trackingReportPolicyConsumerHostedUiProof,
   trackingStatusLiveSummary,
   trackingStatusProofRows,
   trackingStatusServiceDataCoverage,
   trackingUnsupportedManualPlatformProof,
 } from '@ocentra-parent/portal-domain/contracts';
+import {
+  trackingChildCheckInProof,
+  trackingChildRuntimeUiProof,
+} from '@ocentra-parent/portal-domain/tracking-child-check-in-proof';
+import { trackingMissingDeviceHostedUiProof } from '@ocentra-parent/portal-domain/tracking-missing-device-hosted-ui-proof';
+import { trackingNotificationParentSurfaceHostedUiProof } from '@ocentra-parent/portal-domain/tracking-notification-parent-surface-hosted-ui-proof';
+import { trackingParentActionReadinessHostedUiProof } from '@ocentra-parent/portal-domain/tracking-parent-action-readiness-hosted-ui-proof';
+import { trackingReportExportHostedUiProof } from '@ocentra-parent/portal-domain/tracking-report-export-hosted-ui-proof';
+import { trackingReportPolicyConsumerHostedUiProof } from '@ocentra-parent/portal-domain/tracking-report-policy-consumer-hosted-ui-proof';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
 

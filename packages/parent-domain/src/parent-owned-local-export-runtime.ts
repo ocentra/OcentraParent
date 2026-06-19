@@ -20,8 +20,8 @@ import {
   ParentActionReferenceSchema,
   ParentDeviceReferenceSchema,
   ParentEvidenceReferenceSchema,
-} from './references';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/family-domain/references';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export { ParentOwnedLocalExportRuntimeKnownGaps };
 

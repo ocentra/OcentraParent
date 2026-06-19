@@ -1,5 +1,6 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import { countProductionProofValues } from './production-proof-shape';
 import {
   ForbiddenPublicSupportContactStatusDataClasses,
   PublicSupportContactStatusDataClassSchema,
@@ -13,8 +14,6 @@ import {
   RequiredPublicSupportContactStatusNonClaims,
   RequiredPublicSupportContactStatusSurfaces,
 } from './public-support-contact-status-values';
-
-export * from './public-support-contact-status-values';
 
 type PublicSupportContactStatusProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly surface: string }>;
@@ -119,12 +118,9 @@ export const decodePublicSupportContactStatusProof = Schema.decodeUnknownSync(Pu
 export function summarizePublicSupportContactStatusRows(
   rows: ReadonlyArray<PublicSupportContactStatusRow>
 ): Record<PublicSupportContactStatusSurface, number> {
-  return RequiredPublicSupportContactStatusSurfaces.reduce(
-    (summary, surfaceName) => ({
-      ...summary,
-      [surfaceName]: rows.filter((row) => row.surface === surfaceName).length,
-    }),
-    {} as Record<PublicSupportContactStatusSurface, number>
+  return countProductionProofValues(
+    rows.map((row) => row.surface),
+    RequiredPublicSupportContactStatusSurfaces
   );
 }
 

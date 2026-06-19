@@ -6,7 +6,7 @@ import {
   AgentAppGameTimerParentSurfaceTargetDomain,
   parseAgentAppGameTimerParentSurfaceEvent,
 } from '../../src/app-game-timer-parent-surface-read-model';
-import { AgentProtocolSchemaVersion } from '../../src/primitives';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 
 const Source = {
   peerId: 'agent-service',

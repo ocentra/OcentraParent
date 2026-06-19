@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   DurableQueueRuntimeManualRequirementSchema,
   DurableQueueRuntimeReferenceSchema,
@@ -15,8 +15,6 @@ import {
   RequiredDurableQueueRuntimeStates,
   RequiredDurableQueueRuntimeTargets,
 } from './production-support-status-backend-durable-queue-runtime-values';
-
-export * from './production-support-status-backend-durable-queue-runtime-values';
 
 type DurableQueueRuntimeProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly target: string; readonly runtimeBoundaryState: string }>;

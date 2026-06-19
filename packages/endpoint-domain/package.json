@@ -28,6 +28,10 @@
     "./constants/versions": {
       "import": "./dist/constants/versions.js",
       "types": "./dist/constants/versions.d.ts"
+    },
+    "./package-info": {
+      "import": "./dist/package-info.js",
+      "types": "./dist/package-info.d.ts"
     }
   },
   "scripts": {

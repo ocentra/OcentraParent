@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { LanBrowserAddDeviceReadModelSchema, LanDiscoverySourceMatrixSchema } from '../../src/lan-pairing';
+import { LanDiscoverySourceMatrixSchema } from '../../src/lan-discovery-source-matrix';
+import { LanBrowserAddDeviceReadModelSchema } from '../../src/lan-pairing-device';
 
 describe('LAN discovery source matrix', () => {
   registerSourceMatrixSchemaTests();

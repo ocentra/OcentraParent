@@ -7,7 +7,7 @@ import {
   type LocalAiStoredEvidenceContextBuildInput,
 } from '@ocentra-parent/ai-domain/local-ai-context';
 import { buildLocalAiEvidenceContext } from '@ocentra-parent/ai-domain/local-ai-context-builder';
-import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const ScreenAiMemoryGraphSourceGuardClaimBoundariesSchema = withParser(
   Schema.Struct({

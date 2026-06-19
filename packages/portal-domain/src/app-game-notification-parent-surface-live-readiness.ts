@@ -9,7 +9,7 @@ import {
   RequiredAppGameNotificationParentSurfaceIntentNonClaims,
   type AppGameNotificationParentSurfaceIntentReadModel,
 } from '@ocentra-parent/app-game-domain/app-game-notification-parent-surface-intent';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const AppGameNotificationParentSurfaceLiveReadiness = {
   AuditSourceRef: 'app-game-notification-readiness-service-event',

@@ -7,7 +7,7 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchasePlatformAdapterEvidenceGapProofReadModel } from './app-install-purchase-platform-adapter-evidence-gap-proof';
 import { AppInstallPurchasePackageSourceAdapterExecutionProofReadModel } from './app-install-purchase-package-source-adapter-execution-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const ProofVersion = 'app-install-purchase-windows-package-source-adapter-evidence';
 const SourcePlatformAdapterEvidenceGapProofVersion = 'app-install-purchase-platform-adapter-evidence-gap-proof';

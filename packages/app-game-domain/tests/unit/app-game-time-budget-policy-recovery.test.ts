@@ -12,7 +12,7 @@ import {
   AppGameTimeBudgetTargetKind,
   AppGameTimeBudgetTimerState,
 } from '../../src/app-game-time-budget-policy-rules';
-import { ParentContractSchemaVersion, ParentEvidenceReferenceKind } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion, ParentEvidenceReferenceKind } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-03T09:15:00Z';
 const ChildDevice = {

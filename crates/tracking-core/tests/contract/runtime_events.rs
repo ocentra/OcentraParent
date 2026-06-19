@@ -6,6 +6,7 @@ use ocentra_parent_agent_protocol::{
     TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId, TrackingRuntimeMode,
     TrackingTimestamp,
 };
+use ocentra_tracking_core::parent_acknowledgement::record_parent_acknowledgement;
 use ocentra_tracking_core::TrackingGeofenceInsideState;
 
 #[test]
@@ -125,7 +126,7 @@ fn tracking_parent_acknowledgement_event_uses_protocol_contract() {
         )
         .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
     };
-    let acknowledgement = ocentra_tracking_core::record_parent_acknowledgement(&violation);
+    let acknowledgement = record_parent_acknowledgement(&violation);
 
     let contract = acknowledgement
         .contract()

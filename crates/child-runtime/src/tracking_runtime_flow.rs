@@ -3,6 +3,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use crate::event_flow_scaffold;
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
     envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::CorrelationId,
@@ -19,8 +20,11 @@ use ocentra_parent_agent_protocol::{
     TrackingLocationObservedEvent, TrackingNearbyPlaceClassifiedEvent, TrackingNotificationMode,
     TrackingPolicyViolationDetectedEvent, TrackingReasonCode, TrackingTimestamp,
 };
-use ocentra_tracking_core::{
-    TrackingAiBoundaryDecision, TrackingAlertDecision, TrackingParentNotificationDecisionState,
+use ocentra_tracking_core::ai_boundary::{
+    validate_tracking_ai_result_as_evidence, TrackingAiBoundaryDecision,
+};
+use ocentra_tracking_core::alerting::{
+    evaluate_tracking_alert, TrackingAlertDecision, TrackingParentNotificationDecisionState,
 };
 
 #[derive(Clone, Debug, PartialEq)]
@@ -351,7 +355,9 @@ async fn subscribe_child_ai_tracking_analysis_events(
             let state = state.clone();
             async move {
                 let classified =
-                    ocentra_child_ai_core::classify_tracking_nearby_place(context.payload())?;
+                    ocentra_child_ai_core::tracking_boundary::classify_tracking_nearby_place(
+                        context.payload(),
+                    )?;
                 state.record_nearby_place_classified(classified.clone());
                 context
                     .publisher()
@@ -394,10 +400,7 @@ async fn subscribe_child_policy_tracking_analysis_events(
                     return Ok(());
                 };
                 let ai_boundary_decision =
-                    ocentra_tracking_core::validate_tracking_ai_result_as_evidence(
-                        &ai_request,
-                        context.payload(),
-                    );
+                    validate_tracking_ai_result_as_evidence(&ai_request, context.payload());
                 state.record_ai_boundary_decision(ai_boundary_decision.clone());
                 if ai_boundary_decision.decision_state
                     != constants::tracking_runtime::AI_RESULT_ACCEPTED_AS_EVIDENCE
@@ -500,7 +503,7 @@ async fn subscribe_child_notification_policy_events(
                 }
                 let recent_duplicate_count =
                     state.recent_policy_violation_duplicate_count(context.payload());
-                let alert_decision = ocentra_tracking_core::evaluate_tracking_alert(
+                let alert_decision = evaluate_tracking_alert(
                     context.payload(),
                     recent_duplicate_count,
                 );
@@ -513,7 +516,7 @@ async fn subscribe_child_notification_policy_events(
                 }
 
                 let notification =
-                    ocentra_child_notification_core::request_parent_notification_from_policy_violation(
+                    ocentra_child_notification_core::tracking_notification::request_parent_notification_from_policy_violation(
                         context.payload(),
                     );
                 state.record_parent_notification_requested(notification.clone());
@@ -558,98 +561,98 @@ struct TrackingRuntimeEventState {
 
 impl TrackingRuntimeEventState {
     fn reset_for_new_observation(&self) {
-        *self
-            .location_observed
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
-        *self
-            .evidence_recorded
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
-        *self
-            .geofence_transition_detected
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
-        *self
-            .expected_place_state_evaluated
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
-        *self
-            .child_check_in_recorded
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
-        *self
-            .ai_analysis_requested
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
-        *self
-            .nearby_place_classified
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
-        *self
-            .ai_boundary_decision
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
-        *self
-            .alert_decision
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
-        *self
-            .policy_violation_detected
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
-        *self
-            .parent_notification_requested
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) = None;
+        event_flow_scaffold::clear_optional_event(
+            &self.location_observed,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
+        event_flow_scaffold::clear_optional_event(
+            &self.evidence_recorded,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
+        event_flow_scaffold::clear_optional_event(
+            &self.geofence_transition_detected,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
+        event_flow_scaffold::clear_optional_event(
+            &self.expected_place_state_evaluated,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
+        event_flow_scaffold::clear_optional_event(
+            &self.child_check_in_recorded,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
+        event_flow_scaffold::clear_optional_event(
+            &self.ai_analysis_requested,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
+        event_flow_scaffold::clear_optional_event(
+            &self.nearby_place_classified,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
+        event_flow_scaffold::clear_optional_event(
+            &self.ai_boundary_decision,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
+        event_flow_scaffold::clear_optional_event(
+            &self.alert_decision,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
+        event_flow_scaffold::clear_optional_event(
+            &self.policy_violation_detected,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
+        event_flow_scaffold::clear_optional_event(
+            &self.parent_notification_requested,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_location_observed(&self, event: TrackingLocationObservedEvent) {
-        *self
-            .location_observed
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.location_observed,
+            event,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_evidence(&self, event: TrackingEvidenceRecordedEvent) {
-        *self
-            .evidence_recorded
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.evidence_recorded,
+            event,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_ai_analysis_request(&self, event: TrackingAiAnalysisRequestedEvent) {
-        *self
-            .ai_analysis_requested
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.ai_analysis_requested,
+            event,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_geofence_transition(&self, event: TrackingGeofenceTransitionDetectedEvent) {
-        *self
-            .geofence_transition_detected
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.geofence_transition_detected,
+            event,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_expected_place_state(&self, event: TrackingExpectedPlaceStateEvaluatedEvent) {
-        *self
-            .expected_place_state_evaluated
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.expected_place_state_evaluated,
+            event,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_child_check_in(&self, event: TrackingChildCheckInRecordedEvent) {
-        *self
-            .child_check_in_recorded
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.child_check_in_recorded,
+            event,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_parent_requested_check_in(
@@ -657,16 +660,16 @@ impl TrackingRuntimeEventState {
         event: TrackingChildCheckInRequestedEvent,
         metadata: EventMetadata,
     ) {
-        *self
-            .parent_requested_check_in
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(event);
-        *self
-            .parent_requested_check_in_metadata
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(metadata);
+        event_flow_scaffold::record_optional_event(
+            &self.parent_requested_check_in,
+            event,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
+        event_flow_scaffold::record_optional_event(
+            &self.parent_requested_check_in_metadata,
+            metadata,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_parent_requested_check_in_receipt(
@@ -674,16 +677,16 @@ impl TrackingRuntimeEventState {
         receipt: TrackingChildCheckInRequestReceipt,
         completion: RequestCompletionReport,
     ) {
-        *self
-            .parent_requested_check_in_receipt
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(receipt);
-        *self
-            .parent_requested_check_in_completion
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(completion);
+        event_flow_scaffold::record_optional_event(
+            &self.parent_requested_check_in_receipt,
+            receipt,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
+        event_flow_scaffold::record_optional_event(
+            &self.parent_requested_check_in_completion,
+            completion,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn mark_parent_requested_check_in_seen(&self, check_in_id: TrackingCheckInId) {
@@ -701,43 +704,43 @@ impl TrackingRuntimeEventState {
     }
 
     fn record_nearby_place_classified(&self, event: TrackingNearbyPlaceClassifiedEvent) {
-        *self
-            .nearby_place_classified
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.nearby_place_classified,
+            event,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_ai_boundary_decision(&self, decision: TrackingAiBoundaryDecision) {
-        *self
-            .ai_boundary_decision
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(decision);
+        event_flow_scaffold::record_optional_event(
+            &self.ai_boundary_decision,
+            decision,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_alert_decision(&self, decision: TrackingAlertDecision) {
-        *self
-            .alert_decision
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(decision);
+        event_flow_scaffold::record_optional_event(
+            &self.alert_decision,
+            decision,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_policy_violation_detected(&self, event: TrackingPolicyViolationDetectedEvent) {
-        *self
-            .policy_violation_detected
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.policy_violation_detected,
+            event,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_parent_notification_requested(&self, event: ParentNotificationRequestedEvent) {
-        *self
-            .parent_notification_requested
-            .lock()
-            .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED) =
-            Some(event);
+        event_flow_scaffold::record_optional_event(
+            &self.parent_notification_requested,
+            event,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+        );
     }
 
     fn record_policy_violation_history(&self, event: TrackingPolicyViolationDetectedEvent) {
@@ -752,66 +755,68 @@ impl TrackingRuntimeEventState {
     }
 
     fn evidence_recorded(&self) -> Result<TrackingEvidenceRecordedEvent, EventingError> {
-        required_runtime_flow_event(&self.evidence_recorded)
+        event_flow_scaffold::required_optional_event(
+            &self.evidence_recorded,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+            constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
+            constants::tracking_runtime::TRACKING_LOCATION_OBSERVED_EVENT_TYPE,
+        )
     }
 
     fn location_observed(&self) -> Option<TrackingLocationObservedEvent> {
-        self.location_observed.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.location_observed)
     }
 
     fn geofence_transition_detected(&self) -> Option<TrackingGeofenceTransitionDetectedEvent> {
-        self.geofence_transition_detected.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.geofence_transition_detected)
     }
 
     fn expected_place_state_evaluated(&self) -> Option<TrackingExpectedPlaceStateEvaluatedEvent> {
-        self.expected_place_state_evaluated.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.expected_place_state_evaluated)
     }
 
     fn child_check_in_recorded(&self) -> Option<TrackingChildCheckInRecordedEvent> {
-        self.child_check_in_recorded.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.child_check_in_recorded)
     }
 
     fn parent_requested_check_in(&self) -> Option<TrackingChildCheckInRequestedEvent> {
-        self.parent_requested_check_in.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.parent_requested_check_in)
     }
 
     fn parent_requested_check_in_metadata(&self) -> Option<EventMetadata> {
-        self.parent_requested_check_in_metadata.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.parent_requested_check_in_metadata)
     }
 
     fn parent_requested_check_in_receipt(&self) -> Option<TrackingChildCheckInRequestReceipt> {
-        self.parent_requested_check_in_receipt.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.parent_requested_check_in_receipt)
     }
 
     fn parent_requested_check_in_completion(&self) -> Option<RequestCompletionReport> {
-        self.parent_requested_check_in_completion
-            .lock()
-            .ok()?
-            .clone()
+        event_flow_scaffold::optional_event(&self.parent_requested_check_in_completion)
     }
 
     fn ai_analysis_requested(&self) -> Option<TrackingAiAnalysisRequestedEvent> {
-        self.ai_analysis_requested.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.ai_analysis_requested)
     }
 
     fn nearby_place_classified(&self) -> Option<TrackingNearbyPlaceClassifiedEvent> {
-        self.nearby_place_classified.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.nearby_place_classified)
     }
 
     fn ai_boundary_decision(&self) -> Option<TrackingAiBoundaryDecision> {
-        self.ai_boundary_decision.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.ai_boundary_decision)
     }
 
     fn alert_decision(&self) -> Option<TrackingAlertDecision> {
-        self.alert_decision.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.alert_decision)
     }
 
     fn policy_violation_detected(&self) -> Option<TrackingPolicyViolationDetectedEvent> {
-        self.policy_violation_detected.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.policy_violation_detected)
     }
 
     fn parent_notification_requested(&self) -> Option<ParentNotificationRequestedEvent> {
-        self.parent_notification_requested.lock().ok()?.clone()
+        event_flow_scaffold::optional_event(&self.parent_notification_requested)
     }
 
     fn recent_policy_violation_duplicate_count(
@@ -827,20 +832,6 @@ impl TrackingRuntimeEventState {
             .count()
             .min(u16::MAX as usize) as u16
     }
-}
-
-fn required_runtime_flow_event<E>(value: &Arc<Mutex<Option<E>>>) -> Result<E, EventingError>
-where
-    E: Clone,
-{
-    value
-        .lock()
-        .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED)
-        .clone()
-        .ok_or_else(|| EventingError::InvalidValue {
-            field: constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED,
-            value: constants::tracking_runtime::TRACKING_LOCATION_OBSERVED_EVENT_TYPE.to_string(),
-        })
 }
 
 fn same_policy_violation(

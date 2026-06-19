@@ -1,9 +1,12 @@
 use crate::{
     constants::{self, v08_integrity_alert_status_bridge as bridge},
-    policy_constants, V08IntegrityAlertAuditState, V08IntegrityAlertDeliveryState,
-    V08IntegrityAlertNotificationIntentState, V08IntegrityAlertParentVisibleStatus,
-    V08IntegrityAlertState, V08IntegrityAlertStatusBridgeEntry,
-    V08IntegrityAlertStatusBridgeReadModel,
+    integrity_alert_status_bridge::{
+        V08IntegrityAlertAuditState, V08IntegrityAlertDeliveryState,
+        V08IntegrityAlertNotificationIntentState, V08IntegrityAlertParentVisibleStatus,
+        V08IntegrityAlertState, V08IntegrityAlertStatusBridgeEntry,
+        V08IntegrityAlertStatusBridgeReadModel,
+    },
+    policy_constants,
 };
 
 #[test]

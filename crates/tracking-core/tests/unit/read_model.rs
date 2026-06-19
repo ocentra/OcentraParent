@@ -2,7 +2,7 @@ use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceKind, ActivityEvidenceRef, LogFieldValue, LogFields,
     TrackingReadModel,
 };
-use ocentra_tracking_core::tracking_read_model_for_connection;
+use ocentra_tracking_core::read_model::tracking_read_model_for_connection;
 use rusqlite::{params, Connection};
 
 #[test]

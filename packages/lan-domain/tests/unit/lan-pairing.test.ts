@@ -2,19 +2,20 @@ import { describe, expect, it } from 'vitest';
 import {
   LanChildAgentResponseSchema,
   LanPairingAuditEventSchema,
+  LanPairingParentIntentEnvelopeSchema,
+} from '../../src/lan-pairing-control';
+import {
   LanPairingChallengeRequestSchema,
   LanPairingChallengeSchema,
   LanPairingDiscoveryDeviceSchema,
   LanPairingEnablementSchema,
-  LanPairingIntentKindSchema,
   LanPairingProofPreviewSchema,
-  LanPairingParentIntentEnvelopeSchema,
   LanPairingProofSchema,
-  LanPairingRejectionReason,
-  LanPairingRuntimeSupportSurfaceSchema,
   LanSelectedRouteTargetSchema,
   LanTrustedDeviceRegistryEntrySchema,
-} from '../../src/lan-pairing';
+} from '../../src/lan-pairing-device';
+import { LanPairingRuntimeSupportSurfaceSchema } from '../../src/lan-pairing-support';
+import { LanPairingIntentKindSchema, LanPairingRejectionReason } from '../../src/lan-pairing-values';
 
 const timestamp = '2026-05-23T14:40:00.000Z';
 const laterTimestamp = '2026-05-23T14:45:00.000Z';

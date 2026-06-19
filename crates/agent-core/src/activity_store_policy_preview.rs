@@ -1,16 +1,21 @@
 use ocentra_network_evidence::{
-    map_network_evidence_grade_to_policy, NetworkEvidenceGrade, NetworkEvidencePolicyAction,
-    NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingError,
-    NetworkEvidencePolicyMappingInput, NetworkEvidencePolicyMode,
+    dns::NetworkEvidenceGrade,
+    policy::{
+        map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
+        NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingError,
+        NetworkEvidencePolicyMappingInput, NetworkEvidencePolicyMode,
+    },
 };
 use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, policy_preview_finding_kinds_csv, ActivityEvidenceKind,
     ActivityEvidenceRef, LocalAiParentRuleContextRef, LogFieldValue, LogFields,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction, PolicyDecision,
-    PolicyPreviewFindingKind, PolicyPreviewNetworkEvidenceMapping, PolicyPreviewReadModel,
-    PolicyPreviewReadModelRow, PolicyPreviewTargetState,
-    APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED, APP_GAME_CAPABILITY_STATUS_STALE,
-    APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM, POLICY_DRY_RUN_SCHEMA_VERSION,
+    ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction,
+    PolicyAssistantConfirmationState, PolicyDecision, PolicyPreviewFindingKind,
+    PolicyPreviewNetworkEvidenceMapping, PolicyPreviewReadModel, PolicyPreviewReadModelRow,
+    PolicyPreviewTargetState, PolicyRequestOrigin, PolicyRequestStatus, PolicySourceStatus,
+    PolicySourceSurface, APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED,
+    APP_GAME_CAPABILITY_STATUS_STALE, APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM,
+    POLICY_DRY_RUN_SCHEMA_VERSION,
 };
 use rusqlite::Connection;
 
@@ -18,7 +23,8 @@ use crate::{
     activity_store_parent_rule_context::parent_rule_contexts,
     activity_store_policy_preview_parent_rules::parent_rule_contexts_for_row,
     activity_store_policy_preview_rows::{policy_preview_rows, PolicyPreviewStoreRow},
-    evaluate_policy_dry_run, ActivityStoreError, PolicyDryRunEvaluationInput,
+    policy_dry_run_evaluator::{evaluate_policy_dry_run, PolicyDryRunEvaluationInput},
+    ActivityStoreError,
 };
 
 use crate::activity_store_policy_preview_targets::targets_from_row;
@@ -91,11 +97,12 @@ fn preview_row(
         policy_preview_target_explanation_code_from_row(&row, policy_preview_target_state);
     let policy_preview_finding_kinds =
         policy_preview_target_finding_kinds(policy_preview_target_state);
+    let policy_lifecycle = policy_lifecycle_projection_from_row(&row);
 
     Some(PolicyPreviewReadModelRow {
         preview_id: prefixed_id(policy::PREVIEW_ID_PREFIX, &row.event_id),
         source_event_id: row.event_id,
-        observed_at: row.observed_at,
+        observed_at: row.observed_at.clone(),
         target,
         evidence_references,
         parent_rule_context_references,
@@ -105,13 +112,84 @@ fn preview_row(
         policy_preview_target_state,
         policy_preview_target_explanation_code,
         policy_preview_finding_kinds,
-        policy_source_status: None,
-        policy_source_surface: None,
-        policy_request_origin: None,
-        policy_assistant_confirmation_state: None,
-        policy_request_status: None,
+        policy_source_status: policy_lifecycle.policy_source_status,
+        policy_source_surface: policy_lifecycle.policy_source_surface,
+        policy_request_origin: policy_lifecycle.policy_request_origin,
+        policy_assistant_confirmation_state: policy_lifecycle.policy_assistant_confirmation_state,
+        policy_request_status: policy_lifecycle.policy_request_status,
+        policy_approval_id: policy_lifecycle.policy_approval_id,
+        policy_override_id: policy_lifecycle.policy_override_id,
+        policy_replay_of_approval_id: policy_lifecycle.policy_replay_of_approval_id,
+        policy_reviewed_by_actor_id: policy_lifecycle.policy_reviewed_by_actor_id,
+        policy_reviewed_by_actor_role: policy_lifecycle.policy_reviewed_by_actor_role,
+        policy_reviewed_at: policy_lifecycle.policy_reviewed_at,
+        policy_audit_reference_id: policy_lifecycle.policy_audit_reference_id,
         network_evidence_mapping,
     })
+}
+
+struct PolicyLifecycleProjection {
+    policy_source_status: Option<PolicySourceStatus>,
+    policy_source_surface: Option<PolicySourceSurface>,
+    policy_request_origin: Option<PolicyRequestOrigin>,
+    policy_assistant_confirmation_state: Option<PolicyAssistantConfirmationState>,
+    policy_request_status: Option<PolicyRequestStatus>,
+    policy_approval_id: Option<String>,
+    policy_override_id: Option<String>,
+    policy_replay_of_approval_id: Option<String>,
+    policy_reviewed_by_actor_id: Option<String>,
+    policy_reviewed_by_actor_role: Option<String>,
+    policy_reviewed_at: Option<String>,
+    policy_audit_reference_id: Option<String>,
+}
+
+fn policy_lifecycle_projection_from_row(row: &PolicyPreviewStoreRow) -> PolicyLifecycleProjection {
+    PolicyLifecycleProjection {
+        policy_source_status: protocol_field(
+            &row.fields,
+            constants::field::POLICY_SOURCE_STATUS,
+            PolicySourceStatus::from_protocol_str,
+        ),
+        policy_source_surface: protocol_field(
+            &row.fields,
+            constants::field::POLICY_SOURCE_SURFACE,
+            PolicySourceSurface::from_protocol_str,
+        ),
+        policy_request_origin: protocol_field(
+            &row.fields,
+            constants::field::POLICY_REQUEST_ORIGIN,
+            PolicyRequestOrigin::from_protocol_str,
+        ),
+        policy_assistant_confirmation_state: protocol_field(
+            &row.fields,
+            constants::field::POLICY_ASSISTANT_CONFIRMATION_STATE,
+            PolicyAssistantConfirmationState::from_protocol_str,
+        ),
+        policy_request_status: protocol_field(
+            &row.fields,
+            constants::field::POLICY_REQUEST_STATUS,
+            PolicyRequestStatus::from_protocol_str,
+        ),
+        policy_approval_id: string_field(&row.fields, constants::field::POLICY_APPROVAL_ID),
+        policy_override_id: string_field(&row.fields, constants::field::POLICY_OVERRIDE_ID),
+        policy_replay_of_approval_id: string_field(
+            &row.fields,
+            constants::field::POLICY_REPLAY_OF_APPROVAL_ID,
+        ),
+        policy_reviewed_by_actor_id: string_field(
+            &row.fields,
+            constants::field::POLICY_REVIEWED_BY_ACTOR_ID,
+        ),
+        policy_reviewed_by_actor_role: string_field(
+            &row.fields,
+            constants::field::POLICY_REVIEWED_BY_ACTOR_ROLE,
+        ),
+        policy_reviewed_at: string_field(&row.fields, constants::field::POLICY_REVIEWED_AT),
+        policy_audit_reference_id: string_field(
+            &row.fields,
+            constants::field::POLICY_AUDIT_REFERENCE_ID,
+        ),
+    }
 }
 
 fn grade_mapped_network_decision(
@@ -406,4 +484,12 @@ fn string_field(fields: &LogFields, key: &str) -> Option<String> {
         Some(LogFieldValue::String(value)) => Some(value.clone()),
         _ => None,
     }
+}
+
+fn protocol_field<T>(
+    fields: &LogFields,
+    key: &str,
+    parse: impl FnOnce(&str) -> Option<T>,
+) -> Option<T> {
+    string_field(fields, key).and_then(|value| parse(&value))
 }

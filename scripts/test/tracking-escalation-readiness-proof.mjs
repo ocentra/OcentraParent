@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof', '27-escalation-engine');
@@ -12,23 +13,22 @@ const commands = [];
 await main();
 
 async function main() {
-  await runNpm(['--workspace', '@ocentra-parent/parent-domain', 'run', 'build']);
   await runNpm([
-    'exec',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'vitest',
     'run',
-    'tests/tracking-escalation-readiness-proof.test.ts',
-    'tests/tracking-location-policy.test.ts',
+    'test',
+    '--workspace',
+    '@ocentra-parent/tracking-domain',
+    '--',
+    'tests/contract/tracking-escalation-readiness-proof.test.ts',
   ]);
 
-  const policy = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-location-policy.js'))
+  const policy = await tsImport(
+    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-location-policy.ts')).href,
+    import.meta.url
   );
-  const escalationProof = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-escalation-readiness-proof.js'))
+  const escalationProof = await tsImport(
+    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-escalation-readiness-proof.ts')).href,
+    import.meta.url
   );
   const checkedAt = new Date().toISOString();
   const commit = await gitHead();
@@ -37,7 +37,7 @@ async function main() {
       generatedAt: '2026-06-05T12:10:00.000Z',
       readinessId: 'tracking-escalation-readiness-proof',
       sourceContractRefs: [
-        'packages/parent-domain/src/tracking-location-policy.ts',
+        'packages/tracking-domain/src/tracking-location-policy.ts',
         'docs/plans/tracking-plan/workpacks/27-escalation-engine.md',
         'docs/expectations/notifications.md',
         'docs/expectations/policy.md',
@@ -127,10 +127,10 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- requiredProofTier: P1_FIXTURE_SIMULATION',
     '- currentProofTier: P1_FIXTURE_SIMULATION',
     '- status: proved',
-    '- proof module: packages/parent-domain/src/tracking-escalation-readiness-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-escalation-readiness-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-escalation-readiness-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-escalation-readiness-proof.test.ts',
     '- proof harness: scripts/test/tracking-escalation-readiness-proof.mjs',
-    '- source contracts: packages/parent-domain/src/tracking-location-policy.ts',
+    '- source contracts: packages/tracking-domain/src/tracking-location-policy.ts',
     '',
   ].join('\n');
 }

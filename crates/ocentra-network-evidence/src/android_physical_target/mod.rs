@@ -1,12 +1,12 @@
-mod types;
+pub(crate) mod types;
 mod validation;
 
-pub use types::{
+use types::{
     NetworkAndroidPhysicalTargetBoundaryReason, NetworkAndroidPhysicalTargetError,
     NetworkAndroidPhysicalTargetExpected, NetworkAndroidPhysicalTargetField,
     NetworkAndroidPhysicalTargetInput, NetworkAndroidPhysicalTargetMismatch,
     NetworkAndroidPhysicalTargetObserved, NetworkAndroidPhysicalTargetProof,
-    NetworkAndroidPhysicalTargetState, NetworkAndroidPhysicalTargetUnsupportedClaims,
+    NetworkAndroidPhysicalTargetState,
 };
 use validation::{normalize_expected, normalize_observed, reject_unsupported_claims};
 

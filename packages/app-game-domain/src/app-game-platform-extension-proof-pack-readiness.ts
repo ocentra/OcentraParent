@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const SchemaVersion = 'app-game-platform-extension-proof-pack-readiness';
 const GeneratedAt = '2026-06-05T20:47:00.000Z';
 const RequiredProductMeanings = ['native-app', 'native-game'] as const;

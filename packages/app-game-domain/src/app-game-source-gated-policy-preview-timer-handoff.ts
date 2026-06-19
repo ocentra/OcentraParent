@@ -24,7 +24,7 @@ import {
   AppGameSourceGatedPolicyPreviewReadModelContractRefSchema,
 } from './app-game-source-gated-policy-preview-read-model';
 import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameSourceGatedPolicyPreviewTimerHandoffIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerHandoffId');
 export const AppGameSourceGatedPolicyPreviewTimerHandoffRowIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerHandoffRowId');

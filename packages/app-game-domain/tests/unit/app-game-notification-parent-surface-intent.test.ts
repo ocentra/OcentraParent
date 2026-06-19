@@ -8,7 +8,7 @@ import {
 import { AppGameNotificationPreferenceStatusHandoffReadModelSchema } from '../../src/app-game-notification-preference-status-handoff';
 import { AppGameNotificationProviderPreflightStatus } from '../../src/app-game-notification-provider-preflight';
 import { AppGameNotificationProviderStatusHandoffReadModelSchema } from '../../src/app-game-notification-provider-status-handoff';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-05T09:12:00Z';
 const SurfaceOptions = {

@@ -16,7 +16,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
 import {
   V3NotificationProviderChannelSchema,
@@ -48,10 +48,12 @@ export const AppGameNotificationPreferenceStatusHandoffNonClaimSchema = withPars
   Schema.Literal(...RequiredAppGameNotificationPreferenceStatusHandoffNonClaims)
 );
 
-// prettier-ignore
-export const AppGameNotificationPreferenceStatusHandoffIdSchema = brandedNonEmptyStringSchema('AppGameNotificationPreferenceStatusHandoffId');
-// prettier-ignore
-export const AppGameNotificationPreferenceStatusHandoffReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationPreferenceStatusHandoffReference');
+export const AppGameNotificationPreferenceStatusHandoffIdSchema = brandedNonEmptyStringSchema(
+  'AppGameNotificationPreferenceStatusHandoffId'
+);
+export const AppGameNotificationPreferenceStatusHandoffReferenceSchema = brandedNonEmptyStringSchema(
+  'AppGameNotificationPreferenceStatusHandoffReference'
+);
 
 const AppGameNotificationPreferenceStatusHandoffRowBaseSchema = Schema.Struct({
   handoffRowId: AppGameNotificationPreferenceStatusHandoffReferenceSchema,

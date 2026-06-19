@@ -1,7 +1,10 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, LogFieldValue, ParentEvidenceReferenceKind,
-    PolicyAction, PolicyDecisionHandoffState, PolicyPreviewReadModelRow, PolicyPreviewTargetState,
-    PolicyTarget, PolicyTargetType,
+    constants, policy_constants as policy, ActivityEvent, ActivityEventKind, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
+    ParentEvidenceReferenceKind, PolicyAction, PolicyAssistantConfirmationState,
+    PolicyDecisionHandoffState, PolicyPreviewReadModelRow, PolicyPreviewTargetState,
+    PolicyRequestOrigin, PolicyRequestStatus, PolicySourceStatus, PolicySourceSurface,
+    PolicyTarget, PolicyTargetType, ACTIVITY_SCHEMA_VERSION,
 };
 
 use super::{
@@ -64,6 +67,128 @@ fn policy_preview_read_model_evaluates_stored_browser_evidence_without_enforceme
     assert_eq!(row.policy_preview_finding_kinds, None);
     assert_eq!(row.policy_source_status, None);
     assert_eq!(row.policy_request_status, None);
+    assert_eq!(row.policy_approval_id, None);
+    assert_eq!(row.policy_override_id, None);
+    assert_eq!(row.policy_audit_reference_id, None);
+}
+
+#[test]
+fn policy_preview_read_model_prefers_explicit_target_fields_and_projects_policy_lifecycle() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let mut fields = ocentra_parent_agent_protocol::LogFields::new();
+    fields.insert(
+        constants::field::POLICY_TARGET_TYPE.to_string(),
+        LogFieldValue::String(policy::TARGET_TYPE_APP.to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_TARGET_VALUE.to_string(),
+        LogFieldValue::String("discord.exe".to_string()),
+    );
+    fields.insert(
+        constants::field::PROCESS_NAME.to_string(),
+        LogFieldValue::String("discord.exe".to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_SOURCE_STATUS.to_string(),
+        LogFieldValue::String(constants::policy_control::source::STATUS_CONFIRMED.to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_SOURCE_SURFACE.to_string(),
+        LogFieldValue::String(constants::policy_control::source::SURFACE_AI_PREVIEW.to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_REQUEST_ORIGIN.to_string(),
+        LogFieldValue::String("assistant-draft".to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_ASSISTANT_CONFIRMATION_STATE.to_string(),
+        LogFieldValue::String("parent-confirmed".to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_REQUEST_STATUS.to_string(),
+        LogFieldValue::String(
+            constants::policy_control::request::STATUS_PENDING_PARENT_REVIEW.to_string(),
+        ),
+    );
+    fields.insert(
+        constants::field::POLICY_REVIEWED_BY_ACTOR_ID.to_string(),
+        LogFieldValue::String("parent-1".to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_REVIEWED_BY_ACTOR_ROLE.to_string(),
+        LogFieldValue::String("parent".to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_REVIEWED_AT.to_string(),
+        LogFieldValue::String("2026-06-18T10:05:00Z".to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_AUDIT_REFERENCE_ID.to_string(),
+        LogFieldValue::String("audit.policy-request.confirmed".to_string()),
+    );
+
+    store
+        .ingest_events(&[ActivityEvent {
+            schema_version: ACTIVITY_SCHEMA_VERSION,
+            event_id: "audit.policy-request.confirmed".to_string(),
+            observed_at: "2026-06-18T10:05:00Z".to_string(),
+            source: ActivitySource {
+                device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+                platform: policy::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
+                observer: ActivityObserver::AgentService,
+                source_id: "policy-request-assistant-preview-confirm".to_string(),
+            },
+            kind: ActivityEventKind::EnforcementAuditRecorded,
+            subject: ActivitySubject {
+                kind: ActivitySubjectKind::Device,
+                subject_id: "policy-target-ref-1".to_string(),
+                display_name: Some("Discord".to_string()),
+            },
+            fields,
+            evidence: Vec::new(),
+        }])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+
+    let read_model = store
+        .policy_preview_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    let row = &read_model.rows[0];
+    assert_eq!(row.target.target_type, PolicyTargetType::App);
+    assert_eq!(row.target.target_value, "discord.exe");
+    assert_eq!(
+        row.policy_source_status,
+        Some(PolicySourceStatus::Confirmed)
+    );
+    assert_eq!(
+        row.policy_source_surface,
+        Some(PolicySourceSurface::AiPreview)
+    );
+    assert_eq!(
+        row.policy_request_origin,
+        Some(PolicyRequestOrigin::AssistantDraft)
+    );
+    assert_eq!(
+        row.policy_assistant_confirmation_state,
+        Some(PolicyAssistantConfirmationState::ParentConfirmed)
+    );
+    assert_eq!(
+        row.policy_request_status,
+        Some(PolicyRequestStatus::PendingParentReview)
+    );
+    assert_eq!(row.policy_reviewed_by_actor_id.as_deref(), Some("parent-1"));
+    assert_eq!(row.policy_reviewed_by_actor_role.as_deref(), Some("parent"));
+    assert_eq!(
+        row.policy_reviewed_at.as_deref(),
+        Some("2026-06-18T10:05:00Z")
+    );
+    assert_eq!(
+        row.policy_audit_reference_id.as_deref(),
+        Some("audit.policy-request.confirmed")
+    );
 }
 
 #[test]

@@ -1,12 +1,16 @@
 use std::fs::remove_file;
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityJournalRotationPolicy, ActivityObserver,
-    ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue, LogFields,
-    ACTIVITY_SCHEMA_VERSION,
+    constants, journal::ActivityJournalRotationPolicy, ActivityEvent, ActivityEventKind,
+    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
+    LogFields, ACTIVITY_SCHEMA_VERSION,
 };
 
-use super::{ActivityJournal, ActivityStore, JournalKey, JOURNAL_KEY_BYTES};
+use super::{
+    activity_store::ActivityStore,
+    journal::ActivityJournal,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+};
 
 #[test]
 fn activity_store_ingests_journal_replay_into_sqlite() {

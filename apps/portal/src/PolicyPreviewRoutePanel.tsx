@@ -9,6 +9,7 @@ import {
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import type { PortalShellParentAccessState } from '@ocentra-parent/portal-domain/parent-portal-shell-status';
 import {
   createPolicyPreviewPanelIntent,
   type PolicyPreviewPanelCard,
@@ -31,12 +32,18 @@ export function PolicyPreviewRoutePanel({
   actions,
   commandEnabled,
   liveActivity,
+  parentAccessState,
 }: {
   readonly actions: PortalRenderActions;
   readonly commandEnabled: boolean;
   readonly liveActivity: PortalLiveActivityState;
+  readonly parentAccessState: PortalShellParentAccessState;
 }): ReactElement {
-  const intent = createPolicyPreviewPanelIntent(liveActivity.policyPreviewEvent, liveActivity.policyPreviewReadModel);
+  const intent = createPolicyPreviewPanelIntent(
+    liveActivity.policyPreviewEvent,
+    liveActivity.policyPreviewReadModel,
+    parentAccessState
+  );
   return (
     <section
       aria-label={PortalText.Resolve(PortalTextToken.PolicyPreview)}

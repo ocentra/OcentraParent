@@ -4,11 +4,9 @@ import {
   PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
   PARENT_PORTAL_CONTENT,
-  PARENT_PORTAL_GUIDE_TOPICS,
   PARENT_PORTAL_NAV_LABELS,
   PARENT_PORTAL_ROUTE_CONTEXT,
   PortalClipboard,
-  PortalCommandButtons,
   PortalConnectionState,
   PortalDetails,
   PortalDiagnostics,
@@ -16,8 +14,6 @@ import {
   PortalAssets,
   PortalExternalLinks,
   PortalFrameTuner,
-  PortalActivitySurfaceDefaultRequestPayload,
-  PortalOverviewCommands,
   PortalAiRuntimeRoutes,
   PortalRouteDescriptors,
   PortalRouteGroup,
@@ -49,6 +45,12 @@ import {
   type ParentPortalNavLabel,
   type ParentPortalNavSectionLabel,
 } from '../../src/contracts';
+import {
+  PortalActivitySurfaceDefaultRequestPayload,
+  PortalCommandButtons,
+  PortalOverviewCommands,
+} from '../../src/commands';
+import { PARENT_PORTAL_GUIDE_TOPICS } from '../../src/parent-portal-guides';
 
 function routeFromHashPath(routePath: ParentPortalHashRoutePath): PortalRoute {
   const [routeId = PortalDom.EmptyHashRoute] = routePath
@@ -65,7 +67,9 @@ function selectableParentPortalTargetIds(): ReadonlySet<string> {
 function expectNavRouteLabelsToMatchContexts(): void {
   for (const item of PARENT_PORTAL_CONTENT.navItems.filter((entry) => entry.routePath)) {
     const routePath = item.routePath;
-    expect(routePath).toBeDefined();
+    if (routePath === undefined) {
+      throw new Error('nav item route path missing');
+    }
     const route = routeFromHashPath(routePath);
     const routeContext = PARENT_PORTAL_ROUTE_CONTEXT[route];
     if (routePath.includes(PortalDom.HashQuerySeparator)) {

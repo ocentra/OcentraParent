@@ -42,7 +42,7 @@ import {
   type BrowserControlFullCatalogTab,
   type BrowserControlFullCatalogUiTab,
 } from './browser-control-full-catalog-schema';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 type GroupDraft = Omit<BrowserControlFullCatalogGroup, 'settings'> & {
   readonly settings: BrowserControlFullCatalogSetting[];

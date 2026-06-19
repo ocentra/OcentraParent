@@ -1,6 +1,6 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-import { ParentPolicyVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPolicyVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   LocalAiConfidenceSchema,
   LocalAiContextKindSchema,

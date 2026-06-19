@@ -44,7 +44,7 @@ fn tracking_notification_keeps_policy_violation_as_source_authority() {
     let violation = tracking_policy_violation_fixture();
 
     let notification =
-        ocentra_child_notification_core::request_parent_notification_from_policy_violation(
+        ocentra_child_notification_core::tracking_notification::request_parent_notification_from_policy_violation(
             &violation,
         );
 

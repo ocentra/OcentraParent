@@ -5,6 +5,11 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
+
 export const NotificationAuditHistoryReadModelIdSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryReadModelId');
 export const NotificationAuditHistoryEntryIdSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryEntryId');
 export const NotificationAuditHistoryReferenceSchema = brandedNonEmptyStringSchema('NotificationAuditHistoryReference');
@@ -162,7 +167,7 @@ function notificationAuditHistoryEntryIsSafe(entry: NotificationAuditHistoryEntr
 }
 
 function notificationAuditHistoryHasClaimUpgrade(entry: NotificationAuditHistoryEntryCandidate): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.providerAdapterImplemented,
     entry.sendAttemptExecuted,
     entry.retryExecutionObserved,
@@ -174,7 +179,7 @@ function notificationAuditHistoryHasClaimUpgrade(entry: NotificationAuditHistory
     entry.sensitiveProviderPayloadIncluded,
     entry.ocentraHostedChildDataStored,
     entry.providerStoresChildEvidenceClaimed,
-  ].some(Boolean);
+  ]);
 }
 
 function notificationAuditHistoryHasRequiredRefs(entry: NotificationAuditHistoryEntryCandidate): boolean {
@@ -182,10 +187,7 @@ function notificationAuditHistoryHasRequiredRefs(entry: NotificationAuditHistory
 }
 
 function notificationAuditHistoryHasRequiredPayloadFields(entry: NotificationAuditHistoryEntryCandidate): boolean {
-  const fields = new Set(entry.redactionSafePayloadFields);
-  return (
-    fields.size === entry.redactionSafePayloadFields.length && RequiredPayloadFields.every((field) => fields.has(field))
-  );
+  return supportProofRequiredValuesArePresent(entry.redactionSafePayloadFields, RequiredPayloadFields);
 }
 
 function notificationAuditHistoryStatesAreCoherent(entry: NotificationAuditHistoryEntryCandidate): boolean {

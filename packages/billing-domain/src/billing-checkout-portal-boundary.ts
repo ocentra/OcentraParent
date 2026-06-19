@@ -4,7 +4,7 @@ import {
   ParentAccountReferenceSchema,
   ParentActorReferenceSchema,
 } from '@ocentra-parent/family-domain/references';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { BillingPlanIdSchema } from './billing-entitlement-values.js';
 import {
   BillingCheckoutAbuseGateStateSchema,

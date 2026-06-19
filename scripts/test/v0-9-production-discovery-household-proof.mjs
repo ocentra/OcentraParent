@@ -5,7 +5,7 @@ import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
 const lanDomainRoot = join(repoRoot, 'packages', 'lan-domain');
-const lanPairingModulePath = join(lanDomainRoot, 'dist', 'lan-pairing.js');
+const productionDiscoveryModulePath = join(lanDomainRoot, 'dist', 'v0-9-production-discovery-household-proof.js');
 const outputDir = join(repoRoot, 'output', 'lan-plan-proof', '01-lan-b1-proof-regeneration');
 const sourceMatrixProofPath = join(outputDir, '01-lan-source-matrix-plan-completion-proof.json');
 const signedRelayProofPath = join(outputDir, '02-lan-signed-discovery-relay-spine-proof.json');
@@ -20,10 +20,11 @@ async function main() {
   await ensureLanDomainBuild();
   await runCommand('cmd', ['/c', 'npx', 'vitest', 'run', 'tests/unit/v0-9-production-discovery-household-proof.test.ts'], lanDomainRoot);
 
-  const contract = await import(moduleUrl(lanPairingModulePath));
+  const productionDiscoveryContract = await import(moduleUrl(productionDiscoveryModulePath));
   const sourceMatrixProof = await readJson(sourceMatrixProofPath);
   const signedRelayProof = await readJson(signedRelayProofPath);
-  const readModel = contract.V09ProductionDiscoveryHouseholdProofReadModelSchema.parse(readModelFixture());
+  const readModel =
+    productionDiscoveryContract.V09ProductionDiscoveryHouseholdProofReadModelSchema.parse(readModelFixture());
 
   assertArrayIncludes(sourceMatrixProof.claimsNotProved, 'Physical two-device household LAN readiness.', 'source matrix non-claim');
   assertArrayIncludes(signedRelayProof.manualProofRequired, 'signed-child-agent-hello', 'signed relay manual source');
@@ -68,7 +69,7 @@ async function main() {
 }
 
 async function ensureLanDomainBuild() {
-  if (existsSync(lanPairingModulePath)) {
+  if (existsSync(productionDiscoveryModulePath)) {
     return;
   }
   await runCommand('cmd', ['/c', 'npm', 'run', 'build'], lanDomainRoot);

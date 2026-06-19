@@ -57,7 +57,7 @@ plan package. They are planning inputs, not implementation proof.
 | `packages/network-domain/tests/unit/network-flow.test.ts`      | Network flow contract/query tests.                                                        |
 | `packages/network-domain/tests/unit/network-contracts.test.ts` | Network evidence and policy-action contract tests.                                        |
 | `packages/network-domain/tests/unit/network-control-catalog.test.ts` | Network-control catalog coverage, counts, renderability, and no-claim boundaries.    |
-| `packages/parent-domain/src/network-control-catalog*.ts`       | Re-export shim files only; they are not canonical ownership and currently fail architecture lint. |
+| `packages/parent-domain/package.json`                          | Parent-domain no longer publishes the stale `./network-control-catalog` compatibility surface; canonical imports must use `@ocentra-parent/network-domain/network-control-catalog*`. |
 | `crates/agent-protocol/src/network_flow.rs`                    | Rust protocol shape for network flow evidence.                                            |
 | `crates/agent-protocol/src/network_flow_tests.rs`              | Rust protocol tests.                                                                      |
 | `crates/agent-protocol/src/constants/network_flow.rs`          | Rust protocol constants for network flow boundaries.                                      |

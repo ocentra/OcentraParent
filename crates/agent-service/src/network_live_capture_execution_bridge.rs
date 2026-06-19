@@ -1,7 +1,11 @@
 use ocentra_network_evidence::{
-    NetworkLiveCaptureExecutionInput, NetworkLiveCaptureExecutionSource,
-    NetworkLiveCaptureExecutionState, NetworkLiveCapturePlatform, NetworkLiveCaptureProof,
-    NetworkLiveCaptureProofState,
+    live_capture::{
+        NetworkLiveCapturePlatform, NetworkLiveCaptureProof, NetworkLiveCaptureProofState,
+    },
+    live_capture_execution::{
+        NetworkLiveCaptureExecutionInput, NetworkLiveCaptureExecutionSource,
+        NetworkLiveCaptureExecutionState,
+    },
 };
 use ocentra_parent_agent_protocol::{constants, NetworkLiveCaptureExecutionStatusState};
 

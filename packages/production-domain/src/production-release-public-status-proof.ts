@@ -1,5 +1,6 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+import { countProductionProofValues } from './production-proof-shape';
 import {
   ForbiddenPublicDataClasses,
   ProductionReleasePublicDataClassSchema,
@@ -14,8 +15,6 @@ import {
   RequiredNonClaims,
   RequiredPublicSurfaces,
 } from './production-release-public-status-proof-values';
-
-export * from './production-release-public-status-proof-values';
 
 type ProductionReleasePublicStatusProofCandidate = {
   readonly surfaces: ReadonlyArray<{
@@ -151,12 +150,9 @@ export const ProductionReleasePublicStatusKnownGaps = [
 export function summarizeProductionReleasePublicStatusSurfaces(
   rows: ReadonlyArray<ProductionReleasePublicSurfaceStatus>
 ): Record<ProductionReleasePublicSurface, number> {
-  return RequiredPublicSurfaces.reduce(
-    (summary, surfaceName) => ({
-      ...summary,
-      [surfaceName]: rows.filter((row) => row.surface === surfaceName).length,
-    }),
-    {} as Record<ProductionReleasePublicSurface, number>
+  return countProductionProofValues(
+    rows.map((row) => row.surface),
+    RequiredPublicSurfaces
   );
 }
 

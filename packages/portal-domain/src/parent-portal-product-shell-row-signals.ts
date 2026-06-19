@@ -8,7 +8,7 @@ import {
 import type { ParentPortalRow } from './parent-portal-data';
 import { PortalBrowserInventoryFields } from './details';
 import type { ParentPortalServiceConnectionState, ParentPortalServiceStateInput } from './parent-portal-service-state';
-import { PARENT_PORTAL_SERVICE_STATE } from './parent-portal-service-state-constants';
+import { PARENT_PORTAL_SERVICE_STATE } from './parent-portal-service-state';
 import type { ProductShellSignalKind } from './parent-portal-product-shell-row-specs';
 
 export type ProductShellSignal = {

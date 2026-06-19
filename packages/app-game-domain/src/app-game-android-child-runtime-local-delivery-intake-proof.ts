@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameAndroidChildRuntimeLocalDeliveryIntakeProofSchemaVersionSchema = withParser(
   Schema.Literal('app-game-android-child-runtime-local-delivery-intake-proof')
@@ -178,7 +178,6 @@ function androidChildRuntimeLocalDeliveryProofRefs(input: {
   return refs;
 }
 
-// eslint-disable-next-line complexity -- proof honesty predicates intentionally enumerate required evidence gates.
 function androidChildRuntimeLocalDeliveryProofIsHonest(proof: AndroidChildRuntimeLocalDeliveryCandidate): boolean {
   return (
     proof.deliveryIntakeState === 'package-local-delivery-intake-recorded' &&

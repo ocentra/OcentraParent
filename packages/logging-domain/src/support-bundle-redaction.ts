@@ -4,6 +4,10 @@ import {
   withParser,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
+import {
+  supportProofHasAnyClaimUpgrade,
+  supportProofRequiredValuesArePresent,
+} from './support-proof-contract.js';
 
 const supportBundleText = <Brand extends string>(brand: Brand) =>
   NonEmptyStringSchema.pipe(Schema.brand(brand));
@@ -220,15 +224,18 @@ function supportBundleRedactionEntryIsSafe(entry: SupportBundleRedactionEntryCan
   return (
     !supportBundleRedactionHasClaimUpgrade(entry) &&
     supportBundleRedactionHasRequiredRefs(entry) &&
-    requiredValuesArePresent(entry.disclosedDataClasses, SupportBundleRequiredDataClasses) &&
-    requiredValuesArePresent(entry.redactionSafePayloadFields, SupportBundleRequiredPayloadFields) &&
-    requiredValuesArePresent(entry.diagnosticReferenceKinds, SupportBundleRequiredDiagnosticReferenceKinds) &&
+    supportProofRequiredValuesArePresent(entry.disclosedDataClasses, SupportBundleRequiredDataClasses) &&
+    supportProofRequiredValuesArePresent(entry.redactionSafePayloadFields, SupportBundleRequiredPayloadFields) &&
+    supportProofRequiredValuesArePresent(
+      entry.diagnosticReferenceKinds,
+      SupportBundleRequiredDiagnosticReferenceKinds
+    ) &&
     supportBundleRedactionStatesAreCoherent(entry)
   );
 }
 
 function supportBundleRedactionHasClaimUpgrade(entry: SupportBundleRedactionEntryCandidate): boolean {
-  return [
+  return supportProofHasAnyClaimUpgrade([
     entry.containsTokens,
     entry.containsChildActivity,
     entry.containsRawUrls,
@@ -249,7 +256,7 @@ function supportBundleRedactionHasClaimUpgrade(entry: SupportBundleRedactionEntr
     entry.accountLookupExecuted,
     entry.remoteSupportSessionStarted,
     entry.productionSlaClaimed,
-  ].some(Boolean);
+  ]);
 }
 
 function supportBundleRedactionHasRequiredRefs(entry: SupportBundleRedactionEntryCandidate): boolean {
@@ -319,14 +326,6 @@ function supportBundleRedactionCoversIncidentStatuses(entries: readonly SupportB
     'billing-escalation-manual-required',
     'account-lookup-manual-required',
   ].every((status) => statuses.has(status as SupportBundleIncidentStatus));
-}
-
-function requiredValuesArePresent<T extends string>(
-  actualValues: ReadonlyArray<T>,
-  requiredValues: ReadonlyArray<T>
-): boolean {
-  const actual = new Set(actualValues);
-  return actual.size === actualValues.length && requiredValues.every((value) => actual.has(value));
 }
 
 export type SupportBundleIncidentStatus = Infer<typeof SupportBundleIncidentStatusSchema>;

@@ -1,4 +1,4 @@
-import { EventingEventTypeSchema } from '@ocentra-parent/event-domain/eventing';
+import { EventingEventTypeSchema } from '@ocentra-parent/schema-domain/eventing';
 import { ActivityNetworkEvidenceGradeSchema } from '@ocentra-parent/network-domain/network-contracts';
 import {
   type Infer,

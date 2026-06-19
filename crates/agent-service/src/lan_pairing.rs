@@ -6,19 +6,25 @@ use std::{
 pub(crate) mod authority;
 pub(crate) mod controller_lease;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing/controller_lease.rs"]
 mod controller_lease_tests;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing/device_roles.rs"]
 mod device_roles_tests;
 pub(crate) mod lan_ai_job;
 pub(crate) mod lan_ai_job_lease_events;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing/lan_ai_job_lease.rs"]
 mod lan_ai_job_lease_tests;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing/lan_ai_job.rs"]
 mod lan_ai_job_tests;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing/lan_ai_provider_heartbeat.rs"]
 mod lan_ai_provider_heartbeat_tests;
 pub(crate) mod lan_ai_route_metadata;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing/lan_ai_route_metadata.rs"]
 mod lan_ai_route_metadata_tests;
 
 use ocentra_parent_agent_core::TrustedDeviceRegistry;

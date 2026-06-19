@@ -1,13 +1,16 @@
 import { DatabaseSync } from 'node:sqlite';
 import {
   NetworkEvidenceDrawerProofFixture,
-  PortalNetworkActivitySeed,
   networkActivityEvidence,
   networkActivityFields,
   networkActivityObservedAt,
 } from './network-evidence-drawer-proof-fixture.mjs';
 
-export { PortalNetworkActivitySeed };
+export const PortalNetworkActivitySeed = Object.freeze({
+  EventId: NetworkEvidenceDrawerProofFixture.eventId,
+  EvidenceId: NetworkEvidenceDrawerProofFixture.evidenceId,
+  JournalEvidenceId: NetworkEvidenceDrawerProofFixture.journalEvidenceId,
+});
 
 export function seedPortalNetworkActivityStore(activityDbPath) {
   const database = new DatabaseSync(activityDbPath);

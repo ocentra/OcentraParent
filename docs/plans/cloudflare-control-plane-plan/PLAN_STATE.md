@@ -36,7 +36,7 @@ Current Parent direction:
 | CFCP-001 through CFCP-011 | architecture-closed / runtime-present / proof-open           | The shared module, guard chain, route surface, auth boundary, storage model, and local runtime exist in source, but plan docs and proof roots are stale. | `infra/cloudflare/` source, module docs, plan docs, and output proof roots agree on current runtime truth and remaining no-claim boundaries. |
 | CFCP-012                  | architecture-closed / local-runtime-present / proof-open     | Local Wrangler-backed runtime and seed flows are exercised by real tests, but no output proof bundle exists yet for the local start, seed, and teardown path. | Local start, seed, teardown, and environment expectations are captured under `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`. |
 | CFCP-013                  | architecture-closed / runtime-mostly-proven / proof-open     | Real runnable unit, contract, security, property, fuzz, e2e, and heavy integration coverage exists, but the proof root is absent and the scoped integration baseline must stay green. | Scoped Cloudflare validation is green and recorded under `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/` and `.../10-security-fuzz-property-observability/`. |
-| CFCP-014                  | architecture-closed / handoff-blocked                        | Payment dependency is explicit, but no accepted WP12 handoff artifact exists and payment must not infer readiness from source or spec alone.      | `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md` exists and `payment-subscription-plan` WP00 points at it. |
+| CFCP-014                  | architecture-closed / handoff-recorded / payment-blocked     | WP12 now records an explicit blocked handoff, but only WP10 has an accepted canonical proof root today; WP03/WP05/WP07/WP08/WP09/WP11 proof roots are still absent and payment must not infer readiness from source or spec alone. | `output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/payment-handoff-proof.md` exists, `payment-subscription-plan` WP00 points at it, and the missing proof roots are replaced by accepted proof or exact carried blockers without widening readiness claims. |
 
 ## HID Execution Guard
 
@@ -52,6 +52,7 @@ Current Parent direction:
 
 This plan is implementation-present but not completion-ready. Cloudflare
 correctness remains incomplete until scoped validation stays green, proof
-bundles live under `output/cloudflare-control-plane-plan-proof/`, and WP12
-records an honest payment handoff with remaining auth and deployment
-dependencies called out.
+bundles live under `output/cloudflare-control-plane-plan-proof/`, and the WP12
+handoff bundle no longer carries open blockers for the missing
+WP03/WP05/WP07/WP08/WP09/WP11 proof roots or downstream payment-plan
+consumption.

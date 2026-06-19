@@ -118,31 +118,38 @@ mod lan_pairing_audit;
 mod lan_pairing_browser_add_device_scan;
 mod lan_pairing_browser_add_device_state;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing_browser_add_device_state.rs"]
 mod lan_pairing_browser_add_device_state_tests;
 mod lan_pairing_browser_runtime;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing_browser_runtime.rs"]
 mod lan_pairing_browser_runtime_tests;
 mod lan_pairing_household_device_spine;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing_household_device_spine_test_fixtures.rs"]
 mod lan_pairing_household_device_spine_test_fixtures;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing_household_device_spine.rs"]
 mod lan_pairing_household_device_spine_tests;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing_multidevice.rs"]
 mod lan_pairing_multidevice_tests;
 mod lan_pairing_payload;
 #[cfg_attr(not(test), allow(dead_code))]
 mod lan_pairing_provider_selection_read_model;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing_provider_selection_read_model.rs"]
 mod lan_pairing_provider_selection_read_model_tests;
 mod lan_pairing_runtime_state;
 mod lan_pairing_status;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing_test_assertions.rs"]
 mod lan_pairing_test_assertions;
 #[cfg(test)]
+#[path = "../tests/unit/lan_pairing_test_commands.rs"]
 mod lan_pairing_test_commands;
 #[cfg(test)]
-mod lan_pairing_test_support;
-#[cfg(test)]
+#[path = "../tests/unit/lan_pairing.rs"]
 mod lan_pairing_tests;
 mod local_ai_cache_root;
 mod local_ai_chat_generation;
@@ -286,7 +293,7 @@ mod screen_settings_runtime;
 #[cfg(test)]
 mod screen_settings_runtime_tests;
 mod screen_settings_store;
-mod service_runtime;
+pub mod service_runtime;
 mod snapshot;
 mod time;
 #[cfg(test)]
@@ -304,5 +311,3 @@ mod windows_adapter_artifact_ingestion_read_model_tests;
 mod windows_adapter_capability_read_model;
 #[cfg(test)]
 mod windows_adapter_capability_read_model_tests;
-
-pub use service_runtime::run_agent_service;

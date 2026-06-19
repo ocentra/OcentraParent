@@ -9,7 +9,7 @@ import {
   AndroidParentMobileCapabilityStatuses,
   IosParentMobileCapabilityStatuses,
 } from './parent-mobile-runtime-capability-statuses';
-import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const ParentMobilePlatformSchema = withParser(Schema.Literal('android', 'ios'));
 export const ParentMobilePackageStateSchema = withParser(

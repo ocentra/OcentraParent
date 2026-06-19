@@ -3,7 +3,9 @@ use ocentra_parent_agent_protocol::{
     TrackingEvidenceRef, TrackingPolicyRuleRef, TrackingPolicySeverity,
     TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId, TrackingTimestamp,
 };
-use ocentra_tracking_core::TrackingParentNotificationDecisionState;
+use ocentra_tracking_core::alerting::{
+    evaluate_tracking_alert, TrackingParentNotificationDecisionState,
+};
 
 #[test]
 fn alert_decision_rate_limits_duplicate_parent_notifications_without_lowering_severity() {
@@ -36,7 +38,7 @@ fn alert_decision_rate_limits_duplicate_parent_notifications_without_lowering_se
         .expect(constants::tracking_runtime::DEFAULT_EVIDENCE_REF)],
     };
 
-    let decision = ocentra_tracking_core::evaluate_tracking_alert(&violation, 1);
+    let decision = evaluate_tracking_alert(&violation, 1);
 
     assert_eq!(
         decision.severity,

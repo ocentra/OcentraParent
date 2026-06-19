@@ -53,15 +53,15 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ### Avoidable local execution gaps
 
-- Only the `01-network-foundation-shim-cleanup` proof skeleton exists; broader plan proof docs and artifacts are still missing.
+- Only the `01-network-foundation-shim-cleanup` proof pack exists; broader plan proof docs and artifacts are still missing.
 - WSL installed but not started.
 - Docker Desktop binary present but engine unavailable.
 - Android SDK/emulator available, but no current device attached and the remembered Samsung Wi-Fi endpoint may need reconnect/auth.
 
 ## Current slice contradiction
 
-- `network-foundation-shim-cleanup` can close the parent-domain `network-flow` and `network-contracts` barrel syntax locally.
-- The one remaining decision inside this slice is whether `@ocentra-parent/parent-domain` should continue publishing `./network-control-catalog` at all, or whether that public surface must move to a different canonical package path before `packages/parent-domain/src/network-control-catalog.ts`, `network-control-catalog-data.ts`, `network-control-catalog-metadata.ts`, and `network-control-catalog-schema.ts` are removed or replaced.
+- The old `network-foundation-shim-cleanup` contradiction is now locally closed: dead parent-domain `network-flow` and `network-contracts` frontage files are retired, and the stale `@ocentra-parent/parent-domain` `./network-control-catalog` surface is already retired.
+- The next network move must reopen a real `WP01` contract/eventing or plan-truth packet, not another parent-domain shim-cleanup pass.
 
 ## PR readiness guard
 

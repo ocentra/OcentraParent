@@ -1,12 +1,16 @@
 use std::fs::{read_to_string, remove_file};
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityJournalRotationPolicy, ActivityObserver,
-    ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue, LogFields,
-    ACTIVITY_SCHEMA_VERSION,
+    constants, journal::ActivityJournalRotationPolicy, ActivityEvent, ActivityEventKind,
+    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
+    LogFields, ACTIVITY_SCHEMA_VERSION,
 };
 
-use super::{ActivityJournal, JournalError, JournalKey, JOURNAL_KEY_BYTES};
+use super::{
+    journal::ActivityJournal,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+    journal_error::JournalError,
+};
 
 #[test]
 fn journal_appends_encrypted_activity_without_plaintext_payload() {

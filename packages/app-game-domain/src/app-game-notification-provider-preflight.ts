@@ -14,7 +14,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
 
 export const AppGameNotificationProviderPreflightStatus = {
@@ -43,10 +43,12 @@ export const AppGameNotificationProviderPreflightNonClaimSchema = withParser(
   Schema.Literal(...RequiredAppGameNotificationProviderPreflightNonClaims)
 );
 
-// prettier-ignore
-export const AppGameNotificationProviderPreflightIdSchema = brandedNonEmptyStringSchema('AppGameNotificationProviderPreflightId');
-// prettier-ignore
-export const AppGameNotificationProviderPreflightReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationProviderPreflightReference');
+export const AppGameNotificationProviderPreflightIdSchema = brandedNonEmptyStringSchema(
+  'AppGameNotificationProviderPreflightId'
+);
+export const AppGameNotificationProviderPreflightReferenceSchema = brandedNonEmptyStringSchema(
+  'AppGameNotificationProviderPreflightReference'
+);
 
 const AppGameNotificationProviderPreflightRowBaseSchema = Schema.Struct({
   preflightRowId: AppGameNotificationProviderPreflightReferenceSchema,

@@ -4,7 +4,8 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityJournalRotationPolicy, ActivityJournalStatus,
+    constants,
+    journal::{ActivityJournalRotationPolicy, ActivityJournalStatus},
     ACTIVITY_JOURNAL_SCHEMA_VERSION,
 };
 

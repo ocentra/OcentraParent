@@ -4,7 +4,7 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityJournalLine, APP_GAME_CLASSIFICATION_KNOWN_APP,
+    constants, journal::ActivityJournalLine, APP_GAME_CLASSIFICATION_KNOWN_APP,
     APP_GAME_INVENTORY_ENTRY_ID_PREFIX, APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE,
     APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_RUNTIME_NOT_CLAIMED,
     APP_GAME_TEST_STORE_APP_DISPLAY_LABEL, APP_GAME_TEST_STORE_APP_PACKAGE_ID,
@@ -12,7 +12,11 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME,
 };
 
-use crate::{ActivityJournal, ActivityStore, JournalKey, JOURNAL_KEY_BYTES};
+use crate::{
+    activity_store::ActivityStore,
+    journal::ActivityJournal,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+};
 
 use super::{
     app_game_journal_sqlite_ingest::app_game_journal_sqlite_read_model,

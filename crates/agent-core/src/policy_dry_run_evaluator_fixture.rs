@@ -8,7 +8,7 @@ use ocentra_parent_agent_protocol::{
     PolicyTargetType,
 };
 
-use super::PolicyDryRunEvaluationInput;
+use super::policy_dry_run_evaluator::PolicyDryRunEvaluationInput;
 
 pub(crate) fn input_with_rules(
     parent_rules: Vec<PolicyRule>,

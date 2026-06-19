@@ -6,7 +6,7 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseProviderStoreReportStatusProofReadModel } from './app-install-purchase-provider-store-report-status-proof';
 import { AppInstallPurchaseReportStatusReadModelHandoffProofReadModel } from './app-install-purchase-report-status-read-model-handoff-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const LimitationSummaryProofVersion = 'app-install-purchase-limitation-summary-proof';
 const SourceProviderStoreReportStatusProofVersion = 'app-install-purchase-provider-store-report-status-proof';
 const SourceReportStatusReadModelProofVersion = 'app-install-purchase-report-status-read-model-handoff-proof';

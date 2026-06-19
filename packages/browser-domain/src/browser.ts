@@ -92,7 +92,6 @@ export {
   BrowserUnmanagedProcessNameSchema,
   BrowserUnmanagedSignatureRefSchema,
 } from './browser-unmanaged-process-schemas';
-export { BrowserTargetIdSchema } from './browser-target-schemas';
 export {
   BrowserExtensionHeartbeatStateSchema,
   BrowserExtensionIdSchema,

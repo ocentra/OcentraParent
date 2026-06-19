@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseChildArtifactDeliveryProofReadModel } from './app-install-purchase-child-artifact-delivery-proof';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ApiEntitlementProofVersion = 'app-install-purchase-approved-api-entitlement-proof';
 const SourceChildArtifactProofVersion = 'app-install-purchase-child-artifact-delivery-proof';
 const ApiEntitlementTimestamp = '2026-06-05T00:15:00.000Z';

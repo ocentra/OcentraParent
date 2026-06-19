@@ -6,7 +6,7 @@ import {
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { ParentActionReferenceSchema, ParentActorReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { PolicyDecisionSchema, PolicyReasonCodeSchema, comparePolicyActionStrictness } from '@ocentra-parent/policy-domain/policy';
 import { LocalAiSafetyResultSchema } from '@ocentra-parent/ai-domain/local-ai';
 import { LocalAiPromptVersionSchema } from './local-ai-primitives';

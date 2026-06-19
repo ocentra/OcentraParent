@@ -6,7 +6,7 @@ import {
   buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceHandoff,
 } from '../../src/app-game-timer-service-handoff';
 import { AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceHandoffState } from '../../src/app-game-timer-service-handoff-rules';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const UpstreamParentSurfaceReadModelPath = new URL(
   '../../../test-results/app-game-timer-parent-read-model-proof/handoff.json',

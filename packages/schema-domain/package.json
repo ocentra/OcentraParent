@@ -5,6 +5,22 @@
   "type": "module",
   "description": "Shared Effect Schema validation helpers.",
   "exports": {
+    "./family-reference-primitives": {
+      "import": "./dist/family-reference-primitives.js",
+      "types": "./dist/family-reference-primitives.d.ts"
+    },
+    "./eventing": {
+      "import": "./dist/eventing.js",
+      "types": "./dist/eventing.d.ts"
+    },
+    "./event-primitives": {
+      "import": "./dist/event-primitives.js",
+      "types": "./dist/event-primitives.d.ts"
+    },
+    "./app-game-child-runtime-transport-receipt": {
+      "import": "./dist/app-game-child-runtime-transport-receipt.js",
+      "types": "./dist/app-game-child-runtime-transport-receipt.d.ts"
+    },
     "./effect": {
       "import": "./dist/effect.js",
       "types": "./dist/effect.d.ts"

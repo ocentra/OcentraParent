@@ -11,7 +11,7 @@ import {
 import { appGameInstallStoreHandoffRowIsHonest } from './app-game-install-store-handoff-rules';
 import { EnforcementCapabilityStateSchema } from '@ocentra-parent/enforcement-domain/enforcement';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameInstallStoreHandoffSchemaVersionSchema = withParser(
   Schema.Literal('app-game-install-store-handoff-proof')

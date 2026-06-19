@@ -1,9 +1,12 @@
+use crate::windows_adapter_artifact_gate::{
+    WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateDecision,
+    WindowsAdapterArtifactGateEntry, WindowsAdapterArtifactGateProof, WindowsAdapterArtifactKind,
+};
+
 use super::{
     constants, constants::windows_adapter_artifact_gate as artifact_gate,
     constants::windows_adapter_artifact_ingestion as artifact_ingestion,
     constants::windows_adapter_capability as windows_adapter, policy_constants as policy,
-    WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateDecision,
-    WindowsAdapterArtifactGateEntry, WindowsAdapterArtifactGateProof, WindowsAdapterArtifactKind,
     WindowsAdapterCapabilitySurface,
 };
 

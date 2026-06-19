@@ -94,25 +94,18 @@ pub const REQUIREMENT_UNINSTALL_DETECTION_ARTIFACT: &str = "uninstall detection 
 pub const REQUIREMENT_SECURITY_REVIEW: &str = "security review before hardening";
 
 pub const BOUNDARY_APP_TIME_LIMIT_SUCCEEDED: &str = "Owned-process app/game time-limit actions can execute only with policy, evidence, timer, rollback, child-reason, and audit references.";
-pub const BOUNDARY_APP_TIME_LIMIT_EXPIRED: &str =
-    "Expiry is audit-backed by timer state and child-facing status refs; it does not imply broad app blocking.";
+pub const BOUNDARY_APP_TIME_LIMIT_EXPIRED: &str = "Expiry is audit-backed by timer state and child-facing status refs; it does not imply broad app blocking.";
 pub const BOUNDARY_APP_TIME_LIMIT_ROLLED_BACK: &str = "Rollback is a typed supported-boundary state with rollback refs and audit refs, not an implicit unblock claim for unproved adapters.";
-pub const BOUNDARY_PARENT_OVERRIDE_SUPERSEDED: &str =
-    "Parent override supersedes a validated action through auditable intent refs owned by the agent runtime.";
+pub const BOUNDARY_PARENT_OVERRIDE_SUPERSEDED: &str = "Parent override supersedes a validated action through auditable intent refs owned by the agent runtime.";
 pub const BOUNDARY_DRY_RUN_NO_OP: &str =
     "Dry-run and observe previews are audit-visible no-ops and must not execute adapters.";
-pub const BOUNDARY_STALE_POLICY_REJECTED: &str =
-    "Stale policy decisions reject before adapter execution and keep a child-facing reason/status ref.";
+pub const BOUNDARY_STALE_POLICY_REJECTED: &str = "Stale policy decisions reject before adapter execution and keep a child-facing reason/status ref.";
 pub const BOUNDARY_WRONG_DEVICE_REJECTED: &str =
     "Wrong-device intents reject before adapter execution and remain auditable.";
-pub const BOUNDARY_NETWORK_OBSERVE_ONLY: &str =
-    "Network/domain runtime state is observe-only over stored flow evidence; host DNS/filter enforcement is not executed.";
-pub const BOUNDARY_HOST_NETWORK_MANUAL: &str =
-    "Host network/domain filtering remains manual-required until apply, rollback, and audit artifacts exist.";
-pub const BOUNDARY_PERMISSION_LOSS: &str =
-    "Permission loss is explicit unavailable state and must not be reported as enforcement success.";
-pub const BOUNDARY_ADAPTER_UNAVAILABLE: &str =
-    "Adapter recovery is explicit recovery-needed/unavailable state where persisted restart recovery is not proved.";
+pub const BOUNDARY_NETWORK_OBSERVE_ONLY: &str = "Network/domain runtime state is observe-only over stored flow evidence; host DNS/filter enforcement is not executed.";
+pub const BOUNDARY_HOST_NETWORK_MANUAL: &str = "Host network/domain filtering remains manual-required until apply, rollback, and audit artifacts exist.";
+pub const BOUNDARY_PERMISSION_LOSS: &str = "Permission loss is explicit unavailable state and must not be reported as enforcement success.";
+pub const BOUNDARY_ADAPTER_UNAVAILABLE: &str = "Adapter recovery is explicit recovery-needed/unavailable state where persisted restart recovery is not proved.";
 pub const BOUNDARY_STALE_HEARTBEAT: &str =
     "Stale heartbeat is parent-visible degraded integrity state, not anti-tamper hardening.";
 pub const BOUNDARY_MOBILE_UNSUPPORTED: &str =

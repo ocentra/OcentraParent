@@ -6,7 +6,7 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseParentReviewActionProofReadModel } from './app-install-purchase-parent-review-action-proof';
 import { AppInstallPurchaseReportRuntimeProofReadModel } from './app-install-purchase-report-runtime-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const ApprovalReportDomainProofVersion = 'app-install-purchase-approval-report-domain-proof';
 const SourceParentReviewActionProofVersion = 'app-install-purchase-parent-review-action-proof';
 const SourceReportRuntimeProofVersion = 'app-install-purchase-report-runtime-proof';

@@ -1,7 +1,7 @@
 import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
 import { LocalAiContextNonNegativeCountSchema, LocalAiContextReasonCodeSchema } from './local-ai-context-primitives';
 import { LocalAiConfidenceSchema, LocalAiDerivedIndexVersionSchema, LocalAiTimestampSchema, } from './local-ai-primitives';
-import { ParentPolicyVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPolicyVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { ChildProfileReferenceSchema, ParentActionReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema, } from '@ocentra-parent/family-domain/references';
 const LocalAiActivityMemoryGraphIdSchema = brandedNonEmptyStringSchema('LocalAiActivityMemoryGraphId');
 const LocalAiActivityMemoryGraphNodeIdSchema = brandedNonEmptyStringSchema('LocalAiActivityMemoryGraphNodeId');

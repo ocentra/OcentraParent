@@ -2,24 +2,43 @@ import React, { type ReactElement } from 'react';
 import { AgentCommand, AgentEvent, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { defaultAgentTrackingRetentionSettingsWriteRequest } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import {
+  trackingChildCheckInProof,
+  trackingChildRuntimeUiProof,
+  type TrackingChildCheckInProof,
+  type TrackingChildRuntimeUiProof,
+} from '@ocentra-parent/portal-domain/tracking-child-check-in-proof';
+import {
+  TrackingMissingDeviceHostedUiDetails,
+  trackingMissingDeviceHostedUiProof,
+  type TrackingMissingDeviceHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-missing-device-hosted-ui-proof';
+import {
+  TrackingNotificationParentSurfaceHostedUiDetails,
+  trackingNotificationParentSurfaceHostedUiProof,
+  type TrackingNotificationParentSurfaceHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-notification-parent-surface-hosted-ui-proof';
+import {
+  TrackingParentActionReadinessHostedUiDetails,
+  trackingParentActionReadinessHostedUiProof,
+  type TrackingParentActionReadinessHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-parent-action-readiness-hosted-ui-proof';
+import {
+  trackingReportExportHostedUiProof,
+  type TrackingReportExportHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-report-export-hosted-ui-proof';
+import {
+  trackingReportPolicyConsumerHostedUiProof,
+  type TrackingReportPolicyConsumerHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-report-policy-consumer-hosted-ui-proof';
+import {
   PortalDetails,
   PortalDom,
   PortalText,
   PortalTextToken,
-  TrackingMissingDeviceHostedUiDetails,
-  TrackingNotificationParentSurfaceHostedUiDetails,
-  TrackingParentActionReadinessHostedUiDetails,
   TrackingEvidenceDrawerHostedUiProofDetails,
-  trackingChildCheckInProof,
-  trackingChildRuntimeUiProof,
   trackingEvidenceDrawerHostedUiProof,
   trackingFamilyDashboardHostedRollupProof,
-  trackingMissingDeviceHostedUiProof,
-  trackingNotificationParentSurfaceHostedUiProof,
-  trackingParentActionReadinessHostedUiProof,
   trackingRetentionSettingsHostedUiProof,
-  trackingReportExportHostedUiProof,
-  trackingReportPolicyConsumerHostedUiProof,
   trackingStatusLiveSummary,
   isPortalTrackingStatusRoute,
   trackingStatusProofRows,
@@ -28,15 +47,8 @@ import {
   type PortalDetailValue,
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
-  type TrackingChildCheckInProof,
-  type TrackingChildRuntimeUiProof,
   type TrackingEvidenceDrawerHostedUiProof,
   type TrackingFamilyDashboardHostedRollupProof,
-  type TrackingMissingDeviceHostedUiProof,
-  type TrackingNotificationParentSurfaceHostedUiProof,
-  type TrackingParentActionReadinessHostedUiProof,
-  type TrackingReportExportHostedUiProof,
-  type TrackingReportPolicyConsumerHostedUiProof,
   type TrackingRetentionSettingsHostedUiProof,
   type TrackingStatusLiveCitation,
   type TrackingStatusLiveSummary,

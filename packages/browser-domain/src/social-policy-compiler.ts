@@ -6,7 +6,7 @@ import {
   ParentDeviceIdSchema,
   ParentPolicyVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   PolicyCompilerCapabilityState,
   PolicyCompilerCapabilityStateSchema,

@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_child_device_id, child_domain_child_profile_id, child_domain_evidence_ref,
     child_domain_notification_id_from_policy_violation_id, child_domain_observed_at,
     child_domain_policy_rule_ref, child_domain_policy_severity, child_domain_policy_violation_id,
@@ -27,7 +27,7 @@ fn child_domain_notification_preserves_policy_violation_source() {
     };
 
     let notification =
-        ocentra_child_notification_core::request_child_domain_parent_notification(&violation);
+        ocentra_child_notification_core::child_domain_notification::request_child_domain_parent_notification(&violation);
 
     assert_eq!(
         notification.event_type,
@@ -67,7 +67,7 @@ fn child_domain_notification_canonicalizes_duplicate_evidence_refs() {
     };
 
     let notification =
-        ocentra_child_notification_core::request_child_domain_parent_notification(&violation);
+        ocentra_child_notification_core::child_domain_notification::request_child_domain_parent_notification(&violation);
 
     assert_eq!(notification.requested_at, violation.detected_at);
     assert_eq!(notification.evidence_refs.len(), 1);

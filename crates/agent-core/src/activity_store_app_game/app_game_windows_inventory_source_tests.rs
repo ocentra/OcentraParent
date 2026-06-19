@@ -4,14 +4,18 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityJournalLine, APP_GAME_DESKTOP_ENTRY_ID_PREFIX,
+    constants, journal::ActivityJournalLine, APP_GAME_DESKTOP_ENTRY_ID_PREFIX,
     APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_ENTRY_ID_PREFIX,
     APP_GAME_INVENTORY_SOURCE_SHORTCUT, APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_RUNTIME_NOT_CLAIMED,
     APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_LIVE_INVENTORY_SUFFIX,
     APP_GAME_TEST_SECOND_SHORTCUT_FILE_NAME, APP_GAME_TEST_SHORTCUT_FILE_NAME,
 };
 
-use crate::{ActivityJournal, ActivityStore, JournalKey, JOURNAL_KEY_BYTES};
+use crate::{
+    activity_store::ActivityStore,
+    journal::ActivityJournal,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+};
 
 use super::{
     app_game_journal_sqlite_ingest::app_game_journal_sqlite_read_model,

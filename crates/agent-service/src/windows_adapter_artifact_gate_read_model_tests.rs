@@ -1,7 +1,12 @@
 use ocentra_parent_agent_protocol::{
     constants::windows_adapter_artifact_gate as artifact_gate,
-    constants::windows_adapter_capability as windows_adapter, policy_constants as policy,
-    WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateDecision, WindowsAdapterArtifactKind,
+    constants::windows_adapter_capability as windows_adapter,
+    policy_constants as policy,
+    windows_adapter_artifact_gate::{
+        WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateDecision,
+        WindowsAdapterArtifactGateEntry, WindowsAdapterArtifactGateProof,
+        WindowsAdapterArtifactKind,
+    },
     WindowsAdapterCapabilitySurface,
 };
 
@@ -157,9 +162,9 @@ fn windows_adapter_artifact_gate_rejects_non_audit_artifacts_without_custody_eve
 }
 
 fn entry_for(
-    proof: &ocentra_parent_agent_protocol::WindowsAdapterArtifactGateProof,
+    proof: &WindowsAdapterArtifactGateProof,
     surface: WindowsAdapterCapabilitySurface,
-) -> &ocentra_parent_agent_protocol::WindowsAdapterArtifactGateEntry {
+) -> &WindowsAdapterArtifactGateEntry {
     proof
         .entries
         .iter()

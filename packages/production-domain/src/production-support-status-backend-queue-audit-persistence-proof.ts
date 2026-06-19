@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ForbiddenQueueAuditPersistenceDataClasses,
   ProductionSupportStatusBackendQueueAuditPersistenceDataClassSchema,
@@ -14,8 +14,6 @@ import {
   RequiredQueueAuditPersistenceStates,
   RequiredQueueAuditPersistenceTargets,
 } from './production-support-status-backend-queue-audit-persistence-values';
-
-export * from './production-support-status-backend-queue-audit-persistence-values';
 
 type QueueAuditPersistenceProofCandidate = {
   readonly rows: ReadonlyArray<{ readonly target: string; readonly readinessState: string }>;

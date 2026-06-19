@@ -6,7 +6,7 @@ import {
   ParentDeviceReferenceSchema,
   ParentEvidenceReferenceSchema,
 } from '@ocentra-parent/family-domain/references';
-import { ParentContractSchemaVersionSchema, ParentPolicyVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentPolicyVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   LocalAiCapabilityFlagSchema,
   LocalAiConfidenceSchema,
@@ -16,7 +16,7 @@ import {
   LocalAiTimestampSchema,
 } from './local-ai-primitives';
 import { LocalAiGraphReferenceSchema, LocalAiMemoryReferenceSchema } from './local-ai-references';
-import { LocalModelRuntimeStatusSchema } from '@ocentra-parent/ai-domain/local-ai-runtime';
+import { LocalModelRuntimeStatusSchema } from './local-ai-runtime';
 import {
   LocalAiConfidenceKindSchema,
   LocalAiContextBuildStateSchema,
@@ -34,9 +34,60 @@ import {
   LocalAiParentRuleContextRefIdSchema,
   LocalAiRejectedFieldSchema,
   LocalAiRequestedEvaluationKindSchema,
-} from './local-ai-context-primitives';
+} from './context-primitives';
+import type {
+  LocalAiConfidenceKind,
+  LocalAiContextBuildState,
+  LocalAiContextCapabilityStatus,
+  LocalAiContextReasonCode,
+  LocalAiEvidenceAdapterId,
+  LocalAiEvidenceContextId,
+  LocalAiEvidenceContextKind,
+  LocalAiEvidenceContextRefId,
+  LocalAiEvidenceContextSummary,
+  LocalAiEvidenceCustody,
+  LocalAiEvidenceRetentionState,
+  LocalAiEvidenceSourceId,
+  LocalAiParentRuleContextRefId,
+  LocalAiRejectedField,
+  LocalAiRequestedEvaluationKind,
+} from './context-primitives';
 
-export * from './local-ai-context-primitives';
+export {
+  LocalAiConfidenceKindSchema,
+  LocalAiContextBuildStateSchema,
+  LocalAiContextCapabilityStatusSchema,
+  LocalAiContextNonNegativeCountSchema,
+  LocalAiContextReasonCodeSchema,
+  LocalAiEvidenceAdapterIdSchema,
+  LocalAiEvidenceContextIdSchema,
+  LocalAiEvidenceContextKindSchema,
+  LocalAiEvidenceContextRefIdSchema,
+  LocalAiEvidenceContextSummarySchema,
+  LocalAiEvidenceCustodySchema,
+  LocalAiEvidenceRetentionStateSchema,
+  LocalAiEvidenceSourceIdSchema,
+  LocalAiParentRuleContextRefIdSchema,
+  LocalAiRejectedFieldSchema,
+  LocalAiRequestedEvaluationKindSchema,
+};
+export type {
+  LocalAiConfidenceKind,
+  LocalAiContextBuildState,
+  LocalAiContextCapabilityStatus,
+  LocalAiContextReasonCode,
+  LocalAiEvidenceAdapterId,
+  LocalAiEvidenceContextId,
+  LocalAiEvidenceContextKind,
+  LocalAiEvidenceContextRefId,
+  LocalAiEvidenceContextSummary,
+  LocalAiEvidenceCustody,
+  LocalAiEvidenceRetentionState,
+  LocalAiEvidenceSourceId,
+  LocalAiParentRuleContextRefId,
+  LocalAiRejectedField,
+  LocalAiRequestedEvaluationKind,
+};
 
 export const LocalAiEvidenceContextSourceRefSchema = withParser(
   Schema.Struct({

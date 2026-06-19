@@ -7,9 +7,10 @@ use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 
 use crate::policy_source::{
-    ParentPolicyActorRole, ParentPolicyDocumentId, PolicyActorId, PolicyAuditReferenceId,
-    PolicyChildProfileId, PolicyDeviceId, PolicyHouseholdId, PolicyRuleAction, PolicyRuleId,
-    PolicySourceActorState, PolicyTargetKind, PolicyTargetReferenceId, PolicyVersion,
+    policy_actor_role_name, policy_actor_state_name, ParentPolicyActorRole, ParentPolicyDocumentId,
+    PolicyActorId, PolicyAuditReferenceId, PolicyChildProfileId, PolicyDeviceId, PolicyHouseholdId,
+    PolicyRuleAction, PolicyRuleId, PolicySourceActorState, PolicyTargetKind,
+    PolicyTargetReferenceId, PolicyVersion,
 };
 
 const POLICY_REQUEST_SCHEMA_VERSION_VALUE: u16 = 1;
@@ -688,23 +689,6 @@ fn assert_parent_actor_authority(
     }
 
     Ok(())
-}
-
-fn policy_actor_role_name(role: ParentPolicyActorRole) -> &'static str {
-    match role {
-        ParentPolicyActorRole::Parent => policy_control::source::ROLE_PARENT,
-        ParentPolicyActorRole::CoParent => policy_control::source::ROLE_CO_PARENT,
-        ParentPolicyActorRole::Observer => policy_control::source::ROLE_OBSERVER,
-        ParentPolicyActorRole::Child => policy_control::source::ROLE_CHILD,
-        ParentPolicyActorRole::Support => policy_control::source::ROLE_SUPPORT,
-    }
-}
-
-fn policy_actor_state_name(state: PolicySourceActorState) -> &'static str {
-    match state {
-        PolicySourceActorState::Active => policy_control::source::ACTOR_STATE_ACTIVE,
-        PolicySourceActorState::Revoked => policy_control::source::ACTOR_STATE_REVOKED,
-    }
 }
 
 fn assert_non_empty_audit_refs(

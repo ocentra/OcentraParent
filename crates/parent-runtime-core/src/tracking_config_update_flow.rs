@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use ocentra_child_runtime::{
+use ocentra_child_runtime::tracking_config_update_flow::{
     publish_parent_tracking_config_updated_event, TrackingConfigUpdateEventFlowReport,
 };
 use ocentra_eventing::{
@@ -259,7 +259,7 @@ async fn subscribe_tracking_config_policy_evaluation_events(
                     .publisher()
                     .publish(
                         dispatch_event,
-                        tracking_runtime_dispatch_metadata(
+                        tracking_config_controller_metadata(
                             context.payload().source_command_id.as_str(),
                         )?,
                     )
@@ -324,7 +324,7 @@ async fn subscribe_tracking_config_policy_decision_events(
                         .publisher()
                         .publish(
                             change_approved.clone(),
-                            tracking_config_change_approved_metadata(
+                            tracking_config_controller_metadata(
                                 decision.source_command_id.as_str(),
                             )?,
                         )
@@ -402,7 +402,7 @@ async fn subscribe_tracking_config_policy_decision_events(
                         .publisher()
                         .publish(
                             change_rejected.clone(),
-                            tracking_config_change_rejected_metadata(
+                            tracking_config_controller_metadata(
                                 decision.source_command_id.as_str(),
                             )?,
                         )
@@ -758,27 +758,7 @@ fn tracking_config_policy_decision_completed_metadata(
     )
 }
 
-fn tracking_runtime_dispatch_metadata(
-    source_command_id: &str,
-) -> Result<EventMetadata, EventingError> {
-    tracking_config_runtime_metadata(
-        source_command_id,
-        RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)?,
-        None,
-    )
-}
-
-fn tracking_config_change_approved_metadata(
-    source_command_id: &str,
-) -> Result<EventMetadata, EventingError> {
-    tracking_config_runtime_metadata(
-        source_command_id,
-        RuntimeRole::parse(constants::eventing_source::ROLE_CONTROLLER)?,
-        None,
-    )
-}
-
-fn tracking_config_change_rejected_metadata(
+fn tracking_config_controller_metadata(
     source_command_id: &str,
 ) -> Result<EventMetadata, EventingError> {
     tracking_config_runtime_metadata(

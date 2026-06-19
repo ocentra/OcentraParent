@@ -7,7 +7,7 @@ import type {
   BillingSupportAdminAction,
   BillingSupportAdminRuntimeState,
 } from './billing-support-admin-boundary-values';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const decodeParentTimestamp = Schema.decodeUnknownSync(ParentTimestampSchema);
 const Timestamp = decodeParentTimestamp('2026-06-04T12:19:16.000Z');

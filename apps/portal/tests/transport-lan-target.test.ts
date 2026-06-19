@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { AgentCommand, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
-import { PortalCommandButtons, PortalOverviewCommands } from '@ocentra-parent/portal-domain/contracts';
+import { PortalCommandButtons, PortalOverviewCommands } from '@ocentra-parent/portal-domain/commands';
 import { isPortalDirectEnforcementActionCommand, resolvePortalCommandTarget } from '../src/transport';
 
 it('isPortalDirectEnforcementActionCommand: rejects portal-side enforcement action commands', () => {

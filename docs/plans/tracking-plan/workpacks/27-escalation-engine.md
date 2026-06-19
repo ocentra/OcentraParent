@@ -95,9 +95,10 @@ This workpack can be assigned independently, implemented against the owning doma
 ## Fill This Before Reporting DONE Or PR-ready
 
 - [ ] Workpack id and branch: `codex/tracking-escalation-readiness-proof`.
-- [ ] Touched files: parent-domain escalation readiness proof contract, focused
-      test, proof script, feature docs, implementation checklist, workpack doc,
-      proof output, and queued capability-checklist doc delta.
+- [ ] Touched files: tracking-domain escalation readiness proof contract,
+      focused contract test, proof script, feature docs, implementation
+      checklist, workpack doc, proof output, and queued capability-checklist
+      doc delta.
 - [ ] Validation commands and results:
       `node scripts/test/tracking-escalation-readiness-proof.mjs` passed.
 - [ ] Proof artifacts under `output/tracking-plan-proof/27-escalation-engine/`
@@ -112,9 +113,10 @@ This workpack can be assigned independently, implemented against the owning doma
       auto-contact, Android/iOS physical proof, and full runtime execution
       remain proof-gated.
 - [ ] Workpack id and branch: `codex/tracking-plan-full-continuation-a`.
-- [ ] Touched files: escalation runtime blocker proof model/test, focused proof
-      script, owning tracking feature doc, implementation checklist, WP27,
-      WP33, generated WP27/WP33 proof artifacts, and hub doc delta queue.
+- [ ] Touched files: tracking-domain escalation runtime readiness blocker proof
+      model, focused contract test, proof script, owning tracking feature doc,
+      implementation checklist, WP27, WP33, generated WP27/WP33 proof
+      artifacts, and hub doc delta queue.
 - [ ] Validation commands and results:
       `node scripts/test/tracking-escalation-runtime-readiness-blocker-proof.mjs`
       passed.

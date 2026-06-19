@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentDeviceIdSchema, ParentPlatformSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentDeviceIdSchema, ParentPlatformSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   LanPairingControllerLeaseIdSchema,
   LanPairingParentAuthoritySchema,

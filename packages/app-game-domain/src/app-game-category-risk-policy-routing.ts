@@ -24,7 +24,7 @@ import {
 } from './app-game-policy-target-compiler';
 import { PolicyActionSchema } from '@ocentra-parent/policy-domain/policy';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-import { ParentContractSchemaVersionSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameCategoryRiskPolicyRouteIdSchema = brandedNonEmptyStringSchema('AppGameCategoryRiskPolicyRouteId');
 export const AppGameCategoryCandidateRefSchema = brandedNonEmptyStringSchema('AppGameCategoryCandidateRef');

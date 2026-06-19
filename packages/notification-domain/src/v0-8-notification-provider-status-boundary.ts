@@ -8,7 +8,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const V08NotificationProviderStatusBoundaryReadModelIdSchema = brandedNonEmptyStringSchema('V08NotificationProviderStatusBoundaryReadModelId');
 export const V08NotificationProviderStatusBoundaryEntryIdSchema = brandedNonEmptyStringSchema('V08NotificationProviderStatusBoundaryEntryId');

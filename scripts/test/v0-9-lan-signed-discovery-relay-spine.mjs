@@ -5,7 +5,8 @@ import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
 const lanDomainRoot = join(repoRoot, 'packages', 'lan-domain');
-const lanPairingModulePath = join(lanDomainRoot, 'dist', 'lan-pairing.js');
+const signedDiscoveryRelaySpineModulePath = join(lanDomainRoot, 'dist', 'lan-signed-discovery-relay-spine.js');
+const pairingDeviceModulePath = join(lanDomainRoot, 'dist', 'lan-pairing-device.js');
 const outputDir = join(repoRoot, 'output', 'lan-plan-proof', '01-lan-b1-proof-regeneration');
 const proofPath = join(outputDir, '02-lan-signed-discovery-relay-spine-proof.json');
 const commands = [];
@@ -17,9 +18,11 @@ async function main() {
   await ensureLanDomainBuild();
   await runCommand('cmd', ['/c', 'npx', 'vitest', 'run', 'tests/unit/lan-signed-discovery-relay-spine.test.ts'], lanDomainRoot);
 
-  const contract = await import(moduleUrl(lanPairingModulePath));
-  const spine = contract.LanSignedDiscoveryRelaySpineSchema.parse(signedDiscoveryRelaySpineFixture());
-  const readModel = contract.LanBrowserAddDeviceReadModelSchema.parse({
+  const signedDiscoveryRelaySpineContract = await import(moduleUrl(signedDiscoveryRelaySpineModulePath));
+  const pairingDeviceContract = await import(moduleUrl(pairingDeviceModulePath));
+  const spine =
+    signedDiscoveryRelaySpineContract.LanSignedDiscoveryRelaySpineSchema.parse(signedDiscoveryRelaySpineFixture());
+  const readModel = pairingDeviceContract.LanBrowserAddDeviceReadModelSchema.parse({
     ...addDeviceReadModelFixture(),
     signedDiscoveryRelaySpine: spine,
   });
@@ -65,7 +68,7 @@ async function main() {
 }
 
 async function ensureLanDomainBuild() {
-  if (existsSync(lanPairingModulePath)) {
+  if (existsSync(signedDiscoveryRelaySpineModulePath) && existsSync(pairingDeviceModulePath)) {
     return;
   }
   await runCommand('cmd', ['/c', 'npm', 'run', 'build'], lanDomainRoot);

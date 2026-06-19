@@ -1,5 +1,5 @@
 import { Schema, withParser, brandedNonEmptyStringSchema } from '@ocentra-parent/schema-domain/effect';
-import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema, ParentTimestampSchema, } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion, ParentContractSchemaVersionSchema, ParentTimestampSchema, } from '@ocentra-parent/schema-domain/family-reference-primitives';
 export const V08IntegrityAlertStatusBridgeReadModelIdSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeReadModelId');
 export const V08IntegrityAlertStatusBridgeEntryIdSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeEntryId');
 export const V08IntegrityAlertStatusBridgeReferenceSchema = brandedNonEmptyStringSchema('V08IntegrityAlertStatusBridgeReference');

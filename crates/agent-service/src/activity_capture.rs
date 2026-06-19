@@ -14,7 +14,7 @@ use crate::{
 mod app_game;
 pub(crate) mod capture_events;
 mod errors;
-pub use errors::ActivityCaptureError;
+pub(crate) type ActivityCaptureError = errors::ActivityCaptureError;
 
 #[cfg(test)]
 pub(crate) mod freshness;

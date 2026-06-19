@@ -19,7 +19,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
 
 export const AppGameNotificationSchedulerBridgeStatus = {
@@ -32,10 +32,12 @@ export const AppGameNotificationSchedulerBridgeStatusSchema = withParser(
   Schema.Literal(...Object.values(AppGameNotificationSchedulerBridgeStatus))
 );
 
-// prettier-ignore
-export const AppGameNotificationSchedulerBridgeIdSchema = brandedNonEmptyStringSchema('AppGameNotificationSchedulerBridgeId');
-// prettier-ignore
-export const AppGameNotificationSchedulerBridgeReferenceSchema = brandedNonEmptyStringSchema('AppGameNotificationSchedulerBridgeReference');
+export const AppGameNotificationSchedulerBridgeIdSchema = brandedNonEmptyStringSchema(
+  'AppGameNotificationSchedulerBridgeId'
+);
+export const AppGameNotificationSchedulerBridgeReferenceSchema = brandedNonEmptyStringSchema(
+  'AppGameNotificationSchedulerBridgeReference'
+);
 
 const AppGameNotificationSchedulerBridgeRowBaseSchema = Schema.Struct({
   schedulerBridgeRecordId: AppGameNotificationSchedulerBridgeReferenceSchema,

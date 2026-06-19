@@ -43,10 +43,6 @@ pub type V09ProductionDiscoveryHouseholdManualChecklistItem =
     household_proof::V09ProductionDiscoveryHouseholdManualChecklistItem;
 pub type V09ProductionDiscoveryHouseholdProofReadModel =
     household_proof::V09ProductionDiscoveryHouseholdProofReadModel;
-#[cfg(test)]
-#[path = "lan_pairing/household_proof_tests.rs"]
-mod household_proof_tests;
-
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum LanPairingNetworkMode {

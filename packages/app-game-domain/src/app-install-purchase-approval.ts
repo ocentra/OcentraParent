@@ -23,7 +23,7 @@ import {
 } from '@ocentra-parent/family-domain/references';
 import { AppInstallPurchaseApprovalPackageSourceArtifactRowSchema } from './app-install-purchase-approval-package-sources';
 import { AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema } from './app-install-purchase-approval-platform-sources';
-import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentPlatformSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppInstallPurchaseApprovalSchemaVersionSchema = withParser(
   Schema.Literal('app-install-purchase-approval-contract-proof')

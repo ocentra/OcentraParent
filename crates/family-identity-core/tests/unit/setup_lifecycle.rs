@@ -1,10 +1,11 @@
-use ocentra_family_identity_core::{
-    authorize_setup_invite, evaluate_recovery_operation, AuditRequirementState, FamilyActorRole,
-    HouseholdMembership, RecoveryChildEvidenceAccessState, RecoveryDataCustodyHandoffState,
-    RecoveryDecisionState, RecoveryFailureReason, RecoveryIdentityProofState, RecoveryKind,
-    RecoveryOperation, RecoveryState, RecoverySupportChannel, SetupInviteDecisionState,
-    SetupInviteFailureReason, SetupInviteInput, SetupInvitePurpose, SetupInviteReplayState,
-    SetupInviteState, SetupInviteTargetRole,
+use ocentra_family_identity_core::family_identity::{FamilyActorRole, HouseholdMembership};
+use ocentra_family_identity_core::household_authority::AuditRequirementState;
+use ocentra_family_identity_core::setup_lifecycle::{
+    authorize_setup_invite, evaluate_recovery_operation, RecoveryChildEvidenceAccessState,
+    RecoveryDataCustodyHandoffState, RecoveryDecisionState, RecoveryFailureReason,
+    RecoveryIdentityProofState, RecoveryKind, RecoveryOperation, RecoveryState,
+    RecoverySupportChannel, SetupInviteDecisionState, SetupInviteFailureReason, SetupInviteInput,
+    SetupInvitePurpose, SetupInviteReplayState, SetupInviteState, SetupInviteTargetRole,
 };
 
 fn parent_member_invite(

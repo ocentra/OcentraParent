@@ -1,14 +1,18 @@
 use ocentra_browser_core::{
     browser_ai_analysis_requested_event, browser_evidence_recorded_event,
-    browser_policy_evaluation_requested_event, browser_runtime_decision_recorded_event,
-    browser_runtime_observed_event, evaluate_browser_runtime, BrowserAggregateId,
-    BrowserAiHandoffState, BrowserCapabilityState, BrowserClassificationState,
-    BrowserForegroundState, BrowserObservationIntent, BrowserPolicyHandoffState,
-    BrowserRuntimeActionState, BrowserRuntimeDecisionId, BrowserRuntimeInput,
+    browser_policy_evaluation_requested_event,
+    runtime_decision::{
+        browser_runtime_decision_recorded_event, browser_runtime_observed_event,
+        evaluate_browser_runtime, BrowserAggregateId, BrowserAiHandoffState,
+        BrowserCapabilityState, BrowserClassificationState, BrowserForegroundState,
+        BrowserPolicyHandoffState, BrowserRuntimeActionState, BrowserRuntimeDecisionId,
+        BrowserRuntimeInput,
+    },
+    BrowserObservationIntent,
 };
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_evidence_ref_from_observation_id, child_domain_observation_id_from_subject_ref,
-    ChildRuntimeDomain,
+    ChildDomainAiAnalysisRequestedEvent, ChildDomainEvidenceRecordedEvent, ChildRuntimeDomain,
 };
 
 #[test]
@@ -147,7 +151,7 @@ fn browser_runtime_observed_event_drives_derived_evidence_chain() {
 }
 
 fn screened_ai(
-    evidence: &ocentra_parent_agent_protocol::ChildDomainEvidenceRecordedEvent,
-) -> Option<ocentra_parent_agent_protocol::ChildDomainAiAnalysisRequestedEvent> {
+    evidence: &ChildDomainEvidenceRecordedEvent,
+) -> Option<ChildDomainAiAnalysisRequestedEvent> {
     browser_ai_analysis_requested_event(evidence)
 }

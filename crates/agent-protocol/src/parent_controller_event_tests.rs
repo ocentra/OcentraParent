@@ -1,7 +1,10 @@
 use super::{
-    constants, ParentActionReceivedEvent, ParentChildCommandForwardRequestedEvent,
-    ParentChildCommandForwardedEvent, ParentCommandRejectedEvent, ParentCommandValidatedEvent,
-    ParentControllerEventContract, ParentReadModelProjectedEvent,
+    constants,
+    parent_controller_events::{
+        ParentActionReceivedEvent, ParentChildCommandForwardRequestedEvent,
+        ParentChildCommandForwardedEvent, ParentCommandRejectedEvent, ParentCommandValidatedEvent,
+        ParentControllerEventContract, ParentReadModelProjectedEvent,
+    },
 };
 
 #[path = "parent_controller_event_fixtures.rs"]

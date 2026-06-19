@@ -1,8 +1,15 @@
 use ocentra_network_evidence::{
-    prove_network_end_to_end_pipeline, NetworkActionResultState, NetworkCascadeSignalStrength,
-    NetworkCascadeSourceKind, NetworkCrossSliceEvidenceSource, NetworkDnsAdapterCapabilityState,
-    NetworkEndToEndPipelineInput, NetworkEndToEndPipelineProof, NetworkEndToEndPipelineRefs,
-    NetworkEndToEndUnsupportedClaims, NetworkEvidenceGrade, NetworkEvidencePolicyAction,
+    action_result::NetworkActionResultState,
+    bundle::NetworkCrossSliceEvidenceSource,
+    cascade::{NetworkCascadeSignalStrength, NetworkCascadeSourceKind},
+    dns::NetworkEvidenceGrade,
+    dns_adapter::NetworkDnsAdapterCapabilityState,
+    pipeline::{
+        prove_network_end_to_end_pipeline, NetworkEndToEndPipelineInput,
+        NetworkEndToEndPipelineProof, NetworkEndToEndPipelineRefs,
+        NetworkEndToEndUnsupportedClaims,
+    },
+    policy::NetworkEvidencePolicyAction,
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel,

@@ -6,11 +6,11 @@ use ocentra_parent_agent_protocol::constants::policy_control;
 use serde::{Deserialize, Serialize};
 
 use crate::policy_source::{
-    validate_parent_policy_source_document, ParentPolicyDocumentId, ParentPolicyRule,
-    ParentPolicySourceDocument, PolicyAuditReferenceId, PolicyChildProfileId, PolicyDeviceId,
-    PolicyHouseholdId, PolicyReasonCode, PolicyRetentionMetadata, PolicyRollbackRef,
-    PolicyRuleAction, PolicyRuleId, PolicyRuleTarget, PolicyScheduleId, PolicyScheduleWindow,
-    PolicySourceDocumentStatus, PolicyTargetKind, PolicyVersion,
+    policy_status_name, validate_parent_policy_source_document, ParentPolicyDocumentId,
+    ParentPolicyRule, ParentPolicySourceDocument, PolicyAuditReferenceId, PolicyChildProfileId,
+    PolicyDeviceId, PolicyHouseholdId, PolicyReasonCode, PolicyRetentionMetadata,
+    PolicyRollbackRef, PolicyRuleAction, PolicyRuleId, PolicyRuleTarget, PolicyScheduleId,
+    PolicyScheduleWindow, PolicySourceDocumentStatus, PolicyTargetKind, PolicyVersion,
 };
 
 const POLICY_COMPILER_SCHEMA_VERSION_VALUE: u16 = 1;
@@ -605,7 +605,7 @@ fn assert_source_status_can_compile(
     ) {
         return Err(EventingError::InvalidValue {
             field: policy_control::compiler::FIELD_SOURCE_STATUS,
-            value: source_status_name(status).to_string(),
+            value: policy_status_name(status).to_string(),
         });
     }
 
@@ -766,28 +766,5 @@ fn policy_target_kind_name(target_kind: PolicyTargetKind) -> &'static str {
         PolicyTargetKind::Site => "site",
         PolicyTargetKind::Category => "category",
         PolicyTargetKind::Resource => "resource",
-    }
-}
-
-fn source_status_name(status: PolicySourceDocumentStatus) -> &'static str {
-    match status {
-        PolicySourceDocumentStatus::Draft => policy_control::source::STATUS_DRAFT,
-        PolicySourceDocumentStatus::Preview => policy_control::source::STATUS_PREVIEW,
-        PolicySourceDocumentStatus::Confirmed => policy_control::source::STATUS_CONFIRMED,
-        PolicySourceDocumentStatus::Queued => policy_control::source::STATUS_QUEUED,
-        PolicySourceDocumentStatus::Delivered => policy_control::source::STATUS_DELIVERED,
-        PolicySourceDocumentStatus::Acknowledged => policy_control::source::STATUS_ACKNOWLEDGED,
-        PolicySourceDocumentStatus::Active => policy_control::source::STATUS_ACTIVE,
-        PolicySourceDocumentStatus::PartiallyActive => {
-            policy_control::source::STATUS_PARTIALLY_ACTIVE
-        }
-        PolicySourceDocumentStatus::Rejected => policy_control::source::STATUS_REJECTED,
-        PolicySourceDocumentStatus::Superseded => policy_control::source::STATUS_SUPERSEDED,
-        PolicySourceDocumentStatus::RolledBack => policy_control::source::STATUS_ROLLED_BACK,
-        PolicySourceDocumentStatus::Stale => policy_control::source::STATUS_STALE,
-        PolicySourceDocumentStatus::Expired => policy_control::source::STATUS_EXPIRED,
-        PolicySourceDocumentStatus::ManualRequired => {
-            policy_control::source::STATUS_MANUAL_REQUIRED
-        }
     }
 }

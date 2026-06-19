@@ -9,7 +9,7 @@ import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameChildUxHandoffStatus = {
   Ready: 'ready-for-local-child-ux-handoff',

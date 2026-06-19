@@ -4,7 +4,7 @@ import type {
   ParentControlCapabilityStatusSchema,
   ParentControlPlatformSchema,
 } from '@ocentra-parent/capability-domain/capabilities';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   TamperUninstallArtifactStatusEntrySchema,
   TamperUninstallArtifactStatusReadModelSchema,

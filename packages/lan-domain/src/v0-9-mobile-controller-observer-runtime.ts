@@ -19,7 +19,7 @@ import {
   ParentMobileStoreDistributionStateSchema,
 } from './parent-mobile-runtime';
 import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from '@ocentra-parent/capability-domain/capabilities';
-import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const V09MobileControllerObserverRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('v0.9-mobile-controller-observer-runtime')

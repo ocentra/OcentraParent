@@ -1,5 +1,5 @@
 use ocentra_evidence::PrivatePayloadState;
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_request_id, child_domain_analysis_purpose, child_domain_child_device_id,
     child_domain_child_profile_id, child_domain_evidence_ref, child_domain_observed_at,
     child_domain_policy_evaluation_requested_from_ai_result_event_if_required,
@@ -31,7 +31,8 @@ fn child_domain_ai_completion_hands_off_to_policy_without_authority() {
         policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::Required,
     };
 
-    let completed = ocentra_child_ai_core::complete_child_domain_ai_analysis(&request);
+    let completed =
+        ocentra_child_ai_core::child_domain_analysis::complete_child_domain_ai_analysis(&request);
     let handoff =
         child_domain_policy_evaluation_requested_from_ai_result_event_if_required(&completed)
             .expect("policy handoff is required");
@@ -90,7 +91,8 @@ fn child_domain_ai_completion_without_policy_requirement_does_not_handoff_to_pol
         policy_evaluation_requirement: ChildDomainPolicyEvaluationRequirement::NotRequired,
     };
 
-    let completed = ocentra_child_ai_core::complete_child_domain_ai_analysis(&request);
+    let completed =
+        ocentra_child_ai_core::child_domain_analysis::complete_child_domain_ai_analysis(&request);
     let handoff =
         child_domain_policy_evaluation_requested_from_ai_result_event_if_required(&completed);
 

@@ -1,21 +1,31 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { Logger } from '@ocentra-parent/logging-domain/core/logger';
+import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
 
 const repoRoot = process.cwd();
 const proofMode = 'parent-owned-local-export-runtime-proof';
 const outputDir = join(repoRoot, 'output', 'data-custody-storage-plan-proof', '05-export-import-backup-recovery');
 const proofPath = join(outputDir, `${proofMode}.json`);
+const testResultDir = join(repoRoot, 'test-results', proofMode);
+const runtimeSmokeRoot = join(testResultDir, 'runtime-smoke');
 const commands = [];
+const log = Logger.instance;
+
+log.register((import.meta && import.meta.url) || 'scripts/test/parent-owned-local-export-runtime-proof.mjs');
 
 await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
+  await rm(testResultDir, { recursive: true, force: true });
+  await mkdir(testResultDir, { recursive: true });
 
   try {
+    log.logInfo('Starting parent-owned local export runtime proof', getStackTrace(), { proofMode }, true);
     await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
     await runCommand(
       ...npmCommand([
@@ -25,15 +35,60 @@ async function main() {
         '@ocentra-parent/parent-domain',
         '--',
         'tests/unit/parent-owned-local-export-runtime.test.ts',
+        'tests/unit/parent-owned-local-export-runtime-executor.test.ts',
       ]),
       { OCENTRA_PARENT_DOMAIN_TEST_SKIP_PROOF_CHAIN: '1' }
     );
 
     const proofModule = await loadContractProofModule();
+    const executorModule = await loadExecutorModule();
     await assertPackageExport(proofModule);
     const readModel = proofModule.ParentOwnedLocalExportRuntimeProofReadModel;
     const stateCounts = proofModule.summarizeParentOwnedLocalExportRuntimeStates(readModel.jobs);
     const dataClassCounts = proofModule.summarizeParentOwnedLocalExportRuntimeDataClasses(readModel.jobs);
+    const exportFixture = readModel.jobs.find((job) => job.state === 'export-written');
+    if (exportFixture === undefined || exportFixture.output === null) {
+      throw new Error('missing export-written proof fixture');
+    }
+
+    const runtimeExecutor = executorModule.createParentOwnedLocalExportRuntimeExecutor({
+      runtimeRoot: runtimeSmokeRoot,
+      encryptionSecret: 'parent-owned-local-export-runtime-proof-secret',
+      loggingEnabled: true,
+    });
+    const exportResult = await runtimeExecutor.executeExport({
+      scope: exportFixture.scope,
+      payload: {
+        recoveryBundleState: 'applied',
+        deleteSettlementState: 'delete-confirmed',
+        source: 'device-trust-recovery-persistence-proof',
+      },
+      sourceEvidenceRefs: exportFixture.output.sourceEvidenceRefs,
+      auditRefs: exportFixture.auditRefs,
+      jobId: 'proof-export-runtime-job',
+      queueRef: 'proof-export-runtime-queue',
+      requestedAt: '2026-06-18T06:20:00.000Z',
+    });
+    const bundleArtifactContainsPlaintextPayload = (await readFile(exportResult.bundlePath, 'utf8')).includes(
+      'device-trust-recovery-persistence-proof'
+    );
+    const deleteResult = await runtimeExecutor.executeDelete({
+      scope: exportFixture.scope,
+      output: exportResult.job.output,
+      auditRefs: exportFixture.auditRefs,
+      jobId: 'proof-delete-runtime-job',
+      queueRef: 'proof-delete-runtime-queue',
+      requestedAt: '2026-06-18T06:21:00.000Z',
+    });
+    const missingTargetDeleteResult = await runtimeExecutor.executeDelete({
+      scope: exportFixture.scope,
+      output: exportResult.job.output,
+      auditRefs: exportFixture.auditRefs,
+      jobId: 'proof-delete-missing-runtime-job',
+      queueRef: 'proof-delete-missing-runtime-queue',
+      requestedAt: '2026-06-18T06:22:00.000Z',
+    });
+    const runtimeAuditEntries = await runtimeExecutor.readAuditEntries();
 
     assert.equal(
       Object.values(stateCounts).every((count) => count === 1),
@@ -46,6 +101,10 @@ async function main() {
     assert.equal(readModel.connectorOAuthClaimed, false);
     assert.equal(readModel.ocentraHostedFamilyDataCustodyClaimed, false);
     assert.equal(readModel.rawEvidenceUploadClaimed, false);
+    assert.equal(exportResult.job.state, 'export-written');
+    assert.equal(deleteResult.job.state, 'delete-confirmed');
+    assert.equal(missingTargetDeleteResult.job.state, 'delete-failed');
+    assert.equal(runtimeAuditEntries.length, 3);
 
     const proof = {
       schemaVersion: 1,
@@ -56,9 +115,12 @@ async function main() {
       commands,
       evidence: {
         contract: 'packages/parent-domain/src/parent-owned-local-export-runtime.ts',
+        runtimeExecutor: 'packages/parent-domain/src/parent-owned-local-export-runtime-executor.ts',
         values: 'packages/parent-domain/src/parent-owned-local-export-runtime-values.ts',
         contractTest: 'packages/parent-domain/tests/unit/parent-owned-local-export-runtime.test.ts',
+        runtimeExecutorTest: 'packages/parent-domain/tests/unit/parent-owned-local-export-runtime-executor.test.ts',
         builtModule: 'packages/parent-domain/dist/parent-owned-local-export-runtime.js',
+        builtExecutorModule: 'packages/parent-domain/dist/parent-owned-local-export-runtime-executor.js',
         packageExport: '@ocentra-parent/parent-domain/parent-owned-local-export-runtime',
         output: relativePath(proofPath),
       },
@@ -79,10 +141,29 @@ async function main() {
         childDeviceMutationClaimed: readModel.childDeviceMutationClaimed,
         rawEvidenceUploadClaimed: readModel.rawEvidenceUploadClaimed,
       },
+      runtimeExecution: {
+        hostPlatform: process.platform,
+        exportState: exportResult.job.state,
+        deleteState: deleteResult.job.state,
+        missingTargetDeleteState: missingTargetDeleteResult.job.state,
+        missingTargetFailureReasonRef: missingTargetDeleteResult.job.deleteReceipt?.failureReasonRef ?? null,
+        bundlePath: relativePath(exportResult.bundlePath),
+        outputPath: relativePath(exportResult.outputPath),
+        auditLogPath: relativePath(exportResult.auditLogPath),
+        auditEntryCount: runtimeAuditEntries.length,
+        bundleArtifactContainsPlaintextPayload,
+      },
       knownGaps: proofModule.ParentOwnedLocalExportRuntimeKnownGaps,
     };
 
     await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
+    await writeFile(join(testResultDir, 'proof.json'), `${JSON.stringify(proof, null, 2)}\n`);
+    log.logInfo(
+      'Parent-owned local export runtime proof finished',
+      getStackTrace(),
+      { proofPath: relativePath(proofPath), auditEntryCount: runtimeAuditEntries.length },
+      true
+    );
     console.log(`${proofMode}-ok:${relativePath(proofPath)}`);
   } catch (error) {
     const blockedProof = {
@@ -113,6 +194,11 @@ async function main() {
 
 async function loadContractProofModule() {
   const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'parent-owned-local-export-runtime.js');
+  return import(pathToFileURL(modulePath).href);
+}
+
+async function loadExecutorModule() {
+  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'parent-owned-local-export-runtime-executor.js');
   return import(pathToFileURL(modulePath).href);
 }
 

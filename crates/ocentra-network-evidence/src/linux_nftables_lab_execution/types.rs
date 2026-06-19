@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::NetworkLinuxAdapterGateProof;
+use crate::linux_adapter_gate::NetworkLinuxAdapterGateProof;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkLinuxNftablesLabExecutionState {

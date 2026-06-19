@@ -1,6 +1,7 @@
 use std::{fs, io::ErrorKind, path::Path};
 
-use ocentra_parent_agent_core::{active_timer_state_from_outcome, EnforcementBoundaryOutcome};
+use ocentra_parent_agent_core::enforcement_timer_state::active_timer_state_from_outcome;
+use ocentra_parent_agent_core::EnforcementBoundaryOutcome;
 use ocentra_parent_agent_protocol::{constants, EnforcementActiveTimerState};
 
 pub(crate) async fn store_active_timer_state_for_outcome(

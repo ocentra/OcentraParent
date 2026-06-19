@@ -8,7 +8,7 @@ import {
   AppGameNotificationPreferenceStatusHandoffRowSchema,
   buildAppGameNotificationPreferenceStatusHandoffReadModel,
 } from '../../src/app-game-notification-preference-status-handoff';
-import { ParentContractSchemaVersion } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-05T08:39:00Z';
 const HandoffOptions = {

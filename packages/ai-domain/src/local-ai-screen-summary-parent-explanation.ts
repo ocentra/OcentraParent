@@ -21,7 +21,7 @@ import {
   PolicyRuleIdSchema,
 } from '@ocentra-parent/policy-domain/policy';
 import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 const NonEmptyEvidenceRefIds = Schema.Array(LocalAiEvidenceContextRefIdSchema).pipe(
   Schema.filter((refs) => refs.length > 0 || 'Expected screen-summary explanation refs')
 );

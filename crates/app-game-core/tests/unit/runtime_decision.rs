@@ -1,12 +1,12 @@
-use ocentra_app_game_core::{
+use ocentra_app_game_core::runtime_decision::{
     app_game_runtime_decision_recorded_event, app_game_runtime_observed_event,
     evaluate_app_game_runtime, AppGameAggregateId, AppGameAiHandoffState, AppGameCapabilityState,
-    AppGameClassificationState, AppGameForegroundState, AppGameObservationIntent,
-    AppGamePolicyHandoffState, AppGameRuntimeActionState, AppGameRuntimeDecisionId,
-    AppGameRuntimeInput,
+    AppGameClassificationState, AppGameForegroundState, AppGamePolicyHandoffState,
+    AppGameRuntimeActionState, AppGameRuntimeDecisionId, AppGameRuntimeInput,
 };
-use ocentra_eventing::DomainEvent;
-use ocentra_parent_agent_protocol::ChildRuntimeDomain;
+use ocentra_app_game_core::AppGameObservationIntent;
+use ocentra_eventing::envelope::DomainEvent;
+use ocentra_parent_agent_protocol::child_domain_runtime::ChildRuntimeDomain;
 
 #[test]
 fn foreground_known_game_publishes_policy_without_ai() {

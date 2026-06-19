@@ -1,6 +1,23 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
-export const ActivityObserverLiteral = {
+function defineLiteralKindGroup<const TLiteral extends Record<string, string>>(literal: TLiteral) {
+  const schema = withParser(
+    Schema.Literal(...(Object.values(literal) as [TLiteral[keyof TLiteral], ...TLiteral[keyof TLiteral][]]))
+  );
+  const parsed = Object.fromEntries(
+    Object.entries(literal).map(([key, value]) => [key, schema.parse(value)])
+  ) as {
+    readonly [K in keyof TLiteral]: TLiteral[K];
+  };
+
+  return {
+    literal,
+    schema,
+    parsed,
+  } as const;
+}
+
+const ActivityObserverDefinition = defineLiteralKindGroup({
   AgentService: 'agent-service',
   WindowsProcess: 'windows-process',
   WindowsWindow: 'windows-window',
@@ -8,9 +25,9 @@ export const ActivityObserverLiteral = {
   ManagedBrowserBridge: 'managed-browser-bridge',
   BrowserExtension: 'browser-extension',
   LocalAi: 'local-ai',
-} as const;
+} as const);
 
-export const ActivityEventKindLiteral = {
+const ActivityEventKindDefinition = defineLiteralKindGroup({
   ProcessObserved: 'activity.process.observed',
   WindowFocused: 'activity.window.focused',
   DomainObserved: 'activity.domain.observed',
@@ -20,9 +37,9 @@ export const ActivityEventKindLiteral = {
   EnforcementAuditRecorded: 'activity.enforcement.audit-recorded',
   DeviceIdleStateObserved: 'activity.device.idle-state-observed',
   ScreenAnalysisSummarized: 'activity.screen.analysis.summarized',
-} as const;
+} as const);
 
-export const ActivitySubjectKindLiteral = {
+const ActivitySubjectKindDefinition = defineLiteralKindGroup({
   Process: 'process',
   Window: 'window',
   Domain: 'domain',
@@ -30,102 +47,31 @@ export const ActivitySubjectKindLiteral = {
   Video: 'video',
   Device: 'device',
   Intervention: 'intervention',
-} as const;
+} as const);
 
-export const ActivityEvidenceKindLiteral = {
+const ActivityEvidenceKindDefinition = defineLiteralKindGroup({
   JournalEntry: 'journal-entry',
   Screenshot: 'screenshot',
   StorageObject: 'storage-object',
   LocalDbRow: 'local-db-row',
-} as const;
+} as const);
 
-export const ActivityObserverSchema = withParser(
-  Schema.Literal(
-    ActivityObserverLiteral.AgentService,
-    ActivityObserverLiteral.WindowsProcess,
-    ActivityObserverLiteral.WindowsWindow,
-    ActivityObserverLiteral.WindowsNetwork,
-    ActivityObserverLiteral.ManagedBrowserBridge,
-    ActivityObserverLiteral.BrowserExtension,
-    ActivityObserverLiteral.LocalAi
-  )
-);
+export const ActivityObserverLiteral = ActivityObserverDefinition.literal;
+export const ActivityEventKindLiteral = ActivityEventKindDefinition.literal;
+export const ActivitySubjectKindLiteral = ActivitySubjectKindDefinition.literal;
+export const ActivityEvidenceKindLiteral = ActivityEvidenceKindDefinition.literal;
 
-export const ActivityEventKindSchema = withParser(
-  Schema.Literal(
-    ActivityEventKindLiteral.ProcessObserved,
-    ActivityEventKindLiteral.WindowFocused,
-    ActivityEventKindLiteral.DomainObserved,
-    ActivityEventKindLiteral.UrlObserved,
-    ActivityEventKindLiteral.VideoObserved,
-    ActivityEventKindLiteral.BrowserInterventionApplied,
-    ActivityEventKindLiteral.EnforcementAuditRecorded,
-    ActivityEventKindLiteral.DeviceIdleStateObserved,
-    ActivityEventKindLiteral.ScreenAnalysisSummarized
-  )
-);
-
-export const ActivitySubjectKindSchema = withParser(
-  Schema.Literal(
-    ActivitySubjectKindLiteral.Process,
-    ActivitySubjectKindLiteral.Window,
-    ActivitySubjectKindLiteral.Domain,
-    ActivitySubjectKindLiteral.Url,
-    ActivitySubjectKindLiteral.Video,
-    ActivitySubjectKindLiteral.Device,
-    ActivitySubjectKindLiteral.Intervention
-  )
-);
-
-export const ActivityEvidenceKindSchema = withParser(
-  Schema.Literal(
-    ActivityEvidenceKindLiteral.JournalEntry,
-    ActivityEvidenceKindLiteral.Screenshot,
-    ActivityEvidenceKindLiteral.StorageObject,
-    ActivityEvidenceKindLiteral.LocalDbRow
-  )
-);
+export const ActivityObserverSchema = ActivityObserverDefinition.schema;
+export const ActivityEventKindSchema = ActivityEventKindDefinition.schema;
+export const ActivitySubjectKindSchema = ActivitySubjectKindDefinition.schema;
+export const ActivityEvidenceKindSchema = ActivityEvidenceKindDefinition.schema;
 
 export type ActivityObserver = Infer<typeof ActivityObserverSchema>;
 export type ActivityEventKind = Infer<typeof ActivityEventKindSchema>;
 export type ActivitySubjectKind = Infer<typeof ActivitySubjectKindSchema>;
 export type ActivityEvidenceKind = Infer<typeof ActivityEvidenceKindSchema>;
 
-export const ActivityObserver = {
-  AgentService: ActivityObserverSchema.parse(ActivityObserverLiteral.AgentService),
-  WindowsProcess: ActivityObserverSchema.parse(ActivityObserverLiteral.WindowsProcess),
-  WindowsWindow: ActivityObserverSchema.parse(ActivityObserverLiteral.WindowsWindow),
-  WindowsNetwork: ActivityObserverSchema.parse(ActivityObserverLiteral.WindowsNetwork),
-  ManagedBrowserBridge: ActivityObserverSchema.parse(ActivityObserverLiteral.ManagedBrowserBridge),
-  BrowserExtension: ActivityObserverSchema.parse(ActivityObserverLiteral.BrowserExtension),
-  LocalAi: ActivityObserverSchema.parse(ActivityObserverLiteral.LocalAi),
-} as const;
-
-export const ActivityEventKind = {
-  ProcessObserved: ActivityEventKindSchema.parse(ActivityEventKindLiteral.ProcessObserved),
-  WindowFocused: ActivityEventKindSchema.parse(ActivityEventKindLiteral.WindowFocused),
-  DomainObserved: ActivityEventKindSchema.parse(ActivityEventKindLiteral.DomainObserved),
-  UrlObserved: ActivityEventKindSchema.parse(ActivityEventKindLiteral.UrlObserved),
-  VideoObserved: ActivityEventKindSchema.parse(ActivityEventKindLiteral.VideoObserved),
-  BrowserInterventionApplied: ActivityEventKindSchema.parse(ActivityEventKindLiteral.BrowserInterventionApplied),
-  EnforcementAuditRecorded: ActivityEventKindSchema.parse(ActivityEventKindLiteral.EnforcementAuditRecorded),
-  DeviceIdleStateObserved: ActivityEventKindSchema.parse(ActivityEventKindLiteral.DeviceIdleStateObserved),
-  ScreenAnalysisSummarized: ActivityEventKindSchema.parse(ActivityEventKindLiteral.ScreenAnalysisSummarized),
-} as const;
-
-export const ActivitySubjectKind = {
-  Process: ActivitySubjectKindSchema.parse(ActivitySubjectKindLiteral.Process),
-  Window: ActivitySubjectKindSchema.parse(ActivitySubjectKindLiteral.Window),
-  Domain: ActivitySubjectKindSchema.parse(ActivitySubjectKindLiteral.Domain),
-  Url: ActivitySubjectKindSchema.parse(ActivitySubjectKindLiteral.Url),
-  Video: ActivitySubjectKindSchema.parse(ActivitySubjectKindLiteral.Video),
-  Device: ActivitySubjectKindSchema.parse(ActivitySubjectKindLiteral.Device),
-  Intervention: ActivitySubjectKindSchema.parse(ActivitySubjectKindLiteral.Intervention),
-} as const;
-
-export const ActivityEvidenceKind = {
-  JournalEntry: ActivityEvidenceKindSchema.parse(ActivityEvidenceKindLiteral.JournalEntry),
-  Screenshot: ActivityEvidenceKindSchema.parse(ActivityEvidenceKindLiteral.Screenshot),
-  StorageObject: ActivityEvidenceKindSchema.parse(ActivityEvidenceKindLiteral.StorageObject),
-  LocalDbRow: ActivityEvidenceKindSchema.parse(ActivityEvidenceKindLiteral.LocalDbRow),
-} as const;
+export const ActivityObserver = ActivityObserverDefinition.parsed;
+export const ActivityEventKind = ActivityEventKindDefinition.parsed;
+export const ActivitySubjectKind = ActivitySubjectKindDefinition.parsed;
+export const ActivityEvidenceKind = ActivityEvidenceKindDefinition.parsed;

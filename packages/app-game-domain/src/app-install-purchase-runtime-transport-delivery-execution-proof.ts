@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseRuntimeDeliveryReceiptBoundaryProofReadModel } from './app-install-purchase-runtime-delivery-receipt-boundary-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const RuntimeTransportDeliveryExecutionProofVersion = 'app-install-purchase-runtime-transport-delivery-execution-proof';
 const SourceReceiptBoundaryProofVersion = 'app-install-purchase-runtime-delivery-receipt-boundary-proof';

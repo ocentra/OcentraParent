@@ -1,4 +1,5 @@
 import { decodeDisplayText, decodeTextTokenId, type DisplayText } from './contracts';
+import { resolveDisplayTextFromMap } from './text-family';
 
 export const SocialChildApprovalBlockUxTextToken = {
   ApprovalPendingTitle: decodeTextTokenId('browser.social.child.approvalPending.title'),
@@ -60,9 +61,9 @@ const MissingSocialChildApprovalBlockUxTextTokenMessage = decodeDisplayText(
 );
 
 export function resolveSocialChildApprovalBlockUxText(token: SocialChildApprovalBlockUxTextTokenValue): DisplayText {
-  const text = SocialChildApprovalBlockUxText[token];
-  if (text === undefined) {
-    throw new Error(MissingSocialChildApprovalBlockUxTextTokenMessage);
-  }
-  return text;
+  return resolveDisplayTextFromMap(
+    SocialChildApprovalBlockUxText,
+    token,
+    MissingSocialChildApprovalBlockUxTextTokenMessage
+  );
 }

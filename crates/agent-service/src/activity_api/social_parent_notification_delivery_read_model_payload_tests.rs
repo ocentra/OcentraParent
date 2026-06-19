@@ -8,9 +8,11 @@ use serde::de::DeserializeOwned;
 
 use super::social_parent_notification_delivery_read_model_payload::{
     request_social_parent_notification_delivery_read_model_from_service,
-    request_social_report_writer_delivery_read_model_from_service,
     social_parent_notification_delivery_read_model_from_service,
     social_parent_notification_delivery_read_model_payload,
+};
+use super::social_parent_notification_delivery_read_model_payload::social_report_writer_delivery_event_handoff::{
+    request_social_report_writer_delivery_read_model_from_service,
     social_report_writer_delivery_read_model_from_service,
 };
 

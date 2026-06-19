@@ -14,7 +14,7 @@ import {
 import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   ChildProfileReferenceSchema,
   FamilyReferenceSchema,
@@ -23,6 +23,8 @@ import {
 } from '@ocentra-parent/family-domain/references';
 import {
   type RecoveryOperation as FamilyRecoveryOperation,
+  deviceTrustStateForRecoveryOperation,
+  RecoveryBundleState,
   RecoveryDataCustodyHandoffState,
   RecoveryOperationSchema as FamilyRecoveryOperationSchema,
   RecoveryState as FamilyRecoveryState,
@@ -699,10 +701,34 @@ function setupRecoveryStateFromFamilyOperation(
     return SetupRecoveryState.Normal;
   }
 
+  if (recoveryOperation.state === FamilyRecoveryState.Revoked) {
+    return SetupRecoveryState.Required;
+  }
+
+  if (recoveryOperation.bundleFailureReason !== null) {
+    return SetupRecoveryState.Required;
+  }
+
+  switch (recoveryOperation.bundleState) {
+    case RecoveryBundleState.PreviewOnly:
+    case RecoveryBundleState.ApplyPending:
+      return SetupRecoveryState.InProgress;
+    case RecoveryBundleState.PartialRestore:
+    case RecoveryBundleState.Rejected:
+    case RecoveryBundleState.ManualRequired:
+      return SetupRecoveryState.Required;
+    case RecoveryBundleState.Applied:
+      return deviceTrustStateForRecoveryOperation(recoveryOperation) === DeviceTrustState.Pending &&
+        recoveryDataCustodyHandoffState(recoveryOperation) === RecoveryDataCustodyHandoffState.None
+        ? SetupRecoveryState.Recovered
+        : SetupRecoveryState.InProgress;
+    default:
+      break;
+  }
+
   switch (recoveryOperation.state) {
     case FamilyRecoveryState.PendingIdentityProof:
     case FamilyRecoveryState.OwnerApprovalRequired:
-    case FamilyRecoveryState.Revoked:
       return SetupRecoveryState.Required;
     case FamilyRecoveryState.Approved:
       return SetupRecoveryState.InProgress;

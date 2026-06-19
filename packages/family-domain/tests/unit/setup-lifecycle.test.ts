@@ -8,12 +8,17 @@ import {
   isSetupInviteActive,
   isSetupInviteSinglePurpose,
   RecoveryChildEvidenceAccessState,
+  RecoveryBundleFailureReason,
+  RecoveryBundleHandoffTarget,
+  RecoveryBundleState,
   RecoveryDecisionState,
+  RecoveryDeleteExportState,
   RecoveryFailureReason,
   RecoveryKind,
   RecoveryDataCustodyHandoffState,
   recoveryCanAccessChildEvidence,
   recoveryDataCustodyHandoffState,
+  deviceTrustStateForRecoveryOperation,
   RecoveryIdentityProofState,
   RecoveryOperationSchema,
   recoveryRequiresAuditedSupport,
@@ -105,6 +110,10 @@ describe('family setup lifecycle contracts', () => {
         identityProofState: 'verified',
         supportChannel: 'household-owner-assisted',
         deleteExportHandoffRequired: false,
+        bundleHandoffTarget: 'none',
+        bundleState: 'none',
+        bundleFailureReason: null,
+        deleteExportState: 'none',
         openedAt: '2026-06-13T15:58:00.000Z',
         closedAt: null,
       })
@@ -122,6 +131,10 @@ describe('family setup lifecycle contracts', () => {
       identityProofState: 'verified',
       supportChannel: 'household-owner-assisted',
       deleteExportHandoffRequired: false,
+      bundleHandoffTarget: 'none',
+      bundleState: 'none',
+      bundleFailureReason: null,
+      deleteExportState: 'none',
       openedAt: '2026-06-13T15:58:00.000Z',
       closedAt: null,
     });
@@ -329,6 +342,16 @@ describe('family setup lifecycle contracts', () => {
       RecoveryDataCustodyHandoffState.ExportDeleteHandoffRequired
     );
 
+    const settledDeleteExportRecovery = RecoveryOperationSchema.parse({
+      ...deleteExportRecovery,
+      recoveryOperationId: 'recovery-delete-export-settled',
+      deleteExportState: RecoveryDeleteExportState.DeleteConfirmed,
+    });
+
+    expect(recoveryDataCustodyHandoffState(settledDeleteExportRecovery)).toBe(
+      RecoveryDataCustodyHandoffState.None
+    );
+
     const transferRecovery = RecoveryOperationSchema.parse({
       ...deleteExportRecovery,
       recoveryOperationId: 'recovery-transfer',
@@ -455,6 +478,58 @@ describe('family setup lifecycle contracts', () => {
     expect(deviceTrustStateForRecoveryState(RecoveryState.Approved)).toBe(DeviceTrustState.ResetRequired);
     expect(deviceTrustStateForRecoveryState(RecoveryState.Completed)).toBe(DeviceTrustState.Pending);
     expect(deviceTrustStateForRecoveryState(RecoveryState.Revoked)).toBe(DeviceTrustState.Revoked);
+
+    const completedRecovery = RecoveryOperationSchema.parse({
+      schemaVersion: 'v0.6',
+      recoveryOperationId: 'recovery-completed-applied',
+      family: { familyId: 'family-main' },
+      requestedBy: { actorId: 'actor-owner', role: 'parent' },
+      requesterMembershipState: 'active',
+      relatedAccount: { parentAccountId: 'parent-account-1' },
+      relatedDevice: null,
+      kind: RecoveryKind.ForgotLogin,
+      state: RecoveryState.Completed,
+      ownerApprovalRequired: false,
+      identityProofState: RecoveryIdentityProofState.Verified,
+      supportChannel: RecoverySupportChannel.SelfServe,
+      deleteExportHandoffRequired: true,
+      bundleHandoffTarget: RecoveryBundleHandoffTarget.DeviceTrustRecoveryPersistence,
+      bundleState: RecoveryBundleState.Applied,
+      bundleFailureReason: null,
+      deleteExportState: RecoveryDeleteExportState.DeleteConfirmed,
+      openedAt: '2026-06-13T16:08:00.000Z',
+      closedAt: '2026-06-13T16:14:00.000Z',
+    });
+
+    expect(deviceTrustStateForRecoveryOperation(completedRecovery)).toBe(DeviceTrustState.Pending);
+
+    const wrongKeyRecovery = RecoveryOperationSchema.parse({
+      ...completedRecovery,
+      recoveryOperationId: 'recovery-wrong-key',
+      deleteExportHandoffRequired: false,
+      bundleState: RecoveryBundleState.Rejected,
+      bundleFailureReason: RecoveryBundleFailureReason.WrongKey,
+      deleteExportState: RecoveryDeleteExportState.None,
+    });
+    expect(deviceTrustStateForRecoveryOperation(wrongKeyRecovery)).toBe(DeviceTrustState.ResetRequired);
+
+    const manualRequiredRecovery = RecoveryOperationSchema.parse({
+      ...completedRecovery,
+      recoveryOperationId: 'recovery-manual-required',
+      deleteExportHandoffRequired: false,
+      bundleState: RecoveryBundleState.ManualRequired,
+      deleteExportState: RecoveryDeleteExportState.None,
+    });
+    expect(deviceTrustStateForRecoveryOperation(manualRequiredRecovery)).toBe(DeviceTrustState.ResetRequired);
+
+    const revokedRecovery = RecoveryOperationSchema.parse({
+      ...completedRecovery,
+      recoveryOperationId: 'recovery-revoked-applied',
+      state: RecoveryState.Revoked,
+      deleteExportHandoffRequired: false,
+      deleteExportState: RecoveryDeleteExportState.None,
+    });
+    expect(deviceTrustStateForRecoveryOperation(revokedRecovery)).toBe(DeviceTrustState.Revoked);
   });
 
   it('schema boundary rejects unknown recovery states and malformed invite purposes', () => {

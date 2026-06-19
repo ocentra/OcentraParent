@@ -1,9 +1,12 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    NetworkAppleNetworkExtensionGateCapabilityStatusState, NetworkAppleNetworkExtensionGateStatus,
-    NetworkAppleNetworkExtensionGateStatusState, NetworkAppleNetworkExtensionPlatformStatus,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
+    constants,
+    network_apple_network_extension_gate_status::{
+        NetworkAppleNetworkExtensionGateCapabilityStatusState,
+        NetworkAppleNetworkExtensionGateStatus, NetworkAppleNetworkExtensionGateStatusState,
+        NetworkAppleNetworkExtensionPlatformStatus,
+    },
+    policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
+    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use serde::de::DeserializeOwned;
 

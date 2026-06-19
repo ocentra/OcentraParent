@@ -30,7 +30,7 @@ import {
   ParentContractSchemaVersion,
   ParentEvidenceReferenceKind,
   ParentPlatform,
-} from '@ocentra-parent/family-domain/reference-primitives';
+} from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-07T22:14:00Z';
 
@@ -177,8 +177,8 @@ describe('app/game child UX local outbox parent surface intent', () => {
     const readModel = buildParentSurfaceIntentReadModel([BaseChildCard]);
     const firstRow = readModel.rows[0];
 
-    expect(firstRow.sourceSchedulerEntryRef).toBeTruthy();
-    expect(firstRow.sourceOutboxRecordRef).toBeTruthy();
+    expect(firstRow.sourceSchedulerEntryRef).not.toBeNull();
+    expect(firstRow.sourceOutboxRecordRef).not.toBeNull();
     expect(firstRow.drillInRefs).toHaveLength(2);
     expect(firstRow.auditRefs).toHaveLength(2);
     expect(firstRow.manualProofRequirements.length).toBeGreaterThanOrEqual(6);

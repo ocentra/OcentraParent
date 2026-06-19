@@ -1,8 +1,11 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    NetworkWindowsWfpGateCapabilityStatusState, NetworkWindowsWfpGateStatus,
-    NetworkWindowsWfpGateStatusState, AGENT_PROTOCOL_SCHEMA_VERSION,
+    constants,
+    network_windows_wfp_gate_status::{
+        NetworkWindowsWfpGateCapabilityStatusState, NetworkWindowsWfpGateStatus,
+        NetworkWindowsWfpGateStatusState,
+    },
+    policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
+    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use serde::de::DeserializeOwned;
 

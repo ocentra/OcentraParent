@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { AppInstallPurchaseExecutionReceiptGateProofReadModel } from './app-install-purchase-execution-receipt-gate-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/family-domain/reference-primitives';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const DispatchExecutorReceiptProofVersion = 'app-install-purchase-dispatch-executor-receipt-proof';
 const SourceExecutionReceiptGateProofVersion = 'app-install-purchase-execution-receipt-gate-proof';
