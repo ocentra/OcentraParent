@@ -45,6 +45,10 @@
       "import": "./dist/child-runtime-events.js",
       "types": "./dist/child-runtime-events.d.ts"
     },
+    "./agent-browser-runtime-events": {
+      "import": "./dist/agent-browser-runtime-events.js",
+      "types": "./dist/agent-browser-runtime-events.d.ts"
+    },
     "./app-game-primitives": {
       "import": "./dist/app-game-primitives.js",
       "types": "./dist/app-game-primitives.d.ts"
