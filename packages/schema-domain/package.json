@@ -21,6 +21,7 @@
     "./lan-product-proof": { "import": "./dist/lan-product-proof.js", "types": "./dist/lan-product-proof.d.ts" },
     "./lan-production-household-proof": { "import": "./dist/lan-production-household-proof.js", "types": "./dist/lan-production-household-proof.d.ts" },
     "./network-contracts": { "import": "./dist/network-contracts.js", "types": "./dist/network-contracts.d.ts" },
+    "./browser-control": { "import": "./dist/browser-control-values.js", "types": "./dist/browser-control-values.d.ts" },
     "./screen-primitives": { "import": "./dist/screen-evidence-primitives.js", "types": "./dist/screen-evidence-primitives.d.ts" },
     "./screen-states": { "import": "./dist/screen-evidence-states.js", "types": "./dist/screen-evidence-states.d.ts" },
     "./screen-ocr": { "import": "./dist/screen-ocr-contracts.js", "types": "./dist/screen-ocr-contracts.d.ts" },
