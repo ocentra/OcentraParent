@@ -18,6 +18,7 @@
     "./agent-browser-runtime-events": { "import": "./dist/agent-browser-runtime-events.js", "types": "./dist/agent-browser-runtime-events.d.ts" },
     "./agent-network-runtime-events": { "import": "./dist/agent-network-runtime-events.js", "types": "./dist/agent-network-runtime-events.d.ts" },
     "./agent-network-live-capture-status": { "import": "./dist/agent-network-live-capture-status.js", "types": "./dist/agent-network-live-capture-status.d.ts" },
+    "./agent-network-remote-delivery-status": { "import": "./dist/agent-network-remote-delivery-status.js", "types": "./dist/agent-network-remote-delivery-status.d.ts" },
     "./agent-lan": { "import": "./dist/agent-lan.js", "types": "./dist/agent-lan.d.ts" },
     "./agent-lan-read-model": { "import": "./dist/agent-lan-add-device.js", "types": "./dist/agent-lan-add-device.d.ts" },
     "./lan-pairing-values": { "import": "./dist/lan-pairing-values.js", "types": "./dist/lan-pairing-values.d.ts" },
