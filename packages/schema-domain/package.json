@@ -41,6 +41,10 @@
       "import": "./dist/activity-capture.js",
       "types": "./dist/activity-capture.d.ts"
     },
+    "./child-runtime-events": {
+      "import": "./dist/child-runtime-events.js",
+      "types": "./dist/child-runtime-events.d.ts"
+    },
     "./app-game-primitives": {
       "import": "./dist/app-game-primitives.js",
       "types": "./dist/app-game-primitives.d.ts"
