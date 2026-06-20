@@ -33,6 +33,14 @@
       "import": "./dist/family-restore-lifecycle.js",
       "types": "./dist/family-restore-lifecycle.d.ts"
     },
+    "./activity-journal": {
+      "import": "./dist/activity-journal-primitives.js",
+      "types": "./dist/activity-journal-primitives.d.ts"
+    },
+    "./activity-capture": {
+      "import": "./dist/activity-capture.js",
+      "types": "./dist/activity-capture.d.ts"
+    },
     "./app-game-primitives": {
       "import": "./dist/app-game-primitives.js",
       "types": "./dist/app-game-primitives.d.ts"
