@@ -27,6 +27,7 @@
     "./screen-states": { "import": "./dist/screen-evidence-states.js", "types": "./dist/screen-evidence-states.d.ts" },
     "./screen-ocr": { "import": "./dist/screen-ocr-contracts.js", "types": "./dist/screen-ocr-contracts.d.ts" },
     "./screen-settings": { "import": "./dist/screen-evidence-settings.js", "types": "./dist/screen-evidence-settings.d.ts" },
+    "./logging-contracts": { "import": "./dist/logging-contracts.js", "types": "./dist/logging-contracts.d.ts" },
     "./app-game-primitives": { "import": "./dist/app-game-primitives.js", "types": "./dist/app-game-primitives.d.ts" },
     "./app-game-identity": { "import": "./dist/app-game-identity-primitives.js", "types": "./dist/app-game-identity-primitives.d.ts" },
     "./app-game-inventory": { "import": "./dist/app-game-inventory-primitives.js", "types": "./dist/app-game-inventory-primitives.d.ts" },
