@@ -9,6 +9,70 @@
       "import": "./dist/family-reference-primitives.js",
       "types": "./dist/family-reference-primitives.d.ts"
     },
+    "./family-references": {
+      "import": "./dist/family-references.js",
+      "types": "./dist/family-references.d.ts"
+    },
+    "./family-child-profile": {
+      "import": "./dist/family-child-profile.js",
+      "types": "./dist/family-child-profile.d.ts"
+    },
+    "./family-legal": {
+      "import": "./dist/family-household-authority.js",
+      "types": "./dist/family-household-authority.d.ts"
+    },
+    "./family-session": {
+      "import": "./dist/family-session-lifecycle.js",
+      "types": "./dist/family-session-lifecycle.d.ts"
+    },
+    "./family-setup": {
+      "import": "./dist/family-setup-invite.js",
+      "types": "./dist/family-setup-invite.d.ts"
+    },
+    "./family-restore": {
+      "import": "./dist/family-restore-lifecycle.js",
+      "types": "./dist/family-restore-lifecycle.d.ts"
+    },
+    "./app-game-primitives": {
+      "import": "./dist/app-game-primitives.js",
+      "types": "./dist/app-game-primitives.d.ts"
+    },
+    "./app-game-identity": {
+      "import": "./dist/app-game-identity-primitives.js",
+      "types": "./dist/app-game-identity-primitives.d.ts"
+    },
+    "./app-game-inventory": {
+      "import": "./dist/app-game-inventory-primitives.js",
+      "types": "./dist/app-game-inventory-primitives.d.ts"
+    },
+    "./app-game-category": {
+      "import": "./dist/app-game-category-risk-primitives.js",
+      "types": "./dist/app-game-category-risk-primitives.d.ts"
+    },
+    "./app-game-session": {
+      "import": "./dist/app-game-session-primitives.js",
+      "types": "./dist/app-game-session-primitives.d.ts"
+    },
+    "./app-game-launcher": {
+      "import": "./dist/app-game-launcher.js",
+      "types": "./dist/app-game-launcher.d.ts"
+    },
+    "./evidence-primitives": {
+      "import": "./dist/evidence-primitives.js",
+      "types": "./dist/evidence-primitives.d.ts"
+    },
+    "./evidence-kinds": {
+      "import": "./dist/evidence-kinds.js",
+      "types": "./dist/evidence-kinds.d.ts"
+    },
+    "./evidence-contracts": {
+      "import": "./dist/evidence-contracts.js",
+      "types": "./dist/evidence-contracts.d.ts"
+    },
+    "./evidence-custody": {
+      "import": "./dist/evidence-custody-contracts.js",
+      "types": "./dist/evidence-custody-contracts.d.ts"
+    },
     "./eventing": {
       "import": "./dist/eventing.js",
       "types": "./dist/eventing.d.ts"
