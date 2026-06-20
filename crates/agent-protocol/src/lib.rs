@@ -69,6 +69,7 @@ pub mod network_windows_wfp_gate_status;
 pub mod notification_provider_status_boundary;
 mod parent_assistant;
 pub mod parent_controller_events;
+pub mod schema_domain_mirrors;
 mod screen_evidence;
 mod screen_settings;
 mod social_alert_report_parent_surface_read_model;
