@@ -57,6 +57,14 @@
       "import": "./dist/lan-pairing-browser-runtime.js",
       "types": "./dist/lan-pairing-browser-runtime.d.ts"
     },
+    "./lan-product-proof": {
+      "import": "./dist/lan-product-proof.js",
+      "types": "./dist/lan-product-proof.d.ts"
+    },
+    "./lan-production-household-proof": {
+      "import": "./dist/lan-production-household-proof.js",
+      "types": "./dist/lan-production-household-proof.d.ts"
+    },
     "./app-game-primitives": {
       "import": "./dist/app-game-primitives.js",
       "types": "./dist/app-game-primitives.d.ts"
