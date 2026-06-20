@@ -5,126 +5,40 @@
   "type": "module",
   "description": "Shared Effect Schema validation helpers.",
   "exports": {
-    "./family-reference-primitives": {
-      "import": "./dist/family-reference-primitives.js",
-      "types": "./dist/family-reference-primitives.d.ts"
-    },
-    "./family-references": {
-      "import": "./dist/family-references.js",
-      "types": "./dist/family-references.d.ts"
-    },
-    "./family-child-profile": {
-      "import": "./dist/family-child-profile.js",
-      "types": "./dist/family-child-profile.d.ts"
-    },
-    "./family-legal": {
-      "import": "./dist/family-household-authority.js",
-      "types": "./dist/family-household-authority.d.ts"
-    },
-    "./family-session": {
-      "import": "./dist/family-session-lifecycle.js",
-      "types": "./dist/family-session-lifecycle.d.ts"
-    },
-    "./family-setup": {
-      "import": "./dist/family-setup-invite.js",
-      "types": "./dist/family-setup-invite.d.ts"
-    },
-    "./family-restore": {
-      "import": "./dist/family-restore-lifecycle.js",
-      "types": "./dist/family-restore-lifecycle.d.ts"
-    },
-    "./activity-journal": {
-      "import": "./dist/activity-journal-primitives.js",
-      "types": "./dist/activity-journal-primitives.d.ts"
-    },
-    "./activity-capture": {
-      "import": "./dist/activity-capture.js",
-      "types": "./dist/activity-capture.d.ts"
-    },
-    "./child-runtime-events": {
-      "import": "./dist/child-runtime-events.js",
-      "types": "./dist/child-runtime-events.d.ts"
-    },
-    "./agent-browser-runtime-events": {
-      "import": "./dist/agent-browser-runtime-events.js",
-      "types": "./dist/agent-browser-runtime-events.d.ts"
-    },
-    "./lan-pairing-values": {
-      "import": "./dist/lan-pairing-values.js",
-      "types": "./dist/lan-pairing-values.d.ts"
-    },
-    "./lan-pairing-browser-runtime": {
-      "import": "./dist/lan-pairing-browser-runtime.js",
-      "types": "./dist/lan-pairing-browser-runtime.d.ts"
-    },
-    "./lan-product-proof": {
-      "import": "./dist/lan-product-proof.js",
-      "types": "./dist/lan-product-proof.d.ts"
-    },
-    "./lan-production-household-proof": {
-      "import": "./dist/lan-production-household-proof.js",
-      "types": "./dist/lan-production-household-proof.d.ts"
-    },
-    "./network-contracts": {
-      "import": "./dist/network-contracts.js",
-      "types": "./dist/network-contracts.d.ts"
-    },
-    "./app-game-primitives": {
-      "import": "./dist/app-game-primitives.js",
-      "types": "./dist/app-game-primitives.d.ts"
-    },
-    "./app-game-identity": {
-      "import": "./dist/app-game-identity-primitives.js",
-      "types": "./dist/app-game-identity-primitives.d.ts"
-    },
-    "./app-game-inventory": {
-      "import": "./dist/app-game-inventory-primitives.js",
-      "types": "./dist/app-game-inventory-primitives.d.ts"
-    },
-    "./app-game-category": {
-      "import": "./dist/app-game-category-risk-primitives.js",
-      "types": "./dist/app-game-category-risk-primitives.d.ts"
-    },
-    "./app-game-session": {
-      "import": "./dist/app-game-session-primitives.js",
-      "types": "./dist/app-game-session-primitives.d.ts"
-    },
-    "./app-game-launcher": {
-      "import": "./dist/app-game-launcher.js",
-      "types": "./dist/app-game-launcher.d.ts"
-    },
-    "./evidence-primitives": {
-      "import": "./dist/evidence-primitives.js",
-      "types": "./dist/evidence-primitives.d.ts"
-    },
-    "./evidence-kinds": {
-      "import": "./dist/evidence-kinds.js",
-      "types": "./dist/evidence-kinds.d.ts"
-    },
-    "./evidence-contracts": {
-      "import": "./dist/evidence-contracts.js",
-      "types": "./dist/evidence-contracts.d.ts"
-    },
-    "./evidence-custody": {
-      "import": "./dist/evidence-custody-contracts.js",
-      "types": "./dist/evidence-custody-contracts.d.ts"
-    },
-    "./eventing": {
-      "import": "./dist/eventing.js",
-      "types": "./dist/eventing.d.ts"
-    },
-    "./event-primitives": {
-      "import": "./dist/event-primitives.js",
-      "types": "./dist/event-primitives.d.ts"
-    },
-    "./app-game-child-runtime-transport-receipt": {
-      "import": "./dist/app-game-child-runtime-transport-receipt.js",
-      "types": "./dist/app-game-child-runtime-transport-receipt.d.ts"
-    },
-    "./effect": {
-      "import": "./dist/effect.js",
-      "types": "./dist/effect.d.ts"
-    }
+    "./family-reference-primitives": { "import": "./dist/family-reference-primitives.js", "types": "./dist/family-reference-primitives.d.ts" },
+    "./family-references": { "import": "./dist/family-references.js", "types": "./dist/family-references.d.ts" },
+    "./family-child-profile": { "import": "./dist/family-child-profile.js", "types": "./dist/family-child-profile.d.ts" },
+    "./family-legal": { "import": "./dist/family-household-authority.js", "types": "./dist/family-household-authority.d.ts" },
+    "./family-session": { "import": "./dist/family-session-lifecycle.js", "types": "./dist/family-session-lifecycle.d.ts" },
+    "./family-setup": { "import": "./dist/family-setup-invite.js", "types": "./dist/family-setup-invite.d.ts" },
+    "./family-restore": { "import": "./dist/family-restore-lifecycle.js", "types": "./dist/family-restore-lifecycle.d.ts" },
+    "./activity-journal": { "import": "./dist/activity-journal-primitives.js", "types": "./dist/activity-journal-primitives.d.ts" },
+    "./activity-capture": { "import": "./dist/activity-capture.js", "types": "./dist/activity-capture.d.ts" },
+    "./child-runtime-events": { "import": "./dist/child-runtime-events.js", "types": "./dist/child-runtime-events.d.ts" },
+    "./agent-browser-runtime-events": { "import": "./dist/agent-browser-runtime-events.js", "types": "./dist/agent-browser-runtime-events.d.ts" },
+    "./lan-pairing-values": { "import": "./dist/lan-pairing-values.js", "types": "./dist/lan-pairing-values.d.ts" },
+    "./lan-pairing-browser-runtime": { "import": "./dist/lan-pairing-browser-runtime.js", "types": "./dist/lan-pairing-browser-runtime.d.ts" },
+    "./lan-product-proof": { "import": "./dist/lan-product-proof.js", "types": "./dist/lan-product-proof.d.ts" },
+    "./lan-production-household-proof": { "import": "./dist/lan-production-household-proof.js", "types": "./dist/lan-production-household-proof.d.ts" },
+    "./network-contracts": { "import": "./dist/network-contracts.js", "types": "./dist/network-contracts.d.ts" },
+    "./screen-primitives": { "import": "./dist/screen-evidence-primitives.js", "types": "./dist/screen-evidence-primitives.d.ts" },
+    "./screen-states": { "import": "./dist/screen-evidence-states.js", "types": "./dist/screen-evidence-states.d.ts" },
+    "./screen-ocr": { "import": "./dist/screen-ocr-contracts.js", "types": "./dist/screen-ocr-contracts.d.ts" },
+    "./screen-settings": { "import": "./dist/screen-evidence-settings.js", "types": "./dist/screen-evidence-settings.d.ts" },
+    "./app-game-primitives": { "import": "./dist/app-game-primitives.js", "types": "./dist/app-game-primitives.d.ts" },
+    "./app-game-identity": { "import": "./dist/app-game-identity-primitives.js", "types": "./dist/app-game-identity-primitives.d.ts" },
+    "./app-game-inventory": { "import": "./dist/app-game-inventory-primitives.js", "types": "./dist/app-game-inventory-primitives.d.ts" },
+    "./app-game-category": { "import": "./dist/app-game-category-risk-primitives.js", "types": "./dist/app-game-category-risk-primitives.d.ts" },
+    "./app-game-session": { "import": "./dist/app-game-session-primitives.js", "types": "./dist/app-game-session-primitives.d.ts" },
+    "./app-game-launcher": { "import": "./dist/app-game-launcher.js", "types": "./dist/app-game-launcher.d.ts" },
+    "./evidence-primitives": { "import": "./dist/evidence-primitives.js", "types": "./dist/evidence-primitives.d.ts" },
+    "./evidence-kinds": { "import": "./dist/evidence-kinds.js", "types": "./dist/evidence-kinds.d.ts" },
+    "./evidence-contracts": { "import": "./dist/evidence-contracts.js", "types": "./dist/evidence-contracts.d.ts" },
+    "./evidence-custody": { "import": "./dist/evidence-custody-contracts.js", "types": "./dist/evidence-custody-contracts.d.ts" },
+    "./eventing": { "import": "./dist/eventing.js", "types": "./dist/eventing.d.ts" },
+    "./event-primitives": { "import": "./dist/event-primitives.js", "types": "./dist/event-primitives.d.ts" },
+    "./app-game-child-runtime-transport-receipt": { "import": "./dist/app-game-child-runtime-transport-receipt.js", "types": "./dist/app-game-child-runtime-transport-receipt.d.ts" },
+    "./effect": { "import": "./dist/effect.js", "types": "./dist/effect.d.ts" }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
