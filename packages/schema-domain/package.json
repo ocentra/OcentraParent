@@ -65,6 +65,10 @@
       "import": "./dist/lan-production-household-proof.js",
       "types": "./dist/lan-production-household-proof.d.ts"
     },
+    "./network-contracts": {
+      "import": "./dist/network-contracts.js",
+      "types": "./dist/network-contracts.d.ts"
+    },
     "./app-game-primitives": {
       "import": "./dist/app-game-primitives.js",
       "types": "./dist/app-game-primitives.d.ts"
