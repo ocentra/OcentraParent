@@ -16,6 +16,7 @@
     "./activity-capture": { "import": "./dist/activity-capture.js", "types": "./dist/activity-capture.d.ts" },
     "./child-runtime-events": { "import": "./dist/child-runtime-events.js", "types": "./dist/child-runtime-events.d.ts" },
     "./agent-browser-runtime-events": { "import": "./dist/agent-browser-runtime-events.js", "types": "./dist/agent-browser-runtime-events.d.ts" },
+    "./agent-network-runtime-events": { "import": "./dist/agent-network-runtime-events.js", "types": "./dist/agent-network-runtime-events.d.ts" },
     "./agent-lan": { "import": "./dist/agent-lan.js", "types": "./dist/agent-lan.d.ts" },
     "./lan-pairing-values": { "import": "./dist/lan-pairing-values.js", "types": "./dist/lan-pairing-values.d.ts" },
     "./lan-pairing-browser-runtime": { "import": "./dist/lan-pairing-browser-runtime.js", "types": "./dist/lan-pairing-browser-runtime.d.ts" },
