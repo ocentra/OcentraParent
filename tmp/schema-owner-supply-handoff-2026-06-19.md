@@ -1,21 +1,27 @@
 # Schema Owner Supply Handoff — 2026-06-19
 
-Branch: `codex/schema-owner-consolidation-web-20260619`
+Branch: `codex/schema-contracts-web-20260619`
 Base checkpoint: `e8a68bf64577b514bb85991a9d077b7bc57dd2bf`
 
-## Strategy
+## Scope
 
-This branch is a schema-supply branch, not a completed import-rewire branch.
+This is a clean schema-supply branch.
 
-Goal:
+It intentionally contains only:
 
-- Create canonical TypeScript contract/schema surfaces under `packages/schema-domain`.
-- Do not depend on peer domain packages from `schema-domain`.
-- Let local Codex validation mechanically replace old imports, remove local schema owners, and delete frontages.
+- canonical TypeScript schema additions under `packages/schema-domain`;
+- `packages/schema-domain/package.json` export-map additions;
+- this handoff document.
 
-Do not restore local schema definitions in domain packages.
+It intentionally does not contain package-local import rewires, local schema deletions, or frontage cleanup. Codex should do those after validating this branch.
 
-## Canonical TypeScript surfaces added or extended
+## Current coverage status
+
+This branch does **not** yet prove full coverage for all 65 targets.
+
+It supplies canonical replacements for the domains listed below. Remaining domains must be audited and supplied before global delete/replace work is attempted.
+
+## Canonical TypeScript schema surfaces supplied
 
 ### Family
 
@@ -51,6 +57,16 @@ Source files:
 - `packages/schema-domain/src/evidence-contracts.ts`
 - `packages/schema-domain/src/evidence-custody-contracts.ts`
 
+### Activity
+
+- `@ocentra-parent/schema-domain/activity-journal`
+- `@ocentra-parent/schema-domain/activity-capture`
+
+Source files:
+
+- `packages/schema-domain/src/activity-journal-primitives.ts`
+- `packages/schema-domain/src/activity-capture.ts`
+
 ### App-game
 
 - `@ocentra-parent/schema-domain/app-game-primitives`
@@ -71,72 +87,71 @@ Source files:
 - `packages/schema-domain/src/app-game-launcher.ts`
 - `packages/schema-domain/src/app-game-child-runtime-transport-receipt.ts`
 
-## Local domain package state
+## Domains still needing supply audit
 
-### `packages/family-domain`
+Audit these before claiming global coverage:
 
-Schema definitions were drained or neutralized from the high-signal family files.
+- `packages/agent-protocol-domain`
+- `packages/ai-domain`
+- `packages/browser-domain`
+- `packages/capability-domain`
+- `packages/child-runtime-domain`
+- `packages/enforcement-domain`
+- `packages/event-domain`
+- `packages/lan-domain`
+- `packages/logging-domain`
+- `packages/network-domain`
+- `packages/notification-domain`
+- `packages/parent-domain`
+- `packages/policy-domain`
+- `packages/portal-domain`
+- `packages/production-domain`
+- `packages/remote-access-domain`
+- `packages/screen-domain`
+- apps/tools if they own Effect Schema contracts directly
 
-- `src/references.ts` moved/renamed into `schema-domain/src/family-references.ts`.
-- `src/reference-primitives.ts` could not be physically deleted by the connector, so it was neutralized to `export {};`. Codex should delete it after validation confirms no imports remain.
-- `src/child-profile.ts` now keeps helper behavior and consumes `schema-domain` schemas.
-- `src/household-authority.ts` now keeps behavior and consumes `schema-domain/family-legal`.
-- `src/session-lifecycle.ts` now keeps behavior and consumes `schema-domain/family-session`.
-- `src/setup-lifecycle.ts` now keeps behavior and consumes `schema-domain/family-setup` and `schema-domain/family-restore`.
+## Known high-priority missing TypeScript surface
 
-Known local fix needed:
+`packages/agent-protocol-domain` still owns or aggregates many local schema surfaces, including at least:
 
-- In `packages/family-domain/src/setup-lifecycle.ts`, restore the original parse in `deviceTrustStateForRecoveryState`:
-  - change `const parsedState = state;`
-  - to `const parsedState = RecoveryStateSchema.parse(state);`
-  - import `RecoveryStateSchema` from `@ocentra-parent/schema-domain/family-restore`.
+- `browser-runtime-events`
+- `lan-pairing-browser-runtime`
+- `lan-pairing-browser-add-device-state`
+- `lan-signed-discovery-relay-spine`
+- `lan-discovery-source-matrix`
+- `security`
+- network read-model/status contracts
+- app-game adapter/read-model/status contracts
+- social read-model/custody contracts
 
-### `packages/evidence-domain`
+Those must be supplied in `schema-domain` before Codex can do a clean global replacement.
 
-Do not keep evidence schema ownership here long term. Replace imports to:
+## Rust status
 
-- `@ocentra-parent/schema-domain/evidence-primitives`
-- `@ocentra-parent/schema-domain/evidence-kinds`
-- `@ocentra-parent/schema-domain/evidence-contracts`
-- `@ocentra-parent/schema-domain/evidence-custody`
+Rust mirror work is not supplied on this branch yet.
 
-Then delete or neutralize local schema owner files after validation.
+Required next Rust owner pass:
 
-### `packages/app-game-domain`
+- add shared wire/protocol DTO mirrors to `crates/agent-protocol`;
+- do not rewire consumers yet;
+- do not add Rust `pub use` frontages;
+- preserve exact TS/Rust encoded field names, discriminants, nullability, and schema versions.
 
-Do not keep app-game schema ownership here long term. Replace imports to:
+## Codex execution order
 
-- `@ocentra-parent/schema-domain/app-game-primitives`
-- `@ocentra-parent/schema-domain/app-game-identity`
-- `@ocentra-parent/schema-domain/app-game-inventory`
-- `@ocentra-parent/schema-domain/app-game-category`
-- `@ocentra-parent/schema-domain/app-game-session`
-- `@ocentra-parent/schema-domain/app-game-launcher`
-- `@ocentra-parent/schema-domain/app-game-child-runtime-transport-receipt`
-
-Then delete or neutralize local schema owner files after validation.
-
-## Connector-blocked local cleanup
-
-Some source paths were blocked by the connector. Codex should handle locally:
-
-- Delete `packages/family-domain/src/reference-primitives.ts` if no imports remain.
-- Clean remaining parent-domain one-hop re-export frontages.
-- The connector blocked some parent-domain files with app-game/control/notification/status wording.
-
-## Validation commands
-
-Run narrow validation first:
+1. Validate `schema-domain` only:
 
 ```powershell
 npm run build --workspace @ocentra-parent/schema-domain
-npm run build --workspace @ocentra-parent/family-domain
-npm run build --workspace @ocentra-parent/evidence-domain
-npm run build --workspace @ocentra-parent/app-game-domain
-npm run lint:architecture -- --files packages/schema-domain packages/family-domain packages/evidence-domain packages/app-game-domain packages/parent-domain
 ```
 
-Then continue packetized import rewiring and deletion.
+2. Continue schema supply for missing TypeScript packages before deleting local owners.
+
+3. Add Rust mirrors to `crates/agent-protocol`.
+
+4. Only after central supply exists, mechanically replace local imports package-by-package.
+
+5. Delete local schema owner files only after their consumers compile against the canonical surfaces.
 
 ## Non-goals for this branch
 
@@ -144,3 +159,4 @@ Then continue packetized import rewiring and deletion.
 - Do not move behavior into `schema-domain`.
 - Do not introduce barrel/re-export shims.
 - Do not make `schema-domain` depend on peer domain packages.
+- Do not globally delete local schema files until replacements compile.
