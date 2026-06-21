@@ -6,12 +6,12 @@ pub const CRATE_NAME: &str = "ocentra-evidence";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum EvidenceCustodyScope {
-    #[serde(rename = "child-device-local")]
-    ChildDeviceLocal,
-    #[serde(rename = "parent-device-local")]
-    ParentDeviceLocal,
-    #[serde(rename = "parent-owned-remote")]
-    ParentOwnedRemote,
+    #[serde(rename = "local-only")]
+    LocalOnly,
+    #[serde(rename = "family-shared")]
+    FamilyShared,
+    #[serde(rename = "exportable")]
+    Exportable,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -74,7 +74,7 @@ pub fn evaluate_evidence_reference(input: EvidenceReferenceInput) -> EvidenceRef
         && input.private_payload_state == PrivatePayloadState::Excluded
         && input.retention_state == RetentionState::Known;
     let runtime_boundary_state =
-        if accepted && input.custody_scope != EvidenceCustodyScope::ChildDeviceLocal {
+        if accepted && input.custody_scope != EvidenceCustodyScope::LocalOnly {
             RuntimeBoundaryState::MayCross
         } else {
             RuntimeBoundaryState::MustRemainLocal

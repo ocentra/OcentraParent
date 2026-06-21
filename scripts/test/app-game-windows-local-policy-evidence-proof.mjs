@@ -26,17 +26,17 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-windows-local-policy-evidence-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
   const sourceState = await readWindowsPolicyState();
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-windows-local-policy-evidence-proof.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-windows-local-policy-evidence-proof.js')
     ).href
   );
   const readModel = contractModule.createAppGameWindowsLocalPolicyEvidenceProof({
@@ -55,8 +55,8 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-windows-local-policy-evidence-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-windows-local-policy-evidence-proof.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-windows-local-policy-evidence-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-windows-local-policy-evidence-proof.test.ts',
       appLockerService: 'Get-Service AppIDSvc state reduced to parent-safe service state',
       appLockerPolicy:
         'Get-AppLockerPolicy -Local sampled when available; raw XML/rules/executable paths are not stored',

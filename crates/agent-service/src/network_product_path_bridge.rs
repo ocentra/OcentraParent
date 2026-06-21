@@ -2,7 +2,7 @@ use ocentra_network_evidence::{
     action_result::NetworkActionResultState,
     bundle::NetworkCrossSliceEvidenceSource,
     cascade::{NetworkCascadeSignalStrength, NetworkCascadeSourceKind},
-    dns::NetworkEvidenceGrade,
+    dns::types::NetworkEvidenceGrade,
     dns_adapter::NetworkDnsAdapterCapabilityState,
     pipeline::{
         prove_network_end_to_end_pipeline, NetworkEndToEndPipelineInput,

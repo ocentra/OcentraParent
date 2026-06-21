@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildLocalAiEvidenceContext } from '../../src/local-ai-context-builder';
-import { LocalAiDegradedState } from '../../src/local-ai-primitives';
+import { buildLocalAiEvidenceContext } from '@ocentra-parent/schema-domain/local-ai-context-builder';
+import { LocalAiDegradedState } from '@ocentra-parent/schema-domain/ai-primitives';
 
 const childProfile = { childProfileId: 'child-1', displayName: 'Sam' };
 const device = { deviceId: 'device-1', childProfileId: 'child-1', label: 'Sam Windows PC', platform: 'windows' };

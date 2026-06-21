@@ -64,12 +64,12 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-android-child-runtime-local-receipt-ack-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -78,7 +78,7 @@ async function main() {
   const sourceState = parseAndroidSourceState(proofSource, mainActivity);
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-child-runtime-local-receipt-ack-proof.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-child-runtime-local-receipt-ack-proof.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidChildRuntimeLocalReceiptAckProof({
@@ -106,14 +106,14 @@ async function main() {
       androidProofSource:
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
-      contract: 'packages/parent-domain/src/app-game-android-child-runtime-local-receipt-ack-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-android-child-runtime-local-receipt-ack-proof.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-android-child-runtime-local-receipt-ack-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-android-child-runtime-local-receipt-ack-proof.test.ts',
       packageBuild: 'target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk',
     },
     claimsProved: [
       'The Android child app package compiles with package-local receipt and ack write/readback code',
       'MainActivity renders parent-safe local receipt ack and ack readback states',
-      'Parent-domain accepts the ack proof only when package-local receipt and ack write/readback evidence is present',
+      'App-game-domain accepts the ack proof only when package-local receipt and ack write/readback evidence is present',
     ],
     claimsNotProved: [
       'Physical child runtime transport execution',

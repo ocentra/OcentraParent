@@ -1,6 +1,6 @@
 use std::fs::{read_to_string, remove_file};
 
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
     AgentPeer, AgentPeerRole, AgentRoute, AppGameServiceReadModel,

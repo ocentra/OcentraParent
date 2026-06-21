@@ -7,8 +7,8 @@ const outputDirectory = join(root, 'output', 'browser-plan-proof', 'social-appli
 const resultDirectory = join(root, 'test-results', 'social-applied-schedule-time-budget-proof');
 
 const requiredFiles = [
-  'packages/parent-domain/src/social-applied-schedule-time-budget-proof.ts',
-  'packages/parent-domain/tests/social-applied-schedule-time-budget-proof.test.ts',
+  'packages/browser-domain/src/social-applied-schedule-time-budget-proof.ts',
+  'packages/browser-domain/tests/unit/social-applied-schedule-time-budget-proof.test.ts',
   'scripts/test/social-applied-schedule-time-budget-proof.mjs',
 ];
 
@@ -18,18 +18,16 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  const packageJson = await readText('packages/parent-domain/package.json');
   const featureDoc = await readText('docs/features/social-video-control.md');
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/readme.md');
-  const contract = await readText('packages/parent-domain/src/social-applied-schedule-time-budget-proof.ts');
-  const test = await readText('packages/parent-domain/tests/social-applied-schedule-time-budget-proof.test.ts');
-  const proofModule = await import('../../packages/parent-domain/dist/social-applied-schedule-time-budget-proof.js');
+  const contract = await readText('packages/browser-domain/src/social-applied-schedule-time-budget-proof.ts');
+  const test = await readText('packages/browser-domain/tests/unit/social-applied-schedule-time-budget-proof.test.ts');
+  const proofModule = await import('../../packages/browser-domain/dist/social-applied-schedule-time-budget-proof.js');
 
   const readModel = proofModule.SocialAppliedScheduleTimeBudgetProofReadModel;
   const summary = proofModule.summarizeSocialAppliedScheduleTimeBudgetProof(readModel);
   const checks = [
     checkFilesExist(),
-    checkIncludes(packageJson, './social-applied-schedule-time-budget-proof', 'parent-domain package export'),
     checkIncludes(featureDoc, 'social-applied-schedule-time-budget-proof', 'social/video feature proof note'),
     checkIncludes(workpackReadme, 'social-applied-schedule-time-budget-proof', 'social workpack README proof note'),
     checkIncludes(contract, 'runtimeScheduleAppliedClaimed: Schema.Literal(false)', 'runtime schedule guard'),

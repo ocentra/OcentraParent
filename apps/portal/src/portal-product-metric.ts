@@ -1,4 +1,5 @@
-import { PortalDom, type PortalDetailValue, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 
 export function productMetric(
   labelText: PortalDisplayText,

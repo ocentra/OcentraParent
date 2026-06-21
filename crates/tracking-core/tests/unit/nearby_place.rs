@@ -3,14 +3,15 @@ use ocentra_parent_agent_protocol::{
     TrackingReasonCode,
 };
 use ocentra_policy_control_core::policy_authority::AiResultAuthorityState;
-use ocentra_tracking_core::TrackingNearbyPlaceProviderAvailabilityState;
+use ocentra_tracking_core::nearby_place::TrackingNearbyPlaceProviderAvailabilityState;
 
 #[test]
 fn nearby_place_provider_request_never_drives_policy_directly() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
 
-    let decision = ocentra_tracking_core::request_nearby_place_provider_analysis(
+    let decision = ocentra_tracking_core::nearby_place::request_nearby_place_provider_analysis(
         &evidence,
         TrackingNearbyPlaceProviderAvailabilityState::Available,
         2,
@@ -54,10 +55,11 @@ fn nearby_place_provider_request_never_drives_policy_directly() {
 
 #[test]
 fn nearby_place_provider_unavailable_degrades_without_policy_authority() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
 
-    let decision = ocentra_tracking_core::request_nearby_place_provider_analysis(
+    let decision = ocentra_tracking_core::nearby_place::request_nearby_place_provider_analysis(
         &evidence,
         TrackingNearbyPlaceProviderAvailabilityState::Unavailable,
         0,
@@ -87,13 +89,14 @@ fn nearby_place_provider_unavailable_degrades_without_policy_authority() {
 
 #[test]
 fn nearby_place_classification_helper_reuses_canonical_provider_decision_shape() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let report = ocentra_tracking_core::runtime_flow::observe_tracking_location(observed);
     let request = report
         .ai_analysis_requested
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
-    let classified = ocentra_tracking_core::classify_tracking_nearby_place_request(&request);
+    let classified =
+        ocentra_tracking_core::nearby_place::classify_tracking_nearby_place_request(&request);
 
     assert_eq!(classified.source_ai_request_id, request.ai_request_id);
     assert_eq!(

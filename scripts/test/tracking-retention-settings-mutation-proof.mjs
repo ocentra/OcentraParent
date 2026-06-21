@@ -23,20 +23,20 @@ async function main() {
   await mkdir(output32, { recursive: true });
   await mkdir(output33, { recursive: true });
 
-  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
   run('cmd', [
     '/c',
     'npm',
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
     'tracking-retention-settings-mutation-proof',
   ]);
 
   const proofModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-retention-settings-mutation-proof.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'tracking-retention-settings-mutation-proof.js'))
       .href
   );
   const proof = {

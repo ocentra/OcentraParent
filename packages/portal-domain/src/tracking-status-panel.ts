@@ -1,13 +1,13 @@
 import type { DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
-import type { AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type {
   AgentActivityTrackingEvidenceReferenceIds,
-  AgentActivityTrackingReadModelCount,
   AgentActivityTrackingReadModel,
-  AgentActivityTrackingReadModelResult,
+  AgentActivityTrackingReadModelCount,
   AgentActivityTrackingReadModelRow,
-} from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
+} from '@ocentra-parent/schema-domain/agent-tracking-read-model';
+import type { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import type { AgentActivityTrackingReadModelResult } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
 
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
 import { PortalFormatting } from './formatting';

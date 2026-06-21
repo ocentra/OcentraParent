@@ -6,7 +6,7 @@ import { dirname, join, relative } from 'node:path';
 import {
   BrowserGameMetadataExtractionSchema,
   BrowserGameMetadataFieldShapeSchema,
-} from '../../packages/parent-domain/dist/browser-game-metadata-extractor.js';
+} from '@ocentra-parent/schema-domain/browser-game-metadata-extractor';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-metadata-extractor-live-evidence-proof';

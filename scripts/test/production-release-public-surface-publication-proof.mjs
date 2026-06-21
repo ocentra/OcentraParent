@@ -18,15 +18,16 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(outputProofDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-release-public-status-proof.test.ts',
+      'tests/unit/production-release-public-status-proof.test.ts',
     ])
   );
   await runCommand(
@@ -34,9 +35,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-release-public-runtime-handoff.test.ts',
+      'tests/unit/production-release-public-runtime-handoff.test.ts',
     ])
   );
   await runCommand(
@@ -44,9 +45,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-release-public-docs-status.test.ts',
+      'tests/unit/production-release-public-docs-status.test.ts',
     ])
   );
 
@@ -70,9 +71,9 @@ async function main() {
     publicHost,
     commands,
     evidence: {
-      statusContract: 'packages/parent-domain/src/production-release-public-status-proof.ts',
-      runtimeHandoffContract: 'packages/parent-domain/src/production-release-public-runtime-handoff.ts',
-      docsStatusContract: 'packages/parent-domain/src/production-release-public-docs-status.ts',
+      statusContract: 'packages/schema-domain/src/production-release-public-status-proof.ts',
+      runtimeHandoffContract: 'packages/schema-domain/src/production-release-public-runtime-handoff.ts',
+      docsStatusContract: 'packages/schema-domain/src/production-release-public-docs-status.ts',
       documentation,
       output: relativePath(proofPath),
       summary: relativePath(summaryPath),
@@ -99,7 +100,7 @@ async function main() {
 
 async function assertPublicStatusProof() {
   const proofModulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'production-release-public-status-proof.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'production-release-public-status-proof.js')
   );
   const proofModule = await import(proofModulePath.href);
   const proof = proofModule.ProductionReleasePublicStatusProofSchema.parse(
@@ -124,9 +125,9 @@ async function assertPublicStatusProof() {
 }
 
 async function assertRuntimeHandoffProof() {
-  const contractModule = await import('@ocentra-parent/production-domain/production-release-public-runtime-handoff');
+  const contractModule = await import('@ocentra-parent/schema-domain/production-release-public-runtime-handoff');
   const readModelModule =
-    await import('@ocentra-parent/production-domain/production-release-public-runtime-handoff-read-model');
+    await import('@ocentra-parent/schema-domain/production-release-public-runtime-handoff-read-model');
   const proof = contractModule.ProductionReleasePublicRuntimeHandoffProofSchema.parse(
     readModelModule.ProductionReleasePublicRuntimeHandoffReadModel
   );
@@ -162,9 +163,9 @@ async function assertRuntimeHandoffProof() {
 }
 
 async function assertPublicDocsProof() {
-  const contractModule = await import('@ocentra-parent/production-domain/production-release-public-docs-status');
+  const contractModule = await import('@ocentra-parent/schema-domain/production-release-public-docs-status');
   const readModelModule =
-    await import('@ocentra-parent/production-domain/production-release-public-docs-status-read-model');
+    await import('@ocentra-parent/schema-domain/production-release-public-docs-status-read-model');
   const proof = contractModule.ProductionReleasePublicDocsStatusProofSchema.parse(
     readModelModule.ProductionReleasePublicDocsStatusReadModel
   );

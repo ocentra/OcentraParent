@@ -2,14 +2,16 @@ import { describe, expect, it } from 'vitest';
 import {
   BrowserActiveProofSource,
   BrowserActiveTabState,
-  BrowserBoundaryState,
   BrowserCapabilityStatus,
   BrowserChannel,
   BrowserCustodyLabel,
-  BrowserEvidenceReadModelSchema,
-  BrowserEvidenceSchemaVersion,
-  BrowserExactUrlClaimState,
   BrowserFamily,
+  BrowserQueryVisibilityLabel,
+} from '@ocentra-parent/schema-domain/browser-values';
+import { BrowserEvidenceReadModelSchema, BrowserEvidenceSchemaVersion } from '@ocentra-parent/schema-domain/browser-schemas';
+import {
+  BrowserBoundaryState,
+  BrowserExactUrlClaimState,
   BrowserInterventionAction,
   BrowserInterventionCapabilityState,
   BrowserInterventionDecisionSource,
@@ -18,11 +20,10 @@ import {
   BrowserInterventionReadModelSchema,
   BrowserInterventionSchemaVersion,
   BrowserInterventionTargetType,
-  BrowserQueryVisibilityLabel,
   BrowserUnmanagedDetectionState,
   BrowserUnmanagedEnforcementState,
   BrowserUnmanagedFallbackActionState,
-} from '../../src/browser';
+} from '@ocentra-parent/schema-domain/browser-intervention-schemas';
 
 describe('browser evidence read model contracts', () => {
   it('accepts browser evidence read models with tab-list-only active certainty', () => {

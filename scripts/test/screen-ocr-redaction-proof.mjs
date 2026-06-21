@@ -18,7 +18,7 @@ const {
   ScreenOcrRedactionProofSchema,
   ScreenOcrRedactionSchemaVersion,
   redactScreenOcrText,
-} = await import('@ocentra-parent/screen-domain/screen-evidence');
+} = await import('@ocentra-parent/schema-domain/screen-ocr-redaction');
 
 const evidenceRef = {
   evidenceId: 'screen-ocr-redaction-proof-evidence',

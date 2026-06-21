@@ -3,8 +3,8 @@ import {
   ProductionSupportStatusBackendQueueAuditPersistenceProofSchema,
   ProductionSupportStatusBackendQueueAuditPersistenceRowSchema,
   summarizeProductionSupportStatusBackendQueueAuditPersistenceRows,
-} from '../../src/production-support-status-backend-queue-audit-persistence-proof';
-import { ProductionSupportStatusBackendQueueAuditPersistenceReadModel } from '../../src/production-support-status-backend-queue-audit-persistence-read-model';
+} from '@ocentra-parent/schema-domain/production-support-status-backend-queue-audit-persistence-proof';
+import { ProductionSupportStatusBackendQueueAuditPersistenceReadModel } from '@ocentra-parent/schema-domain/production-support-status-backend-queue-audit-persistence-read-model';
 
 describe('production support status backend queue audit persistence proof', () => {
   acceptsQueueAuditPersistenceRows();

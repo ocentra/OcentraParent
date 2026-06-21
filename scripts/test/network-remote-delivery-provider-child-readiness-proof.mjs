@@ -22,8 +22,9 @@ const sourceFiles = [
   'crates/agent-service/src/network_remote_delivery_status_payload.rs',
   'crates/agent-service/src/network_remote_delivery_status_service_tests.rs',
   'packages/agent-protocol-domain/src/defaults.ts',
+  'packages/schema-domain/src/network-remote-delivery-status.ts',
   'packages/agent-protocol-domain/src/network-remote-delivery-status.ts',
-  'packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts',
+  'packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts',
   'crates/agent-core/README.md',
   'crates/agent-protocol/README.md',
   'crates/agent-service/README.md',
@@ -227,8 +228,9 @@ function assertSourceContracts() {
   const servicePayload = readText('crates/agent-service/src/network_remote_delivery_status_payload.rs');
   const serviceTests = readText('crates/agent-service/src/network_remote_delivery_status_service_tests.rs');
   const tsDefaults = readText('packages/agent-protocol-domain/src/defaults.ts');
+  const schemaStatus = readText('packages/schema-domain/src/network-remote-delivery-status.ts');
   const tsParser = readText('packages/agent-protocol-domain/src/network-remote-delivery-status.ts');
-  const tsTests = readText('packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts');
+  const tsTests = readText('packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts');
   const coreReadme = readText('crates/agent-core/README.md');
   const protocolReadme = readText('crates/agent-protocol/README.md');
   const serviceReadme = readText('crates/agent-service/README.md');
@@ -249,8 +251,8 @@ function assertSourceContracts() {
     [servicePayload, 'apply_cross_process_replay_status'],
     [serviceTests, 'assert_remote_delivery_provider_child_readiness_status'],
     [tsDefaults, 'ProviderDeliveryReadinessRef'],
-    [tsParser, 'providerChildReadinessMatches'],
     [tsTests, 'providerDeliveryReadinessRef'],
+    [schemaStatus, 'AgentNetworkRemoteDeliveryStatusSchema'],
     [coreReadme, 'row10p provider/child readiness'],
     [protocolReadme, 'row10p'],
     [serviceReadme, 'row10p provider/child'],

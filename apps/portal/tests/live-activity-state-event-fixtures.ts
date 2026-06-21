@@ -1,4 +1,4 @@
-import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 
 export function emptyBrowserEvidenceEvent() {
   return AgentEventEnvelopeSchema.parse({

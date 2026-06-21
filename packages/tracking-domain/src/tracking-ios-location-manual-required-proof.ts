@@ -9,7 +9,7 @@ import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { FamilyReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
+import { FamilyReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
 const TrackingIosLocationManualRequiredNonNegativeIntegerSchema = Schema.Number.pipe(
   Schema.int(),
   Schema.nonNegative()

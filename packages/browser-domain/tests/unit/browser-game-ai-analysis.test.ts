@@ -4,7 +4,7 @@ import {
   type BrowserGameAiAnalysisInput,
   BrowserGameAiAnalysisResultSchema,
   type BrowserGameAiAnalysisResult,
-} from '../../src/browser-game-ai-analysis';
+} from '@ocentra-parent/schema-domain/browser-game-ai-analysis';
 
 describe('browser-game AI analysis contracts', () => {
   it('accepts typed-evidence input and candidate result contracts', acceptsTypedEvidenceAiContracts);

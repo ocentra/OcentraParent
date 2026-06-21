@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
-    FamilyActorRole, HouseholdMembership, SessionFreshnessState,
+    HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -89,9 +89,10 @@ pub enum ParentControllerLeaseState {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HouseholdAuthorityInput {
-    pub actor_role: FamilyActorRole,
+    pub actor_role: HouseholdRole,
+    pub same_family: bool,
     pub actor_account_state: ActorAccountState,
-    pub household_membership: HouseholdMembership,
+    pub membership_state: HouseholdMembershipState,
     pub child_profile_binding_state: ChildProfileBindingState,
     pub device_ownership_scope: DeviceOwnershipScope,
     pub device_trust_state: DeviceTrustState,
@@ -110,9 +111,16 @@ pub struct HouseholdAuthorityDecision {
 }
 
 pub fn authorize_household_action(input: HouseholdAuthorityInput) -> HouseholdAuthorityDecision {
-    if input.household_membership != HouseholdMembership::Member {
+    if !input.same_family {
         return rejected(
             HouseholdAuthorizationFailureReason::ExternalHousehold,
+            input.action,
+        );
+    }
+
+    if input.membership_state != HouseholdMembershipState::Active {
+        return rejected(
+            HouseholdAuthorizationFailureReason::MembershipNotActive,
             input.action,
         );
     }
@@ -198,26 +206,32 @@ fn rejected(
     }
 }
 
-fn role_can_authorize(role: FamilyActorRole, action: HouseholdAuthorityAction) -> bool {
+fn role_can_authorize(role: HouseholdRole, action: HouseholdAuthorityAction) -> bool {
     match action {
         HouseholdAuthorityAction::PairChildDevice
         | HouseholdAuthorityAction::RevokeChildDevice
         | HouseholdAuthorityAction::ChangePolicy => {
-            matches!(role, FamilyActorRole::Parent | FamilyActorRole::Guardian)
+            matches!(
+                role,
+                HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian
+            )
         }
         HouseholdAuthorityAction::ViewChildStatus => matches!(
             role,
-            FamilyActorRole::Parent | FamilyActorRole::Guardian | FamilyActorRole::Observer
+            HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian | HouseholdRole::Observer
         ),
         HouseholdAuthorityAction::StartRemoteView => matches!(
             role,
-            FamilyActorRole::Parent | FamilyActorRole::Guardian | FamilyActorRole::Observer
+            HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian | HouseholdRole::Observer
         ),
         HouseholdAuthorityAction::StartRemoteControl => {
-            matches!(role, FamilyActorRole::Parent | FamilyActorRole::Guardian)
+            matches!(
+                role,
+                HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian
+            )
         }
         HouseholdAuthorityAction::ExportDeleteData | HouseholdAuthorityAction::ManageBilling => {
-            matches!(role, FamilyActorRole::Parent)
+            matches!(role, HouseholdRole::ParentOwner)
         }
     }
 }

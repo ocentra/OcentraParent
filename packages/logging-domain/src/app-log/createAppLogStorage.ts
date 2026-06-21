@@ -1,14 +1,14 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
+import { AppLogSchemaVersion, type AppLogEntry, type AppLogQuery, type AppLogStats } from '@ocentra-parent/schema-domain/app-log/types';
 import {
   appendAppLogEntries,
   listAppLogSessionFiles,
   pruneAppLogSessions,
   readAppLogEntries,
 } from './appNdjsonWriter';
-import { AppLogSchemaVersion, type AppLogEntry, type AppLogQuery, type AppLogStats } from './types';
-import { LogLevel } from '../contracts';
-import type { TestLogScope } from '../test-log/types';
+import { LogLevel } from '@ocentra-parent/schema-domain/logging-contracts';
+import type { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 
 export interface CreateAppLogStorageOptions {
   readonly scope: TestLogScope;
@@ -17,10 +17,25 @@ export interface CreateAppLogStorageOptions {
   readonly keepNewestSessions?: number;
 }
 
+interface AppLogEntryInput {
+  readonly timestamp: AppLogEntry['timestamp'];
+  readonly level: AppLogEntry['level'];
+  readonly source: AppLogEntry['source'];
+  readonly context: AppLogEntry['context'];
+  readonly message: AppLogEntry['message'];
+  readonly data?: AppLogEntry['data'];
+  readonly file?: AppLogEntry['file'];
+  readonly filePath?: AppLogEntry['filePath'];
+  readonly line?: AppLogEntry['line'];
+  readonly column?: AppLogEntry['column'];
+  readonly correlationId?: AppLogEntry['correlationId'];
+  readonly environment?: AppLogEntry['environment'];
+}
+
 export interface AppLogStorage {
   readonly sessionId: string;
-  storeLog(entry: Omit<AppLogEntry, 'schemaVersion' | 'scope' | 'sessionId'>): void;
-  storeLogsBatch(entries: ReadonlyArray<Omit<AppLogEntry, 'schemaVersion' | 'scope' | 'sessionId'>>): void;
+  storeLog(entry: AppLogEntryInput): void;
+  storeLogsBatch(entries: ReadonlyArray<AppLogEntryInput>): void;
   queryLogs(query?: AppLogQuery): Promise<AppLogEntry[]>;
   getStats(): Promise<AppLogStats>;
   clearLogs(): Promise<number>;
@@ -35,7 +50,7 @@ function makeSessionId(): string {
 function normalizeEntry(
   scope: TestLogScope,
   sessionId: string,
-  entry: Omit<AppLogEntry, 'schemaVersion' | 'scope' | 'sessionId'>
+  entry: AppLogEntryInput
 ): AppLogEntry {
   return {
     schemaVersion: AppLogSchemaVersion,

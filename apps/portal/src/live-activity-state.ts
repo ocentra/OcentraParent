@@ -6,7 +6,7 @@ import {
   type PortalNetworkRuntimeEventChainStream as PortalDomainPortalNetworkRuntimeEventChainStream,
 } from '@ocentra-parent/portal-domain/live-activity-state';
 
-import type { AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 
 export type PortalBrowserRuntimeEventChainEntry = PortalDomainPortalBrowserRuntimeEventChainEntry;
 export type PortalBrowserRuntimeEventChainStream = PortalDomainPortalBrowserRuntimeEventChainStream;

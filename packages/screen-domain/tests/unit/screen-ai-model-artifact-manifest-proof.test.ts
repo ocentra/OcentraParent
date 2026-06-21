@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ScreenAiModelArtifactManifestSchema,
   buildScreenAiModelArtifactManifestProof,
-} from '../../src/screen-ai-model-artifact-manifest-proof';
+} from '@ocentra-parent/schema-domain/screen-ai-model-artifact-manifest-proof';
 
 const generatedAt = '2026-06-05T20:01:00.000Z';
 

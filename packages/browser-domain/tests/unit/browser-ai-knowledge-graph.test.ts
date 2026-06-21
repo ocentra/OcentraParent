@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BrowserAiKnowledgeGraphReferenceBundleSchema,
   BrowserAiKnowledgeGraphSchemaVersion,
-} from '../../src/browser-ai-knowledge-graph-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-knowledge-graph-schemas';
 
 describe('browser AI knowledge graph reference contract', () => {
   it('accepts fresh evidence-backed graph refs as candidate support', acceptsFreshGraphCandidateSupport);

@@ -1,23 +1,27 @@
 import { describe, expect, it } from 'vitest';
-import { ActivityQuerySchemaVersion } from '@ocentra-parent/activity-domain/query';
+import { ActivityQuerySchemaVersion } from '@ocentra-parent/schema-domain/activity-query';
 import {
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
-  AgentProtocolSchemaVersion,
   type AgentEventEnvelope,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { TrackingStatusProofArtifacts } from '@ocentra-parent/portal-domain/tracking-status-proof-artifacts';
 import {
-  PortalRoute,
-  TrackingStatusProofArtifacts,
   trackingFamilyDashboardHostedRollupProof,
-  trackingEvidenceDrawerHostedUiProof,
-  trackingRetentionSettingsHostedUiProof,
   trackingStatusLiveSummary,
   trackingStatusProofRows,
   trackingStatusServiceDataCoverage,
   trackingUnsupportedManualPlatformProof,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/tracking-status-panel';
+import {
+  trackingEvidenceDrawerHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-evidence-drawer-hosted-ui-proof';
+import {
+  trackingRetentionSettingsHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-retention-settings-hosted-ui-proof';
 import {
   trackingChildCheckInProof,
   trackingChildRuntimeUiProof,

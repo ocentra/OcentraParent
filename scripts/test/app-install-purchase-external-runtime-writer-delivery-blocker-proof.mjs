@@ -14,26 +14,19 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-external-runtime-writer-delivery-blocker-proof.test.ts',
+      'tests/unit/app-install-purchase-external-runtime-writer-delivery-blocker-proof.test.ts',
     ])
   );
 
   const proofModule = await loadExternalRuntimeWriterDeliveryBlockerProofModule();
-  const packageProofModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-writer-delivery-blocker-proof');
-  assert.equal(
-    packageProofModule.AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProofReadModel.schemaVersion,
-    proofModule.AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProofReadModel.schemaVersion
-  );
-
   const parsedReadModel = proofModule.AppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseExternalRuntimeWriterDeliveryBlockerProof(parsedReadModel);
 
@@ -70,23 +63,23 @@ async function main() {
     commitMetadataState: 'omitted-for-deterministic-proof-artifact',
     proofMode: 'app-install-purchase-external-runtime-writer-delivery-blocker-proof',
     commands,
-    packageExportState: 'validated-via-public-parent-domain-subpath-export',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     checklistState: 'deferred-current-e-c-docs-product-capability-checklist-lock',
     pendingChecklistDelta:
       'Add Install/purchase approval row note for external runtime writer delivery blocker proof: records missing external writer transport, platform adapter execution, provider/store execution, and child-device transport before delivery can be claimed.',
     evidence: {
       externalRuntimeWriterDeliveryBlockerContract:
-        'packages/parent-domain/src/app-install-purchase-external-runtime-writer-delivery-blocker-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-external-runtime-writer-delivery-blocker-proof.ts',
       sourceExternalRuntimeWriterDeliveryBoundaryContract:
-        'packages/parent-domain/src/app-install-purchase-external-runtime-writer-delivery-boundary-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-external-runtime-writer-delivery-boundary-proof.ts',
       contractTest:
-        'packages/parent-domain/tests/app-install-purchase-external-runtime-writer-delivery-blocker-proof.test.ts',
+        'packages/app-game-domain/tests/unit/app-install-purchase-external-runtime-writer-delivery-blocker-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       packageExport:
         '@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-writer-delivery-blocker-proof',
-      packageReadme: 'packages/parent-domain/README.md',
+      packageReadme: 'packages/app-game-domain/package.json',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval deferred by E-C lock',
       output: relative(repoRoot, proofPath),
     },
@@ -133,7 +126,7 @@ async function loadExternalRuntimeWriterDeliveryBlockerProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-external-runtime-writer-delivery-blocker-proof.js'
   );

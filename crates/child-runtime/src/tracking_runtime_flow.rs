@@ -97,6 +97,19 @@ impl TrackingRuntimeEventFlow {
         &self,
         event: TrackingLocationObservedEvent,
     ) -> Result<TrackingRuntimeEventFlowReport, EventingError> {
+        let validation =
+            ocentra_tracking_core::location_validation::validate_tracking_location_observation(
+                &event,
+            );
+        if validation.result_state
+            == ocentra_tracking_core::location_validation::TrackingLocationValidationResultState::Rejected
+        {
+            return Err(EventingError::InvalidValue {
+                field: constants::tracking_runtime::FIELD_LOCATION_VALIDATION,
+                value: validation.validation_state.to_string(),
+            });
+        }
+
         self.state.reset_for_new_observation();
         let correlation_suffix = event.observation_id.as_str().to_owned();
         let recorded_at = event.observed_at.clone();
@@ -189,11 +202,11 @@ async fn subscribe_tracking_location_observed_events(
         move |context| {
             let state = state.clone();
             async move {
-                let validation = ocentra_tracking_core::validate_tracking_location_observation(
+                let validation = ocentra_tracking_core::location_validation::validate_tracking_location_observation(
                     context.payload(),
                 );
                 if validation.result_state
-                    == ocentra_tracking_core::TrackingLocationValidationResultState::Rejected
+                    == ocentra_tracking_core::location_validation::TrackingLocationValidationResultState::Rejected
                 {
                     return Err(EventingError::InvalidValue {
                         field: constants::tracking_runtime::FIELD_LOCATION_VALIDATION,
@@ -203,7 +216,7 @@ async fn subscribe_tracking_location_observed_events(
 
                 state.record_location_observed(context.payload().clone());
                 let observation_report =
-                    ocentra_tracking_core::observe_tracking_location(context.payload().clone());
+                    ocentra_tracking_core::runtime_flow::observe_tracking_location(context.payload().clone());
                 let evidence = observation_report.evidence_recorded.clone();
                 state.record_evidence(evidence.clone());
                 context
@@ -219,7 +232,7 @@ async fn subscribe_tracking_location_observed_events(
                     .await?;
 
                 let geofence =
-                    ocentra_tracking_core::tracking_geofence_transition_from_evidence(&evidence);
+                    ocentra_tracking_core::runtime_flow::tracking_geofence_transition_from_evidence(&evidence);
                 state.record_geofence_transition(geofence.clone());
                 context
                     .publisher()
@@ -234,7 +247,7 @@ async fn subscribe_tracking_location_observed_events(
                     .await?;
 
                 let expected_place =
-                    ocentra_tracking_core::tracking_expected_place_state_from_evidence(&evidence);
+                    ocentra_tracking_core::runtime_flow::tracking_expected_place_state_from_evidence(&evidence);
                 state.record_expected_place_state(expected_place.clone());
                 context
                     .publisher()
@@ -248,7 +261,7 @@ async fn subscribe_tracking_location_observed_events(
                     )
                     .await?;
 
-                let check_in = ocentra_tracking_core::tracking_child_check_in_from_location(
+                let check_in = ocentra_tracking_core::runtime_flow::tracking_child_check_in_from_location(
                     &observation_report.location_observed,
                     vec![evidence.evidence_ref.clone()],
                 );
@@ -905,9 +918,11 @@ impl TrackingRuntimeHop {
             Self::LocationObserved
             | Self::EvidenceRecorded
             | Self::GeofenceTransitionDetected
-            | Self::ExpectedPlaceStateEvaluated
             | Self::ChildCheckInRecorded => {
                 constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_OBSERVER
+            }
+            Self::ExpectedPlaceStateEvaluated => {
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_POLICY_EXPECTED_PLACE_EVALUATOR
             }
             Self::ParentRequestedChildCheckIn => {
                 constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_CHECK_IN_REQUESTER

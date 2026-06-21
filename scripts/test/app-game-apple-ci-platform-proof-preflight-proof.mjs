@@ -26,16 +26,26 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-apple-ci-platform-proof-preflight',
+    ])
+  );
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/enforcement-domain',
+      '--',
       'v0-8-os-adapter-manual-artifact-gates',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
   const module = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-apple-ci-platform-proof-preflight.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-apple-ci-platform-proof-preflight.js'))
       .href
   );
   const readModel = module.createAppGameAppleCiPlatformProofPreflightReadModel({
@@ -57,10 +67,10 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-apple-ci-platform-proof-preflight.test.ts',
-      sourceGates: 'packages/parent-domain/src/v0-8-os-adapter-manual-artifact-gates.ts',
-      sourceGateTest: 'packages/parent-domain/tests/v0-8-os-adapter-manual-artifact-gates.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-apple-ci-platform-proof-preflight.test.ts',
+      sourceGates: 'packages/schema-domain/src/v0-8-os-adapter-manual-artifact-gates.ts',
+      sourceGateTest: 'packages/enforcement-domain/tests/unit/v0-8-os-adapter-manual-artifact-gates.test.ts',
     },
     claimsProved: [
       'macOS app/game control requires Apple-platform CI runner and macOS-specific permission, MDM/Endpoint, rollback, and audit artifacts before support can upgrade',
@@ -84,8 +94,8 @@ async function main() {
       '',
       '- Branch: codex/app-game-control-product-completion',
       '- Commit: uncommitted full-goal batch, validated by harness before final checkpoint commit',
-      '- Contract: packages/parent-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
-      '- Source gates: packages/parent-domain/src/v0-8-os-adapter-manual-artifact-gates.ts',
+      '- Contract: packages/app-game-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
+      '- Source gates: packages/schema-domain/src/v0-8-os-adapter-manual-artifact-gates.ts',
       '',
       'Evidence:',
       '- macOS and iOS platform proof is represented as CI-required, not Windows-local proof.',

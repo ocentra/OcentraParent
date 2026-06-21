@@ -18,8 +18,8 @@ import {
   networkControlCatalogSettingCount,
   networkControlCatalogSettings,
   networkControlCatalogSourceOptionCount,
-} from '../../src/network-control-catalog';
-import { NetworkControlCatalogSchema } from '../../src/network-control-catalog-schema';
+} from '@ocentra-parent/schema-domain/network-control-catalog';
+import { NetworkControlCatalogSchema } from '@ocentra-parent/schema-domain/network-control-catalog-schema';
 
 interface SourceProposal {
   readonly schemaVersion: number;

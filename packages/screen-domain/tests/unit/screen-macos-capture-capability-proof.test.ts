@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   screenMacosCaptureCapabilityProof,
   ScreenMacosCaptureCapabilityRowSchema,
-} from '../../src/screen-macos-capture-capability-proof';
+} from '@ocentra-parent/schema-domain/screen-macos-capture-capability-proof';
 
 const CheckedAt = '2026-06-07T16:50:00Z';
 

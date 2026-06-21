@@ -8,11 +8,11 @@ import { createAppGameLinuxDockerHostPreflightReadModel } from '../../src/app-ga
 import { createAppGameLinuxForegroundCaptureReadiness } from '../../src/app-game-linux-foreground-capture-readiness';
 import { decodeAppGameLinuxWslRuntimeProof } from '../../src/app-game-linux-wsl-runtime-proof';
 import {
-  AppGamePlatformProofStatusReadModelSchema,
   createAppGamePlatformProofStatusReadModel,
   summarizeAppGamePlatformProofStatus,
 } from '../../src/app-game-platform-proof-status';
 import { createAppGameWindowsBroadBlockingAuthorityPreflightReadModel } from '../../src/app-game-windows-broad-blocking-authority-preflight';
+import { AppGamePlatformProofStatusReadModelSchema } from '@ocentra-parent/schema-domain/app-game-platform-proof-status';
 
 describe('app-game platform proof status', () => {
   it('summarizes Windows, Android, and Linux proof as visibility-only product status', () => {

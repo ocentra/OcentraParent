@@ -3,8 +3,9 @@ use serde::{Deserialize, Serialize};
 use crate::ActivityEvidenceRef;
 
 #[path = "activity_surface/source_status.rs"]
-mod source_status;
-pub use source_status::ActivityAppGameSourceStatusRow;
+pub mod source_status;
+
+use source_status::ActivityAppGameSourceStatusRow;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivitySurfaceScopeKind {

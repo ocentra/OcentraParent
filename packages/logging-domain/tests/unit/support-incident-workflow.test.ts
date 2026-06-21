@@ -4,8 +4,8 @@ import {
   SupportIncidentWorkflowEntrySchema,
   SupportIncidentWorkflowReadModelSchema,
   SupportIncidentWorkflowRequiredDataClasses,
-} from '../../src/support-incident-workflow';
-import { SupportIncidentWorkflowReadModel } from '../../src/support-incident-workflow-read-model';
+} from '@ocentra-parent/schema-domain/support-incident-workflow';
+import { SupportIncidentWorkflowReadModel } from '@ocentra-parent/schema-domain/support-incident-workflow-read-model';
 
 describe('support incident workflow logging contract', () => {
   it(

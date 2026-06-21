@@ -4,7 +4,7 @@ import {
   TrackingChildCheckInTimeoutRowSchema,
   buildTrackingChildCheckInTimeoutReadModel,
 } from '../../src/tracking-child-check-in-timeout-escalation-proof';
-import { TrackingPolicySchemaVersion } from '../../src/tracking-location-policy';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 const EvidenceTrace = {
   evidenceReferenceId: 'tracking-child-check-in-evidence-1',

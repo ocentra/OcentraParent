@@ -1,6 +1,7 @@
+use ocentra_parent_agent_protocol::activity_surface::source_status::ActivityAppGameSourceStatusRow;
 use ocentra_parent_agent_protocol::{
-    constants, ActivityAppGameSourceStatusRow, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityReadModelState, ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind,
+    constants, ActivityEvidenceKind, ActivityEvidenceRef, ActivityReadModelState,
+    ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind,
     AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow,
     AppGameRuntimeEvidenceRow, AppGameServiceReadModel, ACTIVITY_SURFACE_SCHEMA_VERSION,
     APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CATALOG_READY,
@@ -9,22 +10,34 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_FOREGROUND_NOT_CLAIMED,
     APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT, APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD,
     APP_GAME_INVENTORY_SOURCE_SHORTCUT, APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE,
-    APP_GAME_INVENTORY_STATE_DETECTABLE, APP_GAME_INVENTORY_STATE_INSTALLED,
-    APP_GAME_LAUNCHER_KIND_STEAM, APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY,
-    APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW, APP_GAME_OBSERVATION_MODE_LAUNCHER_MANIFEST,
+    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
     APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT, APP_GAME_PRODUCT_NATIVE_APP,
     APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_RUNNING,
-    APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_CATALOG_REF, APP_GAME_TEST_DISPLAY_LABEL,
-    APP_GAME_TEST_EXECUTABLE_PATH_REF, APP_GAME_TEST_FOREGROUND_EVIDENCE_ID,
-    APP_GAME_TEST_GAME_DISPLAY_LABEL, APP_GAME_TEST_LAUNCHER_EVIDENCE_ID,
-    APP_GAME_TEST_LAUNCHER_PROCESS_ID, APP_GAME_TEST_LAUNCHER_PROCESS_IDENTITY,
-    APP_GAME_TEST_LAUNCHER_PROCESS_NAME, APP_GAME_TEST_LAUNCHER_REF, APP_GAME_TEST_PROCESS_ID,
-    APP_GAME_TEST_PROCESS_IDENTITY, APP_GAME_TEST_PROCESS_NAME, APP_GAME_TEST_REGISTRY_SOURCE_REF,
-    APP_GAME_TEST_RUNTIME_EVIDENCE_ID, APP_GAME_TEST_SECOND_SHORTCUT_SOURCE_REF,
-    APP_GAME_TEST_STORE_GAME_SOURCE_REF, APP_GAME_TITLE_CAPTURE_TITLE_REF,
+    APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TITLE_CAPTURE_TITLE_REF,
 };
 
 use super::{app_use_read_model, games_read_model};
+
+const APP_GAME_INVENTORY_STATE_DETECTABLE: &str = "detectable";
+const APP_GAME_LAUNCHER_KIND_STEAM: &str = "steam";
+const APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY: &str = "launcherOnly";
+const APP_GAME_OBSERVATION_MODE_LAUNCHER_MANIFEST: &str = "launcherManifest";
+const APP_GAME_TEST_CATALOG_REF: &str = "catalog-ref-ocentra-game";
+const APP_GAME_TEST_EXECUTABLE_PATH_REF: &str = "path-ref-ocentra-fixture";
+const APP_GAME_TEST_FOREGROUND_EVIDENCE_ID: &str = "foreground-evidence-window-4242";
+const APP_GAME_TEST_GAME_DISPLAY_LABEL: &str = "Ocentra Game Fixture";
+const APP_GAME_TEST_LAUNCHER_EVIDENCE_ID: &str = "launcher-evidence-steam-only";
+const APP_GAME_TEST_LAUNCHER_PROCESS_ID: u64 = 5150;
+const APP_GAME_TEST_LAUNCHER_PROCESS_IDENTITY: &str = "process-5150";
+const APP_GAME_TEST_LAUNCHER_PROCESS_NAME: &str = "steam.exe";
+const APP_GAME_TEST_LAUNCHER_REF: &str = "launcher-ref-ocentra";
+const APP_GAME_TEST_PROCESS_ID: u64 = 4242;
+const APP_GAME_TEST_PROCESS_IDENTITY: &str = "process-4242";
+const APP_GAME_TEST_PROCESS_NAME: &str = "ocentra-fixture.exe";
+const APP_GAME_TEST_REGISTRY_SOURCE_REF: &str = "source-registry-native-app";
+const APP_GAME_TEST_RUNTIME_EVIDENCE_ID: &str = "runtime-evidence-process-4242";
+const APP_GAME_TEST_SECOND_SHORTCUT_SOURCE_REF: &str = "source-second-start-menu-shortcut";
+const APP_GAME_TEST_STORE_GAME_SOURCE_REF: &str = "source-store-package-game";
 
 #[test]
 fn app_use_read_model_groups_app_game_source_status_rows_without_launcher_claims() {

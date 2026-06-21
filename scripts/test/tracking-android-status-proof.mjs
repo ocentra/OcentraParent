@@ -14,8 +14,9 @@ await rm(testOutputDir, { recursive: true, force: true });
 await mkdir(testOutputDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-runNpm(['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', 'tracking-android-status-proof']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
+runNpm(['run', 'test', '--workspace', '@ocentra-parent/tracking-domain', '--', 'tracking-android-status-proof.test.ts']);
 
 const proofModule = await importDist('tracking-android-status-proof.js');
 const readModel = proofModule.buildTrackingAndroidStatusProofReadModel(
@@ -46,8 +47,8 @@ const proof = {
   summary: summarize(readModel),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-android-status-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-android-status-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-android-status-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-android-status-proof.test.ts',
     harness: 'scripts/test/tracking-android-status-proof.mjs',
     evidence: 'test-results/tracking-android-status-proof/proof.json',
     trackingProofPack: 'output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter',
@@ -64,7 +65,7 @@ console.log('tracking-android-status-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-android-status-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
 }
 
 function androidStatusRows() {
@@ -203,7 +204,7 @@ async function writeProofPack(path, proof) {
       proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
       '```',
       '',
-      '- Scope: parent-domain Android status read model for low-power degradation, killed/restarted audit rows, pending-upload auditability, Samsung S9 physical battery/connectivity/status evidence, and manual-required platform gaps.',
+      '- Scope: tracking-domain Android status read model for low-power degradation, killed/restarted audit rows, pending-upload auditability, Samsung S9 physical battery/connectivity/status evidence, and manual-required platform gaps.',
       '- Source inspected: location/geofence feature doc, location/geofence expectations, platform expectations, tracking settings inventory, V0.5 platform deep dive, and WP10 workpack.',
       '- Boundary: this proof extends emulator/local plus Samsung S9 status evidence only; it does not claim foreground location samples, background location runtime, geofence transitions, offline radio behavior, notification delivery, device-owner authority, physical-device behavior, or product-ready Android tracking.',
       '',

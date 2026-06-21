@@ -1,37 +1,45 @@
 import { describe, expect, it } from 'vitest';
-import { AuditRequirementState, DeviceTrustState, HouseholdRole } from '../../src/household-authority';
+import {
+  AuditRequirementState,
+  DeviceTrustState,
+  HouseholdRole,
+} from '@ocentra-parent/schema-domain/family-household-authority';
+import {
+  RecoveryBundleFailureReason,
+  RecoveryBundleHandoffTarget,
+  RecoveryBundleState,
+  RecoveryChildEvidenceAccessState,
+  RecoveryDataCustodyHandoffState,
+  RecoveryDecisionState,
+  RecoveryDeleteExportState,
+  RecoveryFailureReason,
+  RecoveryIdentityProofState,
+  RecoveryKind,
+  RecoveryOperationSchema,
+  RecoveryState,
+  RecoverySupportChannel,
+} from '@ocentra-parent/schema-domain/family-restore-lifecycle';
+import {
+  SetupAuditEventSchema,
+  SetupInviteDecisionState,
+  SetupInviteFailureReason,
+  SetupInvitePurpose,
+  SetupInviteReplayState,
+  SetupInviteSchema,
+  SetupInviteState,
+} from '@ocentra-parent/schema-domain/family-setup-invite';
 import {
   authorizeSetupInvite,
+  deviceTrustStateForRecoveryOperation,
   deviceTrustStateForRecoveryState,
   doesSetupInviteMatchTargetRole,
   evaluateRecoveryOperation,
   isSetupInviteActive,
   isSetupInviteSinglePurpose,
-  RecoveryChildEvidenceAccessState,
-  RecoveryBundleFailureReason,
-  RecoveryBundleHandoffTarget,
-  RecoveryBundleState,
-  RecoveryDecisionState,
-  RecoveryDeleteExportState,
-  RecoveryFailureReason,
-  RecoveryKind,
-  RecoveryDataCustodyHandoffState,
   recoveryCanAccessChildEvidence,
   recoveryDataCustodyHandoffState,
-  deviceTrustStateForRecoveryOperation,
-  RecoveryIdentityProofState,
-  RecoveryOperationSchema,
   recoveryRequiresAuditedSupport,
   recoveryRequiresOwnerApproval,
-  RecoveryState,
-  RecoverySupportChannel,
-  SetupInviteDecisionState,
-  SetupInviteFailureReason,
-  SetupAuditEventSchema,
-  SetupInvitePurpose,
-  SetupInviteReplayState,
-  SetupInviteSchema,
-  SetupInviteState,
 } from '../../src/setup-lifecycle';
 
 function inviteAuthorizationInput(overrides: Record<string, unknown> = {}) {

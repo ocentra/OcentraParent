@@ -4,7 +4,7 @@ import {
   LocalAiRuntimeProviderProofReadModel,
   LocalAiRuntimeProviderProofReadModelSchema,
   LocalAiRuntimeProviderProofRequirementValues,
-} from '../../src/local-ai-runtime-provider-proof';
+} from '@ocentra-parent/schema-domain/local-ai-runtime-provider-proof';
 
 it('captures every local AI provider proof requirement with stable ids and singleton runtime loads', () => {
   const readModel = LocalAiRuntimeProviderProofReadModelSchema.parse(LocalAiRuntimeProviderProofReadModel);

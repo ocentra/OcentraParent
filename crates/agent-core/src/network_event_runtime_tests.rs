@@ -2,7 +2,7 @@ use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
 
-use crate::network_event_runtime::{
+use crate::network_event_runtime::review::{
     request_network_runtime_review_for_observation, NetworkRuntimeReviewReport,
     NetworkRuntimeReviewResponse,
 };

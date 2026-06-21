@@ -1,6 +1,6 @@
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
-    FamilyActorRole, HouseholdMembership, SessionFreshnessState,
+    HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
 };
 use ocentra_family_identity_core::household_authority::{
     authorize_household_action, AuditRequirementState, ElevatedConfirmationState,
@@ -10,9 +10,10 @@ use ocentra_family_identity_core::household_authority::{
 
 fn trusted_parent_input(action: HouseholdAuthorityAction) -> HouseholdAuthorityInput {
     HouseholdAuthorityInput {
-        actor_role: FamilyActorRole::Parent,
+        actor_role: HouseholdRole::ParentOwner,
+        same_family: true,
         actor_account_state: ActorAccountState::Active,
-        household_membership: HouseholdMembership::Member,
+        membership_state: HouseholdMembershipState::Active,
         child_profile_binding_state: ChildProfileBindingState::Bound,
         device_ownership_scope: DeviceOwnershipScope::ChildProfileDevice,
         device_trust_state: DeviceTrustState::Trusted,
@@ -47,7 +48,7 @@ fn parent_can_manage_billing_for_member_household() {
 #[test]
 fn guardian_cannot_manage_billing() {
     let decision = authorize_household_action(HouseholdAuthorityInput {
-        actor_role: FamilyActorRole::Guardian,
+        actor_role: HouseholdRole::CoParentGuardian,
         ..trusted_parent_input(HouseholdAuthorityAction::ManageBilling)
     });
 
@@ -82,7 +83,7 @@ fn export_delete_requires_parent_owner_authority() {
     assert_eq!(owner_decision.failure_reason, None);
 
     let guardian_decision = authorize_household_action(HouseholdAuthorityInput {
-        actor_role: FamilyActorRole::Guardian,
+        actor_role: HouseholdRole::CoParentGuardian,
         ..trusted_parent_input(HouseholdAuthorityAction::ExportDeleteData)
     });
 
@@ -107,7 +108,7 @@ fn export_delete_requires_parent_owner_authority() {
 #[test]
 fn observer_can_view_child_status_but_cannot_change_policy() {
     let view_decision = authorize_household_action(HouseholdAuthorityInput {
-        actor_role: FamilyActorRole::Observer,
+        actor_role: HouseholdRole::Observer,
         capability_granted: false,
         action: HouseholdAuthorityAction::ViewChildStatus,
         ..trusted_parent_input(HouseholdAuthorityAction::ViewChildStatus)
@@ -123,7 +124,7 @@ fn observer_can_view_child_status_but_cannot_change_policy() {
     );
 
     let policy_decision = authorize_household_action(HouseholdAuthorityInput {
-        actor_role: FamilyActorRole::Observer,
+        actor_role: HouseholdRole::Observer,
         action: HouseholdAuthorityAction::ChangePolicy,
         ..trusted_parent_input(HouseholdAuthorityAction::ChangePolicy)
     });
@@ -141,7 +142,7 @@ fn observer_can_view_child_status_but_cannot_change_policy() {
 #[test]
 fn child_device_agent_cannot_use_parent_controller_authority() {
     let remote_view = authorize_household_action(HouseholdAuthorityInput {
-        actor_role: FamilyActorRole::ChildDeviceAgent,
+        actor_role: HouseholdRole::ChildDeviceAgent,
         action: HouseholdAuthorityAction::StartRemoteView,
         ..trusted_parent_input(HouseholdAuthorityAction::StartRemoteView)
     });
@@ -156,7 +157,7 @@ fn child_device_agent_cannot_use_parent_controller_authority() {
     );
 
     let policy_change = authorize_household_action(HouseholdAuthorityInput {
-        actor_role: FamilyActorRole::ChildDeviceAgent,
+        actor_role: HouseholdRole::ChildDeviceAgent,
         action: HouseholdAuthorityAction::ChangePolicy,
         ..trusted_parent_input(HouseholdAuthorityAction::ChangePolicy)
     });
@@ -174,7 +175,7 @@ fn child_device_agent_cannot_use_parent_controller_authority() {
 #[test]
 fn remote_view_requires_capability_grant() {
     let decision = authorize_household_action(HouseholdAuthorityInput {
-        actor_role: FamilyActorRole::Guardian,
+        actor_role: HouseholdRole::CoParentGuardian,
         capability_granted: false,
         action: HouseholdAuthorityAction::StartRemoteView,
         ..trusted_parent_input(HouseholdAuthorityAction::StartRemoteView)
@@ -211,7 +212,7 @@ fn stale_session_blocks_remote_control() {
 #[test]
 fn active_controller_lease_allows_remote_control() {
     let decision = authorize_household_action(HouseholdAuthorityInput {
-        actor_role: FamilyActorRole::Guardian,
+        actor_role: HouseholdRole::CoParentGuardian,
         controller_lease_state: Some(ParentControllerLeaseState::Active),
         action: HouseholdAuthorityAction::StartRemoteControl,
         ..trusted_parent_input(HouseholdAuthorityAction::StartRemoteControl)
@@ -235,7 +236,7 @@ fn active_controller_lease_allows_remote_control() {
 #[test]
 fn missing_controller_lease_blocks_remote_view() {
     let decision = authorize_household_action(HouseholdAuthorityInput {
-        actor_role: FamilyActorRole::Guardian,
+        actor_role: HouseholdRole::CoParentGuardian,
         action: HouseholdAuthorityAction::StartRemoteView,
         ..trusted_parent_input(HouseholdAuthorityAction::StartRemoteView)
     });
@@ -261,7 +262,7 @@ fn missing_controller_lease_blocks_remote_view() {
 #[test]
 fn expired_or_revoked_controller_lease_is_denied() {
     let expired_lease = authorize_household_action(HouseholdAuthorityInput {
-        actor_role: FamilyActorRole::Guardian,
+        actor_role: HouseholdRole::CoParentGuardian,
         controller_lease_state: Some(ParentControllerLeaseState::Expired),
         action: HouseholdAuthorityAction::StartRemoteView,
         ..trusted_parent_input(HouseholdAuthorityAction::StartRemoteView)
@@ -285,7 +286,7 @@ fn expired_or_revoked_controller_lease_is_denied() {
     );
 
     let revoked_lease = authorize_household_action(HouseholdAuthorityInput {
-        actor_role: FamilyActorRole::Guardian,
+        actor_role: HouseholdRole::CoParentGuardian,
         controller_lease_state: Some(ParentControllerLeaseState::Revoked),
         action: HouseholdAuthorityAction::StartRemoteControl,
         ..trusted_parent_input(HouseholdAuthorityAction::StartRemoteControl)
@@ -313,6 +314,7 @@ fn expired_or_revoked_controller_lease_is_denied() {
 fn revoked_or_untrusted_device_is_denied_even_for_parent() {
     for device_trust_state in [
         DeviceTrustState::Pending,
+        DeviceTrustState::ResetRequired,
         DeviceTrustState::Revoked,
         DeviceTrustState::Disabled,
     ] {
@@ -334,15 +336,25 @@ fn revoked_or_untrusted_device_is_denied_even_for_parent() {
 }
 
 #[test]
-fn external_household_and_wrong_device_scope_are_denied() {
+fn external_household_membership_drift_and_wrong_device_scope_are_denied() {
     let external_household = authorize_household_action(HouseholdAuthorityInput {
-        household_membership: HouseholdMembership::External,
+        same_family: false,
         action: HouseholdAuthorityAction::PairChildDevice,
         ..trusted_parent_input(HouseholdAuthorityAction::PairChildDevice)
     });
     assert_eq!(
         external_household.failure_reason,
         Some(HouseholdAuthorizationFailureReason::ExternalHousehold)
+    );
+
+    let inactive_membership = authorize_household_action(HouseholdAuthorityInput {
+        membership_state: HouseholdMembershipState::Invited,
+        action: HouseholdAuthorityAction::PairChildDevice,
+        ..trusted_parent_input(HouseholdAuthorityAction::PairChildDevice)
+    });
+    assert_eq!(
+        inactive_membership.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::MembershipNotActive)
     );
 
     let wrong_scope = authorize_household_action(HouseholdAuthorityInput {

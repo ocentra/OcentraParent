@@ -11,7 +11,7 @@ import {
   AppGameTimeBudgetSessionKind,
   AppGameTimeBudgetTargetKind,
   AppGameTimeBudgetTimerState,
-} from '../../src/app-game-time-budget-policy-rules';
+} from '@ocentra-parent/schema-domain/app-game-time-budget-policy-rules';
 import { ParentContractSchemaVersion, ParentEvidenceReferenceKind } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-03T09:15:00Z';

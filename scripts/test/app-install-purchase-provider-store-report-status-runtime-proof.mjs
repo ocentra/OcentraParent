@@ -13,15 +13,15 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-provider-store-report-status-runtime-proof.test.ts',
+      'tests/unit/app-install-purchase-provider-store-report-status-runtime-proof.test.ts',
     ])
   );
 
@@ -62,17 +62,17 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-provider-store-report-status-runtime-proof',
     commands,
-    packageExportState: 'pending-current-package-json-lock-codex-c',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     checklistState: 'pending-current-checklist-lock-e-c',
     evidence: {
       providerStoreReportStatusRuntimeContract:
-        'packages/parent-domain/src/app-install-purchase-provider-store-report-status-runtime-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-provider-store-report-status-runtime-proof.ts',
       sourceProviderStoreExecutionReadinessContract:
-        'packages/parent-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-provider-store-execution-readiness-proof.ts',
       sourceRuntimeReportWriterDeliveryContract:
-        'packages/parent-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
       contractTest:
-        'packages/parent-domain/tests/app-install-purchase-provider-store-report-status-runtime-proof.test.ts',
+        'packages/app-game-domain/tests/unit/app-install-purchase-provider-store-report-status-runtime-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       output: relative(repoRoot, proofPath),
@@ -112,7 +112,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-provider-store-report-status-runtime-proof.js'
   );

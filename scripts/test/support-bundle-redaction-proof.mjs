@@ -13,6 +13,7 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
   await runCommand(
     ...npmCommand([
@@ -21,7 +22,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/support-bundle-redaction.test.ts',
+      'tests/unit/support-bundle-redaction.test.ts',
     ])
   );
 
@@ -36,8 +37,8 @@ async function main() {
     proofMode: 'support-bundle-redaction-proof',
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/support-bundle-redaction.ts',
-      contractTest: 'packages/logging-domain/tests/support-bundle-redaction.test.ts',
+      contract: 'packages/schema-domain/src/support-bundle-redaction.ts',
+      contractTest: 'packages/logging-domain/tests/unit/support-bundle-redaction.test.ts',
       output: relative(repoRoot, proofPath),
       featureDoc: 'docs/features/production-distribution-support.md',
       expectations: ['docs/expectations/release-installer.md', 'docs/expectations/billing.md'],
@@ -66,8 +67,8 @@ async function main() {
 }
 
 async function parseReadModel() {
-  const modulePath = join(repoRoot, 'packages', 'logging-domain', 'dist', 'support-bundle-redaction.js');
-  const readModelPath = join(repoRoot, 'packages', 'logging-domain', 'dist', 'support-bundle-redaction-read-model.js');
+  const modulePath = join(repoRoot, 'packages', 'schema-domain', 'dist', 'support-bundle-redaction.js');
+  const readModelPath = join(repoRoot, 'packages', 'schema-domain', 'dist', 'support-bundle-redaction-read-model.js');
   const module = await import(pathToFileURL(modulePath).href);
   const readModelModule = await import(pathToFileURL(readModelPath).href);
   return module.SupportBundleRedactionReadModelSchema.parse(readModelModule.SupportBundleRedactionReadModel);
@@ -75,7 +76,7 @@ async function parseReadModel() {
 
 function assertReadModel(readModel) {
   assert.equal(readModel.readModelId, 'support-bundle-redaction-proof');
-  assert.equal(readModel.entries.length, 6);
+  assert.equal(readModel.entries.length, 8);
   const ready = readModel.entries.find((entry) => entry.incidentId === 'support-incident-bundle-ready');
   const billing = readModel.entries.find(
     (entry) => entry.incidentId === 'support-incident-billing-escalation-manual-required'

@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use tokio::AsyncWriteExt;
+use tokio::io::AsyncWriteExt;
 
 use crate::error::UpdaterError;
 

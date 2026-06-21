@@ -1,9 +1,13 @@
 use std::path::PathBuf;
 
 use ocentra_parent_agent_core::{
-    authorize_enforcement_boundary, evaluate_enforcement_boundary, terminate_owned_process,
-    EnforcementAdapterOutcome, EnforcementBoundaryInput, EnforcementBoundaryOutcome,
-    OwnedProcessTerminationTarget,
+    enforcement_adapter::{
+        terminate_owned_process, EnforcementAdapterOutcome, OwnedProcessTerminationTarget,
+    },
+    enforcement_boundary::{
+        authorize_enforcement_boundary, evaluate_enforcement_boundary, EnforcementBoundaryInput,
+        EnforcementBoundaryOutcome,
+    },
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityIngestStatus, ActivityObserver,

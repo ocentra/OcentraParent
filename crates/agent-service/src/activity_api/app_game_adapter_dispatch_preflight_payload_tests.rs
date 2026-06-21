@@ -2,12 +2,14 @@ use ocentra_parent_agent_protocol::{
     constants, AppGameAdapterDispatchPreflightReadModel, LogFieldValue,
     APP_GAME_ADAPTER_DISPATCH_DECISION_BLOCKED, APP_GAME_ADAPTER_DISPATCH_DECISION_ELIGIBLE,
     APP_GAME_ADAPTER_DISPATCH_OUTCOME_READY, APP_GAME_ADAPTER_DISPATCH_PREFLIGHT_STATE_ELIGIBLE,
-    APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE, APP_GAME_TEST_TIMESTAMP,
+    APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
 };
 
 use super::app_game_adapter_dispatch_preflight_payload::{
     app_game_adapter_dispatch_preflight_payload, app_game_adapter_dispatch_preflight_read_model,
 };
+
+const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
 
 #[test]
 fn app_game_adapter_dispatch_preflight_reports_one_scoped_dispatch_eligible_row() {

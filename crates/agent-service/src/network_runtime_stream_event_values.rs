@@ -1,15 +1,12 @@
 use serde::Serialize;
 use serde_json::Value;
 
-use ocentra_parent_agent_core::{
-    NetworkEvidenceGrade as CoreNetworkEvidenceGrade, NetworkInterventionState,
-    NetworkRuntimeEventPayload,
-};
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus,
     NetworkAiAdvisoryState, NetworkClaimBoundary, NetworkDomainAttributionKind,
     NetworkEnforcementMode, NetworkEnforcementResultStatus, NetworkEvidenceGrade,
-    NetworkPolicyDecisionAction, NetworkPortalUpdateKind,
+    NetworkInterventionState, NetworkPolicyDecisionAction, NetworkPortalUpdateKind,
+    NetworkRuntimeEventPayload, NetworkRuntimeEvidenceGrade as CoreNetworkEvidenceGrade,
 };
 
 pub(crate) fn no_claim_boundary() -> NetworkClaimBoundary {

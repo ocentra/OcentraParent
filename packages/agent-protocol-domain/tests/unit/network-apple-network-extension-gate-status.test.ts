@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
-import {
-  AgentNetworkAppleNetworkExtensionGateStatusSchema,
-  parseAgentNetworkAppleNetworkExtensionGateStatusEvent,
-} from '../../src/network-apple-network-extension-gate-status';
+import { AgentNetworkAppleNetworkExtensionGateStatusSchema } from '@ocentra-parent/schema-domain/agent-network-apple-extension-status';
+import { parseAgentNetworkAppleNetworkExtensionGateStatusEvent } from '../../src/network-apple-network-extension-gate-status';
 
 const AppleRefs = AgentProtocolDefaults.NetworkAppleNetworkExtensionGateStatus;
 

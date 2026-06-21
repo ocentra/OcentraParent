@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/activity-surface';
+import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/schema-domain/activity-surface';
 import { createParentPortalActivityUiIntent } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
 
 type ActivityUiIntent = ReturnType<typeof createParentPortalActivityUiIntent>;
@@ -351,8 +351,8 @@ function expectEvidenceBoundarySafetyGates(dashboard: ActivityUiIntent['appGameD
 
 function expectDashboardRow(dashboard: ActivityUiIntent['appGameDashboard'], rowId: string) {
   const row = dashboard.rows.find((candidate) => candidate.rowId === rowId);
-  expect(row).toBeDefined();
-  return expect(row);
+  expect(row?.rowId).toBe(rowId);
+  return expect(row as NonNullable<typeof row>);
 }
 
 function appUseReadModel() {

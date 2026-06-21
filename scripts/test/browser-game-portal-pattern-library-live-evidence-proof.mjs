@@ -7,7 +7,7 @@ import {
   BrowserGamePortalPatternEntrySchema,
   BrowserGamePortalPatternLibrarySchema,
   decodeBrowserGamePortalPatternLibrary,
-} from '../../packages/parent-domain/dist/browser-game-portal-pattern-library.js';
+} from '@ocentra-parent/schema-domain/browser-game-portal-pattern-library';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-portal-pattern-library-live-evidence-proof';

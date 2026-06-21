@@ -4,11 +4,7 @@ use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
     AppGameAdapterDispatchResultReadModel, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
-    APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_COMMAND_ID,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_DEVICE_ID,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_PORTAL_PEER,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_SENT_AT, APP_GAME_PARENT_PLATFORM_WINDOWS,
+    APP_GAME_PARENT_PLATFORM_WINDOWS,
 };
 
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
@@ -18,6 +14,14 @@ use super::app_game_adapter_dispatch_result_payload::{
     build_activity_app_game_adapter_dispatch_result_report,
     build_activity_app_game_adapter_dispatch_result_report_with_store_path,
 };
+
+const APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID: &str =
+    "app-game-adapter-dispatch-execute-command";
+const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_COMMAND_ID: &str =
+    "app-game-adapter-dispatch-result-command";
+const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_DEVICE_ID: &str = "child-device";
+const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_PORTAL_PEER: &str = "portal-dev";
+const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_SENT_AT: &str = "2026-06-08T10:44:01Z";
 
 #[tokio::test]
 async fn app_game_adapter_dispatch_result_command_returns_typed_event() {

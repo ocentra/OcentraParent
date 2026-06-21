@@ -1,7 +1,9 @@
 import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
+
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const proofSlug = '105-timer-service-read-api';
@@ -13,7 +15,7 @@ const commands = [];
 const buildWorkspaces = [
   ['@ocentra-parent/schema-domain', 'schema-domain'],
   ['@ocentra-parent/logging-domain', 'logging-domain'],
-  ['@ocentra-parent/parent-domain', 'parent-domain'],
+  ['@ocentra-parent/app-game-domain', 'app-game-domain'],
 ];
 const proofChainStatusPaths = [
   'scripts/test/app-game-timer-service-event-handoff-proof.mjs',
@@ -45,22 +47,21 @@ runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-timer-service-read-api-handoff',
   'app-game-timer-service-event-handoff',
 ]);
 
-const contract = await importDist('app-game-timer-service-read-api-handoff.js');
-const serviceEventHandoffContract = await importDist('app-game-timer-service-event-handoff.js');
-const refs = await importDist('reference-primitives.js');
+const contract = await import('@ocentra-parent/schema-domain/app-game-timer-service-read-api-handoff');
+const serviceEventHandoffContract = await import('@ocentra-parent/schema-domain/app-game-timer-service-event-handoff');
 const sourceServiceEventHandoff =
   serviceEventHandoffContract.AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceEventHandoffSchema.parse(
     await readJson(join(repoRoot, 'test-results', 'app-game-timer-service-event-handoff-proof', 'handoff.json'))
   );
 const serviceReadApiHandoff =
   contract.buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceReadApiHandoff(
-    serviceReadApiHandoffOptions(refs),
+    serviceReadApiHandoffOptions(),
     sourceServiceEventHandoff
   );
 const proof = {
@@ -73,14 +74,14 @@ const proof = {
   stackedOn: {
     wp104Branch: 'codex/app-game-timer-service-event-handoff-wp104',
     reason:
-      'WP105 consumes WP104 parent-domain service event handoff rows and records the future service read API proof needed before service read API implementation, responses, response consumers, protocol, portal rendering, adapters, child delivery, platform enforcement, or raw source rows are claimed.',
+      'WP105 consumes WP104 canonical service event handoff rows and records the future service read API proof needed before service read API implementation, responses, response consumers, protocol, portal rendering, adapters, child delivery, platform enforcement, or raw source rows are claimed.',
   },
   summary: summarize(serviceReadApiHandoff),
   nonClaims: pickNonClaims(serviceReadApiHandoff),
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-timer-service-read-api-handoff.ts',
-    rules: 'packages/parent-domain/src/app-game-timer-service-read-api-handoff-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-timer-service-read-api-handoff.test.ts',
+    source: 'packages/schema-domain/src/app-game-timer-service-read-api-handoff.ts',
+    rules: 'packages/schema-domain/src/app-game-timer-service-read-api-handoff-rules.ts',
+    test: 'packages/app-game-domain/tests/unit/app-game-timer-service-read-api-handoff.test.ts',
     harness: 'scripts/test/app-game-timer-service-read-api-handoff-proof.mjs',
     evidence: 'test-results/app-game-timer-service-read-api-handoff-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
@@ -98,13 +99,9 @@ await writeProofPack(appProofDir, proof, 'app WP105');
 console.log('app-game-timer-service-read-api-handoff-proof-ok');
 console.log(`evidence=${join('test-results', 'app-game-timer-service-read-api-handoff-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
-}
-
-function serviceReadApiHandoffOptions(refs) {
+function serviceReadApiHandoffOptions() {
   return {
-    schemaVersion: refs.ParentContractSchemaVersion.V0_6,
+    schemaVersion: ParentContractSchemaVersion.V0_6,
     parentSurfaceReadModelServiceReadApiHandoffId: 'app-game-timer-service-read-api-handoff-proof',
     generatedAt: timestamp,
     sourceContractRefs: [

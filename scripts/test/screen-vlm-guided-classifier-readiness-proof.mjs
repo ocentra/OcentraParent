@@ -58,6 +58,7 @@ const vlmRolloutFallbackGateProofPath = resolve(
 );
 
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 runCommand(
   ...npmCommand([
     'run',
@@ -70,6 +71,15 @@ runCommand(
 );
 
 const {
+  ScreenVlmExecutionReadinessProofSchema,
+  ScreenVlmExecutionReadinessProofTier,
+  ScreenVlmExecutionReadinessSchemaVersion,
+  screenVlmCompletedStatusFromResult,
+  screenVlmManualRequiredStatus,
+  screenVlmQueueHandoffFromJob,
+  screenVlmQueuedStatusFromHandoff,
+} = await import('@ocentra-parent/schema-domain/screen-vlm-execution-readiness');
+const {
   ScreenVlmWorkerJobSchema,
   ScreenVlmWorkerMaxImagePixels,
   ScreenVlmWorkerModelId,
@@ -78,16 +88,7 @@ const {
   ScreenVlmWorkerSchemaVersion,
   ScreenVlmWorkerTemplateVersion,
   screenVlmWorkerPromptIsOpenEnded,
-} = await import('@ocentra-parent/screen-domain/screen-vlm-worker');
-const {
-  ScreenVlmExecutionReadinessProofSchema,
-  ScreenVlmExecutionReadinessProofTier,
-  ScreenVlmExecutionReadinessSchemaVersion,
-  screenVlmCompletedStatusFromResult,
-  screenVlmManualRequiredStatus,
-  screenVlmQueueHandoffFromJob,
-  screenVlmQueuedStatusFromHandoff,
-} = await import('@ocentra-parent/screen-domain/screen-vlm-execution-readiness');
+} = await import('@ocentra-parent/schema-domain/screen-vlm-worker');
 
 const evidenceRef = {
   evidenceId: 'screen-vlm-guided-classifier-readiness-evidence',
@@ -416,6 +417,7 @@ const screenProof = {
   },
   assertions,
   validationCommands: [
+    'npm run build --workspace @ocentra-parent/schema-domain',
     'npm run build --workspace @ocentra-parent/screen-domain',
     'npm run test --workspace @ocentra-parent/screen-domain -- screen-vlm-execution-readiness',
     'node scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs',

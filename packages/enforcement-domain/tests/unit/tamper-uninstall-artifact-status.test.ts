@@ -3,7 +3,7 @@ import {
   TamperUninstallArtifactStatusEntrySchema,
   TamperUninstallArtifactStatusReadModelSchema,
   type TamperUninstallArtifactSurface,
-} from '../../src/tamper-uninstall-artifact-status';
+} from '@ocentra-parent/schema-domain/tamper-uninstall-artifact-status';
 import { TamperUninstallArtifactStatusReadModel } from '../../src/tamper-uninstall-artifact-status-read-model';
 
 describe('tamper uninstall artifact status contract', () => {

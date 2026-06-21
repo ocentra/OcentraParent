@@ -4,9 +4,9 @@ use std::{
     sync::atomic::{AtomicU64, Ordering},
 };
 
-use ocentra_parent_agent_core::{
-    ActivityStore, JournalKey, ScreenEvidenceQueue, JOURNAL_KEY_BYTES,
-};
+use ocentra_parent_agent_core::activity_store::ActivityStore;
+use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
+use ocentra_parent_agent_core::screen_evidence_queue::ScreenEvidenceQueue;
 use ocentra_parent_agent_protocol::{
     constants, ScreenAnalysisQueueJob, ScreenEvidenceRecentSummary,
 };

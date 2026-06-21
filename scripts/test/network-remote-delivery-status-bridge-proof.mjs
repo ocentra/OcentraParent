@@ -23,8 +23,9 @@ const sourceFiles = [
   'crates/agent-service/src/websocket.rs',
   'packages/agent-protocol-domain/src/contracts.ts',
   'packages/agent-protocol-domain/src/defaults.ts',
+  'packages/schema-domain/src/network-remote-delivery-status.ts',
   'packages/agent-protocol-domain/src/network-remote-delivery-status.ts',
-  'packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts',
+  'packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts',
   'packages/agent-protocol-domain/package.json',
   'docs/features/network-domain-control.md',
   'docs/plans/network-plan/implementation-checklist.md',
@@ -329,6 +330,7 @@ const proof = {
     'network-plan supplemental row 10b broker/family-hub remote delivery status',
   ],
   provenBoundaries: [
+    'schema-domain owns the typed NetworkRemoteDeliveryStatus payload contract and no-claim counters',
     'agent-protocol defines typed command/event names and a serializable NetworkRemoteDeliveryStatus shape that preserves row10f evidence through the current row10k bridge',
     'agent-service returns agent.network.remote-delivery.status.reported from agent.network.remote-delivery.status.get over the existing browser/network WebSocket command group',
     'agent-service source keeps an agent.command.rejected branch for proof-derived status build failures while runtime tests cover the deterministic success path',
@@ -355,10 +357,11 @@ function assertSourceContracts() {
   const servicePayload = readText('crates/agent-service/src/network_remote_delivery_status_payload.rs');
   const serviceTests = readText('crates/agent-service/src/network_remote_delivery_status_service_tests.rs');
   const serviceWebSocket = readText('crates/agent-service/src/websocket.rs');
+  const schemaStatus = readText('packages/schema-domain/src/network-remote-delivery-status.ts');
   const domainContracts = readText('packages/agent-protocol-domain/src/contracts.ts');
   const domainDefaults = readText('packages/agent-protocol-domain/src/defaults.ts');
   const domainParser = readText('packages/agent-protocol-domain/src/network-remote-delivery-status.ts');
-  const domainTests = readText('packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts');
+  const domainTests = readText('packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts');
   const packageManifest = readText('packages/agent-protocol-domain/package.json');
   const featureDoc = readText('docs/features/network-domain-control.md');
   const checklist = readText('docs/plans/network-plan/implementation-checklist.md');
@@ -388,6 +391,10 @@ function assertSourceContracts() {
     [serviceTests, 'network_remote_delivery_status_payload_serializes_row10s_replay_status_with_row10k_dispatch_state'],
     [serviceTests, 'network_remote_delivery_status_payload_reuses_stable_row10s_status_snapshot'],
     [serviceTests, 'websocket_network_remote_delivery_status_command_reports_payload'],
+    [schemaStatus, 'AgentNetworkRemoteDeliveryStatusSchema'],
+    [schemaStatus, 'productReadyRemoteDelivery: Schema.Literal(false)'],
+    [schemaStatus, 'adapterActionExecutedCount: Schema.Literal(0)'],
+    [schemaStatus, 'hostFilteringClaimed: Schema.Literal(false)'],
     [serviceWebSocket, 'AgentCommandName::AgentNetworkRemoteDeliveryStatusGet'],
     [domainContracts, 'NetworkRemoteDeliveryStatusReported'],
     [domainDefaults, 'NetworkRemoteDeliveryStatus'],

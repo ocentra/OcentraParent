@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { buildLocalAiEvidenceContext } from '../../src/local-ai-context-builder';
+import { buildLocalAiEvidenceContext } from '@ocentra-parent/schema-domain/local-ai-context-builder';
 import {
   buildScreenSummaryParentExplanation,
   ScreenSummaryParentExplanationInputSchema,
   ScreenSummaryParentExplanationSchema,
-} from '../../src/local-ai-screen-summary-parent-explanation';
+} from '@ocentra-parent/schema-domain/local-ai-screen-summary-parent-explanation';
 
 const ObservedAt = '2026-06-05T10:43:30.710Z';
 const ChildProfile = { childProfileId: 'screen-summary-explanation-child', displayName: 'Sam' };

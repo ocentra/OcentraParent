@@ -22,22 +22,22 @@ async function main() {
   await mkdir(join(appGameProofDir, '06-ui-snapshots'), { recursive: true });
   await mkdir(join(appProofDir, '06-ui-snapshots'), { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-platform-extension-routing',
     ])
   );
 
   const { AppGamePlatformExtensionRoutingMatrix } =
-    await import('../../packages/parent-domain/dist/app-game-platform-extension-routing-data.js');
+    await import('../../packages/app-game-domain/dist/app-game-platform-extension-routing-data.js');
   const { AppGamePlatformExtensionRoutingRowSchema } =
-    await import('../../packages/parent-domain/dist/app-game-platform-extension-routing.js');
+    await import('../../packages/app-game-domain/dist/app-game-platform-extension-routing.js');
   const summary = summarizeMatrix(AppGamePlatformExtensionRoutingMatrix);
   assertProof(AppGamePlatformExtensionRoutingMatrix, summary, AppGamePlatformExtensionRoutingRowSchema);
 
@@ -49,17 +49,17 @@ async function main() {
     commands,
     counts: summary,
     evidence: {
-      tsContract: 'packages/parent-domain/src/app-game-platform-extension-routing.ts',
-      tsContractRules: 'packages/parent-domain/src/app-game-platform-extension-routing-rules.ts',
-      tsContractData: 'packages/parent-domain/src/app-game-platform-extension-routing-data.ts',
-      tsContractDataSupport: 'packages/parent-domain/src/app-game-platform-extension-routing-data-support.ts',
+      tsContract: 'packages/app-game-domain/src/app-game-platform-extension-routing.ts',
+      tsContractRules: 'packages/schema-domain/src/app-game-platform-extension-routing-rules.ts',
+      tsContractData: 'packages/app-game-domain/src/app-game-platform-extension-routing-data.ts',
+      tsContractDataSupport: 'packages/app-game-domain/src/app-game-platform-extension-routing-data-support.ts',
       tsContractPlatformData: [
-        'packages/parent-domain/src/app-game-platform-extension-routing-macos-data.ts',
-        'packages/parent-domain/src/app-game-platform-extension-routing-ios-data.ts',
-        'packages/parent-domain/src/app-game-platform-extension-routing-android-data.ts',
-        'packages/parent-domain/src/app-game-platform-extension-routing-linux-data.ts',
+        'packages/app-game-domain/src/app-game-platform-extension-routing-macos-data.ts',
+        'packages/app-game-domain/src/app-game-platform-extension-routing-ios-data.ts',
+        'packages/app-game-domain/src/app-game-platform-extension-routing-android-data.ts',
+        'packages/app-game-domain/src/app-game-platform-extension-routing-linux-data.ts',
       ],
-      tsContractTest: 'packages/parent-domain/tests/app-game-platform-extension-routing.test.ts',
+      tsContractTest: 'packages/app-game-domain/tests/unit/app-game-platform-extension-routing.test.ts',
       proofHarness: 'scripts/test/app-game-platform-extension-routing-proof.mjs',
       appGameProofPack: 'output/app-game-plan-proof/25-platform-extension-checklist-and-proof-routing',
       appProofPack: 'output/app-plan-proof/24-platform-extension-checklist-and-proof-routing',
@@ -173,8 +173,8 @@ async function writeProofPack(proofDir, proof, policyProof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-platform-extension-routing: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/app-game-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/app-game-domain -- app-game-platform-extension-routing: PASS',
       '- Matrix rows: 52',
       '- Platforms: macOS 12, iOS 12, Android 14, Linux 14',
       '',
@@ -183,7 +183,7 @@ async function writeProofPack(proofDir, proof, policyProof, label) {
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust/service protocol not changed. This workpack adds parent-domain proof routing only; platform service parity remains future work.\n',
+    'Rust/service protocol not changed. This workpack adds app-game-domain proof routing backed by centralized schema rules only; platform service parity remains future work.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof);
@@ -232,8 +232,8 @@ async function writeProofPack(proofDir, proof, policyProof, label) {
     [
       'Validation run:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-platform-extension-routing: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/app-game-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/app-game-domain -- app-game-platform-extension-routing: PASS',
       '- node scripts/test/app-game-platform-extension-routing-proof.mjs: PASS',
       '',
     ].join('\n'),

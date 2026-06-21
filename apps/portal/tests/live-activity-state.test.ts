@@ -1,21 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/activity-surface';
+import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/schema-domain/activity-surface';
+import {
+  AgentEvent,
+  AgentEventEnvelopeSchema,
+  type AgentEventEnvelope,
+  type AgentEventName,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   AgentBrowserRuntimeCapabilityStatus,
   AgentBrowserRuntimeCustodyLabel,
   AgentBrowserRuntimeEventType,
   AgentBrowserRuntimePhase,
   AgentBrowserRuntimeQueryVisibility,
-  AgentEvent,
-  AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
-  type AgentEventEnvelope,
-  type AgentEventName,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-browser-runtime-events';
 import {
   AgentNetworkRuntimeEventSchemaVersion,
   AgentNetworkRuntimeEventType,
-} from '@ocentra-parent/agent-protocol-domain/network-runtime-events';
+} from '@ocentra-parent/schema-domain/network-runtime-events';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { emptyBrowserEvidenceEvent, unavailableRecentSummaryEvent } from './live-activity-state-event-fixtures';
 

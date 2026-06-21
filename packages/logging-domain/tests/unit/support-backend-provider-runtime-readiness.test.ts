@@ -4,8 +4,8 @@ import {
   SupportBackendProviderRuntimeReadinessEntrySchema,
   SupportBackendProviderRuntimeReadinessReadModelSchema,
   SupportBackendProviderRuntimeReadinessRequiredDataClasses,
-} from '../../src/support-backend-provider-runtime-readiness';
-import { SupportBackendProviderRuntimeReadinessReadModel } from '../../src/support-backend-provider-runtime-readiness-read-model';
+} from '@ocentra-parent/schema-domain/support-backend-provider-runtime-readiness';
+import { SupportBackendProviderRuntimeReadinessReadModel } from '@ocentra-parent/schema-domain/support-backend-provider-runtime-readiness-read-model';
 
 describe('support backend provider runtime readiness logging contract', () => {
   it('covers upload provider billing account legal remote support SLA and audit states', assertCoverage);

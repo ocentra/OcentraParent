@@ -15,7 +15,7 @@ import {
   TestLogOrigin,
   TestLogScope,
   type StoredTestLogLine,
-} from '@ocentra-parent/logging-domain/test-log/types';
+} from '@ocentra-parent/schema-domain/test-log/types';
 import { ParentDomainLoggerConsumer } from './parent-domain-logger-consumer';
 
 interface RustDevLogEvent {

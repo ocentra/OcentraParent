@@ -1,13 +1,14 @@
 import { useMemo, useState, type ReactElement } from 'react';
+import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
 import {
-  PortalDom,
   PortalFrameTuner,
-  type PortalAppLayoutSurfaceContentDraft,
-  type PortalAppLayoutSurfaceKey,
-  type PortalDisplayText,
   type PortalFrameColorField,
   type PortalFrameNumberField,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/frame-tuner';
+import {
+  type PortalAppLayoutSurfaceContentDraft,
+  type PortalAppLayoutSurfaceKey,
+} from '@ocentra-parent/portal-domain/app-layout';
 import {
   PARENT_PORTAL_SVG_COLOR_FIELDS,
   PARENT_PORTAL_SVG_NUMBER_FIELDS,

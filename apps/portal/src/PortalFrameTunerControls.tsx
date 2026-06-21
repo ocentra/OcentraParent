@@ -1,12 +1,11 @@
 import { type ChangeEvent, type ReactElement } from 'react';
+import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
 import {
-  PortalDom,
   PortalFrameTuner,
-  type PortalDisplayText,
   type PortalFrameBooleanField,
   type PortalFrameColorField,
   type PortalFrameNumberField,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/frame-tuner';
 import { valueAt } from './portal-frame-layout-state';
 
 type TunerActionButtonProps = {

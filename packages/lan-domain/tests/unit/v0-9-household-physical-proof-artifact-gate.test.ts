@@ -4,7 +4,7 @@ import {
   V09HouseholdPhysicalProofArtifactRequirementSchema,
   V09HouseholdPhysicalProofManualEvidenceStatusSchema,
   V09HouseholdPhysicalProofRouteHealthCheckSchema,
-} from '../../src/v0-9-household-physical-proof-artifact-gate';
+} from '@ocentra-parent/schema-domain/v0-9-household-physical-proof-artifact-gate';
 
 const checkedAt = '2026-05-31T13:50:00.000Z';
 const routeId = 'route-v0-9-household-physical-artifact-gate';

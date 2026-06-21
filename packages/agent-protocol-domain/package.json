@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Shared agent command and event contracts for localhost and future relay transports.",
+  "description": "Protocol adapters, event parsers, and transport helpers built on schema-domain contracts.",
   "exports": {
     "./activity-surface-adapter": {
       "import": "./dist/activity-surface-adapter.js",
@@ -12,6 +12,10 @@
     "./browser-intervention-read-model": {
       "import": "./dist/browser-intervention-read-model.js",
       "types": "./dist/browser-intervention-read-model.d.ts"
+    },
+    "./browser-runtime-events": {
+      "import": "./dist/browser-runtime-events.js",
+      "types": "./dist/browser-runtime-events.d.ts"
     },
     "./browser-policy-adapter": {
       "import": "./dist/browser-policy-adapter.js",
@@ -40,10 +44,6 @@
     "./parent-assistant-adapter": {
       "import": "./dist/parent-assistant-adapter.js",
       "types": "./dist/parent-assistant-adapter.d.ts"
-    },
-    "./policy-control-audit-redaction": {
-      "import": "./dist/policy-control-audit-redaction.js",
-      "types": "./dist/policy-control-audit-redaction.d.ts"
     },
     "./policy-control-delivery-read-model": {
       "import": "./dist/policy-control-delivery-read-model.js",
@@ -97,10 +97,6 @@
       "import": "./dist/network-apple-network-extension-gate-status.js",
       "types": "./dist/network-apple-network-extension-gate-status.d.ts"
     },
-    "./app-game-boundary-read-model": {
-      "import": "./dist/app-game-boundary-read-model.js",
-      "types": "./dist/app-game-boundary-read-model.d.ts"
-    },
     "./app-game-policy-readiness": {
       "import": "./dist/app-game-policy-readiness.js",
       "types": "./dist/app-game-policy-readiness.d.ts"
@@ -117,10 +113,6 @@
       "import": "./dist/app-game-platform-proof-status.js",
       "types": "./dist/app-game-platform-proof-status.d.ts"
     },
-    "./app-game-child-runtime-transport-receipt": {
-      "import": "./dist/app-game-child-runtime-transport-receipt.js",
-      "types": "./dist/app-game-child-runtime-transport-receipt.d.ts"
-    },
     "./app-game-adapter-dispatch-preflight": {
       "import": "./dist/app-game-adapter-dispatch-preflight.js",
       "types": "./dist/app-game-adapter-dispatch-preflight.d.ts"
@@ -128,6 +120,10 @@
     "./app-game-adapter-dispatch-result": {
       "import": "./dist/app-game-adapter-dispatch-result.js",
       "types": "./dist/app-game-adapter-dispatch-result.d.ts"
+    },
+    "./app-game-child-runtime-transport-receipt-event-parser": {
+      "import": "./dist/app-game-child-runtime-transport-receipt-event-parser.js",
+      "types": "./dist/app-game-child-runtime-transport-receipt-event-parser.d.ts"
     },
     "./app-game-timer-parent-surface-read-model": {
       "import": "./dist/app-game-timer-parent-surface-read-model.js",
@@ -153,17 +149,9 @@
       "import": "./dist/social-source-custody-mutation.js",
       "types": "./dist/social-source-custody-mutation.d.ts"
     },
-    "./contracts": {
-      "import": "./dist/contracts.js",
-      "types": "./dist/contracts.d.ts"
-    },
     "./agent-message-codec": {
       "import": "./dist/agent-message-codec.js",
       "types": "./dist/agent-message-codec.d.ts"
-    },
-    "./security": {
-      "import": "./dist/security.js",
-      "types": "./dist/security.d.ts"
     },
     "./package-info": {
       "import": "./dist/package-info.js",
@@ -178,19 +166,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/activity-domain": "file:../activity-domain",
-    "@ocentra-parent/ai-domain": "file:../ai-domain",
-    "@ocentra-parent/app-game-domain": "file:../app-game-domain",
-    "@ocentra-parent/browser-domain": "file:../browser-domain",
-    "@ocentra-parent/child-runtime-domain": "file:../child-runtime-domain",
-    "@ocentra-parent/enforcement-domain": "file:../enforcement-domain",
-    "@ocentra-parent/event-domain": "file:../event-domain",
-    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
-    "@ocentra-parent/family-domain": "file:../family-domain",
-    "@ocentra-parent/lan-domain": "file:../lan-domain",
-    "@ocentra-parent/logging-domain": "file:../logging-domain",
-    "@ocentra-parent/network-domain": "file:../network-domain",
-    "@ocentra-parent/schema-domain": "file:../schema-domain",
-    "@ocentra-parent/screen-domain": "file:../screen-domain"
+    "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

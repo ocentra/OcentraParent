@@ -1,4 +1,4 @@
-use crate::browser_event_runtime::browser_runtime_parent_surface_status_topology_manifest;
+use crate::browser_event_runtime::topology::browser_runtime_parent_surface_status_topology_manifest;
 use ocentra_eventing::topology::EventTopologyStatus;
 use ocentra_parent_agent_protocol::constants;
 

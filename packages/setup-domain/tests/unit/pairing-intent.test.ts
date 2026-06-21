@@ -4,7 +4,7 @@ import {
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { parseUnknown } from '@ocentra-parent/schema-domain/effect';
-import { ParentStepUpMethod } from '@ocentra-parent/family-domain/household-authority';
+import { ParentStepUpMethod } from '@ocentra-parent/schema-domain/family-household-authority';
 import {
   deriveParentStepUpAssertionFromSetupPairingApproval,
   isSetupPairingTrustEstablished,
@@ -16,7 +16,7 @@ import {
   SetupPairingState,
   SetupPairingTransport,
   isSetupPairingIntentActive,
-} from '../../src/pairing-intent';
+} from '@ocentra-parent/schema-domain/setup-pairing-intent';
 
 const Intent = SetupPairingIntentSchema.parse({
   schemaVersion: ParentContractSchemaVersion.V0_6,

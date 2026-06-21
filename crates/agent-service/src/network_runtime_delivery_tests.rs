@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkEndpoint,
     ActivityNetworkFlowCounters, ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel,
-    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
+    NetworkRuntimePhase, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    NETWORK_FLOW_SCHEMA_VERSION,
 };
 
 use super::network_runtime_delivery::deliver_network_runtime_for_read_model;
@@ -33,7 +34,7 @@ async fn service_network_read_model_keeps_partial_metadata_manual_required() {
     assert_eq!(report.enforcement_command_events, 0);
     assert_eq!(
         report.publish_reports,
-        ocentra_parent_agent_core::NetworkRuntimePhase::ordered_chain().len() - 2
+        NetworkRuntimePhase::ordered_chain().len() - 2
     );
 }
 

@@ -14,7 +14,7 @@ import {
   type TrackingPhysicalDeviceArtifactGateProof,
   type TrackingPhysicalDeviceArtifactGateRow,
 } from './tracking-physical-device-artifact-gate-proof';
-import { TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 
 export const TrackingPhysicalDeviceEvidenceReviewRowIdSchema = brandedNonEmptyStringSchema('TrackingPhysicalDeviceEvidenceReviewRowId');
 

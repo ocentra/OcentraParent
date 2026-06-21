@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'no
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
-import { SocialPlatformConnectorAuthorizationBoundarySchema } from '../../packages/parent-domain/dist/social-platform-connector-authorization.js';
+import { SocialPlatformConnectorAuthorizationBoundarySchema } from '../../packages/schema-domain/dist/social-platform-connector-authorization.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -15,8 +15,8 @@ const outputProofPath = join(proofRoot, '11-live-public-connector-boundary-proof
 const observedAt = new Date().toISOString();
 
 const builtFiles = [
-  'packages/parent-domain/dist/social-platform-connector-authorization-values.js',
-  'packages/parent-domain/dist/social-platform-connector-authorization.js',
+  'packages/schema-domain/dist/social-platform-connector-authorization-values.js',
+  'packages/schema-domain/dist/social-platform-connector-authorization.js',
 ];
 
 const liveTargets = [

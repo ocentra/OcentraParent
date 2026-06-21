@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createSocialAlertReportPanelIntent } from '@ocentra-parent/portal-domain/contracts';
+import { createSocialAlertReportPanelIntent } from '@ocentra-parent/portal-domain/social-alert-report-panel';
 
 describe('portal social alert/report panel export', () => {
   it('projects missing service state as unavailable without delivery claims', () => {

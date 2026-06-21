@@ -5,7 +5,6 @@ import {
   withParser,
 } from './effect';
 import {
-  ParentActorRole,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from './family-reference-primitives';
@@ -17,12 +16,7 @@ import {
   ParentActorReferenceSchema,
   ParentDeviceReferenceSchema,
 } from './family-references';
-import {
-  AuditRequirementStateSchema,
-  HouseholdRoleSchema,
-} from './family-household-authority';
-
-export { ParentActorRole };
+import { AuditRequirementStateSchema, HouseholdRoleSchema } from './family-household-authority';
 
 export const SetupInviteIdSchema = brandedNonEmptyStringSchema('SetupInviteId');
 export const SetupAuditEventIdSchema = brandedNonEmptyStringSchema('SetupAuditEventId');

@@ -18,33 +18,10 @@ async function main() {
   await mkdir(join(appGameProofDir, '06-ui-snapshots'), { recursive: true });
   await mkdir(join(appProofDir, '06-ui-snapshots'), { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/parent-domain',
-      '--',
-      'app-game-notification-local-outbox-bridge',
-      'app-game-notification-intent',
-    ])
-  );
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/logging-domain',
-      '--',
-      'notification-audit-history',
-      'notification-audit-history-handoff',
-    ])
-  );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
-  const localOutboxBridge = await importDist('parent-domain', 'app-game-notification-local-outbox-bridge.js');
-  const auditHandoff = await importDist('logging-domain', 'notification-audit-history-handoff.js');
+  const localOutboxBridge = await importSchemaDist('app-game-notification-local-outbox-bridge.js');
+  const auditHandoff = await importSchemaDist('notification-audit-history-handoff.js');
   const localOutboxReadModel = localOutboxBridge.buildAppGameNotificationLocalOutboxBridgeReadModel(
     bridgeOptions(),
     proofIntents()
@@ -76,10 +53,10 @@ async function main() {
     commands,
     summary,
     claimsProved: [
-      'Existing app/game local outbox bridge rows are parsed before audit-history handoff',
+      'Existing central app/game local outbox bridge rows are parsed before audit-history handoff',
       'Linked app/game local outbox rows become queued audit-history entries with evidence policy and audit refs',
       'Manual-required and unavailable app/game notification rows become blocked audit-history entries without queued provider sends',
-      'Audit-history entries reuse logging-domain redaction-safe payload fields and no Ocentra-hosted child data custody state',
+      'Audit-history entries reuse the central redaction-safe payload fields and no Ocentra-hosted child data custody state',
       'Provider delivery, retry execution, receipt ingestion, credentials, cloud routing, parent UI, child delivery, durable outbox storage, adapter dispatch, and broad blocking remain unclaimed',
     ],
     claimsNotProved: [
@@ -92,10 +69,9 @@ async function main() {
       'policy evaluator execution, adapter dispatch, broad blocking, or platform support',
     ],
     evidence: {
-      auditHandoffSource: 'packages/logging-domain/src/notification-audit-history-handoff.ts',
-      auditHandoffTest: 'packages/logging-domain/tests/notification-audit-history-handoff.test.ts',
-      existingAuditHistoryContract: 'packages/logging-domain/src/notification-audit-history.ts',
-      appGameLocalOutboxBridge: 'packages/parent-domain/src/app-game-notification-local-outbox-bridge.ts',
+      auditHandoffSource: 'packages/schema-domain/src/notification-audit-history-handoff.ts',
+      existingAuditHistoryContract: 'packages/schema-domain/src/notification-audit-history.ts',
+      appGameLocalOutboxBridge: 'packages/schema-domain/src/app-game-notification-local-outbox-bridge.ts',
       harness: 'scripts/test/app-game-notification-audit-history-bridge-proof.mjs',
       handoffArtifact: 'test-results/app-game-notification-audit-history-bridge-proof/audit-history-handoff.json',
       appGameProofPack: 'output/app-game-plan-proof/60-notification-audit-history-bridge',
@@ -112,8 +88,8 @@ async function main() {
   console.log(`evidence=${relative(repoRoot, join(testOutputDir, 'proof.json'))}`);
 }
 
-async function importDist(packageName, moduleName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', packageName, 'dist', moduleName)).href);
+async function importSchemaDist(moduleName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', moduleName)).href);
 }
 
 function appGameOutboxRowToAuditHandoffRow(auditHandoff, row) {
@@ -310,8 +286,8 @@ async function writeProofPack(proofDir, proof, label) {
       '',
       `- Branch: ${await gitBranch()}`,
       `- Commit: ${proof.commit}`,
-      '- Scope: app/game notification local outbox rows to notification audit-history handoff entries.',
-      '- Source inspected: app/game notification local outbox bridge, logging-domain notification audit history, notification expectations, app/game feature doc, reports/notifications feature doc, and implementation checklists.',
+      '- Scope: central app/game notification local outbox rows to notification audit-history handoff entries.',
+      '- Source inspected: schema-domain app/game notification local outbox bridge and central notification audit history contracts.',
       '',
     ].join('\n'),
     'utf8'
@@ -321,18 +297,16 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run build --workspace @ocentra-parent/logging-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-local-outbox-bridge app-game-notification-intent: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/logging-domain -- notification-audit-history notification-audit-history-handoff: PASS',
-      '- Linked, manual-required, and unavailable source rows parse through logging-domain audit-history entry schemas.',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- node scripts/test/app-game-notification-audit-history-bridge-proof.mjs: PASS',
+      '- Linked, manual-required, and unavailable source rows parse through the central notification audit-history entry schemas.',
       '',
     ].join('\n'),
     'utf8'
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust protocol proof not applicable: this workpack adds a TypeScript logging-domain audit handoff and does not add a Rust-crossing shape.\n',
+    'Rust protocol proof not applicable: this workpack validates the central schema-domain audit-history handoff only.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof.summary);

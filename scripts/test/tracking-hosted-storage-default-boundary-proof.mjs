@@ -17,18 +17,19 @@ await mkdir(resultDir, { recursive: true });
 await mkdir(wp32Dir, { recursive: true });
 await mkdir(wp33Dir, { recursive: true });
 
-runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 run('cmd', [
   '/c',
   'npm',
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
-  'tracking-hosted-storage-default-boundary-proof',
-  'tracking-retention-settings-read-model-proof',
-  'tracking-ai-stored-ref-consumer-proof',
+  'tracking-hosted-storage-default-boundary-proof.test.ts',
+  'tracking-retention-settings-read-model-proof.test.ts',
+  'tracking-ai-stored-ref-consumer-proof.test.ts',
 ]);
 
 const storageBoundary = await importDist('tracking-hosted-storage-default-boundary-proof.js');
@@ -43,8 +44,8 @@ const proof = {
   summary: summarize(proofModel.rows),
   productClaims: proofModel.productClaims,
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-hosted-storage-default-boundary-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-hosted-storage-default-boundary-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-hosted-storage-default-boundary-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-hosted-storage-default-boundary-proof.test.ts',
     harness: 'scripts/test/tracking-hosted-storage-default-boundary-proof.mjs',
     evidence: 'test-results/tracking-hosted-storage-default-boundary-proof/proof.json',
     wp32ProofPack:
@@ -65,7 +66,7 @@ console.log('tracking-hosted-storage-default-boundary-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-hosted-storage-default-boundary-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
 }
 
 function summarize(rows) {

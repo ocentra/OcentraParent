@@ -367,6 +367,25 @@ pub struct AppGameEvidenceClaim {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct AppGameProcessObservation {
+    pub schema_version: u16,
+    pub observed_at: String,
+    pub process_identity: String,
+    pub process_id: u64,
+    pub process_name: String,
+    pub executable_path: Option<String>,
+    pub foreground_state: String,
+    pub observation_mode: String,
+    pub classification_state: String,
+    pub inventory_entry_id: Option<String>,
+    pub launcher_ref: Option<String>,
+    pub catalog_ref: Option<String>,
+    pub confidence: f64,
+    pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppGameAiDigestReference {
     pub schema_version: u16,
     pub digest_ref: String,

@@ -10,9 +10,9 @@ import {
   RemoteAccessSessionRequestSchema,
   RemoteAccessTransportMode,
   decideRemoteAccessSession,
-} from '../../src/remote-access-session';
+} from '@ocentra-parent/schema-domain/remote-access-session';
 
-const Request = {
+const Request = RemoteAccessSessionRequestSchema.parse({
   schemaVersion: ParentContractSchemaVersion.V0_6,
   family: {
     familyId: 'family-local-1',
@@ -33,7 +33,7 @@ const Request = {
   requestedAt: '2026-06-01T00:00:00Z',
   consentState: RemoteAccessConsentState.ChildConsented,
   transportMode: RemoteAccessTransportMode.LanDirect,
-} as const;
+} as const);
 
 describe('remote access session contracts', () => {
   it('allows only child-consented sessions over an enabled transport', () => {

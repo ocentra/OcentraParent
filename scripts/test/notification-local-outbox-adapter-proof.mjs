@@ -18,15 +18,15 @@ await main();
 async function main() {
   await mkdir(outboxDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/notification-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/notification-domain',
       '--',
-      'tests/notification-local-outbox-adapter-proof.test.ts',
+      'tests/unit/notification-local-outbox-adapter-proof.test.ts',
     ])
   );
 
@@ -62,12 +62,13 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/notification-local-outbox-adapter-proof.ts',
-      schemas: 'packages/parent-domain/src/notification-local-outbox-adapter-proof-schemas.ts',
-      values: 'packages/parent-domain/src/notification-local-outbox-adapter-proof-values.ts',
-      contractTest: 'packages/parent-domain/tests/notification-local-outbox-adapter-proof.test.ts',
-      builtModule: 'packages/parent-domain/dist/notification-local-outbox-adapter-proof.js',
-      packageExport: '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof',
+      contract: 'packages/schema-domain/src/notification-local-outbox-adapter-proof.ts',
+      schemas: 'packages/schema-domain/src/notification-local-outbox-adapter-proof-schemas.ts',
+      values: 'packages/schema-domain/src/notification-local-outbox-adapter-proof-values.ts',
+      contractTest: 'packages/notification-domain/tests/unit/notification-local-outbox-adapter-proof.test.ts',
+      builtModule: 'packages/schema-domain/dist/notification-local-outbox-adapter-proof.js',
+      packageExport: '@ocentra-parent/schema-domain/notification-local-outbox-adapter-proof',
+      retiredLocalOwnerPackage: '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof',
       featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDoc: 'docs/expectations/notifications.md',
       localOutboxJsonl: relativePath(outboxPath),
@@ -114,22 +115,23 @@ async function main() {
 }
 
 async function loadProofModule() {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'notification-local-outbox-adapter-proof.js');
+  const modulePath = join(repoRoot, 'packages', 'schema-domain', 'dist', 'notification-local-outbox-adapter-proof.js');
   return import(pathToFileURL(modulePath).href);
 }
 
 async function assertPackageExport(proofModule) {
-  const packageJson = JSON.parse(await readFile(join(repoRoot, 'packages', 'parent-domain', 'package.json'), 'utf8'));
-  assert.deepEqual(packageJson.exports['./notification-local-outbox-adapter-proof'], {
+  const schemaPackageJson = JSON.parse(await readFile(join(repoRoot, 'packages', 'schema-domain', 'package.json'), 'utf8'));
+  assert.deepEqual(schemaPackageJson.exports['./notification-local-outbox-adapter-proof'], {
     import: './dist/notification-local-outbox-adapter-proof.js',
     types: './dist/notification-local-outbox-adapter-proof.d.ts',
   });
 
-  const exportedModule = await import('@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof');
+  const exportedModule = await import('@ocentra-parent/schema-domain/notification-local-outbox-adapter-proof');
   assert.equal(
     exportedModule.NotificationLocalOutboxAdapterProofReadModel.schemaVersion,
     proofModule.NotificationLocalOutboxAdapterProofReadModel.schemaVersion
   );
+
 }
 
 async function writeAndReadOutbox(proofModule, records) {

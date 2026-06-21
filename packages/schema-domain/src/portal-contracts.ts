@@ -126,5 +126,19 @@ export const PortalConnectionState = {
   Error: PortalConnectionStateSchema.parse('error'),
 } as const;
 
-export const PortalDevToolUrlSchema = brandedNonEmptyStringSchema('PortalDevToolUrl');
-export type PortalDevToolUrl = typeof PortalDevToolUrlSchema.Type;
+export const PortalDevToolUrlSchema = withParser(brandedNonEmptyStringSchema('PortalDevToolUrl'));
+export type PortalDevToolUrl = Infer<typeof PortalDevToolUrlSchema>;
+
+export const PortalDetailValueSchema = withParser(brandedNonEmptyStringSchema('PortalDetailValue'));
+export type PortalDetailValue = Infer<typeof PortalDetailValueSchema>;
+export const decodePortalDetailValue = PortalDetailValueSchema.parse;
+
+export const PortalClipboardTextSchema = withParser(brandedNonEmptyStringSchema('PortalClipboardText'));
+export type PortalClipboardText = Infer<typeof PortalClipboardTextSchema>;
+export const decodePortalClipboardText = PortalClipboardTextSchema.parse;
+
+export const TrackingStatusProofArtifactSchema = withParser(
+  brandedNonEmptyStringSchema('TrackingStatusProofArtifact')
+);
+export type TrackingStatusProofArtifact = Infer<typeof TrackingStatusProofArtifactSchema>;
+export const decodeTrackingStatusProofArtifact = TrackingStatusProofArtifactSchema.parse;

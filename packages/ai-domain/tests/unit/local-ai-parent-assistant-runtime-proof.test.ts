@@ -3,8 +3,8 @@ import {
   LocalAiParentAssistantRuntimeProofEntrySchema,
   LocalAiParentAssistantRuntimeProofReadModelSchema,
   LocalAiParentAssistantRuntimeProofRequirementValues,
-} from '../../src/local-ai-parent-assistant-runtime-proof';
-import { LocalAiParentAssistantRuntimeProofReadModel } from '../../src/local-ai-parent-assistant-runtime-proof-values';
+} from '@ocentra-parent/schema-domain/local-ai-parent-assistant-runtime-proof';
+import { LocalAiParentAssistantRuntimeProofReadModel } from '@ocentra-parent/schema-domain/local-ai-parent-assistant-runtime-proof-values';
 
 it('captures every local AI parent assistant runtime proof requirement', () => {
   const readModel = LocalAiParentAssistantRuntimeProofReadModelSchema.parse(
@@ -30,7 +30,7 @@ it('ties local assistant answers to the shared provider runtime lane', () => {
   expect(entry.parentAssistantAnswer?.answerState).toBe('answered');
   expect(entry.parentAssistantAnswer?.providerRoute.routingState).toBe('local-provider-ready');
   expect(entry.providerStatus?.schedulerStatus.providerId).toBe(entry.parentAssistantAnswer?.providerId);
-  expect(entry.providerStatus?.schedulerStatus.runtimeReferenceId).toBeTruthy();
+  expect(entry.providerStatus?.schedulerStatus.runtimeReferenceId).toBe('local-ai-runtime-local-llama-cli');
   expect(entry.localProviderSelected).toBe(true);
   expect(entry.apiProviderSelected).toBe(false);
   expect(entry.parentAssistantAnswer?.citations).toHaveLength(1);

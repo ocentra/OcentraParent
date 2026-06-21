@@ -4,7 +4,7 @@ import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { appendTestLogEntries, readTestLogEntriesFromFile } from '../../src/test-log/ndjsonWriter';
 import { getRunNdjsonFilePath, getTestLogScopeDir, listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
-import { RunType, TestLogScope, TestSuiteType, TestLogSchemaVersion } from '../../src/test-log/types';
+import { RunType, TestLogScope, TestSuiteType, TestLogSchemaVersion } from '@ocentra-parent/schema-domain/test-log/types';
 import { wipeNdjsonScope } from '../../src/test-log/wipeNdjsonScope';
 
 function makeEntry(runId: string, filePath: string) {

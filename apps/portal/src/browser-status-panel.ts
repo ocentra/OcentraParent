@@ -1,12 +1,8 @@
-import { AgentProtocolDefaults, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
-import {
-  PortalDetails,
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  decodePortalDetailValue,
-  type PortalDetailValue,
-} from '@ocentra-parent/portal-domain/contracts';
+import { type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { PortalDom, PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 

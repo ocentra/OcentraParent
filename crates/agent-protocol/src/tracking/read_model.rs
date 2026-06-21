@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{
+use super::identifiers::{
     TrackingEvidenceRef, TrackingReadModelCapabilityStatus, TrackingReadModelCountValue,
     TrackingReadModelCustodyLabel, TrackingReadModelDeletedAt, TrackingReadModelDeviceId,
     TrackingReadModelEventId, TrackingReadModelGeneratedAt, TrackingReadModelKind,

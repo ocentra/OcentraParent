@@ -1,12 +1,12 @@
-import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
-import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
+import { AppGameSchemaVersion } from '@ocentra-parent/schema-domain/app-game-primitives';
 import {
   AgentAppGameTimerParentSurfaceState,
   AgentAppGameTimerParentSurfaceTargetDomain,
-  parseAgentAppGameTimerParentSurfaceEvent,
-} from '../../src/app-game-timer-parent-surface-read-model';
+} from '@ocentra-parent/schema-domain/app-game-timer-parent-surface-read-model';
+import { describe, expect, it } from 'vitest';
+import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
+import { parseAgentAppGameTimerParentSurfaceEvent } from '../../src/app-game-timer-parent-surface-read-model';
 
 const Source = {
   peerId: 'agent-service',

@@ -8,7 +8,7 @@ import {
   NotificationLocalOutboxRecordSchema,
   summarizeNotificationLocalOutboxChannels,
   summarizeNotificationLocalOutboxStates,
-} from '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof';
+} from '@ocentra-parent/schema-domain/notification-local-outbox-adapter-proof';
 
 describe('notification local outbox adapter proof', () => {
   acceptsTheLocalOutboxReadModel();

@@ -22,21 +22,22 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/browser-domain']);
   runNpm([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/browser-domain',
     '--',
     'social-alert-report-provider-dispatch-execution.test.ts',
   ]);
 
-  const dispatch = await importDist('social-alert-report-provider-dispatch-execution.js');
-  const localOutbox = await importDist('social-alert-report-local-outbox-bridge.js');
-  const preflight = await importDist('social-alert-report-provider-preflight-proof.js');
-  const status = await importDist('social-alert-report-provider-status-handoff-proof.js');
-  const receipt = await importDist('social-alert-report-provider-receipt-boundary-proof.js');
+  const dispatch = await importBrowserDist('social-alert-report-provider-dispatch-execution.js');
+  const localOutbox = await importBrowserDist('social-alert-report-local-outbox-bridge.js');
+  const preflight = await importSchemaDist('social-alert-report-provider-preflight-proof.js');
+  const status = await importSchemaDist('social-alert-report-provider-status-handoff-proof.js');
+  const receipt = await importSchemaDist('social-alert-report-provider-receipt-boundary-proof.js');
 
   const intents = proofIntents();
   const outboxBridge = localOutbox.buildSocialAlertReportLocalOutboxBridgeReadModel(bridgeOptions(), intents);
@@ -112,8 +113,8 @@ async function main() {
     },
     dispatchReadModel,
     evidence: {
-      source: 'packages/parent-domain/src/social-alert-report-provider-dispatch-execution.ts',
-      test: 'packages/parent-domain/tests/social-alert-report-provider-dispatch-execution.test.ts',
+      source: 'packages/browser-domain/src/social-alert-report-provider-dispatch-execution.ts',
+      test: 'packages/browser-domain/tests/unit/social-alert-report-provider-dispatch-execution.test.ts',
       proof: 'test-results/social-alert-report-provider-dispatch-execution-proof/proof.json',
       manifest:
         'output/browser-plan-proof/social-alert-report-provider-dispatch-execution-proof/01-social-alert-report-provider-dispatch-execution-proof.md',
@@ -290,8 +291,12 @@ function markdownFor(proof) {
   ].join('\n');
 }
 
-function importDist(fileName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
+function importBrowserDist(fileName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'browser-domain', 'dist', fileName)).href);
+}
+
+function importSchemaDist(fileName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', fileName)).href);
 }
 
 function git(args) {

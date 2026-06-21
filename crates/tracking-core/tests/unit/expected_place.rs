@@ -5,11 +5,12 @@ use ocentra_parent_agent_protocol::{
 
 #[test]
 fn expected_place_evaluation_marks_uncertain_location_without_parent_action() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
 
-    let evaluation = ocentra_tracking_core::default_expected_place_evaluation();
-    let evaluation = ocentra_tracking_core::TrackingExpectedPlaceEvaluation {
+    let evaluation = ocentra_tracking_core::expected_place::default_expected_place_evaluation();
+    let evaluation = ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_AMBIGUOUS,
         )
@@ -18,7 +19,7 @@ fn expected_place_evaluation_marks_uncertain_location_without_parent_action() {
     };
 
     let expected_place =
-        ocentra_tracking_core::evaluate_expected_place_state(&evidence, evaluation);
+        ocentra_tracking_core::expected_place::evaluate_expected_place_state(&evidence, evaluation);
 
     assert_eq!(
         expected_place.expected_place_state,
@@ -55,19 +56,20 @@ fn expected_place_evaluation_marks_uncertain_location_without_parent_action() {
 
 #[test]
 fn expected_place_exit_requires_parent_action() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
 
-    let evaluation = ocentra_tracking_core::TrackingExpectedPlaceEvaluation {
+    let evaluation = ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT,
         )
         .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT),
-        ..ocentra_tracking_core::default_expected_place_evaluation()
+        ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
 
     let expected_place =
-        ocentra_tracking_core::evaluate_expected_place_state(&evidence, evaluation);
+        ocentra_tracking_core::expected_place::evaluate_expected_place_state(&evidence, evaluation);
 
     assert_eq!(
         expected_place.expected_place_state,
@@ -86,10 +88,11 @@ fn expected_place_exit_requires_parent_action() {
 
 #[test]
 fn expected_place_marks_stale_capability_as_manual_required() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
 
-    let evaluation = ocentra_tracking_core::TrackingExpectedPlaceEvaluation {
+    let evaluation = ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
         capability_status: TrackingCapabilityStatus::parse(
             constants::tracking_runtime::CAPABILITY_STATUS_STALE,
         )
@@ -98,11 +101,11 @@ fn expected_place_marks_stale_capability_as_manual_required() {
             constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL,
         )
         .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL),
-        ..ocentra_tracking_core::default_expected_place_evaluation()
+        ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
 
     let expected_place =
-        ocentra_tracking_core::evaluate_expected_place_state(&evidence, evaluation);
+        ocentra_tracking_core::expected_place::evaluate_expected_place_state(&evidence, evaluation);
 
     assert_eq!(
         expected_place.expected_place_state,
@@ -117,19 +120,20 @@ fn expected_place_marks_stale_capability_as_manual_required() {
 
 #[test]
 fn expected_place_missed_arrival_outside_grace_requires_parent_action() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
 
-    let evaluation = ocentra_tracking_core::TrackingExpectedPlaceEvaluation {
+    let evaluation = ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL,
         )
         .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL),
-        ..ocentra_tracking_core::default_expected_place_evaluation()
+        ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
 
     let expected_place =
-        ocentra_tracking_core::evaluate_expected_place_state(&evidence, evaluation);
+        ocentra_tracking_core::expected_place::evaluate_expected_place_state(&evidence, evaluation);
 
     assert_eq!(
         expected_place.expected_place_state,
@@ -147,20 +151,21 @@ fn expected_place_missed_arrival_outside_grace_requires_parent_action() {
 
 #[test]
 fn expected_place_late_grace_suppresses_missed_arrival() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
 
-    let evaluation = ocentra_tracking_core::TrackingExpectedPlaceEvaluation {
+    let evaluation = ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL,
         )
         .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL),
         late_grace_active: true,
-        ..ocentra_tracking_core::default_expected_place_evaluation()
+        ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
 
     let expected_place =
-        ocentra_tracking_core::evaluate_expected_place_state(&evidence, evaluation);
+        ocentra_tracking_core::expected_place::evaluate_expected_place_state(&evidence, evaluation);
 
     assert_eq!(
         expected_place.expected_place_state,
@@ -178,20 +183,21 @@ fn expected_place_late_grace_suppresses_missed_arrival() {
 
 #[test]
 fn expected_place_early_exit_grace_suppresses_exit() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
 
-    let evaluation = ocentra_tracking_core::TrackingExpectedPlaceEvaluation {
+    let evaluation = ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT,
         )
         .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_EXIT),
         early_exit_grace_active: true,
-        ..ocentra_tracking_core::default_expected_place_evaluation()
+        ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
 
     let expected_place =
-        ocentra_tracking_core::evaluate_expected_place_state(&evidence, evaluation);
+        ocentra_tracking_core::expected_place::evaluate_expected_place_state(&evidence, evaluation);
 
     assert_eq!(
         expected_place.expected_place_state,
@@ -209,20 +215,21 @@ fn expected_place_early_exit_grace_suppresses_exit() {
 
 #[test]
 fn expected_place_schedule_disabled_stays_manual_required() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
 
-    let evaluation = ocentra_tracking_core::TrackingExpectedPlaceEvaluation {
+    let evaluation = ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
         schedule_enabled: false,
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL,
         )
         .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL),
-        ..ocentra_tracking_core::default_expected_place_evaluation()
+        ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
 
     let expected_place =
-        ocentra_tracking_core::evaluate_expected_place_state(&evidence, evaluation);
+        ocentra_tracking_core::expected_place::evaluate_expected_place_state(&evidence, evaluation);
 
     assert_eq!(
         expected_place.expected_place_state,
@@ -240,20 +247,23 @@ fn expected_place_schedule_disabled_stays_manual_required() {
 
 #[test]
 fn expected_place_holiday_exception_suppresses_expected_arrival() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
 
-    let evaluation = ocentra_tracking_core::TrackingExpectedPlaceEvaluation {
+    let evaluation = ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL,
         )
         .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_DWELL),
-        active_exception: Some(ocentra_tracking_core::TrackingExpectedPlaceException::HolidayMode),
-        ..ocentra_tracking_core::default_expected_place_evaluation()
+        active_exception: Some(
+            ocentra_tracking_core::expected_place::TrackingExpectedPlaceException::HolidayMode,
+        ),
+        ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
 
     let expected_place =
-        ocentra_tracking_core::evaluate_expected_place_state(&evidence, evaluation);
+        ocentra_tracking_core::expected_place::evaluate_expected_place_state(&evidence, evaluation);
 
     assert_eq!(
         expected_place.expected_place_state,
@@ -275,22 +285,23 @@ fn expected_place_holiday_exception_suppresses_expected_arrival() {
 
 #[test]
 fn expected_place_trip_exception_suppresses_missed_arrival() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
 
-    let evaluation = ocentra_tracking_core::TrackingExpectedPlaceEvaluation {
+    let evaluation = ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
         transition_kind: TrackingTransitionKind::parse(
             constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL,
         )
         .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL),
         active_exception: Some(
-            ocentra_tracking_core::TrackingExpectedPlaceException::TripException,
+            ocentra_tracking_core::expected_place::TrackingExpectedPlaceException::TripException,
         ),
-        ..ocentra_tracking_core::default_expected_place_evaluation()
+        ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
     };
 
     let expected_place =
-        ocentra_tracking_core::evaluate_expected_place_state(&evidence, evaluation);
+        ocentra_tracking_core::expected_place::evaluate_expected_place_state(&evidence, evaluation);
 
     assert_eq!(
         expected_place.expected_place_state,
@@ -312,8 +323,9 @@ fn expected_place_trip_exception_suppresses_missed_arrival() {
 
 #[test]
 fn expected_place_keeps_distinct_school_activity_and_calendar_schedule_cases() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
 
     let cases = [
         (
@@ -359,17 +371,18 @@ fn expected_place_keeps_distinct_school_activity_and_calendar_schedule_cases() {
         expected_parent_action_requirement,
     ) in cases
     {
-        let evaluation = ocentra_tracking_core::TrackingExpectedPlaceEvaluation {
+        let evaluation = ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
             schedule_id: TrackingScheduleId::parse(schedule_id).expect(schedule_id),
             transition_kind: TrackingTransitionKind::parse(transition_kind).expect(transition_kind),
             distance_tolerance_meters: Some(distance_tolerance_meters),
             late_grace_seconds,
             early_exit_grace_seconds,
-            ..ocentra_tracking_core::default_expected_place_evaluation()
+            ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
         };
 
-        let expected_place =
-            ocentra_tracking_core::evaluate_expected_place_state(&evidence, evaluation);
+        let expected_place = ocentra_tracking_core::expected_place::evaluate_expected_place_state(
+            &evidence, evaluation,
+        );
 
         assert_eq!(
             expected_place.schedule_id,

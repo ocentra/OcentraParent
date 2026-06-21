@@ -5,8 +5,9 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use ocentra_parent_agent_core::{
-    browser_tab_observation_event, ActivityStore, BrowserBridgeTargetObservation,
+use ocentra_parent_agent_core::activity_store::ActivityStore;
+use ocentra_parent_agent_core::browser_bridge_event::{
+    browser_tab_observation_event, BrowserBridgeTargetObservation,
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivityReadModelState,
@@ -19,7 +20,9 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
-    activity_surface_read_models::{app_use_read_model, browser_read_model, network_read_model},
+    activity_surface_read_models::{
+        app_use::app_use_read_model, browser_read_model, network_read_model,
+    },
     activity_surface_report::report_document,
     activity_surface_report_store::{history_list_from_dir, save_report_document_to_dir},
     activity_surface_store::{

@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import { SetupFirstRunRoutePanel, shouldRenderSetupFirstRunRoute } from '../src/SetupFirstRunRoutePanel';
 
 describe('setup first-run portal route panel', () => {

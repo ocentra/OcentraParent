@@ -1,58 +1,21 @@
 use ocentra_eventing::{
     delivery::decide_event_delivery_route, delivery::EventDeliveryBackpressurePolicy,
     delivery::EventDeliveryDecisionError, delivery::EventDeliveryDecisionInput,
-    delivery::EventDeliveryDecisionProof, delivery::EventDeliveryDecisionState,
-    delivery::EventDeliveryRouteKind, delivery::EventDeliverySubscriberFilter,
-    error::EventingError, ids::EventNamespace, ids::EventType, ids::SourceComponent,
-    ids::SubscriberId, ids::TargetHandler,
+    delivery::EventDeliveryDecisionState, delivery::EventDeliveryRouteKind,
+    delivery::EventDeliverySubscriberFilter, error::EventingError, ids::EventNamespace,
+    ids::EventType, ids::SourceComponent, ids::SubscriberId, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
 
-use super::{
+use super::broker_delivery::{
     prove_network_runtime_broker_delivery_semantics, NetworkRuntimeBrokerDeliveryProofError,
-    NetworkRuntimeBrokerDeliverySemantics, NetworkRuntimeBrokerDeliverySemanticsReport,
+    NetworkRuntimeBrokerDeliverySemantics,
 };
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum NetworkRuntimeRemoteDeliveryState {
-    FixtureRequirementsRecordedButNotImplemented,
-    ManualRequired,
-}
-
-#[derive(Clone, Debug)]
-pub struct NetworkRuntimeRemoteDeliveryStatusReport {
-    pub broker_semantics: NetworkRuntimeBrokerDeliverySemanticsReport,
-    pub broker_status: NetworkRuntimeRemoteDeliveryState,
-    pub family_hub_status: NetworkRuntimeRemoteDeliveryState,
-    pub family_hub_decision: EventDeliveryDecisionProof,
-    pub custody_proof_ref: SourceComponent,
-    pub publisher_auth_ref: SourceComponent,
-    pub subscriber_auth_ref: SourceComponent,
-    pub encryption_ref: SourceComponent,
-    pub retention_policy_ref: SourceComponent,
-    pub replay_plan_ref: SourceComponent,
-    pub deletion_plan_ref: SourceComponent,
-    pub offset_policy_ref: SourceComponent,
-    pub dedupe_policy_ref: SourceComponent,
-    pub transport_config_ref: SourceComponent,
-    pub relay_identity_ref: SourceComponent,
-    pub relay_policy_ref: SourceComponent,
-    pub broker_missing_artifact_count: usize,
-    pub family_hub_missing_artifact_count: usize,
-    pub accepted_event_type_count: usize,
-    pub local_idempotency_queue_proved: bool,
-    pub dropped_event_dead_letter_count: usize,
-    pub queued_duplicate_rejected: bool,
-    pub completed_duplicate_rejected: bool,
-    pub external_transport_delivery_implemented: bool,
-    pub family_hub_delivery_implemented: bool,
-    pub cross_process_replay_implemented: bool,
-    pub remote_retention_delete_export_propagation_implemented: bool,
-    pub policy_authority: bool,
-    pub side_effect_authority: bool,
-    pub enforcement_command_event_count: usize,
-    pub adapter_action_executed_count: usize,
-}
+pub type NetworkRuntimeRemoteDeliveryState =
+    ocentra_parent_agent_protocol::network_flow::remote_delivery_reports::NetworkRuntimeRemoteDeliveryState;
+pub type NetworkRuntimeRemoteDeliveryStatusReport =
+    ocentra_parent_agent_protocol::network_flow::remote_delivery_reports::NetworkRuntimeRemoteDeliveryStatusReport;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum NetworkRuntimeRemoteDeliveryStatusError {

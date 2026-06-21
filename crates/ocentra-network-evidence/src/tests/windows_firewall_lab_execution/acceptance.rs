@@ -1,6 +1,9 @@
-use crate::{
-    prove_network_windows_firewall_lab_execution, NetworkWindowsFirewallLabCommandKind,
-    NetworkWindowsFirewallLabExecutionInput, NetworkWindowsFirewallLabExecutionState,
+use crate::windows_firewall_lab_execution::{
+    prove_network_windows_firewall_lab_execution,
+    types::{
+        NetworkWindowsFirewallLabCommandKind, NetworkWindowsFirewallLabExecutionInput,
+        NetworkWindowsFirewallLabExecutionState,
+    },
 };
 
 use super::fixtures::{command, lab_execution_input};

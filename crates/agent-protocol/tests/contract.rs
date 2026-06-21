@@ -18,6 +18,10 @@ mod lan_pairing_browser_runtime;
 mod lan_pairing_household_proof;
 #[path = "contract/lan_pairing_provider_selection.rs"]
 mod lan_pairing_provider_selection;
+#[path = "contract/schema_domain_ai_wire.rs"]
+mod schema_domain_ai_wire;
+#[path = "contract/schema_domain_mirrors.rs"]
+mod schema_domain_mirrors;
 #[path = "contract/social_alert_report_read_model.rs"]
 mod social_alert_report_read_model;
 #[path = "contract/social_audit_explanation_read_model.rs"]

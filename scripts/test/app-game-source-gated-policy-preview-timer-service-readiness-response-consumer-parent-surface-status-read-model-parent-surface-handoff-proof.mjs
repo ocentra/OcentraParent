@@ -22,21 +22,22 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff',
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff',
 ]);
 
-const contract = await importDist(
+const contract = await importAppGameDist(
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.js'
 );
-const refs = await importDist('reference-primitives.js');
+const refs = await importSchemaDist('reference-primitives.js');
 const sourceHandoff = await readJson(
   join(repoRoot, 'test-results', 'app-game-timer-parent-status-rm-proof', 'handoff.json')
 );
@@ -57,7 +58,7 @@ const proof = {
     wp98Branch:
       'codex/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff',
     reason:
-      'WP99 consumes WP98 response-consumer parent-surface status read-model rows and creates a parent-domain parent-surface handoff proof while actual parent-surface rendering, portal rendering, service runtime, protocol implementation, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports are sequenced separately.',
+      'Schema-domain owns the response-consumer parent-surface status-read-model parent-surface handoff contract surface; app-game-domain consumes WP98 response-consumer parent-surface status read-model rows while actual parent-surface rendering, portal rendering, service runtime, protocol implementation, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports remain sequenced separately.',
   },
   summary: summarize(parentSurfaceHandoff),
   nonClaims: {
@@ -92,11 +93,14 @@ const proof = {
     rawPrivateSourceRowsIncluded: parentSurfaceHandoff.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.ts',
-    rules:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.test.ts',
+    schemaSource:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.ts',
+    schemaRules:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff-rules.ts',
+    consumerSource:
+      'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.ts',
+    consumerTest:
+      'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.test.ts',
     harness:
       'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff-proof.mjs',
     evidence:
@@ -124,8 +128,12 @@ console.log(
   )}`
 );
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function parentSurfaceHandoffOptions(refs) {

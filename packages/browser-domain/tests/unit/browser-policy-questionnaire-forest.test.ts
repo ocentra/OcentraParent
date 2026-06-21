@@ -1,17 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
-import { browserControlFullCatalogSettings } from '../../src/browser-control-full-catalog';
+import { browserControlFullCatalogSettings } from '@ocentra-parent/schema-domain/browser-control-full-catalog';
 import {
   BrowserPolicyQuestionIds,
-  BrowserPolicyQuestionnaireCompactOrder,
-  BrowserPolicyQuestions,
-  browserPolicyForestSourceSettingIds,
-  browserPolicyVisibleQuestions,
   type BrowserPolicyAnswerMap,
   type BrowserPolicyCondition,
   type BrowserPolicyQuestionId,
   type BrowserPolicySurface,
-} from '../../src/browser-policy-questionnaire-forest';
+} from '@ocentra-parent/schema-domain/browser-policy-questionnaire-forest-contract';
+import {
+  BrowserPolicyQuestionnaireCompactOrder,
+  BrowserPolicyQuestions,
+} from '@ocentra-parent/schema-domain/browser-policy-questionnaire-forest-data';
+import { browserPolicyForestSourceSettingIds, browserPolicyVisibleQuestions } from '../../src/browser-policy-questionnaire-forest';
 
 describe('browser policy questionnaire forest', () => {
   registerForestShapeCases();

@@ -16,9 +16,9 @@ async function main() {
   await mkdir(appProofDir, { recursive: true });
 
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/text-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal']));
   await runCommand(...npmCommand(['run', 'lint:exec', '--workspace', '@ocentra-parent/text-domain']));
-  await runCommand(...npmCommand(['run', 'lint:exec', '--workspace', '@ocentra-parent/portal-domain']));
+  await runCommand(...npmCommand(['run', 'lint:exec', '--workspace', '@ocentra-parent/portal']));
   await runCommand(...npmCommand(['run', 'lint:exec', '--workspace', '@ocentra-parent/portal']));
   await runCommand(
     ...npmCommand([
@@ -35,7 +35,7 @@ async function main() {
     ...npmCommand([
       'exec',
       '--workspace',
-      '@ocentra-parent/portal-domain',
+      '@ocentra-parent/portal',
       '--',
       'vitest',
       'run',
@@ -70,7 +70,7 @@ async function main() {
       liveState: 'packages/portal-domain/src/live-activity-state.ts',
       domainIntent: 'packages/portal-domain/src/app-game-policy-readiness-panel.ts',
       portalTest: 'apps/portal/tests/app-game-policy-readiness-panel.test.ts',
-      domainTest: 'packages/portal-domain/tests/app-game-policy-readiness-panel.test.ts',
+      domainTest: 'packages/portal-domain/tests/unit/app-game-policy-readiness-panel.test.ts',
       textTest: 'packages/text-domain/tests/portal-dev.test.ts',
       featureDoc: 'docs/features/app-game-control.md',
       appGameWorkpack: 'docs/plans/app-game-plan/workpacks/54-policy-readiness-portal-renderer.md',

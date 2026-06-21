@@ -9,7 +9,7 @@ import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
+import { FamilyReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
 import {
   SocialAlertReportSchedulerBridgeReadModelSchema,
   SocialAlertReportSchedulerBridgeStatus,
@@ -19,7 +19,7 @@ import {
 import {
   V3NotificationParentPreferenceStateSchema,
   V3NotificationQuietHoursDecisionSchema,
-} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
+} from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
 
 export const SocialAlertReportPreferencePreflightStatus = {
   ParentPreferenceRequired: 'parent-preference-required',

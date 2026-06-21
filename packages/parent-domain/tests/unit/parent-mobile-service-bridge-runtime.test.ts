@@ -4,7 +4,7 @@ import {
   type ParentMobileServiceBridgeAssistantJobState,
   type ParentMobileServiceBridgeConnectionKind,
   type ParentMobileServiceBridgeOperation,
-} from '../../src/parent-mobile-service-bridge-runtime';
+} from '@ocentra-parent/schema-domain/parent-mobile-service-bridge-runtime';
 
 const CheckedAt = '2026-05-29T23:45:00.000Z';
 

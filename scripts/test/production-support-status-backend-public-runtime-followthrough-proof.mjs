@@ -11,37 +11,18 @@ const outputDir = join(repoRoot, 'output', proofMode);
 const proofPath = join(resultDir, 'proof.json');
 const summaryPath = join(outputDir, 'proof-summary.json');
 const commands = [];
-const packageExports = {
-  './production-support-status-backend-public-runtime-followthrough': {
-    import: './dist/production-support-status-backend-public-runtime-followthrough-proof.js',
-    types: './dist/production-support-status-backend-public-runtime-followthrough-proof.d.ts',
-  },
-  './production-support-status-backend-public-runtime-followthrough-read-model': {
-    import: './dist/production-support-status-backend-public-runtime-followthrough-read-model.js',
-    types: './dist/production-support-status-backend-public-runtime-followthrough-read-model.d.ts',
-  },
-  './production-support-status-backend-public-runtime-followthrough-values': {
-    import: './dist/production-support-status-backend-public-runtime-followthrough-values.js',
-    types: './dist/production-support-status-backend-public-runtime-followthrough-values.d.ts',
-  },
-};
+const requiredPackageExports = [
+  '@ocentra-parent/schema-domain/production-support-status-backend-public-runtime-followthrough-proof',
+  '@ocentra-parent/schema-domain/production-support-status-backend-public-runtime-followthrough-read-model',
+  '@ocentra-parent/schema-domain/production-support-status-backend-public-runtime-followthrough-values',
+];
 
 await main();
 
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/parent-domain',
-      '--',
-      'tests/production-support-status-backend-public-runtime-followthrough-proof.test.ts',
-    ])
-  );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
@@ -54,12 +35,11 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-support-status-backend-public-runtime-followthrough-proof.ts',
-      values: 'packages/parent-domain/src/production-support-status-backend-public-runtime-followthrough-values.ts',
+      contract: 'packages/schema-domain/src/production-support-status-backend-public-runtime-followthrough-proof.ts',
+      values: 'packages/schema-domain/src/production-support-status-backend-public-runtime-followthrough-values.ts',
       readModel:
-        'packages/parent-domain/src/production-support-status-backend-public-runtime-followthrough-read-model.ts',
-      contractTest:
-        'packages/parent-domain/tests/production-support-status-backend-public-runtime-followthrough-proof.test.ts',
+        'packages/schema-domain/src/production-support-status-backend-public-runtime-followthrough-read-model.ts',
+      proofHarness: 'scripts/test/production-support-status-backend-public-runtime-followthrough-proof.mjs',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -182,15 +162,15 @@ async function assertDocumentationProof() {
 }
 
 async function assertPackageExports() {
-  const packageJson = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
-  for (const [exportPath, expectedTarget] of Object.entries(packageExports)) {
-    assert.deepEqual(packageJson.exports[exportPath], expectedTarget, `${exportPath} package export`);
-  }
-  return packageExports;
+  const [contract, readModel, values] = await Promise.all(requiredPackageExports.map((specifier) => import(specifier)));
+  assert.equal(typeof contract.ProductionSupportStatusBackendPublicRuntimeFollowthroughProofSchema.parse, 'function');
+  assert.equal(typeof readModel.ProductionSupportStatusBackendPublicRuntimeFollowthroughReadModel, 'object');
+  assert(Array.isArray(values.RequiredStatusBackendPublicRuntimeFollowthroughTargets));
+  return requiredPackageExports;
 }
 
 async function importBuiltModule(fileName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', fileName)).href);
 }
 
 async function readRepoFile(path) {

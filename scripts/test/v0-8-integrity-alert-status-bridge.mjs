@@ -13,7 +13,7 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
@@ -38,7 +38,7 @@ async function main() {
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'integrity_alert_status_bridge']);
 
   const { V08IntegrityAlertStatusBridgeReadModel } =
-    await import('@ocentra-parent/enforcement-domain/v0-8-integrity-alert-status-bridge');
+    await import('@ocentra-parent/schema-domain/v0-8-integrity-alert-status-bridge');
   const summary = summarizeReadModel(V08IntegrityAlertStatusBridgeReadModel);
 
   assertReadModel(V08IntegrityAlertStatusBridgeReadModel, summary);
@@ -51,7 +51,7 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/enforcement-domain/src/v0-8-integrity-alert-status-bridge.ts',
+      tsContract: 'packages/schema-domain/src/v0-8-integrity-alert-status-bridge.ts',
       tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-integrity-alert-status-bridge.test.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-supported-adapter-runtime-proof-adapter.ts',
       tsProtocolAdapterTest:

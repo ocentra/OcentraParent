@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const proofMode = 'app-game-notification-intent-proof';
@@ -16,15 +17,12 @@ async function main() {
   await mkdir(join(appGameProofDir, '06-ui-snapshots'), { recursive: true });
   await mkdir(join(appProofDir, '06-ui-snapshots'), { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
-  await runCommand(
-    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', 'app-game-notification-intent'])
-  );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
-  const notification = await import('../../packages/parent-domain/dist/app-game-notification-intent.js');
+  const notification = await importSchemaDist('app-game-notification-intent.js');
   await assertPackageExport(notification);
-  const refs = await import('../../packages/parent-domain/dist/reference-primitives.js');
-  const childUx = await import('../../packages/parent-domain/dist/app-game-child-facing-ux-rules.js');
+  const refs = await importSchemaDist('family-reference-primitives.js');
+  const childUx = await importSchemaDist('app-game-child-facing-ux-rules.js');
 
   const fixtures = buildFixtures(notification, refs, childUx);
   const parsed = fixtures.validIntents.map((intent) => notification.AppGameNotificationIntentSchema.parse(intent));
@@ -83,13 +81,13 @@ async function main() {
       'policy evaluator execution, adapter dispatch, broad app blocking, or platform support',
     ],
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-notification-intent.ts',
-      rules: 'packages/parent-domain/src/app-game-notification-intent-rules.ts',
-      test: 'packages/parent-domain/tests/app-game-notification-intent.test.ts',
+      contract: 'packages/schema-domain/src/app-game-notification-intent.ts',
+      rules: 'packages/schema-domain/src/app-game-notification-intent-rules.ts',
+      childUx: 'packages/schema-domain/src/app-game-child-facing-ux.ts',
       harness: 'scripts/test/app-game-notification-intent-proof.mjs',
       appGameProofPack: 'output/app-game-plan-proof/53-notification-intent-contract',
       appProofPack: 'output/app-plan-proof/53-notification-intent-contract',
-      packageExport: '@ocentra-parent/app-game-domain/app-game-notification-intent',
+      packageExport: '@ocentra-parent/schema-domain/app-game-notification-intent',
     },
     parsedIntents: parsed,
     rejected,
@@ -104,12 +102,16 @@ async function main() {
 }
 
 async function assertPackageExport(notification) {
-  const exportedModule = await import('@ocentra-parent/app-game-domain/app-game-notification-intent');
+  const exportedModule = await import('@ocentra-parent/schema-domain/app-game-notification-intent');
   assertEqual(
     exportedModule.AppGameNotificationIntentKind.TimeLimitReached,
     notification.AppGameNotificationIntentKind.TimeLimitReached,
     'package export intent kind'
   );
+}
+
+async function importSchemaDist(moduleName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', moduleName)).href);
 }
 
 function buildFixtures(notification, refs, childUx) {
@@ -267,8 +269,8 @@ async function writeProofPack(proofDir, proof, label) {
       '',
       `- Branch: ${await gitBranch()}`,
       `- Commit: ${proof.commit}`,
-      '- Scope: parent-domain app/game notification intent contract proof.',
-      '- Source inspected: app/game child-facing UX, time-budget policy, notification provider/outbox contracts.',
+      '- Scope: central schema-domain app/game notification intent contract proof.',
+      '- Source inspected: schema-domain app/game notification intent, child-facing UX, and family reference contracts.',
       '- Product checklist intentionally not edited; remaining delta is reported through hub.',
       '',
     ].join('\n'),
@@ -279,8 +281,8 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-intent: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- node scripts/test/app-game-notification-intent-proof.mjs: PASS',
       '- Valid intents cover time-limit, approval request, suspicious unknown, manual-required, and unavailable states.',
       '- Invalid intents reject raw child detail, provider delivery/receipt claims, wrong copy/reason, missing refs, and false local-outbox claims.',
       '',
@@ -289,7 +291,7 @@ async function writeProofPack(proofDir, proof, label) {
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust/service protocol not changed. This is TypeScript parent-domain notification intent proof only.\n',
+    'Rust/service protocol not changed. This is central schema-domain notification intent proof only.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof);
@@ -340,8 +342,7 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Validation run:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-intent: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
       '- node scripts/test/app-game-notification-intent-proof.mjs: PASS',
       '',
     ].join('\n'),

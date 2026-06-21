@@ -6,7 +6,7 @@ const proofRoot = 'output/network-plan-proof/adapter-capability-status';
 const testRoot = 'test-results/network-adapter-capability-status-proof';
 const proofPath = `${testRoot}/proof.json`;
 const planProofPath = `${proofRoot}/proof-summary.json`;
-const sourceRoots = ['apps/portal/src', 'packages/portal-domain/src'];
+const sourceRoots = ['apps/portal/src'];
 const sourceExtensions = new Set(['.ts', '.tsx']);
 const commands = [];
 const proofLabels = [];
@@ -34,10 +34,10 @@ runCommand(
     '@ocentra-parent/portal',
     '--',
     'eslint',
-    '../../packages/portal-domain/src/network-evidence-drawer.ts',
     'src/NetworkEvidenceDrawerRoutePanel.tsx',
+    'src/use-portal-network-activity-refresh.ts',
+    'src/portal-route-refresh.ts',
     'tests/live-activity-network-flow.test.ts',
-    '../../packages/portal-domain/src/details.ts',
   ])
 );
 runCommand('node', ['scripts/check-source-shape.mjs']);
@@ -66,7 +66,8 @@ const proof = {
     adapterCapabilityStatusTests: 'crates/ocentra-network-evidence/src/tests/adapter_capability_status.rs',
     platformClaimManifestModule: 'crates/ocentra-network-evidence/src/platform_claims.rs',
     platformClaimManifestTests: 'crates/ocentra-network-evidence/src/tests/platform_claims.rs',
-    portalNetworkDrawer: 'packages/portal-domain/src/network-evidence-drawer.ts',
+    portalNetworkDrawerRoutePanel: 'apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx',
+    portalNetworkRefreshHook: 'apps/portal/src/use-portal-network-activity-refresh.ts',
     portalNetworkDrawerTest: 'apps/portal/tests/live-activity-network-flow.test.ts',
     scannedSourceRoots: sourceRoots,
     scannedFiles,
@@ -137,22 +138,19 @@ function expectedAdapterCapabilityStatus() {
 }
 
 function assertPortalCapabilityStatusProjection() {
-  const drawer = readText('packages/portal-domain/src/network-evidence-drawer.ts');
+  const panel = readText('apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx');
   const test = readText('apps/portal/tests/live-activity-network-flow.test.ts');
 
   for (const expected of [
-    'readModelPlatformState(readModel)',
-    'readModelRows(readModel)',
-    'degradedState(row, readModel)',
-    'return joinedDetail([readModel.custody, readModel.capabilityStatus])',
-    'return joinedDetail([row.capabilityStatus, row.domainAttributionStatus, row.processAttributionStatus])',
-    'policyDecisionRef: notReported()',
-    'interventionResultRef: notReported()',
-    'exactUrlClaim: notReported()',
+    'networkEvidenceDrawerSummary(liveActivity.networkFlowReadModel, {',
+    'PortalDetails.Capability',
+    'PortalDetails.PlatformState',
+    'PortalDetails.DeletedEvidence',
+    'PortalDetails.PerformanceState',
   ]) {
-    assertIncludes(drawer, expected, `portal capability projection: ${expected}`);
+    assertIncludes(panel, expected, `portal capability projection: ${expected}`);
   }
-  proofLabels.push('portal.projects-service-backed-capability-status');
+  proofLabels.push('portal.route-renders-service-backed-capability-status');
 
   for (const expected of [
     "expect(summary.platformState).toBe('child-device-query-store | available')",

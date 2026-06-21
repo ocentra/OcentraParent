@@ -15,14 +15,14 @@ await rm(testOutputDir, { recursive: true, force: true });
 await mkdir(testOutputDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 run('cmd', [
   '/c',
   'npm',
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
   'tracking-ai-provider-routing-proof',
   'tracking-location-policy',
@@ -50,8 +50,8 @@ const proof = {
     productionBehaviorClaimed: false,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-ai-provider-routing-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-ai-provider-routing-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-ai-provider-routing-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-ai-provider-routing-proof.test.ts',
     harness: 'scripts/test/tracking-ai-provider-routing-proof.mjs',
     evidence: 'test-results/tracking-ai-provider-routing-proof/proof.json',
     trackingProofPack: 'output/tracking-plan-proof/24-ai-provider-routing',
@@ -68,7 +68,7 @@ console.log('tracking-ai-provider-routing-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-ai-provider-routing-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
 }
 
 function assertProof(proof) {
@@ -104,7 +104,7 @@ async function writeProofPack(path, proof) {
       proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
       '```',
       '',
-      '- Scope: parent-domain AI provider route proof for child-local default, remote approval, degraded/unavailable rows, custody refs, and assistant no-write boundary.',
+      '- Scope: tracking-domain AI provider route proof for child-local default, remote approval, degraded/unavailable rows, custody refs, and assistant no-write boundary.',
       '- No model execution, child-device runtime, provider delivery, assistant policy write, enforcement, or production behavior is claimed.',
       '',
     ].join('\n'),
@@ -115,8 +115,8 @@ async function writeProofPack(path, proof) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-ai-provider-routing-proof tracking-location-policy: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/tracking-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tracking-ai-provider-routing-proof tracking-location-policy: PASS',
       '- Child-local route is the only default child-safety path.',
       '- Parent-approved remote is the only route with remote data allowed and requires recorded approval.',
       '- Family hub, metadata-only, and no-AI routes preserve degraded/unavailable/disabled states.',

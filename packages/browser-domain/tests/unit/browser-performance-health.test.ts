@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserPerformanceHealthReadModelSchema } from '../../src/browser';
+import { BrowserPerformanceHealthReadModelSchema } from '@ocentra-parent/schema-domain/browser-performance-health-schemas';
 
 describe('browser performance health contracts', () => {
   it('accepts measured browser budgets while keeping future routes manual', acceptsPerformanceMatrix);

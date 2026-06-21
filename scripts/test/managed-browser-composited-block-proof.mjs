@@ -8,7 +8,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import {
   BrowserChildInterventionPageDefaults,
   renderBrowserChildInterventionPage,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/browser-child-intervention-page';
 
 import { resolveDebugAgentServicePath, stopProcessTreeAndWait } from './agent-service-process.mjs';
 

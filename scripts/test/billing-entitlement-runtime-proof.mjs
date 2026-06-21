@@ -14,19 +14,16 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/billing-domain',
       '--',
-      'tests/billing-entitlement-runtime-proof.test.ts',
-    ]),
-    {
-      OCENTRA_PARENT_DOMAIN_TEST_SKIP_PROOF_CHAIN: '1',
-    }
+      'tests/unit/billing-entitlement-runtime-proof.test.ts',
+    ])
   );
 
   const contract = await assertBuiltContract();
@@ -40,9 +37,8 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/billing-entitlement-runtime-proof.ts',
-      values: 'packages/parent-domain/src/billing-entitlement-runtime-proof-values.ts',
-      contractTest: 'packages/parent-domain/tests/billing-entitlement-runtime-proof.test.ts',
+      contract: 'packages/schema-domain/src/billing-entitlement-runtime-proof.ts',
+      contractTest: 'packages/billing-domain/tests/unit/billing-entitlement-runtime-proof.test.ts',
       packageExport,
       documentation,
       output: relativePath(proofPath),
@@ -75,7 +71,7 @@ async function main() {
 
 async function assertBuiltContract() {
   const modulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'billing-entitlement-runtime-proof.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'billing-entitlement-runtime-proof.js')
   );
   const module = await import(modulePath.href);
   const proof = module.BillingEntitlementRuntimeProofReadModel;
@@ -86,7 +82,7 @@ async function assertBuiltContract() {
     'snapshot-stale': 1,
     'payment-required': 1,
     'provider-unavailable': 1,
-    'manual-review': 0,
+    'manual-review': 1,
   });
   assert.deepEqual(module.summarizeBillingEntitlementRuntimeConsumptionStates(proof.deviceLimitConsumptions), {
     'accepted-local': 1,
@@ -117,10 +113,10 @@ async function assertBuiltContract() {
 }
 
 async function assertPublicPackageExport() {
-  const module = await import('@ocentra-parent/parent-domain/billing-entitlement-runtime-proof');
+  const module = await import('@ocentra-parent/schema-domain/billing-entitlement-runtime-proof');
   assert.equal(typeof module.decodeBillingEntitlementRuntimeProof, 'function');
   assert.ok(module.BillingEntitlementRuntimeProofSchema);
-  return '@ocentra-parent/parent-domain/billing-entitlement-runtime-proof';
+  return '@ocentra-parent/schema-domain/billing-entitlement-runtime-proof';
 }
 
 async function assertDocumentationProof() {

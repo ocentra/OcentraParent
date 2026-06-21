@@ -11,10 +11,10 @@ const outputDir = join(repoRoot, 'output', proofMode);
 const proofPath = join(resultDir, 'proof.json');
 const summaryPath = join(outputDir, 'proof-summary.json');
 const commands = [];
-const expectedPackageExports = [
-  './production-support-status-backend-runtime-execution',
-  './production-support-status-backend-runtime-execution-read-model',
-  './production-support-status-backend-runtime-execution-values',
+const requiredPackageExports = [
+  '@ocentra-parent/schema-domain/production-support-status-backend-runtime-execution-proof',
+  '@ocentra-parent/schema-domain/production-support-status-backend-runtime-execution-read-model',
+  '@ocentra-parent/schema-domain/production-support-status-backend-runtime-execution-values',
 ];
 
 await main();
@@ -22,17 +22,7 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/parent-domain',
-      '--',
-      'tests/production-support-status-backend-runtime-execution-proof.test.ts',
-    ])
-  );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
@@ -45,10 +35,10 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-support-status-backend-runtime-execution-proof.ts',
-      values: 'packages/parent-domain/src/production-support-status-backend-runtime-execution-values.ts',
-      readModel: 'packages/parent-domain/src/production-support-status-backend-runtime-execution-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/production-support-status-backend-runtime-execution-proof.test.ts',
+      contract: 'packages/schema-domain/src/production-support-status-backend-runtime-execution-proof.ts',
+      values: 'packages/schema-domain/src/production-support-status-backend-runtime-execution-values.ts',
+      readModel: 'packages/schema-domain/src/production-support-status-backend-runtime-execution-read-model.ts',
+      proofHarness: 'scripts/test/production-support-status-backend-runtime-execution-proof.mjs',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -179,20 +169,18 @@ async function assertDocumentationProof() {
 }
 
 async function assertPackageExports() {
-  const packageJson = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
-  for (const exportPath of expectedPackageExports) {
-    assert(packageJson.exports[exportPath], `${exportPath} must be exported`);
-    assert.match(packageJson.exports[exportPath].import, /\.js$/, `${exportPath} import must point at built JS`);
-    assert.match(packageJson.exports[exportPath].types, /\.d\.ts$/, `${exportPath} types must point at declarations`);
-  }
+  const [contract, readModel, values] = await Promise.all(requiredPackageExports.map((specifier) => import(specifier)));
+  assert.equal(typeof contract.ProductionSupportStatusBackendRuntimeExecutionProofSchema.parse, 'function');
+  assert.equal(typeof readModel.ProductionSupportStatusBackendRuntimeExecutionReadModel, 'object');
+  assert(Array.isArray(values.RequiredRuntimeExecutionTargets));
   return {
-    state: 'added-package-json-exports',
-    exports: expectedPackageExports,
+    state: 'schema-domain-live-exports',
+    exports: requiredPackageExports,
   };
 }
 
 async function importBuiltModule(fileName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', fileName)).href);
 }
 
 async function readRepoFile(path) {

@@ -1,4 +1,4 @@
-import { EnforcementPolicyDispatchReadModel } from '@ocentra-parent/enforcement-domain/enforcement-policy-dispatch';
+import { EnforcementPolicyDispatchReadModel } from '@ocentra-parent/schema-domain/enforcement-policy-dispatch';
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentProtocolDefaults } from '../../src/contracts';
 import { parseEnforcementPolicyDispatchEvent } from '../../src/enforcement-policy-dispatch-adapter';

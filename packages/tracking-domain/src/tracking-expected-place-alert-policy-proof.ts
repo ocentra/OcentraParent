@@ -15,12 +15,12 @@ import {
   type TrackingLocationPolicyReadModel,
   type TrackingPolicyDecision,
   type TrackingPolicyRule,
-} from './tracking-location-policy';
+} from '@ocentra-parent/schema-domain/tracking-location-policy';
 import {
   TrackingPolicyAuditRefSchema,
   TrackingPolicyReasonCodeSchema,
   TrackingPolicySchemaVersion,
-} from './tracking-location-policy-primitives';
+} from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 
 export const TrackingExpectedPlaceAlertPolicyRowStatus = {
   AlertPolicyReady: 'alert-policy-ready',

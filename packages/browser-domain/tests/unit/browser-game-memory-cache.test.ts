@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type BrowserGameMemoryCacheSnapshot,
   BrowserGameMemoryCacheSnapshotSchema,
-} from '../../src/browser-game-memory-cache';
+} from '@ocentra-parent/schema-domain/browser-game-memory-cache';
 
 describe('browser-game memory cache contracts', () => {
   it('accepts bounded URL, category, and parent-decision memory refs', acceptsHonestSnapshot);

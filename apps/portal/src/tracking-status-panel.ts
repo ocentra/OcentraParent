@@ -1,27 +1,35 @@
 import {
-  PortalDetails,
   PortalDom,
   PortalText,
   PortalTextToken,
+  type PortalDisplayText,
+} from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import {
   TrackingEvidenceDrawerHostedUiProofDetails,
-  trackingFamilyDashboardHostedRollupProof,
   trackingEvidenceDrawerHostedUiProof,
-  trackingRetentionSettingsHostedUiProof,
+  type TrackingEvidenceDrawerHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-evidence-drawer-hosted-ui-proof';
+import {
+  trackingFamilyDashboardHostedRollupProof,
   trackingStatusLiveSummary,
   trackingStatusProofRows,
   trackingStatusServiceDataCoverage,
   trackingUnsupportedManualPlatformProof,
-  type PortalDetailValue,
-  type PortalDisplayText,
-  type TrackingEvidenceDrawerHostedUiProof,
   type TrackingFamilyDashboardHostedRollupProof,
   type TrackingStatusLiveCitation,
   type TrackingStatusLiveSummary,
-  type TrackingStatusProofArtifact,
   type TrackingStatusProofRow,
   type TrackingStatusServiceDataCoverage,
   type TrackingUnsupportedManualPlatformProof,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/tracking-status-panel';
+import {
+  trackingRetentionSettingsHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-retention-settings-hosted-ui-proof';
+import { type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
+import {
+  type TrackingStatusProofArtifact,
+} from '@ocentra-parent/portal-domain/tracking-status-proof-artifacts';
 import {
   trackingChildCheckInProof,
   trackingChildRuntimeUiProof,

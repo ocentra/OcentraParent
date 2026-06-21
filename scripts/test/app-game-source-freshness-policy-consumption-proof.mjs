@@ -15,22 +15,28 @@ async function main() {
   await mkdir(appGameProofDir, { recursive: true });
   await mkdir(appProofDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'app-game-source-freshness-policy-consumption',
+      '--run',
+      'tests/unit/app-game-source-freshness-policy-consumption.test.ts',
     ])
   );
 
-  const { AppGameSourceFreshnessPolicyConsumptionMatrix } =
-    await import('../../packages/parent-domain/dist/app-game-source-freshness-policy-consumption-data.js');
-  const summary = summarizeMatrix(AppGameSourceFreshnessPolicyConsumptionMatrix);
-  assertMatrix(AppGameSourceFreshnessPolicyConsumptionMatrix, summary);
+  const schemaConsumption = await import('@ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption');
+  commands.push('node import @ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption');
+  const { AppGameSourceFreshnessPolicyConsumptionMatrix: consumerMatrix } =
+    await import('../../packages/app-game-domain/dist/app-game-source-freshness-policy-consumption-data.js');
+  commands.push('node import packages/app-game-domain/dist/app-game-source-freshness-policy-consumption-data.js');
+  const matrix = schemaConsumption.decodeAppGameSourceFreshnessPolicyConsumptionMatrix(consumerMatrix);
+  const summary = summarizeMatrix(matrix);
+  assertMatrix(matrix, summary);
 
   const proof = {
     schemaVersion: 1,
@@ -40,11 +46,12 @@ async function main() {
     commands,
     counts: summary,
     evidence: {
-      tsContract: 'packages/parent-domain/src/app-game-source-freshness-policy-consumption.ts',
-      tsContractRules: 'packages/parent-domain/src/app-game-source-freshness-policy-consumption-rules.ts',
-      tsContractValues: 'packages/parent-domain/src/app-game-source-freshness-policy-consumption-values.ts',
-      tsContractData: 'packages/parent-domain/src/app-game-source-freshness-policy-consumption-data.ts',
-      tsContractTest: 'packages/parent-domain/tests/app-game-source-freshness-policy-consumption.test.ts',
+      schemaContract: 'packages/schema-domain/src/app-game-source-freshness-policy-consumption.ts',
+      schemaRules: 'packages/schema-domain/src/app-game-source-freshness-policy-consumption-rules.ts',
+      schemaValues: 'packages/schema-domain/src/app-game-source-freshness-policy-consumption-values.ts',
+      consumerEvaluator: 'packages/app-game-domain/src/app-game-source-freshness-policy-consumption.ts',
+      consumerData: 'packages/app-game-domain/src/app-game-source-freshness-policy-consumption-data.ts',
+      consumerTest: 'packages/app-game-domain/tests/unit/app-game-source-freshness-policy-consumption.test.ts',
       proofHarness: 'scripts/test/app-game-source-freshness-policy-consumption-proof.mjs',
       appGameProofPack: 'output/app-game-plan-proof/74-source-freshness-policy-consumption',
       appProofPack: 'output/app-plan-proof/74-source-freshness-policy-consumption',
@@ -112,14 +119,15 @@ async function writeProofPack(proofDir, proof) {
       '',
       'Inspected source inputs:',
       '',
-      '- `packages/activity-domain/src/activity-surface.ts` for `sourceStatusRows` shape.',
-      '- `packages/parent-domain/src/app-game-policy-target-compiler.ts` for existing policy compiler boundaries.',
-      '- `docs/features/app-game-control.md` and app/app-game plan WP47/WP72 docs for remaining source freshness gaps.',
+      '- `packages/schema-domain/src/app-game-source-freshness-policy-consumption.ts` for the canonical contract surface.',
+      '- `packages/schema-domain/src/app-game-source-freshness-policy-consumption-rules.ts` and `packages/schema-domain/src/app-game-source-freshness-policy-consumption-values.ts` for shared readiness rules and enums.',
+      '- `packages/app-game-domain/src/app-game-source-freshness-policy-consumption.ts` and `packages/app-game-domain/src/app-game-source-freshness-policy-consumption-data.ts` for the remaining evaluator/data consumer logic.',
       '',
       'Touched implementation:',
       '',
-      '- `packages/parent-domain/src/app-game-source-freshness-policy-consumption*.ts`',
-      '- `packages/parent-domain/tests/app-game-source-freshness-policy-consumption.test.ts`',
+      '- `packages/schema-domain/src/app-game-source-freshness-policy-consumption*.ts`',
+      '- `packages/app-game-domain/src/app-game-source-freshness-policy-consumption*.ts`',
+      '- `packages/app-game-domain/tests/unit/app-game-source-freshness-policy-consumption.test.ts`',
       '- `scripts/test/app-game-source-freshness-policy-consumption-proof.mjs`',
       '',
     ].join('\n')
@@ -127,8 +135,11 @@ async function writeProofPack(proofDir, proof) {
   await writeText(
     join(proofDir, '01-contract-proof.log'),
     [
-      'cmd /c npm run build:contracts: PASS',
-      'cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-freshness-policy-consumption: PASS',
+      'cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      'cmd /c npm run build --workspace @ocentra-parent/app-game-domain: PASS',
+      'cmd /c npm run test --workspace @ocentra-parent/app-game-domain -- --run tests/unit/app-game-source-freshness-policy-consumption.test.ts: PASS',
+      'node import @ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption: PASS',
+      'node import packages/app-game-domain/dist/app-game-source-freshness-policy-consumption-data.js: PASS',
       '',
       'Contract proof covers policy-ready native app/game rows, manual-required stale/missing/not-claimed rows,',
       'evidence-ref requirements, target-ref requirements, and negative adapter-dispatch/private-row cases.',
@@ -137,7 +148,7 @@ async function writeProofPack(proofDir, proof) {
   );
   await writeText(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Not applicable: WP74 is a parent-domain policy-readiness contract proof and does not add Rust protocol fields.\n'
+    'Not applicable: WP74 proves a schema-domain contract plus an app-game-domain consumer and does not add Rust protocol fields.\n'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), {
     schemaVersion: 1,

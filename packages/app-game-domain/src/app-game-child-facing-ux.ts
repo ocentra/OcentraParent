@@ -4,7 +4,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentActionReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
+import { ParentActionReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
 import { ParentContractSchemaVersionSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   AppGameChildUxCapabilityState,
@@ -18,7 +18,7 @@ import {
   appGameChildUxCopyTokensMatchSurface,
   appGameChildUxRequestRefsAreAuditable,
   appGameChildUxStateIsHonest,
-} from './app-game-child-facing-ux-rules';
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-rules';
 
 export const AppGameChildUxStateIdSchema = brandedNonEmptyStringSchema('AppGameChildUxStateId');
 export const AppGameChildUxTargetRefSchema = brandedNonEmptyStringSchema('AppGameChildUxTargetRef');

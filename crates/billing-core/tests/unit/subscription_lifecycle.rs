@@ -1,12 +1,13 @@
 use ocentra_billing_core::billing_subscription::{
     decide_billing_provider_webhook, project_billing_entitlement_transition,
     project_billing_entitlement_transition_event, record_billing_provider_webhook_decision_event,
-    BillingAccountMatchState, BillingAggregateId, BillingEntitlementScope,
-    BillingEntitlementTransitionState, BillingEntitlementUpdateRequirement,
-    BillingEntitlementWriteState, BillingManualReviewRequirement, BillingProviderDuplicateState,
+    BillingAccountMatchState, BillingAggregateId, BillingCollectionRecoveryState,
+    BillingDisputeLifecycleState, BillingEntitlementScope, BillingEntitlementTransitionState,
+    BillingEntitlementUpdateRequirement, BillingEntitlementWriteState,
+    BillingManualReviewRequirement, BillingProviderDuplicateState,
     BillingProviderEventDecisionState, BillingProviderEventId, BillingProviderEventKind,
     BillingProviderSignatureState, BillingProviderWebhookEvent,
-    BillingProviderWebhookReceivedEvent, BillingSubscriptionLifecycleState,
+    BillingProviderWebhookReceivedEvent, BillingRefundLifecycleState, BillingSubscriptionStatus,
 };
 use ocentra_eventing::envelope::DomainEvent;
 
@@ -17,7 +18,10 @@ const BILLING_DECISION_EVENT_TYPE: &str = "billing.provider-webhook.decision-rec
 const BILLING_TRANSITION_EVENT_TYPE: &str = "billing.entitlement.transition-projected";
 
 fn provider_event(
-    lifecycle_state: BillingSubscriptionLifecycleState,
+    subscription_status: BillingSubscriptionStatus,
+    collection_recovery_state: BillingCollectionRecoveryState,
+    refund_state: BillingRefundLifecycleState,
+    dispute_state: BillingDisputeLifecycleState,
     signature_state: BillingProviderSignatureState,
 ) -> BillingProviderWebhookEvent {
     BillingProviderWebhookEvent {
@@ -27,7 +31,10 @@ fn provider_event(
         signature_state,
         duplicate_state: BillingProviderDuplicateState::Fresh,
         account_match_state: BillingAccountMatchState::Matched,
-        lifecycle_state,
+        subscription_status,
+        collection_recovery_state,
+        refund_state,
+        dispute_state,
     }
 }
 
@@ -36,7 +43,10 @@ fn verified_active_subscription_requires_entitlement_grant_without_review() {
     let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
         event_kind: BillingProviderEventKind::CheckoutCompleted,
         ..provider_event(
-            BillingSubscriptionLifecycleState::Active,
+            BillingSubscriptionStatus::Active,
+            BillingCollectionRecoveryState::Active,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingProviderSignatureState::Verified,
         )
     });
@@ -72,7 +82,10 @@ fn subscription_deleted_projects_household_revocation() {
     let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
         event_kind: BillingProviderEventKind::SubscriptionDeleted,
         ..provider_event(
-            BillingSubscriptionLifecycleState::Canceled,
+            BillingSubscriptionStatus::Cancelled,
+            BillingCollectionRecoveryState::Cancelled,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingProviderSignatureState::Verified,
         )
     });
@@ -94,7 +107,10 @@ fn grace_lifecycle_projects_household_grace_access() {
     let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
         event_kind: BillingProviderEventKind::SubscriptionUpdated,
         ..provider_event(
-            BillingSubscriptionLifecycleState::Grace,
+            BillingSubscriptionStatus::Grace,
+            BillingCollectionRecoveryState::Grace,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingProviderSignatureState::Verified,
         )
     });
@@ -116,65 +132,109 @@ fn supported_webhook_event_classes_follow_the_subscription_lifecycle_projection_
     let scenarios = [
         (
             BillingProviderEventKind::SubscriptionCreated,
-            BillingSubscriptionLifecycleState::Trialing,
+            BillingSubscriptionStatus::Trialing,
+            BillingCollectionRecoveryState::Trialing,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingEntitlementTransitionState::GrantFullAccess,
         ),
         (
             BillingProviderEventKind::SubscriptionCreated,
-            BillingSubscriptionLifecycleState::Active,
+            BillingSubscriptionStatus::Active,
+            BillingCollectionRecoveryState::Active,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingEntitlementTransitionState::GrantFullAccess,
         ),
         (
             BillingProviderEventKind::InvoicePaid,
-            BillingSubscriptionLifecycleState::Active,
+            BillingSubscriptionStatus::Active,
+            BillingCollectionRecoveryState::Active,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingEntitlementTransitionState::GrantFullAccess,
         ),
         (
             BillingProviderEventKind::PaymentIntentSucceeded,
-            BillingSubscriptionLifecycleState::Active,
+            BillingSubscriptionStatus::Active,
+            BillingCollectionRecoveryState::Active,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingEntitlementTransitionState::GrantFullAccess,
         ),
         (
             BillingProviderEventKind::InvoicePaymentFailed,
-            BillingSubscriptionLifecycleState::PastDue,
+            BillingSubscriptionStatus::PastDue,
+            BillingCollectionRecoveryState::PastDue,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingEntitlementTransitionState::LimitAccess,
         ),
         (
             BillingProviderEventKind::PaymentIntentFailed,
-            BillingSubscriptionLifecycleState::PastDue,
+            BillingSubscriptionStatus::PastDue,
+            BillingCollectionRecoveryState::PastDue,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingEntitlementTransitionState::LimitAccess,
         ),
         (
             BillingProviderEventKind::SubscriptionUpdated,
-            BillingSubscriptionLifecycleState::Grace,
+            BillingSubscriptionStatus::Grace,
+            BillingCollectionRecoveryState::Grace,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingEntitlementTransitionState::GraceAccess,
         ),
         (
             BillingProviderEventKind::CustomerPortalUpdated,
-            BillingSubscriptionLifecycleState::Canceled,
+            BillingSubscriptionStatus::Cancelled,
+            BillingCollectionRecoveryState::Cancelled,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingEntitlementTransitionState::RevokeAccess,
         ),
         (
             BillingProviderEventKind::CustomerPortalUpdated,
-            BillingSubscriptionLifecycleState::DisputeLost,
+            BillingSubscriptionStatus::Cancelled,
+            BillingCollectionRecoveryState::Cancelled,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::DisputeLost,
             BillingEntitlementTransitionState::RevokeAccess,
         ),
         (
             BillingProviderEventKind::SubscriptionUpdated,
-            BillingSubscriptionLifecycleState::DisputeWon,
+            BillingSubscriptionStatus::Active,
+            BillingCollectionRecoveryState::Active,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::DisputeWon,
             BillingEntitlementTransitionState::GrantFullAccess,
         ),
     ];
 
-    for (event_kind, lifecycle_state, expected_transition_state) in scenarios {
+    for (
+        event_kind,
+        subscription_status,
+        collection_recovery_state,
+        refund_state,
+        dispute_state,
+        expected_transition_state,
+    ) in scenarios
+    {
         let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
             event_kind,
-            ..provider_event(lifecycle_state, BillingProviderSignatureState::Verified)
+            ..provider_event(
+                subscription_status,
+                collection_recovery_state,
+                refund_state,
+                dispute_state,
+                BillingProviderSignatureState::Verified,
+            )
         });
         let transition =
             project_billing_entitlement_transition(decision, BillingEntitlementScope::Household);
 
-        assert_eq!(transition.lifecycle_state, lifecycle_state);
+        assert_eq!(transition.subscription_status, subscription_status);
         assert_eq!(transition.transition_state, expected_transition_state);
         assert_eq!(
             transition.write_state,
@@ -188,15 +248,21 @@ fn remaining_lifecycle_edges_preserve_manual_review_and_write_rules() {
     let scenarios = [
         (
             BillingProviderEventKind::SubscriptionUpdated,
-            BillingSubscriptionLifecycleState::Unpaid,
-            BillingEntitlementTransitionState::RevokeAccess,
+            BillingSubscriptionStatus::PastDue,
+            BillingCollectionRecoveryState::Unpaid,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
+            BillingEntitlementTransitionState::LimitAccess,
             BillingEntitlementWriteState::WriteRequired,
             BillingEntitlementUpdateRequirement::Required,
             BillingManualReviewRequirement::NotRequired,
         ),
         (
             BillingProviderEventKind::SubscriptionUpdated,
-            BillingSubscriptionLifecycleState::Refunded,
+            BillingSubscriptionStatus::Cancelled,
+            BillingCollectionRecoveryState::Cancelled,
+            BillingRefundLifecycleState::RefundSettled,
+            BillingDisputeLifecycleState::None,
             BillingEntitlementTransitionState::RevokeAccess,
             BillingEntitlementWriteState::WriteRequired,
             BillingEntitlementUpdateRequirement::Required,
@@ -204,7 +270,10 @@ fn remaining_lifecycle_edges_preserve_manual_review_and_write_rules() {
         ),
         (
             BillingProviderEventKind::DisputeOpened,
-            BillingSubscriptionLifecycleState::Disputed,
+            BillingSubscriptionStatus::Active,
+            BillingCollectionRecoveryState::SupportRequired,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::DisputeOpened,
             BillingEntitlementTransitionState::HoldForReview,
             BillingEntitlementWriteState::WriteRequired,
             BillingEntitlementUpdateRequirement::Required,
@@ -212,15 +281,21 @@ fn remaining_lifecycle_edges_preserve_manual_review_and_write_rules() {
         ),
         (
             BillingProviderEventKind::CustomerPortalUpdated,
-            BillingSubscriptionLifecycleState::SupportRequired,
-            BillingEntitlementTransitionState::NoWrite,
-            BillingEntitlementWriteState::DoNotWrite,
-            BillingEntitlementUpdateRequirement::NotRequired,
+            BillingSubscriptionStatus::Active,
+            BillingCollectionRecoveryState::SupportRequired,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
+            BillingEntitlementTransitionState::HoldForReview,
+            BillingEntitlementWriteState::WriteRequired,
+            BillingEntitlementUpdateRequirement::Required,
             BillingManualReviewRequirement::Required,
         ),
         (
             BillingProviderEventKind::CustomerPortalUpdated,
-            BillingSubscriptionLifecycleState::Unknown,
+            BillingSubscriptionStatus::Unknown,
+            BillingCollectionRecoveryState::SupportRequired,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingEntitlementTransitionState::NoWrite,
             BillingEntitlementWriteState::DoNotWrite,
             BillingEntitlementUpdateRequirement::NotRequired,
@@ -230,7 +305,10 @@ fn remaining_lifecycle_edges_preserve_manual_review_and_write_rules() {
 
     for (
         event_kind,
-        lifecycle_state,
+        subscription_status,
+        collection_recovery_state,
+        refund_state,
+        dispute_state,
         expected_transition_state,
         expected_write_state,
         expected_update_requirement,
@@ -239,7 +317,13 @@ fn remaining_lifecycle_edges_preserve_manual_review_and_write_rules() {
     {
         let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
             event_kind,
-            ..provider_event(lifecycle_state, BillingProviderSignatureState::Verified)
+            ..provider_event(
+                subscription_status,
+                collection_recovery_state,
+                refund_state,
+                dispute_state,
+                BillingProviderSignatureState::Verified,
+            )
         });
         let transition = project_billing_entitlement_transition(
             decision.clone(),
@@ -258,7 +342,7 @@ fn remaining_lifecycle_edges_preserve_manual_review_and_write_rules() {
             decision.manual_review_requirement,
             expected_manual_review_requirement
         );
-        assert_eq!(transition.lifecycle_state, lifecycle_state);
+        assert_eq!(transition.subscription_status, subscription_status);
         assert_eq!(transition.transition_state, expected_transition_state);
         assert_eq!(transition.write_state, expected_write_state);
         assert_eq!(
@@ -271,7 +355,10 @@ fn remaining_lifecycle_edges_preserve_manual_review_and_write_rules() {
 #[test]
 fn invalid_signature_blocks_entitlement_write_and_requires_manual_review() {
     let decision = decide_billing_provider_webhook(provider_event(
-        BillingSubscriptionLifecycleState::Active,
+        BillingSubscriptionStatus::Active,
+        BillingCollectionRecoveryState::Active,
+        BillingRefundLifecycleState::None,
+        BillingDisputeLifecycleState::None,
         BillingProviderSignatureState::Invalid,
     ));
     let transition = project_billing_entitlement_transition(
@@ -303,7 +390,10 @@ fn webhook_decision_projects_typed_entitlement_transition_event() {
         aggregate_id: BillingAggregateId::parse(BILLING_AGGREGATE_ID)
             .expect("billing aggregate id"),
         provider_event: provider_event(
-            BillingSubscriptionLifecycleState::PastDue,
+            BillingSubscriptionStatus::PastDue,
+            BillingCollectionRecoveryState::PastDue,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingProviderSignatureState::Verified,
         ),
     };

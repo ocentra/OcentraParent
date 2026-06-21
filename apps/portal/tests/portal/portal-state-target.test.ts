@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { decodeAgentWebSocketUrl } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { decodeAgentWebSocketUrl } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { createPortalRuntimeState } from '../../src/portal-state';
 
 it('createPortalRuntimeState: keeps LAN-hosted portal commands on the local service route by default', () => {

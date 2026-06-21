@@ -5,13 +5,13 @@ import {
   brandedNonEmptyStringSchema,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
+import { ActivityEvidenceIdSchema, ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 import {
   BrowserHiddenAnalysisDegradedReasonSchema,
   BrowserHiddenAnalysisProfileDesignIdSchema,
   BrowserHiddenAnalysisProfileDesignSchema,
   BrowserHiddenAnalysisStateSchema,
-} from './browser-hidden-analysis-schemas';
+} from '@ocentra-parent/schema-domain/browser-hidden-analysis-schemas';
 
 export const BrowserHiddenAnalysisLoaderSchemaVersion = 1;
 const OptionalHiddenAnalysisLoaderTextSchema = Schema.Union(NonEmptyStringSchema, Schema.Null);

@@ -13,13 +13,13 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/notification-domain',
       '--',
       'v0-8-notification-provider-status-boundary',
     ])
@@ -29,7 +29,7 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/notification-domain',
       '--',
       'v3-notification-rule-provider-retry-contract',
     ])
@@ -39,7 +39,7 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/enforcement-domain',
       '--',
       'v0-8-enforcement-integrity-runtime-audit',
     ])
@@ -60,11 +60,11 @@ async function main() {
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'enforcement_integrity_runtime_audit']);
 
   const { V08NotificationProviderStatusBoundaryReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-notification-provider-status-boundary.js');
+    await import('@ocentra-parent/schema-domain/v0-8-notification-provider-status-boundary');
   const { V3NotificationRuleProviderRetryContractReadModel } =
-    await import('../../packages/parent-domain/dist/v3-notification-rule-provider-retry-contract.js');
+    await import('@ocentra-parent/schema-domain/notification-v3-provider-retry');
   const { V08EnforcementIntegrityRuntimeAuditReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-supported-adapter-runtime-proof.js');
+    await import('@ocentra-parent/schema-domain/v0-8-enforcement-integrity-runtime-audit');
   const summary = summarizeReadModel(V08NotificationProviderStatusBoundaryReadModel);
   const v3ContractSummary = summarizeV3ContractReadModel(V3NotificationRuleProviderRetryContractReadModel);
 
@@ -84,13 +84,13 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/parent-domain/src/v0-8-notification-provider-status-boundary.ts',
-      tsContractTest: 'packages/parent-domain/tests/v0-8-notification-provider-status-boundary.test.ts',
+      tsContract: 'packages/schema-domain/src/v0-8-notification-provider-status-boundary.ts',
+      tsContractTest: 'packages/notification-domain/tests/unit/v0-8-notification-provider-status-boundary.test.ts',
       tsV3NotificationRuleProviderRetryContract:
-        'packages/parent-domain/src/v3-notification-rule-provider-retry-contract.ts',
+        'packages/schema-domain/src/notification-v3-provider-retry.ts',
       tsV3NotificationRuleProviderRetryContractTest:
-        'packages/parent-domain/tests/v3-notification-rule-provider-retry-contract.test.ts',
-      tsNestedAuditContract: 'packages/parent-domain/src/v0-8-enforcement-integrity-runtime-audit.ts',
+        'packages/notification-domain/tests/unit/v3-notification-rule-provider-retry-contract.test.ts',
+      tsNestedAuditContract: 'packages/schema-domain/src/v0-8-enforcement-integrity-runtime-audit.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-supported-adapter-runtime-proof-adapter.ts',
       rustProtocol: 'crates/agent-protocol/src/notification_provider_status_boundary.rs',
       rustProtocolTest: 'crates/agent-protocol/src/notification_provider_status_boundary_tests.rs',

@@ -27,13 +27,13 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-android-accessibility-overlay-preflight',
       'app-game-android-physical-device-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
   runAdb(['connect', adbTarget]);
   assertPhysicalDevice(runAdb(['devices', '-l']).stdout);
@@ -43,7 +43,7 @@ async function main() {
   );
   const preflightModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-accessibility-overlay-preflight.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-accessibility-overlay-preflight.js')
     ).href
   );
   const preflight = preflightModule.createAppGameAndroidAccessibilityOverlayPreflightReadModel({
@@ -74,8 +74,8 @@ async function main() {
     preflight,
     summary,
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-android-accessibility-overlay-preflight.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-android-accessibility-overlay-preflight.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-android-accessibility-overlay-preflight.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-android-accessibility-overlay-preflight.test.ts',
       physicalDeviceProof: 'test-results/app-game-android-physical-device-proof/proof.json',
       settingsProof:
         'adb shell settings get secure accessibility_enabled and enabled_accessibility_services were sampled; service/component names are redacted and only the enabled count is stored.',

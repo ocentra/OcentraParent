@@ -10,9 +10,9 @@ use ocentra_eventing::{
 #[cfg(test)]
 use ocentra_eventing::clock::ManualEventClock;
 
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::{constants, NetworkRuntimePhase};
 
-use crate::{network_event_runtime_phase::NetworkRuntimePhase, NetworkObservation};
+use crate::NetworkObservation;
 
 use super::{network_event_metadata, NetworkRuntimeEventPayload};
 
@@ -162,7 +162,8 @@ async fn publish_flow_observation(
     observed_at: &str,
 ) -> Result<ocentra_eventing::bus::reports::PublishReport, EventingError> {
     let phase = NetworkRuntimePhase::FlowObserved;
-    let payload = NetworkRuntimeEventPayload::from_observation(phase, observation, observed_at);
+    let payload =
+        super::network_runtime_event_payload_from_observation(phase, observation, observed_at);
     let metadata = network_event_metadata(phase, observation, observed_at, phase.target_handler())?;
     bus.publish(payload, metadata).await
 }

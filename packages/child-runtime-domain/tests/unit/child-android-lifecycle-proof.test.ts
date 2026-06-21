@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type ChildAndroidLifecycleReadModel,
   ChildAndroidLifecycleReadModelSchema,
-} from '../../src/child-android-lifecycle-proof';
+} from '@ocentra-parent/schema-domain/child-android-lifecycle-proof';
 
 describe('child android lifecycle proof contracts', () => {
   it('ChildAndroidLifecycleReadModelSchema: accepts package-local protocol bridge and split Android capability states', () => {

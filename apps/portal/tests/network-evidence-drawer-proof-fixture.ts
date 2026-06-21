@@ -7,18 +7,18 @@ import {
   ActivityNetworkProtocolSchema,
   ActivityNetworkTcpStateSchema,
   ActivityProcessAttributionStatusSchema,
-} from '@ocentra-parent/activity-domain/capture';
+} from '@ocentra-parent/schema-domain/activity-capture';
 import {
   ActivityEventKindSchema,
   ActivityObserverSchema,
   ActivitySubjectKindSchema,
-} from '@ocentra-parent/evidence-domain/kinds';
+} from '@ocentra-parent/schema-domain/evidence-kinds';
 import {
   ActivityNetworkAdapterIdSchema,
   ActivityNetworkDomainNameSchema,
   ActivityNetworkEndpointAddressSchema,
   ActivityNetworkProcessNameSchema,
-} from '@ocentra-parent/network-domain/network-flow';
+} from '@ocentra-parent/schema-domain/network-flow';
 import {
   decodeActivityDeviceId,
   decodeActivityEvidenceDigest,
@@ -27,7 +27,7 @@ import {
   decodeActivityPlatform,
   decodeActivitySubjectId,
   decodeActivitySubjectName,
-} from '@ocentra-parent/evidence-domain/primitives';
+} from '@ocentra-parent/schema-domain/evidence-primitives';
 
 type NetworkEvidenceDrawerProofFixture = {
   readonly eventId: string;

@@ -3,7 +3,7 @@ import {
   ScreenAiModelRuntimeBackpressureProofSchema,
   buildScreenAiModelRuntimeBackpressureProof,
   screenAiModelRuntimeBackpressureSummary,
-} from '../../src/screen-ai-model-runtime-backpressure-proof';
+} from '@ocentra-parent/schema-domain/screen-ai-model-runtime-backpressure-proof';
 
 const generatedAt = '2026-06-06T01:20:00.000Z';
 const physicalDeviceId = 'child-laptop-physical-1';

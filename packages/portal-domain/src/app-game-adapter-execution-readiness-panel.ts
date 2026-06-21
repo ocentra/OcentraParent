@@ -1,10 +1,13 @@
 import {
+  type AgentAppGameAdapterExecutionReadinessResult,
+} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-execution-readiness';
+import {
   AgentAppGameAdapterExecutionDecision,
   AgentAppGameAdapterExecutionState,
-  type AgentAppGameAdapterExecutionReadinessReadModel,
-  type AgentAppGameAdapterExecutionReadinessResult,
-  type AgentAppGameAdapterExecutionReadinessRow,
-} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-execution-readiness';
+  AgentAppGameAdapterHostCapabilityState,
+  type AppGameAdapterExecutionReadinessReadModel,
+  type AppGameAdapterExecutionReadinessRow,
+} from '@ocentra-parent/schema-domain/app-game-adapter-execution-readiness';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDetails, PortalReadableValues } from './details';
 
@@ -109,28 +112,44 @@ function baseIntent() {
 }
 
 function readModelSummary(
-  readModel: AgentAppGameAdapterExecutionReadinessReadModel
+  readModel: AppGameAdapterExecutionReadinessReadModel
 ): readonly AppGameAdapterExecutionReadinessPanelDetail[] {
+  const executionAllowedCount = readModel.rows.filter(
+    (row) => row.executionDecision === AgentAppGameAdapterExecutionDecision.ExecutionAllowed
+  ).length;
+  const blockedBeforeExecutionCount = readModel.rows.length - executionAllowedCount;
+  const adapterExecutionClaimed = readModel.rows.some((row) => row.adapterExecutionClaimed);
+  const hostCapabilityAvailableCount = readModel.rows.filter(
+    (row) => row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.Available
+  ).length;
+  const hostCapabilityNotDetectedCount = readModel.rows.filter(
+    (row) => row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.NotDetected
+  ).length;
+  const hostCapabilityNotApplicableCount = readModel.rows.filter(
+    (row) => row.hostCapabilityState === AgentAppGameAdapterHostCapabilityState.NotApplicable
+  ).length;
+  const hostCapabilityProbeRefCount = readModel.rows.reduce((count, row) => count + row.hostCapabilityProbeRefs.length, 0);
+
   return [
     detail(PortalDetails.Status, adapterReadinessLoadState(readModel)),
     detail(PortalDetails.GeneratedAt, displayText(readModel.generatedAt)),
-    detail(PortalDetails.Custody, displayText(readModel.custodyLabel)),
-    detail(PortalDetails.Capability, displayText(readModel.capabilityStatus)),
-    detail(PortalDetails.RowsReturned, countText(readModel.returned)),
-    detail(PortalDetails.ReadModelRows, countText(readModel.executionAllowedCount)),
-    detail(PortalDetails.ManualReview, countText(readModel.blockedBeforeExecutionCount)),
-    detail(PortalDetails.AdapterDispatch, claimedValue(readModel.adapterExecutionClaimedCount > 0)),
-    detail(HostAvailableRows, countText(readModel.hostCapabilityAvailableCount)),
-    detail(HostNotDetectedRows, countText(readModel.hostCapabilityNotDetectedCount)),
-    detail(HostNotApplicableRows, countText(readModel.hostCapabilityNotApplicableCount)),
-    detail(HostProbeRefs, countText(readModel.hostCapabilityProbeRefCount)),
-    detail(PortalDetails.PlatformState, claimedValue(readModel.platformEnforcementClaimed)),
-    detail(PortalDetails.ChildDelivery, claimedValue(readModel.childDeviceDeliveryClaimed)),
+    detail(PortalDetails.Custody, joinedOrNotReported(readModel.sourceReadModelIds)),
+    detail(PortalDetails.Capability, joinedOrNotReported(uniqueValues(readModel.rows.map((row) => row.adapterCapability)))),
+    detail(PortalDetails.RowsReturned, countText(readModel.rows.length)),
+    detail(PortalDetails.ReadModelRows, countText(executionAllowedCount)),
+    detail(PortalDetails.ManualReview, countText(blockedBeforeExecutionCount)),
+    detail(PortalDetails.AdapterDispatch, claimedValue(adapterExecutionClaimed)),
+    detail(HostAvailableRows, countText(hostCapabilityAvailableCount)),
+    detail(HostNotDetectedRows, countText(hostCapabilityNotDetectedCount)),
+    detail(HostNotApplicableRows, countText(hostCapabilityNotApplicableCount)),
+    detail(HostProbeRefs, countText(hostCapabilityProbeRefCount)),
+    detail(PortalDetails.PlatformState, claimedValue(readModel.rows.some((row) => row.platformEnforcementClaimed))),
+    detail(PortalDetails.ChildDelivery, claimedValue(readModel.rows.some((row) => row.childDeviceDeliveryClaimed))),
     detail(PortalDetails.ProductClaim, ProductClaim),
   ];
 }
 
-function adapterReadinessRow(row: AgentAppGameAdapterExecutionReadinessRow): AppGameAdapterExecutionReadinessPanelRow {
+function adapterReadinessRow(row: AppGameAdapterExecutionReadinessRow): AppGameAdapterExecutionReadinessPanelRow {
   return {
     title: displayText(row.sourceProofEntryId),
     details: [
@@ -153,11 +172,17 @@ function adapterReadinessRow(row: AgentAppGameAdapterExecutionReadinessRow): App
   };
 }
 
-function adapterReadinessLoadState(readModel: AgentAppGameAdapterExecutionReadinessReadModel): DisplayText {
-  if (readModel.returned === 0) {
+function adapterReadinessLoadState(readModel: AppGameAdapterExecutionReadinessReadModel): DisplayText {
+  if (readModel.rows.length === 0) {
     return Readable.Unavailable;
   }
-  if (readModel.executionAllowedCount > 0 && readModel.blockedBeforeExecutionCount > 0) {
+  const hasExecutionAllowed = readModel.rows.some(
+    (row) => row.executionDecision === AgentAppGameAdapterExecutionDecision.ExecutionAllowed
+  );
+  const hasBlockedBeforeExecution = readModel.rows.some(
+    (row) => row.executionDecision === AgentAppGameAdapterExecutionDecision.BlockedBeforeExecution
+  );
+  if (hasExecutionAllowed && hasBlockedBeforeExecution) {
     return Readable.Review;
   }
   return Readable.Ready;
@@ -179,6 +204,10 @@ function joinedOrNotReported(values: readonly string[]): DisplayText {
     return decodeDisplayText('Not reported');
   }
   return displayText(values.join(DetailSeparator));
+}
+
+function uniqueValues(values: readonly string[]): readonly string[] {
+  return [...new Set(values)];
 }
 
 function requiredReadableValue(key: string): DisplayText {

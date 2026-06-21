@@ -1,9 +1,29 @@
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    AggregateKey, EventCustody, EventType, IdempotencyKey, RuntimeRole, SchemaVersion,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    AgentLogSnapshot, LogFields, PolicyAssistantConfirmationState, PolicyRequestOrigin,
-    PolicyRequestStatus,
+    parent_controller_events::{
+        ParentActionReceivedEvent, ParentChildCommandForwardRequestedEvent,
+        ParentChildCommandForwardedEvent, ParentCommandValidatedEvent,
+        ParentReadModelProjectedEvent,
+    },
+    AgentLogSnapshot, ChildCapabilityStateUpdatedEvent, ChildCommandAcceptedEvent,
+    ChildCommandReceivedEvent, ChildRuntimeHealthUpdatedEvent, LogFields,
+    PolicyAssistantConfirmationState, PolicyRequestOrigin, PolicyRequestStatus,
 };
+
+pub mod parent_child_runtime_input;
+
+#[derive(Clone, Debug)]
+pub struct ParentChildRuntimeReport {
+    pub publish_reports: Vec<ocentra_eventing::bus::reports::PublishReport>,
+    pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
+    pub dead_letters: Vec<ocentra_eventing::bus::reports::DeadLetter>,
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AgentPeerRole {
@@ -604,6 +624,249 @@ pub struct AgentEventEnvelope {
     pub severity: crate::LogLevel,
     pub payload: LogFields,
     pub snapshot: Option<AgentLogSnapshot>,
+}
+
+const PARENT_CHILD_RUNTIME_PHASES: [ParentChildRuntimePhase; 9] = [
+    ParentChildRuntimePhase::ParentActionReceived,
+    ParentChildRuntimePhase::ParentCommandValidated,
+    ParentChildRuntimePhase::ParentChildCommandForwardRequested,
+    ParentChildRuntimePhase::ParentChildCommandForwarded,
+    ParentChildRuntimePhase::ChildCommandReceived,
+    ParentChildRuntimePhase::ChildCommandAccepted,
+    ParentChildRuntimePhase::ChildCapabilityStateUpdated,
+    ParentChildRuntimePhase::ChildRuntimeHealthUpdated,
+    ParentChildRuntimePhase::ParentReadModelProjected,
+];
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentChildRuntimePhase {
+    ParentActionReceived,
+    ParentCommandValidated,
+    ParentChildCommandForwardRequested,
+    ParentChildCommandForwarded,
+    ChildCommandReceived,
+    ChildCommandAccepted,
+    ChildCapabilityStateUpdated,
+    ChildRuntimeHealthUpdated,
+    ParentReadModelProjected,
+}
+
+impl ParentChildRuntimePhase {
+    pub fn ordered_chain() -> &'static [Self] {
+        &PARENT_CHILD_RUNTIME_PHASES
+    }
+
+    pub fn event_type(self) -> &'static str {
+        match self {
+            Self::ParentActionReceived => {
+                crate::constants::parent_controller::EVENT_PARENT_ACTION_RECEIVED
+            }
+            Self::ParentCommandValidated => {
+                crate::constants::parent_controller::EVENT_COMMAND_VALIDATED
+            }
+            Self::ParentChildCommandForwardRequested => {
+                crate::constants::parent_controller::EVENT_CHILD_COMMAND_FORWARD_REQUESTED
+            }
+            Self::ParentChildCommandForwarded => {
+                crate::constants::parent_controller::EVENT_CHILD_COMMAND_FORWARDED
+            }
+            Self::ChildCommandReceived => crate::constants::child_agent::EVENT_COMMAND_RECEIVED,
+            Self::ChildCommandAccepted => crate::constants::child_agent::EVENT_COMMAND_ACCEPTED,
+            Self::ChildCapabilityStateUpdated => {
+                crate::constants::child_agent::EVENT_CAPABILITY_STATE_UPDATED
+            }
+            Self::ChildRuntimeHealthUpdated => {
+                crate::constants::child_agent::EVENT_RUNTIME_HEALTH_UPDATED
+            }
+            Self::ParentReadModelProjected => {
+                crate::constants::parent_controller::EVENT_READ_MODEL_PROJECTED
+            }
+        }
+    }
+
+    pub fn schema_version(self) -> u16 {
+        if self.is_child_agent_phase() {
+            crate::constants::child_agent::EVENT_SCHEMA_VERSION
+        } else {
+            crate::constants::parent_controller::EVENT_SCHEMA_VERSION
+        }
+    }
+
+    pub fn subscriber_id(self) -> &'static str {
+        match self {
+            Self::ParentActionReceived => {
+                crate::constants::parent_controller::SUBSCRIBER_PARENT_ACTION_VALIDATOR
+            }
+            Self::ParentCommandValidated => {
+                crate::constants::parent_controller::SUBSCRIBER_PARENT_COMMAND_VALIDATOR
+            }
+            Self::ParentChildCommandForwardRequested | Self::ParentChildCommandForwarded => {
+                crate::constants::parent_controller::SUBSCRIBER_PARENT_CHILD_TRANSPORT
+            }
+            Self::ChildCommandReceived => {
+                crate::constants::child_agent::SUBSCRIBER_CHILD_COMMAND_RECEIVER
+            }
+            Self::ChildCommandAccepted => {
+                crate::constants::child_agent::SUBSCRIBER_CHILD_COMMAND_DECIDER
+            }
+            Self::ChildCapabilityStateUpdated => {
+                crate::constants::child_agent::SUBSCRIBER_CHILD_CAPABILITY_PROJECTOR
+            }
+            Self::ChildRuntimeHealthUpdated => {
+                crate::constants::child_agent::SUBSCRIBER_CHILD_HEALTH_PROJECTOR
+            }
+            Self::ParentReadModelProjected => {
+                crate::constants::parent_controller::SUBSCRIBER_PARENT_READ_MODEL_PROJECTOR
+            }
+        }
+    }
+
+    pub fn target_handler(self) -> &'static str {
+        match self {
+            Self::ParentActionReceived => {
+                crate::constants::parent_controller::TARGET_PARENT_ACTION_VALIDATOR
+            }
+            Self::ParentCommandValidated => {
+                crate::constants::parent_controller::TARGET_PARENT_COMMAND_VALIDATOR
+            }
+            Self::ParentChildCommandForwardRequested | Self::ParentChildCommandForwarded => {
+                crate::constants::parent_controller::TARGET_PARENT_CHILD_TRANSPORT
+            }
+            Self::ChildCommandReceived => {
+                crate::constants::child_agent::TARGET_CHILD_COMMAND_RECEIVER
+            }
+            Self::ChildCommandAccepted => {
+                crate::constants::child_agent::TARGET_CHILD_COMMAND_DECIDER
+            }
+            Self::ChildCapabilityStateUpdated => {
+                crate::constants::child_agent::TARGET_CHILD_CAPABILITY_PROJECTOR
+            }
+            Self::ChildRuntimeHealthUpdated => {
+                crate::constants::child_agent::TARGET_CHILD_HEALTH_PROJECTOR
+            }
+            Self::ParentReadModelProjected => {
+                crate::constants::parent_controller::TARGET_PARENT_READ_MODEL_PROJECTOR
+            }
+        }
+    }
+
+    pub fn runtime_role(self) -> RuntimeRole {
+        let value = if self.is_child_agent_phase() {
+            crate::constants::eventing_source::ROLE_AGENT
+        } else if self == Self::ParentReadModelProjected {
+            crate::constants::eventing_source::ROLE_READ_MODEL
+        } else {
+            crate::constants::eventing_source::ROLE_CONTROLLER
+        };
+        match RuntimeRole::parse(value) {
+            Ok(role) => role,
+            Err(_) => std::process::abort(),
+        }
+    }
+
+    pub fn custody(self) -> EventCustody {
+        let value = if self.is_child_agent_phase() {
+            crate::constants::eventing_source::CUSTODY_LOCAL_JOURNAL
+        } else {
+            crate::constants::eventing_source::CUSTODY_COORDINATOR_CACHE
+        };
+        match EventCustody::parse(value) {
+            Ok(custody) => custody,
+            Err(_) => std::process::abort(),
+        }
+    }
+
+    pub fn is_child_agent_phase(self) -> bool {
+        matches!(
+            self,
+            Self::ChildCommandReceived
+                | Self::ChildCommandAccepted
+                | Self::ChildCapabilityStateUpdated
+                | Self::ChildRuntimeHealthUpdated
+        )
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum ParentChildRuntimeEventPayload {
+    ParentActionReceived(ParentActionReceivedEvent),
+    ParentCommandValidated(ParentCommandValidatedEvent),
+    ParentChildCommandForwardRequested(ParentChildCommandForwardRequestedEvent),
+    ParentChildCommandForwarded(ParentChildCommandForwardedEvent),
+    ChildCommandReceived(ChildCommandReceivedEvent),
+    ChildCommandAccepted(ChildCommandAcceptedEvent),
+    ChildCapabilityStateUpdated(ChildCapabilityStateUpdatedEvent),
+    ChildRuntimeHealthUpdated(ChildRuntimeHealthUpdatedEvent),
+    ParentReadModelProjected(ParentReadModelProjectedEvent),
+}
+
+impl ParentChildRuntimeEventPayload {
+    pub fn phase(&self) -> ParentChildRuntimePhase {
+        match self {
+            Self::ParentActionReceived(_) => ParentChildRuntimePhase::ParentActionReceived,
+            Self::ParentCommandValidated(_) => ParentChildRuntimePhase::ParentCommandValidated,
+            Self::ParentChildCommandForwardRequested(_) => {
+                ParentChildRuntimePhase::ParentChildCommandForwardRequested
+            }
+            Self::ParentChildCommandForwarded(_) => {
+                ParentChildRuntimePhase::ParentChildCommandForwarded
+            }
+            Self::ChildCommandReceived(_) => ParentChildRuntimePhase::ChildCommandReceived,
+            Self::ChildCommandAccepted(_) => ParentChildRuntimePhase::ChildCommandAccepted,
+            Self::ChildCapabilityStateUpdated(_) => {
+                ParentChildRuntimePhase::ChildCapabilityStateUpdated
+            }
+            Self::ChildRuntimeHealthUpdated(_) => {
+                ParentChildRuntimePhase::ChildRuntimeHealthUpdated
+            }
+            Self::ParentReadModelProjected(_) => ParentChildRuntimePhase::ParentReadModelProjected,
+        }
+    }
+
+    pub fn event_ref(&self) -> &str {
+        match self {
+            Self::ParentActionReceived(event) => &event.parent_action_event_ref,
+            Self::ParentCommandValidated(event) => &event.command_validated_event_ref,
+            Self::ParentChildCommandForwardRequested(event) => &event.forward_requested_event_ref,
+            Self::ParentChildCommandForwarded(event) => &event.forwarded_event_ref,
+            Self::ChildCommandReceived(event) => &event.command_received_event_ref,
+            Self::ChildCommandAccepted(event) => &event.command_accepted_event_ref,
+            Self::ChildCapabilityStateUpdated(event) => &event.capability_state_event_ref,
+            Self::ChildRuntimeHealthUpdated(event) => &event.runtime_health_event_ref,
+            Self::ParentReadModelProjected(event) => &event.read_model_projected_event_ref,
+        }
+    }
+}
+
+impl DomainEvent for ParentChildRuntimeEventPayload {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(self.phase().event_type())?,
+            SchemaVersion::new(self.phase().schema_version())?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(parent_child_aggregate_key(self.event_ref()))
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        IdempotencyKey::parse(parent_child_idempotency_key(self.event_ref()))
+    }
+}
+
+fn parent_child_aggregate_key(event_ref: &str) -> String {
+    let mut value =
+        String::from(crate::constants::parent_controller::AGGREGATE_PARENT_CHILD_RUNTIME_PREFIX);
+    value.push_str(event_ref);
+    value
+}
+
+fn parent_child_idempotency_key(event_ref: &str) -> String {
+    let mut value =
+        String::from(crate::constants::parent_controller::IDEMPOTENCY_PARENT_CHILD_RUNTIME_PREFIX);
+    value.push_str(event_ref);
+    value
 }
 
 #[cfg(test)]

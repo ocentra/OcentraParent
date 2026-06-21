@@ -7,7 +7,10 @@ use std::{
 mod queue;
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use ocentra_parent_agent_core::{JournalKey, ScreenEvidenceQueue, JOURNAL_KEY_BYTES};
+use ocentra_parent_agent_core::{
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+    screen_evidence_queue::ScreenEvidenceQueue,
+};
 use ocentra_parent_agent_protocol::{constants, ActivityCaptureCapabilityStatus};
 use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureScope, ScreenCaptureWindowTitleQuery,

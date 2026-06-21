@@ -86,7 +86,7 @@ await main();
 async function main() {
   await runCommand('cmd', ['/c', 'npm run build:contracts']);
   const { BrowserChildInterventionPageDefaults, renderBrowserChildInterventionPage } =
-    await import('@ocentra-parent/portal-domain/contracts');
+    await import('@ocentra-parent/portal-domain/browser-child-intervention-page');
   await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
   await mkdir(evidenceDirectory, { recursive: true });
   await mkdir(screenshotDirectory, { recursive: true });

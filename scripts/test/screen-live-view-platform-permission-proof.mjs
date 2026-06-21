@@ -15,10 +15,11 @@ const androidCaptureProofPath = join(
   'proof-summary.json'
 );
 
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 
 const screenEvidence = await import(
-  pathToFileURL(join(repoRoot, 'packages', 'activity-domain', 'dist', 'screen-live-view-platform-permission.js')).href
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-live-view-platform-permission.js')).href
 );
 
 const generatedAt = new Date().toISOString();

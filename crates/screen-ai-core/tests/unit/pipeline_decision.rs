@@ -1,6 +1,6 @@
-use ocentra_eventing::DomainEvent;
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_evidence::EvidenceReferenceState;
-use ocentra_screen_ai_core::{
+use ocentra_screen_ai_core::screen_ai_pipeline::{
     evaluate_screen_ai_pipeline, record_screen_ai_pipeline_decision, RawPrivateFrameState,
     ScreenAiAggregateId, ScreenAiAnalysisRequestState, ScreenAiPipelineEvaluationId,
     ScreenAiPipelineEvaluationRequestedEvent, ScreenAiPipelineInput, ScreenAiPolicyAuthorityState,

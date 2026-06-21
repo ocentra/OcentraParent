@@ -3,8 +3,8 @@ import {
   ProductionSupportProofStatusMatrixClosureProofSchema,
   ProductionSupportProofStatusMatrixClosureRowSchema,
   summarizeProductionSupportProofStatusMatrixClosureRows,
-} from '../../src/production-support-proof-status-matrix-closure-proof';
-import { ProductionSupportProofStatusMatrixClosureReadModel } from '../../src/production-support-proof-status-matrix-closure-read-model';
+} from '@ocentra-parent/schema-domain/production-support-proof-status-matrix-closure-proof';
+import { ProductionSupportProofStatusMatrixClosureReadModel } from '@ocentra-parent/schema-domain/production-support-proof-status-matrix-closure-read-model';
 
 describe('production support proof status matrix closure proof', () => {
   it('accepts a closure row for every backend public legal provider export and release area', () => {

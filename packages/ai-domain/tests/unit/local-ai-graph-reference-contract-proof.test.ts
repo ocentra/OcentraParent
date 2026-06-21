@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildLocalAiGraphReferenceContractProof } from '../../src/local-ai-graph-reference-contract-proof';
+import { buildLocalAiGraphReferenceContractProof } from '@ocentra-parent/schema-domain/local-ai-graph-reference-contract-proof';
 
 const observedAt = '2026-06-06T06:40:00.000Z';
 const asOf = '2026-06-06T06:45:00.000Z';

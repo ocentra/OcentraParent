@@ -3,8 +3,8 @@ import { parseBrowserUrlShape } from '../../src/browser-url-intelligence';
 import {
   BrowserSocialVideoMetadataEvidenceSchema,
   extractBrowserSocialVideoMetadata,
-} from '../../src/browser-social-video-metadata';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../src/browser-social-url-patterns';
+} from '@ocentra-parent/schema-domain/browser-social-video-metadata';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 
 describe('browser social video metadata extractor contract', () => {
   it('extracts available social video metadata from managed route evidence', extractsAvailableMetadata);

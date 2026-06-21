@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::family_identity::{FamilyActorRole, HouseholdMembership};
+use crate::family_identity::{DeviceTrustState, HouseholdRole};
 use crate::household_authority::AuditRequirementState;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -33,6 +33,22 @@ pub enum SetupInviteReplayState {
     Fresh,
     #[serde(rename = "replay-detected")]
     ReplayDetected,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SetupRecoveryAbuseState {
+    #[serde(rename = "within-limit")]
+    WithinLimit,
+    #[serde(rename = "throttled")]
+    Throttled,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SetupRecoveryResponseTimingState {
+    #[serde(rename = "uniform")]
+    Uniform,
+    #[serde(rename = "variable")]
+    Variable,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -73,13 +89,15 @@ pub enum SetupInviteFailureReason {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SetupInviteInput {
-    pub inviter_role: FamilyActorRole,
-    pub household_membership: HouseholdMembership,
+    pub inviter_role: HouseholdRole,
+    pub same_family: bool,
     pub purpose: SetupInvitePurpose,
     pub target_role: SetupInviteTargetRole,
     pub invite_state: SetupInviteState,
     pub single_use: bool,
     pub replay_state: SetupInviteReplayState,
+    pub abuse_state: SetupRecoveryAbuseState,
+    pub response_timing_state: SetupRecoveryResponseTimingState,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -177,14 +195,16 @@ pub enum RecoveryFailureReason {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RecoveryOperation {
-    pub requester_role: FamilyActorRole,
-    pub household_membership: HouseholdMembership,
+    pub requester_role: HouseholdRole,
+    pub same_family: bool,
     pub kind: RecoveryKind,
     pub state: RecoveryState,
     pub owner_approval_required: bool,
     pub identity_proof_state: RecoveryIdentityProofState,
     pub support_channel: RecoverySupportChannel,
     pub delete_export_handoff_required: bool,
+    pub abuse_state: SetupRecoveryAbuseState,
+    pub response_timing_state: SetupRecoveryResponseTimingState,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -210,7 +230,15 @@ pub fn authorize_setup_invite(input: SetupInviteInput) -> SetupInviteDecision {
         return rejected_setup_invite(SetupInviteFailureReason::InviteReplayRejected);
     }
 
-    if input.household_membership != HouseholdMembership::Member {
+    if input.abuse_state == SetupRecoveryAbuseState::Throttled {
+        return rejected_setup_invite(SetupInviteFailureReason::InviteNotActive);
+    }
+
+    if input.response_timing_state != SetupRecoveryResponseTimingState::Uniform {
+        return rejected_setup_invite(SetupInviteFailureReason::InviteNotActive);
+    }
+
+    if !input.same_family {
         return rejected_setup_invite(SetupInviteFailureReason::WrongHousehold);
     }
 
@@ -249,9 +277,7 @@ pub fn evaluate_recovery_operation(input: RecoveryOperation) -> RecoveryDecision
         );
     }
 
-    if input.requester_role != FamilyActorRole::SupportAdmin
-        && input.household_membership != HouseholdMembership::Member
-    {
+    if input.requester_role != HouseholdRole::SupportAdmin && !input.same_family {
         return rejected_recovery(
             RecoveryFailureReason::WrongHousehold,
             owner_approval_required,
@@ -261,6 +287,24 @@ pub fn evaluate_recovery_operation(input: RecoveryOperation) -> RecoveryDecision
     }
 
     if input.identity_proof_state != RecoveryIdentityProofState::Verified {
+        return rejected_recovery(
+            RecoveryFailureReason::IdentityProofRequired,
+            owner_approval_required,
+            child_evidence_access_state,
+            data_custody_handoff_state,
+        );
+    }
+
+    if input.abuse_state == SetupRecoveryAbuseState::Throttled {
+        return rejected_recovery(
+            RecoveryFailureReason::IdentityProofRequired,
+            owner_approval_required,
+            child_evidence_access_state,
+            data_custody_handoff_state,
+        );
+    }
+
+    if input.response_timing_state != SetupRecoveryResponseTimingState::Uniform {
         return rejected_recovery(
             RecoveryFailureReason::IdentityProofRequired,
             owner_approval_required,
@@ -286,6 +330,28 @@ pub fn evaluate_recovery_operation(input: RecoveryOperation) -> RecoveryDecision
         data_custody_handoff_state,
         failure_reason: None,
     }
+}
+
+pub fn device_trust_state_for_recovery_state(state: RecoveryState) -> DeviceTrustState {
+    match state {
+        RecoveryState::PendingIdentityProof
+        | RecoveryState::OwnerApprovalRequired
+        | RecoveryState::Approved => DeviceTrustState::ResetRequired,
+        RecoveryState::Completed => DeviceTrustState::Pending,
+        RecoveryState::Revoked => DeviceTrustState::Revoked,
+    }
+}
+
+pub fn device_trust_state_for_recovery_operation(input: RecoveryOperation) -> DeviceTrustState {
+    if input.state == RecoveryState::Revoked {
+        return DeviceTrustState::Revoked;
+    }
+
+    if input.state == RecoveryState::Completed && input.delete_export_handoff_required {
+        return DeviceTrustState::ResetRequired;
+    }
+
+    device_trust_state_for_recovery_state(input.state)
 }
 
 fn rejected_setup_invite(failure_reason: SetupInviteFailureReason) -> SetupInviteDecision {
@@ -334,42 +400,48 @@ fn purpose_matches_target_role(
     )
 }
 
-fn inviter_can_issue(role: FamilyActorRole, purpose: SetupInvitePurpose) -> bool {
+fn inviter_can_issue(role: HouseholdRole, purpose: SetupInvitePurpose) -> bool {
     match purpose {
         SetupInvitePurpose::CoParentInvite
         | SetupInvitePurpose::ObserverInvite
         | SetupInvitePurpose::ChildDevicePairing => {
-            matches!(role, FamilyActorRole::Parent | FamilyActorRole::Guardian)
+            matches!(
+                role,
+                HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian
+            )
         }
-        SetupInvitePurpose::HouseholdTransfer => matches!(role, FamilyActorRole::Parent),
+        SetupInvitePurpose::HouseholdTransfer => matches!(role, HouseholdRole::ParentOwner),
     }
 }
 
 fn requester_can_recover(
-    role: FamilyActorRole,
+    role: HouseholdRole,
     kind: RecoveryKind,
     support_channel: RecoverySupportChannel,
 ) -> bool {
-    if role == FamilyActorRole::SupportAdmin {
+    if role == HouseholdRole::SupportAdmin {
         return support_channel == RecoverySupportChannel::SupportAssisted;
     }
 
     match kind {
-        RecoveryKind::HouseholdTransfer => role == FamilyActorRole::Parent,
+        RecoveryKind::HouseholdTransfer => role == HouseholdRole::ParentOwner,
         RecoveryKind::ForgotLogin
         | RecoveryKind::LostParentDevice
         | RecoveryKind::CompromisedAccount
         | RecoveryKind::ChildReinstall => {
-            matches!(role, FamilyActorRole::Parent | FamilyActorRole::Guardian)
+            matches!(
+                role,
+                HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian
+            )
         }
     }
 }
 
 fn child_evidence_access_state(input: RecoveryOperation) -> RecoveryChildEvidenceAccessState {
-    let has_household_authority = input.household_membership == HouseholdMembership::Member
+    let has_household_authority = input.same_family
         && matches!(
             input.requester_role,
-            FamilyActorRole::Parent | FamilyActorRole::Guardian
+            HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian
         );
 
     if has_household_authority && input.support_channel != RecoverySupportChannel::SupportAssisted {

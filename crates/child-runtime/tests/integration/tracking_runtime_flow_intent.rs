@@ -19,7 +19,7 @@ use ocentra_tracking_core::alerting::TrackingParentNotificationDecisionState;
 #[tokio::test]
 async fn tracking_runtime_flow_keeps_ai_policy_and_notification_decoupled_by_events() {
     let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(
-        ocentra_tracking_core::default_location_observed_event(),
+        ocentra_tracking_core::runtime_flow::default_location_observed_event(),
     )
     .await
     .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
@@ -249,7 +249,9 @@ async fn tracking_runtime_flow_can_attach_once_to_runtime_owned_bus() {
     let metrics_before = runtime_flow.metrics_snapshot().await;
 
     let flow_report = runtime_flow
-        .publish_location_observed(ocentra_tracking_core::default_location_observed_event())
+        .publish_location_observed(
+            ocentra_tracking_core::runtime_flow::default_location_observed_event(),
+        )
         .await
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let metrics_after = runtime_flow.metrics_snapshot().await;
@@ -322,7 +324,7 @@ async fn tracking_runtime_flow_can_attach_once_to_runtime_owned_bus() {
 #[tokio::test]
 async fn tracking_runtime_flow_can_route_away_from_expected_place_without_ai_boundary() {
     let flow_report = ocentra_child_runtime::publish_child_tracking_location_observed_event(
-        ocentra_tracking_core::default_away_from_expected_place_location_observed_event(),
+        ocentra_tracking_core::runtime_flow::default_away_from_expected_place_location_observed_event(),
     )
     .await
     .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
@@ -392,12 +394,15 @@ async fn tracking_runtime_flow_clears_optional_state_between_observations() {
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
     let first_report = runtime_flow
-        .publish_location_observed(ocentra_tracking_core::default_location_observed_event())
+        .publish_location_observed(
+            ocentra_tracking_core::runtime_flow::default_location_observed_event(),
+        )
         .await
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let second_report = runtime_flow
         .publish_location_observed(
-            ocentra_tracking_core::default_at_expected_place_location_observed_event(),
+            ocentra_tracking_core::runtime_flow::default_at_expected_place_location_observed_event(
+            ),
         )
         .await
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
@@ -431,11 +436,15 @@ async fn tracking_runtime_flow_suppresses_duplicate_parent_notifications_on_repe
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
     let first_report = runtime_flow
-        .publish_location_observed(ocentra_tracking_core::default_location_observed_event())
+        .publish_location_observed(
+            ocentra_tracking_core::runtime_flow::default_location_observed_event(),
+        )
         .await
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
     let second_report = runtime_flow
-        .publish_location_observed(ocentra_tracking_core::default_location_observed_event())
+        .publish_location_observed(
+            ocentra_tracking_core::runtime_flow::default_location_observed_event(),
+        )
         .await
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
 
@@ -471,7 +480,7 @@ async fn tracking_runtime_flow_suppresses_duplicate_parent_notifications_on_repe
 
 #[tokio::test]
 async fn tracking_runtime_flow_rejects_invalid_location_before_recording_evidence() {
-    let mut observed = ocentra_tracking_core::default_location_observed_event();
+    let mut observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
     observed.horizontal_accuracy_meters = 0;
 
     let error = ocentra_child_runtime::publish_child_tracking_location_observed_event(observed)

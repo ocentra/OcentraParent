@@ -1,4 +1,7 @@
-import type { ScreenChildDisclosureSnapshot, ScreenChildDisclosureState } from './screen-child-disclosure';
+import type {
+  ScreenChildDisclosureSnapshot,
+  ScreenChildDisclosureState,
+} from '@ocentra-parent/schema-domain/screen-child-disclosure';
 
 export type ScreenChildDisclosurePageModel = {
   readonly title: string;

@@ -9,7 +9,7 @@ const commands = [];
 const proofPacks = [
   complete(
     '03-contract-boundary-and-effect-schemas',
-    'TypeScript Effect Schema tracking spine exists in tracking-domain with direct policy/runtime entrypoints.'
+    'TypeScript Effect Schema tracking spine is centrally owned in schema-domain while tracking-domain keeps direct runtime helpers only.'
   ),
   complete(
     '04-location-evidence-model',
@@ -114,17 +114,24 @@ async function main() {
     'run',
     'tests/unit/tracking.test.ts',
     'tests/contract/tracking-location-policy.test.ts',
-    'tests/unit/tracking-event-contracts.test.ts',
-    'tests/unit/tracking-evidence-quality-gate.test.ts',
     'tests/unit/tracking-local-place-store.test.ts',
+    'tests/contract/tracking-policy-compiler-runtime-proof.test.ts',
   ]);
   await runNpm([
     'run',
     'lint:architecture',
     '--',
     '--files',
-    'packages/tracking-domain/src/tracking.ts',
-    'packages/tracking-domain/src/tracking-location-policy.ts',
+    'packages/schema-domain/src/tracking-geofence.ts',
+    'packages/schema-domain/src/tracking-evidence.ts',
+    'packages/schema-domain/src/tracking-evidence-quality-gate.ts',
+    'packages/schema-domain/src/tracking-read-model.ts',
+    'packages/schema-domain/src/tracking-location-policy.ts',
+    'packages/tracking-domain/src/tracking-runtime.ts',
+    'packages/tracking-domain/src/tracking-retention-runtime.ts',
+    'packages/tracking-domain/src/tracking-location-policy-runtime.ts',
+    'packages/tracking-domain/src/tracking-local-place-store.ts',
+    'packages/tracking-domain/src/tracking-policy-compiler-runtime-proof.ts',
   ]);
 
   const commit = await gitHead();
@@ -169,13 +176,20 @@ function sourceSnapshot(pack, commit, checkedAt) {
     `- commit: ${commit}`,
     `- proofState: ${pack.proofState}`,
     `- summary: ${pack.summary}`,
-    '- tracking contracts: packages/tracking-domain/src/tracking.ts',
-    '- policy contracts: packages/tracking-domain/src/tracking-location-policy.ts',
+    '- central schemas: packages/schema-domain/src/tracking-geofence.ts',
+    '- central schemas: packages/schema-domain/src/tracking-evidence.ts',
+    '- central helper: packages/schema-domain/src/tracking-evidence-quality-gate.ts',
+    '- central schemas: packages/schema-domain/src/tracking-read-model.ts',
+    '- central schemas: packages/schema-domain/src/tracking-location-policy.ts',
+    '- local runtime helper: packages/tracking-domain/src/tracking-runtime.ts',
+    '- local runtime helper: packages/tracking-domain/src/tracking-retention-runtime.ts',
+    '- local runtime helper: packages/tracking-domain/src/tracking-location-policy-runtime.ts',
+    '- local runtime helper: packages/tracking-domain/src/tracking-local-place-store.ts',
+    '- local runtime helper: packages/tracking-domain/src/tracking-policy-compiler-runtime-proof.ts',
     '- focused tests: packages/tracking-domain/tests/unit/tracking.test.ts',
     '- focused tests: packages/tracking-domain/tests/contract/tracking-location-policy.test.ts',
-    '- focused tests: packages/tracking-domain/tests/unit/tracking-event-contracts.test.ts',
-    '- focused tests: packages/tracking-domain/tests/unit/tracking-evidence-quality-gate.test.ts',
     '- focused tests: packages/tracking-domain/tests/unit/tracking-local-place-store.test.ts',
+    '- focused tests: packages/tracking-domain/tests/contract/tracking-policy-compiler-runtime-proof.test.ts',
     '',
   ].join('\n');
 }
@@ -186,7 +200,7 @@ function contractProofLog(pack) {
     `proofState=${pack.proofState}`,
     'tracking-domain focused contract and runtime tests passed',
     'tracking-domain policy contract tests passed',
-    'focused architecture gate passed for tracking entrypoints',
+    'focused architecture gate passed for central schema owners and local runtime surfaces',
     pack.summary,
     '',
   ].join('\n');

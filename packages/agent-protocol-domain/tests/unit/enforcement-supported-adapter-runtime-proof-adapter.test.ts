@@ -1,7 +1,7 @@
 import {
   V08EnforcementIntegrityRuntimeAuditReadModel,
   V08SupportedAdapterRuntimeProofReadModel,
-} from '@ocentra-parent/enforcement-domain/v0-8-supported-adapter-runtime-proof';
+} from '@ocentra-parent/schema-domain/v0-8-supported-adapter-runtime-proof';
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '../../src/contracts';
 import { parseEnforcementSupportedAdapterRuntimeProofEvent } from '../../src/enforcement-supported-adapter-runtime-proof-adapter';

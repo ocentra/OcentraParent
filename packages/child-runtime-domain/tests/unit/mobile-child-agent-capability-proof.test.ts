@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type MobileChildAgentCapabilityReadModel,
   MobileChildAgentCapabilityReadModelSchema,
-} from '../../src/mobile-child-agent-capability-proof';
+} from '@ocentra-parent/schema-domain/mobile-child-agent-capability-proof';
 
 describe('mobile child-agent capability proof contracts', () => {
   acceptsHonestAndroidAndIosCapabilityMatrix();

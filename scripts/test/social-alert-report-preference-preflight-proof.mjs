@@ -21,13 +21,13 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/browser-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/browser-domain',
       '--',
       'social-alert-report-preference-preflight',
       'social-alert-report-scheduler-bridge',
@@ -47,16 +47,16 @@ async function main() {
     preferenceOptions(),
     schedulerReadModel
   );
-  const source = await readText('packages/parent-domain/src/social-alert-report-preference-preflight.ts');
-  const test = await readText('packages/parent-domain/tests/social-alert-report-preference-preflight.test.ts');
+  const source = await readText('packages/browser-domain/src/social-alert-report-preference-preflight.ts');
+  const test = await readText('packages/browser-domain/tests/unit/social-alert-report-preference-preflight.test.ts');
   const socialFeature = await readText('docs/features/social-video-control.md');
   const socialExpectation = await readText('docs/expectations/social-video-control.md');
   const notificationExpectation = await readText('docs/expectations/notifications.md');
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/readme.md');
 
   const checks = [
-    checkFile('packages/parent-domain/src/social-alert-report-preference-preflight.ts'),
-    checkFile('packages/parent-domain/tests/social-alert-report-preference-preflight.test.ts'),
+    checkFile('packages/browser-domain/src/social-alert-report-preference-preflight.ts'),
+    checkFile('packages/browser-domain/tests/unit/social-alert-report-preference-preflight.test.ts'),
     checkFile('scripts/test/social-alert-report-preference-preflight-proof.mjs'),
     checkIncludes(source, 'parentNotificationPreferenceUiClaimed: Schema.Literal(false)', 'preference UI non-claim'),
     checkIncludes(source, 'quietHoursTimerRuntimeClaimed: Schema.Literal(false)', 'quiet-hours runtime non-claim'),
@@ -137,10 +137,10 @@ async function main() {
       'product checklist completion',
     ],
     evidence: {
-      source: 'packages/parent-domain/src/social-alert-report-preference-preflight.ts',
-      test: 'packages/parent-domain/tests/social-alert-report-preference-preflight.test.ts',
-      schedulerBridge: 'packages/parent-domain/src/social-alert-report-scheduler-bridge.ts',
-      localOutboxBridge: 'packages/parent-domain/src/social-alert-report-local-outbox-bridge.ts',
+      source: 'packages/browser-domain/src/social-alert-report-preference-preflight.ts',
+      test: 'packages/browser-domain/tests/unit/social-alert-report-preference-preflight.test.ts',
+      schedulerBridge: 'packages/browser-domain/src/social-alert-report-scheduler-bridge.ts',
+      localOutboxBridge: 'packages/browser-domain/src/social-alert-report-local-outbox-bridge.ts',
       harness: 'scripts/test/social-alert-report-preference-preflight-proof.mjs',
       proof: 'test-results/social-alert-report-preference-preflight-proof/proof.json',
       readModel: 'test-results/social-alert-report-preference-preflight-proof/preference-preflight-read-model.json',
@@ -169,7 +169,7 @@ async function main() {
   await writeFile(join(outputDirectory, '10-validation-commands.log'), validationLogFor(proof), 'utf8');
   await writeFile(
     join(outputDirectory, 'ui-not-applicable.md'),
-    '# UI Not Applicable\n\nThis proof adds a parent-domain social alert/report preference preflight boundary. It does not render parent notification preference UI, notification history UI, child UI, or provider delivery UI.\n',
+    '# UI Not Applicable\n\nThis proof uses the browser-domain social alert/report preference preflight boundary. It does not render parent notification preference UI, notification history UI, child UI, or provider delivery UI.\n',
     'utf8'
   );
 
@@ -341,7 +341,7 @@ function sourceSnapshotFor(proof) {
     `- Branch: ${proof.branch}`,
     `- Commit: ${proof.commit}`,
     '- Scope: social alert/report scheduler rows projected into parent preference and quiet-hours preflight rows.',
-    '- Package exports were intentionally not changed because another lane owns packages/parent-domain/package.json.',
+    '- Canonical source ownership now lives in packages/browser-domain; no parent-domain package export is involved in this proof.',
     '',
   ].join('\n');
 }
@@ -368,7 +368,7 @@ function markdownFor(proof) {
     'proof before delivery can be claimed. Manual-required and unavailable rows',
     'remain blocked before preflight.',
     '',
-    'It proves only the parent-domain preflight boundary. It does not claim',
+    'It proves only the browser-domain preflight boundary. It does not claim',
     'parent notification preference UI, notification history UI, quiet-hours',
     'timer execution, provider delivery, retry worker execution, child delivery,',
     'report delivery execution, final policy execution, connector/native runtime,',
@@ -436,7 +436,7 @@ function validationLogFor(proof) {
 }
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'browser-domain', 'dist', name)).href);
 }
 
 function checkFile(path) {

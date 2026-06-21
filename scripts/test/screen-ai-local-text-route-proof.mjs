@@ -7,12 +7,11 @@ const outputRoot = resolve(repoRoot, 'output', 'screen-ai-pipeline-proof', 'loca
 const artifactSummaryPath = join(outputRoot, 'proof-summary.json');
 
 await mkdir(outputRoot, { recursive: true });
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
 const { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema } =
-  await import('../../packages/parent-domain/dist/local-ai.js');
-const { PolicyDecisionHandoffState, PolicyDecisionSchema } =
-  await import('../../packages/parent-domain/dist/policy.js');
+  await import('@ocentra-parent/schema-domain/local-ai');
+const { PolicyDecisionHandoffState, PolicyDecisionSchema } = await import('@ocentra-parent/schema-domain/policy');
 
 const observedAt = '2026-06-03T20:55:00.000Z';
 const evidenceReference = {

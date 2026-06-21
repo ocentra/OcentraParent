@@ -1,6 +1,12 @@
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use serde::{Deserialize, Serialize};
 
+use crate::constants;
 use crate::constants::household_mesh as mesh;
+
+pub mod household_mesh_bridge_input;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -137,3 +143,172 @@ impl HouseholdMeshLocalRepublish {
 #[cfg(test)]
 #[path = "../tests/contract/household_mesh.rs"]
 mod contract_tests;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HouseholdMeshBridgePhase {
+    LocalEventSelected,
+    LanMessageExported,
+    LanMessageReceived,
+    LocalEventRepublished,
+}
+
+impl HouseholdMeshBridgePhase {
+    pub fn ordered_chain() -> &'static [Self] {
+        &[
+            Self::LocalEventSelected,
+            Self::LanMessageExported,
+            Self::LanMessageReceived,
+            Self::LocalEventRepublished,
+        ]
+    }
+
+    pub fn event_type(self) -> &'static str {
+        match self {
+            Self::LocalEventSelected => constants::household_mesh::EVENT_BRIDGE_LOCAL_SELECTED,
+            Self::LanMessageExported => constants::household_mesh::EVENT_BRIDGE_LAN_EXPORTED,
+            Self::LanMessageReceived => constants::household_mesh::EVENT_BRIDGE_LAN_RECEIVED,
+            Self::LocalEventRepublished => {
+                constants::household_mesh::EVENT_BRIDGE_LOCAL_REPUBLISHED
+            }
+        }
+    }
+
+    pub fn subscriber_id(self) -> &'static str {
+        match self {
+            Self::LocalEventSelected => constants::household_mesh::SUBSCRIBER_BRIDGE_LOCAL_SELECTED,
+            Self::LanMessageExported => constants::household_mesh::SUBSCRIBER_BRIDGE_LAN_EXPORTED,
+            Self::LanMessageReceived => constants::household_mesh::SUBSCRIBER_BRIDGE_LAN_RECEIVED,
+            Self::LocalEventRepublished => {
+                constants::household_mesh::SUBSCRIBER_BRIDGE_LOCAL_REPUBLISHED
+            }
+        }
+    }
+
+    pub fn target_handler(self) -> &'static str {
+        match self {
+            Self::LocalEventSelected => constants::household_mesh::TARGET_BRIDGE_EXPORT_VALIDATOR,
+            Self::LanMessageExported => constants::household_mesh::TARGET_BRIDGE_LAN_TRANSPORT,
+            Self::LanMessageReceived => constants::household_mesh::TARGET_BRIDGE_IMPORT_VALIDATOR,
+            Self::LocalEventRepublished => {
+                constants::household_mesh::TARGET_LOCAL_EVENT_REPUBLISHER
+            }
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HouseholdMeshBridgeDirection {
+    Export,
+    Import,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HouseholdMeshBridgeEnvelopeState {
+    LocalSelected,
+    LanExported,
+    LanReceived,
+    LocalRepublished,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HouseholdMeshBridgeValidationState {
+    Accepted,
+    Rejected,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HouseholdMeshBridgeRejectionReason {
+    UnselectedEvent,
+    PrivateLocalEvent,
+    RawScreenPayload,
+    UnauthenticatedPeer,
+    UnauthorizedPeer,
+    DirectRemotePublish,
+    PolicyAuthorityEscalation,
+    MismatchedMessageRef,
+    ReplayedMessage,
+    StaleMessage,
+    FamilyMismatch,
+    WrongTargetDevice,
+    UnsupportedLanMessage,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct HouseholdMeshBridgeCustody {
+    pub selected_event_only: bool,
+    pub remote_direct_publish_allowed: bool,
+    pub raw_screenshot_transferred: bool,
+    pub private_local_event_exported: bool,
+}
+
+impl HouseholdMeshBridgeCustody {
+    pub fn selected_bridge_only() -> Self {
+        Self {
+            selected_event_only: true,
+            remote_direct_publish_allowed: false,
+            raw_screenshot_transferred: false,
+            private_local_event_exported: false,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct HouseholdMeshBridgeValidation {
+    pub state: HouseholdMeshBridgeValidationState,
+    pub rejection_reason: Option<HouseholdMeshBridgeRejectionReason>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct HouseholdMeshBridgeEventPayload {
+    pub phase: HouseholdMeshBridgePhase,
+    pub envelope_state: HouseholdMeshBridgeEnvelopeState,
+    pub direction: HouseholdMeshBridgeDirection,
+    pub local_event_type: String,
+    pub local_event_ref: String,
+    pub lan_message_type: String,
+    pub family_id: String,
+    pub target_child_device_id: String,
+    pub source_peer_id: String,
+    pub idempotency_key: String,
+    pub outbound_message_id: String,
+    pub inbound_message_id: String,
+    pub child_agent_peer_id: String,
+    pub provider_peer_id: String,
+    pub payload_ref: String,
+    pub previous_phase_ref: Option<String>,
+    pub validation_state: HouseholdMeshBridgeValidationState,
+    pub rejection_reason: Option<HouseholdMeshBridgeRejectionReason>,
+    pub custody: HouseholdMeshBridgeCustody,
+    pub observed_at: String,
+}
+
+impl DomainEvent for HouseholdMeshBridgeEventPayload {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(self.phase.event_type())?,
+            SchemaVersion::new(constants::household_mesh::EVENT_SCHEMA_VERSION)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(household_mesh_bridge_aggregate_key(
+            &self.outbound_message_id,
+        ))
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        let mut value = String::from(constants::household_mesh::IDEMPOTENCY_HOUSEHOLD_MESH_PREFIX);
+        value.push_str(self.phase.event_type());
+        value.push(constants::delimiter::HYPHEN);
+        value.push_str(&self.outbound_message_id);
+        value.push(constants::delimiter::HYPHEN);
+        value.push_str(&self.observed_at);
+        IdempotencyKey::parse(value)
+    }
+}
+
+fn household_mesh_bridge_aggregate_key(correlation_id: &str) -> String {
+    let mut value = String::from(constants::household_mesh::AGGREGATE_HOUSEHOLD_MESH_PREFIX);
+    value.push_str(correlation_id);
+    value
+}

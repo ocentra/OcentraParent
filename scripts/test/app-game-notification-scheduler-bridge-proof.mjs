@@ -14,24 +14,17 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-runNpm([
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/parent-domain',
-  '--',
-  'app-game-notification-scheduler-bridge',
-  'app-game-notification-local-outbox-bridge',
-  'notification-local-outbox-scheduler-proof',
-]);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/notification-domain']);
+runNpm(['run', 'test', '--workspace', '@ocentra-parent/notification-domain', '--', 'notification-local-outbox-scheduler-proof']);
 
-const importDist = (name) => import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)));
-const bridge = await importDist('app-game-notification-local-outbox-bridge.js');
-const scheduler = await importDist('app-game-notification-scheduler-bridge.js');
-const intent = await importDist('app-game-notification-intent.js');
-const childUx = await importDist('app-game-child-facing-ux-rules.js');
-const refs = await importDist('reference-primitives.js');
+const importSchemaDist = (name) =>
+  import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
+const bridge = await importSchemaDist('app-game-notification-local-outbox-bridge.js');
+const scheduler = await importSchemaDist('app-game-notification-scheduler-bridge.js');
+const intent = await importSchemaDist('app-game-notification-intent.js');
+const childUx = await importSchemaDist('app-game-child-facing-ux-rules.js');
+const refs = await importSchemaDist('family-reference-primitives.js');
 
 const source = bridge.buildAppGameNotificationLocalOutboxBridgeReadModel(
   bridgeOptions(),
@@ -44,7 +37,7 @@ const proof = {
   proofMode: 'app-game-notification-scheduler-bridge',
   generatedAt: timestamp,
   scope: {
-    bridge: 'App/game local outbox records to existing notification scheduler JSONL rows',
+    bridge: 'Central app/game local outbox records to existing notification scheduler JSONL rows',
     sourceReadModel: source.bridgeId,
     schedulerReadModel: readModel.schedulerBridgeId,
     scheduledRecordCount: readModel.scheduledRecordCount,
@@ -64,8 +57,10 @@ const proof = {
     adapterDispatchClaimed: readModel.adapterDispatchClaimed,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-notification-scheduler-bridge.ts',
-    test: 'packages/parent-domain/tests/app-game-notification-scheduler-bridge.test.ts',
+    source: 'packages/schema-domain/src/app-game-notification-scheduler-bridge.ts',
+    localOutboxBridge: 'packages/schema-domain/src/app-game-notification-local-outbox-bridge.ts',
+    schedulerProof: 'packages/schema-domain/src/notification-local-outbox-scheduler-proof.ts',
+    schedulerProofTest: 'packages/notification-domain/tests/unit/notification-local-outbox-scheduler-proof.test.ts',
     harness: 'scripts/test/app-game-notification-scheduler-bridge-proof.mjs',
     schedulerJsonl: 'test-results/app-game-notification-scheduler-bridge-proof/scheduler-records.jsonl',
     appGameProofPack: 'output/app-game-plan-proof/59-notification-scheduler-bridge',
@@ -248,8 +243,10 @@ function assertProof(proof) {
 
 function validationLog() {
   return [
-    'cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-    'cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-scheduler-bridge app-game-notification-local-outbox-bridge notification-local-outbox-scheduler-proof: PASS',
+    'cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+    'cmd /c npm run build --workspace @ocentra-parent/notification-domain: PASS',
+    'cmd /c npm run test --workspace @ocentra-parent/notification-domain -- notification-local-outbox-scheduler-proof: PASS',
+    'node scripts/test/app-game-notification-scheduler-bridge-proof.mjs: PASS',
   ].join('\n');
 }
 

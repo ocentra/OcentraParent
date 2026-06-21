@@ -117,9 +117,10 @@ async function readJson(path) {
 }
 
 async function loadTrackingServiceDataContract() {
-  const [{ AgentCommand, AgentEvent, AgentProtocolDefaults }, { PortalRoute }] = await Promise.all([
-    import('@ocentra-parent/agent-protocol-domain/contracts'),
-    import('@ocentra-parent/portal-domain/contracts'),
+  const [{ AgentCommand, AgentEvent }, { AgentProtocolDefaults }, { PortalRoute }] = await Promise.all([
+    import('@ocentra-parent/schema-domain/agent-command-event-contracts'),
+    import('@ocentra-parent/schema-domain/agent-protocol-defaults'),
+    import('@ocentra-parent/portal-domain/routes'),
   ]);
 
   return {

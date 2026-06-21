@@ -1,12 +1,12 @@
 import {
   SocialAlertReportIntentKind,
   type SocialAlertReportIntent,
-} from '@ocentra-parent/browser-domain/social-alert-report-intent';
+} from '@ocentra-parent/schema-domain/social-alert-report-intent';
 import {
   SocialAlertReportReadModelSnapshotSchema,
   type SocialAlertReportProviderStatusRow,
   type SocialAlertReportReadModelSnapshot,
-} from '@ocentra-parent/agent-protocol-domain/social-alert-report-read-model';
+} from '@ocentra-parent/schema-domain/agent-social-alert-report-read-model';
 import { type DisplayText, decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
 import { PortalDetails } from './details';

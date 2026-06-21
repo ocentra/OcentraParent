@@ -45,9 +45,9 @@ const RuntimeStatus = {
   unavailableReason: null,
 };
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build:contracts']));
 
-const { buildLocalAiEvidenceContext } = await import('@ocentra-parent/ai-domain/local-ai-context-builder');
+const { buildLocalAiEvidenceContext } = await import('@ocentra-parent/schema-domain/local-ai-context-builder');
 const realAnalysisProof = readJson(RealAnalysisProofPath);
 const screenOcrProof = readJson(ScreenOcrProofPath);
 const networkStorageProof = readJson(NetworkStorageProofPath);

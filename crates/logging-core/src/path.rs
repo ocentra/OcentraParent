@@ -7,9 +7,12 @@ use chrono::{SecondsFormat, Utc};
 
 pub const LOG_ROOT_ENV: &str = "OCENTRA_PARENT_LOG_ROOT";
 pub const LOG_SCOPE_ENV: &str = "OCENTRA_PARENT_LOG_SCOPE";
+pub const LOG_RUN_ID_ENV: &str = "OCENTRA_PARENT_LOG_RUN_ID";
 pub const DEV_LOG_DIR_ENV: &str = "OCENTRA_PARENT_DEV_LOG_DIR";
-pub const CODEX_RUN_ID_ENV: &str = "OCENTRA_PARENT_CODEX_RUN_ID";
-pub const CODEX_LANE_ID_ENV: &str = "OCENTRA_PARENT_CODEX_LANE_ID";
+pub const LEDGER_LANE_ENV: &str = "LEDGER_LANE";
+pub const LANE_ID_ENV: &str = "OCENTRA_PARENT_LANE_ID";
+const LEGACY_CODEX_RUN_ID_ENV: &str = "OCENTRA_PARENT_CODEX_RUN_ID";
+const LEGACY_CODEX_LANE_ID_ENV: &str = "OCENTRA_PARENT_CODEX_LANE_ID";
 pub const DEFAULT_SCOPE: &str = "parent-agent";
 
 pub fn resolve_log_root() -> io::Result<PathBuf> {
@@ -27,6 +30,14 @@ pub fn resolve_log_scope() -> String {
         Ok(value) => sanitize_segment(&value).unwrap_or_else(|_| DEFAULT_SCOPE.to_owned()),
         Err(_) => DEFAULT_SCOPE.to_owned(),
     }
+}
+
+pub fn resolve_log_run_id() -> Option<String> {
+    first_non_empty_env_value(&[LOG_RUN_ID_ENV, LEGACY_CODEX_RUN_ID_ENV])
+}
+
+pub fn resolve_lane_id() -> Option<String> {
+    first_non_empty_env_value(&[LEDGER_LANE_ENV, LANE_ID_ENV, LEGACY_CODEX_LANE_ID_ENV])
 }
 
 pub fn sanitize_segment(segment: &str) -> io::Result<String> {
@@ -58,6 +69,15 @@ fn env_path(name: &str) -> Option<PathBuf> {
     env::var_os(name)
         .filter(|value| !value.is_empty())
         .map(PathBuf::from)
+}
+
+fn first_non_empty_env_value(names: &[&str]) -> Option<String> {
+    names.iter().find_map(|name| {
+        env::var(name)
+            .ok()
+            .map(|value| value.trim().to_owned())
+            .filter(|value| !value.is_empty())
+    })
 }
 
 fn find_repo_root() -> io::Result<Option<PathBuf>> {

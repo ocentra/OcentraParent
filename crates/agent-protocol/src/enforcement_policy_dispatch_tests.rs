@@ -124,10 +124,7 @@ fn entry(
         intent: crate::EnforcementPolicyDispatchIntent {
             schema_version: "v0.6".to_string(),
             intent_id: intent_id.to_string(),
-            actor: ParentActorReference {
-                actor_id: "parent-actor-primary".to_string(),
-                role: ParentActorRole::Parent,
-            },
+            actor: parent_actor(),
             device: ParentDeviceReference {
                 device_id: "local-dev-agent".to_string(),
                 child_profile_id: Some("child-profile-v0-8-dispatch".to_string()),
@@ -190,11 +187,15 @@ fn approval_reference(
 
     Some(ParentActionReference {
         action_reference_id: "approval-dispatch".to_string(),
-        actor: ParentActorReference {
-            actor_id: "parent-actor-primary".to_string(),
-            role: ParentActorRole::Parent,
-        },
+        actor: parent_actor().into(),
         policy_version: "policy-version-v0-8-dispatch".to_string(),
         created_at: dispatch::GENERATED_AT.to_string(),
     })
+}
+
+fn parent_actor() -> ParentActorReference {
+    ParentActorReference {
+        actor_id: "parent-actor-primary".to_string(),
+        role: ParentActorRole::Parent,
+    }
 }

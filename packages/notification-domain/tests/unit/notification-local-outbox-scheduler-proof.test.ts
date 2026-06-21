@@ -7,7 +7,7 @@ import {
   NotificationLocalOutboxSchedulerRecordSchema,
   summarizeNotificationLocalOutboxSchedulerChannels,
   summarizeNotificationLocalOutboxSchedulerStates,
-} from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof';
+} from '@ocentra-parent/schema-domain/notification-local-outbox-scheduler-proof';
 
 describe('notification local outbox scheduler proof', () => {
   acceptsTheSchedulerReadModel();

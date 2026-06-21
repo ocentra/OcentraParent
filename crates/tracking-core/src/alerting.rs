@@ -1,6 +1,8 @@
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::runtime_event::TrackingPolicyViolationDetectedEvent;
 use ocentra_parent_agent_protocol::{
-    constants, tracking_alert_evaluation_id_from_violation_id, TrackingAlertEvaluationId,
-    TrackingAlertSeverity, TrackingEvidenceRef, TrackingPolicyViolationDetectedEvent,
+    tracking_alert_evaluation_id_from_violation_id, TrackingAlertEvaluationId, TrackingAlertSeverity,
+    TrackingEvidenceRef,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

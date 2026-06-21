@@ -46,7 +46,7 @@ use ocentra_parent_agent_protocol::{
 use super::app_game_adapter_dispatch_preflight_payload::app_game_adapter_dispatch_preflight_read_model;
 use crate::activity_store_path::activity_db_path;
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use std::path::PathBuf;
 
 pub async fn build_activity_app_game_adapter_dispatch_result_report(

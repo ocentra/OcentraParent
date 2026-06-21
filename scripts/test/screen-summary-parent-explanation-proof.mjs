@@ -1,6 +1,5 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
 import { join, relative, resolve } from 'node:path';
 
 const RepoRoot = process.cwd();
@@ -25,10 +24,12 @@ const ClaimBoundaries = {
   portalRuntimeClaimed: false,
 };
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/ai-domain']));
 
-const { buildLocalAiEvidenceContext } = await import('@ocentra-parent/ai-domain/local-ai-context-builder');
-const { buildScreenSummaryParentExplanation } = await importDist('local-ai-screen-summary-parent-explanation.js');
+const { buildLocalAiEvidenceContext } = await import('@ocentra-parent/schema-domain/local-ai-context-builder');
+const { buildScreenSummaryParentExplanation } =
+  await import('@ocentra-parent/schema-domain/local-ai-screen-summary-parent-explanation');
 const ocrProof = JSON.parse(readFileSync(OcrProofPath, 'utf8'));
 const scenarios = ocrProof.proof.scenarios;
 const rows = scenarios.map((scenario) => explanationRowForScenario(scenario));
@@ -232,10 +233,6 @@ function rowFailsValidation(row) {
     row.enforcementHandoffState === 'handed-off' ||
     Object.values(row.claimBoundaries).some((claim) => claim !== false)
   );
-}
-
-async function importDist(fileName) {
-  return import(pathToFileURL(join(RepoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
 }
 
 function runCommand(command, args) {

@@ -1,13 +1,13 @@
 use ocentra_parent_agent_protocol::{constants, TrackingCapabilityStatus};
-use ocentra_tracking_core::TrackingGeofenceInsideState;
+use ocentra_tracking_core::geofence::TrackingGeofenceInsideState;
 
 #[test]
 fn geofence_transition_detects_enter_exit_dwell_unchanged_ambiguous_and_stale_ordering() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
 
-    let enter = ocentra_tracking_core::detect_geofence_transition(
+    let enter = ocentra_tracking_core::geofence::detect_geofence_transition(
         &observed,
-        ocentra_tracking_core::TrackingGeofenceEvaluation {
+        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
             previous_inside_state: Some(TrackingGeofenceInsideState::Outside),
             current_inside_state: TrackingGeofenceInsideState::Inside,
             capability_status: TrackingCapabilityStatus::parse(
@@ -19,9 +19,9 @@ fn geofence_transition_detects_enter_exit_dwell_unchanged_ambiguous_and_stale_or
             grace_period_active: false,
         },
     );
-    let exit = ocentra_tracking_core::detect_geofence_transition(
+    let exit = ocentra_tracking_core::geofence::detect_geofence_transition(
         &observed,
-        ocentra_tracking_core::TrackingGeofenceEvaluation {
+        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
             previous_inside_state: Some(TrackingGeofenceInsideState::Inside),
             current_inside_state: TrackingGeofenceInsideState::Outside,
             capability_status: TrackingCapabilityStatus::parse(
@@ -33,9 +33,9 @@ fn geofence_transition_detects_enter_exit_dwell_unchanged_ambiguous_and_stale_or
             grace_period_active: false,
         },
     );
-    let dwell = ocentra_tracking_core::detect_geofence_transition(
+    let dwell = ocentra_tracking_core::geofence::detect_geofence_transition(
         &observed,
-        ocentra_tracking_core::TrackingGeofenceEvaluation {
+        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
             previous_inside_state: Some(TrackingGeofenceInsideState::Inside),
             current_inside_state: TrackingGeofenceInsideState::Inside,
             capability_status: TrackingCapabilityStatus::parse(
@@ -47,9 +47,9 @@ fn geofence_transition_detects_enter_exit_dwell_unchanged_ambiguous_and_stale_or
             grace_period_active: false,
         },
     );
-    let unchanged = ocentra_tracking_core::detect_geofence_transition(
+    let unchanged = ocentra_tracking_core::geofence::detect_geofence_transition(
         &observed,
-        ocentra_tracking_core::TrackingGeofenceEvaluation {
+        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
             previous_inside_state: Some(TrackingGeofenceInsideState::Outside),
             current_inside_state: TrackingGeofenceInsideState::Outside,
             capability_status: TrackingCapabilityStatus::parse(
@@ -61,9 +61,9 @@ fn geofence_transition_detects_enter_exit_dwell_unchanged_ambiguous_and_stale_or
             grace_period_active: false,
         },
     );
-    let ambiguous = ocentra_tracking_core::detect_geofence_transition(
+    let ambiguous = ocentra_tracking_core::geofence::detect_geofence_transition(
         &observed,
-        ocentra_tracking_core::TrackingGeofenceEvaluation {
+        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
             previous_inside_state: Some(TrackingGeofenceInsideState::Outside),
             current_inside_state: TrackingGeofenceInsideState::Inside,
             capability_status: TrackingCapabilityStatus::parse(
@@ -75,9 +75,9 @@ fn geofence_transition_detects_enter_exit_dwell_unchanged_ambiguous_and_stale_or
             grace_period_active: false,
         },
     );
-    let stale = ocentra_tracking_core::detect_geofence_transition(
+    let stale = ocentra_tracking_core::geofence::detect_geofence_transition(
         &observed,
-        ocentra_tracking_core::TrackingGeofenceEvaluation {
+        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
             previous_inside_state: Some(TrackingGeofenceInsideState::Inside),
             current_inside_state: TrackingGeofenceInsideState::Inside,
             capability_status: TrackingCapabilityStatus::parse(

@@ -1,4 +1,4 @@
-import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/agent-protocol-domain/policy-preview-read-model';
+import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/schema-domain/agent-policy-preview-read-model';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { createPolicyPreviewPanelIntent, type PolicyPreviewPanelDetail } from './policy-preview-panel';
 

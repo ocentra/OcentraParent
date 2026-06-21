@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   EvidenceCustodyScope,
   EvidenceReferenceDecision,
-  evaluateEvidenceCustodyReference,
-} from '../../src/custody';
+} from '@ocentra-parent/schema-domain/evidence-custody-contracts';
+import { evaluateEvidenceCustodyReference } from '../../src/custody';
 
 const availableEvidence = [
   {

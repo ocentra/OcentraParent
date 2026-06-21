@@ -5,13 +5,25 @@
   "type": "module",
   "description": "Screen capture, screen evidence, OCR, VLM, disclosure, and settings contracts.",
   "exports": {
-    "./*": {
-      "import": "./dist/*.js",
-      "types": "./dist/*.d.ts"
-    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
+    },
+    "./screen-ai-enforcement-handoff-guard-proof": {
+      "import": "./dist/screen-ai-enforcement-handoff-guard-proof.js",
+      "types": "./dist/screen-ai-enforcement-handoff-guard-proof.d.ts"
+    },
+    "./screen-child-disclosure-page": {
+      "import": "./dist/screen-child-disclosure-page.js",
+      "types": "./dist/screen-child-disclosure-page.d.ts"
+    },
+    "./screen-evidence-family-hub-routing": {
+      "import": "./dist/screen-evidence-family-hub-routing.js",
+      "types": "./dist/screen-evidence-family-hub-routing.d.ts"
+    },
+    "./screen-intelligence-router": {
+      "import": "./dist/screen-intelligence-router.js",
+      "types": "./dist/screen-intelligence-router.d.ts"
     }
   },
   "scripts": {
@@ -26,7 +38,6 @@
     "@ocentra-parent/browser-domain": "file:../browser-domain",
     "@ocentra-parent/enforcement-domain": "file:../enforcement-domain",
     "@ocentra-parent/event-domain": "file:../event-domain",
-    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
     "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/lan-domain": "file:../lan-domain",
     "@ocentra-parent/policy-domain": "file:../policy-domain",

@@ -1,6 +1,11 @@
 use ocentra_parent_agent_core::enforcement_policy_dispatch::validate_enforcement_policy_dispatch_read_model;
 use ocentra_parent_agent_protocol::{
-    constants::v08_enforcement_policy_dispatch as dispatch, policy_constants,
+    constants::v08_enforcement_policy_dispatch as dispatch,
+    policy_constants,
+    schema_domain_mirrors::family::{
+        ParentActorReference as MirrorParentActorReference,
+        ParentActorRole as MirrorParentActorRole,
+    },
     EnforcementAdapterKind, EnforcementCapabilityState, EnforcementMode,
     EnforcementPolicyDispatchApprovalState, EnforcementPolicyDispatchCapabilityMatrixRow,
     EnforcementPolicyDispatchIntent, EnforcementPolicyDispatchOutcomeState,
@@ -367,9 +372,9 @@ fn approval_ref_for(
 
     Some(ParentActionReference {
         action_reference_id: prefixed(dispatch::PREFIX_APPROVAL, input.intent_id),
-        actor: ParentActorReference {
+        actor: MirrorParentActorReference {
             actor_id: dispatch::PARENT_ACTOR_PRIMARY_ID.to_string(),
-            role: ParentActorRole::Parent,
+            role: MirrorParentActorRole::Parent,
         },
         policy_version: dispatch::POLICY_VERSION_V0_8_DISPATCH.to_string(),
         created_at: generated_at.to_string(),

@@ -171,7 +171,9 @@ fn is_game_classification(classification: &str) -> bool {
 
 fn game_source_status_rows(
     model: &AppGameServiceReadModel,
-) -> Vec<ocentra_parent_agent_protocol::ActivityAppGameSourceStatusRow> {
+) -> Vec<
+    ocentra_parent_agent_protocol::activity_surface::source_status::ActivityAppGameSourceStatusRow,
+> {
     app_game_source_status_rows(
         model,
         is_game_inventory,

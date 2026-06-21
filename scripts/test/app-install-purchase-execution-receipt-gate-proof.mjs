@@ -14,15 +14,15 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-execution-receipt-gate-proof.test.ts',
+      'tests/unit/app-install-purchase-execution-receipt-gate-proof.test.ts',
     ])
   );
 
@@ -61,18 +61,20 @@ async function main() {
     commitMetadataState: 'omitted-for-deterministic-proof-artifact',
     proofMode: 'app-install-purchase-execution-receipt-gate-proof',
     commands,
-    packageExportState: 'added-app-install-purchase-execution-receipt-gate-proof-export',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     checklistState: 'updated-docs-product-capability-checklist-install-purchase-row',
     evidence: {
-      executionReceiptGateContract: 'packages/parent-domain/src/app-install-purchase-execution-receipt-gate-proof.ts',
+      executionReceiptGateContract:
+        'packages/app-game-domain/src/app-install-purchase-execution-receipt-gate-proof.ts',
       sourceExternalRuntimeWriterTransportExecutionContract:
-        'packages/parent-domain/src/app-install-purchase-external-runtime-writer-transport-execution-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-execution-receipt-gate-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-external-runtime-writer-transport-execution-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-execution-receipt-gate-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
-      packageExport: 'packages/parent-domain/package.json',
-      packageReadme: 'packages/parent-domain/README.md',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-execution-receipt-gate-proof',
+      packageReadme: 'packages/app-game-domain/package.json',
       checklistRow: 'docs/product-capability-checklist.md#install-purchase-approval',
       output: relative(repoRoot, proofPath),
     },
@@ -117,7 +119,7 @@ async function loadExecutionReceiptGateProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-execution-receipt-gate-proof.js'
   );

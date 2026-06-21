@@ -5,7 +5,7 @@ import {
   screenAiBrowserTriggerProof,
   screenAiBrowserTriggerProofRows,
   screenAiBrowserTriggerProofSummary,
-} from '../../src/screen-ai-browser-trigger-proof';
+} from '@ocentra-parent/schema-domain/screen-ai-browser-trigger-proof';
 
 describe('screen AI browser trigger proof contracts', () => {
   it('accepts managed browser URL, video, social, and cloud-game trigger rows', acceptsTriggerRows);

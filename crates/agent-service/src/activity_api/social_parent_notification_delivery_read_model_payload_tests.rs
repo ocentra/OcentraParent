@@ -1,9 +1,9 @@
 use ocentra_parent_agent_protocol::{
-    constants, LogFieldValue, SocialParentNotificationDeliveryReadinessSnapshot,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED,
+    constants, LogFieldValue, SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_MANUAL_REQUIRED,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_UNAVAILABLE,
 };
+use ocentra_parent_agent_protocol::social_parent_notification_delivery_read_model::SocialParentNotificationDeliveryReadinessSnapshot;
 use serde::de::DeserializeOwned;
 
 use super::social_parent_notification_delivery_read_model_payload::{

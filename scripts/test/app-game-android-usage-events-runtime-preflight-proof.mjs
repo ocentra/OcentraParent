@@ -14,6 +14,7 @@ const appGameProofDir = join(
 );
 const proofPath = join(outputDir, 'proof.json');
 const commands = [];
+const appGameUsageContractsPath = 'packages/app-game-domain/src/app-game-android-usage-events-contracts.ts';
 
 await main();
 
@@ -26,18 +27,18 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-android-usage-events-runtime-preflight',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
 
   const sourceProof = await assertAndroidSourceProof();
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-runtime-preflight.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-runtime-preflight.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidUsageEventsRuntimePreflightReadModel({
@@ -68,13 +69,13 @@ async function main() {
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
       androidManifest: 'platforms/android/agent/app/src/main/AndroidManifest.xml',
-      contract: 'packages/parent-domain/src/app-game-android-usage-events-runtime-preflight.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-android-usage-events-runtime-preflight.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-android-usage-events-runtime-preflight.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-runtime-preflight.test.ts',
     },
     claimsProved: [
       'Android package source checks UsageStats AppOps readiness through a package-local preflight',
       'MainActivity surfaces the UsageStats permission preflight state without raw UsageEvents rows',
-      'Parent-domain blocks runtime collection until a real runtime sample proof exists',
+      'App-game-domain blocks runtime collection until a real runtime sample proof exists',
     ],
     claimsNotProved: [
       'UsageStats settings grant on the child device',
@@ -102,11 +103,12 @@ async function assertAndroidSourceProof() {
   const preflight = await readRepoFile(preflightPath);
   const activity = await readRepoFile(activityPath);
   const manifest = await readRepoFile(manifestPath);
+  const appGameUsageContracts = readAppGameUsageContracts(await readRepoFile(appGameUsageContractsPath));
 
   assertIncludes(preflight, 'AppOpsManager.OPSTR_GET_USAGE_STATS', 'UsageStats AppOps check');
   assertIncludes(preflight, 'Context.USAGE_STATS_SERVICE', 'UsageStats service check');
-  assertIncludes(preflight, 'app-game.android.usage-events.runtime-preflight.get', 'runtime preflight command');
-  assertIncludes(preflight, 'app-game.android.usage-events.runtime-preflight.reported', 'runtime preflight event');
+  assertIncludes(preflight, appGameUsageContracts.RuntimePreflightGet, 'runtime preflight command');
+  assertIncludes(preflight, appGameUsageContracts.RuntimePreflightReported, 'runtime preflight event');
   assertIncludes(preflight, 'android-usage-events-runtime-preflight-ref', 'runtime preflight proof ref');
   assertIncludes(preflight, 'android-usage-stats-appops-preflight-ref', 'AppOps proof ref');
   assertIncludes(preflight, 'android-usage-events-runtime-sample-not-proved', 'runtime sample gap');
@@ -178,6 +180,21 @@ function sourceSnapshot(sourceProof) {
 
 function relativePath(path) {
   return relative(repoRoot, path).replaceAll('\\', '/');
+}
+
+function readAppGameUsageContracts(source) {
+  return {
+    RuntimePreflightGet: readLiteralObjectEntry(source, 'RuntimePreflightGet'),
+    RuntimePreflightReported: readLiteralObjectEntry(source, 'RuntimePreflightReported'),
+  };
+}
+
+function readLiteralObjectEntry(source, propertyName) {
+  const match = source.match(new RegExp(`${propertyName}:\\s*'([^']+)'`, 'u'));
+  if (match === null) {
+    throw new Error(`missing ${propertyName} contract literal in ${appGameUsageContractsPath}`);
+  }
+  return match[1];
 }
 
 function assertIncludes(value, expected, label) {

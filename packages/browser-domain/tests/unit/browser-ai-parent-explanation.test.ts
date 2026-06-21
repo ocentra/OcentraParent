@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   BrowserAiParentExplanationBundleSchema,
   BrowserAiParentExplanationSchemaVersion,
-} from '../../src/browser-ai-parent-explanation-schemas';
-import { BrowserAiAnalysisSchemaVersion } from '../../src/browser-ai-analysis-schemas';
-import { BrowserAiChildUxSchemaVersion } from '../../src/browser-ai-child-ux-schemas';
-import { BrowserAiPolicyEvaluatorSchemaVersion } from '../../src/browser-ai-policy-evaluator-schemas';
-import { BrowserAiPostAnalysisActionSchemaVersion } from '../../src/browser-ai-post-analysis-action-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-parent-explanation-schemas';
+import { BrowserAiAnalysisSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-analysis-schemas';
+import { BrowserAiChildUxSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-child-ux-schemas';
+import { BrowserAiPolicyEvaluatorSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-policy-evaluator-schemas';
+import { BrowserAiPostAnalysisActionSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-post-analysis-action-schemas';
 
 describe('browser AI parent explanation contract', () => {
   it('accepts evidence-linked parent explanation with audit visibility', acceptsReadyExplanation);

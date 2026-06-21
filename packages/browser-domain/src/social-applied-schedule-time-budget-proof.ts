@@ -4,21 +4,21 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/schema-domain/policy-compiler';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentEvidenceReferenceIdSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { SocialParentPolicyDecisionCandidateSchema } from './social-policy-compiler';
+import { SocialParentPolicyDecisionCandidateSchema } from '@ocentra-parent/schema-domain/social-policy-compiler';
 import {
   SocialParentPolicyDecisionCandidateIdSchema,
   SocialParentPolicyScheduleStateSchema,
   SocialParentPolicyTimeBudgetStateSchema,
   SocialPolicyScheduleRefsSchema,
   SocialPolicyTimeBudgetRefsSchema,
-} from './social-policy-compiler-values';
+} from '@ocentra-parent/schema-domain/social-policy-compiler-values';
 const SocialAppliedScheduleReferenceSchema = withParser(
   brandedNonEmptyStringSchema('SocialAppliedScheduleReference')
 );

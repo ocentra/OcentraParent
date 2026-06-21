@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { expect, it } from 'vitest';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
-import { RunType, TestLogScope } from '../../src/test-log/types';
+import { RunType, TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 
 const TSX_CLI = path.join(
   path.dirname(fileURLToPath(import.meta.url)),

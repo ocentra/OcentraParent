@@ -16,7 +16,7 @@ use ocentra_parent_agent_protocol::{
     TrackingConfigUpdateAppliedEvent, TrackingConfigUpdateEventName, TrackingConfigUpdateResponse,
     TrackingConfigUpdateResponseState, TrackingConfigUpdateTargetScope,
 };
-use ocentra_tracking_core::TrackingConfigUpdateAppliedState;
+use ocentra_tracking_core::retention_settings::TrackingConfigUpdateAppliedState;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrackingConfigUpdateAppliedReport {
@@ -294,22 +294,6 @@ impl TrackingConfigUpdateEventState {
     }
 }
 
-pub fn tracking_config_update_event_bus() -> EventBus {
-    EventBus::new()
-}
-
-pub fn tracking_config_update_parent_event_type() -> TrackingConfigUpdateEventName {
-    TrackingConfigUpdateEventName::Parent
-}
-
-pub fn tracking_config_update_child_event_type() -> TrackingConfigUpdateEventName {
-    TrackingConfigUpdateEventName::Child
-}
-
-pub fn tracking_config_update_applied_event_type() -> TrackingConfigUpdateEventName {
-    TrackingConfigUpdateEventName::Applied
-}
-
 fn apply_child_tracking_config_updated_event(
     child_event: &ChildTrackingConfigUpdatedEvent,
 ) -> TrackingConfigUpdateAppliedReport {
@@ -330,7 +314,7 @@ fn apply_child_tracking_config_updated_event(
 fn on_child_tracking_config_updated_event(
     child_event: &ChildTrackingConfigUpdatedEvent,
 ) -> TrackingConfigUpdateAppliedState {
-    ocentra_tracking_core::apply_tracking_config_update(&child_event.config)
+    ocentra_tracking_core::retention_settings::apply_tracking_config_update(&child_event.config)
 }
 
 fn parent_tracking_config_updated_metadata(
@@ -443,5 +427,5 @@ fn tracking_config_update_applied_report(
 }
 
 pub fn tracking_retention_settings_durable_store_path() -> PathBuf {
-    ocentra_tracking_core::tracking_retention_settings_durable_store_path()
+    ocentra_tracking_core::retention_settings::tracking_retention_settings_durable_store_path()
 }

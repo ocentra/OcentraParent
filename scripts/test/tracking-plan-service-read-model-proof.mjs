@@ -69,7 +69,7 @@ async function main() {
       payloadField: trackingReadModelContract.payloadField,
       sourceStore: 'ActivityStore SQLite activity_events',
       portalProjectionModel: 'packages/portal-domain/src/tracking-status-panel.ts',
-      portalConsumer: 'apps/portal/src/tracking-status-panel.ts',
+      portalConsumer: 'apps/portal/src/TrackingStatusRoutePanel.tsx',
       coveredEventKinds: [
         'activity.location.observed',
         'activity.tracking.geofence-transition.evaluated',
@@ -140,7 +140,7 @@ async function main() {
       typescriptReadModelParser: 'packages/agent-protocol-domain/src/tracking-read-model.ts',
       portalLiveState: 'packages/portal-domain/src/live-activity-state.ts',
       portalTrackingProjection: 'packages/portal-domain/src/tracking-status-panel.ts',
-      portalTrackingSurface: 'apps/portal/src/tracking-status-panel.ts',
+      portalTrackingSurface: 'apps/portal/src/TrackingStatusRoutePanel.tsx',
       portalTrackingSurfaceTest: 'apps/portal/tests/tracking-status-panel.test.ts',
     },
     nonClaims: [
@@ -182,7 +182,7 @@ async function main() {
     ],
     artifacts: {
       typescriptParser: 'packages/agent-protocol-domain/src/tracking-read-model.ts',
-      typescriptParserTest: 'packages/agent-protocol-domain/tests/tracking-read-model.test.ts',
+      typescriptParserTest: 'packages/agent-protocol-domain/tests/unit/tracking-read-model.test.ts',
       rustProtocol: 'crates/agent-protocol/src/tracking_read_model.rs',
       rustProtocolTest: 'crates/agent-protocol/src/tracking_read_model_tests.rs',
       rustCoreReadModel: 'crates/agent-core/src/activity_store_tracking.rs',
@@ -222,7 +222,7 @@ async function main() {
       'The proof does not claim Android/iOS physical background behavior, provider delivery, complete UI, or authority enrollment.',
     ],
     artifacts: {
-      typescriptParserTest: 'packages/agent-protocol-domain/tests/tracking-read-model.test.ts',
+      typescriptParserTest: 'packages/agent-protocol-domain/tests/unit/tracking-read-model.test.ts',
       rustProtocolTest: 'crates/agent-protocol/src/tracking_read_model_tests.rs',
       rustCoreReadModelTest: 'crates/agent-core/src/activity_store_tracking_tests.rs',
       rustServiceCommandTest: 'crates/agent-service/src/tracking_read_model_service_tests.rs',

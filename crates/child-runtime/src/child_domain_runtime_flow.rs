@@ -8,8 +8,10 @@ use ocentra_eventing::{
     ids::RuntimeRole, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
     ids::TargetHandler,
 };
+use ocentra_lan_core::lan_pairing;
 use ocentra_network_core::network_runtime;
 use ocentra_parent_agent_protocol::child_domain_runtime::{
+    child_domain_notification_requested_event,
     child_domain_policy_evaluation_requested_from_ai_result_event_if_required,
     ChildDomainAiAnalysisCompletedEvent, ChildDomainAiAnalysisRequestedEvent,
     ChildDomainAiRequestId, ChildDomainEventType, ChildDomainEvidenceRecordedEvent,
@@ -119,7 +121,7 @@ pub async fn publish_default_child_domain_runtime_flows(
         ocentra_app_core::default_app_observed_event(),
         ocentra_app_game_core::default_app_game_observed_event(),
         ocentra_browser_core::default_browser_observed_event(),
-        ocentra_lan_core::default_lan_observed_event(),
+        lan_pairing::default_lan_observed_event(),
         network_runtime::default_network_observed_event(),
         ocentra_screen_core::default_screen_observed_event(),
         ocentra_screen_live_view_core::default_screen_live_view_observed_event(),
@@ -350,10 +352,7 @@ async fn subscribe_child_domain_notification(
         move |context| {
             let state = state.clone();
             async move {
-                let notification =
-                    ocentra_child_notification_core::child_domain_notification::request_child_domain_parent_notification(
-                        context.payload(),
-                    );
+                let notification = child_domain_notification_requested_event(context.payload());
                 state.record_notification(notification.clone());
                 context
                     .publisher()
@@ -474,7 +473,7 @@ fn child_domain_evidence_recorded_event(
         ChildRuntimeDomain::Browser => {
             Ok(ocentra_browser_core::browser_evidence_recorded_event(event))
         }
-        ChildRuntimeDomain::Lan => Ok(ocentra_lan_core::lan_evidence_recorded_event(event)),
+        ChildRuntimeDomain::Lan => Ok(lan_pairing::lan_evidence_recorded_event(event)),
         ChildRuntimeDomain::Network => Ok(network_runtime::network_evidence_recorded_event(event)),
         ChildRuntimeDomain::Screen => {
             Ok(ocentra_screen_core::screen_evidence_recorded_event(event))
@@ -496,7 +495,7 @@ fn child_domain_ai_analysis_requested_event(
         ChildRuntimeDomain::Browser => Ok(
             ocentra_browser_core::browser_ai_analysis_requested_event(event),
         ),
-        ChildRuntimeDomain::Lan => Ok(ocentra_lan_core::lan_ai_analysis_requested_event(event)),
+        ChildRuntimeDomain::Lan => Ok(lan_pairing::lan_ai_analysis_requested_event(event)),
         ChildRuntimeDomain::Network => {
             Ok(network_runtime::network_ai_analysis_requested_event(event))
         }
@@ -522,9 +521,7 @@ fn child_domain_policy_evaluation_requested_event(
         ChildRuntimeDomain::Browser => {
             Ok(ocentra_browser_core::browser_policy_evaluation_requested_event(event))
         }
-        ChildRuntimeDomain::Lan => Ok(ocentra_lan_core::lan_policy_evaluation_requested_event(
-            event,
-        )),
+        ChildRuntimeDomain::Lan => Ok(lan_pairing::lan_policy_evaluation_requested_event(event)),
         ChildRuntimeDomain::Network => Ok(
             network_runtime::network_policy_evaluation_requested_event(event),
         ),

@@ -15,19 +15,19 @@ await rm(resultDir, { recursive: true, force: true });
 await mkdir(resultDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
-  'tracking-policy-compiler-runtime-proof',
-  'tracking-location-policy',
+  'tracking-policy-compiler-runtime-proof.test.ts',
 ]);
 
-const tracking = await importDist('tracking-location-policy.js');
-const compiler = await importDist('tracking-policy-compiler-runtime-proof.js');
+const tracking = await importSchemaDist('tracking-location-policy.js');
+const compiler = await importTrackingDist('tracking-policy-compiler-runtime-proof.js');
 const results = compileProofScenarios(tracking, compiler);
 
 const proof = {
@@ -40,8 +40,8 @@ const proof = {
   summary: summarize(results),
   productClaims: productClaims(),
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-policy-compiler-runtime-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-policy-compiler-runtime-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-policy-compiler-runtime-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-policy-compiler-runtime-proof.test.ts',
     harness: 'scripts/test/tracking-policy-compiler-runtime-proof.mjs',
     evidence: 'test-results/tracking-policy-compiler-runtime-proof/proof.json',
     trackingProofPack: `output/tracking-plan-proof/${workpackId}`,
@@ -57,8 +57,12 @@ await writeProofPack(proofDir, proof);
 console.log('tracking-policy-compiler-runtime-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-policy-compiler-runtime-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
+}
+
+function importTrackingDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
 }
 
 function compileProofScenarios(tracking, compiler) {
@@ -240,8 +244,9 @@ async function writeProofPack(path, proof) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-policy-compiler-runtime-proof tracking-location-policy: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/tracking-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tracking-policy-compiler-runtime-proof.test.ts: PASS',
       '- Compiler outputs parse through existing tracking policy schemas.',
       '- Parent policy remains final action authority; AI result rows remain evidence only.',
       '',

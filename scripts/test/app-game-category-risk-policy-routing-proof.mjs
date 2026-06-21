@@ -17,22 +17,16 @@ async function main() {
   await mkdir(join(appGameProofDir, '06-ui-snapshots'), { recursive: true });
   await mkdir(join(appProofDir, '06-ui-snapshots'), { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/parent-domain',
-      '--',
-      'app-game-category-risk-policy-routing',
-    ])
-  );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
-  const routing = await import('../../packages/parent-domain/dist/app-game-category-risk-policy-routing.js');
-  const compilerRules = await import('../../packages/parent-domain/dist/app-game-policy-target-compiler-rules.js');
-  const policy = await import('../../packages/parent-domain/dist/policy.js');
-  const refs = await import('../../packages/parent-domain/dist/reference-primitives.js');
+  const routing = await import('@ocentra-parent/schema-domain/app-game-category-risk-policy-routing');
+  commands.push('node import @ocentra-parent/schema-domain/app-game-category-risk-policy-routing');
+  const compilerRules = await import('@ocentra-parent/schema-domain/app-game-policy-target-compiler-rules');
+  commands.push('node import @ocentra-parent/schema-domain/app-game-policy-target-compiler-rules');
+  const policy = await import('@ocentra-parent/schema-domain/policy');
+  commands.push('node import @ocentra-parent/schema-domain/policy');
+  const refs = await import('@ocentra-parent/schema-domain/family-reference-primitives');
+  commands.push('node import @ocentra-parent/schema-domain/family-reference-primitives');
 
   const fixtures = buildFixtures(routing, compilerRules, policy, refs);
   const parsed = fixtures.validRoutes.map((route) => routing.AppGameCategoryRiskPolicyRouteSchema.parse(route));
@@ -86,9 +80,11 @@ async function main() {
       'cross-platform runtime support',
     ],
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-category-risk-policy-routing.ts',
-      rules: 'packages/parent-domain/src/app-game-category-risk-policy-routing-rules.ts',
-      test: 'packages/parent-domain/tests/app-game-category-risk-policy-routing.test.ts',
+      schemaContract: 'packages/schema-domain/src/app-game-category-risk-policy-routing.ts',
+      schemaRules: 'packages/schema-domain/src/app-game-category-risk-policy-routing-rules.ts',
+      sharedCompilerRules: 'packages/schema-domain/src/app-game-policy-target-compiler-rules.ts',
+      sharedPolicy: 'packages/schema-domain/src/policy.ts',
+      sharedReferencePrimitives: 'packages/schema-domain/src/family-reference-primitives.ts',
       harness: 'scripts/test/app-game-category-risk-policy-routing-proof.mjs',
       appGameProofPack: 'output/app-game-plan-proof/49-category-risk-policy-routing',
       appProofPack: 'output/app-plan-proof/49-category-risk-policy-routing',
@@ -221,8 +217,8 @@ async function writeProofPack(proofDir, proof, label) {
       '',
       `- Branch: ${await gitBranch()}`,
       `- Commit: ${proof.commit}`,
-      '- Scope: parent-domain category/risk policy-routing contract proof.',
-      '- Source inspected: activity-domain category/risk taxonomy and parent-domain app/game policy target compiler.',
+      '- Scope: schema-domain category/risk policy-routing contract proof.',
+      '- Source inspected: schema-domain category/risk routing contract, shared compiler rules, policy enums, and family reference primitives.',
       '- UI, service runtime, provider execution, notifications, and adapters are intentionally not changed.',
       '',
     ].join('\n'),
@@ -233,8 +229,11 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-category-risk-policy-routing: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- node import @ocentra-parent/schema-domain/app-game-category-risk-policy-routing: PASS',
+      '- node import @ocentra-parent/schema-domain/app-game-policy-target-compiler-rules: PASS',
+      '- node import @ocentra-parent/schema-domain/policy: PASS',
+      '- node import @ocentra-parent/schema-domain/family-reference-primitives: PASS',
       '- Valid route families: nativeApp, riskCandidate, nativeGame/gameContext as applicable.',
       '- Invalid route rejection covers stale proof, hard risk action, missing AI digest, and wrong family target.',
       '',
@@ -243,7 +242,7 @@ async function writeProofPack(proofDir, proof, label) {
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust/service protocol not changed. This is TypeScript parent-domain policy-routing proof only.\n',
+    'Rust/service protocol not changed. This is TypeScript schema-domain policy-routing proof only.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof);
@@ -310,8 +309,11 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Validation run:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-category-risk-policy-routing: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- node import @ocentra-parent/schema-domain/app-game-category-risk-policy-routing: PASS',
+      '- node import @ocentra-parent/schema-domain/app-game-policy-target-compiler-rules: PASS',
+      '- node import @ocentra-parent/schema-domain/policy: PASS',
+      '- node import @ocentra-parent/schema-domain/family-reference-primitives: PASS',
       '- node scripts/test/app-game-category-risk-policy-routing-proof.mjs: PASS',
       '',
     ].join('\n'),

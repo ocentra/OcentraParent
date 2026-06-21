@@ -8,11 +8,11 @@ use ocentra_eventing::{
     envelope::DomainEvent, envelope::EventContract, ids::AggregateKey, ids::EventType,
     ids::IdempotencyKey, ids::SchemaVersion,
 };
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::{browser::BrowserRuntimePhase, constants};
 #[cfg(test)]
 use serde::{Deserialize, Serialize};
 
-use crate::{BrowserRuntimeEventPayload, BrowserRuntimeInput, BrowserRuntimePhase};
+use super::BrowserRuntimeInput;
 
 pub fn browser_runtime_chain_topology_manifest() -> Result<EventTopologyManifest, EventingError> {
     let input = BrowserRuntimeInput::managed_decision_fixture();
@@ -20,7 +20,7 @@ pub fn browser_runtime_chain_topology_manifest() -> Result<EventTopologyManifest
     let mut publishers = Vec::new();
     let mut subscribers = Vec::new();
     for phase in BrowserRuntimePhase::ordered_chain() {
-        let payload = BrowserRuntimeEventPayload::from_input(*phase, &input);
+        let payload = super::browser_runtime_event_payload_from_input(*phase, &input);
         let event_type = registry.register_event(&payload)?.event_type().clone();
         publishers.push(EventTopologyPublisher {
             event_type: event_type.clone(),

@@ -174,6 +174,10 @@ fn notification_state_for(
         PolicyRequestStatus::Modified => Ok(PolicyControlNotificationState::Modified),
         PolicyRequestStatus::Denied => Ok(PolicyControlNotificationState::Denied),
         PolicyRequestStatus::Expired => Ok(PolicyControlNotificationState::ExpiredRequest),
+        PolicyRequestStatus::ReplayRejected => Err(invalid_request_status_error(
+            "policy_request.status",
+            request.status,
+        )),
     }
 }
 
@@ -207,6 +211,12 @@ fn assert_request_override_shape(
                 });
             }
         }
+        PolicyRequestStatus::ReplayRejected => {
+            return Err(invalid_request_status_error(
+                "policy_request.status",
+                request.status,
+            ));
+        }
     }
 
     Ok(())
@@ -222,7 +232,7 @@ fn assert_request_matches_delivery(
     ) {
         return Err(EventingError::InvalidValue {
             field: "policy_control_notification.delivery_state",
-            value: policy_request_status_name(request.status).to_string(),
+            value: request.status.as_protocol_str().to_string(),
         });
     }
 
@@ -283,13 +293,9 @@ fn extend_unique_audit_refs(
     }
 }
 
-fn policy_request_status_name(status: PolicyRequestStatus) -> &'static str {
-    match status {
-        PolicyRequestStatus::PreviewOnly => "preview-only",
-        PolicyRequestStatus::PendingParentReview => "pending-parent-review",
-        PolicyRequestStatus::Approved => "approved",
-        PolicyRequestStatus::Denied => "denied",
-        PolicyRequestStatus::Modified => "modified",
-        PolicyRequestStatus::Expired => "expired",
+fn invalid_request_status_error(field: &'static str, status: PolicyRequestStatus) -> EventingError {
+    EventingError::InvalidValue {
+        field,
+        value: status.as_protocol_str().to_string(),
     }
 }

@@ -6,7 +6,7 @@ import { dirname, join, relative } from 'node:path';
 import {
   BrowserGameApprovalDecisionSchema,
   BrowserGameApprovalRequestSchema,
-} from '../../packages/parent-domain/dist/browser-game-account-purchase-gate.js';
+} from '@ocentra-parent/schema-domain/browser-game-account-purchase-gate';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-account-purchase-gate-live-evidence-proof';

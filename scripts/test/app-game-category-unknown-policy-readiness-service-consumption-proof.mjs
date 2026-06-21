@@ -35,7 +35,7 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/portal-domain',
+      '@ocentra-parent/portal',
       '--',
       'app-game-policy-readiness-panel',
     ])
@@ -82,14 +82,15 @@ async function main() {
     ],
     evidence: {
       typescriptProtocol: 'packages/agent-protocol-domain/src/app-game-policy-readiness.ts',
-      typescriptTest: 'packages/agent-protocol-domain/tests/app-game-policy-readiness.test.ts',
+      typescriptTest: 'packages/agent-protocol-domain/tests/unit/app-game-policy-readiness.test.ts',
       rustProtocol: 'crates/agent-protocol/src/app_game_policy_readiness.rs',
       rustProtocolTest: 'crates/agent-protocol/src/app_game_policy_readiness_tests.rs',
       servicePayload: 'crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs',
       servicePayloadTest: 'crates/agent-service/src/activity_api/app_game_policy_readiness_payload_tests.rs',
       serviceCommandTest: 'crates/agent-service/src/activity_api/app_game_policy_readiness_service_tests.rs',
       portalDomainIntent: 'packages/portal-domain/src/app-game-policy-readiness-panel.ts',
-      portalDomainTest: 'packages/portal-domain/tests/app-game-policy-readiness-panel.test.ts',
+      portalDomainUnitTest: 'packages/portal-domain/tests/unit/app-game-policy-readiness-panel.test.ts',
+      portalRouteTest: 'apps/portal/tests/app-game-policy-readiness-panel.test.ts',
     },
   };
 
@@ -122,9 +123,9 @@ async function writeProofPack(proof) {
       '',
       '- cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain: PASS',
       '- cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- app-game-policy-readiness: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/portal-domain -- app-game-policy-readiness-panel: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/portal -- app-game-policy-readiness-panel: PASS',
       '- The parser accepts categoryCandidate and unknownReview rows and rejects adapterDispatchClaimed=true.',
-      '- The portal-domain intent renders category/unknown rows and counts without adapter dispatch claims.',
+      '- The app portal route surface renders category/unknown rows and counts without adapter dispatch claims.',
       '',
     ].join('\n'),
     'utf8'
@@ -191,7 +192,7 @@ async function writeProofPack(proof) {
       '',
       '- cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain: PASS',
       '- cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- app-game-policy-readiness: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/portal-domain -- app-game-policy-readiness-panel: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/portal -- app-game-policy-readiness-panel: PASS',
       '- cargo test -p ocentra-parent-agent-protocol app_game_policy_readiness: PASS',
       '- cargo test -p ocentra-parent-agent-service app_game_policy_readiness: PASS',
       '- node scripts/test/app-game-category-unknown-policy-readiness-service-consumption-proof.mjs: PASS',

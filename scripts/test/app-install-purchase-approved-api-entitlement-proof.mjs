@@ -13,28 +13,22 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-approved-api-entitlement-proof.test.ts',
+      'tests/unit/app-install-purchase-approved-api-entitlement-proof.test.ts',
     ])
   );
 
   const proofModule = await loadApprovedApiEntitlementProofModule();
-  const packageModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-approved-api-entitlement-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseApprovedApiEntitlementProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseApprovedApiEntitlementProof(parsedReadModel);
 
-  assert.equal(
-    packageModule.AppInstallPurchaseApprovedApiEntitlementProofReadModel.schemaVersion,
-    parsedReadModel.schemaVersion
-  );
   assert.deepEqual(summary, {
     evidenceRows: 5,
     approvedApiRequiredRows: 1,
@@ -68,9 +62,9 @@ async function main() {
     commands,
     evidence: {
       approvedApiEntitlementContract:
-        'packages/parent-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
-      sourceChildArtifactContract: 'packages/parent-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-approved-api-entitlement-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
+      sourceChildArtifactContract: 'packages/app-game-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-approved-api-entitlement-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDelta: 'DOC_DELTA: docs/product-capability-checklist.md row Install/purchase approval',
@@ -110,7 +104,7 @@ async function loadApprovedApiEntitlementProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-approved-api-entitlement-proof.js'
   );

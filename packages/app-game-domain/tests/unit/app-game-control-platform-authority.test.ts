@@ -5,7 +5,7 @@ import {
   AppGamePlatformAuthorityRowSchema,
   AppGamePlatformAuthorityTier,
 } from '../../src/app-game-control-platform-authority';
-import { EnforcementCapabilityState, EnforcementMode } from '@ocentra-parent/enforcement-domain/enforcement';
+import { EnforcementCapabilityState, EnforcementMode } from '@ocentra-parent/schema-domain/enforcement';
 import { ParentContractSchemaVersion, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-03T03:05:00Z';

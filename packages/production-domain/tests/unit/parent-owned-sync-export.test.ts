@@ -13,7 +13,7 @@ import {
   summarizeParentOwnedSyncExportDataClasses,
   summarizeParentOwnedSyncExportRecoveryBundleStates,
   summarizeParentOwnedSyncExportRecoveryHandoffStates,
-} from '../../src/parent-owned-sync-export';
+} from '@ocentra-parent/schema-domain/parent-owned-sync-export';
 
 describe('parent-owned sync export manifest contracts', () => {
   acceptsTheContractOnlySyncExportProof();

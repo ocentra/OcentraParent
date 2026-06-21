@@ -19,16 +19,16 @@ async function main() {
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/app-game-domain',
     '--',
     'app-game-linux-docker-host-preflight',
     'app-game-platform-proof-status',
   ]);
-  runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 
   const dockerProbe = collectDockerHostProbe();
   const module = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-docker-host-preflight.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-linux-docker-host-preflight.js')).href
   );
   const readModel = module.createAppGameLinuxDockerHostPreflightReadModel({
     generatedAt: '2026-06-08T19:15:00.000Z',
@@ -48,9 +48,9 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-linux-docker-host-preflight.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-linux-docker-host-preflight.test.ts',
-      platformStatus: 'packages/parent-domain/src/app-game-platform-proof-status.ts',
+      contract: 'packages/app-game-domain/src/app-game-linux-docker-host-preflight.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-linux-docker-host-preflight.test.ts',
+      platformStatus: 'packages/app-game-domain/src/app-game-platform-proof-status.ts',
       dockerCli: 'Docker CLI visibility is recorded as a boolean only.',
       dockerDaemon: 'Docker daemon visibility is recorded as a boolean only.',
       dockerInventory: 'Docker context, image, and container inventories are recorded as counts only.',

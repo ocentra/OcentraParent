@@ -13,28 +13,22 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-platform-adapter-boundary-proof.test.ts',
+      'tests/unit/app-install-purchase-platform-adapter-boundary-proof.test.ts',
     ])
   );
 
   const proofModule = await loadPlatformAdapterBoundaryProofModule();
-  const packageModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-platform-adapter-boundary-proof');
   const parsedReadModel = proofModule.AppInstallPurchasePlatformAdapterBoundaryProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchasePlatformAdapterBoundaryProof(parsedReadModel);
 
-  assert.equal(
-    packageModule.AppInstallPurchasePlatformAdapterBoundaryProofReadModel.schemaVersion,
-    parsedReadModel.schemaVersion
-  );
   assert.deepEqual(summary, {
     adapterBoundaryRows: 5,
     notImplementedRows: 3,
@@ -67,11 +61,11 @@ async function main() {
     commands,
     evidence: {
       platformAdapterBoundaryContract:
-        'packages/parent-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts',
       sourceApprovedApiEntitlementContract:
-        'packages/parent-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
-      sourceReportRuntimeContract: 'packages/parent-domain/src/app-install-purchase-report-runtime-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-platform-adapter-boundary-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
+      sourceReportRuntimeContract: 'packages/app-game-domain/src/app-install-purchase-report-runtime-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-platform-adapter-boundary-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDelta: 'DOC_DELTA: docs/product-capability-checklist.md row Install/purchase approval',
@@ -111,7 +105,7 @@ async function loadPlatformAdapterBoundaryProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-platform-adapter-boundary-proof.js'
   );

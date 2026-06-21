@@ -16,18 +16,18 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
   runNpm([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/browser-domain',
     '--',
-    'social-alert-report-provider-preflight-proof.test.ts',
+    'social-alert-report-preference-preflight.test.ts',
   ]);
 
-  const source = await readText('packages/parent-domain/src/social-alert-report-provider-preflight-proof.ts');
-  const test = await readText('packages/parent-domain/tests/social-alert-report-provider-preflight-proof.test.ts');
+  const source = await readText('packages/schema-domain/src/social-alert-report-provider-preflight-proof.ts');
+  const test = await readText('packages/browser-domain/tests/unit/social-alert-report-preference-preflight.test.ts');
   const socialFeature = await readText('docs/features/social-video-control.md');
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/readme.md');
   const proofModule = await importDist('social-alert-report-provider-preflight-proof.js');
@@ -40,14 +40,15 @@ async function main() {
   );
   const summary = proofModule.summarizeSocialAlertReportProviderPreflight(readModel);
   const checks = [
-    checkFile('packages/parent-domain/src/social-alert-report-provider-preflight-proof.ts'),
-    checkFile('packages/parent-domain/tests/social-alert-report-provider-preflight-proof.test.ts'),
+    checkFile('packages/schema-domain/src/social-alert-report-provider-preflight-proof.ts'),
+    checkFile('packages/browser-domain/tests/unit/social-alert-report-preference-preflight.test.ts'),
     checkFile('scripts/test/social-alert-report-provider-preflight-proof.mjs'),
     checkIncludes(source, 'providerDeliveryRuntimeClaimed: Schema.Literal(false)', 'provider delivery non-claim guard'),
     checkIncludes(source, 'finalPolicyExecutionClaimed: Schema.Literal(false)', 'final policy non-claim guard'),
     checkIncludes(source, 'enforcementClaimed: Schema.Literal(false)', 'enforcement non-claim guard'),
     checkIncludes(test, 'providerDeliveryRuntimeClaimed: true', 'provider delivery rejection test'),
-    checkIncludes(test, 'providerAdapterRequiredCount: 0', 'dishonest count rejection test'),
+    checkIncludes(test, 'parentNotificationPreferenceUiClaimed: true', 'preference UI overclaim rejection test'),
+    checkIncludes(test, 'quietHoursTimerRuntimeClaimed: true', 'quiet-hours runtime overclaim rejection test'),
     checkIncludes(socialFeature, 'social-alert-report-intent-ui-proof', 'social feature alert/report UI proof note'),
     checkIncludes(workpackReadme, 'social-alert-report-intent-ui-proof', 'social README alert/report UI proof note'),
   ];
@@ -80,8 +81,8 @@ async function main() {
       manualProofRequirements: row.manualProofRequirements,
     })),
     proofPaths: {
-      source: 'packages/parent-domain/src/social-alert-report-provider-preflight-proof.ts',
-      test: 'packages/parent-domain/tests/social-alert-report-provider-preflight-proof.test.ts',
+      source: 'packages/schema-domain/src/social-alert-report-provider-preflight-proof.ts',
+      test: 'packages/browser-domain/tests/unit/social-alert-report-preference-preflight.test.ts',
       harness: 'scripts/test/social-alert-report-provider-preflight-proof.mjs',
       evidence: 'test-results/social-alert-report-provider-preflight-proof/proof.json',
       manifest:
@@ -107,7 +108,7 @@ async function main() {
 }
 
 function importDist(name) {
-  return import(pathToFileURL(join(root, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(root, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function options() {

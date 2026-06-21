@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseBrowserUrlShape } from '../../src/browser-url-intelligence';
-import { buildYouTubeMetadataEvidence } from '../../src/browser-youtube-metadata';
+import { buildYouTubeMetadataEvidence } from '@ocentra-parent/schema-domain/browser-youtube-metadata';
 
 describe('browser YouTube parser and metadata adapter', () => {
   it('builds metadata evidence from managed exact YouTube video shape', buildsVideoMetadata);

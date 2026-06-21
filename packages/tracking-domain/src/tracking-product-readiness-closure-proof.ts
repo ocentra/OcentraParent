@@ -6,8 +6,8 @@ import {
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
-import { TrackingRetentionSettingsProofRefSchema } from './tracking-retention-settings-read-model-proof';
+import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
+import { TrackingRetentionSettingsProofRefSchema } from '@ocentra-parent/schema-domain/tracking-retention-settings-read-model-proof';
 
 export const TrackingProductReadinessClosureProofIdSchema = brandedNonEmptyStringSchema('TrackingProductReadinessClosureProofId');
 

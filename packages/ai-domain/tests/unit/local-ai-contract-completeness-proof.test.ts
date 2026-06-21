@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   LocalAiContractCompletenessProof,
   LocalAiContractCompletenessProofSchema,
-} from '../../src/local-ai-contract-completeness-proof';
-import { LocalAiProviderSchedulerDecisionSchema } from '../../src/local-ai-provider-scheduler';
+} from '@ocentra-parent/schema-domain/local-ai-contract-completeness-proof';
+import { LocalAiProviderSchedulerDecisionSchema } from '@ocentra-parent/schema-domain/local-ai-provider-scheduler';
 
 describe('local AI contract completeness proof', () => {
   it('proves input, result, provider capability, queue, and route contracts without runtime overclaims', () => {

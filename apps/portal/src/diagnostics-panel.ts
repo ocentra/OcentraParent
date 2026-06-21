@@ -1,12 +1,12 @@
 import {
-  PortalDetails,
   PortalDom,
   PortalText,
   PortalTextToken,
   PortalTiming,
-  decodePortalDetailValue,
 } from '@ocentra-parent/portal-domain/contracts';
-import { DevLogField, DevLogMessage } from '@ocentra-parent/logging-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { decodePortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
+import { DevLogField, DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
 import { writeClipboardText } from './clipboard';
 import { appendDetail } from './detail-list';
 import { buildDiagnosticsExport } from './diagnostics-export';

@@ -6,12 +6,12 @@ import {
   screenVlmJournalLineFromCompletedStatus,
   screenVlmJournalReadModelProjection,
   screenVlmReadModelFromCompletedStatus,
-} from '../../src/screen-vlm-journal-read-model';
+} from '@ocentra-parent/schema-domain/screen-vlm-journal-read-model';
 import {
   screenVlmCompletedStatusFromResult,
   screenVlmQueueHandoffFromJob,
   screenVlmQueuedStatusFromHandoff,
-} from '@ocentra-parent/screen-domain/screen-vlm-execution-readiness';
+} from '@ocentra-parent/schema-domain/screen-vlm-execution-readiness';
 import {
   ScreenVlmWorkerJobSchema,
   ScreenVlmWorkerMaxImagePixels,
@@ -20,8 +20,8 @@ import {
   ScreenVlmWorkerRuntimeRef,
   ScreenVlmWorkerSchemaVersion,
   ScreenVlmWorkerTemplateVersion,
-} from '@ocentra-parent/screen-domain/screen-vlm-worker';
-import { ActivitySurfaceSchemaVersion } from '../../src/activity-surface';
+} from '@ocentra-parent/schema-domain/screen-vlm-worker';
+import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/schema-domain/activity-surface';
 
 const EvidenceRef = {
   evidenceId: 'screen-vlm-journal-read-model-source',

@@ -2,13 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
   AppGameChildDeviceDeliveryReadinessReadModelSchema,
   AppGameChildDeviceDeliveryReadinessStatus,
-} from '../../src/app-game-child-facing-ux-child-device-delivery-readiness';
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-delivery-readiness';
 import {
   AppGameChildDeviceRuntimeWriterReadModelSchema,
   AppGameChildDeviceRuntimeWriterState,
   buildAppGameChildDeviceRuntimeWriterReadModel,
   summarizeAppGameChildDeviceRuntimeWriter,
-} from '../../src/app-game-child-facing-ux-child-device-runtime-writer';
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-runtime-writer';
 
 const Timestamp = '2026-06-08T22:45:00Z';
 

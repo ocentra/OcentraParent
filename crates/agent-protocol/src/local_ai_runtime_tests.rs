@@ -2,9 +2,10 @@ use super::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer,
     AgentPeerRole, AgentRoute, LocalAiAdapterBoundary, LocalAiCapabilityFlag, LocalAiDegradedState,
     LocalAiExecutionState, LocalAiModelLoadState, LocalAiProviderPrivacyMode,
-    LocalAiProviderSource, LocalAiResourceClass, LocalModelRuntimeStatus, LocalProviderCapability,
-    LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
+    LocalAiProviderSource, LocalAiResourceClass, LocalModelRuntimeStatus, LogFields,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
+use crate::local_ai_runtime::status::LocalProviderCapability;
 
 #[test]
 fn local_model_runtime_status_serializes_to_typescript_contract_shape() {

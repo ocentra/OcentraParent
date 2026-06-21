@@ -2,7 +2,7 @@ import {
   ParentControlCapabilityName,
   ParentControlCapabilityStatus,
   type ParentControlCapabilityStatus as ParentControlCapabilityStatusType,
-} from '@ocentra-parent/capability-domain/capabilities';
+} from '@ocentra-parent/schema-domain/capabilities';
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   V08BrowserEnforcementTimerRecoveryProofReadModelSchema,
@@ -24,7 +24,7 @@ import {
   type V08UnmanagedBrowserFallbackState,
   type V08UnmanagedBrowserFallbackSurface as V08UnmanagedBrowserFallbackSurfaceType,
   type V08UnmanagedBrowserProcessIdentityState,
-} from './v0-8-browser-enforcement-timer-recovery-proof';
+} from '@ocentra-parent/schema-domain/v0-8-browser-enforcement-timer-recovery-proof';
 
 type TimerEntryInput = {
   proofEntryId: string;

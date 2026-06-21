@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::dns::{DnsObservation, NetworkEvidenceGrade};
+use crate::dns::types::{DnsObservation, NetworkEvidenceGrade};
 use crate::flow::{NetworkFlowProtocol, NetworkFlowSession};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

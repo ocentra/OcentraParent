@@ -1,12 +1,14 @@
 import { expect, it } from 'vitest';
 import {
-  AgentEvent,
-  AgentProtocolDefaults,
   AppGameTimerParentPreferenceSetupRequestResultSchema,
   AppGameTimerParentPreferenceSetupRequestSchema,
-  parseAgentAppGameTimerParentPreferenceSetupRequestEvent,
+} from '@ocentra-parent/schema-domain/app-game-timer-parent-preference-setup-request';
+import {
+  AgentEvent,
+  AgentProtocolDefaults,
   type AgentEventEnvelope,
 } from '../../src/contracts';
+import { parseAgentAppGameTimerParentPreferenceSetupRequestEvent } from '../../src/app-game-timer-parent-preference-setup-request';
 
 it('AppGameTimerParentPreferenceSetupRequestSchema: accepts parent-safe request references', () => {
   const parsed = AppGameTimerParentPreferenceSetupRequestSchema.safeParse({

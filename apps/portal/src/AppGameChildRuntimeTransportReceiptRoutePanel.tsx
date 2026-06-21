@@ -1,15 +1,20 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { AgentAppGameChildRuntimeTransportReceiptResult } from '@ocentra-parent/agent-protocol-domain/app-game-child-runtime-transport-receipt';
 import {
-  PortalDetails,
+  AgentCommand,
+  AgentEvent
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import {
   PortalDom,
   PortalText,
   PortalTextToken,
-  isPortalAppGameParentSurfaceRoute,
   type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import {
+  isPortalAppGameParentSurfaceRoute,
+  type PortalRoute as PortalRouteValue,
+} from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 import {
   createAppGameChildRuntimeTransportReceiptPanelIntent,

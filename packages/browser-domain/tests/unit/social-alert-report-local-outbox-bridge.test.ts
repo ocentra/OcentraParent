@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   NotificationLocalOutboxRecordSchema,
   type NotificationLocalOutboxRecord,
-} from '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof';
+} from '@ocentra-parent/schema-domain/notification-local-outbox';
 import {
   SocialAlertReportDeliveryClaimState,
   SocialAlertReportIntentKind,
@@ -10,7 +10,7 @@ import {
   SocialAlertReportParentCopyToken,
   SocialAlertReportPayloadField,
   SocialAlertReportReasonCode,
-} from '../../src/social-alert-report-intent';
+} from '@ocentra-parent/schema-domain/social-alert-report-intent';
 import {
   buildSocialAlertReportLocalOutboxBridgeReadModel,
   parseSocialAlertReportLocalOutboxJsonl,

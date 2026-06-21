@@ -3,7 +3,7 @@ import {
   BrowserGameApprovalDecisionSchema,
   BrowserGameApprovalRequestSchema,
   type BrowserGameApprovalRequest,
-} from '../../src/browser-game-account-purchase-gate';
+} from '@ocentra-parent/schema-domain/browser-game-account-purchase-gate';
 
 describe('browser-game account and purchase gate contracts', () => {
   it(

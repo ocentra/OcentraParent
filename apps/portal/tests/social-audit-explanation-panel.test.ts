@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { createSocialAuditExplanationPanelIntent, PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+import {
+  createSocialAuditExplanationPanelIntent,
+} from '@ocentra-parent/portal-domain/social-audit-explanation-panel';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import { shouldRenderSocialAuditExplanationRoute } from '../src/SocialAuditExplanationRoutePanel';
 
 describe('social audit explanation portal route panel', () => {

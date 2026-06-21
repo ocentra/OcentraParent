@@ -10,10 +10,10 @@ import {
   type DevLogEntry,
   type LogFields,
   type LogMessage,
-} from '@ocentra-parent/logging-domain/contracts';
+} from '@ocentra-parent/schema-domain/logging-contracts';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
-import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
+import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 
 const PortalDevLogBridge = DevLogBridge;
 

@@ -15,13 +15,14 @@ const outputDir = path.join(
 const files = {
   defaults: path.join(root, 'packages', 'agent-protocol-domain', 'src', 'defaults.ts'),
   parser: path.join(root, 'packages', 'agent-protocol-domain', 'src', 'browser-runtime-events.ts'),
-  parserTest: path.join(root, 'packages', 'agent-protocol-domain', 'tests', 'browser-runtime-events.test.ts'),
+  parserTest: path.join(root, 'packages', 'agent-protocol-domain', 'tests', 'unit', 'browser-runtime-events.test.ts'),
   portalStatus: path.join(root, 'packages', 'portal-domain', 'src', 'browser-social-provider-receipt-stream-status.ts'),
   portalTest: path.join(
     root,
     'packages',
     'portal-domain',
     'tests',
+    'unit',
     'browser-social-provider-receipt-stream-status.test.ts'
   ),
   workpack: path.join(
@@ -52,9 +53,10 @@ const commands = [
       '--workspace',
       '@ocentra-parent/agent-protocol-domain',
       '--',
-      'browser-runtime-events.test.ts',
+      'tests/unit/browser-runtime-events.test.ts',
     ],
-    label: 'cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- browser-runtime-events.test.ts',
+    label:
+      'cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- tests/unit/browser-runtime-events.test.ts',
   },
   {
     command: 'cmd',
@@ -66,10 +68,10 @@ const commands = [
       '--workspace',
       '@ocentra-parent/portal-domain',
       '--',
-      'browser-social-provider-receipt-stream-status.test.ts',
+      'tests/unit/browser-social-provider-receipt-stream-status.test.ts',
     ],
     label:
-      'cmd /c npm run test --workspace @ocentra-parent/portal-domain -- browser-social-provider-receipt-stream-status.test.ts',
+      'cmd /c npm run test --workspace @ocentra-parent/portal-domain -- tests/unit/browser-social-provider-receipt-stream-status.test.ts',
   },
 ];
 

@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
-import {
-  AgentNetworkWindowsFirewallLabStatusSchema,
-  parseAgentNetworkWindowsFirewallLabStatusEvent,
-} from '../../src/network-windows-firewall-lab-status';
+import { AgentNetworkWindowsFirewallLabStatusSchema } from '@ocentra-parent/schema-domain/agent-network-windows-firewall-status';
+import { parseAgentNetworkWindowsFirewallLabStatusEvent } from '../../src/network-windows-firewall-lab-status';
 
 const LabRefs = AgentProtocolDefaults.NetworkWindowsFirewallLabStatus;
 

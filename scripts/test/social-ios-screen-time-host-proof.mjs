@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SocialIosScreenTimeCapabilityMatrixSchema } from '../../packages/parent-domain/dist/social-ios-screen-time-capability-matrix.js';
+import { SocialIosScreenTimeCapabilityMatrixSchema } from '../../packages/schema-domain/dist/social-ios-screen-time-capability-matrix.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -13,12 +13,12 @@ const outputProofPath = join(proofRoot, '11-ios-host-tooling-proof.json');
 const observedAt = new Date().toISOString();
 
 const sourceFiles = [
-  'packages/parent-domain/src/social-ios-screen-time-capability-matrix-values.ts',
-  'packages/parent-domain/src/social-ios-screen-time-capability-matrix.ts',
+  'packages/schema-domain/src/social-ios-screen-time-capability-matrix-values.ts',
+  'packages/schema-domain/src/social-ios-screen-time-capability-matrix.ts',
 ];
 const builtFiles = [
-  'packages/parent-domain/dist/social-ios-screen-time-capability-matrix-values.js',
-  'packages/parent-domain/dist/social-ios-screen-time-capability-matrix.js',
+  'packages/schema-domain/dist/social-ios-screen-time-capability-matrix-values.js',
+  'packages/schema-domain/dist/social-ios-screen-time-capability-matrix.js',
 ];
 
 const iosToolBinaries = ['xcrun', 'xcodebuild', 'idevice_id', 'ios-deploy'];

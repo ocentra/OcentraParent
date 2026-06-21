@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { LanBrowserAddDeviceReadModelSchema } from '../../src/lan-pairing-device';
+import { LanBrowserAddDeviceReadModelSchema } from '@ocentra-parent/schema-domain/lan-pairing-device';
 import {
   LanProductionHouseholdProofCapabilitySchema,
   LanProductionHouseholdProofSummarySchema,
-} from '../../src/lan-production-household-proof';
+} from '@ocentra-parent/schema-domain/lan-production-household-proof';
 
 const generatedAt = '2026-06-02T09:40:00.000Z';
 

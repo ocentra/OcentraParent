@@ -7,7 +7,7 @@ import {
   BillingEntitlementRuntimeSnapshotConsumptionSchema,
   summarizeBillingEntitlementRuntimeConsumptionStates,
   summarizeBillingEntitlementRuntimeSnapshotStates,
-} from '../../src/billing-entitlement-runtime-proof';
+} from '@ocentra-parent/schema-domain/billing-entitlement-runtime-proof';
 
 describe('billing entitlement runtime proof', () => {
   acceptsRuntimeStatusConsumptionProof();

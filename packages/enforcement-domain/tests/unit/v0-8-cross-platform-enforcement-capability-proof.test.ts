@@ -4,7 +4,7 @@ import {
   V08CrossPlatformEnforcementCapabilityProofReadModel,
   V08CrossPlatformEnforcementCapabilityProofReadModelSchema,
   V08CrossPlatformEnforcementCapabilitySurface,
-} from '../../src/v0-8-cross-platform-enforcement-capability-proof';
+} from '@ocentra-parent/schema-domain/v0-8-cross-platform-enforcement-capability-proof';
 
 it('captures cross-platform enforcement capability states without claim upgrades', () => {
   const readModel = V08CrossPlatformEnforcementCapabilityProofReadModelSchema.parse(

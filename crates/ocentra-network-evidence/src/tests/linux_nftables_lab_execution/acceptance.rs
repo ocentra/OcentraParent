@@ -1,6 +1,9 @@
-use crate::{
-    prove_network_linux_nftables_lab_execution, NetworkLinuxNftablesLabCommandKind,
-    NetworkLinuxNftablesLabExecutionInput, NetworkLinuxNftablesLabExecutionState,
+use crate::linux_nftables_lab_execution::{
+    prove_network_linux_nftables_lab_execution,
+    types::{
+        NetworkLinuxNftablesLabCommandKind, NetworkLinuxNftablesLabExecutionInput,
+        NetworkLinuxNftablesLabExecutionState,
+    },
 };
 
 use super::fixtures::{command, lab_execution_input};

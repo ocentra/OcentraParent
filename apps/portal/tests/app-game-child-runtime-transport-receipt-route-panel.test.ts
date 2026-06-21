@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
-  AgentProtocolSchemaVersion,
   type AgentEventEnvelope,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
-import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import { createAppGameChildRuntimeTransportReceiptPanelIntent } from '@ocentra-parent/portal-domain/app-game-child-runtime-transport-receipt-panel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderAppGameChildRuntimeTransportReceiptRoute } from '../src/AppGameChildRuntimeTransportReceiptRoutePanel';
@@ -19,7 +19,7 @@ const ChildRuntimeTransportReceiptReadModel = {
   generatedAt: '2026-06-08T20:55:00.000Z',
   sourceReadModelIds: ['app-game-child-device-runtime-writer'],
   custodyLabel: 'app-game-child-runtime-transport-receipt',
-  capabilityStatus: 'child-runtime-transport-required',
+  capabilityStatus: 'app-game-child-runtime-transport-required',
   returned: 2,
   transportRequiredCount: 1,
   manualRequiredCount: 1,

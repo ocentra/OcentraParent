@@ -2,14 +2,14 @@
 use std::path::PathBuf;
 
 #[cfg(windows)]
-use ocentra_parent_agent_core::{
+use ocentra_parent_agent_core::activity_store_app_game::{
     live_windows_foreground_window_journal_event, live_windows_inventory_journal_events_with_limit,
     live_windows_process_snapshot_journal_events_with_limit,
     live_windows_registry_inventory_journal_events_with_limit,
     live_windows_store_package_journal_events_with_limit,
 };
 #[cfg(test)]
-use ocentra_parent_agent_core::{
+use ocentra_parent_agent_core::activity_store_app_game::{
     live_windows_inventory_journal_events_from_roots,
     live_windows_registry_inventory_journal_events_from_roots,
     live_windows_store_package_journal_events_from_roots,

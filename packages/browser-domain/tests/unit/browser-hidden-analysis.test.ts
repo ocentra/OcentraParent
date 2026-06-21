@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BrowserHiddenAnalysisProfileDesignSchema,
   BrowserHiddenAnalysisSchemaVersion,
-} from '../../src/browser-hidden-analysis-schemas';
+} from '@ocentra-parent/schema-domain/browser-hidden-analysis-schemas';
 import {
   BrowserHiddenAnalysisLoaderResultSchema,
   BrowserHiddenAnalysisLoaderSchemaVersion,

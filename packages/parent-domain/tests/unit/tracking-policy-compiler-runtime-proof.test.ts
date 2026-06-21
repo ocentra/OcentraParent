@@ -5,16 +5,16 @@ import {
   PolicyCompilerNoClaimLabel,
   PolicyCompilerRuleStatus,
   parsePolicyCompiledArtifact,
-} from '@ocentra-parent/policy-domain/policy-compiler';
+} from '@ocentra-parent/schema-domain/policy-compiler';
 import {
   TrackingPolicyCompilerRuntimeProofRequestSchema,
   TrackingPolicyCompilerRuntimeProofResultSchema,
-  compileTrackingPolicyRuntimeProofDecision,
-} from '@ocentra-parent/parent-domain/tracking-policy-compiler-runtime-proof';
-import { TrackingPolicySchemaVersion } from '@ocentra-parent/tracking-domain/tracking-location-policy';
+} from '@ocentra-parent/schema-domain/tracking-policy-compiler-runtime-proof';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
+import { compileTrackingPolicyRuntimeProofDecision } from '@ocentra-parent/tracking-domain/tracking-policy-compiler-runtime-proof';
 
-describe('parent-domain tracking policy compiler runtime proof wrapper', () => {
-  it('forwards the tracking compiler runtime proof request and result schemas', () => {
+describe('parent-domain tracking policy compiler runtime proof consumers', () => {
+  it('uses schema-domain request and result schemas with the tracking-domain compiler helper', () => {
     const request = TrackingPolicyCompilerRuntimeProofRequestSchema.parse(requestShapeFor('observe'));
     const result = compileTrackingPolicyRuntimeProofDecision(request);
 

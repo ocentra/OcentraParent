@@ -5,12 +5,13 @@ import {
   decodeAgentWebSocketUrl,
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
   type AgentEventEnvelope,
   type AgentEventName,
   type AgentProtocolLogFields,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
-import { PortalConnectionState, PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { PortalConnectionState } from '@ocentra-parent/portal-domain/contracts';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import { PortalShellStatusBar } from '../src/PortalShellStatusBar';
 import { createPortalRuntimeState } from '../src/portal-state';
 

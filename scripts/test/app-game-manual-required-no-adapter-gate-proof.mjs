@@ -21,7 +21,7 @@ async function main() {
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/app-game-domain',
     '--',
     'app-game-broad-blocking-proof-gates.test.ts',
   ]);
@@ -29,7 +29,7 @@ async function main() {
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/app-game-domain',
     '--',
     'app-game-policy-preview-handoff.test.ts',
   ]);
@@ -37,7 +37,7 @@ async function main() {
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/app-game-domain',
     '--',
     'app-game-policy-target-compiler.test.ts',
   ]);
@@ -45,45 +45,45 @@ async function main() {
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/app-game-domain',
     '--',
     'app-game-category-risk-policy-routing.test.ts',
   ]);
 
   const broadGateSource = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-broad-blocking-proof-gates.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gates.ts'),
     'utf8'
   );
   const broadGateRules = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
     'utf8'
   );
   const broadGateData = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
     'utf8'
   );
   const broadGateTest = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'tests', 'app-game-broad-blocking-proof-gates.test.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'tests', 'unit', 'app-game-broad-blocking-proof-gates.test.ts'),
     'utf8'
   );
   const previewTest = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'tests', 'app-game-policy-preview-handoff.test.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'tests', 'unit', 'app-game-policy-preview-handoff.test.ts'),
     'utf8'
   );
   const compilerTest = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'tests', 'app-game-policy-target-compiler.test.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'tests', 'unit', 'app-game-policy-target-compiler.test.ts'),
     'utf8'
   );
   const categoryRouteSource = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-category-risk-policy-routing.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-category-risk-policy-routing.ts'),
     'utf8'
   );
   const categoryRouteRules = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-category-risk-policy-routing-rules.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-category-risk-policy-routing-rules.ts'),
     'utf8'
   );
   const categoryRouteTest = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'tests', 'app-game-category-risk-policy-routing.test.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'tests', 'unit', 'app-game-category-risk-policy-routing.test.ts'),
     'utf8'
   );
 
@@ -214,17 +214,17 @@ async function main() {
     gateState: 'prevented-by-manual-required-and-blocked-before-adapter-contracts',
     evidence: {
       broadBlockingGate:
-        'packages/parent-domain/src/app-game-broad-blocking-proof-gates.ts requires unproved platform blocking to remain manual-required, unavailable, or not-claimed before adapter dispatch.',
+        'packages/app-game-domain/src/app-game-broad-blocking-proof-gates.ts requires unproved platform blocking to remain manual-required, unavailable, or not-claimed before adapter dispatch.',
       broadBlockingGateData:
-        'packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts sets manual gates to blocked-before-adapter, canCallAdapter=false, supportedModes=[], and broadBlockingClaimed=false.',
+        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-data.ts sets manual gates to blocked-before-adapter, canCallAdapter=false, supportedModes=[], and broadBlockingClaimed=false.',
       broadBlockingGateTests:
-        'packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts rejects manual-required/unavailable rows that try canCallAdapter=true or dispatch-eligible.',
+        'packages/app-game-domain/tests/unit/app-game-broad-blocking-proof-gates.test.ts rejects manual-required/unavailable rows that try canCallAdapter=true or dispatch-eligible.',
       previewHandoff:
-        'packages/parent-domain/tests/app-game-policy-preview-handoff.test.ts keeps native-game block-launch manual-required rows not-dispatched with adapter/platform enforcement claims false.',
+        'packages/app-game-domain/tests/unit/app-game-policy-preview-handoff.test.ts keeps native-game block-launch manual-required rows not-dispatched with adapter/platform enforcement claims false.',
       compilerBoundary:
-        'packages/parent-domain/tests/app-game-policy-target-compiler.test.ts keeps unproved block-launch manual-required and rejects dry-run-ready upgrades without proof.',
+        'packages/app-game-domain/tests/unit/app-game-policy-target-compiler.test.ts keeps unproved block-launch manual-required and rejects dry-run-ready upgrades without proof.',
       categoryRiskRouting:
-        'packages/parent-domain/src/app-game-category-risk-policy-routing.ts and tests keep manual-review category/risk routes not-dispatched and out of compile-ready routing.',
+        'packages/app-game-domain/src/app-game-category-risk-policy-routing.ts and tests keep manual-review category/risk routes not-dispatched and out of compile-ready routing.',
     },
     productBoundaries: {
       sharedEvidenceSpine: true,

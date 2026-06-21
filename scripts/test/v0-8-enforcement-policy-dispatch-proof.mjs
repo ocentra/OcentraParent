@@ -13,7 +13,7 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
@@ -39,7 +39,7 @@ async function main() {
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'enforcement_policy_dispatch']);
 
   const { EnforcementPolicyDispatchReadModel } =
-    await import('../../packages/enforcement-domain/dist/src/enforcement-policy-dispatch.js');
+    await import('../../packages/schema-domain/dist/src/enforcement-policy-dispatch.js');
   const summary = summarizeReadModel(EnforcementPolicyDispatchReadModel);
 
   assertReadModel(EnforcementPolicyDispatchReadModel, summary);
@@ -52,7 +52,7 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/enforcement-domain/src/enforcement-policy-dispatch.ts',
+      tsContract: 'packages/schema-domain/src/enforcement-policy-dispatch.ts',
       tsContractTest: 'packages/enforcement-domain/tests/unit/enforcement-policy-dispatch.test.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-policy-dispatch-adapter.ts',
       tsProtocolAdapterTest: 'packages/agent-protocol-domain/tests/unit/enforcement-policy-dispatch-adapter.test.ts',
@@ -68,10 +68,10 @@ async function main() {
     },
     counts: summary,
     claimsProved: [
-      'Parent-authored policy dispatch intents are schema-backed in enforcement-domain before service/runtime use',
+      'Parent-authored policy dispatch intents are schema-backed in schema-domain before service/runtime use',
       'Service read model validates actor, target device, stable policy decision refs, schedule refs, evidence refs, route/source state, adapter capability, and proof level before dispatch-ready states',
       'Capability matrix preserves ask-parent dry-run-only, report-only, manual-required, stale-policy rejection, missing-source rejection, and scaffold states without upgrading them into adapter execution',
-      'Malformed or missing policy decision references are rejected by the enforcement-domain and Rust-core validation path before dispatch-ready states',
+      'Malformed or missing policy decision references are rejected by the schema-domain and Rust-core validation path before dispatch-ready states',
       'Owned-process and app/game time-limit rows are dispatch-ready only with evidence refs and child reason codes',
       'Network/domain blocking, source-not-ready rows, and tamper/uninstall stay manual-required, rejected, or scaffold, not product-complete claims',
       'WebSocket protocol adapter parses the service-backed policy-dispatch read model',

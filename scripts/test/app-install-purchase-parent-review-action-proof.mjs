@@ -13,27 +13,22 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-parent-review-action-proof.test.ts',
+      'tests/unit/app-install-purchase-parent-review-action-proof.test.ts',
     ])
   );
 
   const proofModule = await loadParentReviewActionProofModule();
-  const packageModule = await import('@ocentra-parent/app-game-domain/app-install-purchase-parent-review-action-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseParentReviewActionProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseParentReviewActionProof(parsedReadModel);
 
-  assert.equal(
-    packageModule.AppInstallPurchaseParentReviewActionProofReadModel.schemaVersion,
-    parsedReadModel.schemaVersion
-  );
   assert.deepEqual(summary, {
     parentReviewActionRows: 4,
     parentActionRecordedRows: 3,
@@ -57,12 +52,12 @@ async function main() {
     proofMode: 'app-install-purchase-parent-review-action-proof',
     commands,
     evidence: {
-      parentReviewActionContract: 'packages/parent-domain/src/app-install-purchase-parent-review-action-proof.ts',
-      sourceApprovalContract: 'packages/parent-domain/src/app-install-purchase-approval-proof.ts',
+      parentReviewActionContract: 'packages/app-game-domain/src/app-install-purchase-parent-review-action-proof.ts',
+      sourceApprovalContract: 'packages/app-game-domain/src/app-install-purchase-approval-proof.ts',
       sourceApprovedApiEntitlementContract:
-        'packages/parent-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
-      sourceReportRuntimeContract: 'packages/parent-domain/src/app-install-purchase-report-runtime-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-parent-review-action-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-approved-api-entitlement-proof.ts',
+      sourceReportRuntimeContract: 'packages/app-game-domain/src/app-install-purchase-report-runtime-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-parent-review-action-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDelta: 'DOC_DELTA: docs/product-capability-checklist.md row Install/purchase approval',
@@ -107,7 +102,7 @@ async function loadParentReviewActionProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-parent-review-action-proof.js'
   );

@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { PortalConnectionState } from '@ocentra-parent/portal-domain/contracts';
 import { createPortalRuntimeState } from '../../src/portal-state';
 import { buildDiagnosticsExport } from '../../src/diagnostics-export';

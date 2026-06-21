@@ -7,7 +7,7 @@ import {
   ChildDomainPrivatePayloadState,
   ChildDomainRuntimeEventType,
   ChildRuntimeDomainLiteral,
-} from '../../src/child-domain-runtime-events';
+} from '@ocentra-parent/schema-domain/child-domain-runtime-events';
 
 describe('child domain runtime AI boundary contracts', () => {
   it('parses the canonical AI completed boundary payload without domain-owned local shapes', () => {

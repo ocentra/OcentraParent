@@ -11,13 +11,13 @@ use ocentra_parent_agent_protocol::{
     BrowserPolicyManagedBrowserIntegrationMechanism, BrowserPolicyManagedBrowserLaunchMode,
     BrowserPolicyManagedBrowserMode, BrowserPolicyManagedBrowserProfileMode,
     BrowserPolicyManagedPolicyWriterControl, BrowserPolicyManagedPolicyWriterFallback,
-    BrowserPolicyManagementMode, BrowserPolicyPatch, BrowserPolicyPatchRequest,
-    BrowserPolicyProofFallback, BrowserPolicyRejectionReason, BrowserPolicyReportVisibleField,
-    BrowserPolicyRetentionExactUrl, BrowserPolicyRule, BrowserPolicyRuleAction,
-    BrowserPolicyRuleActionPlan, BrowserPolicyRuleTarget,
-    BrowserPolicyUnmanagedBrowserClassificationTarget, BrowserPolicyUnmanagedBrowserMode,
-    BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse, BrowserPolicyUpdateStatus,
-    BrowserPolicyUrlTargetType, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
+    BrowserPolicyManagementMode, BrowserPolicyPatch, BrowserPolicyProofFallback,
+    BrowserPolicyRejectionReason, BrowserPolicyReportVisibleField, BrowserPolicyRetentionExactUrl,
+    BrowserPolicyRule, BrowserPolicyRuleAction, BrowserPolicyRuleActionPlan,
+    BrowserPolicyRuleTarget, BrowserPolicyUnmanagedBrowserClassificationTarget,
+    BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse,
+    BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType, LogFieldValue, LogFields,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -125,14 +125,14 @@ async fn browser_policy_runtime_rejects_dishonest_manifest_updates() {
             runtime.clone(),
             command_with_request(
                 AgentCommandName::AgentBrowserPolicyPatch,
-                BrowserPolicyPatchRequest {
-                    schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-                    request_id: constants::browser_policy::REQUEST_ID.to_string(),
-                    kind: BrowserPolicyUpdateKind::Patch,
-                    policy_id: constants::browser_policy::POLICY_ID.to_string(),
-                    base_revision_id: constants::browser_policy::REVISION_ID.to_string(),
-                    patches: vec![patch],
-                },
+                serde_json::json!({
+                    "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
+                    "requestId": constants::browser_policy::REQUEST_ID,
+                    "kind": BrowserPolicyUpdateKind::Patch,
+                    "policyId": constants::browser_policy::POLICY_ID,
+                    "baseRevisionId": constants::browser_policy::REVISION_ID,
+                    "patches": [patch],
+                }),
             ),
         )
         .await;
@@ -164,15 +164,15 @@ fn manifest_patch_command() -> AgentCommandEnvelope {
     command_with_request(AgentCommandName::AgentBrowserPolicyPatch, patch_request())
 }
 
-fn patch_request() -> BrowserPolicyPatchRequest {
-    BrowserPolicyPatchRequest {
-        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-        request_id: constants::browser_policy::REQUEST_ID.to_string(),
-        kind: BrowserPolicyUpdateKind::Patch,
-        policy_id: constants::browser_policy::POLICY_ID.to_string(),
-        base_revision_id: constants::browser_policy::REVISION_ID.to_string(),
-        patches: proposal_manifest_patches(),
-    }
+fn patch_request() -> serde_json::Value {
+    serde_json::json!({
+        "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
+        "requestId": constants::browser_policy::REQUEST_ID,
+        "kind": BrowserPolicyUpdateKind::Patch,
+        "policyId": constants::browser_policy::POLICY_ID,
+        "baseRevisionId": constants::browser_policy::REVISION_ID,
+        "patches": proposal_manifest_patches(),
+    })
 }
 
 fn proposal_manifest_patches() -> Vec<BrowserPolicyPatch> {
@@ -521,13 +521,13 @@ fn replace_command(
 ) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyReplace,
-        ocentra_parent_agent_protocol::BrowserPolicyReplaceRequest {
-            schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-            request_id: constants::browser_policy::REQUEST_ID.to_string(),
-            kind: BrowserPolicyUpdateKind::Replace,
-            base_revision_id: None,
-            policy: policy_value,
-        },
+        serde_json::json!({
+            "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
+            "requestId": constants::browser_policy::REQUEST_ID,
+            "kind": BrowserPolicyUpdateKind::Replace,
+            "baseRevisionId": serde_json::Value::Null,
+            "policy": policy_value,
+        }),
     )
 }
 

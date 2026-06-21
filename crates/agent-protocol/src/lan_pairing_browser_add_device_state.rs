@@ -6,25 +6,13 @@ use crate::{
     LanPairingRejectionReason, LanPairingTrustState, LanTrustedDeviceRegistryEntry,
 };
 
-mod production_household_proof;
-pub use production_household_proof::{
-    LanProductionHouseholdProofCapability, LanProductionHouseholdProofStatus,
-    LanProductionHouseholdProofSummary,
-};
-mod signed_discovery_relay_spine;
-pub use signed_discovery_relay_spine::{
-    LanSignedDiscoveryRelayAdapterKind, LanSignedDiscoveryRelayAdapterRow,
-    LanSignedDiscoveryRelayCacheCheck, LanSignedDiscoveryRelayCacheRow,
-    LanSignedDiscoveryRelayCustodyLabel, LanSignedDiscoveryRelayDecisionState,
-    LanSignedDiscoveryRelayRouteSafetyCheck, LanSignedDiscoveryRelayRouteSafetyRow,
-    LanSignedDiscoveryRelaySignedProofCheck, LanSignedDiscoveryRelaySignedProofRow,
-    LanSignedDiscoveryRelaySourceConfidence, LanSignedDiscoveryRelaySpineSummary,
-};
-mod source_matrix;
-pub use source_matrix::{
-    LanDiscoverySourceAuthority, LanDiscoverySourceKind, LanDiscoverySourceMatrix,
-    LanDiscoverySourceRow, LanDiscoverySourceRuntimePath, LanDiscoverySourceStatus,
-    LanDiscoverySourceUiSurface, LanPlanWorkpackId, LanPlanWorkpackStatusRow,
+pub(crate) mod production_household_proof;
+pub(crate) mod signed_discovery_relay_spine;
+pub(crate) mod source_matrix;
+use self::{
+    production_household_proof::LanProductionHouseholdProofSummary,
+    signed_discovery_relay_spine::LanSignedDiscoveryRelaySpineSummary,
+    source_matrix::LanDiscoverySourceMatrix,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

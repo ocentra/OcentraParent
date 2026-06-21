@@ -4,12 +4,14 @@ import {
   BrowserCapabilityStatus,
   BrowserChannel,
   BrowserCustodyLabel,
-  BrowserEvidenceSchemaVersion,
   BrowserFamily,
-  BrowserManagedSessionStatusSchema,
   BrowserManagedState,
   BrowserQueryVisibilityLabel,
-} from '../../src/browser';
+} from '@ocentra-parent/schema-domain/browser-values';
+import {
+  BrowserEvidenceSchemaVersion,
+  BrowserManagedSessionStatusSchema,
+} from '@ocentra-parent/schema-domain/browser-schemas';
 
 describe('browser managed session status contracts', () => {
   it('accepts running managed status without upgrading bridge capability', () => {

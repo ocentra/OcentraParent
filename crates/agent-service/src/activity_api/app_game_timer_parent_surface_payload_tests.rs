@@ -1,38 +1,23 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceKind, ActivityEvidenceRef, AppGameControlActionResult,
     AppGameControlApprovalAuthority, AppGameControlApprovalDecision, AppGameControlApprovalRequest,
-    AppGameEnforcementCapabilityStatus, AppGameEnforcementResult, AppGameEvidenceClaim,
-    AppGameIdentity, AppGameParentActorReference, AppGameParentDeviceReference,
-    AppGameParentEvidenceReference, AppGamePlatformAuthorityMatrix, AppGamePlatformAuthorityRow,
-    AppGamePolicyTarget, AppGameServiceReadModel, AppGameTimerParentSurfaceReadModel,
-    LogFieldValue, APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED, APP_GAME_CATALOG_READY,
-    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_CONTROL_ACTION_STATUS_ENFORCED,
-    APP_GAME_CONTROL_APPROVAL_STATE_APPROVED, APP_GAME_CONTROL_AUTHORITY_ACTIVE,
+    AppGameEnforcementCapabilityStatus, AppGameEvidenceClaim, AppGameIdentity,
+    AppGameParentActorReference, AppGameParentDeviceReference, AppGameParentEvidenceReference,
+    AppGamePlatformAuthorityMatrix, AppGamePolicyTarget, AppGameServiceReadModel,
+    AppGameTimerParentSurfaceReadModel, LogFieldValue, APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED,
+    APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_GAME,
+    APP_GAME_CONTROL_ACTION_STATUS_ENFORCED, APP_GAME_CONTROL_AUTHORITY_ACTIVE,
     APP_GAME_CONTROL_CHILD_REASON_NOT_REQUESTED, APP_GAME_CONTROL_DECISION_APPROVED,
     APP_GAME_CONTROL_EVIDENCE_PROOF_APP_IDENTITY, APP_GAME_CONTROL_PARENT_RESPONSE_ALLOW_ONCE,
     APP_GAME_CONTROL_PERSISTENCE_REPLAYABLE, APP_GAME_CONTROL_POLICY_KIND_APP,
     APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY, APP_GAME_ENFORCEMENT_ADAPTER_PROCESS_CONTROL,
-    APP_GAME_ENFORCEMENT_ADAPTER_RESULT_PROCESS_TERMINATED,
-    APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED, APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED,
-    APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY, APP_GAME_FOREGROUND_NOT_CLAIMED,
-    APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC, APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED,
+    APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED, APP_GAME_FOREGROUND_NOT_CLAIMED,
     APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE, APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED,
-    APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN, APP_GAME_PARENT_ACTOR_ROLE_PARENT,
-    APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION, APP_GAME_PARENT_EVIDENCE_KIND_ACTIVITY_EVENT,
-    APP_GAME_PARENT_PLATFORM_WINDOWS, APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH,
-    APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED,
-    APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER, APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED,
-    APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED, APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
+    APP_GAME_PARENT_ACTOR_ROLE_PARENT, APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
+    APP_GAME_PARENT_EVIDENCE_KIND_ACTIVITY_EVENT, APP_GAME_PARENT_PLATFORM_WINDOWS,
+    APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH, APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
     APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION,
-    APP_GAME_TEST_ACTION_REFERENCE_ID, APP_GAME_TEST_ACTION_RESULT_ID, APP_GAME_TEST_AUTHORITY_ID,
-    APP_GAME_TEST_CHILD_PROFILE_ID, APP_GAME_TEST_DEVICE_ID, APP_GAME_TEST_DEVICE_LABEL,
-    APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_ENFORCEMENT_ACTION_ID,
-    APP_GAME_TEST_ENFORCEMENT_RESULT_ID, APP_GAME_TEST_EVIDENCE_CLAIM_ID,
-    APP_GAME_TEST_EVIDENCE_REF_ID, APP_GAME_TEST_IDENTITY_ID, APP_GAME_TEST_PARENT_ACTOR_ID,
-    APP_GAME_TEST_PLATFORM_MATRIX_ID, APP_GAME_TEST_POLICY_VERSION,
-    APP_GAME_TEST_REASON_PARENT_APPROVED, APP_GAME_TEST_TARGET_ID, APP_GAME_TEST_TARGET_VALUE,
-    APP_GAME_TEST_TIMESTAMP, APP_GAME_TEST_WINDOWS_LIMITATION, APP_GAME_TEST_WINDOWS_ROW_ID,
-    APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
+    APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
     APP_GAME_TIMER_PARENT_SURFACE_STATUS_READY, APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
     APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
 };
@@ -41,6 +26,39 @@ use super::app_game_timer_parent_surface_payload::{
     app_game_timer_parent_surface_from_service_model_with_timer_state,
     app_game_timer_parent_surface_payload,
 };
+
+const APP_GAME_CONTROL_APPROVAL_STATE_APPROVED: &str = "approved";
+const APP_GAME_ENFORCEMENT_ADAPTER_RESULT_PROCESS_TERMINATED: &str = "process-terminated";
+const APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED: &str = "supported";
+const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &str = "inventory";
+const APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC: &str = "deterministic";
+const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &str = "catalogMatched";
+const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &str = "inventoryScan";
+const APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED: &str = "manual-required";
+const APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER: &str = "windows-applocker-proof";
+const APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED: &str = "manual-required";
+const APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED: &str = "manual-required";
+const APP_GAME_TEST_ACTION_REFERENCE_ID: &str = "parent-action-app-game-1";
+const APP_GAME_TEST_ACTION_RESULT_ID: &str = "action-result-app-game-1";
+const APP_GAME_TEST_AUTHORITY_ID: &str = "authority-app-game-1";
+const APP_GAME_TEST_CHILD_PROFILE_ID: &str = "child-app-game-1";
+const APP_GAME_TEST_DEVICE_ID: &str = "device-windows-app-game-1";
+const APP_GAME_TEST_DEVICE_LABEL: &str = "Study PC";
+const APP_GAME_TEST_ENFORCEMENT_ACTION_ID: &str = "enforcement-action-app-game-1";
+const APP_GAME_TEST_ENFORCEMENT_RESULT_ID: &str = "enforcement-result-app-game-1";
+const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &str = "claim-ocentra-inventory";
+const APP_GAME_TEST_EVIDENCE_REF_ID: &str = "evidence-app-game-session-1";
+const APP_GAME_TEST_IDENTITY_ID: &str = "identity-ocentra-game";
+const APP_GAME_TEST_PARENT_ACTOR_ID: &str = "parent-actor-app-game-1";
+const APP_GAME_TEST_PLATFORM_MATRIX_ID: &str = "app-game-platform-authority-matrix";
+const APP_GAME_TEST_POLICY_VERSION: &str = "policy-version-app-game-1";
+const APP_GAME_TEST_REASON_PARENT_APPROVED: &str = "parent-approved";
+const APP_GAME_TEST_TARGET_ID: &str = "target-app-game-1";
+const APP_GAME_TEST_TARGET_VALUE: &str = "process:ocentra-game.exe";
+const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
+const APP_GAME_TEST_WINDOWS_LIMITATION: &str =
+    "Broad installed-app blocking needs AppLocker or App Control proof before execution.";
+const APP_GAME_TEST_WINDOWS_ROW_ID: &str = "windows-block-launch-row";
 
 #[test]
 fn app_game_timer_parent_surface_payload_reports_game_rows_without_runtime_claims() {
@@ -314,36 +332,35 @@ fn service_model() -> AppGameServiceReadModel {
 
 fn control_action_result() -> AppGameControlActionResult {
     let capability = supported_capability();
-    AppGameControlActionResult {
-        schema_version: APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION.to_string(),
-        result_id: APP_GAME_TEST_ACTION_RESULT_ID.to_string(),
-        request: approval_request(),
-        decision: approval_decision(),
-        approval_state: APP_GAME_CONTROL_APPROVAL_STATE_APPROVED.to_string(),
-        capability_state: APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED.to_string(),
-        capability: capability.clone(),
-        evidence_proof_kind: APP_GAME_CONTROL_EVIDENCE_PROOF_APP_IDENTITY.to_string(),
-        result_status: APP_GAME_CONTROL_ACTION_STATUS_ENFORCED.to_string(),
-        enforcement_result: Some(AppGameEnforcementResult {
-            schema_version: APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION.to_string(),
-            result_id: APP_GAME_TEST_ENFORCEMENT_RESULT_ID.to_string(),
-            action_id: APP_GAME_TEST_ENFORCEMENT_ACTION_ID.to_string(),
-            status: APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED.to_string(),
-            adapter_result_code: APP_GAME_ENFORCEMENT_ADAPTER_RESULT_PROCESS_TERMINATED.to_string(),
-            started_at: APP_GAME_TEST_TIMESTAMP.to_string(),
-            completed_at: Some(APP_GAME_TEST_TIMESTAMP.to_string()),
-            rollback_token: None,
-            rollback_state:
-                ocentra_parent_agent_protocol::APP_GAME_ENFORCEMENT_ROLLBACK_NOT_REQUIRED
-                    .to_string(),
-            unavailable_reason: None,
-            unavailable_status: None,
-            failed_reason: None,
-            next_check_at: None,
-            capability,
-        }),
-        recorded_at: APP_GAME_TEST_TIMESTAMP.to_string(),
-    }
+    serde_json::from_value(serde_json::json!({
+        "schemaVersion": APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
+        "resultId": APP_GAME_TEST_ACTION_RESULT_ID,
+        "request": approval_request(),
+        "decision": approval_decision(),
+        "approvalState": APP_GAME_CONTROL_APPROVAL_STATE_APPROVED,
+        "capabilityState": APP_GAME_ENFORCEMENT_CAPABILITY_SUPPORTED,
+        "capability": capability.clone(),
+        "evidenceProofKind": APP_GAME_CONTROL_EVIDENCE_PROOF_APP_IDENTITY,
+        "resultStatus": APP_GAME_CONTROL_ACTION_STATUS_ENFORCED,
+        "enforcementResult": {
+            "schemaVersion": APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
+            "resultId": APP_GAME_TEST_ENFORCEMENT_RESULT_ID,
+            "actionId": APP_GAME_TEST_ENFORCEMENT_ACTION_ID,
+            "status": APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED,
+            "adapterResultCode": APP_GAME_ENFORCEMENT_ADAPTER_RESULT_PROCESS_TERMINATED,
+            "startedAt": APP_GAME_TEST_TIMESTAMP,
+            "completedAt": APP_GAME_TEST_TIMESTAMP,
+            "rollbackToken": null,
+            "rollbackState": "not-required",
+            "unavailableReason": null,
+            "unavailableStatus": null,
+            "failedReason": null,
+            "nextCheckAt": null,
+            "capability": capability
+        },
+        "recordedAt": APP_GAME_TEST_TIMESTAMP
+    }))
+    .expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn approval_request() -> AppGameControlApprovalRequest {
@@ -501,31 +518,30 @@ fn approval_authority() -> AppGameControlApprovalAuthority {
 }
 
 fn platform_matrix() -> AppGamePlatformAuthorityMatrix {
-    AppGamePlatformAuthorityMatrix {
-        schema_version: APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION.to_string(),
-        matrix_id: APP_GAME_TEST_PLATFORM_MATRIX_ID.to_string(),
-        rows: vec![AppGamePlatformAuthorityRow {
-            schema_version: APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION.to_string(),
-            row_id: APP_GAME_TEST_WINDOWS_ROW_ID.to_string(),
-            platform: APP_GAME_PARENT_PLATFORM_WINDOWS.to_string(),
-            action: APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH.to_string(),
-            authority_tier: APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED.to_string(),
-            setup_state: APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED.to_string(),
-            proof_state: APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED.to_string(),
-            capability_state:
-                ocentra_parent_agent_protocol::APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED
-                    .to_string(),
-            parent_visible_state: APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED.to_string(),
-            parent_visible_limitation: APP_GAME_TEST_WINDOWS_LIMITATION.to_string(),
-            can_execute_adapter: false,
-            supported_modes: Vec::new(),
-            proof_references: Vec::new(),
-            proof_needed_to_claim: vec![APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER.to_string()],
-            linux_mechanism: None,
-            linux_distro: None,
-            linux_session: None,
-            last_checked_at: APP_GAME_TEST_TIMESTAMP.to_string(),
+    serde_json::from_value(serde_json::json!({
+        "schemaVersion": APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
+        "matrixId": APP_GAME_TEST_PLATFORM_MATRIX_ID,
+        "rows": [{
+            "schemaVersion": APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
+            "rowId": APP_GAME_TEST_WINDOWS_ROW_ID,
+            "platform": APP_GAME_PARENT_PLATFORM_WINDOWS,
+            "action": APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH,
+            "authorityTier": APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
+            "setupState": APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED,
+            "proofState": APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED,
+            "capabilityState": ocentra_parent_agent_protocol::APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED,
+            "parentVisibleState": APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED,
+            "parentVisibleLimitation": APP_GAME_TEST_WINDOWS_LIMITATION,
+            "canExecuteAdapter": false,
+            "supportedModes": [],
+            "proofReferences": [],
+            "proofNeededToClaim": [APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER],
+            "linuxMechanism": null,
+            "linuxDistro": null,
+            "linuxSession": null,
+            "lastCheckedAt": APP_GAME_TEST_TIMESTAMP
         }],
-        generated_at: APP_GAME_TEST_TIMESTAMP.to_string(),
-    }
+        "generatedAt": APP_GAME_TEST_TIMESTAMP
+    }))
+    .expect(constants::error::AGENT_EVENT_SERIALIZES)
 }

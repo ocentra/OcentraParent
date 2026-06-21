@@ -26,17 +26,17 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-android-usage-events-count-sample',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
 
   const sourceProof = await assertAndroidSourceProof();
   const contractModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-count-sample.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-count-sample.js'))
       .href
   );
   const readModel = contractModule.createAppGameAndroidUsageEventsCountSampleReadModel({
@@ -69,12 +69,12 @@ async function main() {
       androidPreflight:
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
-      contract: 'packages/parent-domain/src/app-game-android-usage-events-count-sample.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-android-usage-events-count-sample.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-android-usage-events-count-sample.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-count-sample.test.ts',
     },
     claimsProved: [
       'Android package source can query UsageEvents and reduce results to counts only',
-      'Parent-domain accepts count-only UsageEvents samples without raw row or package-name custody',
+      'App-game-domain accepts count-only UsageEvents samples without raw row or package-name custody',
       'Android debug package compiles with the count-only sampler wired into MainActivity',
     ],
     claimsNotProved: [

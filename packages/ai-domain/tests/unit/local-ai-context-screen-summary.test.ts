@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildLocalAiEvidenceContext } from '../../src/local-ai-context-builder';
+import { buildLocalAiEvidenceContext } from '@ocentra-parent/schema-domain/local-ai-context-builder';
 
 const ObservedAt = '2026-06-05T10:22:19.824Z';
 const ChildProfile = { childProfileId: 'screen-summary-child', displayName: 'Sam' };

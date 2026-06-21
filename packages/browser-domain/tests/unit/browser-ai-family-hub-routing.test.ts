@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserAiAnalysisSchemaVersion } from '../../src/browser-ai-analysis-schemas';
+import { BrowserAiAnalysisSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-analysis-schemas';
 import {
   BrowserAiFamilyHubCapabilitySchema,
   BrowserAiFamilyHubRouteSchema,
   BrowserAiFamilyHubRouteSchemaVersion,
   planBrowserAiFamilyHubRoute,
-} from '../../src/browser-ai-family-hub-routing-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-family-hub-routing-schemas';
 import {
   BrowserAiProviderRouteSchemaVersion,
   planBrowserAiLocalProviderRoute,
-} from '../../src/browser-ai-provider-routing-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-provider-routing-schemas';
 
 describe('browser AI family hub capability contract', () => {
   it('accepts a no-retention local-household family hub capability', () => {

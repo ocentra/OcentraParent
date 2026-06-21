@@ -3,7 +3,7 @@ use ocentra_parent_agent_protocol::{
     TrackingMissingDeviceEvaluationId, TrackingMissingDeviceState,
 };
 
-use crate::{evaluate_tracking_device_status, TrackingDeviceStatusInput};
+use crate::status::{evaluate_tracking_device_status, TrackingDeviceStatusInput};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TrackingLastKnownVisibilityState {

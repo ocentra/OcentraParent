@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import type {
+  AgentNetworkLiveCaptureStatus,
+  AgentNetworkLiveCaptureStatusRow,
+} from '@ocentra-parent/schema-domain/network-live-capture-status';
 import { AgentEvent } from '../../src/contracts';
 import { AgentProtocolDefaults } from '../../src/defaults';
 import {
   parseAgentNetworkLiveCaptureStatusEvent,
-  type AgentNetworkLiveCaptureStatus,
-  type AgentNetworkLiveCaptureStatusRow,
 } from '../../src/network-live-capture-status';
 
 const LiveCaptureRefs = AgentProtocolDefaults.NetworkLiveCaptureStatus;
@@ -132,10 +134,10 @@ const LiveCaptureStatus = {
 
 describe('network live capture status', () => {
   registerParsingTests();
-  registerNoClaimRejectionTests();
+  registerLiteralClaimRejectionTests();
   registerMalformedPayloadTests();
-  registerRefDriftTests();
-  registerCountAndReadinessTests();
+  registerFieldValidationTests();
+  registerCountValidationTests();
 });
 
 function registerParsingTests() {
@@ -150,10 +152,8 @@ function registerParsingTests() {
   });
 }
 
-function registerNoClaimRejectionTests() {
-  it('rejects raw artifact, content, remote upload, adapter, and enforcement claims', () => {
-    expectInvalid({ ...LiveCaptureStatus, driverInvokedCount: 2 });
-    expectInvalid({ ...LiveCaptureStatus, liveCaptureExecutedCount: 2 });
+function registerLiteralClaimRejectionTests() {
+  it('rejects literal claim upgrades on top-level and row status surfaces', () => {
     expectInvalid({ ...LiveCaptureStatus, remoteUploadEnabledCount: 1 });
     expectInvalid({ ...LiveCaptureStatus, rawArtifactCreatedCount: 1 });
     expectInvalid({ ...LiveCaptureStatus, exactUrlAvailableCount: 1 });
@@ -164,14 +164,26 @@ function registerNoClaimRejectionTests() {
     expectInvalid({ ...LiveCaptureStatus, netstatMetadataSubstitutionCount: 1 });
     expectInvalid({ ...LiveCaptureStatus, hostFilteringClaimCount: 1 });
     expectInvalidPatch({
-      rows: [ReadyRow, { ...ManualRow, driverInvoked: true }, UnavailableRow, DegradedRow],
+      rows: [{ ...ReadyRow, remoteUploadEnabled: true }, ManualRow, UnavailableRow, DegradedRow],
     });
     expectInvalid({
       ...LiveCaptureStatus,
       rows: [{ ...ReadyRow, rawArtifactCreated: true }, ManualRow, UnavailableRow, DegradedRow],
     });
     expectInvalidPatch({
+      rows: [{ ...ReadyRow, policyAuthority: true }, ManualRow, UnavailableRow, DegradedRow],
+    });
+    expectInvalidPatch({
+      rows: [{ ...ReadyRow, adapterAuthority: true }, ManualRow, UnavailableRow, DegradedRow],
+    });
+    expectInvalidPatch({
+      rows: [{ ...ReadyRow, enforcementCommandsPublished: 1 }, ManualRow, UnavailableRow, DegradedRow],
+    });
+    expectInvalidPatch({
       rows: [{ ...ReadyRow, netstatMetadataSubstitutedForLiveCapture: true }, ManualRow, UnavailableRow, DegradedRow],
+    });
+    expectInvalidPatch({
+      rows: [{ ...ReadyRow, hostFilteringClaimed: true }, ManualRow, UnavailableRow, DegradedRow],
     });
   });
 }
@@ -193,15 +205,15 @@ function registerMalformedPayloadTests() {
   });
 }
 
-function registerRefDriftTests() {
-  it('rejects stale refs and row identity drift', () => {
-    expectInvalidPatch({ statusRef: 'network.live-capture.status.12' });
-    expectInvalidPatch({ row13StatusRef: 'network.live-capture.proof-gate.12' });
-    expectInvalidPatch({ executionStatusRef: 'network.live-capture.execution-status.12' });
-    expectInvalidPatch({ rawStorageStatusRef: 'network.live-capture.raw-storage-custody.02a' });
+function registerFieldValidationTests() {
+  it('rejects empty required refs and invalid enum fields', () => {
+    expectInvalidPatch({ statusRef: '' });
+    expectInvalidPatch({ row13StatusRef: '' });
+    expectInvalidPatch({ executionStatusRef: '' });
+    expectInvalidPatch({ rawStorageStatusRef: '' });
     expectInvalidPatch({
       rows: [
-        { ...ReadyRow, captureProofRef: 'network.live-capture.windows-npcap.12' },
+        { ...ReadyRow, captureProofRef: '' },
         ManualRow,
         UnavailableRow,
         DegradedRow,
@@ -209,7 +221,7 @@ function registerRefDriftTests() {
     });
     expectInvalidPatch({
       rows: [
-        { ...ReadyRow, storageProofRef: 'network.live-capture.raw-storage-custody.02a' },
+        { ...ReadyRow, storageProofRef: '' },
         ManualRow,
         UnavailableRow,
         DegradedRow,
@@ -217,7 +229,7 @@ function registerRefDriftTests() {
     });
     expectInvalidPatch({
       rows: [
-        { ...ReadyRow, executionRef: 'network.live-capture.execution.windows-npcap.12' },
+        { ...ReadyRow, executionRef: '' },
         ManualRow,
         UnavailableRow,
         DegradedRow,
@@ -225,43 +237,52 @@ function registerRefDriftTests() {
     });
     expectInvalidPatch({
       rows: [
-        { ...ReadyRow, interfaceRef: 'network.live-capture.interface.12' },
+        { ...ReadyRow, interfaceRef: '' },
         ManualRow,
         UnavailableRow,
         DegradedRow,
       ],
     });
     expectInvalidPatch({
-      rows: [ReadyRow, { ...ManualRow, interfaceRef: LiveCaptureRefs.InterfaceRef }, UnavailableRow, DegradedRow],
+      rows: [ReadyRow, { ...ManualRow, platform: 'windows' }, UnavailableRow, DegradedRow],
     });
     expectInvalidPatch({
-      rows: [ReadyRow, ManualRow, { ...UnavailableRow, platform: 'windows-npcap' }, DegradedRow],
+      rows: [ReadyRow, ManualRow, { ...UnavailableRow, proofState: 'ready' }, DegradedRow],
+    });
+    expectInvalidPatch({
+      rows: [ReadyRow, ManualRow, { ...UnavailableRow, storageState: 'ready' }, DegradedRow],
+    });
+    expectInvalidPatch({
+      rows: [ReadyRow, ManualRow, { ...UnavailableRow, executionState: 'ready' }, DegradedRow],
     });
   });
 }
 
-function registerCountAndReadinessTests() {
-  it('rejects row count, readiness, and missing-artifact mismatches', () => {
-    expectInvalidPatch({ platformRowCount: 3 });
-    expectInvalidPatch({ proofReadyCount: 2 });
-    expectInvalidPatch({ storageCustodyReadyCount: 2 });
-    expectInvalidPatch({ requiredArtifactCount: 27 });
-    expectInvalidPatch({ missingArtifactCount: 17 });
-    expectInvalidPatch({ storageMissingArtifactCount: 26 });
-    expectInvalidPatch({ boundedExecutedCount: 2 });
-    expectInvalidPatch({ executionManualRequiredCount: 2 });
-    expectInvalidPatch({ executionMissingArtifactCount: 29 });
-    expectInvalidPatch({ capturedPacketCount: 2 });
-    expectInvalidPatch({ captureReadyCount: 2 });
-    expectInvalidPatch({ rawArtifactStorageAuthorizedCount: 2 });
+function registerCountValidationTests() {
+  it('rejects negative or non-integer count fields', () => {
+    expectInvalidPatch({ platformRowCount: -1 });
+    expectInvalidPatch({ proofReadyCount: 1.5 });
+    expectInvalidPatch({ storageCustodyReadyCount: -1 });
+    expectInvalidPatch({ requiredArtifactCount: -1 });
+    expectInvalidPatch({ missingArtifactCount: -1 });
+    expectInvalidPatch({ storageMissingArtifactCount: 1.5 });
+    expectInvalidPatch({ boundedExecutedCount: -1 });
+    expectInvalidPatch({ executionManualRequiredCount: 1.5 });
+    expectInvalidPatch({ executionMissingArtifactCount: -1 });
+    expectInvalidPatch({ capturedPacketCount: -1 });
+    expectInvalidPatch({ captureReadyCount: 1.5 });
+    expectInvalidPatch({ rawArtifactStorageAuthorizedCount: -1 });
     expectInvalidPatch({
-      rows: [{ ...ReadyRow, captureReady: false }, ManualRow, UnavailableRow, DegradedRow],
+      rows: [{ ...ReadyRow, missingArtifactCount: -1 }, ManualRow, UnavailableRow, DegradedRow],
     });
     expectInvalidPatch({
-      rows: [{ ...ReadyRow, rawArtifactStorageAuthorized: false }, ManualRow, UnavailableRow, DegradedRow],
+      rows: [{ ...ReadyRow, executionMissingArtifactCount: 0.5 }, ManualRow, UnavailableRow, DegradedRow],
     });
     expectInvalidPatch({
-      rows: [{ ...ReadyRow, missingArtifactCount: 1 }, ManualRow, UnavailableRow, DegradedRow],
+      rows: [{ ...ReadyRow, storageMissingArtifactCount: -1 }, ManualRow, UnavailableRow, DegradedRow],
+    });
+    expectInvalidPatch({
+      rows: [{ ...ReadyRow, capturedPacketCount: -1 }, ManualRow, UnavailableRow, DegradedRow],
     });
   });
 }
@@ -388,7 +409,7 @@ function storageRefs(refState: 'complete' | 'live-only' | 'none') {
   };
 }
 
-function expectInvalidPatch(patch: Partial<AgentNetworkLiveCaptureStatus>) {
+function expectInvalidPatch(patch: Record<string, unknown>) {
   expectInvalid({ ...LiveCaptureStatus, ...patch });
 }
 

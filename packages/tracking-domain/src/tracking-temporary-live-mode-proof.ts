@@ -4,12 +4,12 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from './tracking-location-policy';
+import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 import {
   TrackingLiveTrackingGrantStateSchema,
   TrackingPolicyAuditRefSchema,
-} from './tracking-location-policy-primitives';
-import type { TrackingTemporaryLiveTrackingGrant } from './tracking-location-policy-types';
+} from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
+import type { TrackingTemporaryLiveTrackingGrant } from '@ocentra-parent/schema-domain/tracking-location-policy-types';
 const TrackingTemporaryLiveDurationSeconds = Schema.Number.pipe(Schema.int(), Schema.positive());
 const TrackingTemporaryLiveNonNegativeSeconds = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 

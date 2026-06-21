@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserSocialAiAnalysisInputSchema } from '../../src/browser-social-ai-analysis-schemas';
-import { buildBrowserSocialAiAnalysisResult } from '../../src/browser-social-ai-analysis-result-builder';
+import { BrowserSocialAiAnalysisInputSchema } from '@ocentra-parent/schema-domain/browser-social-ai-analysis-schemas';
+import { buildBrowserSocialAiAnalysisResult } from '@ocentra-parent/schema-domain/browser-social-ai-analysis-result-builder';
 import {
   BrowserSocialBenefitSignalSchema,
   BrowserSocialRiskBenefitSignalSetSchema,
   BrowserSocialRiskSignalSchema,
   buildBrowserSocialRiskBenefitSignalSet,
-} from '../../src/browser-social-riskbenefit-signals';
+} from '@ocentra-parent/schema-domain/browser-social-riskbenefit-signals';
 
 describe('browser social risk and benefit signal model contract', () => {
   it('builds a candidate signal set from a typed social AI analysis result', buildsCandidateSignals);

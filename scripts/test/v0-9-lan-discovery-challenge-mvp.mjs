@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
-import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import {
   ParentDevEnv,
   ParentDevHost,

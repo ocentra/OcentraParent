@@ -2,7 +2,7 @@ import {
   SocialAlertReportParentSurfaceReadModelSnapshotSchema,
   type SocialAlertReportParentSurfaceReadModelRow,
   type SocialAlertReportParentSurfaceReadModelSnapshot,
-} from '@ocentra-parent/agent-protocol-domain/social-alert-report-parent-surface-read-model';
+} from '@ocentra-parent/schema-domain/agent-social-alert-report-parent-surface-read-model';
 import { type DisplayText, decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
 import { PortalDetails } from './details';

@@ -10,13 +10,13 @@ const ValidationLogPath = join(OutputRoot, 'validation-commands.log');
 const TestResultPath = join(TestResultRoot, 'proof.json');
 const generatedAt = new Date().toISOString();
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build:contracts']));
 runCommand(
   ...npmCommand([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/ai-domain',
     '--',
     'local-ai-runtime-status-read-model-proof',
   ])
@@ -26,7 +26,7 @@ const {
   LocalAiRuntimeStatusSurfaceReadModel,
   LocalAiRuntimeStatusSurfaceReadModelSchema,
   LocalAiRuntimeStatusSurfaceRowSchema,
-} = await import('@ocentra-parent/ai-domain/local-ai-runtime-status-read-model-proof');
+} = await import('@ocentra-parent/schema-domain/local-ai-runtime-status-read-model-proof');
 
 const readModel = LocalAiRuntimeStatusSurfaceReadModelSchema.parse(LocalAiRuntimeStatusSurfaceReadModel);
 const childSafetyPriorityRows = readModel.rows.filter((row) => row.childSafetyPriorityVisible);
@@ -115,8 +115,8 @@ writeFileSync(ProofPath, `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(
   ValidationLogPath,
   [
-    'cmd /c npm run build --workspace @ocentra-parent/parent-domain',
-    'cmd /c npm run test --workspace @ocentra-parent/parent-domain -- local-ai-runtime-status-read-model-proof',
+    'cmd /c npm run build:contracts',
+    'cmd /c npm run test --workspace @ocentra-parent/ai-domain -- local-ai-runtime-status-read-model-proof',
   ].join('\n') + '\n'
 );
 writeFileSync(TestResultPath, `${JSON.stringify({ status: 'ok', proof: relativePath(ProofPath) }, null, 2)}\n`);

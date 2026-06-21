@@ -3,8 +3,8 @@ import {
   LocalAiActivityMemoryGraphQuerySchema,
   LocalAiActivityMemoryGraphReadResultSchema,
   LocalAiActivityMemoryGraphTraceSchema,
-} from '../../src/local-ai-activity-memory-graph';
-import { readLocalAiActivityMemoryGraph } from '../../src/local-ai-activity-memory-graph-read';
+} from '@ocentra-parent/schema-domain/local-ai-activity-memory-graph';
+import { readLocalAiActivityMemoryGraph } from '@ocentra-parent/schema-domain/local-ai-activity-memory-graph-read';
 
 const observedAt = '2026-05-20T20:45:00.000Z';
 const asOf = '2026-05-20T21:00:00.000Z';

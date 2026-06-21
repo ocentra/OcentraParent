@@ -4,10 +4,10 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
+import { AgentTrackingRetentionSettingsWriteDefaults } from '@ocentra-parent/schema-domain/agent-tracking-retention-settings-write-command';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { TrackingEvidenceTraceSchema, TrackingPolicySchemaVersion } from './tracking-location-policy';
-import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from './tracking-location-policy-primitives';
+import { TrackingEvidenceTraceSchema, TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
+import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 
 export const TrackingHostedStorageDefaultRowIdSchema = brandedNonEmptyStringSchema('TrackingHostedStorageDefaultRowId');
 

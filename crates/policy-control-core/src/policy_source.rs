@@ -9,6 +9,9 @@ use serde::{Deserialize, Serialize};
 
 const POLICY_SOURCE_SCHEMA_VERSION_VALUE: u16 = 1;
 
+pub type PolicySourceWriteSurface = ocentra_parent_agent_protocol::PolicySourceSurface;
+pub type PolicySourceDocumentStatus = ocentra_parent_agent_protocol::PolicySourceStatus;
+
 macro_rules! policy_source_text_id {
     ($name:ident, $field:expr) => {
         #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -110,18 +113,6 @@ impl From<PolicyVersion> for u64 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum PolicySourceWriteSurface {
-    #[serde(rename = "parent-portal")]
-    ParentPortal,
-    #[serde(rename = "parent-companion")]
-    ParentCompanion,
-    #[serde(rename = "ai-preview")]
-    AiPreview,
-    #[serde(rename = "domain-cache")]
-    DomainCache,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentPolicyActorRole {
     #[serde(rename = "parent")]
     Parent,
@@ -149,38 +140,6 @@ pub struct PolicySourceActorAuthority {
     pub actor_id: PolicyActorId,
     pub actor_role: ParentPolicyActorRole,
     pub actor_state: PolicySourceActorState,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum PolicySourceDocumentStatus {
-    #[serde(rename = "draft")]
-    Draft,
-    #[serde(rename = "preview")]
-    Preview,
-    #[serde(rename = "confirmed")]
-    Confirmed,
-    #[serde(rename = "queued")]
-    Queued,
-    #[serde(rename = "delivered")]
-    Delivered,
-    #[serde(rename = "acknowledged")]
-    Acknowledged,
-    #[serde(rename = "active")]
-    Active,
-    #[serde(rename = "partially-active")]
-    PartiallyActive,
-    #[serde(rename = "rejected")]
-    Rejected,
-    #[serde(rename = "superseded")]
-    Superseded,
-    #[serde(rename = "rolled-back")]
-    RolledBack,
-    #[serde(rename = "stale")]
-    Stale,
-    #[serde(rename = "expired")]
-    Expired,
-    #[serde(rename = "manual-required")]
-    ManualRequired,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

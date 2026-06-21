@@ -3,7 +3,7 @@ import {
   PolicyControlApprovalNotificationBoundaryEntrySchema,
   PolicyControlApprovalNotificationBoundarySample,
   PolicyControlApprovalNotificationBoundaryReadModelSchema,
-} from '../../src/policy-control-approval-notification-boundary';
+} from '@ocentra-parent/schema-domain/policy-control-approval-notification-boundary';
 
 describe('policy control approval notification boundary', () => {
   it('covers preview pending approved denied modified expired and replay-rejected approval queue states', () => {

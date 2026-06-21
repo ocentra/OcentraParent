@@ -4,8 +4,8 @@ import {
   BrowserSocialFeedRouteClassificationSchema,
   type BrowserSocialFeedSurfaceHint,
   classifyBrowserSocialFeedRoute,
-} from '../../src/browser-social-feed-route-classification';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../src/browser-social-url-patterns';
+} from '@ocentra-parent/schema-domain/browser-social-feed-route-classification';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 
 describe('browser social feed route classification contract', () => {
   it('classifies reels and shorts feed routes as route-only short-video surfaces', classifiesShortVideoFeeds);

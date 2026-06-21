@@ -25,7 +25,7 @@ Correlation: `policy-control-plane-plan / WP03 / policy-wp03-compiler-proof-bund
 
 - `crates/policy-control-core/src/policy_compiler.rs` computes `compiled_artifact_id` from the compiler domain, source document id, and policy version.
 - The same source file always copies `audit_reference_ids`, `superseded_by_policy_version`, `rollback_ref`, `schedules`, and validated rules into the output artifact.
-- `packages/policy-domain/src/policy-compiler.ts` rejects duplicate audit refs, missing no-claim labels, and mixed supersede-plus-rollback state, preventing structurally ambiguous artifacts from passing as deterministic output.
+- `packages/schema-domain/src/policy-compiler.ts` rejects duplicate audit refs, missing no-claim labels, and mixed supersede-plus-rollback state, preventing structurally ambiguous artifacts from passing as deterministic output.
 
 ## No runtime mutation / no silent-drop boundary
 

@@ -21,8 +21,8 @@ use ocentra_remote_access_core::remote_access_session::{
     evaluate_remote_access_session, RemoteAccessSessionAuthorizationState,
     RemoteAccessSessionDecision, RemoteAccessSessionRequest,
 };
-use ocentra_storage_custody_core::{
-    evaluate_storage_custody, RemoteUploadState, StorageCustodyDecision, StorageCustodyInput,
+use ocentra_storage_custody_core::storage_custody::{
+    evaluate_storage_custody, StorageCustodyDecision, StorageCustodyInput,
 };
 use serde::{Deserialize, Serialize};
 
@@ -181,6 +181,8 @@ pub fn evaluate_child_runtime_preflight(
         == DeviceScopeAuthorizationState::Authorized
         && provisioning_decision.child_runtime_readiness_state == ChildRuntimeReadinessState::Ready
         && entitlement_decision.access_state == EntitlementCapabilityAccessState::Allowed;
+    let manual_review_required =
+        provisioning_decision.child_runtime_readiness_state != ChildRuntimeReadinessState::Ready;
 
     ChildRuntimePreflightDecision {
         device_scope_decision,
@@ -192,10 +194,10 @@ pub fn evaluate_child_runtime_preflight(
         } else {
             ChildRuntimeStartState::Blocked
         },
-        manual_review_state: if runtime_allowed {
-            ChildRuntimeManualReviewState::NotRequired
-        } else {
+        manual_review_state: if manual_review_required {
             ChildRuntimeManualReviewState::Required
+        } else {
+            ChildRuntimeManualReviewState::NotRequired
         },
     }
 }
@@ -258,10 +260,6 @@ pub fn evaluate_child_runtime_enforcement(
         },
         action_decision,
     }
-}
-
-pub fn child_runtime_remote_upload_allowed(decision: &ChildRuntimePreflightDecision) -> bool {
-    decision.storage_custody_decision.remote_upload_state == RemoteUploadState::Allowed
 }
 
 fn child_runtime_event_contract(event_type: &str) -> Result<EventContract, EventingError> {

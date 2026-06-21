@@ -7,10 +7,13 @@ const outputRoot = resolve(repoRoot, 'output', 'screen-ai-pipeline-proof', 'inva
 const artifactSummaryPath = join(outputRoot, 'proof-summary.json');
 
 await mkdir(outputRoot, { recursive: true });
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 
-const { ScreenAnalysisResultSchema, ScreenEvidenceSchemaVersion, ScreenLocalModelOutputSchema } =
-  await import('../../packages/screen-domain/dist/screen-evidence.js');
+const { ScreenAnalysisResultSchema, ScreenLocalModelOutputSchema } =
+  await import('../../packages/schema-domain/dist/screen-evidence-result.js');
+const { ScreenEvidenceSchemaVersion } =
+  await import('../../packages/schema-domain/dist/screen-evidence-primitives.js');
 
 const validModelOutput = {
   primary_category: 'school',

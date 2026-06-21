@@ -39,7 +39,7 @@ async function main() {
   const writableExecutionProof = JSON.parse(await readFile(sourceWritableExecutionProofPath, 'utf8'));
   const proofModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-retention-applied-settings-runtime-bridge-proof.ts')
+      join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-retention-applied-settings-runtime-bridge-proof.ts')
     ).href,
     import.meta.url
   );

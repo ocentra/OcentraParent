@@ -66,7 +66,7 @@ async function main() {
     schemaVersion: 1,
     proofMode: 'browser-platform-inventory-matrix-proof',
     generatedAt: new Date().toISOString(),
-    proofContract: 'packages/browser-domain/src/browser-platform-inventory-matrix.ts',
+    proofContract: 'packages/schema-domain/src/browser-platform-inventory-matrix.ts',
     sourceWorkpack: 'docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md',
     rows: matrix.entries.map((entry) => proofRow(entry)),
     summary: {

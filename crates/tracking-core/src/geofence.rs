@@ -1,8 +1,11 @@
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    TrackingGeofenceTransitionDetectedEvent, TrackingLocationObservedEvent,
+};
 use ocentra_parent_agent_protocol::{
-    constants, tracking_evidence_ref_from_observation_id,
-    tracking_transition_id_from_observation_id, TrackingCapabilityStatus, TrackingEvidenceRef,
-    TrackingGeofenceRuleRef, TrackingGeofenceTransitionDetectedEvent,
-    TrackingLocationObservedEvent, TrackingReasonCode, TrackingTimestamp, TrackingTransitionKind,
+    tracking_evidence_ref_from_observation_id, tracking_transition_id_from_observation_id,
+    TrackingCapabilityStatus, TrackingEvidenceRef, TrackingGeofenceRuleRef, TrackingReasonCode,
+    TrackingTimestamp, TrackingTransitionKind,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

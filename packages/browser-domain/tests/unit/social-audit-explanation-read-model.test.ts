@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type SocialAuditExplanationSnapshot,
   SocialAuditExplanationSnapshotSchema,
-} from '../../src/social-audit-explanation-read-model';
+} from '@ocentra-parent/schema-domain/social-audit-explanation-read-model';
 
 describe('social audit explanation read model contracts', () => {
   it('accepts account, feed, native, connector, memory, and manual audit rows', acceptsHonestSnapshot);

@@ -1,7 +1,8 @@
 use ocentra_parent_agent_core::enforcement_timer_state::EnforcementTimerTransitionIds;
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, LogFieldValue, LogFields,
-    ParentActionReference, ParentActorReference, ParentActorRole,
+    constants, policy_constants,
+    schema_domain_mirrors::family::{ParentActorReference, ParentActorRole},
+    AgentCommandEnvelope, LogFieldValue, LogFields, ParentActionReference,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]

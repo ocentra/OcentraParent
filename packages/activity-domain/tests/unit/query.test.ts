@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { ActivityEventKind, ActivityObserver, ActivitySubjectKind } from '@ocentra-parent/evidence-domain/kinds';
+import { ActivityEventKind, ActivityObserver, ActivitySubjectKind } from '@ocentra-parent/schema-domain/evidence-kinds';
 import {
   ActivityIngestStatusSchema,
   ActivityQuerySchemaVersion,
   ActivityRecentQuerySchema,
   ActivityRecentSummarySchema,
-} from '../../src/query';
+} from '@ocentra-parent/schema-domain/activity-query';
 
 describe('activity query contracts', () => {
   it('parses query store ingest status with a nullable last event', () => {

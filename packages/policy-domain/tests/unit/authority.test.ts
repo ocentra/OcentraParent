@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { PolicyAuthoritySource, PolicyAuthorityState, resolvePolicyAuthority } from '../../src/authority';
+import { PolicyAuthoritySource, PolicyAuthorityState, resolvePolicyAuthority } from '@ocentra-parent/schema-domain/authority';
 import {
   PolicyDecisionHandoffState,
   type LocalAiResultReferenceId,
   type PolicyDecisionId,
   type PolicyReasonCode,
   type PolicyRuleId,
-} from '../../src/policy';
+} from '@ocentra-parent/schema-domain/policy';
 import {
   ParentEvidenceReferenceIdSchema,
   type ParentTimestamp,

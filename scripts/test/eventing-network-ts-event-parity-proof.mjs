@@ -82,7 +82,7 @@ console.log(`proof=${join(proofRoot, 'proof-summary.json')}`);
 function assertSourceContracts() {
   const packageJson = readText('packages/agent-protocol-domain/package.json');
   const source = readText('packages/agent-protocol-domain/src/network-runtime-events.ts');
-  const tests = readText('packages/agent-protocol-domain/tests/network-runtime-events.test.ts');
+  const tests = readText('packages/agent-protocol-domain/tests/unit/network-runtime-events.test.ts');
   const rustContracts = readText('crates/agent-protocol/src/network_flow_events.rs');
   const rustConstants = readText('crates/agent-protocol/src/constants/network_flow.rs');
   const readme = readText('packages/agent-protocol-domain/README.md');

@@ -1,7 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const RepoRoot = process.cwd();
 const OutputRoot = resolve(RepoRoot, 'output', 'ai-plan-proof', 'local-ai-deterministic-classifier-proof');
@@ -37,21 +36,20 @@ const Runtime = {
   unavailableReason: null,
 };
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build:contracts']));
 runCommand(
   ...npmCommand([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/ai-domain',
     '--',
     'local-ai-deterministic-classifier-proof',
   ])
 );
 
 const { runLocalAiDeterministicClassifier } = await import(
-  pathToFileURL(resolve(RepoRoot, 'packages', 'parent-domain', 'dist', 'local-ai-deterministic-classifier-proof.js'))
-    .href
+  '@ocentra-parent/schema-domain/local-ai-deterministic-classifier-proof'
 );
 
 const rows = [
@@ -124,8 +122,8 @@ writeFileSync(ProofPath, `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(
   ValidationLogPath,
   [
-    'cmd /c npm run build --workspace @ocentra-parent/parent-domain',
-    'cmd /c npm run test --workspace @ocentra-parent/parent-domain -- local-ai-deterministic-classifier-proof',
+    'cmd /c npm run build:contracts',
+    'cmd /c npm run test --workspace @ocentra-parent/ai-domain -- local-ai-deterministic-classifier-proof',
   ].join('\n') + '\n'
 );
 writeFileSync(TestResultPath, `${JSON.stringify({ status: 'ok', proof: relativePath(ProofPath) }, null, 2)}\n`);

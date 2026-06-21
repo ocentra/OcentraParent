@@ -16,7 +16,7 @@ use crate::{
     },
     lan_pairing_audit::{controller_lease_audit_fields, rejected_control_audit_fields},
     lan_pairing_payload::parse_intent,
-    lan_pairing_runtime_state::LanAiJobLeaseTransition,
+    lan_pairing_runtime_state::job_leases::LanAiJobLeaseTransition,
 };
 
 pub(crate) fn lan_ai_provider_status_get(

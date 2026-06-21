@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::dns::NetworkEvidenceGrade;
+use crate::dns::types::NetworkEvidenceGrade;
 use crate::domain::NormalizedDomainEvidence;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

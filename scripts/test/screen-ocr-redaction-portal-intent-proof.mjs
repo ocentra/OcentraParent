@@ -16,8 +16,8 @@ run('npm', ['run', 'test', '--workspace=@ocentra-parent/activity-domain', '--', 
 run('npm', ['run', 'test', '--workspace=@ocentra-parent/portal-domain', '--', 'tests/screen-summary-panel.test.ts']);
 
 const { ActivityScreenReadModelSchema, ActivitySurfaceSchemaVersion } =
-  await import('@ocentra-parent/activity-domain/activity-surface');
-const { ActivityEvidenceKind } = await import('@ocentra-parent/evidence-domain/kinds');
+  await import('@ocentra-parent/schema-domain/activity-surface');
+const { ActivityEvidenceKind } = await import('@ocentra-parent/schema-domain/evidence-kinds');
 const { createScreenSummaryPanelIntent } = await import('@ocentra-parent/portal-domain/screen-summary-panel');
 
 const evidenceRef = {
@@ -110,7 +110,7 @@ const proof = {
   proofTier: 'P2_CONTRACT_SCREEN_OCR_REDACTION_PORTAL_INTENT',
   artifact: 'output/screen-plan-proof/19-sensitive-text-and-redaction-model/portal-intent-proof-summary.json',
   source: {
-    activityReadModelSchema: '@ocentra-parent/activity-domain/activity-surface',
+    activityReadModelSchema: '@ocentra-parent/schema-domain/activity-surface',
     portalIntent: '@ocentra-parent/portal-domain/screen-summary-panel',
   },
   assertions: {

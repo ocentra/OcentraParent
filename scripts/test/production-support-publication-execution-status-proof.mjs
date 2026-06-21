@@ -11,8 +11,8 @@ const outputDir = join(repoRoot, 'output', proofMode);
 const proofPath = join(resultDir, 'proof.json');
 const summaryPath = join(outputDir, 'proof-summary.json');
 const commands = [];
-const packageExports = {
-  './production-support-publication-execution-status': {
+const schemaPackageExports = {
+  './production-support-publication-execution-status-proof': {
     import: './dist/production-support-publication-execution-status-proof.js',
     types: './dist/production-support-publication-execution-status-proof.d.ts',
   },
@@ -31,21 +31,22 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-support-publication-execution-status-proof.test.ts',
+      'tests/unit/production-support-publication-execution-status-proof.test.ts',
     ])
   );
 
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
-  const exportedPackagePaths = await assertPackageExports();
+  const packageExport = await assertPackageExports();
   const commit = await gitHead();
   const proof = {
     schemaVersion: 1,
@@ -54,14 +55,14 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-support-publication-execution-status-proof.ts',
-      values: 'packages/parent-domain/src/production-support-publication-execution-status-values.ts',
-      readModel: 'packages/parent-domain/src/production-support-publication-execution-status-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/production-support-publication-execution-status-proof.test.ts',
+      contract: 'packages/schema-domain/src/production-support-publication-execution-status-proof.ts',
+      values: 'packages/schema-domain/src/production-support-publication-execution-status-values.ts',
+      readModel: 'packages/schema-domain/src/production-support-publication-execution-status-read-model.ts',
+      contractTest: 'packages/production-domain/tests/unit/production-support-publication-execution-status-proof.test.ts',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
-      packageExports: exportedPackagePaths,
+      packageExport,
     },
     rowCount: contract.rows.length,
     rows: contract.rows,
@@ -86,9 +87,9 @@ async function main() {
 }
 
 async function assertBuiltContract() {
-  const contractModule = await importBuiltModule('production-support-publication-execution-status-proof.js');
-  const readModelModule = await importBuiltModule('production-support-publication-execution-status-read-model.js');
-  const valuesModule = await importBuiltModule('production-support-publication-execution-status-values.js');
+  const contractModule = await importBuiltSchemaDomainModule('production-support-publication-execution-status-proof');
+  const readModelModule = await importBuiltSchemaDomainModule('production-support-publication-execution-status-read-model');
+  const valuesModule = await importBuiltSchemaDomainModule('production-support-publication-execution-status-values');
   const proof = contractModule.ProductionSupportPublicationExecutionStatusProofSchema.parse(
     readModelModule.ProductionSupportPublicationExecutionStatusReadModel
   );
@@ -177,15 +178,25 @@ async function assertDocumentationProof() {
 }
 
 async function assertPackageExports() {
-  const packageJson = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
-  for (const [exportPath, expectedTarget] of Object.entries(packageExports)) {
-    assert.deepEqual(packageJson.exports[exportPath], expectedTarget, `${exportPath} package export`);
+  const productionPackageJson = JSON.parse(await readRepoFile('packages/production-domain/package.json'));
+  const schemaPackageJson = JSON.parse(await readRepoFile('packages/schema-domain/package.json'));
+  const retiredLocalExports = [];
+  for (const [exportPath, expectedTarget] of Object.entries(schemaPackageExports)) {
+    assert.deepEqual(schemaPackageJson.exports[exportPath], expectedTarget, `${exportPath} schema package export`);
+    if (productionPackageJson.exports[exportPath] !== null) {
+      retiredLocalExports.push(exportPath);
+    }
   }
-  return packageExports;
+  assert.deepEqual(retiredLocalExports, []);
+  return {
+    owner: 'schema-domain',
+    schemaExports: Object.keys(schemaPackageExports),
+    retiredLocalExports,
+  };
 }
 
-async function importBuiltModule(fileName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
+async function importBuiltSchemaDomainModule(moduleName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', `${moduleName}.js`)).href);
 }
 
 async function readRepoFile(path) {

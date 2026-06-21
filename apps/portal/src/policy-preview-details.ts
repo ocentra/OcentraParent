@@ -1,12 +1,10 @@
-import { AgentProtocolDefaults, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
-import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/agent-protocol-domain/policy-preview-read-model';
-import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
-import {
-  PortalDetails,
-  PortalText,
-  PortalTextToken,
-  type PortalDetailValue,
-} from '@ocentra-parent/portal-domain/contracts';
+import { type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/schema-domain/agent-policy-preview-read-model';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import type { LogFieldValue } from '@ocentra-parent/schema-domain/logging-contracts';
+import { PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 import { appendDetail } from './detail-list';
 import {
   detailFromValue,

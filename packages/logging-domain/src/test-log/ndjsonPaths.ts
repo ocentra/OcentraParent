@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { RunType, TestLogScope, TestSuiteType } from './types';
+import type {
+  RunType,
+  TestLogScope,
+  TestSuiteType,
+} from '@ocentra-parent/schema-domain/test-log/types';
 
 const LOG_ROOT_ENV = 'OCENTRA_PARENT_LOG_DIR';
 const TEST_LOG_DIR = 'test-logs';

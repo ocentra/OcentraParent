@@ -5,12 +5,14 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_ADAPTER_EXECUTION_STATE_DEGRADED, APP_GAME_ADAPTER_EXECUTION_STATE_MANUAL_REQUIRED,
     APP_GAME_ADAPTER_EXECUTION_STATE_PROVED_SCOPED, APP_GAME_ADAPTER_EXECUTION_STATE_UNAVAILABLE,
     APP_GAME_ADAPTER_EXECUTION_STATE_UNSUPPORTED, APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
-    APP_GAME_PARENT_PLATFORM_ANDROID, APP_GAME_PARENT_PLATFORM_LINUX, APP_GAME_TEST_TIMESTAMP,
+    APP_GAME_PARENT_PLATFORM_ANDROID, APP_GAME_PARENT_PLATFORM_LINUX,
 };
 
 use super::app_game_adapter_execution_readiness_payload::{
     app_game_adapter_execution_readiness_payload, app_game_adapter_execution_readiness_read_model,
 };
+
+const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
 
 #[test]
 fn app_game_adapter_execution_readiness_payload_reports_supported_proof_without_claim_upgrades() {

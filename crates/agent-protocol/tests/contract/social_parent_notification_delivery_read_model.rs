@@ -1,8 +1,6 @@
 use serde_json::{json, Value};
 
 use ocentra_parent_agent_protocol::{
-    SocialParentNotificationDeliveryReadinessRow,
-    SocialParentNotificationDeliveryReadinessSnapshot,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_AUDIT_REF,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_EVIDENCE_REF,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_ENFORCEMENT,
@@ -16,6 +14,10 @@ use ocentra_parent_agent_protocol::{
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_SCHEMA_VERSION,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_SOURCE_REPORT_WRITER_PROOF_REF,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
+};
+use ocentra_parent_agent_protocol::social_parent_notification_delivery_read_model::{
+    SocialParentNotificationDeliveryReadinessRow,
+    SocialParentNotificationDeliveryReadinessSnapshot,
 };
 
 #[test]

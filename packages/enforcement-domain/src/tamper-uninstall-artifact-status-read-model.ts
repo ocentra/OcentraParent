@@ -1,9 +1,9 @@
-import { ParentControlCapabilityName, ParentControlCapabilityStatus } from '@ocentra-parent/capability-domain/capabilities';
+import { ParentControlCapabilityName, ParentControlCapabilityStatus } from '@ocentra-parent/schema-domain/capabilities';
 import type {
   ParentControlCapabilityNameSchema,
   ParentControlCapabilityStatusSchema,
   ParentControlPlatformSchema,
-} from '@ocentra-parent/capability-domain/capabilities';
+} from '@ocentra-parent/schema-domain/capabilities';
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   TamperUninstallArtifactStatusEntrySchema,
@@ -13,7 +13,7 @@ import {
   type TamperUninstallArtifactStatusEntry,
   type TamperUninstallArtifactSurface,
   type TamperUninstallParentVisibleStatus,
-} from './tamper-uninstall-artifact-status';
+} from '@ocentra-parent/schema-domain/tamper-uninstall-artifact-status';
 
 type TamperUninstallArtifactStatusEntryInput = {
   statusEntryId: string;

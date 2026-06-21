@@ -13,7 +13,7 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
@@ -29,13 +29,13 @@ async function main() {
   await runCommand('node', ['scripts/test/v0-8-os-adapter-manual-artifact-gates.mjs']);
 
   const { V08BroadOsAdapterRuntimeProofReadModel } =
-    await import('@ocentra-parent/enforcement-domain/v0-8-broad-os-adapter-runtime-proof');
+    await import('@ocentra-parent/schema-domain/v0-8-broad-os-adapter-runtime-proof');
   const { V08BroadOsAdapterProofReadModel } =
-    await import('@ocentra-parent/enforcement-domain/v0-8-broad-os-adapter-proof');
+    await import('@ocentra-parent/schema-domain/v0-8-broad-os-adapter-proof');
   const { V08BrowserDomainAdapterProofReadModel } =
-    await import('@ocentra-parent/browser-domain/v0-8-browser-domain-adapter-proof');
+    await import('@ocentra-parent/schema-domain/v0-8-browser-domain-adapter-proof');
   const { V08OsAdapterManualArtifactGateReadModel } =
-    await import('@ocentra-parent/enforcement-domain/v0-8-os-adapter-manual-artifact-gates');
+    await import('@ocentra-parent/schema-domain/v0-8-os-adapter-manual-artifact-gates');
   const proofMatrix = JSON.parse(await readFile(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json')));
   const summary = summarizeReadModel(V08BroadOsAdapterRuntimeProofReadModel);
 
@@ -56,7 +56,7 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/enforcement-domain/src/v0-8-broad-os-adapter-runtime-proof.ts',
+      tsContract: 'packages/schema-domain/src/v0-8-broad-os-adapter-runtime-proof.ts',
       tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-broad-os-adapter-runtime-proof.test.ts',
       proofHarness: 'scripts/test/v0-8-broad-os-adapter-runtime-proof.mjs',
       sourceBroadProof: 'test-results/v0-8-broad-os-adapter-proof/proof.json',

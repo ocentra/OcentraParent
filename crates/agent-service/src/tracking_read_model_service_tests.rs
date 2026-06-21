@@ -1,7 +1,7 @@
 use std::fs::remove_file;
 use std::path::Path;
 
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
     ActivitySubjectKind, AgentCommandEnvelope, AgentCommandName, AgentEventName,

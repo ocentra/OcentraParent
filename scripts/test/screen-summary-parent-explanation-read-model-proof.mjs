@@ -1,7 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const RepoRoot = process.cwd();
 const SourceProofPath = resolve(
@@ -23,11 +22,10 @@ const ClaimBoundaries = {
   enforcementClaimed: false,
 };
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
-const { buildScreenSummaryParentExplanationReadModelSnapshot } = await importDist(
-  'local-ai-screen-summary-parent-explanation-read-model.js'
-);
+const { buildScreenSummaryParentExplanationReadModelSnapshot } =
+  await import('@ocentra-parent/schema-domain/local-ai-screen-summary-parent-explanation-read-model');
 const sourceProof = JSON.parse(readFileSync(SourceProofPath, 'utf8'));
 const generatedAt = new Date().toISOString();
 const snapshot = buildScreenSummaryParentExplanationReadModelSnapshot({
@@ -80,10 +78,6 @@ function rowFailsValidation(row) {
     !row.deletionReasons.includes('screen-image-deleted') ||
     Object.values(row.claimBoundaries).some((claim) => claim !== false)
   );
-}
-
-async function importDist(fileName) {
-  return import(pathToFileURL(join(RepoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
 }
 
 function runCommand(command, args) {

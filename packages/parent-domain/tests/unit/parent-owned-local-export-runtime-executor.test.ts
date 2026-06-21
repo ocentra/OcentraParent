@@ -4,11 +4,11 @@ import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
+import { ParentOwnedLocalExportRuntimeProofReadModel } from '@ocentra-parent/schema-domain/parent-owned-local-export-runtime';
 import {
   createParentOwnedLocalExportRuntimeExecutor,
   type ParentOwnedLocalExportRuntimeAuditEntry,
 } from '../../src/parent-owned-local-export-runtime-executor';
-import { ParentOwnedLocalExportRuntimeProofReadModel } from '../../src/parent-owned-local-export-runtime';
 
 const log = Logger.instance;
 log.register(

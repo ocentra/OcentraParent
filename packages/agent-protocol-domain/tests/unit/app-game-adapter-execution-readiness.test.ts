@@ -1,14 +1,17 @@
-import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
-import { describe, expect, it } from 'vitest';
-import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
 import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import {
   AgentAppGameAdapterExecutionDecision,
-  AgentAppGameAdapterHostCapabilityState,
-  AgentAppGameAdapterExecutionReadinessPayloadField,
   AgentAppGameAdapterExecutionState,
+  AgentAppGameAdapterHostCapabilityState,
+  type AppGameAdapterExecutionReadinessReadModel,
+} from '@ocentra-parent/schema-domain/app-game-adapter-execution-readiness';
+import { describe, expect, it } from 'vitest';
+import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
+import {
   parseAgentAppGameAdapterExecutionReadinessEvent,
 } from '../../src/app-game-adapter-execution-readiness';
+
+const AppGameAdapterExecutionReadinessPayloadField = 'appGameAdapterExecutionReadinessReadModel' as const;
 
 const Source = {
   peerId: 'agent-service',
@@ -21,28 +24,13 @@ const Target = {
 } as const;
 
 const AdapterExecutionReadinessReadModel = {
-  schemaVersion: AppGameSchemaVersion,
+  schemaVersion: 'v0.6',
   readModelId: 'app-game-adapter-execution-readiness',
   generatedAt: '2026-06-08T09:17:00.000Z',
   sourceReadModelIds: ['v0-8-supported-adapter-runtime-proof'],
-  custodyLabel: 'supported-adapter-runtime-proof',
-  capabilityStatus: 'app-game-adapter-execution-partial',
-  returned: 2,
-  executionAllowedCount: 1,
-  blockedBeforeExecutionCount: 1,
-  adapterExecutionClaimedCount: 1,
-  hostCapabilityAvailableCount: 1,
-  hostCapabilityNotDetectedCount: 1,
-  hostCapabilityNotApplicableCount: 0,
-  hostCapabilityProbeRefCount: 2,
-  broadInstalledAppBlockingClaimed: false,
-  childDeviceDeliveryClaimed: false,
-  platformEnforcementClaimed: false,
-  providerDeliveryClaimed: false,
-  privateDiagnosticsClaimed: false,
   rows: [
     {
-      schemaVersion: AppGameSchemaVersion,
+      schemaVersion: 'v0.6',
       rowId: 'app-game-adapter-execution-windows-app-game-owned-process-time-limit',
       sourceProofEntryId: 'windows-app-game-owned-process-time-limit',
       platform: 'windows',
@@ -71,7 +59,7 @@ const AdapterExecutionReadinessReadModel = {
       lastCheckedAt: '2026-06-08T09:17:00.000Z',
     },
     {
-      schemaVersion: AppGameSchemaVersion,
+      schemaVersion: 'v0.6',
       rowId: 'app-game-adapter-execution-windows-broad-installed-app-blocking-manual-gate',
       sourceProofEntryId: 'windows-broad-installed-app-blocking-manual-gate',
       platform: 'windows',
@@ -100,7 +88,7 @@ const AdapterExecutionReadinessReadModel = {
       lastCheckedAt: '2026-06-08T09:17:00.000Z',
     },
   ],
-} as const;
+} satisfies AppGameAdapterExecutionReadinessReadModel;
 
 describe('agent app-game adapter execution readiness parser', () => {
   it('parses the dedicated adapter execution readiness read-model event payload', () => {
@@ -151,7 +139,13 @@ describe('agent app-game adapter execution readiness parser', () => {
         adapterExecutionReadinessEvent(
           JSON.stringify({
             ...AdapterExecutionReadinessReadModel,
-            hostCapabilityAvailableCount: 0,
+            rows: [
+              AdapterExecutionReadinessReadModel.rows[0],
+              {
+                ...AdapterExecutionReadinessReadModel.rows[1],
+                rowId: AdapterExecutionReadinessReadModel.rows[0].rowId,
+              },
+            ],
           })
         )
       )
@@ -173,7 +167,7 @@ function adapterExecutionReadinessEvent(serializedReadModel: string): AgentEvent
     event: AgentEvent.ActivityAppGameAdapterExecutionReadinessReadModelReported,
     severity: 'info',
     payload: {
-      [AgentAppGameAdapterExecutionReadinessPayloadField]: serializedReadModel,
+      [AppGameAdapterExecutionReadinessPayloadField]: serializedReadModel,
     },
     snapshot: null,
   };

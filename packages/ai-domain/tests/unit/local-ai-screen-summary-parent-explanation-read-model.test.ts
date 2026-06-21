@@ -3,7 +3,7 @@ import {
   buildScreenSummaryParentExplanationReadModelSnapshot,
   ScreenSummaryParentExplanationReadModelInputSchema,
   ScreenSummaryParentExplanationReadModelSnapshotSchema,
-} from '../../src/local-ai-screen-summary-parent-explanation-read-model';
+} from '@ocentra-parent/schema-domain/local-ai-screen-summary-parent-explanation-read-model';
 
 const GeneratedAt = '2026-06-05T11:24:30.710Z';
 const SourceRow = {

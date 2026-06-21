@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ScreenLiveViewServiceSessionGateSchema,
   ScreenLiveViewServiceSessionSchemaVersion,
-} from '../../src/screen-live-view-service-session';
+} from '@ocentra-parent/schema-domain/screen-live-view-service-session';
 
 const CheckedAt = '2026-06-07T08:44:00Z';
 

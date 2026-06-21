@@ -4,7 +4,7 @@ import {
   TrackingMissingDeviceModeProofRowSchema,
   buildTrackingMissingDeviceModeProofReadModel,
 } from '../../src/tracking-missing-device-mode-proof';
-import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from '../../src/tracking-location-policy';
+import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 const Timestamp = '2026-06-05T15:18:00.000Z';
 

@@ -1,8 +1,8 @@
 use serde::{ser::SerializeStruct, Serialize, Serializer};
 use serde_json::Value;
 
-use ocentra_parent_agent_core::{NetworkRuntimeEventPayload, NetworkRuntimeReport};
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_core::network_event_runtime::NetworkRuntimeReport;
+use ocentra_parent_agent_protocol::{constants, NetworkRuntimeEventPayload};
 
 use crate::network_runtime_stream_event_payloads;
 

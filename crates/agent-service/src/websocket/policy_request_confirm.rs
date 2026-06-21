@@ -1,5 +1,5 @@
 use ocentra_eventing::error::EventingError;
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
     ActivitySubjectKind, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue,
@@ -581,6 +581,7 @@ fn map_protocol_request_status(status: CorePolicyRequestStatus) -> ProtocolPolic
         CorePolicyRequestStatus::Denied => ProtocolPolicyRequestStatus::Denied,
         CorePolicyRequestStatus::Modified => ProtocolPolicyRequestStatus::Modified,
         CorePolicyRequestStatus::Expired => ProtocolPolicyRequestStatus::Expired,
+        CorePolicyRequestStatus::ReplayRejected => ProtocolPolicyRequestStatus::ReplayRejected,
     }
 }
 
@@ -638,7 +639,7 @@ fn default_policy_request_assistant_preview_confirm_request(
 mod tests {
     use std::fs::remove_file;
 
-    use ocentra_parent_agent_core::ActivityStore;
+    use ocentra_parent_agent_core::activity_store::ActivityStore;
     use ocentra_parent_agent_protocol::{
         AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
         AgentRoute, LogFields, PolicyAssistantConfirmationState, PolicyRequestStatus,

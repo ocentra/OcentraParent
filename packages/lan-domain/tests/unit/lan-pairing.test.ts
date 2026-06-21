@@ -3,7 +3,7 @@ import {
   LanChildAgentResponseSchema,
   LanPairingAuditEventSchema,
   LanPairingParentIntentEnvelopeSchema,
-} from '../../src/lan-pairing-control';
+} from '@ocentra-parent/schema-domain/lan-pairing-control';
 import {
   LanPairingChallengeRequestSchema,
   LanPairingChallengeSchema,
@@ -13,9 +13,9 @@ import {
   LanPairingProofSchema,
   LanSelectedRouteTargetSchema,
   LanTrustedDeviceRegistryEntrySchema,
-} from '../../src/lan-pairing-device';
-import { LanPairingRuntimeSupportSurfaceSchema } from '../../src/lan-pairing-support';
-import { LanPairingIntentKindSchema, LanPairingRejectionReason } from '../../src/lan-pairing-values';
+} from '@ocentra-parent/schema-domain/lan-pairing-device';
+import { LanPairingRuntimeSupportSurfaceSchema } from '@ocentra-parent/schema-domain/lan-pairing-support';
+import { LanPairingIntentKindSchema, LanPairingRejectionReason } from '@ocentra-parent/schema-domain/lan-pairing-values';
 
 const timestamp = '2026-05-23T14:40:00.000Z';
 const laterTimestamp = '2026-05-23T14:45:00.000Z';

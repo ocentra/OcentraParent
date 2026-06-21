@@ -3,7 +3,7 @@ import {
   PortalRouteDescriptors,
   type PortalRoute as PortalRouteValue,
   type PortalRouteDescriptor,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/routes';
 
 export function routeDescriptor(route: PortalRouteValue): PortalRouteDescriptor {
   return (

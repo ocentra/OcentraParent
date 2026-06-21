@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { parseBrowserUrlShape } from '../../src/browser-url-intelligence';
-import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '../../src/browser-social-account-flow-schemas';
+import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '@ocentra-parent/schema-domain/browser-social-account-flow-schemas';
 import {
   type BrowserSocialFormControlKind,
   BrowserSocialFormShapeEvidenceSchema,
   detectBrowserSocialFormShape,
-} from '../../src/browser-social-form-shape-detector';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../src/browser-social-url-patterns';
+} from '@ocentra-parent/schema-domain/browser-social-form-shape-detector';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 
 describe('browser social form-shape detector contract', () => {
   it('detects sanitized signup form shape from managed account-flow evidence', detectsSignupForm);

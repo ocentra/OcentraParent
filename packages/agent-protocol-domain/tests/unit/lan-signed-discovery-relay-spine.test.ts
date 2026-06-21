@@ -4,6 +4,7 @@ import {
   AgentLanSignedDiscoveryRelaySpineSchema,
   AgentProtocolDefaults,
 } from '../../src/contracts';
+import { LanPairingSchemaVersion } from '@ocentra-parent/schema-domain/lan-pairing-values';
 
 const generatedAt = '2026-06-02T11:40:00.000Z';
 const routeId = 'lan-route-local-network';
@@ -38,7 +39,7 @@ describe('agent protocol signed discovery relay spine', () => {
 
 function signedDiscoveryRelaySpine() {
   return {
-    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    schemaVersion: LanPairingSchemaVersion.V0_9,
     generatedAt,
     adapterRows: adapterRows(),
     signedProofRows: signedProofRows(),
@@ -214,7 +215,7 @@ function adapterRow(
   requiredArtifactSummary: unknown
 ) {
   return {
-    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    schemaVersion: LanPairingSchemaVersion.V0_9,
     adapter,
     discoveryState,
     proofState,
@@ -234,7 +235,7 @@ function signedProof(
   proofState: unknown
 ) {
   return {
-    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    schemaVersion: LanPairingSchemaVersion.V0_9,
     check,
     discoveryState,
     responseState,
@@ -254,7 +255,7 @@ function routeSafety(
   custodyLabel: unknown
 ) {
   return {
-    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    schemaVersion: LanPairingSchemaVersion.V0_9,
     check,
     routeId: route,
     discoveryState,
@@ -275,7 +276,7 @@ function relayCache(
   custodyLabel: unknown
 ) {
   return {
-    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    schemaVersion: LanPairingSchemaVersion.V0_9,
     check,
     decisionState,
     discoveryState,

@@ -8,34 +8,34 @@ import {
   BrowserAiConfidenceSchema,
   BrowserAiDegradedStateSchema,
   BrowserAiRecommendedPolicyInputSchema,
-} from '@ocentra-parent/browser-domain/browser-ai-analysis-schemas';
-import { BrowserCustodyLabelSchema } from '@ocentra-parent/browser-domain/browser-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-analysis-values';
+import { BrowserCustodyLabelSchema } from '@ocentra-parent/schema-domain/browser-schemas';
 import {
   BrowserSocialAiAnalysisResultSchema,
   type BrowserSocialAiAnalysisResult,
-} from '@ocentra-parent/browser-domain/browser-social-ai-analysis-schemas';
-import { BrowserSocialAiAnalysisIdSchema } from '@ocentra-parent/browser-domain/browser-social-ai-analysis-values';
+} from '@ocentra-parent/schema-domain/browser-social-ai-analysis-schemas';
+import { BrowserSocialAiAnalysisIdSchema } from '@ocentra-parent/schema-domain/browser-social-ai-analysis-values';
 import {
   BrowserSocialFeedVideoRouteGatePlanSchema,
   type BrowserSocialFeedVideoRouteGatePlan,
-} from '@ocentra-parent/browser-domain/browser-social-feed-video-route-gate';
-import { BrowserSocialFeedVideoRouteGatePlanIdSchema } from '@ocentra-parent/browser-domain/browser-social-feed-video-route-gate-values';
+} from '@ocentra-parent/schema-domain/browser-social-feed-video-route-gate';
+import { BrowserSocialFeedVideoRouteGatePlanIdSchema } from '@ocentra-parent/schema-domain/browser-social-feed-video-route-gate-values';
 import {
   BrowserSocialPlatformSchema,
   BrowserSocialRouteEvidenceIdSchema,
-} from '@ocentra-parent/browser-domain/browser-social-platform-route-schemas';
+} from '@ocentra-parent/schema-domain/browser-social-platform-route-schemas';
 import {
   BrowserSocialRiskBenefitSignalSetSchema,
   type BrowserSocialRiskBenefitSignalSet,
-} from '@ocentra-parent/browser-domain/browser-social-riskbenefit-signals';
-import { BrowserSocialRiskBenefitSignalSetIdSchema } from '@ocentra-parent/browser-domain/browser-social-riskbenefit-values';
-import { BrowserSocialVideoMetadataEvidenceIdSchema } from '@ocentra-parent/browser-domain/browser-social-video-metadata';
+} from '@ocentra-parent/schema-domain/browser-social-riskbenefit-signals';
+import { BrowserSocialRiskBenefitSignalSetIdSchema } from '@ocentra-parent/schema-domain/browser-social-riskbenefit-values';
+import { BrowserSocialVideoMetadataEvidenceIdSchema } from '@ocentra-parent/schema-domain/browser-social-video-metadata';
 import {
   ActivityDeviceIdSchema,
   ActivityEvidenceIdSchema,
   ActivitySubjectIdSchema,
   ActivityTimestampSchema,
-} from '@ocentra-parent/evidence-domain/primitives';
+} from '@ocentra-parent/schema-domain/evidence-primitives';
 import {
   SocialVideoPermittedDownstreamUseSchema,
   SocialVideoSourcePrivacyEvidenceIdSchema,

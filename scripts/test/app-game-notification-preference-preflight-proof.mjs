@@ -19,24 +19,14 @@ for (const path of [join(appGameProofDir, '06-ui-snapshots'), join(appProofDir, 
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-runNpm([
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/parent-domain',
-  '--',
-  'app-game-notification-preference-preflight',
-  'app-game-notification-scheduler-bridge',
-  'app-game-notification-local-outbox-bridge',
-]);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 
-const localOutbox = await importDist('app-game-notification-local-outbox-bridge.js');
-const scheduler = await importDist('app-game-notification-scheduler-bridge.js');
-const preferencePreflight = await importDist('app-game-notification-preference-preflight.js');
-const intent = await importDist('app-game-notification-intent.js');
-const childUx = await importDist('app-game-child-facing-ux-rules.js');
-const refs = await importDist('reference-primitives.js');
+const localOutbox = await importSchemaDist('app-game-notification-local-outbox-bridge.js');
+const scheduler = await importSchemaDist('app-game-notification-scheduler-bridge.js');
+const preferencePreflight = await importSchemaDist('app-game-notification-preference-preflight.js');
+const intent = await importSchemaDist('app-game-notification-intent.js');
+const childUx = await importSchemaDist('app-game-child-facing-ux.js');
+const refs = await importSchemaDist('family-reference-primitives.js');
 
 const localOutboxReadModel = localOutbox.buildAppGameNotificationLocalOutboxBridgeReadModel(
   bridgeOptions(refs),
@@ -73,8 +63,10 @@ const proof = {
     adapterDispatchClaimed: preferenceReadModel.adapterDispatchClaimed,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-notification-preference-preflight.ts',
-    test: 'packages/parent-domain/tests/app-game-notification-preference-preflight.test.ts',
+    source: 'packages/schema-domain/src/app-game-notification-preference-preflight.ts',
+    schedulerBridge: 'packages/schema-domain/src/app-game-notification-scheduler-bridge.ts',
+    localOutboxBridge: 'packages/schema-domain/src/app-game-notification-local-outbox-bridge.ts',
+    intentContract: 'packages/schema-domain/src/app-game-notification-intent.ts',
     harness: 'scripts/test/app-game-notification-preference-preflight-proof.mjs',
     evidence: 'test-results/app-game-notification-preference-preflight-proof/proof.json',
     appGameProofPack: 'output/app-game-plan-proof/62-notification-preference-preflight',
@@ -92,8 +84,8 @@ await writeProofPack(appProofDir, proof, 'app WP62');
 console.log('app-game-notification-preference-preflight-proof-ok');
 console.log(`evidence=${join('test-results', 'app-game-notification-preference-preflight-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+async function importSchemaDist(moduleName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', moduleName)).href);
 }
 
 function preferencePreflightOptions() {
@@ -301,8 +293,8 @@ async function writeProofPack(proofDir, proof, label) {
       proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
       '```',
       '',
-      '- Scope: app/game notification scheduler rows to parent-preference preflight rows.',
-      '- Source inspected: app/game notification scheduler bridge, local outbox bridge, notification expectations, app/game feature doc, reports/notifications feature doc, and implementation checklists.',
+      '- Scope: central app/game notification scheduler rows to parent-preference preflight rows.',
+      '- Source inspected: schema-domain notification scheduler bridge, local outbox bridge, preference preflight, and central notification expectation refs.',
       '',
     ].join('\n'),
     'utf8'
@@ -312,8 +304,8 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-preference-preflight app-game-notification-scheduler-bridge app-game-notification-local-outbox-bridge: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- node scripts/test/app-game-notification-preference-preflight-proof.mjs: PASS',
       '- Scheduled rows become parent-preference-required preflight rows.',
       '- Manual-required and unavailable rows remain blocked before preference preflight.',
       '',
@@ -322,7 +314,7 @@ async function writeProofPack(proofDir, proof, label) {
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust protocol proof not applicable: this workpack adds a TypeScript parent-domain preflight boundary and does not add a Rust-crossing shape.\n',
+    'Rust protocol proof not applicable: this workpack validates the central schema-domain preference preflight boundary only.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof.summary);
@@ -366,7 +358,11 @@ async function writeProofPack(proofDir, proof, label) {
     '# Manual Platform Proof\n\nNo live platform authority tier is raised. Parent preference UI, provider delivery, child delivery, and platform execution remain unclaimed.\n',
     'utf8'
   );
-  await writeFile(join(proofDir, '10-validation-commands.log'), commands.join('\n') + '\n', 'utf8');
+  await writeFile(
+    join(proofDir, '10-validation-commands.log'),
+    [...commands, 'node scripts/test/app-game-notification-preference-preflight-proof.mjs'].join('\n') + '\n',
+    'utf8'
+  );
   await writeFile(
     join(proofDir, '11-authority-tier-proof.md'),
     '# Authority Tier Proof\n\nThe preflight is a contract boundary only. It does not dispatch adapters, send provider payloads, mutate parent preferences, or raise child-device/platform authority.\n',

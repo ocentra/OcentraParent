@@ -5,10 +5,6 @@
   "type": "module",
   "description": "Billing account, entitlement, support-admin, and payment-facing contracts.",
   "exports": {
-    "./*": {
-      "import": "./dist/src/*.js",
-      "types": "./dist/src/*.d.ts"
-    },
     "./package-info": {
       "import": "./dist/src/package-info.js",
       "types": "./dist/src/package-info.d.ts"

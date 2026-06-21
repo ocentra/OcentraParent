@@ -23,15 +23,15 @@ const DEVICE_SCOPE_DECISION_PREFIX: &str = "family-identity-device-scope-decisio
 const ERROR_DEVICE_SCOPE_DECISION_ID: &str = "family identity device scope decision id";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum FamilyActorRole {
-    #[serde(rename = "parent")]
-    Parent,
-    #[serde(rename = "guardian")]
-    Guardian,
+pub enum HouseholdRole {
+    #[serde(rename = "parent-owner")]
+    ParentOwner,
+    #[serde(rename = "co-parent-guardian")]
+    CoParentGuardian,
     #[serde(rename = "observer")]
     Observer,
-    #[serde(rename = "child")]
-    Child,
+    #[serde(rename = "child-profile")]
+    ChildProfile,
     #[serde(rename = "child-device-agent")]
     ChildDeviceAgent,
     #[serde(rename = "support-admin")]
@@ -39,17 +39,17 @@ pub enum FamilyActorRole {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum HouseholdMembership {
-    #[serde(rename = "member")]
-    Member,
+pub enum HouseholdMembershipState {
     #[serde(rename = "invited")]
     Invited,
+    #[serde(rename = "pending")]
+    Pending,
+    #[serde(rename = "active")]
+    Active,
     #[serde(rename = "revoked")]
     Revoked,
     #[serde(rename = "disabled")]
     Disabled,
-    #[serde(rename = "external")]
-    External,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -114,6 +114,8 @@ pub enum DeviceTrustState {
     Trusted,
     #[serde(rename = "revoked")]
     Revoked,
+    #[serde(rename = "reset-required")]
+    ResetRequired,
     #[serde(rename = "disabled")]
     Disabled,
 }
@@ -130,9 +132,10 @@ pub enum SessionFreshnessState {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DeviceScopeInput {
-    pub actor_role: FamilyActorRole,
+    pub actor_role: HouseholdRole,
+    pub same_family: bool,
     pub actor_account_state: ActorAccountState,
-    pub household_membership: HouseholdMembership,
+    pub membership_state: HouseholdMembershipState,
     pub child_profile_binding_state: ChildProfileBindingState,
     pub device_ownership_scope: DeviceOwnershipScope,
 }
@@ -241,9 +244,10 @@ impl DomainEvent for DeviceScopeDecisionRecordedEvent {
 pub fn authorize_child_device_scope(input: DeviceScopeInput) -> DeviceScopeDecision {
     let has_parent_authority = matches!(
         input.actor_role,
-        FamilyActorRole::Parent | FamilyActorRole::Guardian
+        HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian
     );
-    let allowed = input.household_membership == HouseholdMembership::Member
+    let allowed = input.same_family
+        && input.membership_state == HouseholdMembershipState::Active
         && input.actor_account_state == ActorAccountState::Active
         && input.child_profile_binding_state == ChildProfileBindingState::Bound
         && input.device_ownership_scope == DeviceOwnershipScope::ChildProfileDevice

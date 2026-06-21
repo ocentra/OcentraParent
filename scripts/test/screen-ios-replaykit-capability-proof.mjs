@@ -1,18 +1,16 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..', '..');
 const outputDir = join(repoRoot, 'output', 'screen-plan-proof', 'ios');
 const proofPath = join(outputDir, 'proof-summary.json');
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 
-const screenIos = await import(
-  pathToFileURL(join(repoRoot, 'packages', 'activity-domain', 'dist', 'screen-ios-replaykit-capability-proof.js')).href
-);
+const screenIos = await import('@ocentra-parent/schema-domain/screen-ios-replaykit-capability-proof');
 
 const generatedAt = new Date().toISOString();
 const proof = screenIos.screenIosReplayKitCapabilityProof(generatedAt);

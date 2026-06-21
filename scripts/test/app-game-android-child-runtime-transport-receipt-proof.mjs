@@ -64,12 +64,12 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-android-child-runtime-transport-receipt-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -79,7 +79,7 @@ async function main() {
 
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-child-runtime-transport-receipt-proof.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-child-runtime-transport-receipt-proof.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidChildRuntimeTransportReceiptProof({
@@ -106,14 +106,14 @@ async function main() {
       androidProofSource:
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
-      contract: 'packages/parent-domain/src/app-game-android-child-runtime-transport-receipt-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-android-child-runtime-transport-receipt-proof.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-android-child-runtime-transport-receipt-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-android-child-runtime-transport-receipt-proof.test.ts',
       packageBuild: 'target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk',
     },
     claimsProved: [
       'The Android child app package compiles with a child runtime transport receipt status bundle',
       'MainActivity renders parent-safe transport-channel, receipt-store, and receipt-ack states',
-      'Parent-domain accepts the Android child runtime transport receipt proof only when activity UI and receipt-store evidence are present',
+      'App-game-domain accepts the Android child runtime transport receipt proof only when activity UI and receipt-store evidence are present',
       'Runtime transport execution, receipt ingestion, provider delivery, platform delivery channel, adapter dispatch, platform enforcement, and raw private source rows remain unclaimed',
     ],
     claimsNotProved: [

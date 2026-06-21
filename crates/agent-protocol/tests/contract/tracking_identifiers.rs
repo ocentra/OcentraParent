@@ -45,43 +45,91 @@ fn tracking_derived_identifiers_use_source_refs_and_protocol_prefixes() {
 
     assert_eq!(
         evidence_ref.as_str(),
-        "tracking.evidence.recorded:tracking-observation-42"
+        format!(
+            "{}:tracking-observation-42",
+            constants::tracking_runtime::TRACKING_EVIDENCE_RECORDED_EVENT_TYPE
+        )
     );
     assert_eq!(
         ai_request_id.as_str(),
-        "tracking.ai.analysis.requested:tracking.evidence.recorded:tracking-observation-42"
+        format!(
+            "{}:{}:tracking-observation-42",
+            constants::tracking_runtime::TRACKING_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_EVIDENCE_RECORDED_EVENT_TYPE
+        )
     );
     assert_eq!(
         transition_id.as_str(),
-        "tracking.geofence.transition.detected:tracking-observation-42"
+        format!(
+            "{}:tracking-observation-42",
+            constants::tracking_runtime::TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE
+        )
     );
     assert_eq!(
         evaluation_id.as_str(),
-        "tracking.expected-place.state.evaluated:tracking-observation-42"
+        format!(
+            "{}:tracking-observation-42",
+            constants::tracking_runtime::TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE
+        )
     );
     assert_eq!(
         check_in_id.as_str(),
-        "tracking.child-check-in.recorded:tracking-observation-42"
+        format!(
+            "{}:tracking-observation-42",
+            constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE
+        )
     );
     assert_eq!(
         ai_violation_id.as_str(),
-        "tracking.policy.violation.detected:tracking.ai.analysis.requested:tracking.evidence.recorded:tracking-observation-42:policy.expected-place"
+        format!(
+            "{}:{}:{}:tracking-observation-42:{}",
+            constants::tracking_runtime::TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_EVIDENCE_RECORDED_EVENT_TYPE,
+            constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE
+        )
     );
     assert_eq!(
         evaluation_violation_id.as_str(),
-        "tracking.policy.violation.detected:tracking.expected-place.state.evaluated:tracking-observation-42:policy.expected-place"
+        format!(
+            "{}:{}:tracking-observation-42:{}",
+            constants::tracking_runtime::TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE,
+            constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE
+        )
     );
     assert_eq!(
         notification_id.as_str(),
-        "tracking.parent.notification.requested:tracking.policy.violation.detected:tracking.ai.analysis.requested:tracking.evidence.recorded:tracking-observation-42:policy.expected-place"
+        format!(
+            "{}:{}:{}:{}:tracking-observation-42:{}",
+            constants::tracking_runtime::PARENT_NOTIFICATION_REQUESTED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_EVIDENCE_RECORDED_EVENT_TYPE,
+            constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE
+        )
     );
     assert_eq!(
         acknowledgement_id.as_str(),
-        "tracking.parent-acknowledgement.recorded:tracking.policy.violation.detected:tracking.ai.analysis.requested:tracking.evidence.recorded:tracking-observation-42:policy.expected-place"
+        format!(
+            "{}:{}:{}:{}:tracking-observation-42:{}",
+            constants::tracking_runtime::TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_EVIDENCE_RECORDED_EVENT_TYPE,
+            constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE
+        )
     );
     assert_eq!(
         alert_evaluation_id.as_str(),
-        "tracking.alert.evaluated:tracking.policy.violation.detected:tracking.ai.analysis.requested:tracking.evidence.recorded:tracking-observation-42:policy.expected-place"
+        format!(
+            "{}:{}:{}:{}:tracking-observation-42:{}",
+            constants::tracking_runtime::TRACKING_ALERT_EVALUATED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_AI_ANALYSIS_REQUESTED_EVENT_TYPE,
+            constants::tracking_runtime::TRACKING_EVIDENCE_RECORDED_EVENT_TYPE,
+            constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE
+        )
     );
     assert_eq!(
         temporary_live_session_id.as_str(),
@@ -93,6 +141,10 @@ fn tracking_derived_identifiers_use_source_refs_and_protocol_prefixes() {
     );
     assert_eq!(
         parent_defined_place_id.as_str(),
-        "tracking.parent-defined-place:tracking.evidence.recorded:tracking-observation-42"
+        format!(
+            "{}:{}:tracking-observation-42",
+            constants::tracking_runtime::TRACKING_PARENT_DEFINED_PLACE_ID_PREFIX,
+            constants::tracking_runtime::TRACKING_EVIDENCE_RECORDED_EVENT_TYPE
+        )
     );
 }

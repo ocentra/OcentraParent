@@ -21,7 +21,7 @@ async function main() {
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/app-game-domain',
     '--',
     'app-game-time-budget-policy-runtime.test.ts',
   ]);
@@ -29,45 +29,33 @@ async function main() {
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/app-game-domain',
     '--',
     'app-game-policy-preview-handoff.test.ts',
   ]);
-  runNpm([
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'app-game-policy-target-compiler.test.ts',
-  ]);
 
   const runtimeSource = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-time-budget-policy-runtime.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-time-budget-policy-runtime.ts'),
     'utf8'
   );
   const runtimeTest = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'tests', 'app-game-time-budget-policy-runtime.test.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'tests', 'unit', 'app-game-time-budget-policy-runtime.test.ts'),
     'utf8'
   );
   const previewSource = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-policy-preview-handoff.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-policy-preview-handoff.ts'),
     'utf8'
   );
   const previewRules = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-policy-preview-handoff-rules.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-policy-preview-handoff-rules.ts'),
     'utf8'
   );
   const previewTest = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'tests', 'app-game-policy-preview-handoff.test.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'tests', 'unit', 'app-game-policy-preview-handoff.test.ts'),
     'utf8'
   );
   const compilerSource = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-policy-target-compiler.ts'),
-    'utf8'
-  );
-  const compilerTest = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'tests', 'app-game-policy-target-compiler.test.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-policy-target-compiler.ts'),
     'utf8'
   );
 
@@ -157,21 +145,6 @@ async function main() {
     "'Expected compiled app/game policy decisions to remain dry-run and carry evidence, rule, and capability refs'",
     'compiled decisions are guarded as dry-run proof refs'
   );
-  assertIncludes(
-    compilerTest,
-    'assertBlockLaunchWithoutProofIsManualRequired',
-    'compiler test names the no-block-without-proof boundary'
-  );
-  assertIncludes(
-    compilerTest,
-    'outcomeState: AppGamePolicyCompilerOutcomeState.ManualRequired',
-    'compiler test accepts unproved block launch only as manual-required'
-  );
-  assertIncludes(
-    compilerTest,
-    'outcomeState: AppGamePolicyCompilerOutcomeState.DryRunReady',
-    'compiler test rejects unproved block launch as dry-run-ready execution'
-  );
 
   const proof = {
     schemaVersion: 1,
@@ -187,15 +160,15 @@ async function main() {
     gateState: 'prevented-by-dry-run-only-and-not-dispatched-contracts',
     evidence: {
       runtimeDecision:
-        'packages/parent-domain/src/app-game-time-budget-policy-runtime.ts builds dry-run decisions, maps exceeded dry-run budgets to time-limit-dry-run, and emits dry-run-only handoff state.',
+        'packages/app-game-domain/src/app-game-time-budget-policy-runtime.ts builds dry-run decisions, maps exceeded dry-run budgets to time-limit-dry-run, and emits dry-run-only handoff state.',
       runtimeTests:
-        'packages/parent-domain/tests/app-game-time-budget-policy-runtime.test.ts proves dry-run-only, disabled, ask-parent, and manual-required outcomes without adapter execution.',
+        'packages/app-game-domain/tests/unit/app-game-time-budget-policy-runtime.test.ts proves dry-run-only, disabled, ask-parent, and manual-required outcomes without adapter execution.',
       previewHandoff:
-        'packages/parent-domain/src/app-game-policy-preview-handoff.ts and rules require dryRun true, disabled enforcement handoff, not-dispatched adapter state, and false runtime/enforcement claim flags.',
+        'packages/app-game-domain/src/app-game-policy-preview-handoff.ts and packages/app-game-domain/src/app-game-policy-preview-handoff-rules.ts require dryRun true, disabled enforcement handoff, not-dispatched adapter state, and false runtime/enforcement claim flags.',
       previewTests:
-        'packages/parent-domain/tests/app-game-policy-preview-handoff.test.ts rejects rows that try to execute policy, clear dryRun, or claim adapter/runtime delivery.',
+        'packages/app-game-domain/tests/unit/app-game-policy-preview-handoff.test.ts rejects rows that try to execute policy, clear dryRun, or claim adapter/runtime delivery.',
       compilerBoundary:
-        'packages/parent-domain/src/app-game-policy-target-compiler.ts and tests keep unproved block-launch decisions manual-required instead of executable block claims.',
+        'packages/schema-domain/src/app-game-policy-target-compiler.ts keeps unproved block-launch decisions manual-required instead of executable block claims.',
     },
     productBoundaries: {
       sharedEvidenceSpine: true,

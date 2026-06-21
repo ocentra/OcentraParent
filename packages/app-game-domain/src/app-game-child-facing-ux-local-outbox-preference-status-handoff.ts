@@ -1,23 +1,11 @@
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema,
-  NonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
-import {
-  AppGameChildUxLocalOutboxPreferencePreflightReadModelSchema,
-  AppGameChildUxLocalOutboxPreferencePreflightStatus,
-  AppGameChildUxLocalOutboxPreferencePreflightStatusSchema,
-  type AppGameChildUxLocalOutboxPreferencePreflightReadModel,
-  type AppGameChildUxLocalOutboxPreferencePreflightRow,
-} from './app-game-child-facing-ux-local-outbox-preference-preflight';
-import {
-  ParentContractSchemaVersion,
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
+  AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelSchema,
+  AppGameChildUxLocalOutboxPreferenceStatusHandoffRowSchema,
+  RequiredAppGameChildUxLocalOutboxPreferenceStatusHandoffNonClaims,
+  type AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModel,
+  type AppGameChildUxLocalOutboxPreferenceStatusHandoffRow,
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-preference-status-handoff';
 import {
   V3NotificationProviderChannelSchema,
   V3NotificationRuleProviderRetryContractEntrySchema,
@@ -27,110 +15,19 @@ import {
   type V3NotificationProviderChannel,
   type V3NotificationQuietHoursDecision,
   type V3NotificationRuleReasonCode,
-} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
+} from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
+import {
+  AppGameChildUxLocalOutboxPreferencePreflightReadModelSchema,
+  AppGameChildUxLocalOutboxPreferencePreflightStatus,
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-preference-preflight';
+import type {
+  AppGameChildUxLocalOutboxPreferencePreflightReadModel,
+  AppGameChildUxLocalOutboxPreferencePreflightRow,
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-preference-preflight';
 
-export const RequiredAppGameChildUxLocalOutboxPreferenceStatusHandoffNonClaims = [
-  'no-parent-preference-ui',
-  'no-parent-frequency-control-ui',
-  'no-parent-notification-ui',
-  'no-parent-preference-mutation',
-  'no-quiet-hours-timer-runtime',
-  'no-provider-delivery-execution',
-  'no-provider-receipt-ingestion',
-  'no-provider-credentials',
-  'no-cloud-routing',
-  'no-child-delivery',
-  'no-retry-worker-runtime',
-  'no-production-durable-outbox-storage',
-  'no-adapter-dispatch',
-  'no-platform-enforcement',
-  'no-raw-private-source-rows',
-] as const;
+type AppGameChildUxLocalOutboxPreferencePreflightStatusValue = AppGameChildUxLocalOutboxPreferencePreflightRow['status'];
 
-export const AppGameChildUxLocalOutboxPreferenceStatusHandoffNonClaimSchema = withParser(
-  Schema.Literal(...RequiredAppGameChildUxLocalOutboxPreferenceStatusHandoffNonClaims)
-);
-export const AppGameChildUxLocalOutboxPreferenceStatusHandoffIdSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxPreferenceStatusHandoffId');
-export const AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema = brandedNonEmptyStringSchema('AppGameChildUxLocalOutboxPreferenceStatusHandoffReference');
-
-const AppGameChildUxLocalOutboxPreferenceStatusHandoffRowBaseSchema = Schema.Struct({
-  handoffRowId: AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema,
-  sourcePreferenceRowId: AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema,
-  sourcePreferenceStatus: AppGameChildUxLocalOutboxPreferencePreflightStatusSchema,
-  sourceSchedulerEntryRef: Schema.Union(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema, Schema.Null),
-  sourceOutboxRecordRef: Schema.Union(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema, Schema.Null),
-  sourceProviderChannelRef: Schema.Union(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema, Schema.Null),
-  sourceReasonCodeRef: Schema.Union(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema, Schema.Null),
-  sourceParentPreferenceState: Schema.Union(NonEmptyStringSchema, Schema.Null),
-  sourceQuietHoursDecision: Schema.Union(NonEmptyStringSchema, Schema.Null),
-  sourceParentPreferenceRequirementRefs: Schema.Array(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema),
-  sourceQuietHoursRequirementRefs: Schema.Array(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema),
-  notificationPreferenceStatusEntry: V3NotificationRuleProviderRetryContractEntrySchema,
-  manualProofRequirements: Schema.Array(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema),
-});
-
-export const AppGameChildUxLocalOutboxPreferenceStatusHandoffRowSchema = withParser(
-  AppGameChildUxLocalOutboxPreferenceStatusHandoffRowBaseSchema.pipe(
-    Schema.filter(
-      (row) =>
-        childUxPreferenceStatusHandoffRowIsHonest(row) ||
-        'Expected child UX preference status handoff rows to map preference preflight rows into V3 preference and quiet-hours status entries without claiming delivery or parent UI mutation'
-    )
-  )
-);
-
-const AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelBaseSchema = Schema.Struct({
-  schemaVersion: ParentContractSchemaVersionSchema,
-  handoffId: AppGameChildUxLocalOutboxPreferenceStatusHandoffIdSchema,
-  generatedAt: ParentTimestampSchema,
-  family: FamilyReferenceSchema,
-  sourcePreferencePreflightId: AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema,
-  sourceContractRefs: Schema.Array(AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema),
-  notificationRuleProviderRetryReadModelRef: AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema,
-  notificationRuleProviderRetryCoverageRefs: Schema.Array(
-    AppGameChildUxLocalOutboxPreferenceStatusHandoffReferenceSchema
-  ),
-  rows: Schema.Array(AppGameChildUxLocalOutboxPreferenceStatusHandoffRowSchema),
-  parentPreferenceManualSetupRequiredCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
-  quietHoursManualRequiredCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
-  preferenceStatusUnavailableCount: Schema.Number.pipe(Schema.int(), Schema.nonNegative()),
-  handoffNonClaims: Schema.Array(AppGameChildUxLocalOutboxPreferenceStatusHandoffNonClaimSchema),
-  parentPreferenceUiClaimed: Schema.Literal(false),
-  parentFrequencyControlUiClaimed: Schema.Literal(false),
-  parentNotificationUiClaimed: Schema.Literal(false),
-  parentPreferenceMutationClaimed: Schema.Literal(false),
-  quietHoursTimerRuntimeClaimed: Schema.Literal(false),
-  providerDeliveryRuntimeClaimed: Schema.Literal(false),
-  providerReceiptIngestionClaimed: Schema.Literal(false),
-  providerCredentialsClaimed: Schema.Literal(false),
-  cloudRoutingClaimed: Schema.Literal(false),
-  childDeliveryClaimed: Schema.Literal(false),
-  retryExecutionRuntimeClaimed: Schema.Literal(false),
-  productionDurableOutboxStorageClaimed: Schema.Literal(false),
-  adapterDispatchClaimed: Schema.Literal(false),
-  platformEnforcementClaimed: Schema.Literal(false),
-  rawPrivateSourceRowsIncluded: Schema.Literal(false),
-});
-
-export const AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelSchema = withParser(
-  AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelBaseSchema.pipe(
-    Schema.filter(
-      (readModel) =>
-        childUxPreferenceStatusHandoffReadModelIsHonest(readModel) ||
-        'Expected child UX preference status handoff counts and non-claims to match V3 notification preference status rows'
-    )
-  )
-);
-
-export type AppGameChildUxLocalOutboxPreferenceStatusHandoffRow = Infer<
-  typeof AppGameChildUxLocalOutboxPreferenceStatusHandoffRowSchema
->;
-export type AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModel = Infer<
-  typeof AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelSchema
->;
-
-type PreferenceStatusHandoffRowInput = Infer<typeof AppGameChildUxLocalOutboxPreferenceStatusHandoffRowBaseSchema>;
-type PreferenceStatusEntry = PreferenceStatusHandoffRowInput['notificationPreferenceStatusEntry'];
+type PreferenceStatusEntry = AppGameChildUxLocalOutboxPreferenceStatusHandoffRow['notificationPreferenceStatusEntry'];
 type PreferenceStatusExpectation = Pick<
   PreferenceStatusEntry,
   | 'deliveryAttemptState'
@@ -270,7 +167,7 @@ function preferenceStatusEntryForPreflightRow(
 }
 
 function preferenceStatusExpectationFor(
-  status: AppGameChildUxLocalOutboxPreferencePreflightStatus
+  status: AppGameChildUxLocalOutboxPreferencePreflightStatusValue
 ): PreferenceStatusExpectation {
   if (status === AppGameChildUxLocalOutboxPreferencePreflightStatus.Unavailable) {
     return UnavailablePreferenceStatusExpectation;
@@ -282,6 +179,7 @@ function reasonCodeForRow(row: AppGameChildUxLocalOutboxPreferencePreflightRow):
   if (row.reasonCodeRef !== null) {
     return V3NotificationRuleReasonCodeSchema.parse(row.reasonCodeRef);
   }
+
   return V3NotificationRuleReasonCodeSchema.parse(
     row.status === AppGameChildUxLocalOutboxPreferencePreflightStatus.Unavailable
       ? 'provider-failure'
@@ -310,81 +208,10 @@ function evidenceRefsForRow(row: AppGameChildUxLocalOutboxPreferencePreflightRow
   return sourceRefs.length === 0 ? row.manualProofRequirements : sourceRefs;
 }
 
-function minimalProviderPayloadBoundaryFor(status: AppGameChildUxLocalOutboxPreferencePreflightStatus): string {
+function minimalProviderPayloadBoundaryFor(status: AppGameChildUxLocalOutboxPreferencePreflightStatusValue): string {
   return status === AppGameChildUxLocalOutboxPreferencePreflightStatus.Unavailable
     ? 'Unavailable child UX preference row records a disabled status only; no provider payload is sent.'
     : 'Manual child UX preference row records parent preference and quiet-hours setup requirements before any provider payload can be sent.';
-}
-
-function childUxPreferenceStatusHandoffRowIsHonest(row: PreferenceStatusHandoffRowInput): boolean {
-  const entry = row.notificationPreferenceStatusEntry;
-
-  return (
-    preferenceStatusEntryMatchesPreflight(row) &&
-    preferenceStatusEntryKeepsDeliveryUnclaimed(entry) &&
-    row.manualProofRequirements.length > 0 &&
-    entry.manualProofRequirements.length > 0 &&
-    entry.evidenceRefs.length > 0
-  );
-}
-
-function preferenceStatusEntryMatchesPreflight(row: PreferenceStatusHandoffRowInput): boolean {
-  const expected = preferenceStatusExpectationFor(row.sourcePreferenceStatus);
-  const entry = row.notificationPreferenceStatusEntry;
-
-  return (
-    entry.deliveryAttemptState === expected.deliveryAttemptState &&
-    entry.deliveryResultState === expected.deliveryResultState &&
-    entry.retryPolicyState === expected.retryPolicyState &&
-    entry.quietHoursDecision === expected.quietHoursDecision &&
-    entry.escalationDecision === expected.escalationDecision &&
-    entry.parentPreferenceState === expected.parentPreferenceState
-  );
-}
-
-function preferenceStatusEntryKeepsDeliveryUnclaimed(entry: PreferenceStatusEntry): boolean {
-  return (
-    entry.providerReceiptRefs.length === 0 &&
-    [
-      entry.providerAdapterImplemented,
-      entry.deliveryAttemptExecuted,
-      entry.providerReceiptObserved,
-      entry.rawEvidenceInProviderPayload,
-      entry.providerStoresChildEvidenceClaimed,
-    ].every((claim) => claim === false)
-  );
-}
-
-function childUxPreferenceStatusHandoffReadModelIsHonest(
-  readModel: Infer<typeof AppGameChildUxLocalOutboxPreferenceStatusHandoffReadModelBaseSchema>
-): boolean {
-  return (
-    readModel.parentPreferenceManualSetupRequiredCount ===
-      countParentPreferenceState(readModel.rows, 'manual-setup-required') &&
-    readModel.quietHoursManualRequiredCount === countQuietHoursDecision(readModel.rows, 'manual-required') &&
-    readModel.preferenceStatusUnavailableCount ===
-      countSourceStatus(readModel.rows, AppGameChildUxLocalOutboxPreferencePreflightStatus.Unavailable) &&
-    RequiredAppGameChildUxLocalOutboxPreferenceStatusHandoffNonClaims.every((claim) =>
-      readModel.handoffNonClaims.includes(claim)
-    ) &&
-    readModel.notificationRuleProviderRetryCoverageRefs.length ===
-      V3NotificationRuleProviderRetryContractReadModel.entries.length &&
-    !readModel.parentPreferenceUiClaimed &&
-    !readModel.parentFrequencyControlUiClaimed &&
-    !readModel.parentNotificationUiClaimed &&
-    !readModel.parentPreferenceMutationClaimed &&
-    !readModel.quietHoursTimerRuntimeClaimed &&
-    !readModel.providerDeliveryRuntimeClaimed &&
-    !readModel.providerReceiptIngestionClaimed &&
-    !readModel.providerCredentialsClaimed &&
-    !readModel.cloudRoutingClaimed &&
-    !readModel.childDeliveryClaimed &&
-    !readModel.retryExecutionRuntimeClaimed &&
-    !readModel.productionDurableOutboxStorageClaimed &&
-    !readModel.adapterDispatchClaimed &&
-    !readModel.platformEnforcementClaimed &&
-    !readModel.rawPrivateSourceRowsIncluded
-  );
 }
 
 const countParentPreferenceState = (
@@ -406,8 +233,6 @@ const countQuietHoursDecision = (
 ): number => rows.filter((row) => row.notificationPreferenceStatusEntry.quietHoursDecision === decision).length;
 
 const countSourceStatus = (
-  rows: ReadonlyArray<{ readonly sourcePreferenceStatus: AppGameChildUxLocalOutboxPreferencePreflightStatus }>,
-  status: AppGameChildUxLocalOutboxPreferencePreflightStatus
+  rows: ReadonlyArray<{ readonly sourcePreferenceStatus: AppGameChildUxLocalOutboxPreferencePreflightStatusValue }>,
+  status: AppGameChildUxLocalOutboxPreferencePreflightStatusValue
 ): number => rows.filter((row) => row.sourcePreferenceStatus === status).length;
-
-

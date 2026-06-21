@@ -12,8 +12,8 @@ import {
 } from './tracking-child-runtime-snapshot-requirements-proof';
 import { TrackingChildRuntimeAndroidEmulatorBridgeProofSchema } from './tracking-child-runtime-android-emulator-readiness-bridge-proof';
 import { TrackingParentChildLocalRuntimeBridgeProofSchema } from './tracking-parent-child-local-runtime-bridge-proof';
-import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
-import { TrackingRetentionSettingsProofRefSchema } from './tracking-retention-settings-read-model-proof';
+import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
+import { TrackingRetentionSettingsProofRefSchema } from '@ocentra-parent/schema-domain/tracking-retention-settings-read-model-proof';
 const TrackingChildRuntimeProductReadinessCounterSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
 export const TrackingChildRuntimeProductReadinessBlockerProofIdSchema =

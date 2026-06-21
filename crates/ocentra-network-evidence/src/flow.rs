@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::dns::NetworkEvidenceGrade;
-use crate::packet::{parse_network_packet, PacketParseError, TransportPacketMetadata};
+use crate::dns::types::NetworkEvidenceGrade;
+use crate::packet::{
+    parse_network_packet,
+    types::{PacketParseError, TransportPacketMetadata},
+};
 use crate::pcap::{parse_pcap_packets, PcapReplayError};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

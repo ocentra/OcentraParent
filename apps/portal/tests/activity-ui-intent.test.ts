@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ActivityScreenReadModelSchema,
   ActivitySurfaceSchemaVersion,
-} from '@ocentra-parent/activity-domain/activity-surface';
+} from '@ocentra-parent/schema-domain/activity-surface';
 import { DeviceChoiceGrid } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/DeviceChoiceGrid/DeviceChoiceGrid';
 import type { DeviceSlot } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/DeviceChoiceGrid/DeviceChoiceGridTypes';
 import {

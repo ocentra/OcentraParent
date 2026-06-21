@@ -4,7 +4,7 @@ import {
   asNdjsonSummaryContent,
   asOutputDir,
   asTestName,
-} from '../../src/test-log/ndjsonBrands';
+} from '@ocentra-parent/schema-domain/test-log/ndjsonBrands';
 
 it('ndjsonBrands: exposes branded helpers for the NDJSON seam', () => {
   expect(asOutputDir('output')).toBe('output');

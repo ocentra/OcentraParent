@@ -14,28 +14,21 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-dispatch-executor-receipt-proof.test.ts',
+      'tests/unit/app-install-purchase-dispatch-executor-receipt-proof.test.ts',
     ])
   );
 
   const proofModule = await loadDispatchExecutorReceiptProofModule();
-  const exportedProofModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-dispatch-executor-receipt-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseDispatchExecutorReceiptProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseDispatchExecutorReceiptProof(parsedReadModel);
-
-  assert.equal(
-    exportedProofModule.AppInstallPurchaseDispatchExecutorReceiptProofReadModel.schemaVersion,
-    parsedReadModel.schemaVersion
-  );
 
   assert.deepEqual(summary, {
     dispatchExecutorReceiptRows: 4,
@@ -70,20 +63,20 @@ async function main() {
     commitMetadataState: 'omitted-for-deterministic-proof-artifact',
     proofMode: 'app-install-purchase-dispatch-executor-receipt-proof',
     commands,
-    packageExportState: 'public-export-added-packages-parent-domain-package-json',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     checklistState: 'product-capability-checklist-addendum-added',
-    packageReadmeState: 'parent-domain-readme-note-added',
     evidence: {
       dispatchExecutorReceiptContract:
-        'packages/parent-domain/src/app-install-purchase-dispatch-executor-receipt-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-dispatch-executor-receipt-proof.ts',
       sourceExecutionReceiptGateContract:
-        'packages/parent-domain/src/app-install-purchase-execution-receipt-gate-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-dispatch-executor-receipt-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-execution-receipt-gate-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-dispatch-executor-receipt-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
-      packageExport: 'packages/parent-domain/package.json',
-      packageReadme: 'packages/parent-domain/README.md',
+      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-dispatch-executor-receipt-proof',
+      packageReadme: 'packages/app-game-domain/package.json',
       checklistRow: 'docs/product-capability-checklist.md#install-purchase-approval',
       output: relative(repoRoot, proofPath),
     },
@@ -121,7 +114,7 @@ async function loadDispatchExecutorReceiptProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-dispatch-executor-receipt-proof.js'
   );

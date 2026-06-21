@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type ChildAndroidPrivilegedCapabilityReadModel,
   ChildAndroidPrivilegedCapabilityReadModelSchema,
-} from '../../src/child-android-privileged-capability-proof';
+} from '@ocentra-parent/schema-domain/child-android-privileged-capability-proof';
 
 describe('child Android privileged capability proof contracts', () => {
   acceptsHonestPrivilegedCapabilityStates();

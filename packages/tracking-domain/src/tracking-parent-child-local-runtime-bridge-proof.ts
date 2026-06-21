@@ -5,7 +5,7 @@ import {
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
+import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 const TrackingParentChildLocalRuntimeBridgeCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
 export const TrackingParentChildLocalRuntimeBridgeRefSchema = brandedNonEmptyStringSchema('TrackingParentChildLocalRuntimeBridgeRef');

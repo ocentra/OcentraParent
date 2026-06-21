@@ -4,52 +4,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const REQUIRED_LOGGING_EXPORTS = [
-  './contracts',
-  './test-log/types',
   './test-log/bridgeConvert',
   './test-log/ndjsonPaths',
   './test-log/ndjsonWriter',
   './test-log/testLogDuckDb',
   './test-log/logsTree',
   './test-log/wipeNdjsonScope',
-  './transport/bridgeLogPayload',
   './transport/bridgeTransport',
   './app-log/createAppLogStorage',
 ];
 
 const REQUIRED_PRODUCTION_EXPORTS = [
-  './notification-audit-history',
-  './notification-audit-history-handoff',
-  './support-bundle-redaction',
-  './support-bundle-redaction-read-model',
-  './support-backend-upload-status',
-  './support-backend-upload-status-read-model',
-  './support-backend-upload-execution-runtime',
-  './support-backend-upload-execution-runtime-read-model',
-  './support-backend-upload-custody-audit',
-  './support-backend-upload-custody-audit-read-model',
-  './support-backend-provider-runtime-readiness',
-  './support-backend-provider-runtime-readiness-read-model',
-  './support-case-resolution-status',
-  './support-case-resolution-status-read-model',
-  './provider-secret-custody-status',
-  './provider-secret-custody-status-read-model',
-  './provider-secret-execution-readiness',
-  './provider-secret-execution-readiness-read-model',
-  './provider-secret-rotation-revocation-status',
-  './provider-secret-rotation-revocation-status-read-model',
-  './privacy-legal-disclosure-status',
-  './privacy-legal-disclosure-status-read-model',
-  './status-backend-payload-custody',
-  './status-backend-payload-custody-read-model',
-  './status-backend-redaction-manifest',
-  './status-backend-redaction-manifest-read-model',
-  './delete-executor-proof',
-  './delete-executor-read-model',
-  './support-incident-workflow',
-  './support-incident-workflow-read-model',
-  './tamper-integrity-audit',
-  './tamper-integrity-audit-read-model',
   './package-info',
 ];
 
@@ -71,6 +36,26 @@ function main() {
 
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
   const exportsMap = packageJson.exports ?? {};
+
+  ensure(exportsMap['./contracts'] == null, 'unexpected packages/logging-domain export ./contracts');
+  ensure(exportsMap['./test-log/types'] == null, 'unexpected packages/logging-domain export ./test-log/types');
+  ensure(exportsMap['./test-log/ndjsonBrands'] == null, 'unexpected packages/logging-domain export ./test-log/ndjsonBrands');
+  ensure(
+    !fs.existsSync(path.join(repoRoot, 'packages', 'logging-domain', 'src', 'contracts.ts')),
+    'unexpected packages/logging-domain/src/contracts.ts'
+  );
+  ensure(
+    !fs.existsSync(path.join(repoRoot, 'packages', 'logging-domain', 'src', 'core', 'logRuntimeConstants.ts')),
+    'unexpected packages/logging-domain/src/core/logRuntimeConstants.ts'
+  );
+  ensure(
+    !fs.existsSync(path.join(repoRoot, 'packages', 'logging-domain', 'src', 'test-log', 'types.ts')),
+    'unexpected packages/logging-domain/src/test-log/types.ts'
+  );
+  ensure(
+    !fs.existsSync(path.join(repoRoot, 'packages', 'logging-domain', 'src', 'test-log', 'ndjsonBrands.ts')),
+    'unexpected packages/logging-domain/src/test-log/ndjsonBrands.ts'
+  );
 
   for (const exportKey of [...REQUIRED_LOGGING_EXPORTS, ...REQUIRED_PRODUCTION_EXPORTS]) {
     ensure(exportsMap[exportKey] != null, `missing packages/logging-domain export ${exportKey}`);

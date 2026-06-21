@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ScreenControlSettingsPortalProofSchema,
   screenControlSettingsPortalProof,
-} from '../../src/screen-control-settings-portal-proof';
+} from '@ocentra-parent/schema-domain/screen-control-settings-portal-proof';
 
 describe('screen control settings portal proof', () => {
   it('summarizes the real Screen control catalog for parent settings rendering', () => {

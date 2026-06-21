@@ -17,7 +17,7 @@ import {
   EnforcementTimerEventKind,
   EnforcementTimerEventSchema,
   EnforcementUnavailableReason,
-} from '../../src/enforcement';
+} from '@ocentra-parent/schema-domain/enforcement';
 import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const observedAt = '2026-05-23T14:45:00.000Z';

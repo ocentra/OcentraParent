@@ -17,7 +17,3 @@ pub mod tracking_config_update_flow;
 pub mod tracking_runtime_flow;
 
 pub const CRATE_NAME: &str = "ocentra-child-runtime";
-
-pub fn tracking_runtime_crate_name() -> &'static str {
-    ocentra_tracking_core::CRATE_NAME
-}

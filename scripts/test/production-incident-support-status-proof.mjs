@@ -17,18 +17,20 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-incident-support-status-proof.test.ts',
+      'tests/unit/production-incident-support-status-proof.test.ts',
     ])
   );
 
+  const packageExport = await assertPackageExports();
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
   const commit = await gitHead();
@@ -38,11 +40,12 @@ async function main() {
     commit,
     proofMode,
     commands,
+    packageExport,
     evidence: {
-      contract: 'packages/parent-domain/src/production-incident-support-status-proof.ts',
-      values: 'packages/parent-domain/src/production-incident-support-status-values.ts',
-      readModel: 'packages/parent-domain/src/production-incident-support-status-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/production-incident-support-status-proof.test.ts',
+      contract: 'packages/schema-domain/src/production-incident-support-status-proof.ts',
+      values: 'packages/schema-domain/src/production-incident-support-status-values.ts',
+      readModel: 'packages/schema-domain/src/production-incident-support-status-read-model.ts',
+      contractTest: 'packages/production-domain/tests/unit/production-incident-support-status-proof.test.ts',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -56,6 +59,7 @@ async function main() {
     checkedAt: proof.checkedAt,
     commit,
     proofMode,
+    packageExport: proof.packageExport.state,
     rowCount: proof.rows.length,
     rows: proof.rows.map((row) => row.surface),
     output: relativePath(proofPath),
@@ -67,9 +71,30 @@ async function main() {
   console.log(`${proofMode}-ok:${relativePath(proofPath)} ${relativePath(summaryPath)}`);
 }
 
+async function assertPackageExports() {
+  const schemaPackageJson = JSON.parse(await readRepoFile('packages/schema-domain/package.json'));
+  const productionPackageJson = JSON.parse(await readRepoFile('packages/production-domain/package.json'));
+  const schemaExports = [
+    './production-incident-support-status-proof',
+    './production-incident-support-status-read-model',
+    './production-incident-support-status-values',
+  ];
+  const missingSchemaExports = schemaExports.filter((exportPath) => !schemaPackageJson.exports[exportPath]);
+  const retiredLocalExports = schemaExports.filter((exportPath) => productionPackageJson.exports[exportPath] !== null);
+
+  assert.deepEqual(missingSchemaExports, []);
+  assert.deepEqual(retiredLocalExports, []);
+
+  return {
+    state: 'production-incident-support-status-centralized',
+    schemaExports,
+    retiredLocalExports,
+  };
+}
+
 async function assertBuiltContract() {
-  const contractModule = await importBuiltParentDomainModule('production-incident-support-status-proof');
-  const readModelModule = await importBuiltParentDomainModule('production-incident-support-status-read-model');
+  const contractModule = await importBuiltSchemaDomainModule('production-incident-support-status-proof');
+  const readModelModule = await importBuiltSchemaDomainModule('production-incident-support-status-read-model');
   const proof = contractModule.ProductionIncidentSupportStatusProofSchema.parse(
     readModelModule.ProductionIncidentSupportStatusReadModel
   );
@@ -121,8 +146,8 @@ async function assertDocumentationProof() {
   return docs;
 }
 
-async function importBuiltParentDomainModule(moduleName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', `${moduleName}.js`)).href);
+async function importBuiltSchemaDomainModule(moduleName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', `${moduleName}.js`)).href);
 }
 
 async function readRepoFile(path) {

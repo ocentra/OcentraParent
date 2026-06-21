@@ -3,8 +3,8 @@ import {
   ProductionSupportStatusBackendPublicRuntimeFollowthroughProofSchema,
   ProductionSupportStatusBackendPublicRuntimeFollowthroughRowSchema,
   summarizeProductionSupportStatusBackendPublicRuntimeFollowthroughRows,
-} from '../../src/production-support-status-backend-public-runtime-followthrough-proof';
-import { ProductionSupportStatusBackendPublicRuntimeFollowthroughReadModel } from '../../src/production-support-status-backend-public-runtime-followthrough-read-model';
+} from '@ocentra-parent/schema-domain/production-support-status-backend-public-runtime-followthrough-proof';
+import { ProductionSupportStatusBackendPublicRuntimeFollowthroughReadModel } from '@ocentra-parent/schema-domain/production-support-status-backend-public-runtime-followthrough-read-model';
 
 describe('production support status backend public runtime follow-through proof', () => {
   acceptsFollowthroughRows();

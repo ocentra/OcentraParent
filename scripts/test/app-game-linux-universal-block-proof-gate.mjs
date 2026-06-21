@@ -21,25 +21,25 @@ async function main() {
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/app-game-domain',
     '--',
     'app-game-broad-blocking-proof-gates.test.ts',
   ]);
 
   const broadGateData = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
     'utf8'
   );
   const broadGateRules = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
     'utf8'
   );
   const broadGateTest = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'tests', 'app-game-broad-blocking-proof-gates.test.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'tests', 'unit', 'app-game-broad-blocking-proof-gates.test.ts'),
     'utf8'
   );
   const catalogData = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-control-guide-catalog-data.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-control-guide-catalog-data.ts'),
     'utf8'
   );
 
@@ -126,13 +126,13 @@ async function main() {
     gateState: 'prevented-by-linux-unavailable-mechanism-distro-session-proof-gate',
     evidence: {
       linuxGate:
-        'packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts defines linux-hard-block-mechanism-unavailable as Linux block-launch, manual-required, adapter-unavailable, admin-or-root-required, canCallAdapter=false, and broadBlockingClaimed=false.',
+        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-data.ts defines linux-hard-block-mechanism-unavailable as Linux block-launch, manual-required, adapter-unavailable, admin-or-root-required, canCallAdapter=false, and broadBlockingClaimed=false.',
       linuxGateRules:
-        'packages/parent-domain/src/app-game-broad-blocking-proof-gate-rules.ts requires setup, authority, rollback, audit, and Linux mechanism/distro/session proof before broad block upgrades.',
+        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-rules.ts requires setup, authority, rollback, audit, and Linux mechanism/distro/session proof before broad block upgrades.',
       linuxGateTests:
-        'packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts asserts Linux hard-block gates require mechanism, distro, and session proof.',
+        'packages/app-game-domain/tests/unit/app-game-broad-blocking-proof-gates.test.ts asserts Linux hard-block gates require mechanism, distro, and session proof.',
       catalogBoundary:
-        'packages/parent-domain/src/app-control-guide-catalog-data.ts keeps Linux broad app blocking manual-required until a concrete adapter is proven on the target distro and desktop.',
+        'packages/app-game-domain/src/app-control-guide-catalog-data.ts keeps Linux broad app blocking manual-required until a concrete adapter is proven on the target distro and desktop.',
     },
     productBoundaries: {
       sharedEvidenceSpine: true,

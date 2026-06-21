@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/schema-domain/policy-compiler';
 import {
   SocialParentPolicyCompilerInputSchema,
   SocialParentPolicyDecisionCandidateSchema,
+} from '@ocentra-parent/schema-domain/social-policy-compiler';
+import {
   compileSocialParentPolicyCandidate,
 } from '../../src/social-policy-compiler';
 

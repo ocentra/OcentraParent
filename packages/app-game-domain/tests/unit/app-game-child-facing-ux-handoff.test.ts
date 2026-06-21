@@ -8,7 +8,7 @@ import {
   AppGameChildUxPrimaryAction,
   AppGameChildUxSurfaceState,
   AppGameChildUxTargetKind,
-} from '../../src/app-game-child-facing-ux-rules';
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-rules';
 import {
   AppGameChildUxHandoffReadModelSchema,
   AppGameChildUxHandoffStatus,

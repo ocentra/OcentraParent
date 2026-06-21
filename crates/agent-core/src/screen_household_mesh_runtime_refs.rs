@@ -1,6 +1,9 @@
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::{constants, ScreenHouseholdMeshPhase};
 
-use crate::screen_household_mesh_runtime_phase::ScreenHouseholdMeshPhase;
+use crate::screen_household_mesh_runtime_state::{
+    ScreenMeshChildValidationState, ScreenMeshClaimState, ScreenMeshLeaseState,
+    ScreenMeshPolicyState, ScreenMeshProviderResultState,
+};
 
 pub(crate) fn mesh_aggregate_key(queue_job_id: &str) -> String {
     let mut value = String::from(constants::screen_flow::AGGREGATE_SCREEN_QUEUE_PREFIX);
@@ -36,61 +39,57 @@ pub(crate) fn previous_mesh_phase_ref(phase: ScreenHouseholdMeshPhase) -> Option
     Some(value.to_string())
 }
 
-pub(crate) fn claim_state(phase: ScreenHouseholdMeshPhase) -> crate::ScreenMeshClaimState {
+pub(crate) fn claim_state(phase: ScreenHouseholdMeshPhase) -> ScreenMeshClaimState {
     match phase {
         ScreenHouseholdMeshPhase::WorkQueued | ScreenHouseholdMeshPhase::OfferPublished => {
-            crate::ScreenMeshClaimState::NotRequested
+            ScreenMeshClaimState::NotRequested
         }
-        ScreenHouseholdMeshPhase::ClaimRequested => crate::ScreenMeshClaimState::Requested,
+        ScreenHouseholdMeshPhase::ClaimRequested => ScreenMeshClaimState::Requested,
         ScreenHouseholdMeshPhase::ClaimGranted
         | ScreenHouseholdMeshPhase::LeaseCreated
         | ScreenHouseholdMeshPhase::ProviderResultReturned
         | ScreenHouseholdMeshPhase::ChildResultAccepted
-        | ScreenHouseholdMeshPhase::PolicyRequested => crate::ScreenMeshClaimState::Granted,
+        | ScreenHouseholdMeshPhase::PolicyRequested => ScreenMeshClaimState::Granted,
     }
 }
 
-pub(crate) fn lease_state(phase: ScreenHouseholdMeshPhase) -> crate::ScreenMeshLeaseState {
+pub(crate) fn lease_state(phase: ScreenHouseholdMeshPhase) -> ScreenMeshLeaseState {
     match phase {
         ScreenHouseholdMeshPhase::LeaseCreated
         | ScreenHouseholdMeshPhase::ProviderResultReturned
         | ScreenHouseholdMeshPhase::ChildResultAccepted
-        | ScreenHouseholdMeshPhase::PolicyRequested => crate::ScreenMeshLeaseState::Active,
-        _ => crate::ScreenMeshLeaseState::NotCreated,
+        | ScreenHouseholdMeshPhase::PolicyRequested => ScreenMeshLeaseState::Active,
+        _ => ScreenMeshLeaseState::NotCreated,
     }
 }
 
 pub(crate) fn provider_result_state(
     phase: ScreenHouseholdMeshPhase,
-) -> crate::ScreenMeshProviderResultState {
+) -> ScreenMeshProviderResultState {
     match phase {
         ScreenHouseholdMeshPhase::ProviderResultReturned
         | ScreenHouseholdMeshPhase::ChildResultAccepted
-        | ScreenHouseholdMeshPhase::PolicyRequested => {
-            crate::ScreenMeshProviderResultState::Returned
-        }
-        _ => crate::ScreenMeshProviderResultState::NotReturned,
+        | ScreenHouseholdMeshPhase::PolicyRequested => ScreenMeshProviderResultState::Returned,
+        _ => ScreenMeshProviderResultState::NotReturned,
     }
 }
 
 pub(crate) fn child_validation_state(
     phase: ScreenHouseholdMeshPhase,
-) -> crate::ScreenMeshChildValidationState {
+) -> ScreenMeshChildValidationState {
     match phase {
         ScreenHouseholdMeshPhase::ChildResultAccepted
-        | ScreenHouseholdMeshPhase::PolicyRequested => {
-            crate::ScreenMeshChildValidationState::Accepted
-        }
+        | ScreenHouseholdMeshPhase::PolicyRequested => ScreenMeshChildValidationState::Accepted,
         ScreenHouseholdMeshPhase::ProviderResultReturned => {
-            crate::ScreenMeshChildValidationState::Requested
+            ScreenMeshChildValidationState::Requested
         }
-        _ => crate::ScreenMeshChildValidationState::NotReady,
+        _ => ScreenMeshChildValidationState::NotReady,
     }
 }
 
-pub(crate) fn policy_state(phase: ScreenHouseholdMeshPhase) -> crate::ScreenMeshPolicyState {
+pub(crate) fn policy_state(phase: ScreenHouseholdMeshPhase) -> ScreenMeshPolicyState {
     match phase {
-        ScreenHouseholdMeshPhase::PolicyRequested => crate::ScreenMeshPolicyState::Ready,
-        _ => crate::ScreenMeshPolicyState::NotReady,
+        ScreenHouseholdMeshPhase::PolicyRequested => ScreenMeshPolicyState::Ready,
+        _ => ScreenMeshPolicyState::NotReady,
     }
 }

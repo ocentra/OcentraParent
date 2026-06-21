@@ -3,7 +3,7 @@ import {
   BrowserGameUnblockedSiteDetectionSchema,
   type BrowserGameUnblockedSiteDetection,
   BrowserGameUnblockedSiteSignalSchema,
-} from '../../src/browser-game-unblocked-site-detection';
+} from '@ocentra-parent/schema-domain/browser-game-unblocked-site-detection';
 
 describe('browser-game unblocked site detection contracts', () => {
   it('accepts an evidence-backed managed unblocked game portal candidate', acceptsManagedUnblockedPortal);

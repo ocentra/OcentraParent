@@ -25,8 +25,9 @@ const sourceFiles = [
   'crates/agent-service/src/network_remote_delivery_status_payload.rs',
   'crates/agent-service/src/network_remote_delivery_status_service_tests.rs',
   'packages/agent-protocol-domain/src/defaults.ts',
+  'packages/schema-domain/src/network-remote-delivery-status.ts',
   'packages/agent-protocol-domain/src/network-remote-delivery-status.ts',
-  'packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts',
+  'packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts',
   'docs/features/network-domain-control.md',
   'docs/plans/network-plan/implementation-checklist.md',
   'docs/plans/network-plan/workpacks/README.md',
@@ -278,8 +279,9 @@ function assertSourceContracts() {
   const servicePayload = readText('crates/agent-service/src/network_remote_delivery_status_payload.rs');
   const serviceTests = readText('crates/agent-service/src/network_remote_delivery_status_service_tests.rs');
   const tsDefaults = readText('packages/agent-protocol-domain/src/defaults.ts');
+  const schemaStatus = readText('packages/schema-domain/src/network-remote-delivery-status.ts');
   const tsParser = readText('packages/agent-protocol-domain/src/network-remote-delivery-status.ts');
-  const tsTests = readText('packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts');
+  const tsTests = readText('packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts');
   const featureDoc = readText('docs/features/network-domain-control.md');
   const checklist = readText('docs/plans/network-plan/implementation-checklist.md');
   const workpacks = readText('docs/plans/network-plan/workpacks/README.md');
@@ -307,8 +309,9 @@ function assertSourceContracts() {
     [serviceTests, 'network_remote_delivery_status_payload_serializes_row10t_external_transport_status'],
     [serviceTests, 'network_remote_delivery_status_payload_reuses_stable_row10t_status_snapshot'],
     [tsDefaults, 'TransportDispatchStateRef'],
-    [tsParser, 'transportDispatchStateMatches'],
+    [tsTests, 'transportDispatchStateRef'],
     [tsTests, 'parses row10t external cross-process transport status from a typed agent event'],
+    [schemaStatus, 'dispatchAttemptCount: Schema.Literal(0)'],
     [featureDoc, 'network-remote-delivery-transport-dispatch-state-proof'],
     [checklist, '10k-remote-delivery-transport-dispatch-state'],
     [workpacks, '10k'],

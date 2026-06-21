@@ -2,10 +2,10 @@ use super::{
     constants, ActivityMemoryGraphEdge, ActivityMemoryGraphEdgeKind,
     ActivityMemoryGraphEntryStatus, ActivityMemoryGraphNode, ActivityMemoryGraphNodeKind,
     ActivityMemoryGraphQuery, ActivityMemoryGraphQueryKind, ActivityMemoryGraphReadModel,
-    ActivityMemoryGraphTimeRange, ActivityMemoryGraphTrace, ParentDeviceReference,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, ACTIVITY_MEMORY_GRAPH_CAPABILITY_READY,
-    ACTIVITY_MEMORY_GRAPH_CUSTODY_ACTIVITY_STORE, ACTIVITY_MEMORY_GRAPH_INDEX_VERSION,
-    ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION,
+    ActivityMemoryGraphTimeRange, ActivityMemoryGraphTrace, ChildProfileReference,
+    ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind,
+    ACTIVITY_MEMORY_GRAPH_CAPABILITY_READY, ACTIVITY_MEMORY_GRAPH_CUSTODY_ACTIVITY_STORE,
+    ACTIVITY_MEMORY_GRAPH_INDEX_VERSION, ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION,
 };
 
 #[test]
@@ -38,6 +38,103 @@ fn activity_memory_graph_serializes_evidence_cited_edges() {
         constants::activity_store::TEST_BROWSER_TARGET_ID
     );
     assert_eq!(serialized["query"]["childProfile"], serde_json::Value::Null);
+}
+
+#[test]
+fn activity_memory_graph_round_trips_child_profile_display_name_in_typescript_shape() {
+    let value = serde_json::json!({
+        "schemaVersion": ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION,
+        "generatedAt": constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        "custody": ACTIVITY_MEMORY_GRAPH_CUSTODY_ACTIVITY_STORE,
+        "capabilityStatus": ACTIVITY_MEMORY_GRAPH_CAPABILITY_READY,
+        "query": {
+            "queryId": "query-activity-memory-graph-child-profile",
+            "queryKind": "visited-urls",
+            "childProfile": {
+                "childProfileId": "child-profile-1",
+                "displayName": "Child One"
+            },
+            "device": {
+                "deviceId": constants::peer::LOCAL_DEV_AGENT,
+                "childProfileId": "child-profile-1",
+                "label": constants::peer::LOCAL_DEV_AGENT,
+                "platform": std::env::consts::OS
+            },
+            "timeRange": {
+                "observedFrom": constants::activity_store::TEST_FIRST_OBSERVED_AT,
+                "observedUntil": constants::activity_store::TEST_SECOND_OBSERVED_AT
+            },
+            "asOf": constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            "limit": 25
+        },
+        "readAt": constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        "nodes": [{
+            "graphId": "activity-memory-graph-ts-shape",
+            "nodeId": "child-profile-1",
+            "nodeKind": "child-profile",
+            "label": "Child One",
+            "childProfile": {
+                "childProfileId": "child-profile-1",
+                "displayName": "Child One"
+            },
+            "device": serde_json::Value::Null,
+            "trace": {
+                "entryStatus": "usable",
+                "sourceEvidenceReferences": [{
+                    "evidenceReferenceId": constants::activity_store::TEST_BROWSER_TARGET_ID,
+                    "kind": "activity-event",
+                    "observedAt": constants::activity_store::TEST_FIRST_OBSERVED_AT
+                }],
+                "sourcePolicyVersion": serde_json::Value::Null,
+                "sourceParentActionReferences": [],
+                "generatedAt": constants::activity_store::TEST_SECOND_OBSERVED_AT,
+                "expiresAt": serde_json::Value::Null,
+                "confidence": 1.0,
+                "derivedIndexVersion": ACTIVITY_MEMORY_GRAPH_INDEX_VERSION,
+                "degradedReasons": []
+            }
+        }],
+        "edges": [],
+        "returnedNodeCount": 1,
+        "returnedEdgeCount": 0,
+        "omittedEdgeCount": 0,
+        "degradedReasons": []
+    });
+
+    let parsed: ActivityMemoryGraphReadModel =
+        serde_json::from_value(value).expect("typescript activity memory graph shape parses");
+
+    assert_eq!(
+        parsed.query.child_profile,
+        Some(ChildProfileReference {
+            child_profile_id: "child-profile-1".to_string(),
+            display_name: "Child One".to_string(),
+        })
+    );
+    assert_eq!(
+        parsed.nodes[0].child_profile,
+        Some(ChildProfileReference {
+            child_profile_id: "child-profile-1".to_string(),
+            display_name: "Child One".to_string(),
+        })
+    );
+
+    let serialized =
+        serde_json::to_value(parsed).expect("activity memory graph round trip serializes");
+
+    assert_eq!(
+        serialized["query"]["childProfile"]["displayName"],
+        "Child One"
+    );
+    assert_eq!(
+        serialized["nodes"][0]["childProfile"]["displayName"],
+        "Child One"
+    );
+    assert_eq!(serialized["nodes"][0]["nodeKind"], "child-profile");
+    assert_eq!(serialized["query"]["queryKind"], "visited-urls");
+    assert!(serialized["query"]["childProfile"]
+        .get("familyId")
+        .is_none());
 }
 
 fn query() -> ActivityMemoryGraphQuery {

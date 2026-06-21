@@ -1,9 +1,14 @@
 use std::{env, path::PathBuf};
 
 use ocentra_parent_agent_core::{
-    create_or_repair_managed_browser_profile_store, installed_managed_browser_candidates,
-    live_windows_browser_inventory_candidate_paths_with_limit, BrowserManagedInstallCandidate,
-    BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreRecord,
+    browser_managed_discovery::{
+        installed_managed_browser_candidates, BrowserManagedInstallCandidate,
+    },
+    browser_managed_session::{
+        create_or_repair_managed_browser_profile_store, BrowserManagedProfileStoreConfig,
+        BrowserManagedProfileStoreRecord,
+    },
+    browser_windows_inventory_source::live_windows_browser_inventory_candidate_paths_with_limit,
 };
 use ocentra_parent_agent_protocol::{constants, BrowserChannel, BrowserFamily};
 

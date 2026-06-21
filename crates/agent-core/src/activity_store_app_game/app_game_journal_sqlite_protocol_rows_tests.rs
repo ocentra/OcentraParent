@@ -1,51 +1,10 @@
+use ocentra_parent_agent_protocol::app_game::*;
+use ocentra_parent_agent_protocol::app_game_authority_classifier::*;
 use std::fs::remove_file;
 
 use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
 use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEvidenceKind, ActivityEvidenceRef, AppGameAiClassifierResult,
-    AppGameControlActionResult, AppGameControlApprovalAuthority, AppGameControlApprovalDecision,
-    AppGameControlApprovalRequest, AppGameControlSettingReference,
-    AppGameEnforcementCapabilityStatus, AppGameEvidenceClaim, AppGameIdentity,
-    AppGameParentActionReference, AppGameParentActorReference, AppGameParentDeviceReference,
-    AppGameParentEvidenceReference, AppGamePlatformAuthorityMatrix, AppGamePlatformAuthorityRow,
-    AppGamePolicyTarget, APP_GAME_AI_CLASSIFIER_CANDIDATE_UNKNOWN_IDENTITY,
-    APP_GAME_AI_CLASSIFIER_DIGEST_INVENTORY,
-    APP_GAME_AI_CLASSIFIER_FALLBACK_LOCAL_MODEL_UNAVAILABLE,
-    APP_GAME_AI_CLASSIFIER_HANDOFF_MANUAL_REVIEW, APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_APP,
-    APP_GAME_AI_CLASSIFIER_STATE_PROVIDER_UNAVAILABLE, APP_GAME_CATALOG_READY,
-    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED,
-    APP_GAME_CONTROL_APPROVAL_STATE_MANUAL_REQUIRED, APP_GAME_CONTROL_AUTHORITY_ACTIVE,
-    APP_GAME_CONTROL_AUTHORITY_OBSERVE_ONLY, APP_GAME_CONTROL_CHILD_REASON_NOT_REQUESTED,
-    APP_GAME_CONTROL_DECISION_DENIED, APP_GAME_CONTROL_EVIDENCE_PROOF_LAUNCHER_ONLY,
-    APP_GAME_CONTROL_PERSISTENCE_NOT_PERSISTED, APP_GAME_CONTROL_POLICY_KIND_APP,
-    APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY, APP_GAME_ENFORCEMENT_ADAPTER_PROCESS_CONTROL,
-    APP_GAME_ENFORCEMENT_ADAPTER_RESULT_PROCESS_TERMINATED,
-    APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED, APP_GAME_ENFORCEMENT_DEPENDENCY_INSTALLED,
-    APP_GAME_ENFORCEMENT_PERMISSION_ALLOWED, APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED,
-    APP_GAME_ENFORCEMENT_ROLLBACK_NOT_REQUIRED, APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY,
-    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC,
-    APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED, APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN,
-    APP_GAME_PARENT_ACTOR_ROLE_PARENT, APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
-    APP_GAME_PARENT_EVIDENCE_KIND_ACTIVITY_EVENT, APP_GAME_PARENT_PLATFORM_WINDOWS,
-    APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH, APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED,
-    APP_GAME_PLATFORM_PROOF_KIND_ROLLBACK, APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER,
-    APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED, APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED,
-    APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED, APP_GAME_POLICY_ACTION_BLOCK,
-    APP_GAME_POLICY_TARGET_TYPE_APP, APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED,
-    APP_GAME_RUNTIME_RUNNING, APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_ACTION_REFERENCE_ID,
-    APP_GAME_TEST_ACTION_RESULT_ID, APP_GAME_TEST_AUTHORITY_ID, APP_GAME_TEST_CATALOG_REF,
-    APP_GAME_TEST_CHILD_PROFILE_ID, APP_GAME_TEST_CLASSIFIER_DIGEST_REF,
-    APP_GAME_TEST_CLASSIFIER_EVIDENCE_REF, APP_GAME_TEST_CLASSIFIER_LABEL,
-    APP_GAME_TEST_CLASSIFIER_PROMPT_REF, APP_GAME_TEST_CLASSIFIER_REASON_CODE,
-    APP_GAME_TEST_CLASSIFIER_RUNTIME_REF, APP_GAME_TEST_CLASSIFIER_RUN_ID,
-    APP_GAME_TEST_DECISION_ID, APP_GAME_TEST_DEVICE_ID, APP_GAME_TEST_DEVICE_LABEL,
-    APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_ENFORCEMENT_ACTION_ID,
-    APP_GAME_TEST_ENFORCEMENT_RESULT_ID, APP_GAME_TEST_EVIDENCE_CLAIM_ID,
-    APP_GAME_TEST_EVIDENCE_REF_ID, APP_GAME_TEST_IDENTITY_ID, APP_GAME_TEST_PARENT_ACTOR_ID,
-    APP_GAME_TEST_PLATFORM_MATRIX_ID, APP_GAME_TEST_POLICY_VERSION, APP_GAME_TEST_REQUEST_ID,
-    APP_GAME_TEST_SETTING_ID, APP_GAME_TEST_SETTING_PATH, APP_GAME_TEST_TARGET_ID,
-    APP_GAME_TEST_TARGET_VALUE, APP_GAME_TEST_TIMESTAMP, APP_GAME_TEST_WINDOWS_LIMITATION,
-    APP_GAME_TEST_WINDOWS_ROW_ID,
+    constants, ActivityEvent, ActivityEvidenceKind, ActivityEvidenceRef,
 };
 
 use crate::{
@@ -55,10 +14,13 @@ use crate::{
 };
 
 use super::app_game_journal_sqlite_ingest::{
-    app_game_ai_classifier_result_journal_event, app_game_approval_action_result_journal_event,
-    app_game_approval_authority_journal_event, app_game_evidence_claim_journal_event,
-    app_game_identity_journal_event, app_game_journal_sqlite_read_model,
-    app_game_platform_authority_matrix_journal_event, AppGameJournalSqliteIngestError,
+    protocol_rows::{
+        app_game_ai_classifier_result_journal_event, app_game_approval_action_result_journal_event,
+        app_game_approval_authority_journal_event, app_game_evidence_claim_journal_event,
+        app_game_identity_journal_event, app_game_platform_authority_matrix_journal_event,
+    },
+    read_model::app_game_journal_sqlite_read_model,
+    AppGameJournalSqliteIngestError,
 };
 
 #[test]
@@ -105,7 +67,7 @@ fn invalid_protocol_boundary_rows_are_rejected_before_sqlite_ingest() {
     let mut authority = approval_authority();
     authority.authority_state = APP_GAME_CONTROL_AUTHORITY_OBSERVE_ONLY.to_string();
     let mut action = manual_action_result();
-    action.enforcement_result = Some(ocentra_parent_agent_protocol::AppGameEnforcementResult {
+    action.enforcement_result = Some(AppGameEnforcementResult {
         schema_version: APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION.to_string(),
         result_id: APP_GAME_TEST_ENFORCEMENT_RESULT_ID.to_string(),
         action_id: APP_GAME_TEST_ENFORCEMENT_ACTION_ID.to_string(),

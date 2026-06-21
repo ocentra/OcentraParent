@@ -13,6 +13,7 @@ pub trait DomainEvent: Clone + Send + Sync + Serialize + DeserializeOwned + 'sta
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventContract {
     pub event_type: EventType,
     pub schema_version: SchemaVersion,
@@ -38,6 +39,7 @@ pub enum EventPriority {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventSource {
     pub custody: EventCustody,
     pub role: RuntimeRole,
@@ -65,6 +67,7 @@ impl EventSource {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventMetadata {
     pub event_id: EventId,
     pub correlation_id: CorrelationId,
@@ -129,6 +132,7 @@ impl EventMetadata {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventEnvelope<E> {
     pub contract: EventContract,
     pub event_id: EventId,
@@ -210,6 +214,7 @@ impl StoredEventPayload {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct StoredEventEnvelope {
     pub contract: EventContract,
     pub event_id: EventId,

@@ -3,12 +3,12 @@ use super::{
     LocalAiParentRuleContextRef, ParentActorReference, ParentActorRole, ParentDeviceReference,
     ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction,
     PolicyAssistantConfirmationState, PolicyDecision, PolicyDecisionHandoffState,
-    PolicyPreviewFindingKind, PolicyPreviewManualReviewState, PolicyPreviewNetworkEvidenceMapping,
-    PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyPreviewSaveState,
-    PolicyPreviewTargetState, PolicyRequestOrigin, PolicyRequestStatus, PolicyRule,
-    PolicySourceStatus, PolicySourceSurface, PolicyTarget, PolicyTargetType,
+    PolicyPreviewFindingKind, PolicyPreviewNetworkEvidenceMapping, PolicyPreviewReadModel,
+    PolicyPreviewReadModelRow, PolicyPreviewTargetState, PolicyRequestOrigin, PolicyRequestStatus,
+    PolicyRule, PolicySourceStatus, PolicySourceSurface, PolicyTarget, PolicyTargetType,
     POLICY_DRY_RUN_SCHEMA_VERSION,
 };
+use crate::activity::policy_preview::{PolicyPreviewManualReviewState, PolicyPreviewSaveState};
 use crate::policy_preview_finding_kinds_csv;
 
 #[test]

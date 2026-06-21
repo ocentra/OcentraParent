@@ -4,10 +4,15 @@ use std::{
 };
 
 use ocentra_parent_agent_core::{
-    collect_process_snapshot, launch_managed_browser, managed_browser_launch_plan,
-    poll_chromium_bridge, reserve_managed_browser_bridge_port, unmanaged_browser_processes,
-    BrowserBridgeExpectedCustody, BrowserBridgePollConfig, BrowserManagedLaunchConfig,
-    BrowserUnmanagedProcessObservation,
+    browser_bridge_poll::{
+        poll_chromium_bridge, BrowserBridgeExpectedCustody, BrowserBridgePollConfig,
+    },
+    browser_managed_discovery::{unmanaged_browser_processes, BrowserUnmanagedProcessObservation},
+    browser_managed_session::{
+        launch_managed_browser, managed_browser_launch_plan, reserve_managed_browser_bridge_port,
+        BrowserManagedLaunchConfig,
+    },
+    process_capture::collect_process_snapshot,
 };
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, BrowserCapabilityStatus,

@@ -3,7 +3,7 @@ import {
   NotificationAuditHistoryEntrySchema,
   NotificationAuditHistoryReadModel,
   NotificationAuditHistoryReadModelSchema,
-} from '../../src/notification-audit-history';
+} from '@ocentra-parent/schema-domain/notification-audit-history';
 
 describe('notification audit history logging contract', () => {
   registerProviderStatusCoverageTest();

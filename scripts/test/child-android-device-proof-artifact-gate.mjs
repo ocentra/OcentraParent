@@ -55,7 +55,7 @@ async function main() {
     evidence: {
       sourceProofs,
       packageArtifacts,
-      contract: 'packages/child-runtime-domain/src/child-android-device-proof-artifact-gate.ts',
+      contract: 'packages/schema-domain/src/child-android-device-proof-artifact-gate.ts',
       contractTest: 'packages/child-runtime-domain/tests/unit/child-android-device-proof-artifact-gate.test.ts',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/child-android-device-proof-artifact-gate-2026-06-01.md',
@@ -214,9 +214,9 @@ function addDevicePairingInput(input, source, readinessState) {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await importTsModule('packages/child-runtime-domain/src/child-android-device-proof-artifact-gate.ts');
+  const module = await importTsModule('packages/schema-domain/src/child-android-device-proof-artifact-gate.ts');
   const parsed = module.ChildAndroidDeviceProofArtifactGateReadModelSchema.parse(readModel);
-  proofLabels.push('child-runtime-domain.child-android-device-proof-artifact-gate-parse');
+  proofLabels.push('schema-domain.child-android-device-proof-artifact-gate-parse');
   return parsed;
 }
 
@@ -240,19 +240,19 @@ async function assertProofMatrix() {
 
 async function assertScriptWiring() {
   const packageJson = JSON.parse(await readRepoFile('package.json'));
-  const childRuntimeDomainPackage = JSON.parse(await readRepoFile('packages/child-runtime-domain/package.json'));
+  const schemaDomainPackage = JSON.parse(await readRepoFile('packages/schema-domain/package.json'));
   const script = packageJson.scripts['test:child-android-device-proof-artifact-gate'];
   if (script !== `node scripts/test/${proofMode}.mjs`) {
     throw new Error('Missing root test:child-android-device-proof-artifact-gate script.');
   }
-  if (!childRuntimeDomainPackage.exports['./*']) {
-    throw new Error('Missing child-runtime-domain wildcard export.');
+  if (!schemaDomainPackage.exports['./child-android-device-proof-artifact-gate']) {
+    throw new Error('Missing schema-domain export for ./child-android-device-proof-artifact-gate.');
   }
   proofLabels.push('package-scripts.child-android-device-proof-artifact-gate');
   return {
     rootScript: 'test:child-android-device-proof-artifact-gate',
-    childRuntimeDomainExport: './*',
-    sourceContract: 'packages/child-runtime-domain/src/child-android-device-proof-artifact-gate.ts',
+    schemaDomainExport: './child-android-device-proof-artifact-gate',
+    sourceContract: 'packages/schema-domain/src/child-android-device-proof-artifact-gate.ts',
   };
 }
 

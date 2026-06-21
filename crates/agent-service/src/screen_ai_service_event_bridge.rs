@@ -1,8 +1,16 @@
 use std::path::Path;
 
 use ocentra_parent_agent_core::{
-    ActivityStore, ScreenRuntimeCaptureInput, ScreenRuntimeDegradedInput,
-    ScreenRuntimeDeletionInput, ScreenRuntimeInput, ScreenRuntimeReport,
+    activity_store::ActivityStore,
+    screen_event_runtime::{
+        publish_screen_capture_queue_events_for_input,
+        publish_screen_degraded_event_chain_for_input, publish_screen_deletion_event_for_input,
+        publish_screen_runtime_chain_for_input, ScreenRuntimeReport,
+    },
+    screen_event_runtime_input::{
+        ScreenRuntimeCaptureInput, ScreenRuntimeDegradedInput, ScreenRuntimeDeletionInput,
+        ScreenRuntimeInput,
+    },
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityScreenReadModelRow, SCREEN_DELETION_DELETED, SCREEN_DELETION_EXPIRED_DELETED,
@@ -35,7 +43,7 @@ pub(crate) async fn publish_screen_service_row_event_chain(
     refs: ScreenAiServiceEventBridgeRefs,
 ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
     let input = screen_runtime_input_from_service_row(row, refs)?;
-    ocentra_parent_agent_core::publish_screen_runtime_chain_for_input(input, observed_at)
+    publish_screen_runtime_chain_for_input(input, observed_at)
         .await
         .map_err(|_| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }
@@ -45,7 +53,7 @@ pub(crate) async fn publish_screen_capture_queue_event_chain(
     observed_at: &str,
 ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
     let input = screen_runtime_capture_input_from_service_row(row)?;
-    ocentra_parent_agent_core::publish_screen_capture_queue_events_for_input(input, observed_at)
+    publish_screen_capture_queue_events_for_input(input, observed_at)
         .await
         .map_err(|_| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }
@@ -55,7 +63,7 @@ pub(crate) async fn publish_screen_deletion_event_chain(
     observed_at: &str,
 ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
     let input = screen_runtime_deletion_input_from_service_row(row)?;
-    ocentra_parent_agent_core::publish_screen_deletion_event_for_input(input, observed_at)
+    publish_screen_deletion_event_for_input(input, observed_at)
         .await
         .map_err(|_| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }
@@ -65,7 +73,7 @@ pub(crate) async fn publish_screen_degraded_event_chain(
     observed_at: &str,
 ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
     let input = screen_runtime_degraded_input_from_service_row(row)?;
-    ocentra_parent_agent_core::publish_screen_degraded_event_chain_for_input(input, observed_at)
+    publish_screen_degraded_event_chain_for_input(input, observed_at)
         .await
         .map_err(|_| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }

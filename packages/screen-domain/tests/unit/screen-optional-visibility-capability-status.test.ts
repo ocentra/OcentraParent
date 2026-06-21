@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
-  screenOptionalVisibilityCapabilityStatusProof,
   ScreenOptionalVisibilityCapabilityStatusSchema,
-} from '../../src/screen-evidence';
+} from '@ocentra-parent/schema-domain/screen-optional-visibility-capability-status';
+import { screenOptionalVisibilityCapabilityStatusProof } from '@ocentra-parent/schema-domain/screen-optional-visibility-capability-proof';
 
 const GeneratedAt = '2026-06-07T05:55:00Z';
 
@@ -29,7 +29,15 @@ describe('screen optional visibility capability status', () => {
       (row) => row.capabilityKind === 'rawScreenshotRetention' && row.readinessState === 'manualRequired'
     );
 
-    expect(rawRetentionRow).toBeDefined();
+    expect(rawRetentionRow).toEqual(
+      expect.objectContaining({
+        capabilityKind: 'rawScreenshotRetention',
+        readinessState: 'manualRequired',
+      })
+    );
+    if (rawRetentionRow === undefined) {
+      throw new Error('Expected a manual-required raw screenshot retention row');
+    }
     const parsed = ScreenOptionalVisibilityCapabilityStatusSchema.safeParse({
       ...rawRetentionRow,
       readinessState: 'ready',
@@ -49,25 +57,41 @@ describe('screen optional visibility capability status', () => {
       (row) => row.capabilityKind === 'rawScreenshotRetention' && row.readinessState === 'ready'
     );
 
-    expect(readyRetentionRow).toBeDefined();
-    expect(readyRetentionRow?.runtimeProofRef).toBe(
+    expect(readyRetentionRow).toEqual(
+      expect.objectContaining({
+        capabilityKind: 'rawScreenshotRetention',
+        readinessState: 'ready',
+      })
+    );
+    if (readyRetentionRow === undefined) {
+      throw new Error('Expected a ready raw screenshot retention row');
+    }
+    expect(readyRetentionRow.runtimeProofRef).toBe(
       'output/screen-plan-proof/screen-settings-service-command/proof-summary.json'
     );
-    expect(readyRetentionRow?.deletionProofRef).toBe(
+    expect(readyRetentionRow.deletionProofRef).toBe(
       'output/screen-plan-proof/screen-service-deletion-event-producer/proof-summary.json'
     );
-    expect(readyRetentionRow?.childDisclosureReady).toBe(true);
-    expect(readyRetentionRow?.childDeviceCapabilityReady).toBe(true);
-    expect(readyRetentionRow?.productModeReady).toBe(true);
-    expect(readyRetentionRow?.rawFramesRetained).toBe(false);
-    expect(readyRetentionRow?.rawRemoteUploadAllowed).toBe(false);
+    expect(readyRetentionRow.childDisclosureReady).toBe(true);
+    expect(readyRetentionRow.childDeviceCapabilityReady).toBe(true);
+    expect(readyRetentionRow.productModeReady).toBe(true);
+    expect(readyRetentionRow.rawFramesRetained).toBe(false);
+    expect(readyRetentionRow.rawRemoteUploadAllowed).toBe(false);
   });
 
   it('rejects live view readiness when the platform gate only proves capture permission', () => {
     const proof = screenOptionalVisibilityCapabilityStatusProof(GeneratedAt);
     const liveViewRow = proof.rows.find((row) => row.capabilityKind === 'liveView' && row.readinessState === 'blocked');
 
-    expect(liveViewRow).toBeDefined();
+    expect(liveViewRow).toEqual(
+      expect.objectContaining({
+        capabilityKind: 'liveView',
+        readinessState: 'blocked',
+      })
+    );
+    if (liveViewRow === undefined) {
+      throw new Error('Expected a blocked live-view capability row');
+    }
     const parsed = ScreenOptionalVisibilityCapabilityStatusSchema.safeParse({
       ...liveViewRow,
       readinessState: 'ready',

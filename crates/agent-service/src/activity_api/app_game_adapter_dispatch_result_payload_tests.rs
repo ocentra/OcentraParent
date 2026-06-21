@@ -14,7 +14,6 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_COMMAND,
     APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_EVENT,
     APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID,
-    APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_GENERATED_AT,
 };
 
 use super::app_game_adapter_dispatch_result_payload::{
@@ -23,6 +22,8 @@ use super::app_game_adapter_dispatch_result_payload::{
     app_game_adapter_dispatch_result_read_model_with_execution,
     AppGameAdapterDispatchExecutionEvidence,
 };
+
+const APP_GAME_ADAPTER_DISPATCH_RESULT_TEST_GENERATED_AT: &str = "2026-06-08T10:44:00Z";
 
 #[test]
 fn app_game_adapter_dispatch_result_keeps_only_scoped_timer_command_accepted() {

@@ -5,8 +5,6 @@ import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
 const lanDomainRoot = join(repoRoot, 'packages', 'lan-domain');
-const signedDiscoveryRelaySpineModulePath = join(lanDomainRoot, 'dist', 'lan-signed-discovery-relay-spine.js');
-const pairingDeviceModulePath = join(lanDomainRoot, 'dist', 'lan-pairing-device.js');
 const outputDir = join(repoRoot, 'output', 'lan-plan-proof', '01-lan-b1-proof-regeneration');
 const proofPath = join(outputDir, '02-lan-signed-discovery-relay-spine-proof.json');
 const commands = [];
@@ -18,10 +16,10 @@ async function main() {
   await ensureLanDomainBuild();
   await runCommand('cmd', ['/c', 'npx', 'vitest', 'run', 'tests/unit/lan-signed-discovery-relay-spine.test.ts'], lanDomainRoot);
 
-  const signedDiscoveryRelaySpineContract = await import(moduleUrl(signedDiscoveryRelaySpineModulePath));
-  const pairingDeviceContract = await import(moduleUrl(pairingDeviceModulePath));
+  const signedDiscoveryRelaySpineContract = await import('@ocentra-parent/schema-domain/lan-relay-spine');
+  const pairingDeviceContract = await import('@ocentra-parent/schema-domain/lan-pairing-device');
   const spine =
-    signedDiscoveryRelaySpineContract.LanSignedDiscoveryRelaySpineSchema.parse(signedDiscoveryRelaySpineFixture());
+    signedDiscoveryRelaySpineContract.LanRelaySpineSchema.parse(signedDiscoveryRelaySpineFixture());
   const readModel = pairingDeviceContract.LanBrowserAddDeviceReadModelSchema.parse({
     ...addDeviceReadModelFixture(),
     signedDiscoveryRelaySpine: spine,

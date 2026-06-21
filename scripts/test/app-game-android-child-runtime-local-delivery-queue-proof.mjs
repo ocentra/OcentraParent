@@ -64,12 +64,12 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-android-child-runtime-local-delivery-queue-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -81,7 +81,7 @@ async function main() {
       join(
         repoRoot,
         'packages',
-        'parent-domain',
+        'app-game-domain',
         'dist',
         'app-game-android-child-runtime-local-delivery-queue-proof.js'
       )
@@ -113,14 +113,14 @@ async function main() {
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java',
       androidReceiptSource:
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java',
-      contract: 'packages/parent-domain/src/app-game-android-child-runtime-local-delivery-queue-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-android-child-runtime-local-delivery-queue-proof.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-android-child-runtime-local-delivery-queue-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-android-child-runtime-local-delivery-queue-proof.test.ts',
       packageBuild: 'target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk',
     },
     claimsProved: [
       'The Android child app package compiles with package-local delivery queue and drain marker custody',
       'The delivery intake path records local delivery, queue, drain, receipt channel, receipt, and receipt-ack marker custody',
-      'Parent-domain accepts the proof only when queue and drain evidence remain package-local and external delivery claims stay false',
+      'App-game-domain accepts the proof only when queue and drain evidence remain package-local and external delivery claims stay false',
     ],
     claimsNotProved: [
       'Service delivery or receipt ingestion',

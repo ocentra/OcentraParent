@@ -4,12 +4,10 @@ import {
   BillingAccountRuntimeEntitlementSigningBoundarySchema,
   BillingAccountRuntimeOperationRowSchema,
   BillingAccountRuntimeStatusRowSchema,
-  summarizeBillingAccountRuntimeOperations,
-  summarizeBillingAccountRuntimeStatuses,
-} from '../src/billing-account-runtime-boundary';
-import { BillingAccountRuntimeBoundaryProofReadModel } from '../src/billing-account-runtime-boundary-proof';
+} from '@ocentra-parent/schema-domain/billing-account-runtime-boundary';
+import { BillingAccountRuntimeBoundaryProofReadModel } from '@ocentra-parent/schema-domain/billing-account-runtime-boundary-proof';
 
-describe('billing account runtime boundary', () => {
+describe('billing account runtime boundary canonical contracts', () => {
   acceptsBillingAccountRuntimeBoundaryProof();
   rejectsUnavailableAccountRowsWithoutFailureState();
   rejectsAvailableRuntimeRowsFromUnavailableSources();
@@ -22,7 +20,12 @@ function acceptsBillingAccountRuntimeBoundaryProof(): void {
   it('accepts account runtime proof with signed child snapshot consumption and no provider secrets or portal UI claim', () => {
     const proof = BillingAccountRuntimeBoundaryProofSchema.parse(BillingAccountRuntimeBoundaryProofReadModel);
 
-    expect(summarizeBillingAccountRuntimeStatuses(proof.accountStatusRows)).toEqual({
+    expect(
+      summarizeValues(
+        proof.accountStatusRows.map((entry) => entry.accountStatus),
+        ['trialing', 'active', 'past-due', 'backend-unavailable', 'provider-unavailable', 'manual-review']
+      )
+    ).toEqual({
       trialing: 0,
       active: 1,
       'past-due': 1,
@@ -30,7 +33,19 @@ function acceptsBillingAccountRuntimeBoundaryProof(): void {
       'provider-unavailable': 1,
       'manual-review': 1,
     });
-    expect(summarizeBillingAccountRuntimeOperations(proof.runtimeOperations)).toEqual({
+    expect(
+      summarizeValues(
+        proof.runtimeOperations.map((entry) => entry.operation),
+        [
+          'account-status-read',
+          'subscription-status-read',
+          'entitlement-snapshot-read',
+          'device-limit-decision-read',
+          'download-status-read',
+          'provider-webhook-sync',
+        ]
+      )
+    ).toEqual({
       'account-status-read': 1,
       'subscription-status-read': 1,
       'entitlement-snapshot-read': 1,
@@ -164,4 +179,15 @@ function requiredFailure(failureKind: 'validation-failed') {
     throw new Error(`missing billing failure state: ${failureKind}`);
   }
   return failure;
+}
+
+function summarizeValues<T extends string>(
+  values: ReadonlyArray<T>,
+  expectedValues: ReadonlyArray<T>
+): Record<T, number> {
+  const counts = new Map<T, number>(expectedValues.map((value) => [value, 0]));
+  for (const value of values) {
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  return Object.fromEntries(counts) as Record<T, number>;
 }

@@ -7,7 +7,7 @@ use crate::{
         plan_network_apple_network_extension_gate, NetworkAppleNetworkExtensionCapabilityState,
         NetworkAppleNetworkExtensionGateInput, NetworkAppleNetworkExtensionPlatform,
     },
-    dns::NetworkEvidenceGrade,
+    dns::types::NetworkEvidenceGrade,
     linux_adapter_gate::{
         plan_network_linux_adapter_gate, NetworkLinuxAdapterCapabilityState,
         NetworkLinuxAdapterGateInput, NetworkLinuxAdapterKind,

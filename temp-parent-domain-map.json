@@ -1,0 +1,1152 @@
+[
+  {
+    "script": "scripts/test\\app-game-adapter-execution-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\activity-mia-report-history-action-preview-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-child-runtime-local-receipt-ack-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-ai-classifier-boundary-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-child-runtime-local-delivery-intake-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-child-runtime-local-notification-action-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-child-runtime-local-notification-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-child-runtime-local-delivery-queue-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-child-runtime-local-notification-request-queue-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-usage-events-count-sample-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-usage-events-package-runtime-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-apple-ci-platform-proof-preflight-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-usage-events-runtime-preflight-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-usage-events-granted-sample-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-category-risk-policy-routing-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-usage-events-capability-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-child-device-delivery-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-authority-preflight-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-accessibility-enabled-sample-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-child-device-runtime-writer-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-child-runtime-transport-receipt-boundary-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-accessibility-runtime-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-accessibility-overlay-preflight-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-ai-output-direct-enforcement-gate-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-child-runtime-local-receipt-channel-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-child-runtime-local-receipt-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-dry-run-no-action-gate-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-android-child-runtime-transport-receipt-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-install-store-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-linux-active-window-tool-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-notification-parent-surface-ui-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-performance-health-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-platform-extension-proof-pack-readiness.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-platform-extension-routing-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-platform-runtime-readiness-batch.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-policy-evaluator-runtime-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-policy-preview-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-audit-rollback-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-audit-rollback-read-model-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-read-model-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-freshness-preview-gate-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-freshness-policy-consumption-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-runtime-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-scheduler-persistence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-read-model-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-service-handler-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-read-model-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-timer-service-event-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-timer-service-read-api-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-timer-service-read-api-response-consumer-parent-surface-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-timer-service-read-api-response-consumer-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-timer-service-read-api-response-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-game-windows-local-policy-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-package-source-artifact-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-approval-contract-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-approval-report-domain-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-approved-api-entitlement-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-child-device-delivery-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-child-artifact-delivery-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-execution-receipt-gate-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-dispatch-executor-receipt-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-child-device-delivery-runtime-writer-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-external-runtime-writer-delivery-blocker-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-external-runtime-transport-queue-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-external-runtime-transport-dispatch-preflight-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-limitation-summary-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-external-runtime-writer-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-external-runtime-delivery-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-package-source-adapter-execution-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-external-runtime-writer-delivery-boundary-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-external-runtime-device-delivery-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-external-runtime-writer-transport-execution-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-nonclaim-limitation-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-package-source-capture-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-external-runtime-writer-transport-preflight-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-parent-action-delivery-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-parent-action-runtime-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-parent-review-action-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-platform-adapter-boundary-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-platform-adapter-evidence-gap-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-platform-artifact-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-platform-limitation-action-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-platform-proof-readiness.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-product-claim-gate-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-product-claim-platform-preclaim-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-product-claim-platform-limitation-fallback-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-product-claim-portal-test-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-product-claim-provider-store-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-product-claim-store-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-product-claim-safe-parent-workflow-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-provider-store-api-execution-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-product-claim-store-upgrade-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-provider-store-manual-evidence-packet-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-provider-store-execution-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-provider-store-execution-preflight-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-report-status-read-model-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-report-runtime-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-provider-store-report-status-runtime-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-provider-store-report-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-runtime-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-store-manual-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-provider-store-platform-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-riskdetection-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-runtime-transport-delivery-execution-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-runtime-delivery-receipt-boundary-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\billing-entitlement-contract-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\billing-account-runtime-boundary-proof.mjs",
+    "hits": [
+      "packages/parent-domain/src/billing-account-runtime-boundary-proof.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-runtime-report-writer-delivery-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-runtime-writer-delivery-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-windows-package-source-adapter-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-runtime-writer-execution-delivery-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\billing-support-admin-boundary-proof.mjs",
+    "hits": [
+      "packages/parent-domain/src/billing-support-admin-boundary-proof.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\app-install-purchase-store-status-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\billing-entitlement-runtime-proof.mjs",
+    "hits": [
+      "packages/parent-domain/src/billing-entitlement-runtime-proof.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\billing-support-admin-status-proof.mjs",
+    "hits": [
+      "packages/parent-domain/src/billing-support-admin-status-proof.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\browser-first-lan-discovery-add-device-state.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-account-purchase-gate-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-ai-analysis-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-android-ios-capability-matrix-host-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-child-checking-block-ux-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-cloud-gaming-gate-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-cloud-pattern-library-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-dashboard-ux-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-educational-classifier-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-hold-block-adapter-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-hidden-analysis-profile-safety-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-journal-sqlite-read-model-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-memory-cache-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-platform-route-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-policy-compiler-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-metadata-extractor-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-portal-pattern-library-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-riskbenefit-signal-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-runtime-signal-detector-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-ugc-multiplayer-chat-risk-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-unblocked-site-detection-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\browser-game-url-shape-parser-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\child-agent-ai-policy-authority-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\enforcement-lan-mobile-product-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\household-ai-provider-advertisement-heartbeat-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\household-ai-provider-claim-lease-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\lan-browser-discovery-pairing-runtime.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-contract-completeness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-graph-reference-contract-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-classifier-read-model-manual-report-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-parent-assistant-runtime-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-deterministic-classifier-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-parent-rule-context-builder-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-prompt-template-version-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-provider-scheduler-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-recent-memory-window-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-result-journal-sqlite-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-remote-assistant-boundary-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-runtime-provider-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-stored-evidence-context-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-stored-evidence-integration-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-runtime-status-read-model-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-text-llm-adapter-boundary-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\local-ai-text-inference-dry-run-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\network-remote-delivery-delete-export-status-bridge-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\network-remote-delivery-outbox-status-bridge-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\network-remote-delivery-status-bridge-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\network-remote-delivery-transport-dispatch-state-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\notification-local-outbox-scheduler-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\notification-local-outbox-adapter-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\parent-desktop-release-support-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\parent-mobile-controller-observer-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\parent-mobile-service-bridge-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\parent-owned-local-export-runtime-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\parent-mobile-shell-runtime-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\platform-os-lan-mobile-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-incident-support-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-release-public-docs-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-release-public-docs-freshness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-release-public-runtime-handoff-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-release-public-status-freshness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-release-public-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-release-public-surface-publication-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-account-sla-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-data-export-delete-lifecycle-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-legal-provider-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-process-runtime-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-public-surface-export-closure-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-proof-status-matrix-closure-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-publication-execution-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-publication-workflow-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-publication-runtime-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-publication-status-freshness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-status-backend-durable-queue-runtime-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-status-backend-dead-letter-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-status-backend-execution-queue-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-status-backend-execution-continuation-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-status-backend-public-runtime-followthrough-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-status-backend-queue-audit-persistence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-status-backend-runtime-closure-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\production-support-status-backend-runtime-execution-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\public-support-contact-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-adapter-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-browser-trigger-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-deterministic-route-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-enforcement-handoff-guard-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-final-adapter-dependency-audit.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-invalid-output-degrade-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-live-operator-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-local-text-route-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-memory-graph-source-guard-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-local-vlm-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-model-output-parser-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-model-artifact-manifest-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-ocr-route-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-model-runtime-backpressure-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-service-winrt-ocr-policy-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-stricter-rule-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-stricter-parent-rule-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-ai-winrt-ocr-worker-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-family-ai-hub-runtime-discovery-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-summary-ai-context-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-summary-parent-explanation-read-model-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\screen-summary-parent-explanation-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-android-native-app-host-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-applied-schedule-time-budget-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-audit-explanation-service-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-audit-explanation-ui-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-decision-memory-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-ios-screen-time-host-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-parent-approval-live-evidence-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-parent-notification-delivery-readiness-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-parent-sensitivity-settings-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-platform-connector-authorization-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-policy-live-evidence-compiler-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-policy-schedule-time-budget-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\social-report-writer-delivery-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\tamper-uninstall-artifact-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\tracking-ai-stored-ref-consumer-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\tracking-android-permission-background-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\tracking-android-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\tracking-desktop-presence-hint-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\tracking-fixture-coverage-proof.mjs",
+    "hits": [
+      "packages/parent-domain/src/tracking-fixture-coverage-proof.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\tracking-expected-place-alert-policy-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\tracking-hosted-storage-default-boundary-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\tracking-local-execution-strategy-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\tracking-local-platform-proof-batch.mjs",
+    "hits": [
+      "packages/parent-domain/src/tracking-local-platform-proof-batch.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\tracking-missing-device-mode-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\tracking-place-category-ambiguity-proof.mjs",
+    "hits": [
+      "packages/parent-domain/src/tracking-place-category-ambiguity-proof.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\tracking-plan-evidence-quality-gate-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\tracking-policy-compiler-runtime-proof.mjs",
+    "hits": [
+      "packages/parent-domain/src/tracking-policy-compiler-runtime-proof.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\tracking-poi-provider-adapter-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\tracking-real-runtime-handoff-proof.mjs",
+    "hits": [
+      "packages/parent-domain/src/tracking-real-runtime-handoff-proof.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\tracking-report-export-read-model-proof.mjs",
+    "hits": [
+      "packages/parent-domain/src/tracking-report-export-read-model-proof.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\tracking-retention-settings-mutation-proof.mjs",
+    "hits": [
+      "packages/parent-domain/src/tracking-retention-settings-mutation-proof.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\tracking-retention-settings-writer-boundary-proof.mjs",
+    "hits": [
+      "packages/parent-domain/src/tracking-retention-settings-writer-boundary-proof.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\tracking-unsupported-platform-manual-proof.mjs",
+    "hits": [
+      "packages/parent-domain/src/tracking-unsupported-platform-manual-proof.ts"
+    ]
+  },
+  {
+    "script": "scripts/test\\v0-8-broad-os-adapter-proof-readiness.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\v0-8-broad-adapter-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\v0-8-host-adapter-proof-preflight.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\v0-8-os-adapter-product-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\v0-8-notification-provider-status-boundary.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\v0-8-process-package-identity-proof-bridge.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\v0-8-windows-adapter-artifact-status-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\v0-9-household-lan-production-discovery-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\v0-9-mobile-controller-observer-runtime-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\v0-9-prod-discovery-provider-selection-proof.mjs",
+    "hits": []
+  },
+  {
+    "script": "scripts/test\\v0-9-production-lan-household-proof.mjs",
+    "hits": []
+  }
+]

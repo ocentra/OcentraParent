@@ -20,7 +20,7 @@ import {
   GameControlAuthoringManifestSchema,
   GameControlPolicyUpdateCommandSchema,
   GameControlPolicyValueDocumentSchema,
-} from '../../src/game-control-catalog-schema';
+} from '@ocentra-parent/schema-domain/game-control-catalog-schema';
 
 interface SourceField {
   readonly sectionId: string;

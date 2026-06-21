@@ -3,7 +3,7 @@ import {
   BrowserAiRiskBenefitAssessmentSchema,
   BrowserAiRiskBenefitModelSchemaVersion,
   BrowserAiRiskBenefitTaxonomySchema,
-} from '../../src/browser-ai-riskbenefit-model-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-riskbenefit-model-schemas';
 
 describe('browser AI structured category risk benefit model contract', () => {
   it('accepts the structured taxonomy with unknown fallbacks', acceptsStructuredTaxonomy);

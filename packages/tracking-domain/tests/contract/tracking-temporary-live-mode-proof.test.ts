@@ -4,7 +4,7 @@ import {
   TrackingTemporaryLiveModeRowSchema,
   buildTrackingTemporaryLiveModeReadModel,
 } from '../../src/tracking-temporary-live-mode-proof';
-import { TrackingPolicySchemaVersion } from '../../src/tracking-location-policy';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 describe('tracking temporary live mode proof', () => {
   it('derives authorized, degraded, expired, retention, and manual-required temporary live rows', () => {

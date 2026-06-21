@@ -1,156 +1,14 @@
 import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/schema-domain/event-primitives';
-import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { AgentPolicyPreviewDefaults } from '@ocentra-parent/schema-domain/agent-policy-preview-read-model';
+import * as PolicyRequestContracts from '@ocentra-parent/schema-domain/agent-policy-request-confirm-command';
 import {
   AgentCommand,
   AgentCommandEnvelopeSchema,
   AgentEvent,
-  AgentProtocolDefaults,
   type AgentCommandEnvelope,
   type AgentEventEnvelope,
-  type AgentEventName,
   type AgentProtocolLogFields,
 } from './contracts';
-
-export const PolicyRequestAssistantPreviewConfirmRequestKindSchema = withParser(
-  Schema.Literal('ask-parent', 'bonus-time', 'temporary-override')
-);
-export const PolicyRequestAssistantPreviewConfirmTargetKindSchema = withParser(
-  Schema.Literal('child-profile', 'device', 'app', 'site', 'category', 'resource')
-);
-export const PolicyRequestAssistantPreviewConfirmActionSchema = withParser(
-  Schema.Literal('allow', 'warn', 'ask-parent', 'time-limit', 'block')
-);
-export const PolicyRequestAssistantPreviewConfirmActorRoleSchema = withParser(
-  Schema.Literal('parent', 'co-parent', 'observer', 'child', 'support')
-);
-export const PolicyRequestAssistantPreviewConfirmActorStateSchema = withParser(
-  Schema.Literal('active', 'revoked')
-);
-export const PolicyRequestAssistantPreviewConfirmResultStateSchema = withParser(
-  Schema.Literal('confirmed', 'rejected')
-);
-export const PolicyRequestAssistantPreviewConfirmClaimStateSchema = withParser(
-  Schema.Literal('claimed', 'unclaimed')
-);
-
-const PolicyRequestStatusSchema = withParser(
-  Schema.Literal(
-    AgentProtocolDefaults.PolicyPreview.RequestStatus.PreviewOnly,
-    AgentProtocolDefaults.PolicyPreview.RequestStatus.PendingParentReview,
-    AgentProtocolDefaults.PolicyPreview.RequestStatus.Approved,
-    AgentProtocolDefaults.PolicyPreview.RequestStatus.Denied,
-    AgentProtocolDefaults.PolicyPreview.RequestStatus.Modified,
-    AgentProtocolDefaults.PolicyPreview.RequestStatus.Expired,
-    AgentProtocolDefaults.PolicyPreview.RequestStatus.ReplayRejected
-  )
-);
-
-const PolicyAssistantConfirmationStateSchema = withParser(
-  Schema.Literal(
-    AgentProtocolDefaults.PolicyPreview.AssistantConfirmationState.NotRequired,
-    AgentProtocolDefaults.PolicyPreview.AssistantConfirmationState.ParentConfirmationRequired,
-    AgentProtocolDefaults.PolicyPreview.AssistantConfirmationState.ParentConfirmed
-  )
-);
-
-export const PolicyRequestAssistantPreviewConfirmRequestSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(AgentProtocolDefaults.SchemaVersion),
-    commandId: NonEmptyStringSchema,
-    requestId: NonEmptyStringSchema,
-    submissionKey: NonEmptyStringSchema,
-    householdId: NonEmptyStringSchema,
-    childProfileId: NonEmptyStringSchema,
-    deviceId: Schema.Union(NonEmptyStringSchema, Schema.Null),
-    sourceDocumentId: NonEmptyStringSchema,
-    policyVersion: Schema.Number.pipe(Schema.int(), Schema.positive()),
-    requestKind: PolicyRequestAssistantPreviewConfirmRequestKindSchema,
-    targetKind: PolicyRequestAssistantPreviewConfirmTargetKindSchema,
-    targetReferenceId: NonEmptyStringSchema,
-    requestedAction: PolicyRequestAssistantPreviewConfirmActionSchema,
-    ruleId: Schema.Union(NonEmptyStringSchema, Schema.Null),
-    requestedBonusMinutes: Schema.Union(
-      Schema.Number.pipe(Schema.int(), Schema.positive()),
-      Schema.Null
-    ),
-    requestedAt: NonEmptyStringSchema,
-    expiresAt: NonEmptyStringSchema,
-    origin: Schema.Literal(AgentProtocolDefaults.PolicyPreview.RequestOrigin.AssistantDraft),
-    assistantPreviewId: NonEmptyStringSchema,
-    assistantConfirmationState: Schema.Literal(
-      AgentProtocolDefaults.PolicyPreview.AssistantConfirmationState.ParentConfirmationRequired
-    ),
-    requestStatus: Schema.Literal(AgentProtocolDefaults.PolicyPreview.RequestStatus.PreviewOnly),
-    auditReferenceIds: Schema.Array(NonEmptyStringSchema),
-    confirmationActorId: NonEmptyStringSchema,
-    confirmationActorRole: PolicyRequestAssistantPreviewConfirmActorRoleSchema,
-    confirmationActorState: PolicyRequestAssistantPreviewConfirmActorStateSchema,
-    confirmationAuditReferenceId: NonEmptyStringSchema,
-    confirmedAt: NonEmptyStringSchema,
-  })
-    .pipe(
-      Schema.filter(
-        (request) =>
-          request.auditReferenceIds.length > 0 || 'Policy request confirmation needs audit reference IDs'
-      )
-    )
-    .pipe(
-      Schema.filter(
-        (request) =>
-          request.requestKind !== 'bonus-time' ||
-          request.requestedBonusMinutes !== null ||
-          'Bonus-time confirmation requests must include requested bonus minutes'
-      )
-    )
-);
-
-export const PolicyRequestAssistantPreviewConfirmResultSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(AgentProtocolDefaults.SchemaVersion),
-    commandId: NonEmptyStringSchema,
-    requestId: NonEmptyStringSchema,
-    assistantPreviewId: Schema.Union(NonEmptyStringSchema, Schema.Null),
-    resultState: PolicyRequestAssistantPreviewConfirmResultStateSchema,
-    policyRequestStatus: PolicyRequestStatusSchema,
-    policyAssistantConfirmationState: PolicyAssistantConfirmationStateSchema,
-    policyAuditReferenceId: Schema.Union(NonEmptyStringSchema, Schema.Null),
-    confirmedAt: Schema.Union(NonEmptyStringSchema, Schema.Null),
-    rejectionReason: Schema.Union(NonEmptyStringSchema, Schema.Null),
-    commandTransportClaimState: Schema.Literal('claimed'),
-    serviceValidationClaimState: Schema.Literal('claimed'),
-    activityStoreMutationClaimState: PolicyRequestAssistantPreviewConfirmClaimStateSchema,
-    upstreamWriterClaimState: PolicyRequestAssistantPreviewConfirmClaimStateSchema,
-    readModelProjectionClaimState: PolicyRequestAssistantPreviewConfirmClaimStateSchema,
-    portalWritableUiClaimState: Schema.Literal('unclaimed'),
-    childDeviceDeliveryClaimState: Schema.Literal('unclaimed'),
-    providerDeliveryClaimState: Schema.Literal('unclaimed'),
-    platformEnforcementClaimState: Schema.Literal('unclaimed'),
-    productClaimState: Schema.Literal('unclaimed'),
-  })
-);
-
-export type PolicyRequestAssistantPreviewConfirmRequest = Infer<
-  typeof PolicyRequestAssistantPreviewConfirmRequestSchema
->;
-export type PolicyRequestAssistantPreviewConfirmResult = Infer<
-  typeof PolicyRequestAssistantPreviewConfirmResultSchema
->;
-export type PolicyRequestAssistantPreviewConfirmResultState = Infer<
-  typeof PolicyRequestAssistantPreviewConfirmResultStateSchema
->;
-export type PolicyRequestAssistantPreviewConfirmClaimState = Infer<
-  typeof PolicyRequestAssistantPreviewConfirmClaimStateSchema
->;
-
-export const PolicyRequestAssistantPreviewConfirmResultState = {
-  Confirmed: PolicyRequestAssistantPreviewConfirmResultStateSchema.parse('confirmed'),
-  Rejected: PolicyRequestAssistantPreviewConfirmResultStateSchema.parse('rejected'),
-} as const;
-
-export const PolicyRequestAssistantPreviewConfirmClaimState = {
-  Claimed: PolicyRequestAssistantPreviewConfirmClaimStateSchema.parse('claimed'),
-  Unclaimed: PolicyRequestAssistantPreviewConfirmClaimStateSchema.parse('unclaimed'),
-} as const;
 
 export type PolicyRequestAssistantPreviewConfirmAdapterFailureReason =
   | 'wrong-event'
@@ -158,10 +16,17 @@ export type PolicyRequestAssistantPreviewConfirmAdapterFailureReason =
   | 'invalid-json'
   | 'invalid-payload';
 
+export type PolicyRequestAssistantPreviewConfirmResult =
+  PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmResult;
+export const PolicyRequestAssistantPreviewConfirmResultState =
+  PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmResultState;
+export const PolicyRequestAssistantPreviewConfirmClaimState =
+  PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmClaimState;
+
 export type PolicyRequestAssistantPreviewConfirmAdapterResult =
   | {
       readonly ok: true;
-      readonly value: PolicyRequestAssistantPreviewConfirmResult;
+      readonly value: PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmResult;
     }
   | {
       readonly ok: false;
@@ -184,7 +49,7 @@ export type CreatePolicyRequestAssistantPreviewConfirmCommandInput = {
   readonly sentAt: string;
   readonly source: PolicyRequestAssistantPreviewConfirmCommandPeerInput;
   readonly target: PolicyRequestAssistantPreviewConfirmCommandTargetInput;
-  readonly request: PolicyRequestAssistantPreviewConfirmRequest;
+  readonly request: PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmRequest;
 };
 
 const PolicyRequestAssistantPreviewConfirmDefaults = {
@@ -207,9 +72,10 @@ const PolicyRequestAssistantPreviewConfirmDefaults = {
   ConfirmedAt: '2026-06-18T00:05:00Z',
 } as const;
 
-export function defaultPolicyRequestAssistantPreviewConfirmRequest(): PolicyRequestAssistantPreviewConfirmRequest {
-  return PolicyRequestAssistantPreviewConfirmRequestSchema.parse({
-    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+export function defaultPolicyRequestAssistantPreviewConfirmRequest():
+  PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmRequest {
+  return PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmRequestSchema.parse({
+    schemaVersion: AgentProtocolSchemaVersion,
     commandId: PolicyRequestAssistantPreviewConfirmDefaults.CommandId,
     requestId: PolicyRequestAssistantPreviewConfirmDefaults.RequestId,
     submissionKey: PolicyRequestAssistantPreviewConfirmDefaults.SubmissionKey,
@@ -226,11 +92,10 @@ export function defaultPolicyRequestAssistantPreviewConfirmRequest(): PolicyRequ
     requestedBonusMinutes: null,
     requestedAt: PolicyRequestAssistantPreviewConfirmDefaults.RequestedAt,
     expiresAt: PolicyRequestAssistantPreviewConfirmDefaults.ExpiresAt,
-    origin: AgentProtocolDefaults.PolicyPreview.RequestOrigin.AssistantDraft,
+    origin: AgentPolicyPreviewDefaults.RequestOrigin.AssistantDraft,
     assistantPreviewId: PolicyRequestAssistantPreviewConfirmDefaults.AssistantPreviewId,
-    assistantConfirmationState:
-      AgentProtocolDefaults.PolicyPreview.AssistantConfirmationState.ParentConfirmationRequired,
-    requestStatus: AgentProtocolDefaults.PolicyPreview.RequestStatus.PreviewOnly,
+    assistantConfirmationState: AgentPolicyPreviewDefaults.AssistantConfirmationState.ParentConfirmationRequired,
+    requestStatus: AgentPolicyPreviewDefaults.RequestStatus.PreviewOnly,
     auditReferenceIds: [PolicyRequestAssistantPreviewConfirmDefaults.AuditReferenceId],
     confirmationActorId: PolicyRequestAssistantPreviewConfirmDefaults.ConfirmationActorId,
     confirmationActorRole: 'parent',
@@ -244,7 +109,9 @@ export function defaultPolicyRequestAssistantPreviewConfirmRequest(): PolicyRequ
 export function createPolicyRequestAssistantPreviewConfirmCommand(
   input: CreatePolicyRequestAssistantPreviewConfirmCommandInput
 ): AgentCommandEnvelope {
-  const parsedRequest = PolicyRequestAssistantPreviewConfirmRequestSchema.safeParse(input.request);
+  const parsedRequest = PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmRequestSchema.safeParse(
+    input.request
+  );
   if (!parsedRequest.success) {
     throw new Error('invalid policy request assistant preview confirm request');
   }
@@ -261,28 +128,27 @@ export function createPolicyRequestAssistantPreviewConfirmCommand(
 }
 
 export function createPolicyRequestAssistantPreviewConfirmPayload(
-  request: PolicyRequestAssistantPreviewConfirmRequest
+  request: PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmRequest
 ): AgentProtocolLogFields {
-  const parsedRequest = PolicyRequestAssistantPreviewConfirmRequestSchema.safeParse(request);
+  const parsedRequest = PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmRequestSchema.safeParse(request);
   if (!parsedRequest.success) {
     throw new Error('invalid policy request assistant preview confirm request');
   }
 
   return {
-    [AgentProtocolDefaults.Field.PolicyRequestAssistantPreviewConfirmRequest]: JSON.stringify(
-      parsedRequest.data
-    ),
+    [PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmPayloadField.Request]:
+      JSON.stringify(parsedRequest.data),
   };
 }
 
 export function parsePolicyRequestAssistantPreviewConfirmResultEvent(
   event: AgentEventEnvelope
 ): PolicyRequestAssistantPreviewConfirmAdapterResult {
-  if (!policyRequestAssistantPreviewConfirmEventNames().includes(event.event)) {
+  if (event.event !== AgentEvent.PolicyRequestAssistantPreviewConfirmReported) {
     return adapterFailure('wrong-event');
   }
 
-  const raw = event.payload[AgentProtocolDefaults.Field.PolicyRequestAssistantPreviewConfirmResult];
+  const raw = event.payload[PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmPayloadField.Result];
   if (typeof raw !== 'string') {
     return adapterFailure('missing-json-field');
   }
@@ -294,7 +160,7 @@ export function parsePolicyRequestAssistantPreviewConfirmResultEvent(
     return adapterFailure('invalid-json');
   }
 
-  const parsed = PolicyRequestAssistantPreviewConfirmResultSchema.safeParse(decoded);
+  const parsed = PolicyRequestContracts.PolicyRequestAssistantPreviewConfirmResultSchema.safeParse(decoded);
   if (!parsed.success) {
     return adapterFailure('invalid-payload');
   }
@@ -303,10 +169,6 @@ export function parsePolicyRequestAssistantPreviewConfirmResultEvent(
     ok: true,
     value: parsed.data,
   };
-}
-
-function policyRequestAssistantPreviewConfirmEventNames(): AgentEventName[] {
-  return [AgentEvent.PolicyRequestAssistantPreviewConfirmReported];
 }
 
 function adapterFailure(

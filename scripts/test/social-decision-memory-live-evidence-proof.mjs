@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SocialDecisionMemoryCacheSnapshotSchema } from '../../packages/parent-domain/dist/social-decision-memory-cache.js';
+import { SocialDecisionMemoryCacheSnapshotSchema } from '../../packages/schema-domain/dist/social-decision-memory-cache.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -16,8 +16,8 @@ const testResultPath = join(repoRoot, 'test-results/social-decision-memory-live-
 const observedAt = new Date().toISOString();
 
 const builtFiles = [
-  'packages/parent-domain/dist/social-decision-memory-cache-values.js',
-  'packages/parent-domain/dist/social-decision-memory-cache.js',
+  'packages/schema-domain/dist/social-decision-memory-cache-values.js',
+  'packages/schema-domain/dist/social-decision-memory-cache.js',
 ];
 
 assertBuiltContractsExist();

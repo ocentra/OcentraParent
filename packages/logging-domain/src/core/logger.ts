@@ -1,14 +1,26 @@
 import {
   LogLevel,
+  LoggerRuntimeDefaults,
+  LoggerRuntimeEnvironment,
   type LogLevel as LogLevelValue,
-} from '../contracts';
-import { LoggerRuntimeDefaults, LoggerRuntimeEnvironment } from './logRuntimeConstants';
+  type StackTrace,
+} from '@ocentra-parent/schema-domain/logging-contracts';
+import {
+  RunType,
+  TestLogOrigin,
+  TestLogScope,
+  parseRunTypeOrDefault,
+  parseSuiteTypeOrNull,
+  parseTestLogScopeOrDefault,
+  type RunType as RunTypeValue,
+  type TestLogOrigin as TestLogOriginValue,
+  type TestLogScope as TestLogScopeValue,
+  type TestSuiteType,
+} from '@ocentra-parent/schema-domain/test-log/types';
 import { createParentLogDecisionProvider } from './logDecisionProvider';
 import { resolveBridgeEndpoint, sendToBridge } from '../transport/bridgeTransport';
-import { RunType, TestLogOrigin, TestLogScope, parseRunTypeOrDefault, parseSuiteTypeOrNull, parseTestLogScopeOrDefault, type RunType as RunTypeValue, type TestLogOrigin as TestLogOriginValue, type TestLogScope as TestLogScopeValue, type TestSuiteType } from '../test-log/types';
-import type { BridgeEntry } from '../transport/bridgeLogPayload';
+import type { BridgeEntry } from '@ocentra-parent/schema-domain/transport/bridgeLogPayload';
 import { parseStackTrace, type StackFrame } from './stackTraceParser';
-import type { StackTrace } from './stackTrace';
 
 export interface LoggerRuntimeConfig {
   readonly bridgeEndpoint?: string | null;

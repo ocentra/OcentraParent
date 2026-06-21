@@ -1,12 +1,11 @@
 import {
   PortalDom,
-  PortalFormatting,
   PortalText,
   PortalTextToken,
-  decodePortalDetailValue,
-  type PortalDetailValue,
   type PortalDisplayText,
 } from '@ocentra-parent/portal-domain/contracts';
+import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 
 export function appendDetail(list: HTMLDListElement, label: PortalDisplayText, value: PortalDetailValue): void {
   const term = document.createElement(PortalDom.Tags.DefinitionTerm);

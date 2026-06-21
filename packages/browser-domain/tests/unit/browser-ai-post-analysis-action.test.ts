@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   BrowserAiPostAnalysisActionPlanSchema,
   BrowserAiPostAnalysisActionSchemaVersion,
-} from '../../src/browser-ai-post-analysis-action-schemas';
-import { BrowserAiPolicyEvaluatorSchemaVersion } from '../../src/browser-ai-policy-evaluator-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-post-analysis-action-schemas';
+import { BrowserAiPolicyEvaluatorSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-policy-evaluator-schemas';
 
 describe('browser AI post-analysis action model contract', () => {
   it('accepts playback stopped after review when adapter proof exists', acceptsPlaybackStoppedAfterReview);

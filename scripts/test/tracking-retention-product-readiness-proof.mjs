@@ -54,7 +54,7 @@ async function main() {
 async function buildProof(durableSettingsProof) {
   const proofModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-retention-product-readiness-proof.ts')
+      join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-retention-product-readiness-proof.ts')
     ).href,
     import.meta.url
   );

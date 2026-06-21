@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..', '..');
@@ -22,14 +22,12 @@ const retentionDeletionProofPath = join(
   'proof-summary.json'
 );
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 
-const screenEvidence = await import(
-  pathToFileURL(join(repoRoot, 'packages', 'activity-domain', 'dist', 'screen-evidence.js')).href
-);
+const capabilityProofModule = await import('@ocentra-parent/schema-domain/screen-optional-visibility-capability-proof');
 
 const generatedAt = new Date().toISOString();
-const proof = screenEvidence.screenOptionalVisibilityCapabilityStatusProof(generatedAt);
+const proof = capabilityProofModule.screenOptionalVisibilityCapabilityStatusProof(generatedAt);
 const readinessStates = proof.rows.map((row) => row.readinessState);
 const blockedLiveView = proof.rows.find((row) => row.capabilityKind === 'liveView' && row.readinessState === 'blocked');
 const manualRetention = proof.rows.find(

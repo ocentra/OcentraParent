@@ -1,7 +1,8 @@
-use super::{
-    constants, ChildAgentEventContract, ChildCapabilityStateUpdatedEvent,
-    ChildCommandAcceptedEvent, ChildCommandKind, ChildCommandReceivedEvent,
-    ChildCommandRejectedEvent, ChildRuntimeHealthUpdatedEvent,
+use super::constants;
+use crate::child_agent::child_agent_events::{
+    ChildAgentEventContract, ChildCapabilityStateUpdatedEvent, ChildCommandAcceptedEvent,
+    ChildCommandKind, ChildCommandReceivedEvent, ChildCommandRejectedEvent,
+    ChildRuntimeHealthUpdatedEvent,
 };
 
 #[path = "child_agent_event_fixtures.rs"]

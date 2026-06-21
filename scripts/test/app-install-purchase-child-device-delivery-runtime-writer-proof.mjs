@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -13,27 +13,21 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-child-device-delivery-runtime-writer-proof.test.ts',
+      'tests/unit/app-install-purchase-child-device-delivery-runtime-writer-proof.test.ts',
     ])
   );
 
   const proofModule = await loadChildDeviceDeliveryRuntimeWriterProofModule();
-  const packageModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-child-device-delivery-runtime-writer-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseChildDeviceDeliveryRuntimeWriterProof(parsedReadModel);
-  const parentDomainPackageJson = JSON.parse(
-    await readFile(join(repoRoot, 'packages', 'parent-domain', 'package.json'), 'utf8')
-  );
-  const packageExportKey = './app-install-purchase-child-device-delivery-runtime-writer-proof';
 
   assert.deepEqual(summary, {
     childDeviceDeliveryRuntimeWriterRows: 4,
@@ -42,16 +36,6 @@ async function main() {
     packageSourceCaptureLinkedRows: 4,
     runtimeWriterExecutedRows: 0,
     childDeviceDeliveredRows: 0,
-  });
-  assert.deepEqual(
-    packageModule.summarizeAppInstallPurchaseChildDeviceDeliveryRuntimeWriterProof(
-      packageModule.AppInstallPurchaseChildDeviceDeliveryRuntimeWriterProofReadModel
-    ),
-    summary
-  );
-  assert.deepEqual(parentDomainPackageJson.exports[packageExportKey], {
-    import: './dist/app-install-purchase-child-device-delivery-runtime-writer-proof.js',
-    types: './dist/app-install-purchase-child-device-delivery-runtime-writer-proof.d.ts',
   });
   assert.deepEqual(
     parsedReadModel.childDeviceDeliveryRuntimeWriterRows.map(
@@ -76,21 +60,22 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-child-device-delivery-runtime-writer-proof',
     commands,
-    packageExportState: 'validated-public-package-export',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     evidence: {
       childDeviceDeliveryRuntimeWriterContract:
-        'packages/parent-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
       sourceRuntimeWriterDeliveryContract:
-        'packages/parent-domain/src/app-install-purchase-runtime-writer-delivery-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-runtime-writer-delivery-proof.ts',
       sourcePackageSourceCaptureStatusContract:
-        'packages/parent-domain/src/app-install-purchase-package-source-capture-status-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-package-source-capture-status-proof.ts',
       contractTest:
-        'packages/parent-domain/tests/app-install-purchase-child-device-delivery-runtime-writer-proof.test.ts',
+        'packages/app-game-domain/tests/unit/app-install-purchase-child-device-delivery-runtime-writer-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
       packageExport:
-        'COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-child-device-delivery-runtime-writer-proof.',
+        '@ocentra-parent/app-game-domain/app-install-purchase-child-device-delivery-runtime-writer-proof',
+      packageReadme: 'packages/app-game-domain/package.json',
       output: relative(repoRoot, proofPath),
     },
     childDeviceDeliveryRuntimeWriterSummary: summary,
@@ -130,7 +115,7 @@ async function loadChildDeviceDeliveryRuntimeWriterProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-child-device-delivery-runtime-writer-proof.js'
   );

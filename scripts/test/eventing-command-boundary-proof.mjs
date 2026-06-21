@@ -66,7 +66,7 @@ async function main() {
     evidence: {
       portalTransport: 'apps/portal/src/transport.ts',
       portalTransportTest: 'apps/portal/tests/transport-lan-target.test.ts',
-      portalCommandInventory: 'packages/portal-domain/src/commands.ts',
+      portalCommandInventory: 'apps/portal/src/portal-command-controls.ts',
       parentAssistantAdapter: 'packages/agent-protocol-domain/src/parent-assistant-adapter.ts',
       aiRouter: 'crates/agent-service/src/websocket.rs',
       proofHarness: 'scripts/test/eventing-command-boundary-proof.mjs',
@@ -97,7 +97,7 @@ async function main() {
 async function assertSourceContracts() {
   const transportSource = await readText('apps/portal/src/transport.ts');
   const transportTests = await readText('apps/portal/tests/transport-lan-target.test.ts');
-  const portalCommands = await readText('packages/portal-domain/src/commands.ts');
+  const portalCommands = await readText('apps/portal/src/portal-command-controls.ts');
   const parentAssistantAdapter = await readText('packages/agent-protocol-domain/src/parent-assistant-adapter.ts');
   const websocket = await readText('crates/agent-service/src/websocket.rs');
 

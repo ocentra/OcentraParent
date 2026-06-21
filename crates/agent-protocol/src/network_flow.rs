@@ -1,6 +1,17 @@
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, RuntimeRole, SchemaVersion};
 use serde::{Deserialize, Serialize};
 
-use crate::ActivityEvidenceRef;
+use crate::{
+    constants, ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus,
+    ActivityEvidenceRef, ActivityNetworkProtocol, ActivityNetworkTcpState,
+    ActivityProcessAttributionStatus,
+};
+
+pub mod broker_delivery;
+pub mod remote_delivery_reports;
+pub mod review;
 
 pub const NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE: &str = "child-device-query-store";
 pub const NETWORK_FLOW_CUSTODY_PARENT_OWNED_EXPORT: &str = "parent-owned-export";
@@ -440,7 +451,553 @@ pub struct NetworkLiveCaptureStatus {
     pub rows: Vec<NetworkLiveCaptureStatusRow>,
 }
 
-#[path = "network_flow_events.rs"]
-mod network_flow_events;
+pub trait NetworkRuntimeEventContract {
+    const EVENT_TYPE: &'static str;
+    const SCHEMA_VERSION: u16 = crate::constants::network_flow::EVENT_SCHEMA_VERSION;
+}
 
-pub use network_flow_events::*;
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkClaimBoundary {
+    pub exact_url_available: bool,
+    pub decrypted_https_payload_available: bool,
+    pub message_content_available: bool,
+    pub search_query_available: bool,
+    pub adapter_action_executed: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkFlowObservedEvent {
+    pub schema_version: u16,
+    pub flow_event_ref: String,
+    pub observed_at: String,
+    pub device_ref: String,
+    pub flow_evidence_ref: String,
+    pub custody: String,
+    pub evidence_grade: NetworkEvidenceGrade,
+    pub claim_boundary: NetworkClaimBoundary,
+}
+
+impl NetworkRuntimeEventContract for NetworkFlowObservedEvent {
+    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED;
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkDomainObservedEvent {
+    pub schema_version: u16,
+    pub domain_event_ref: String,
+    pub previous_event_ref: String,
+    pub flow_evidence_ref: String,
+    pub domain_evidence_ref: String,
+    pub attribution: NetworkDomainAttributionKind,
+    pub evidence_grade: NetworkEvidenceGrade,
+    pub uncertainty_codes: Vec<String>,
+    pub claim_boundary: NetworkClaimBoundary,
+}
+
+impl NetworkRuntimeEventContract for NetworkDomainObservedEvent {
+    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED;
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkActivityClassifiedEvent {
+    pub schema_version: u16,
+    pub classification_event_ref: String,
+    pub previous_event_ref: String,
+    pub evidence_refs: Vec<String>,
+    pub activity_kind: NetworkActivityKind,
+    pub confidence: f32,
+    pub evidence_grade: NetworkEvidenceGrade,
+    pub uncertainty_codes: Vec<String>,
+}
+
+impl NetworkRuntimeEventContract for NetworkActivityClassifiedEvent {
+    const EVENT_TYPE: &'static str =
+        crate::constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED;
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkAiAnalysisRequestedEvent {
+    pub schema_version: u16,
+    pub ai_request_ref: String,
+    pub previous_event_ref: String,
+    pub evidence_refs: Vec<String>,
+    pub prompt_template_ref: String,
+    pub custody: String,
+    pub raw_packet_payload_included: bool,
+}
+
+impl NetworkRuntimeEventContract for NetworkAiAnalysisRequestedEvent {
+    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_AI_ANALYSIS_REQUESTED;
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkAiAnalysisCompletedEvent {
+    pub schema_version: u16,
+    pub ai_analysis_ref: String,
+    pub ai_request_ref: String,
+    pub previous_event_ref: String,
+    pub advisory_state: NetworkAiAdvisoryState,
+    pub evidence_refs: Vec<String>,
+    pub unsupported_claims: Vec<String>,
+}
+
+impl NetworkRuntimeEventContract for NetworkAiAnalysisCompletedEvent {
+    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED;
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkPolicyEvaluationRequestedEvent {
+    pub schema_version: u16,
+    pub policy_evaluation_ref: String,
+    pub previous_event_ref: String,
+    pub evidence_refs: Vec<String>,
+    pub ai_analysis_ref: Option<String>,
+    pub parent_rule_refs: Vec<String>,
+    pub dry_run: bool,
+}
+
+impl NetworkRuntimeEventContract for NetworkPolicyEvaluationRequestedEvent {
+    const EVENT_TYPE: &'static str =
+        crate::constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED;
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkPolicyDecisionCompletedEvent {
+    pub schema_version: u16,
+    pub policy_decision_ref: String,
+    pub policy_evaluation_ref: String,
+    pub previous_event_ref: String,
+    pub decision_action: NetworkPolicyDecisionAction,
+    pub evidence_refs: Vec<String>,
+    pub parent_rule_refs: Vec<String>,
+    pub adapter_capability_required: bool,
+}
+
+impl NetworkRuntimeEventContract for NetworkPolicyDecisionCompletedEvent {
+    const EVENT_TYPE: &'static str =
+        crate::constants::network_flow::EVENT_POLICY_DECISION_COMPLETED;
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkEnforcementCommandIssuedEvent {
+    pub schema_version: u16,
+    pub enforcement_command_ref: String,
+    pub previous_event_ref: String,
+    pub policy_decision_ref: String,
+    pub adapter_capability_ref: String,
+    pub enforcement_mode: NetworkEnforcementMode,
+    pub evidence_refs: Vec<String>,
+    pub rollback_ref: Option<String>,
+}
+
+impl NetworkRuntimeEventContract for NetworkEnforcementCommandIssuedEvent {
+    const EVENT_TYPE: &'static str =
+        crate::constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED;
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkEnforcementResultObservedEvent {
+    pub schema_version: u16,
+    pub enforcement_result_ref: String,
+    pub enforcement_command_ref: String,
+    pub previous_event_ref: String,
+    pub result_status: NetworkEnforcementResultStatus,
+    pub adapter_action_executed: bool,
+    pub rollback_ref: Option<String>,
+    pub unavailable_reason_code: Option<String>,
+}
+
+impl NetworkRuntimeEventContract for NetworkEnforcementResultObservedEvent {
+    const EVENT_TYPE: &'static str =
+        crate::constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED;
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkAuditEntryCommittedEvent {
+    pub schema_version: u16,
+    pub audit_entry_ref: String,
+    pub previous_event_ref: String,
+    pub policy_decision_ref: String,
+    pub enforcement_command_ref: Option<String>,
+    pub enforcement_result_ref: Option<String>,
+    pub evidence_refs: Vec<String>,
+    pub audit_outcome: NetworkAuditOutcome,
+}
+
+impl NetworkRuntimeEventContract for NetworkAuditEntryCommittedEvent {
+    const EVENT_TYPE: &'static str = crate::constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED;
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkPortalReadModelUpdatedEvent {
+    pub schema_version: u16,
+    pub read_model_ref: String,
+    pub previous_event_ref: String,
+    pub audit_entry_ref: String,
+    pub update_kind: NetworkPortalUpdateKind,
+    pub visible_manual_required: bool,
+    pub visible_unavailable: bool,
+}
+
+impl NetworkRuntimeEventContract for NetworkPortalReadModelUpdatedEvent {
+    const EVENT_TYPE: &'static str =
+        crate::constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED;
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkEvidenceGrade {
+    #[serde(rename = "A")]
+    A,
+    #[serde(rename = "B")]
+    B,
+    #[serde(rename = "C")]
+    C,
+    #[serde(rename = "D")]
+    D,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NetworkDomainAttributionKind {
+    DnsAnswer,
+    SniVisible,
+    HttpHost,
+    ReverseLookup,
+    IpOnly,
+    Unavailable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NetworkActivityKind {
+    SocialCandidate,
+    VideoCandidate,
+    GameCandidate,
+    VpnProxyTunnelCandidate,
+    Unknown,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NetworkAiAdvisoryState {
+    Requested,
+    Completed,
+    ManualReviewRequired,
+    ProviderUnavailable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NetworkPolicyDecisionAction {
+    Observe,
+    Warn,
+    AskParent,
+    Limit,
+    Block,
+    ManualReview,
+    Unknown,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NetworkEnforcementMode {
+    DryRun,
+    ManualRequired,
+    Unavailable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NetworkEnforcementResultStatus {
+    DryRun,
+    ManualRequired,
+    Unavailable,
+    Rejected,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NetworkAuditOutcome {
+    Committed,
+    Failed,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NetworkPortalUpdateKind {
+    NetworkReadModel,
+    CapabilityState,
+    ManualRequiredState,
+}
+
+const NETWORK_RUNTIME_PHASES: [NetworkRuntimePhase; 11] = [
+    NetworkRuntimePhase::FlowObserved,
+    NetworkRuntimePhase::DomainObserved,
+    NetworkRuntimePhase::ActivityClassified,
+    NetworkRuntimePhase::AiAnalysisRequested,
+    NetworkRuntimePhase::AiAnalysisCompleted,
+    NetworkRuntimePhase::PolicyEvaluationRequested,
+    NetworkRuntimePhase::PolicyDecisionCompleted,
+    NetworkRuntimePhase::EnforcementCommandIssued,
+    NetworkRuntimePhase::EnforcementResultObserved,
+    NetworkRuntimePhase::AuditEntryCommitted,
+    NetworkRuntimePhase::PortalReadModelUpdated,
+];
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkRuntimePhase {
+    FlowObserved,
+    DomainObserved,
+    ActivityClassified,
+    AiAnalysisRequested,
+    AiAnalysisCompleted,
+    PolicyEvaluationRequested,
+    PolicyDecisionCompleted,
+    EnforcementCommandIssued,
+    EnforcementResultObserved,
+    AuditEntryCommitted,
+    PortalReadModelUpdated,
+}
+
+impl NetworkRuntimePhase {
+    pub fn ordered_chain() -> &'static [Self] {
+        &NETWORK_RUNTIME_PHASES
+    }
+
+    pub fn event_type(self) -> &'static str {
+        match self {
+            Self::FlowObserved => constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED,
+            Self::DomainObserved => constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED,
+            Self::ActivityClassified => constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
+            Self::AiAnalysisRequested => constants::network_flow::EVENT_AI_ANALYSIS_REQUESTED,
+            Self::AiAnalysisCompleted => constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
+            Self::PolicyEvaluationRequested => {
+                constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED
+            }
+            Self::PolicyDecisionCompleted => {
+                constants::network_flow::EVENT_POLICY_DECISION_COMPLETED
+            }
+            Self::EnforcementCommandIssued => {
+                constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
+            }
+            Self::EnforcementResultObserved => {
+                constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED
+            }
+            Self::AuditEntryCommitted => constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
+            Self::PortalReadModelUpdated => {
+                constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED
+            }
+        }
+    }
+
+    pub fn subscriber_id(self) -> &'static str {
+        match self {
+            Self::FlowObserved => constants::network_flow::SUBSCRIBER_NETWORK_OBSERVER,
+            Self::DomainObserved => constants::network_flow::SUBSCRIBER_DOMAIN_OBSERVER,
+            Self::ActivityClassified => constants::network_flow::SUBSCRIBER_ACTIVITY_CLASSIFIER,
+            Self::AiAnalysisRequested => constants::network_flow::SUBSCRIBER_AI_REQUEST,
+            Self::AiAnalysisCompleted => constants::network_flow::SUBSCRIBER_AI_COMPLETE,
+            Self::PolicyEvaluationRequested => constants::network_flow::SUBSCRIBER_POLICY_REQUEST,
+            Self::PolicyDecisionCompleted => constants::network_flow::SUBSCRIBER_POLICY_DECISION,
+            Self::EnforcementCommandIssued => {
+                constants::network_flow::SUBSCRIBER_ENFORCEMENT_COMMAND
+            }
+            Self::EnforcementResultObserved => {
+                constants::network_flow::SUBSCRIBER_ENFORCEMENT_RESULT
+            }
+            Self::AuditEntryCommitted => constants::network_flow::SUBSCRIBER_AUDIT_ENTRY,
+            Self::PortalReadModelUpdated => constants::network_flow::SUBSCRIBER_PORTAL_READ_MODEL,
+        }
+    }
+
+    pub fn target_handler(self) -> &'static str {
+        match self {
+            Self::FlowObserved => constants::network_flow::TARGET_NETWORK_OBSERVER,
+            Self::DomainObserved => constants::network_flow::TARGET_DOMAIN_OBSERVER,
+            Self::ActivityClassified => constants::network_flow::TARGET_ACTIVITY_CLASSIFIER,
+            Self::AiAnalysisRequested | Self::AiAnalysisCompleted => {
+                constants::network_flow::TARGET_AI_ANALYZER
+            }
+            Self::PolicyEvaluationRequested | Self::PolicyDecisionCompleted => {
+                constants::network_flow::TARGET_POLICY_ENGINE
+            }
+            Self::EnforcementCommandIssued | Self::EnforcementResultObserved => {
+                constants::network_flow::TARGET_ENFORCEMENT_DRY_RUN
+            }
+            Self::AuditEntryCommitted => constants::network_flow::TARGET_AUDIT_WRITER,
+            Self::PortalReadModelUpdated => constants::network_flow::TARGET_PORTAL_READ_MODEL,
+        }
+    }
+
+    pub fn runtime_role(self) -> RuntimeRole {
+        let value = match self {
+            Self::FlowObserved | Self::DomainObserved | Self::ActivityClassified => {
+                constants::eventing_source::ROLE_AGENT
+            }
+            Self::AiAnalysisRequested | Self::AiAnalysisCompleted => {
+                constants::eventing_source::ROLE_ANALYZER
+            }
+            Self::PolicyEvaluationRequested | Self::PolicyDecisionCompleted => {
+                constants::eventing_source::ROLE_DECISION_ENGINE
+            }
+            Self::EnforcementCommandIssued | Self::EnforcementResultObserved => {
+                constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER
+            }
+            Self::AuditEntryCommitted => constants::eventing_source::ROLE_AUDIT_WRITER,
+            Self::PortalReadModelUpdated => constants::eventing_source::ROLE_READ_MODEL,
+        };
+        match RuntimeRole::parse(value) {
+            Ok(role) => role,
+            Err(_) => std::process::abort(),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkEvidenceScope {
+    MetadataOnly,
+    AdapterUnavailable,
+}
+
+// Runtime evidence grading is distinct from the A/B/C/D wire contract in network_flow_events.rs.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkRuntimeEvidenceGrade {
+    DomainAndProcessMetadata,
+    IpOrProcessPartialMetadata,
+    AdapterUnavailable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkAiAuditState {
+    NotRequested,
+    Requested,
+    Completed,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkRiskBudgetState {
+    ObserveOnly,
+    ManualReviewRequired,
+    Unavailable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NetworkInterventionState {
+    DryRunOnly,
+    ManualRequired,
+    Unavailable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NetworkRuntimeClaimBoundary {
+    pub raw_pcap_available: bool,
+    pub decrypted_https_payload_available: bool,
+    pub exact_url_available: bool,
+    pub page_content_available: bool,
+    pub video_content_available: bool,
+    pub private_message_content_available: bool,
+    pub search_query_available: bool,
+    pub adapter_action_executed: bool,
+}
+
+impl NetworkRuntimeClaimBoundary {
+    pub fn metadata_only() -> Self {
+        Self {
+            raw_pcap_available: false,
+            decrypted_https_payload_available: false,
+            exact_url_available: false,
+            page_content_available: false,
+            video_content_available: false,
+            private_message_content_available: false,
+            search_query_available: false,
+            adapter_action_executed: false,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct NetworkRuntimeEventPayload {
+    pub phase: NetworkRuntimePhase,
+    pub capability_status: ActivityCaptureCapabilityStatus,
+    pub domain_attribution_status: ActivityDomainAttributionStatus,
+    pub process_attribution_status: ActivityProcessAttributionStatus,
+    pub protocol: Option<ActivityNetworkProtocol>,
+    pub tcp_state: Option<ActivityNetworkTcpState>,
+    pub local_ip: Option<String>,
+    pub local_port: Option<u16>,
+    pub destination_ip: Option<String>,
+    pub destination_port: Option<u16>,
+    pub destination_domain: Option<String>,
+    pub process_id: Option<u32>,
+    pub process_name: Option<String>,
+    pub evidence_scope: NetworkEvidenceScope,
+    pub evidence_grade: NetworkRuntimeEvidenceGrade,
+    pub ai_audit_state: NetworkAiAuditState,
+    pub risk_budget_state: NetworkRiskBudgetState,
+    pub intervention_state: NetworkInterventionState,
+    pub claim_boundary: NetworkRuntimeClaimBoundary,
+    pub previous_phase_ref: Option<String>,
+    pub evidence_ref: String,
+    pub ai_request_ref: Option<String>,
+    pub ai_analysis_ref: Option<String>,
+    pub policy_evaluation_ref: Option<String>,
+    pub policy_decision_ref: Option<String>,
+    pub adapter_capability_ref: Option<String>,
+    pub enforcement_command_ref: Option<String>,
+    pub enforcement_result_ref: Option<String>,
+    pub audit_entry_ref: Option<String>,
+    pub observed_at: String,
+}
+
+impl DomainEvent for NetworkRuntimeEventPayload {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(self.phase.event_type())?,
+            SchemaVersion::new(constants::network_flow::EVENT_SCHEMA_VERSION)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(network_runtime_aggregate_key(self))
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        let mut value = String::from(constants::network_flow::IDEMPOTENCY_NETWORK_RUNTIME_PREFIX);
+        value.push_str(self.phase.event_type());
+        value.push(constants::delimiter::HYPHEN);
+        value.push_str(&network_runtime_aggregate_key(self));
+        value.push(constants::delimiter::HYPHEN);
+        value.push_str(&self.observed_at);
+        IdempotencyKey::parse(value)
+    }
+}
+
+fn network_runtime_aggregate_key(payload: &NetworkRuntimeEventPayload) -> String {
+    let mut value = String::from(constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX);
+    if let Some(domain) = &payload.destination_domain {
+        value.push_str(domain);
+        return value;
+    }
+    if let Some(ip) = &payload.destination_ip {
+        value.push_str(ip);
+        if let Some(port) = payload.destination_port {
+            value.push(constants::delimiter::HYPHEN);
+            value.push_str(&port.to_string());
+        }
+        return value;
+    }
+    value.push_str(payload.capability_status.as_protocol_str());
+    value
+}

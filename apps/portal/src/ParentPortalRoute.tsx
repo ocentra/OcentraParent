@@ -1,15 +1,19 @@
 import type { ReactElement } from 'react';
-import { AgentEvent, type AgentEventName } from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  AgentEvent,
+  type AgentEventName,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import {
+  PortalDom,
+  PortalConnectionState,
+  type PortalConnectionStateValue,
+} from '@ocentra-parent/portal-domain/contracts';
 import {
   PARENT_PORTAL_ROUTE,
-  PortalDom,
-  PortalRoute,
-  PortalConnectionState,
   parentPortalRouteContext,
-  resolveParentPortalServiceState,
-  type PortalRoute as PortalRouteValue,
-  type PortalConnectionState as PortalConnectionStateValue,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/parent-portal-data';
+import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/portal-domain/routes';
+import { resolveParentPortalServiceState } from '@ocentra-parent/portal-domain/parent-portal-service-state';
 import { resolveParentPortalShellStatus } from '@ocentra-parent/portal-domain/parent-portal-shell-status';
 import { ParentPortalSvgSurface } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface';
 import type { ParentPortalSvgControls } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';

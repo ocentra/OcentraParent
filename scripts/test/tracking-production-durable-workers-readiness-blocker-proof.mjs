@@ -16,8 +16,8 @@ const commands = [];
 const initialGitStatusShort = gitOutput(['status', '--short']);
 
 const sourceProofRefs = [
-  'packages/production-domain/src/production-support-status-backend-durable-queue-runtime-proof.ts',
-  'packages/production-domain/src/production-support-status-backend-durable-queue-runtime-read-model.ts',
+  'packages/schema-domain/src/production-support-status-backend-durable-queue-runtime-proof.ts',
+  'packages/schema-domain/src/production-support-status-backend-durable-queue-runtime-read-model.ts',
   'test-results/tracking-provider-runtime-readiness-blocker-proof/proof.json',
   'test-results/tracking-escalation-runtime-readiness-blocker-proof/proof.json',
   'test-results/tracking-retention-durable-settings-proof/proof.json',
@@ -56,7 +56,7 @@ async function main() {
   );
   const productionSupportReadModelModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'production-domain', 'src', 'production-support-status-backend-durable-queue-runtime-read-model.ts')
+      join(repoRoot, 'packages', 'schema-domain', 'src', 'production-support-status-backend-durable-queue-runtime-read-model.ts')
     ).href,
     import.meta.url
   );

@@ -19,16 +19,16 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/ai-domain',
       '--',
       'local-ai-parent-assistant-runtime-proof',
     ])
   );
   await runCommand('node', ['scripts/test/activity-parent-assistant-runtime-proof.mjs']);
 
-  const proofContractModule = await import('@ocentra-parent/ai-domain/local-ai-parent-assistant-runtime-proof');
+  const proofContractModule = await import('@ocentra-parent/schema-domain/local-ai-parent-assistant-runtime-proof');
   const proofValuesModule =
-    await import('@ocentra-parent/ai-domain/local-ai-parent-assistant-runtime-proof-values');
+    await import('@ocentra-parent/schema-domain/local-ai-parent-assistant-runtime-proof-values');
   assertPublicPackageImports(proofContractModule, proofValuesModule);
 
   const { LocalAiParentAssistantRuntimeProofReadModel } = proofValuesModule;
@@ -43,11 +43,11 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/parent-domain/src/local-ai-parent-assistant-runtime-proof.ts',
-      tsReadModelValues: 'packages/parent-domain/src/local-ai-parent-assistant-runtime-proof-values.ts',
-      tsContractTest: 'packages/parent-domain/tests/local-ai-parent-assistant-runtime-proof.test.ts',
-      providerSchedulerProof: 'packages/parent-domain/src/local-ai-runtime-provider-proof.ts',
-      parentAssistantContract: 'packages/parent-domain/src/parent-assistant.ts',
+      tsContract: 'packages/schema-domain/src/local-ai-parent-assistant-runtime-proof.ts',
+      tsReadModelValues: 'packages/schema-domain/src/local-ai-parent-assistant-runtime-proof-values.ts',
+      tsContractTest: 'packages/ai-domain/tests/unit/local-ai-parent-assistant-runtime-proof.test.ts',
+      providerSchedulerProof: 'packages/schema-domain/src/local-ai-runtime-provider-proof.ts',
+      parentAssistantContract: 'packages/schema-domain/src/parent-assistant.ts',
       realRuntimeProofHarness: 'scripts/test/activity-parent-assistant-runtime-proof.mjs',
       proofHarness: 'scripts/test/local-ai-parent-assistant-runtime-proof.mjs',
     },

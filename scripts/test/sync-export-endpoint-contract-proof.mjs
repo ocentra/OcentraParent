@@ -14,6 +14,7 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/endpoint-domain']));
   await runCommand(
     ...npmCommand([
@@ -36,9 +37,9 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/endpoint-domain/src/constants/sync-export.ts',
+      contract: 'packages/schema-domain/src/endpoint-sync-export.ts',
       contractTest: 'packages/endpoint-domain/tests/unit/sync-export.test.ts',
-      builtModule: 'packages/endpoint-domain/dist/constants/sync-export.js',
+      builtModule: 'packages/schema-domain/dist/endpoint-sync-export.js',
       packageExport,
       output: relativePath(proofPath),
     },
@@ -65,17 +66,17 @@ async function main() {
 }
 
 async function assertPackageExport() {
-  const exportedModule = await import('@ocentra-parent/endpoint-domain/constants/sync-export');
+  const exportedModule = await import('@ocentra-parent/schema-domain/endpoint-sync-export');
   assert.equal(
     exportedModule.ParentOwnedSyncExportBoundaryState.RouteContract,
     'defined'
   );
-  return '@ocentra-parent/endpoint-domain/constants/sync-export';
+  return '@ocentra-parent/schema-domain/endpoint-sync-export';
 }
 
 async function assertBuiltContract() {
   const modulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'endpoint-domain', 'dist', 'constants', 'sync-export.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'endpoint-sync-export.js')
   );
   const module = await import(modulePath.href);
 

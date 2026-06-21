@@ -1,5 +1,5 @@
 use ocentra_network_evidence::{
-    dns::NetworkEvidenceGrade,
+    dns::types::NetworkEvidenceGrade,
     policy::{
         map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
         NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,
@@ -10,10 +10,12 @@ use ocentra_network_evidence::{
         NetworkWindowsFirewallCapabilityState, NetworkWindowsFirewallTargetKind,
     },
     windows_firewall_lab_execution::{
-        prove_network_windows_firewall_lab_execution, NetworkWindowsFirewallLabCommandEvidence,
-        NetworkWindowsFirewallLabCommandKind, NetworkWindowsFirewallLabExecutionInput,
-        NetworkWindowsFirewallLabExecutionProof, NetworkWindowsFirewallLabExecutionState,
-        NetworkWindowsFirewallLabUnsupportedClaims,
+        prove_network_windows_firewall_lab_execution,
+        types::{
+            NetworkWindowsFirewallLabCommandEvidence, NetworkWindowsFirewallLabCommandKind,
+            NetworkWindowsFirewallLabExecutionInput, NetworkWindowsFirewallLabExecutionProof,
+            NetworkWindowsFirewallLabExecutionState, NetworkWindowsFirewallLabUnsupportedClaims,
+        },
     },
 };
 use ocentra_parent_agent_protocol::{

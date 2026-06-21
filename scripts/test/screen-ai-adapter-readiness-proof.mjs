@@ -16,22 +16,22 @@ async function main() {
   rmSync(outputDir, { recursive: true, force: true });
   mkdirSync(outputDir, { recursive: true });
 
-  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/screen-domain',
       '--',
-      'screen-ai-adapter-readiness-proof',
+      'screen-ai-adapter-readiness-proof.test.ts',
     ])
   );
 
   const readinessContract = await import(
-    pathToFileURL(join(repoRoot, 'packages/parent-domain/dist/screen-ai-adapter-readiness-proof.js')).href
+    pathToFileURL(join(repoRoot, 'packages/schema-domain/dist/screen-ai-adapter-readiness-proof.js')).href
   );
-  const supportedAdapters = await import('@ocentra-parent/enforcement-domain/v0-8-supported-adapter-runtime-proof');
+  const supportedAdapters = await import('@ocentra-parent/schema-domain/v0-8-supported-adapter-runtime-proof');
   const readModel = readinessContract.ScreenAiAdapterReadinessReadModelSchema.parse(
     buildReadModel(supportedAdapters.V08SupportedAdapterRuntimeProofReadModel)
   );
@@ -95,7 +95,7 @@ function buildReadModel(supportedAdapterReadModel) {
       'output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json',
       'output/screen-ai-pipeline-proof/block-action-dispatch/00-screen-block-source.json',
       'output/screen-ai-pipeline-proof/block-action-dispatch/proof-summary.json',
-      'packages/parent-domain/src/v0-8-supported-adapter-runtime-proof.ts',
+      'packages/schema-domain/src/v0-8-supported-adapter-runtime-proof.ts',
     ],
     rows: [
       timeLimitAdapterRow(entryFor(supportedEntryById, 'windows-app-game-owned-process-time-limit'), timeLimitSource),

@@ -7,7 +7,7 @@ use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
 
-use crate::network_event_runtime::{
+use crate::network_event_runtime::queue::{
     queue_network_runtime_flow_expires_before_drain,
     queue_network_runtime_flow_overflow_dead_letters,
     queue_network_runtime_flow_rejects_duplicate_idempotency,

@@ -4,13 +4,11 @@ import { describe, expect, it } from 'vitest';
 import {
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
-import {
-  parentPortalRouteContext,
-  PortalRoute,
-  resolveParentPortalServiceState,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { parentPortalRouteContext } from '@ocentra-parent/portal-domain/parent-portal-data';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
+import { resolveParentPortalServiceState } from '@ocentra-parent/portal-domain/parent-portal-service-state';
 import { ParentPortalSvgSurface } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface';
 import { DEFAULT_PARENT_PORTAL_SVG_CONTROLS } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
 import { resolveLiveActivityState } from '../src/live-activity-state';

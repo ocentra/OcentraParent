@@ -1,5 +1,5 @@
 use ocentra_network_evidence::{
-    dns::NetworkEvidenceGrade,
+    dns::types::NetworkEvidenceGrade,
     policy::{
         map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
         NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingError,
@@ -20,11 +20,11 @@ use ocentra_parent_agent_protocol::{
 use rusqlite::Connection;
 
 use crate::{
+    activity_store_error::ActivityStoreError,
     activity_store_parent_rule_context::parent_rule_contexts,
     activity_store_policy_preview_parent_rules::parent_rule_contexts_for_row,
     activity_store_policy_preview_rows::{policy_preview_rows, PolicyPreviewStoreRow},
     policy_dry_run_evaluator::{evaluate_policy_dry_run, PolicyDryRunEvaluationInput},
-    ActivityStoreError,
 };
 
 use crate::activity_store_policy_preview_targets::targets_from_row;

@@ -24,18 +24,19 @@ for (const path of [join(appGameProofDir, '06-ui-snapshots'), join(appProofDir, 
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-source-gated-policy-preview-timer-service-readiness-read-model',
   'app-game-source-gated-policy-preview-timer-service-readiness-handoff',
 ]);
 
-const readModelContract = await importDist(
+const readModelContract = await importAppGameDist(
   'app-game-source-gated-policy-preview-timer-service-readiness-read-model.js'
 );
 const wp86Proof = await readJson(
@@ -47,7 +48,7 @@ const wp86Proof = await readJson(
   )
 );
 const serviceReadinessReadModel = readModelContract.buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModel(
-  readModelOptions(await importDist('reference-primitives.js')),
+  readModelOptions(await importSchemaDist('reference-primitives.js')),
   wp86Proof.serviceReadinessHandoff
 );
 const proof = {
@@ -60,7 +61,7 @@ const proof = {
   stackedOn: {
     wp86Branch: 'codex/app-game-source-gated-policy-preview-timer-service-readiness-handoff',
     reason:
-      'WP87 consumes WP86 service-readiness handoff rows and remains parent-domain only while agent protocol constants, service runtime events, read API implementation, portal rendering, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports are sequenced separately.',
+      'Schema-domain owns the service-readiness read-model contract surface; app-game-domain consumes WP86 service-readiness handoff rows while agent protocol constants, service runtime events, read API implementation, portal rendering, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports remain sequenced separately.',
   },
   summary: summarize(serviceReadinessReadModel),
   nonClaims: {
@@ -82,10 +83,13 @@ const proof = {
     rawPrivateSourceRowsIncluded: serviceReadinessReadModel.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-model.ts',
-    rules:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-model-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-read-model.test.ts',
+    schemaSource: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-model.ts',
+    schemaRules:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-model-rules.ts',
+    consumerSource:
+      'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-model.ts',
+    consumerTest:
+      'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-service-readiness-read-model.test.ts',
     harness: 'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-read-model-proof.mjs',
     evidence: 'test-results/app-game-source-gated-policy-preview-timer-service-readiness-read-model-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
@@ -105,8 +109,12 @@ console.log(
   `evidence=${join('test-results', 'app-game-source-gated-policy-preview-timer-service-readiness-read-model-proof', 'proof.json')}`
 );
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function readModelOptions(refs) {

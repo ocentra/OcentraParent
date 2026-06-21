@@ -13,6 +13,11 @@ const summaryPath = join(outputDir, 'proof-summary.json');
 const deterministicCheckedAt = 'deterministic-proof-artifact';
 const deterministicCommit = 'branch-head-validated-by-harness';
 const commands = [];
+const requiredPackageExports = [
+  '@ocentra-parent/schema-domain/production-support-status-backend-dead-letter-proof',
+  '@ocentra-parent/schema-domain/production-support-status-backend-dead-letter-read-model',
+  '@ocentra-parent/schema-domain/production-support-status-backend-dead-letter-values',
+];
 
 await main();
 
@@ -20,20 +25,10 @@ async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/parent-domain',
-      '--',
-      'tests/production-support-status-backend-dead-letter-proof.test.ts',
-    ])
-  );
 
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
+  const packageExports = await assertPackageExports();
   const proof = {
     schemaVersion: 1,
     checkedAt: deterministicCheckedAt,
@@ -41,21 +36,14 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-support-status-backend-dead-letter-proof.ts',
-      values: 'packages/parent-domain/src/production-support-status-backend-dead-letter-values.ts',
-      readModel: 'packages/parent-domain/src/production-support-status-backend-dead-letter-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/production-support-status-backend-dead-letter-proof.test.ts',
+      contract: 'packages/schema-domain/src/production-support-status-backend-dead-letter-proof.ts',
+      values: 'packages/schema-domain/src/production-support-status-backend-dead-letter-values.ts',
+      readModel: 'packages/schema-domain/src/production-support-status-backend-dead-letter-read-model.ts',
+      proofHarness: 'scripts/test/production-support-status-backend-dead-letter-proof.mjs',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
-      packageExport: {
-        status: 'deferred-package-json-locked-by-E-B',
-        requiredExports: [
-          './production-support-status-backend-dead-letter',
-          './production-support-status-backend-dead-letter-read-model',
-          './production-support-status-backend-dead-letter-values',
-        ],
-      },
+      packageExports,
     },
     rowCount: contract.rows.length,
     rows: contract.rows,
@@ -71,7 +59,7 @@ async function main() {
     targets: contract.targets,
     deadLetterStates: contract.deadLetterStates,
     output: relativePath(proofPath),
-    packageExport: proof.evidence.packageExport,
+    packageExports,
     knownGaps: proof.knownGaps,
   };
 
@@ -176,8 +164,16 @@ async function assertDocumentationProof() {
   return docs;
 }
 
+async function assertPackageExports() {
+  const [contract, readModel, values] = await Promise.all(requiredPackageExports.map((specifier) => import(specifier)));
+  assert.equal(typeof contract.ProductionSupportStatusBackendDeadLetterProofSchema.parse, 'function');
+  assert.equal(typeof readModel.ProductionSupportStatusBackendDeadLetterReadModel, 'object');
+  assert(Array.isArray(values.RequiredStatusBackendDeadLetterTargets));
+  return requiredPackageExports;
+}
+
 async function importBuiltModule(fileName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', fileName)).href);
 }
 
 async function readRepoFile(path) {

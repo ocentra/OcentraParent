@@ -1,4 +1,10 @@
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, RequestId, SchemaVersion};
+use ocentra_eventing::request::{EventResponseContract, RequestEvent};
 use serde::{Deserialize, Serialize};
+
+use crate::constants;
 
 pub const SOCIAL_PARENT_NOTIFICATION_DELIVERY_SCHEMA_VERSION: &str =
     "social-parent-notification-delivery-read-model";
@@ -96,6 +102,41 @@ pub struct SocialParentNotificationDeliveryReadinessSnapshot {
     pub enforcement_claimed: bool,
 }
 
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SocialParentNotificationDeliveryReadModelRequest {
+    pub request_id: RequestId,
+    pub requested_at: String,
+}
+
+impl DomainEvent for SocialParentNotificationDeliveryReadModelRequest {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(constants::browser::EVENT_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_REQUESTED)?,
+            SchemaVersion::new(constants::browser::EVENT_SCHEMA_VERSION)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(constants::browser::AGGREGATE_BROWSER_RUNTIME_PREFIX)
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        let mut value = String::from(
+            constants::browser::IDEMPOTENCY_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_PREFIX,
+        );
+        value.push_str(self.request_id.as_str());
+        IdempotencyKey::parse(value)
+    }
+}
+
+impl RequestEvent for SocialParentNotificationDeliveryReadModelRequest {
+    type Response = SocialParentNotificationDeliveryReadModelResponse;
+
+    fn request_id(&self) -> Result<RequestId, EventingError> {
+        Ok(self.request_id.clone())
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SocialParentNotificationDeliveryReadinessRow {
@@ -123,3 +164,10 @@ pub struct SocialParentNotificationDeliveryReadinessRow {
     pub enforcement_claimed: bool,
     pub created_at: String,
 }
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SocialParentNotificationDeliveryReadModelResponse {
+    pub read_model: SocialParentNotificationDeliveryReadinessSnapshot,
+}
+
+impl EventResponseContract for SocialParentNotificationDeliveryReadModelResponse {}

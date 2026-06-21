@@ -3,8 +3,8 @@ import {
   BrowserAiMemoryCacheEntrySchema,
   BrowserAiMemoryCacheStoreSchemaVersion,
   BrowserAiMemoryCacheStoreSnapshotSchema,
-} from '../../src/browser-ai-memory-cache-store-schemas';
-import { BrowserUrlIntelligenceMemorySchemaVersion } from '../../src/browser-url-intelligence-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-memory-cache-store-schemas';
+import { BrowserUrlIntelligenceMemorySchemaVersion } from '@ocentra-parent/schema-domain/browser-url-intelligence-schemas';
 
 describe('browser AI memory cache store contract', () => {
   it('accepts fresh video cache entries with complete keys', acceptsFreshVideoCacheEntry);

@@ -3,7 +3,7 @@ import {
   V09HouseholdDiscoveryMobileControllerProductProofReadModelSchema,
   V09HouseholdDiscoveryMobileControllerRouteCheckSchema,
   V09HouseholdDiscoveryMobileControllerSourceProofSchema,
-} from '../../src/v0-9-household-discovery-mobile-controller-product-proof';
+} from '@ocentra-parent/schema-domain/v0-9-household-discovery-mobile-controller-product-proof';
 
 const checkedAt = '2026-05-30T23:58:00.000Z';
 const routeId = 'route-v0-9-household-mobile-product-proof';

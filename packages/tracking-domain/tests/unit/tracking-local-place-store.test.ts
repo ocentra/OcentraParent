@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { EvidenceRef, LocationEvidence } from './tracking-fixtures';
 import {
   TrackingParentDefinedPlaceSchema,
-} from '../../src/tracking-geofence';
-import { TrackingLocalParentDefinedPlaceStoreSchema } from '../../src/tracking-local-place-store-schemas';
+} from '@ocentra-parent/schema-domain/tracking-geofence';
+import { TrackingLocalParentDefinedPlaceStoreSchema } from '@ocentra-parent/schema-domain/tracking-local-place-store-schemas';
 import {
   buildTrackingLocalParentDefinedPlaceMatch,
   createTrackingLocalParentDefinedPlaceStore,

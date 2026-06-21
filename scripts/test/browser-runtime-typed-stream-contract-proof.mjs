@@ -5,13 +5,14 @@ import { join } from 'node:path';
 const proofName = 'browser-runtime-typed-stream-contract-proof';
 const testResultsDir = join('test-results', proofName);
 const outputDir = join('output', 'browser-plan-proof', 'browser-runtime-typed-stream-contract');
+const protocolUnitTestPath = 'tests/unit/browser-runtime-events.test.ts';
 
 mkdirSync(testResultsDir, { recursive: true });
 mkdirSync(outputDir, { recursive: true });
 
 const contractSource = readFileSync('packages/agent-protocol-domain/src/browser-runtime-events.ts', 'utf8');
-const portalSource = readFileSync('packages/portal-domain/src/live-activity-state.ts', 'utf8');
-const testSource = readFileSync('packages/agent-protocol-domain/tests/browser-runtime-events.test.ts', 'utf8');
+const portalWrapperSource = readFileSync('apps/portal/src/live-activity-state.ts', 'utf8');
+const testSource = readFileSync(`packages/agent-protocol-domain/${protocolUnitTestPath}`, 'utf8');
 
 const commands = [
   {
@@ -23,7 +24,7 @@ const commands = [
       '--workspace',
       '@ocentra-parent/agent-protocol-domain',
       '--',
-      'browser-runtime-events.test.ts',
+      protocolUnitTestPath,
     ],
   },
   {
@@ -52,7 +53,7 @@ const proof = {
     rejectsHiddenInterventionExecution: contractSource.includes('browserRuntimePayloadIsHonest'),
     testsInvalidJsonAndCountDrift:
       testSource.includes("reason: 'invalid-json'") && testSource.includes("reason: 'invalid-stream'"),
-    portalStillNeedsSequencedAdoption: !portalSource.includes('parseAgentBrowserRuntimeEventChainStreamFields'),
+    portalWrapperDelegatesToPortalDomainOwner: portalWrapperSource.includes('resolvePortalDomainLiveActivityState'),
   },
   commands: commandResults.map(({ command }) => command),
   verified: {
@@ -80,7 +81,7 @@ writeFileSync(
     `- Event type/phase drift rejected: ${proof.sourceChecks.rejectsEventTypePhaseDrift}`,
     `- AI authority overclaim rejected: ${proof.sourceChecks.rejectsAiAuthorityOverclaim}`,
     `- Hidden intervention execution rejected: ${proof.sourceChecks.rejectsHiddenInterventionExecution}`,
-    `- Portal adoption still sequenced behind current portal lock: ${proof.sourceChecks.portalStillNeedsSequencedAdoption}`,
+    `- Portal app wrapper delegates to the portal-domain owner: ${proof.sourceChecks.portalWrapperDelegatesToPortalDomainOwner}`,
     '',
     '## Commands',
     '',
@@ -88,7 +89,7 @@ writeFileSync(
     '',
     '## No-Claim Boundaries',
     '',
-    '- No portal consumption change in this slice.',
+    '- No app-owned portal runtime owner; portal-domain remains the shared runtime owner.',
     '- No AI execution.',
     '- No policy execution.',
     '- No browser mutation.',

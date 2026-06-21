@@ -2,15 +2,17 @@ import type { CSSProperties, ReactElement } from 'react';
 import {
   PortalConnectionState,
   PortalDom,
-  PortalFrameTuner,
-  PortalRouteGroup,
-  PortalSidebarRouteDescriptors,
   PortalText,
   PortalTextToken,
   type PortalDisplayText,
+} from '@ocentra-parent/portal-domain/contracts';
+import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
+import {
+  PortalRouteGroup,
+  PortalSidebarRouteDescriptors,
   type PortalRoute as PortalRouteValue,
   type PortalRouteDescriptor,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 import { PortalFrameBackdrop, PortalFrameBoundsOverlay } from './PortalFrameSurface';
 import { routeDescriptor } from './portal-route-descriptor';

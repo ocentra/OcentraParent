@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { SocialChildApprovalBlockUxSnapshot } from '@ocentra-parent/browser-domain/social-child-approval-block-ux';
-import { createSocialChildInterventionPageModels, renderBrowserChildInterventionPage } from '../../src/contracts';
+import type { SocialChildApprovalBlockUxSnapshot } from '@ocentra-parent/schema-domain/social-child-approval-block-ux';
+import { renderBrowserChildInterventionPage } from '../../src/browser-child-intervention-page';
+import { createSocialChildInterventionPageModels } from '../../src/social-child-intervention-page-model';
 
 describe('social child intervention page model', () => {
   it('maps every social child approval/block UX surface to the shared child intervention page model', () => {

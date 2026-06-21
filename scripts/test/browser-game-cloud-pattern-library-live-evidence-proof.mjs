@@ -7,7 +7,7 @@ import {
   BrowserGameCloudPatternEntrySchema,
   BrowserGameCloudPatternLibrarySchema,
   decodeBrowserGameCloudPatternLibrary,
-} from '../../packages/parent-domain/dist/browser-game-cloud-pattern-library.js';
+} from '@ocentra-parent/schema-domain/browser-game-cloud-pattern-library';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-cloud-pattern-library-live-evidence-proof';

@@ -5,7 +5,7 @@ import {
   ChildDomainRuntimeEventTypeSchema,
   ChildRuntimeDomainLiteral,
   ChildRuntimeDomainSchema,
-} from '../../src/child-domain-runtime-events';
+} from '@ocentra-parent/schema-domain/child-domain-runtime-events';
 
 describe('child domain runtime event contracts', () => {
   it('parses known child runtime domains', () => {

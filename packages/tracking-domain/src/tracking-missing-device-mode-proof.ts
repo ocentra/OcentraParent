@@ -9,12 +9,12 @@ import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { FamilyReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
+import { FamilyReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
 import {
   TrackingLocationPolicyReadModelSchema,
   type TrackingLocationPolicyReadModel,
   type TrackingMissingDeviceCase,
-} from './tracking-location-policy';
+} from '@ocentra-parent/schema-domain/tracking-location-policy';
 const TrackingMissingDeviceNonNegativeInteger = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
 
 export const RequiredTrackingMissingDeviceModeProofNonClaims = [

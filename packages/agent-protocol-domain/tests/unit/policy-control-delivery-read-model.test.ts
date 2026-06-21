@@ -5,8 +5,8 @@ import {
   PolicyControlDeliveryReadModelReportedEventName,
   PolicyControlDeliveryReadModelSchemaVersion,
   PolicyControlDeliveryReadModelSnapshotSchema,
-  parseAgentPolicyControlDeliveryReadModelEvent,
-} from '../../src/policy-control-delivery-read-model';
+} from '@ocentra-parent/schema-domain/agent-policy-control-delivery-read-model';
+import { parseAgentPolicyControlDeliveryReadModelEvent } from '../../src/policy-control-delivery-read-model';
 
 const Timestamp = '2026-06-13T21:05:00Z';
 

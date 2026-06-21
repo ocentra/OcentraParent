@@ -3,7 +3,7 @@ import {
   ScreenChildDisclosureSnapshotSchema,
   ScreenChildDisclosureTextToken,
   screenChildDisclosureProofSnapshots,
-} from '../../src/screen-evidence';
+} from '@ocentra-parent/schema-domain/screen-child-disclosure';
 
 describe('screen child disclosure', () => {
   specifyVisibleStates();

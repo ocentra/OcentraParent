@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
+import { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 import { createAppLogStorage } from '../../src/app-log/createAppLogStorage';
-import { TestLogScope } from '../../src/test-log/types';
 
 describe('app-log storage', () => {
   const tempDirs: string[] = [];

@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
-  ScreenIntelligenceRouterSchemaVersion,
+  planScreenIntelligenceRoute,
+} from '../../src/screen-intelligence-router';
+import {
   ScreenIntelligenceRouteDecisionSchema,
   ScreenManagedBrowserStructuredExtractionSchema,
+} from '@ocentra-parent/schema-domain/screen-intelligence-router';
+import {
+  ScreenIntelligenceRouterSchemaVersion,
   ScreenManagedBrowserStructuredTextLimit,
-  planScreenIntelligenceRoute,
-} from '../../src/screen-evidence';
+} from '@ocentra-parent/schema-domain/screen-intelligence-router-values';
 
 describe('screen intelligence router contracts', () => {
   it(

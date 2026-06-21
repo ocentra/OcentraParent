@@ -1,161 +1,22 @@
 import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
-import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
-import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
-import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
-import {
-  AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceIdSchema,
-  AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowIdSchema,
   AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceSchema,
   type AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRow,
-} from './app-game-source-gated-policy-preview-timer-scheduler-persistence';
+} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-scheduler-persistence';
+import {
+  AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffOptionsSchema,
+  AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowSchema,
+  AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffSchema,
+  type AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoff,
+  type AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffOptions,
+  type AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRow,
+} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-audit-rollback-handoff';
 import {
   AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffNoClaimFlags,
   AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffState,
   RequiredAppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffNonClaims,
   type AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffStateValue,
-  appGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffCountsMatch,
-  appGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffHasNoRuntimeClaims,
   appGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffMatchesSchedulerPersistence,
-} from './app-game-source-gated-policy-preview-timer-audit-rollback-handoff-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
-
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffId');
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowId');
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffContractRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffContractRef');
-
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffStateSchema = withParser(
-  Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffState))
-);
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffNonClaimSchema = withParser(
-  Schema.Literal(...RequiredAppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffNonClaims)
-);
-
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffOptionsSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    handoffId: AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffIdSchema,
-    generatedAt: ParentTimestampSchema,
-    sourceContractRefs: Schema.Array(AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffContractRefSchema),
-    serviceTimerRuntimeProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-    schedulerPersistenceProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-    schedulerStateStoreProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-    auditTrailProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-    rollbackPlanProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-    auditRollbackReadModelProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-  }).pipe(
-    Schema.filter(
-      (options) =>
-        options.sourceContractRefs.length > 0 ||
-        'Expected source-gated policy preview timer audit rollback handoff options to cite source contracts'
-    )
-  )
-);
-
-const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowBaseSchema = Schema.Struct({
-  schemaVersion: ParentContractSchemaVersionSchema,
-  rowId: AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowIdSchema,
-  sourceSchedulerPersistenceRowId: AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowIdSchema,
-  targetDomain: AppGamePolicyPreviewTargetDomainSchema,
-  auditRollbackState: AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffStateSchema,
-  serviceTimerRuntimeProofRequired: Schema.Boolean,
-  schedulerPersistenceProofRequired: Schema.Boolean,
-  schedulerStateStoreProofRequired: Schema.Boolean,
-  auditTrailProofRequired: Schema.Boolean,
-  rollbackPlanProofRequired: Schema.Boolean,
-  auditRollbackReadModelProofRequired: Schema.Boolean,
-  requiredProofRefs: Schema.Array(AppGameSourceGatedPolicyPreviewTimerProofRefSchema),
-  sourceEvidenceRefs: Schema.Array(AppGameSourceFreshnessEvidenceRefSchema),
-  serviceRuntimeEventClaimed: Schema.Literal(false),
-  portalUiRendered: Schema.Literal(false),
-  policyEvaluatorRuntimeClaimed: Schema.Literal(false),
-  timerRuntimeClaimed: Schema.Literal(false),
-  timerScheduled: Schema.Literal(false),
-  schedulerPersistenceRuntimeClaimed: Schema.Literal(false),
-  durableSchedulerStorageClaimed: Schema.Literal(false),
-  auditRuntimeClaimed: Schema.Literal(false),
-  durableAuditLogClaimed: Schema.Literal(false),
-  rollbackRuntimeClaimed: Schema.Literal(false),
-  rollbackExecutionClaimed: Schema.Literal(false),
-  adapterDispatchClaimed: Schema.Literal(false),
-  childDeliveryClaimed: Schema.Literal(false),
-  platformEnforcementClaimed: Schema.Literal(false),
-  rawPrivateSourceRowsIncluded: Schema.Literal(false),
-  generatedAt: ParentTimestampSchema,
-});
-
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowSchema = withParser(
-  AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowBaseSchema.pipe(
-    Schema.filter(
-      (row) =>
-        row.requiredProofRefs.length > 0 ||
-        'Expected source-gated policy preview timer audit rollback handoff rows to name required proof refs'
-    )
-  )
-);
-
-const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffBaseSchema = Schema.Struct({
-  schemaVersion: ParentContractSchemaVersionSchema,
-  handoffId: AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffIdSchema,
-  sourceSchedulerPersistenceId: AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceIdSchema,
-  generatedAt: ParentTimestampSchema,
-  sourceContractRefs: Schema.Array(AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffContractRefSchema),
-  rows: Schema.Array(AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowSchema),
-  nativeAppRowCount: Schema.Number,
-  nativeGameRowCount: Schema.Number,
-  auditRollbackProofRequiredCount: Schema.Number,
-  blockedBySourceFreshnessCount: Schema.Number,
-  blockedByCompilerDecisionCount: Schema.Number,
-  auditRollbackNonClaims: Schema.Array(AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffNonClaimSchema),
-  serviceRuntimeEventClaimed: Schema.Literal(false),
-  portalUiRendered: Schema.Literal(false),
-  policyEvaluatorRuntimeClaimed: Schema.Literal(false),
-  timerRuntimeClaimed: Schema.Literal(false),
-  timerScheduled: Schema.Literal(false),
-  schedulerPersistenceRuntimeClaimed: Schema.Literal(false),
-  durableSchedulerStorageClaimed: Schema.Literal(false),
-  auditRuntimeClaimed: Schema.Literal(false),
-  durableAuditLogClaimed: Schema.Literal(false),
-  rollbackRuntimeClaimed: Schema.Literal(false),
-  rollbackExecutionClaimed: Schema.Literal(false),
-  adapterDispatchClaimed: Schema.Literal(false),
-  childDeliveryClaimed: Schema.Literal(false),
-  platformEnforcementClaimed: Schema.Literal(false),
-  rawPrivateSourceRowsIncluded: Schema.Literal(false),
-});
-
-export const AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffSchema = withParser(
-  AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffBaseSchema.pipe(
-    Schema.filter(
-      (handoff) =>
-        appGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffCountsMatch(handoff) ||
-        'Expected source-gated policy preview timer audit rollback handoff counts to match row states'
-    )
-  ).pipe(
-    Schema.filter(
-      (handoff) =>
-        appGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffHasNoRuntimeClaims(handoff) ||
-        'Expected source-gated policy preview timer audit rollback handoff to avoid runtime, UI, timer, scheduler, audit, rollback, adapter, and raw-source claims'
-    )
-  )
-);
-
-export type AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffOptions = Infer<
-  typeof AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffOptionsSchema
->;
-export type AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRow = Infer<
-  typeof AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowSchema
->;
-export type AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoff = Infer<
-  typeof AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffSchema
->;
+} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-audit-rollback-handoff-rules';
 
 export function buildAppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoff(
   optionsInput: unknown,
@@ -255,10 +116,4 @@ function requiredProofRefsForAuditRollback(
   }
   return schedulerPersistenceRow.requiredProofRefs;
 }
-
-export const decodeAppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoff = Schema.decodeUnknownSync(
-  AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffSchema
-);
-
-export { AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffState };
 

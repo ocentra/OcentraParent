@@ -28,7 +28,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/status-backend-redaction-manifest.test.ts',
+      'tests/unit/status-backend-redaction-manifest.test.ts',
     ])
   );
 
@@ -43,10 +43,10 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/status-backend-redaction-manifest.ts',
-      guards: 'packages/logging-domain/src/status-backend-redaction-manifest-guards.ts',
-      readModel: 'packages/logging-domain/src/status-backend-redaction-manifest-read-model.ts',
-      contractTest: 'packages/logging-domain/tests/status-backend-redaction-manifest.test.ts',
+      contract: 'packages/schema-domain/src/status-backend-redaction-manifest.ts',
+      guards: 'packages/schema-domain/src/status-backend-redaction-manifest-guards.ts',
+      readModel: 'packages/schema-domain/src/status-backend-redaction-manifest-read-model.ts',
+      contractTest: 'packages/logging-domain/tests/unit/status-backend-redaction-manifest.test.ts',
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
       featureDoc: 'docs/features/production-distribution-support.md',
@@ -56,7 +56,7 @@ async function main() {
       'Status backend redaction manifest rows are parent-consented and support-safe before redaction-ready, manual-required, review, failure, or backend-unavailable states are accepted.',
       'Rows link to status backend target, execution queue, queue/audit persistence, redaction manifest, redaction summary, redaction review, failure, and manual proof references while keeping payloads to redacted status refs only.',
       'Redaction review queued, running, failed, and backend-unavailable rows remain manual-required until real status backend execution and support-safe manifest review proof exists.',
-      'Package exports expose the status backend redaction manifest contract and read model through @ocentra-parent/logging-domain.',
+      'Package exports expose the status backend redaction manifest contract and read model through @ocentra-parent/schema-domain.',
       'Rows reject tokens, raw child activity, raw support bundles, provider secrets, account lookup results, billing contact records, backend upload payloads, status backend payloads, public runtime payloads, remote support transcripts, status backend execution, status backend payload custody, durable payload storage, payload deletion, retry worker execution, audit persistence execution, public runtime execution, support upload execution, provider execution, account lookup execution, billing provider contact, remote support sessions, production SLA, and default Ocentra-hosted family data.',
     ],
     claimsNotProved: [
@@ -133,8 +133,8 @@ function assertReadModel(readModel) {
 }
 
 async function assertPackageExports() {
-  const contract = await import('@ocentra-parent/logging-domain/status-backend-redaction-manifest');
-  const readModel = await import('@ocentra-parent/logging-domain/status-backend-redaction-manifest-read-model');
+  const contract = await import('@ocentra-parent/schema-domain/status-backend-redaction-manifest');
+  const readModel = await import('@ocentra-parent/schema-domain/status-backend-redaction-manifest-read-model');
   assert.equal(typeof contract.StatusBackendRedactionManifestReadModelSchema.parse, 'function');
   assert.equal(readModel.StatusBackendRedactionManifestReadModel.entries.length, 6);
 }

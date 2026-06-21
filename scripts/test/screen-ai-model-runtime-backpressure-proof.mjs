@@ -12,10 +12,10 @@ const TestResultPath = join(TestResultRoot, 'proof.json');
 const generatedAt = new Date().toISOString();
 const successfulCommands = [];
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
 const { buildScreenAiModelRuntimeBackpressureProof, screenAiModelRuntimeBackpressureSummary } =
-  await import('@ocentra-parent/screen-domain/screen-ai-model-runtime-backpressure-proof');
+  await import('@ocentra-parent/schema-domain/screen-ai-model-runtime-backpressure-proof');
 
 const physicalDeviceId = 'child-laptop-physical-1';
 const runtimeReferenceId = 'runtime:screen-child-safety-vlm';

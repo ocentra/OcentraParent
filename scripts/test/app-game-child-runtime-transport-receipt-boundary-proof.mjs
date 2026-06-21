@@ -1,7 +1,6 @@
 import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const proofMode = 'app-game-child-runtime-transport-receipt-boundary-proof';
@@ -21,34 +20,35 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(appGameProofDir, { recursive: true });
 
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'app-game-child-facing-ux-child-runtime-transport-receipt-boundary',
+      '--run',
+      'tests/unit/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.test.ts',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
-  const writerModule = await import(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-child-device-runtime-writer.js')
-    ).href
+  const schemaWriterModule = await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-runtime-writer');
+  commands.push('node import @ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-runtime-writer');
+  const schemaBoundaryModule = await import(
+    '@ocentra-parent/schema-domain/app-game-child-facing-ux-child-runtime-transport-receipt-boundary'
   );
-  const boundaryModule = await import(
-    pathToFileURL(
-      join(
-        repoRoot,
-        'packages',
-        'parent-domain',
-        'dist',
-        'app-game-child-facing-ux-child-runtime-transport-receipt-boundary.js'
-      )
-    ).href
-  );
+  commands.push('node import @ocentra-parent/schema-domain/app-game-child-facing-ux-child-runtime-transport-receipt-boundary');
+  if (!('AppGameChildDeviceRuntimeWriterReadModelSchema' in schemaWriterModule)) {
+    throw new Error('Missing AppGameChildDeviceRuntimeWriterReadModelSchema export from schema-domain');
+  }
+  if (!('AppGameChildRuntimeTransportReceiptBoundaryReadModelSchema' in schemaBoundaryModule)) {
+    throw new Error('Missing AppGameChildRuntimeTransportReceiptBoundaryReadModelSchema export from schema-domain');
+  }
+
+  const writerModule = schemaWriterModule;
+  const boundaryModule = schemaBoundaryModule;
   const sourceWriter = writerModule.AppGameChildDeviceRuntimeWriterReadModelSchema.parse(runtimeWriterFixture());
   const readModel = boundaryModule.buildAppGameChildRuntimeTransportReceiptBoundaryReadModel(
     {
@@ -79,13 +79,14 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.ts',
-      contractTest:
-        'packages/parent-domain/tests/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.test.ts',
-      sourceRuntimeWriterContract: 'packages/parent-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts',
-      sourceRuntimeWriterProof: 'test-results/app-game-child-device-runtime-writer-proof/proof.json',
+      boundaryOwner:
+        'packages/schema-domain/src/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.ts',
+      writerOwner: 'packages/schema-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts',
+      consumerTest:
+        'packages/app-game-domain/tests/unit/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.test.ts',
     },
     claimsProved: [
+      'schema-domain owns the child runtime transport receipt boundary and child-device runtime writer contract surfaces',
       'Writer-envelope-ready rows can become child-runtime-transport-required receipt boundary rows',
       'Manual-required and unavailable writer rows remain blocked before runtime transport execution',
       'Receipt contract refs are represented without claiming receipt ingestion',
@@ -109,10 +110,11 @@ async function main() {
       '',
       '- Branch: codex/app-game-control-product-completion',
       '- Commit: uncommitted full-goal batch, validated by harness before final checkpoint commit',
-      '- Parent read model: packages/parent-domain/src/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.ts',
-      '- Source writer model: packages/parent-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts',
+      '- Boundary owner: packages/schema-domain/src/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.ts',
+      '- Writer owner: packages/schema-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts',
       '',
       'Evidence:',
+      '- schema-domain exports the child runtime transport receipt boundary and child-device runtime writer owners.',
       '- Writer-envelope-ready rows become child-runtime-transport-required boundary rows.',
       '- Manual-required and unavailable rows remain non-executable.',
       '- Runtime transport execution, receipt ingestion, provider delivery, adapter dispatch, and platform enforcement stay unclaimed.',

@@ -1,7 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const RepoRoot = process.cwd();
 const OutputRoot = resolve(RepoRoot, 'output', 'ai-plan-proof', 'local-ai-result-journal-sqlite-proof');
@@ -11,24 +10,20 @@ const ValidationLogPath = join(OutputRoot, 'validation-commands.log');
 const TestResultPath = join(TestResultRoot, 'proof.json');
 const generatedAt = new Date().toISOString();
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build:contracts']));
 runCommand(
   ...npmCommand([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/ai-domain',
     '--',
     'local-ai-result-journal-sqlite-proof',
   ])
 );
 
-const journalModule = await import(
-  pathToFileURL(resolve(RepoRoot, 'packages', 'parent-domain', 'dist', 'local-ai-result-journal-sqlite-proof.js'))
-);
-const textModule = await import(
-  pathToFileURL(resolve(RepoRoot, 'packages', 'parent-domain', 'dist', 'local-ai-text-inference-dry-run-proof.js'))
-);
+const journalModule = await import('@ocentra-parent/schema-domain/local-ai-result-journal-sqlite-proof');
+const textModule = await import('@ocentra-parent/schema-domain/local-ai-text-inference-dry-run-proof');
 
 const readyInput = localAiTextInferenceDryRunInput();
 const readyResult = textModule.runLocalAiTextInferenceDryRun(readyInput).result;
@@ -128,8 +123,8 @@ writeFileSync(ProofPath, `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(
   ValidationLogPath,
   [
-    'cmd /c npm run build --workspace @ocentra-parent/parent-domain',
-    'cmd /c npm run test --workspace @ocentra-parent/parent-domain -- local-ai-result-journal-sqlite-proof',
+    'cmd /c npm run build:contracts',
+    'cmd /c npm run test --workspace @ocentra-parent/ai-domain -- local-ai-result-journal-sqlite-proof',
   ].join('\n') + '\n'
 );
 writeFileSync(TestResultPath, `${JSON.stringify({ status: 'ok', proof: relativePath(ProofPath) }, null, 2)}\n`);

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { parseBrowserUrlShape } from '../../src/browser-url-intelligence';
-import { classifyBrowserSocialFeedRoute } from '../../src/browser-social-feed-route-classification';
-import { extractBrowserSocialVideoMetadata } from '../../src/browser-social-video-metadata';
+import { classifyBrowserSocialFeedRoute } from '@ocentra-parent/schema-domain/browser-social-feed-route-classification';
+import { extractBrowserSocialVideoMetadata } from '@ocentra-parent/schema-domain/browser-social-video-metadata';
 import {
   BrowserSocialFeedVideoRouteGatePlanSchema,
   planBrowserSocialFeedVideoRouteGate,
-} from '../../src/browser-social-feed-video-route-gate';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../src/browser-social-url-patterns';
+} from '@ocentra-parent/schema-domain/browser-social-feed-video-route-gate';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 
 describe('browser social feed video route gate contract', () => {
   it('plans a block candidate for managed short-video feed routes without executing it', plansShortVideoBlock);

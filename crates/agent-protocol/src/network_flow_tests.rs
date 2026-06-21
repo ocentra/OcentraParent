@@ -6,10 +6,11 @@ use super::{
     NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
     NetworkEnforcementResultStatus, NetworkFlowObservedEvent, NetworkPolicyDecisionCompletedEvent,
     NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
-    NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
-    NetworkRemoteDeliveryExternalCrossProcessTransportState, NetworkRemoteDeliveryStatus,
-    NetworkRuntimeEventContract, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    NETWORK_FLOW_SCHEMA_VERSION,
+    NetworkRemoteDeliveryCrossProcessCustodyReadinessState, NetworkRemoteDeliveryStatus,
+    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
+};
+use crate::network_flow::{
+    NetworkRemoteDeliveryExternalCrossProcessTransportState, NetworkRuntimeEventContract,
 };
 
 #[path = "network_flow_event_fixtures.rs"]

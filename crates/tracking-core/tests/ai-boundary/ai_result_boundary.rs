@@ -9,8 +9,8 @@ use ocentra_tracking_core::ai_boundary::validate_tracking_ai_result_as_evidence;
 
 #[test]
 fn tracking_accepts_ai_result_only_as_evidence_when_refs_match_request() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let report = ocentra_tracking_core::runtime_flow::observe_tracking_location(observed);
     let request = report
         .ai_analysis_requested
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
@@ -27,8 +27,8 @@ fn tracking_accepts_ai_result_only_as_evidence_when_refs_match_request() {
 
 #[test]
 fn tracking_rejects_ai_result_with_hallucinated_evidence_ref() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let report = ocentra_tracking_core::runtime_flow::observe_tracking_location(observed);
     let request = report
         .ai_analysis_requested
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
@@ -50,8 +50,8 @@ fn tracking_rejects_ai_result_with_hallucinated_evidence_ref() {
 
 #[test]
 fn tracking_rejects_ai_result_without_evidence_refs() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let report = ocentra_tracking_core::runtime_flow::observe_tracking_location(observed);
     let request = report
         .ai_analysis_requested
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
@@ -69,8 +69,8 @@ fn tracking_rejects_ai_result_without_evidence_refs() {
 
 #[test]
 fn tracking_rejects_ai_result_with_stale_correlation() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let report = ocentra_tracking_core::runtime_flow::observe_tracking_location(observed);
     let request = report
         .ai_analysis_requested
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
@@ -90,8 +90,8 @@ fn tracking_rejects_ai_result_with_stale_correlation() {
 
 #[test]
 fn tracking_rejects_ai_result_with_mismatched_source_observed_at() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let report = ocentra_tracking_core::runtime_flow::observe_tracking_location(observed);
     let request = report
         .ai_analysis_requested
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
@@ -111,8 +111,8 @@ fn tracking_rejects_ai_result_with_mismatched_source_observed_at() {
 
 #[test]
 fn tracking_rejects_ai_result_with_wrong_child_or_device_ref() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let report = ocentra_tracking_core::observe_tracking_location(observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let report = ocentra_tracking_core::runtime_flow::observe_tracking_location(observed);
     let request = report
         .ai_analysis_requested
         .expect(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);

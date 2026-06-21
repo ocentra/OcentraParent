@@ -17,9 +17,9 @@ const browserPlanProofPath = join(proofDirectory, '11-live-youtube-metadata-proo
 await main();
 
 async function main() {
-  await assertActivityDomainBuildIsFresh();
-  const { parseBrowserUrlShape } = await importActivityModule('browser-url-intelligence.js');
-  const { buildYouTubeMetadataEvidence } = await importActivityModule('browser-youtube-metadata.js');
+  await assertProofBuildsAreFresh();
+  const { parseBrowserUrlShape } = await importDistModule('packages/browser-domain/dist/browser-url-intelligence.js');
+  const { buildYouTubeMetadataEvidence } = await importDistModule('packages/schema-domain/dist/browser-youtube-metadata.js');
 
   await mkdir(resultDirectory, { recursive: true });
   await mkdir(proofDirectory, { recursive: true });
@@ -68,32 +68,32 @@ async function main() {
   console.log(`metadataState=${proof.metadataEvidence.metadataState}`);
 }
 
-async function assertActivityDomainBuildIsFresh() {
+async function assertProofBuildsAreFresh() {
   const pairs = [
     [
       'packages/browser-domain/src/browser-url-intelligence.ts',
       'packages/browser-domain/dist/browser-url-intelligence.js',
     ],
     [
-      'packages/browser-domain/src/browser-youtube-metadata.ts',
-      'packages/browser-domain/dist/browser-youtube-metadata.js',
+      'packages/schema-domain/src/browser-youtube-metadata.ts',
+      'packages/schema-domain/dist/browser-youtube-metadata.js',
     ],
   ];
   for (const [sourcePath, distPath] of pairs) {
     const sourceFullPath = join(root, sourcePath);
     const distFullPath = join(root, distPath);
     if (!existsSync(distFullPath)) {
-      throw new Error(`Missing built activity-domain file ${distPath}; run cmd /c npm run build:contracts first`);
+      throw new Error(`Missing built proof dependency ${distPath}; run cmd /c npm run build:contracts first`);
     }
     const [sourceInfo, distInfo] = await Promise.all([stat(sourceFullPath), stat(distFullPath)]);
     if (distInfo.mtimeMs < sourceInfo.mtimeMs) {
-      throw new Error(`Stale built activity-domain file ${distPath}; run cmd /c npm run build:contracts first`);
+      throw new Error(`Stale built proof dependency ${distPath}; run cmd /c npm run build:contracts first`);
     }
   }
 }
 
-async function importActivityModule(fileName) {
-  const modulePath = join(root, 'packages', 'activity-domain', 'dist', fileName);
+async function importDistModule(relativePath) {
+  const modulePath = join(root, relativePath);
   return import(pathToFileURL(modulePath).href);
 }
 

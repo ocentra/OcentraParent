@@ -4,6 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { runNpmCommand } from './run-npm-command.mjs';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof', '18-child-check-in-flow');
@@ -14,24 +15,25 @@ const commands = [];
 await main();
 
 async function main() {
-  await runNpm(['--workspace', '@ocentra-parent/parent-domain', 'run', 'build']);
+  await runNpm(['--workspace', '@ocentra-parent/tracking-domain', 'run', 'build']);
   await runNpm([
     'exec',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
     'vitest',
     'run',
-    'tests/tracking-child-check-in-timeout-escalation-proof.test.ts',
-    'tests/tracking-location-policy.test.ts',
+    'tests/contract/tracking-child-check-in-timeout-escalation-proof.test.ts',
+    'tests/contract/tracking-location-policy.test.ts',
   ]);
 
-  const policy = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-location-policy.js'))
+  const policy = await tsImport(
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-location-policy.ts')).href,
+    import.meta.url
   );
   const timeoutProof = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-child-check-in-timeout-escalation-proof.js')
+      join(repoRoot, 'packages', 'tracking-domain', 'dist', 'tracking-child-check-in-timeout-escalation-proof.js')
     )
   );
   const checkedAt = new Date().toISOString();
@@ -41,8 +43,8 @@ async function main() {
       generatedAt: '2026-06-06T18:10:00.000Z',
       readinessId: 'tracking-child-check-in-timeout-escalation-proof',
       sourceContractRefs: [
-        'packages/parent-domain/src/tracking-location-policy.ts',
-        'packages/parent-domain/src/tracking-location-policy-runtime.ts',
+        'packages/schema-domain/src/tracking-location-policy.ts',
+        'packages/tracking-domain/src/tracking-location-policy-runtime.ts',
         'docs/plans/tracking-plan/workpacks/18-child-check-in-flow.md',
         'docs/expectations/notifications.md',
         'docs/expectations/location-geofence.md',
@@ -158,11 +160,11 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- currentProofTier: P1_FIXTURE_SIMULATION',
     '- status: proved',
     '- proves optional location sample request/attached refs, prompt/response audit refs, alert outcome projection, and rule-only timeout escalation over fixture rows',
-    '- proof module: packages/parent-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-child-check-in-timeout-escalation-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-child-check-in-timeout-escalation-proof.test.ts',
     '- proof harness: scripts/test/tracking-child-check-in-timeout-escalation-proof.mjs',
-    '- source contracts: packages/parent-domain/src/tracking-location-policy.ts',
-    '- runtime resolver: packages/parent-domain/src/tracking-location-policy-runtime.ts',
+    '- source contracts: packages/schema-domain/src/tracking-location-policy.ts',
+    '- runtime resolver: packages/tracking-domain/src/tracking-location-policy-runtime.ts',
     '',
   ].join('\n');
 }

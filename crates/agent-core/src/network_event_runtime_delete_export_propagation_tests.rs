@@ -1,12 +1,16 @@
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::{
-    prove_network_runtime_remote_delivery_delete_export_propagation,
-    prove_network_runtime_remote_delivery_delete_export_propagation_from_fixture_transport,
-    prove_network_runtime_remote_delivery_fixture_transport,
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationState,
+    remote_delivery_delete_export_propagation::{
+        prove_network_runtime_remote_delivery_delete_export_propagation,
+        prove_network_runtime_remote_delivery_delete_export_propagation_from_fixture_transport,
+    },
+    remote_delivery_delete_export_propagation_types::{
+        NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
+        NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
+        NetworkRuntimeRemoteDeliveryDeleteExportPropagationState,
+    },
+    remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport,
 };
 
 #[tokio::test]

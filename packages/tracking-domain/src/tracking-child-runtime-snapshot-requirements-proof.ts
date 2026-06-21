@@ -9,7 +9,7 @@ import {
   TrackingChildRuntimeExecutionReadinessReadModelSchema,
   type TrackingChildRuntimeExecutionReadinessRow,
 } from './tracking-child-runtime-execution-readiness-proof';
-import { TrackingPolicySchemaVersion } from './tracking-location-policy';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 export const TrackingChildRuntimeSnapshotRequirementKinds = [
   'delivery-envelope',

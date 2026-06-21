@@ -13,6 +13,7 @@ await Promise.all([
   mkdir(testResultRoot, { recursive: true }),
 ]);
 
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 runCommand(...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/screen-domain', '--', 'screen-vlm-worker']));
 
@@ -24,7 +25,7 @@ const {
   ScreenVlmWorkerSchemaVersion,
   ScreenVlmWorkerTemplateVersion,
   screenVlmWorkerResultToAnalysisResult,
-} = await import('@ocentra-parent/screen-domain/screen-vlm-worker');
+} = await import('@ocentra-parent/schema-domain/screen-vlm-worker');
 
 const evidenceRef = {
   evidenceId: 'screen-vlm-worker-proof-evidence',
@@ -98,6 +99,7 @@ const summary = {
   analysisRows,
   assertions,
   validationCommands: [
+    'npm run build --workspace @ocentra-parent/schema-domain',
     'npm run build --workspace @ocentra-parent/screen-domain',
     'npm run test --workspace @ocentra-parent/screen-domain -- screen-vlm-worker',
     'node scripts/test/screen-ai-vlm-worker-contract-proof.mjs',

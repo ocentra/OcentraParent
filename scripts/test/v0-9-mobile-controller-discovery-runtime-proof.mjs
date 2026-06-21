@@ -169,7 +169,7 @@ function transitionProof(transition, state, rejectionReason, proofLabel) {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await import('@ocentra-parent/lan-domain/v0-9-mobile-controller-discovery-runtime');
+  const module = await import('@ocentra-parent/schema-domain/v0-9-mobile-controller-discovery-runtime');
   proofLabels.push('parent-domain.v0.9-mobile-controller-discovery-runtime-parse');
   return module.V09MobileControllerDiscoveryRuntimeReadModelSchema.parse(readModel);
 }

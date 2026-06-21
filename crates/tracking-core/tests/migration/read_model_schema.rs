@@ -4,7 +4,9 @@ use ocentra_parent_agent_protocol::{
     },
     ACTIVITY_QUERY_SCHEMA_VERSION,
 };
-use ocentra_tracking_core::{evaluate_tracking_read_model_schema, TrackingReadModelMigrationState};
+use ocentra_tracking_core::read_model_guard::{
+    evaluate_tracking_read_model_schema, TrackingReadModelMigrationState,
+};
 
 #[test]
 fn tracking_read_model_schema_accepts_current_version() {

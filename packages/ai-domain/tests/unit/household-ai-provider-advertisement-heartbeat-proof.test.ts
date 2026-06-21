@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   HouseholdAiProviderAdvertisementHeartbeatProof,
   HouseholdAiProviderAdvertisementHeartbeatProofSchema,
-} from '../../src/household-ai-provider-advertisement-heartbeat-proof';
+} from '@ocentra-parent/schema-domain/household-ai-provider-advertisement-heartbeat-proof';
 
 describe('household AI provider advertisement heartbeat proof', () => {
   it('accepts only fresh trusted local providers with the requested screen capability', () => {

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BillingSupportAdminReconciliationSummarySchema,
   BillingSupportAdminRefundResultSchema,
-} from '../../src/billing-support-admin-runtime-boundary';
+} from '@ocentra-parent/schema-domain/billing-support-admin-runtime-boundary';
 
 describe('billing support admin runtime boundary', () => {
   it('accepts partial refund and queued reconciliation summaries', () => {

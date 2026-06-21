@@ -5,63 +5,3574 @@
   "type": "module",
   "description": "Shared Effect Schema validation helpers.",
   "exports": {
-    "./family-reference-primitives": { "import": "./dist/family-reference-primitives.js", "types": "./dist/family-reference-primitives.d.ts" },
-    "./family-references": { "import": "./dist/family-references.js", "types": "./dist/family-references.d.ts" },
-    "./family-child-profile": { "import": "./dist/family-child-profile.js", "types": "./dist/family-child-profile.d.ts" },
-    "./family-legal": { "import": "./dist/family-household-authority.js", "types": "./dist/family-household-authority.d.ts" },
-    "./family-session": { "import": "./dist/family-session-lifecycle.js", "types": "./dist/family-session-lifecycle.d.ts" },
-    "./family-setup": { "import": "./dist/family-setup-invite.js", "types": "./dist/family-setup-invite.d.ts" },
-    "./family-restore": { "import": "./dist/family-restore-lifecycle.js", "types": "./dist/family-restore-lifecycle.d.ts" },
-    "./activity-journal": { "import": "./dist/activity-journal-primitives.js", "types": "./dist/activity-journal-primitives.d.ts" },
-    "./activity-capture": { "import": "./dist/activity-capture.js", "types": "./dist/activity-capture.d.ts" },
-    "./child-runtime-events": { "import": "./dist/child-runtime-events.js", "types": "./dist/child-runtime-events.d.ts" },
-    "./policy-contracts": { "import": "./dist/policy-contracts.js", "types": "./dist/policy-contracts.d.ts" },
-    "./ai-primitives": { "import": "./dist/ai-primitives.js", "types": "./dist/ai-primitives.d.ts" },
-    "./ai-context-primitives": { "import": "./dist/ai-context-primitives.js", "types": "./dist/ai-context-primitives.d.ts" },
-    "./ai-references": { "import": "./dist/ai-references.js", "types": "./dist/ai-references.d.ts" },
-    "./ai-runtime": { "import": "./dist/ai-runtime.js", "types": "./dist/ai-runtime.d.ts" },
-    "./ai-model-artifacts": { "import": "./dist/ai-model-artifacts.js", "types": "./dist/ai-model-artifacts.d.ts" },
-    "./ai-context": { "import": "./dist/ai-context.js", "types": "./dist/ai-context.d.ts" },
-    "./portal-contracts": { "import": "./dist/portal-contracts.js", "types": "./dist/portal-contracts.d.ts" },
-    "./agent-browser-runtime-events": { "import": "./dist/agent-browser-runtime-events.js", "types": "./dist/agent-browser-runtime-events.d.ts" },
-    "./agent-network-runtime-events": { "import": "./dist/agent-network-runtime-events.js", "types": "./dist/agent-network-runtime-events.d.ts" },
-    "./agent-network-live-capture-status": { "import": "./dist/agent-network-live-capture-status.js", "types": "./dist/agent-network-live-capture-status.d.ts" },
-    "./agent-network-remote-delivery-status": { "import": "./dist/agent-network-remote-delivery-status.js", "types": "./dist/agent-network-remote-delivery-status.d.ts" },
-    "./agent-network-linux-nftables-status": { "import": "./dist/agent-network-linux-nftables-status.js", "types": "./dist/agent-network-linux-nftables-status.d.ts" },
-    "./agent-network-windows-firewall-status": { "import": "./dist/agent-network-windows-firewall-status.js", "types": "./dist/agent-network-windows-firewall-status.d.ts" },
-    "./agent-network-windows-wfp-status": { "import": "./dist/agent-network-windows-wfp-status.js", "types": "./dist/agent-network-windows-wfp-status.d.ts" },
-    "./agent-network-android-vpnservice-status": { "import": "./dist/agent-network-android-vpnservice-status.js", "types": "./dist/agent-network-android-vpnservice-status.d.ts" },
-    "./agent-network-apple-extension-status": { "import": "./dist/agent-network-apple-extension-status.js", "types": "./dist/agent-network-apple-extension-status.d.ts" },
-    "./agent-lan": { "import": "./dist/agent-lan.js", "types": "./dist/agent-lan.d.ts" },
-    "./agent-lan-read-model": { "import": "./dist/agent-lan-add-device.js", "types": "./dist/agent-lan-add-device.d.ts" },
-    "./lan-pairing-values": { "import": "./dist/lan-pairing-values.js", "types": "./dist/lan-pairing-values.d.ts" },
-    "./lan-pairing-browser-runtime": { "import": "./dist/lan-pairing-browser-runtime.js", "types": "./dist/lan-pairing-browser-runtime.d.ts" },
-    "./lan-product-proof": { "import": "./dist/lan-product-proof.js", "types": "./dist/lan-product-proof.d.ts" },
-    "./lan-production-household-proof": { "import": "./dist/lan-production-household-proof.js", "types": "./dist/lan-production-household-proof.d.ts" },
-    "./lan-relay-spine": { "import": "./dist/lan-relay-spine.js", "types": "./dist/lan-relay-spine.d.ts" },
-    "./notification-v3-provider-retry": { "import": "./dist/notification-v3-provider-retry.js", "types": "./dist/notification-v3-provider-retry.d.ts" },
-    "./notification-local-outbox": { "import": "./dist/notification-local-outbox.js", "types": "./dist/notification-local-outbox.d.ts" },
-    "./network-contracts": { "import": "./dist/network-contracts.js", "types": "./dist/network-contracts.d.ts" },
-    "./browser-control": { "import": "./dist/browser-control-values.js", "types": "./dist/browser-control-values.d.ts" },
-    "./screen-primitives": { "import": "./dist/screen-evidence-primitives.js", "types": "./dist/screen-evidence-primitives.d.ts" },
-    "./screen-states": { "import": "./dist/screen-evidence-states.js", "types": "./dist/screen-evidence-states.d.ts" },
-    "./screen-ocr": { "import": "./dist/screen-ocr-contracts.js", "types": "./dist/screen-ocr-contracts.d.ts" },
-    "./screen-settings": { "import": "./dist/screen-evidence-settings.js", "types": "./dist/screen-evidence-settings.d.ts" },
-    "./logging-contracts": { "import": "./dist/logging-contracts.js", "types": "./dist/logging-contracts.d.ts" },
-    "./app-game-primitives": { "import": "./dist/app-game-primitives.js", "types": "./dist/app-game-primitives.d.ts" },
-    "./app-game-identity": { "import": "./dist/app-game-identity-primitives.js", "types": "./dist/app-game-identity-primitives.d.ts" },
-    "./app-game-inventory": { "import": "./dist/app-game-inventory-primitives.js", "types": "./dist/app-game-inventory-primitives.d.ts" },
-    "./app-game-category": { "import": "./dist/app-game-category-risk-primitives.js", "types": "./dist/app-game-category-risk-primitives.d.ts" },
-    "./app-game-session": { "import": "./dist/app-game-session-primitives.js", "types": "./dist/app-game-session-primitives.d.ts" },
-    "./app-game-launcher": { "import": "./dist/app-game-launcher.js", "types": "./dist/app-game-launcher.d.ts" },
-    "./evidence-primitives": { "import": "./dist/evidence-primitives.js", "types": "./dist/evidence-primitives.d.ts" },
-    "./evidence-kinds": { "import": "./dist/evidence-kinds.js", "types": "./dist/evidence-kinds.d.ts" },
-    "./evidence-contracts": { "import": "./dist/evidence-contracts.js", "types": "./dist/evidence-contracts.d.ts" },
-    "./evidence-custody": { "import": "./dist/evidence-custody-contracts.js", "types": "./dist/evidence-custody-contracts.d.ts" },
-    "./eventing": { "import": "./dist/eventing.js", "types": "./dist/eventing.d.ts" },
-    "./event-primitives": { "import": "./dist/event-primitives.js", "types": "./dist/event-primitives.d.ts" },
-    "./app-game-child-runtime-transport-receipt": { "import": "./dist/app-game-child-runtime-transport-receipt.js", "types": "./dist/app-game-child-runtime-transport-receipt.d.ts" },
-    "./effect": { "import": "./dist/effect.js", "types": "./dist/effect.d.ts" }
+    "./activity-capture": {
+      "import": "./dist/activity-capture.js",
+      "types": "./dist/activity-capture.d.ts"
+    },
+    "./activity-family-aggregation": {
+      "import": "./dist/activity-family-aggregation.js",
+      "types": "./dist/activity-family-aggregation.d.ts"
+    },
+    "./activity-journal": {
+      "import": "./dist/activity-journal.js",
+      "types": "./dist/activity-journal.d.ts"
+    },
+    "./activity-journal-primitives": {
+      "import": "./dist/activity-journal-primitives.js",
+      "types": "./dist/activity-journal-primitives.d.ts"
+    },
+    "./activity-memory-graph": {
+      "import": "./dist/activity-memory-graph.js",
+      "types": "./dist/activity-memory-graph.d.ts"
+    },
+    "./activity-query": {
+      "import": "./dist/activity-query.js",
+      "types": "./dist/activity-query.d.ts"
+    },
+    "./activity-surface": {
+      "import": "./dist/activity-surface.js",
+      "types": "./dist/activity-surface.d.ts"
+    },
+    "./agent-activity-surface-adapter-manifest": {
+      "import": "./dist/agent-activity-surface-adapter-manifest.js",
+      "types": "./dist/agent-activity-surface-adapter-manifest.d.ts"
+    },
+    "./agent-browser-runtime-events": {
+      "import": "./dist/agent-browser-runtime-events.js",
+      "types": "./dist/agent-browser-runtime-events.d.ts"
+    },
+    "./agent-command-event-contracts": {
+      "import": "./dist/agent-command-event-contracts.js",
+      "types": "./dist/agent-command-event-contracts.d.ts"
+    },
+    "./agent-lan": {
+      "import": "./dist/agent-lan.js",
+      "types": "./dist/agent-lan.d.ts"
+    },
+    "./agent-lan-add-device": {
+      "import": "./dist/agent-lan-add-device.js",
+      "types": "./dist/agent-lan-add-device.d.ts"
+    },
+    "./agent-lan-pairing-challenge": {
+      "import": "./dist/agent-lan-pairing-challenge.js",
+      "types": "./dist/agent-lan-pairing-challenge.d.ts"
+    },
+    "./agent-network-android-vpnservice-status": {
+      "import": "./dist/agent-network-android-vpnservice-status.js",
+      "types": "./dist/agent-network-android-vpnservice-status.d.ts"
+    },
+    "./agent-network-apple-extension-status": {
+      "import": "./dist/agent-network-apple-extension-status.js",
+      "types": "./dist/agent-network-apple-extension-status.d.ts"
+    },
+    "./agent-network-linux-nftables-status": {
+      "import": "./dist/agent-network-linux-nftables-status.js",
+      "types": "./dist/agent-network-linux-nftables-status.d.ts"
+    },
+    "./agent-network-live-capture-status": {
+      "import": "./dist/agent-network-live-capture-status.js",
+      "types": "./dist/agent-network-live-capture-status.d.ts"
+    },
+    "./agent-network-remote-delivery-status": {
+      "import": "./dist/agent-network-remote-delivery-status.js",
+      "types": "./dist/agent-network-remote-delivery-status.d.ts"
+    },
+    "./agent-network-runtime-events": {
+      "import": "./dist/agent-network-runtime-events.js",
+      "types": "./dist/agent-network-runtime-events.d.ts"
+    },
+    "./agent-network-windows-firewall-status": {
+      "import": "./dist/agent-network-windows-firewall-status.js",
+      "types": "./dist/agent-network-windows-firewall-status.d.ts"
+    },
+    "./agent-network-windows-wfp-status": {
+      "import": "./dist/agent-network-windows-wfp-status.js",
+      "types": "./dist/agent-network-windows-wfp-status.d.ts"
+    },
+    "./agent-policy-control-audit-redaction": {
+      "import": "./dist/agent-policy-control-audit-redaction.js",
+      "types": "./dist/agent-policy-control-audit-redaction.d.ts"
+    },
+    "./agent-policy-control-delivery-read-model": {
+      "import": "./dist/agent-policy-control-delivery-read-model.js",
+      "types": "./dist/agent-policy-control-delivery-read-model.d.ts"
+    },
+    "./agent-policy-preview-read-model": {
+      "import": "./dist/agent-policy-preview-read-model.js",
+      "types": "./dist/agent-policy-preview-read-model.d.ts"
+    },
+    "./agent-policy-request-confirm-command": {
+      "import": "./dist/agent-policy-request-confirm-command.js",
+      "types": "./dist/agent-policy-request-confirm-command.d.ts"
+    },
+    "./agent-protocol-defaults": {
+      "import": "./dist/agent-protocol-defaults.js",
+      "types": "./dist/agent-protocol-defaults.d.ts"
+    },
+    "./agent-screen-settings": {
+      "import": "./dist/agent-screen-settings.js",
+      "types": "./dist/agent-screen-settings.d.ts"
+    },
+    "./agent-social-alert-report-intent": {
+      "import": "./dist/agent-social-alert-report-intent.js",
+      "types": "./dist/agent-social-alert-report-intent.d.ts"
+    },
+    "./agent-social-alert-report-parent-surface-read-model": {
+      "import": "./dist/agent-social-alert-report-parent-surface-read-model.js",
+      "types": "./dist/agent-social-alert-report-parent-surface-read-model.d.ts"
+    },
+    "./agent-social-alert-report-read-model": {
+      "import": "./dist/agent-social-alert-report-read-model.js",
+      "types": "./dist/agent-social-alert-report-read-model.d.ts"
+    },
+    "./agent-social-source-custody-mutation": {
+      "import": "./dist/agent-social-source-custody-mutation.js",
+      "types": "./dist/agent-social-source-custody-mutation.d.ts"
+    },
+    "./agent-social-video-source-custody-settings": {
+      "import": "./dist/agent-social-video-source-custody-settings.js",
+      "types": "./dist/agent-social-video-source-custody-settings.d.ts"
+    },
+    "./agent-social-video-source-privacy": {
+      "import": "./dist/agent-social-video-source-privacy.js",
+      "types": "./dist/agent-social-video-source-privacy.d.ts"
+    },
+    "./agent-tracking-read-model": {
+      "import": "./dist/agent-tracking-read-model.js",
+      "types": "./dist/agent-tracking-read-model.d.ts"
+    },
+    "./agent-tracking-retention-settings-write-command": {
+      "import": "./dist/agent-tracking-retention-settings-write-command.js",
+      "types": "./dist/agent-tracking-retention-settings-write-command.d.ts"
+    },
+    "./ai-context": {
+      "import": "./dist/ai-context.js",
+      "types": "./dist/ai-context.d.ts"
+    },
+    "./ai-context-primitives": {
+      "import": "./dist/ai-context-primitives.js",
+      "types": "./dist/ai-context-primitives.d.ts"
+    },
+    "./ai-model-artifacts": {
+      "import": "./dist/ai-model-artifacts.js",
+      "types": "./dist/ai-model-artifacts.d.ts"
+    },
+    "./ai-primitives": {
+      "import": "./dist/ai-primitives.js",
+      "types": "./dist/ai-primitives.d.ts"
+    },
+    "./ai-references": {
+      "import": "./dist/ai-references.js",
+      "types": "./dist/ai-references.d.ts"
+    },
+    "./ai-runtime": {
+      "import": "./dist/ai-runtime.js",
+      "types": "./dist/ai-runtime.d.ts"
+    },
+    "./app-control-catalog": {
+      "import": "./dist/app-control-catalog.js",
+      "types": "./dist/app-control-catalog.d.ts"
+    },
+    "./app-control-catalog-data": {
+      "import": "./dist/app-control-catalog-data.js",
+      "types": "./dist/app-control-catalog-data.d.ts"
+    },
+    "./app-control-catalog-schema": {
+      "import": "./dist/app-control-catalog-schema.js",
+      "types": "./dist/app-control-catalog-schema.d.ts"
+    },
+    "./app-control-guide-catalog-data": {
+      "import": "./dist/app-control-guide-catalog-data.js",
+      "types": "./dist/app-control-guide-catalog-data.d.ts"
+    },
+    "./app-game": {
+      "import": "./dist/app-game.js",
+      "types": "./dist/app-game.d.ts"
+    },
+    "./app-game-adapter-dispatch-preflight": {
+      "import": "./dist/app-game-adapter-dispatch-preflight.js",
+      "types": "./dist/app-game-adapter-dispatch-preflight.d.ts"
+    },
+    "./app-game-adapter-dispatch-result": {
+      "import": "./dist/app-game-adapter-dispatch-result.js",
+      "types": "./dist/app-game-adapter-dispatch-result.d.ts"
+    },
+    "./app-game-adapter-execution-readiness": {
+      "import": "./dist/app-game-adapter-execution-readiness.js",
+      "types": "./dist/app-game-adapter-execution-readiness.d.ts"
+    },
+    "./app-game-ai-classifier-boundary": {
+      "import": "./dist/app-game-ai-classifier-boundary.js",
+      "types": "./dist/app-game-ai-classifier-boundary.d.ts"
+    },
+    "./app-game-ai-classifier-boundary-data": {
+      "import": "./dist/app-game-ai-classifier-boundary-data.js",
+      "types": "./dist/app-game-ai-classifier-boundary-data.d.ts"
+    },
+    "./app-game-ai-classifier-boundary-values": {
+      "import": "./dist/app-game-ai-classifier-boundary-values.js",
+      "types": "./dist/app-game-ai-classifier-boundary-values.d.ts"
+    },
+    "./app-game-android-accessibility-enabled-sample-proof": {
+      "import": "./dist/app-game-android-accessibility-enabled-sample-proof.js",
+      "types": "./dist/app-game-android-accessibility-enabled-sample-proof.d.ts"
+    },
+    "./app-game-android-accessibility-overlay-preflight": {
+      "import": "./dist/app-game-android-accessibility-overlay-preflight.js",
+      "types": "./dist/app-game-android-accessibility-overlay-preflight.d.ts"
+    },
+    "./app-game-android-accessibility-runtime-proof": {
+      "import": "./dist/app-game-android-accessibility-runtime-proof.js",
+      "types": "./dist/app-game-android-accessibility-runtime-proof.d.ts"
+    },
+    "./app-game-android-authority-preflight": {
+      "import": "./dist/app-game-android-authority-preflight.js",
+      "types": "./dist/app-game-android-authority-preflight.d.ts"
+    },
+    "./app-game-android-child-runtime-local-delivery-intake-proof": {
+      "import": "./dist/app-game-android-child-runtime-local-delivery-intake-proof.js",
+      "types": "./dist/app-game-android-child-runtime-local-delivery-intake-proof.d.ts"
+    },
+    "./app-game-android-child-runtime-local-delivery-queue-proof": {
+      "import": "./dist/app-game-android-child-runtime-local-delivery-queue-proof.js",
+      "types": "./dist/app-game-android-child-runtime-local-delivery-queue-proof.d.ts"
+    },
+    "./app-game-android-child-runtime-local-notification-action-proof": {
+      "import": "./dist/app-game-android-child-runtime-local-notification-action-proof.js",
+      "types": "./dist/app-game-android-child-runtime-local-notification-action-proof.d.ts"
+    },
+    "./app-game-android-child-runtime-local-notification-proof": {
+      "import": "./dist/app-game-android-child-runtime-local-notification-proof.js",
+      "types": "./dist/app-game-android-child-runtime-local-notification-proof.d.ts"
+    },
+    "./app-game-android-child-runtime-local-notification-request-queue-proof": {
+      "import": "./dist/app-game-android-child-runtime-local-notification-request-queue-proof.js",
+      "types": "./dist/app-game-android-child-runtime-local-notification-request-queue-proof.d.ts"
+    },
+    "./app-game-android-child-runtime-local-receipt-ack-proof": {
+      "import": "./dist/app-game-android-child-runtime-local-receipt-ack-proof.js",
+      "types": "./dist/app-game-android-child-runtime-local-receipt-ack-proof.d.ts"
+    },
+    "./app-game-android-child-runtime-local-receipt-channel-proof": {
+      "import": "./dist/app-game-android-child-runtime-local-receipt-channel-proof.js",
+      "types": "./dist/app-game-android-child-runtime-local-receipt-channel-proof.d.ts"
+    },
+    "./app-game-android-child-runtime-local-receipt-proof": {
+      "import": "./dist/app-game-android-child-runtime-local-receipt-proof.js",
+      "types": "./dist/app-game-android-child-runtime-local-receipt-proof.d.ts"
+    },
+    "./app-game-android-child-runtime-transport-receipt-proof": {
+      "import": "./dist/app-game-android-child-runtime-transport-receipt-proof.js",
+      "types": "./dist/app-game-android-child-runtime-transport-receipt-proof.d.ts"
+    },
+    "./app-game-android-physical-device-proof": {
+      "import": "./dist/app-game-android-physical-device-proof.js",
+      "types": "./dist/app-game-android-physical-device-proof.d.ts"
+    },
+    "./app-game-android-usage-events-capability-proof": {
+      "import": "./dist/app-game-android-usage-events-capability-proof.js",
+      "types": "./dist/app-game-android-usage-events-capability-proof.d.ts"
+    },
+    "./app-game-android-usage-events-child-runtime-replay": {
+      "import": "./dist/app-game-android-usage-events-child-runtime-replay.js",
+      "types": "./dist/app-game-android-usage-events-child-runtime-replay.d.ts"
+    },
+    "./app-game-android-usage-events-contracts": {
+      "import": "./dist/app-game-android-usage-events-contracts.js",
+      "types": "./dist/app-game-android-usage-events-contracts.d.ts"
+    },
+    "./app-game-android-usage-events-count-sample": {
+      "import": "./dist/app-game-android-usage-events-count-sample.js",
+      "types": "./dist/app-game-android-usage-events-count-sample.d.ts"
+    },
+    "./app-game-android-usage-events-granted-sample-proof": {
+      "import": "./dist/app-game-android-usage-events-granted-sample-proof.js",
+      "types": "./dist/app-game-android-usage-events-granted-sample-proof.d.ts"
+    },
+    "./app-game-android-usage-events-package-runtime-proof": {
+      "import": "./dist/app-game-android-usage-events-package-runtime-proof.js",
+      "types": "./dist/app-game-android-usage-events-package-runtime-proof.d.ts"
+    },
+    "./app-game-android-usage-events-replay": {
+      "import": "./dist/app-game-android-usage-events-replay.js",
+      "types": "./dist/app-game-android-usage-events-replay.d.ts"
+    },
+    "./app-game-android-usage-events-runtime-preflight": {
+      "import": "./dist/app-game-android-usage-events-runtime-preflight.js",
+      "types": "./dist/app-game-android-usage-events-runtime-preflight.d.ts"
+    },
+    "./app-game-apple-ci-platform-proof-preflight": {
+      "import": "./dist/app-game-apple-ci-platform-proof-preflight.js",
+      "types": "./dist/app-game-apple-ci-platform-proof-preflight.d.ts"
+    },
+    "./app-game-boundary-read-model": {
+      "import": "./dist/app-game-boundary-read-model.js",
+      "types": "./dist/app-game-boundary-read-model.d.ts"
+    },
+    "./app-game-broad-blocking-proof-gate-data": {
+      "import": "./dist/app-game-broad-blocking-proof-gate-data.js",
+      "types": "./dist/app-game-broad-blocking-proof-gate-data.d.ts"
+    },
+    "./app-game-broad-blocking-proof-gate-rules": {
+      "import": "./dist/app-game-broad-blocking-proof-gate-rules.js",
+      "types": "./dist/app-game-broad-blocking-proof-gate-rules.d.ts"
+    },
+    "./app-game-broad-blocking-proof-gates": {
+      "import": "./dist/app-game-broad-blocking-proof-gates.js",
+      "types": "./dist/app-game-broad-blocking-proof-gates.d.ts"
+    },
+    "./app-game-category-risk": {
+      "import": "./dist/app-game-category-risk.js",
+      "types": "./dist/app-game-category-risk.d.ts"
+    },
+    "./app-game-category-risk-policy-routing": {
+      "import": "./dist/app-game-category-risk-policy-routing.js",
+      "types": "./dist/app-game-category-risk-policy-routing.d.ts"
+    },
+    "./app-game-category-risk-policy-routing-rules": {
+      "import": "./dist/app-game-category-risk-policy-routing-rules.js",
+      "types": "./dist/app-game-category-risk-policy-routing-rules.d.ts"
+    },
+    "./app-game-category-risk-primitives": {
+      "import": "./dist/app-game-category-risk-primitives.js",
+      "types": "./dist/app-game-category-risk-primitives.d.ts"
+    },
+    "./app-game-child-facing-ux": {
+      "import": "./dist/app-game-child-facing-ux.js",
+      "types": "./dist/app-game-child-facing-ux.d.ts"
+    },
+    "./app-game-child-facing-ux-child-device-delivery-readiness": {
+      "import": "./dist/app-game-child-facing-ux-child-device-delivery-readiness.js",
+      "types": "./dist/app-game-child-facing-ux-child-device-delivery-readiness.d.ts"
+    },
+    "./app-game-child-facing-ux-child-device-runtime-writer": {
+      "import": "./dist/app-game-child-facing-ux-child-device-runtime-writer.js",
+      "types": "./dist/app-game-child-facing-ux-child-device-runtime-writer.d.ts"
+    },
+    "./app-game-child-facing-ux-child-runtime-transport-receipt-boundary": {
+      "import": "./dist/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.js",
+      "types": "./dist/app-game-child-facing-ux-child-runtime-transport-receipt-boundary.d.ts"
+    },
+    "./app-game-child-facing-ux-handoff": {
+      "import": "./dist/app-game-child-facing-ux-handoff.js",
+      "types": "./dist/app-game-child-facing-ux-handoff.d.ts"
+    },
+    "./app-game-child-facing-ux-local-handoff": {
+      "import": "./dist/app-game-child-facing-ux-local-handoff.js",
+      "types": "./dist/app-game-child-facing-ux-local-handoff.d.ts"
+    },
+    "./app-game-child-facing-ux-local-outbox-bridge": {
+      "import": "./dist/app-game-child-facing-ux-local-outbox-bridge.js",
+      "types": "./dist/app-game-child-facing-ux-local-outbox-bridge.d.ts"
+    },
+    "./app-game-child-facing-ux-local-outbox-parent-surface-intent": {
+      "import": "./dist/app-game-child-facing-ux-local-outbox-parent-surface-intent.js",
+      "types": "./dist/app-game-child-facing-ux-local-outbox-parent-surface-intent.d.ts"
+    },
+    "./app-game-child-facing-ux-local-outbox-preference-preflight": {
+      "import": "./dist/app-game-child-facing-ux-local-outbox-preference-preflight.js",
+      "types": "./dist/app-game-child-facing-ux-local-outbox-preference-preflight.d.ts"
+    },
+    "./app-game-child-facing-ux-local-outbox-preference-status-handoff": {
+      "import": "./dist/app-game-child-facing-ux-local-outbox-preference-status-handoff.js",
+      "types": "./dist/app-game-child-facing-ux-local-outbox-preference-status-handoff.d.ts"
+    },
+    "./app-game-child-facing-ux-local-outbox-provider-preflight": {
+      "import": "./dist/app-game-child-facing-ux-local-outbox-provider-preflight.js",
+      "types": "./dist/app-game-child-facing-ux-local-outbox-provider-preflight.d.ts"
+    },
+    "./app-game-child-facing-ux-local-outbox-provider-status-handoff": {
+      "import": "./dist/app-game-child-facing-ux-local-outbox-provider-status-handoff.js",
+      "types": "./dist/app-game-child-facing-ux-local-outbox-provider-status-handoff.d.ts"
+    },
+    "./app-game-child-facing-ux-local-outbox-scheduler-bridge": {
+      "import": "./dist/app-game-child-facing-ux-local-outbox-scheduler-bridge.js",
+      "types": "./dist/app-game-child-facing-ux-local-outbox-scheduler-bridge.d.ts"
+    },
+    "./app-game-child-facing-ux-parent-preference-setup-draft": {
+      "import": "./dist/app-game-child-facing-ux-parent-preference-setup-draft.js",
+      "types": "./dist/app-game-child-facing-ux-parent-preference-setup-draft.d.ts"
+    },
+    "./app-game-child-facing-ux-rules": {
+      "import": "./dist/app-game-child-facing-ux-rules.js",
+      "types": "./dist/app-game-child-facing-ux-rules.d.ts"
+    },
+    "./app-game-child-runtime-transport-receipt": {
+      "import": "./dist/app-game-child-runtime-transport-receipt.js",
+      "types": "./dist/app-game-child-runtime-transport-receipt.d.ts"
+    },
+    "./app-game-control-approval-flow": {
+      "import": "./dist/app-game-control-approval-flow.js",
+      "types": "./dist/app-game-control-approval-flow.d.ts"
+    },
+    "./app-game-control-authority": {
+      "import": "./dist/app-game-control-authority.js",
+      "types": "./dist/app-game-control-authority.d.ts"
+    },
+    "./app-game-control-authority-rules": {
+      "import": "./dist/app-game-control-authority-rules.js",
+      "types": "./dist/app-game-control-authority-rules.d.ts"
+    },
+    "./app-game-control-platform-authority": {
+      "import": "./dist/app-game-control-platform-authority.js",
+      "types": "./dist/app-game-control-platform-authority.d.ts"
+    },
+    "./app-game-control-platform-authority-rules": {
+      "import": "./dist/app-game-control-platform-authority-rules.js",
+      "types": "./dist/app-game-control-platform-authority-rules.d.ts"
+    },
+    "./app-game-foreground": {
+      "import": "./dist/app-game-foreground.js",
+      "types": "./dist/app-game-foreground.d.ts"
+    },
+    "./app-game-identity-primitives": {
+      "import": "./dist/app-game-identity-primitives.js",
+      "types": "./dist/app-game-identity-primitives.d.ts"
+    },
+    "./app-game-install-store-handoff": {
+      "import": "./dist/app-game-install-store-handoff.js",
+      "types": "./dist/app-game-install-store-handoff.d.ts"
+    },
+    "./app-game-install-store-handoff-proof": {
+      "import": "./dist/app-game-install-store-handoff-proof.js",
+      "types": "./dist/app-game-install-store-handoff-proof.d.ts"
+    },
+    "./app-game-install-store-handoff-rules": {
+      "import": "./dist/app-game-install-store-handoff-rules.js",
+      "types": "./dist/app-game-install-store-handoff-rules.d.ts"
+    },
+    "./app-game-inventory": {
+      "import": "./dist/app-game-inventory.js",
+      "types": "./dist/app-game-inventory.d.ts"
+    },
+    "./app-game-inventory-primitives": {
+      "import": "./dist/app-game-inventory-primitives.js",
+      "types": "./dist/app-game-inventory-primitives.d.ts"
+    },
+    "./app-game-launcher": {
+      "import": "./dist/app-game-launcher.js",
+      "types": "./dist/app-game-launcher.d.ts"
+    },
+    "./app-game-linux-active-window-tool-proof": {
+      "import": "./dist/app-game-linux-active-window-tool-proof.js",
+      "types": "./dist/app-game-linux-active-window-tool-proof.d.ts"
+    },
+    "./app-game-linux-docker-host-preflight": {
+      "import": "./dist/app-game-linux-docker-host-preflight.js",
+      "types": "./dist/app-game-linux-docker-host-preflight.d.ts"
+    },
+    "./app-game-linux-foreground-capture-readiness": {
+      "import": "./dist/app-game-linux-foreground-capture-readiness.js",
+      "types": "./dist/app-game-linux-foreground-capture-readiness.d.ts"
+    },
+    "./app-game-linux-foreground-source-preflight": {
+      "import": "./dist/app-game-linux-foreground-source-preflight.js",
+      "types": "./dist/app-game-linux-foreground-source-preflight.d.ts"
+    },
+    "./app-game-linux-wsl-runtime-proof": {
+      "import": "./dist/app-game-linux-wsl-runtime-proof.js",
+      "types": "./dist/app-game-linux-wsl-runtime-proof.d.ts"
+    },
+    "./app-game-notification-intent": {
+      "import": "./dist/app-game-notification-intent.js",
+      "types": "./dist/app-game-notification-intent.d.ts"
+    },
+    "./app-game-notification-intent-rules": {
+      "import": "./dist/app-game-notification-intent-rules.js",
+      "types": "./dist/app-game-notification-intent-rules.d.ts"
+    },
+    "./app-game-notification-local-outbox-bridge": {
+      "import": "./dist/app-game-notification-local-outbox-bridge.js",
+      "types": "./dist/app-game-notification-local-outbox-bridge.d.ts"
+    },
+    "./app-game-notification-parent-surface-intent": {
+      "import": "./dist/app-game-notification-parent-surface-intent.js",
+      "types": "./dist/app-game-notification-parent-surface-intent.d.ts"
+    },
+    "./app-game-notification-preference-preflight": {
+      "import": "./dist/app-game-notification-preference-preflight.js",
+      "types": "./dist/app-game-notification-preference-preflight.d.ts"
+    },
+    "./app-game-notification-preference-status-handoff": {
+      "import": "./dist/app-game-notification-preference-status-handoff.js",
+      "types": "./dist/app-game-notification-preference-status-handoff.d.ts"
+    },
+    "./app-game-notification-provider-preflight": {
+      "import": "./dist/app-game-notification-provider-preflight.js",
+      "types": "./dist/app-game-notification-provider-preflight.d.ts"
+    },
+    "./app-game-notification-provider-status-handoff": {
+      "import": "./dist/app-game-notification-provider-status-handoff.js",
+      "types": "./dist/app-game-notification-provider-status-handoff.d.ts"
+    },
+    "./app-game-notification-readiness": {
+      "import": "./dist/app-game-notification-readiness.js",
+      "types": "./dist/app-game-notification-readiness.d.ts"
+    },
+    "./app-game-notification-scheduler-bridge": {
+      "import": "./dist/app-game-notification-scheduler-bridge.js",
+      "types": "./dist/app-game-notification-scheduler-bridge.d.ts"
+    },
+    "./app-game-performance-health": {
+      "import": "./dist/app-game-performance-health.js",
+      "types": "./dist/app-game-performance-health.d.ts"
+    },
+    "./app-game-performance-health-proof": {
+      "import": "./dist/app-game-performance-health-proof.js",
+      "types": "./dist/app-game-performance-health-proof.d.ts"
+    },
+    "./app-game-performance-health-rules": {
+      "import": "./dist/app-game-performance-health-rules.js",
+      "types": "./dist/app-game-performance-health-rules.d.ts"
+    },
+    "./app-game-platform-extension-proof-pack-readiness": {
+      "import": "./dist/app-game-platform-extension-proof-pack-readiness.js",
+      "types": "./dist/app-game-platform-extension-proof-pack-readiness.d.ts"
+    },
+    "./app-game-platform-extension-routing": {
+      "import": "./dist/app-game-platform-extension-routing.js",
+      "types": "./dist/app-game-platform-extension-routing.d.ts"
+    },
+    "./app-game-platform-extension-routing-android-data": {
+      "import": "./dist/app-game-platform-extension-routing-android-data.js",
+      "types": "./dist/app-game-platform-extension-routing-android-data.d.ts"
+    },
+    "./app-game-platform-extension-routing-data": {
+      "import": "./dist/app-game-platform-extension-routing-data.js",
+      "types": "./dist/app-game-platform-extension-routing-data.d.ts"
+    },
+    "./app-game-platform-extension-routing-data-support": {
+      "import": "./dist/app-game-platform-extension-routing-data-support.js",
+      "types": "./dist/app-game-platform-extension-routing-data-support.d.ts"
+    },
+    "./app-game-platform-extension-routing-ios-data": {
+      "import": "./dist/app-game-platform-extension-routing-ios-data.js",
+      "types": "./dist/app-game-platform-extension-routing-ios-data.d.ts"
+    },
+    "./app-game-platform-extension-routing-linux-data": {
+      "import": "./dist/app-game-platform-extension-routing-linux-data.js",
+      "types": "./dist/app-game-platform-extension-routing-linux-data.d.ts"
+    },
+    "./app-game-platform-extension-routing-macos-data": {
+      "import": "./dist/app-game-platform-extension-routing-macos-data.js",
+      "types": "./dist/app-game-platform-extension-routing-macos-data.d.ts"
+    },
+    "./app-game-platform-extension-routing-rules": {
+      "import": "./dist/app-game-platform-extension-routing-rules.js",
+      "types": "./dist/app-game-platform-extension-routing-rules.d.ts"
+    },
+    "./app-game-platform-proof-status": {
+      "import": "./dist/app-game-platform-proof-status.js",
+      "types": "./dist/app-game-platform-proof-status.d.ts"
+    },
+    "./app-game-policy-preview-handoff": {
+      "import": "./dist/app-game-policy-preview-handoff.js",
+      "types": "./dist/app-game-policy-preview-handoff.d.ts"
+    },
+    "./app-game-policy-preview-handoff-rules": {
+      "import": "./dist/app-game-policy-preview-handoff-rules.js",
+      "types": "./dist/app-game-policy-preview-handoff-rules.d.ts"
+    },
+    "./app-game-policy-readiness": {
+      "import": "./dist/app-game-policy-readiness.js",
+      "types": "./dist/app-game-policy-readiness.d.ts"
+    },
+    "./app-game-policy-target-compiler": {
+      "import": "./dist/app-game-policy-target-compiler.js",
+      "types": "./dist/app-game-policy-target-compiler.d.ts"
+    },
+    "./app-game-policy-target-compiler-rules": {
+      "import": "./dist/app-game-policy-target-compiler-rules.js",
+      "types": "./dist/app-game-policy-target-compiler-rules.d.ts"
+    },
+    "./app-game-primitives": {
+      "import": "./dist/app-game-primitives.js",
+      "types": "./dist/app-game-primitives.d.ts"
+    },
+    "./app-game-runtime": {
+      "import": "./dist/app-game-runtime.js",
+      "types": "./dist/app-game-runtime.d.ts"
+    },
+    "./app-game-session-primitives": {
+      "import": "./dist/app-game-session-primitives.js",
+      "types": "./dist/app-game-session-primitives.d.ts"
+    },
+    "./app-game-source-freshness-policy-consumption": {
+      "import": "./dist/app-game-source-freshness-policy-consumption.js",
+      "types": "./dist/app-game-source-freshness-policy-consumption.d.ts"
+    },
+    "./app-game-source-freshness-policy-consumption-data": {
+      "import": "./dist/app-game-source-freshness-policy-consumption-data.js",
+      "types": "./dist/app-game-source-freshness-policy-consumption-data.d.ts"
+    },
+    "./app-game-source-freshness-policy-consumption-rules": {
+      "import": "./dist/app-game-source-freshness-policy-consumption-rules.js",
+      "types": "./dist/app-game-source-freshness-policy-consumption-rules.d.ts"
+    },
+    "./app-game-source-freshness-policy-consumption-values": {
+      "import": "./dist/app-game-source-freshness-policy-consumption-values.js",
+      "types": "./dist/app-game-source-freshness-policy-consumption-values.d.ts"
+    },
+    "./app-game-source-freshness-preview-gate": {
+      "import": "./dist/app-game-source-freshness-preview-gate.js",
+      "types": "./dist/app-game-source-freshness-preview-gate.d.ts"
+    },
+    "./app-game-source-freshness-preview-gate-rules": {
+      "import": "./dist/app-game-source-freshness-preview-gate-rules.js",
+      "types": "./dist/app-game-source-freshness-preview-gate-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-read-model": {
+      "import": "./dist/app-game-source-gated-policy-preview-read-model.js",
+      "types": "./dist/app-game-source-gated-policy-preview-read-model.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-read-model-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-read-model-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-read-model-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-audit-rollback-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-audit-rollback-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-audit-rollback-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-audit-rollback-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-audit-rollback-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-audit-rollback-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-audit-rollback-read-model": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-audit-rollback-read-model.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-audit-rollback-read-model.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-audit-rollback-read-model-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-audit-rollback-read-model-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-audit-rollback-read-model-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-runtime-readiness": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-runtime-readiness.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-runtime-readiness.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-runtime-readiness-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-runtime-readiness-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-runtime-readiness-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-scheduler-persistence": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-scheduler-persistence.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-scheduler-persistence.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-scheduler-persistence-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-scheduler-persistence-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-scheduler-persistence-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-read-model": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-model.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-model.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-read-model-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-model-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-read-model-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-service-handler-handoff": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-service-handler-handoff.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-service-handler-handoff.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-service-readiness-service-handler-handoff-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-service-handler-handoff-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-service-readiness-service-handler-handoff-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-status": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-status.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-status.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-timer-status-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-timer-status-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-timer-status-rules.d.ts"
+    },
+    "./app-game-time-budget-policy": {
+      "import": "./dist/app-game-time-budget-policy.js",
+      "types": "./dist/app-game-time-budget-policy.d.ts"
+    },
+    "./app-game-time-budget-policy-rules": {
+      "import": "./dist/app-game-time-budget-policy-rules.js",
+      "types": "./dist/app-game-time-budget-policy-rules.d.ts"
+    },
+    "./app-game-time-budget-policy-runtime": {
+      "import": "./dist/app-game-time-budget-policy-runtime.js",
+      "types": "./dist/app-game-time-budget-policy-runtime.d.ts"
+    },
+    "./app-game-timer-parent-preference-setup-request": {
+      "import": "./dist/app-game-timer-parent-preference-setup-request.js",
+      "types": "./dist/app-game-timer-parent-preference-setup-request.d.ts"
+    },
+    "./app-game-timer-parent-surface-read-model": {
+      "import": "./dist/app-game-timer-parent-surface-read-model.js",
+      "types": "./dist/app-game-timer-parent-surface-read-model.d.ts"
+    },
+    "./app-game-timer-service-event-handoff": {
+      "import": "./dist/app-game-timer-service-event-handoff.js",
+      "types": "./dist/app-game-timer-service-event-handoff.d.ts"
+    },
+    "./app-game-timer-service-event-handoff-rules": {
+      "import": "./dist/app-game-timer-service-event-handoff-rules.js",
+      "types": "./dist/app-game-timer-service-event-handoff-rules.d.ts"
+    },
+    "./app-game-timer-service-handoff": {
+      "import": "./dist/app-game-timer-service-handoff.js",
+      "types": "./dist/app-game-timer-service-handoff.d.ts"
+    },
+    "./app-game-timer-service-handoff-rules": {
+      "import": "./dist/app-game-timer-service-handoff-rules.js",
+      "types": "./dist/app-game-timer-service-handoff-rules.d.ts"
+    },
+    "./app-game-timer-service-read-api-handoff": {
+      "import": "./dist/app-game-timer-service-read-api-handoff.js",
+      "types": "./dist/app-game-timer-service-read-api-handoff.d.ts"
+    },
+    "./app-game-timer-service-read-api-handoff-rules": {
+      "import": "./dist/app-game-timer-service-read-api-handoff-rules.js",
+      "types": "./dist/app-game-timer-service-read-api-handoff-rules.d.ts"
+    },
+    "./app-game-timer-service-read-api-response-consumer-handoff": {
+      "import": "./dist/app-game-timer-service-read-api-response-consumer-handoff.js",
+      "types": "./dist/app-game-timer-service-read-api-response-consumer-handoff.d.ts"
+    },
+    "./app-game-timer-service-read-api-response-consumer-handoff-rules": {
+      "import": "./dist/app-game-timer-service-read-api-response-consumer-handoff-rules.js",
+      "types": "./dist/app-game-timer-service-read-api-response-consumer-handoff-rules.d.ts"
+    },
+    "./app-game-timer-service-read-api-response-consumer-parent-surface-handoff": {
+      "import": "./dist/app-game-timer-service-read-api-response-consumer-parent-surface-handoff.js",
+      "types": "./dist/app-game-timer-service-read-api-response-consumer-parent-surface-handoff.d.ts"
+    },
+    "./app-game-timer-service-read-api-response-consumer-parent-surface-handoff-rules": {
+      "import": "./dist/app-game-timer-service-read-api-response-consumer-parent-surface-handoff-rules.js",
+      "types": "./dist/app-game-timer-service-read-api-response-consumer-parent-surface-handoff-rules.d.ts"
+    },
+    "./app-game-timer-service-read-api-response-handoff": {
+      "import": "./dist/app-game-timer-service-read-api-response-handoff.js",
+      "types": "./dist/app-game-timer-service-read-api-response-handoff.d.ts"
+    },
+    "./app-game-timer-service-read-api-response-handoff-rules": {
+      "import": "./dist/app-game-timer-service-read-api-response-handoff-rules.js",
+      "types": "./dist/app-game-timer-service-read-api-response-handoff-rules.d.ts"
+    },
+    "./app-game-timer-service-read-model-handoff": {
+      "import": "./dist/app-game-timer-service-read-model-handoff.js",
+      "types": "./dist/app-game-timer-service-read-model-handoff.d.ts"
+    },
+    "./app-game-timer-service-read-model-handoff-rules": {
+      "import": "./dist/app-game-timer-service-read-model-handoff-rules.js",
+      "types": "./dist/app-game-timer-service-read-model-handoff-rules.d.ts"
+    },
+    "./app-game-windows-broad-blocking-authority-preflight": {
+      "import": "./dist/app-game-windows-broad-blocking-authority-preflight.js",
+      "types": "./dist/app-game-windows-broad-blocking-authority-preflight.d.ts"
+    },
+    "./app-game-windows-local-policy-evidence-proof": {
+      "import": "./dist/app-game-windows-local-policy-evidence-proof.js",
+      "types": "./dist/app-game-windows-local-policy-evidence-proof.d.ts"
+    },
+    "./app-install-purchase-approval": {
+      "import": "./dist/app-install-purchase-approval.js",
+      "types": "./dist/app-install-purchase-approval.d.ts"
+    },
+    "./app-install-purchase-approval-package-sources": {
+      "import": "./dist/app-install-purchase-approval-package-sources.js",
+      "types": "./dist/app-install-purchase-approval-package-sources.d.ts"
+    },
+    "./app-install-purchase-approval-platform-sources": {
+      "import": "./dist/app-install-purchase-approval-platform-sources.js",
+      "types": "./dist/app-install-purchase-approval-platform-sources.d.ts"
+    },
+    "./app-install-purchase-approval-proof": {
+      "import": "./dist/app-install-purchase-approval-proof.js",
+      "types": "./dist/app-install-purchase-approval-proof.d.ts"
+    },
+    "./app-install-purchase-approval-proof-states": {
+      "import": "./dist/app-install-purchase-approval-proof-states.js",
+      "types": "./dist/app-install-purchase-approval-proof-states.d.ts"
+    },
+    "./app-install-purchase-approval-report-domain-proof": {
+      "import": "./dist/app-install-purchase-approval-report-domain-proof.js",
+      "types": "./dist/app-install-purchase-approval-report-domain-proof.d.ts"
+    },
+    "./app-install-purchase-approval-rules": {
+      "import": "./dist/app-install-purchase-approval-rules.js",
+      "types": "./dist/app-install-purchase-approval-rules.d.ts"
+    },
+    "./app-install-purchase-approved-api-entitlement-proof": {
+      "import": "./dist/app-install-purchase-approved-api-entitlement-proof.js",
+      "types": "./dist/app-install-purchase-approved-api-entitlement-proof.d.ts"
+    },
+    "./app-install-purchase-child-artifact-delivery-proof": {
+      "import": "./dist/app-install-purchase-child-artifact-delivery-proof.js",
+      "types": "./dist/app-install-purchase-child-artifact-delivery-proof.d.ts"
+    },
+    "./app-install-purchase-child-device-delivery-readiness-proof": {
+      "import": "./dist/app-install-purchase-child-device-delivery-readiness-proof.js",
+      "types": "./dist/app-install-purchase-child-device-delivery-readiness-proof.d.ts"
+    },
+    "./app-install-purchase-child-device-delivery-runtime-writer-proof": {
+      "import": "./dist/app-install-purchase-child-device-delivery-runtime-writer-proof.js",
+      "types": "./dist/app-install-purchase-child-device-delivery-runtime-writer-proof.d.ts"
+    },
+    "./app-install-purchase-dispatch-executor-receipt-proof": {
+      "import": "./dist/app-install-purchase-dispatch-executor-receipt-proof.js",
+      "types": "./dist/app-install-purchase-dispatch-executor-receipt-proof.d.ts"
+    },
+    "./app-install-purchase-execution-receipt-gate-proof": {
+      "import": "./dist/app-install-purchase-execution-receipt-gate-proof.js",
+      "types": "./dist/app-install-purchase-execution-receipt-gate-proof.d.ts"
+    },
+    "./app-install-purchase-external-runtime-delivery-handoff-proof": {
+      "import": "./dist/app-install-purchase-external-runtime-delivery-handoff-proof.js",
+      "types": "./dist/app-install-purchase-external-runtime-delivery-handoff-proof.d.ts"
+    },
+    "./app-install-purchase-external-runtime-device-delivery-proof": {
+      "import": "./dist/app-install-purchase-external-runtime-device-delivery-proof.js",
+      "types": "./dist/app-install-purchase-external-runtime-device-delivery-proof.d.ts"
+    },
+    "./app-install-purchase-external-runtime-transport-dispatch-preflight-proof": {
+      "import": "./dist/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.js",
+      "types": "./dist/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.d.ts"
+    },
+    "./app-install-purchase-external-runtime-transport-queue-proof": {
+      "import": "./dist/app-install-purchase-external-runtime-transport-queue-proof.js",
+      "types": "./dist/app-install-purchase-external-runtime-transport-queue-proof.d.ts"
+    },
+    "./app-install-purchase-external-runtime-writer-delivery-blocker-proof": {
+      "import": "./dist/app-install-purchase-external-runtime-writer-delivery-blocker-proof.js",
+      "types": "./dist/app-install-purchase-external-runtime-writer-delivery-blocker-proof.d.ts"
+    },
+    "./app-install-purchase-external-runtime-writer-delivery-boundary-proof": {
+      "import": "./dist/app-install-purchase-external-runtime-writer-delivery-boundary-proof.js",
+      "types": "./dist/app-install-purchase-external-runtime-writer-delivery-boundary-proof.d.ts"
+    },
+    "./app-install-purchase-external-runtime-writer-readiness-proof": {
+      "import": "./dist/app-install-purchase-external-runtime-writer-readiness-proof.js",
+      "types": "./dist/app-install-purchase-external-runtime-writer-readiness-proof.d.ts"
+    },
+    "./app-install-purchase-external-runtime-writer-transport-execution-proof": {
+      "import": "./dist/app-install-purchase-external-runtime-writer-transport-execution-proof.js",
+      "types": "./dist/app-install-purchase-external-runtime-writer-transport-execution-proof.d.ts"
+    },
+    "./app-install-purchase-external-runtime-writer-transport-preflight-proof": {
+      "import": "./dist/app-install-purchase-external-runtime-writer-transport-preflight-proof.js",
+      "types": "./dist/app-install-purchase-external-runtime-writer-transport-preflight-proof.d.ts"
+    },
+    "./app-install-purchase-limitation-summary-proof": {
+      "import": "./dist/app-install-purchase-limitation-summary-proof.js",
+      "types": "./dist/app-install-purchase-limitation-summary-proof.d.ts"
+    },
+    "./app-install-purchase-package-source-adapter-execution-proof": {
+      "import": "./dist/app-install-purchase-package-source-adapter-execution-proof.js",
+      "types": "./dist/app-install-purchase-package-source-adapter-execution-proof.d.ts"
+    },
+    "./app-install-purchase-package-source-capture-status-proof": {
+      "import": "./dist/app-install-purchase-package-source-capture-status-proof.js",
+      "types": "./dist/app-install-purchase-package-source-capture-status-proof.d.ts"
+    },
+    "./app-install-purchase-parent-action-delivery-readiness-proof": {
+      "import": "./dist/app-install-purchase-parent-action-delivery-readiness-proof.js",
+      "types": "./dist/app-install-purchase-parent-action-delivery-readiness-proof.d.ts"
+    },
+    "./app-install-purchase-parent-action-runtime-handoff-proof": {
+      "import": "./dist/app-install-purchase-parent-action-runtime-handoff-proof.js",
+      "types": "./dist/app-install-purchase-parent-action-runtime-handoff-proof.d.ts"
+    },
+    "./app-install-purchase-parent-review-action-proof": {
+      "import": "./dist/app-install-purchase-parent-review-action-proof.js",
+      "types": "./dist/app-install-purchase-parent-review-action-proof.d.ts"
+    },
+    "./app-install-purchase-platform-adapter-boundary-proof": {
+      "import": "./dist/app-install-purchase-platform-adapter-boundary-proof.js",
+      "types": "./dist/app-install-purchase-platform-adapter-boundary-proof.d.ts"
+    },
+    "./app-install-purchase-platform-adapter-evidence-gap-proof": {
+      "import": "./dist/app-install-purchase-platform-adapter-evidence-gap-proof.js",
+      "types": "./dist/app-install-purchase-platform-adapter-evidence-gap-proof.d.ts"
+    },
+    "./app-install-purchase-platform-artifact-proof": {
+      "import": "./dist/app-install-purchase-platform-artifact-proof.js",
+      "types": "./dist/app-install-purchase-platform-artifact-proof.d.ts"
+    },
+    "./app-install-purchase-platform-limitation-action-proof": {
+      "import": "./dist/app-install-purchase-platform-limitation-action-proof.js",
+      "types": "./dist/app-install-purchase-platform-limitation-action-proof.d.ts"
+    },
+    "./app-install-purchase-platform-proof-readiness": {
+      "import": "./dist/app-install-purchase-platform-proof-readiness.js",
+      "types": "./dist/app-install-purchase-platform-proof-readiness.d.ts"
+    },
+    "./app-install-purchase-product-claim-gate-proof": {
+      "import": "./dist/app-install-purchase-product-claim-gate-proof.js",
+      "types": "./dist/app-install-purchase-product-claim-gate-proof.d.ts"
+    },
+    "./app-install-purchase-product-claim-platform-limitation-fallback-proof": {
+      "import": "./dist/app-install-purchase-product-claim-platform-limitation-fallback-proof.js",
+      "types": "./dist/app-install-purchase-product-claim-platform-limitation-fallback-proof.d.ts"
+    },
+    "./app-install-purchase-product-claim-platform-preclaim-proof": {
+      "import": "./dist/app-install-purchase-product-claim-platform-preclaim-proof.js",
+      "types": "./dist/app-install-purchase-product-claim-platform-preclaim-proof.d.ts"
+    },
+    "./app-install-purchase-product-claim-portal-test-readiness-proof": {
+      "import": "./dist/app-install-purchase-product-claim-portal-test-readiness-proof.js",
+      "types": "./dist/app-install-purchase-product-claim-portal-test-readiness-proof.d.ts"
+    },
+    "./app-install-purchase-product-claim-provider-store-proof": {
+      "import": "./dist/app-install-purchase-product-claim-provider-store-proof.js",
+      "types": "./dist/app-install-purchase-product-claim-provider-store-proof.d.ts"
+    },
+    "./app-install-purchase-product-claim-safe-parent-workflow-proof": {
+      "import": "./dist/app-install-purchase-product-claim-safe-parent-workflow-proof.js",
+      "types": "./dist/app-install-purchase-product-claim-safe-parent-workflow-proof.d.ts"
+    },
+    "./app-install-purchase-product-claim-store-handoff-proof": {
+      "import": "./dist/app-install-purchase-product-claim-store-handoff-proof.js",
+      "types": "./dist/app-install-purchase-product-claim-store-handoff-proof.d.ts"
+    },
+    "./app-install-purchase-product-claim-store-upgrade-readiness-proof": {
+      "import": "./dist/app-install-purchase-product-claim-store-upgrade-readiness-proof.js",
+      "types": "./dist/app-install-purchase-product-claim-store-upgrade-readiness-proof.d.ts"
+    },
+    "./app-install-purchase-provider-store-api-execution-proof": {
+      "import": "./dist/app-install-purchase-provider-store-api-execution-proof.js",
+      "types": "./dist/app-install-purchase-provider-store-api-execution-proof.d.ts"
+    },
+    "./app-install-purchase-provider-store-execution-preflight-proof": {
+      "import": "./dist/app-install-purchase-provider-store-execution-preflight-proof.js",
+      "types": "./dist/app-install-purchase-provider-store-execution-preflight-proof.d.ts"
+    },
+    "./app-install-purchase-provider-store-execution-readiness-proof": {
+      "import": "./dist/app-install-purchase-provider-store-execution-readiness-proof.js",
+      "types": "./dist/app-install-purchase-provider-store-execution-readiness-proof.d.ts"
+    },
+    "./app-install-purchase-provider-store-manual-evidence-packet-proof": {
+      "import": "./dist/app-install-purchase-provider-store-manual-evidence-packet-proof.js",
+      "types": "./dist/app-install-purchase-provider-store-manual-evidence-packet-proof.d.ts"
+    },
+    "./app-install-purchase-provider-store-platform-evidence-proof": {
+      "import": "./dist/app-install-purchase-provider-store-platform-evidence-proof.js",
+      "types": "./dist/app-install-purchase-provider-store-platform-evidence-proof.d.ts"
+    },
+    "./app-install-purchase-provider-store-report-status-proof": {
+      "import": "./dist/app-install-purchase-provider-store-report-status-proof.js",
+      "types": "./dist/app-install-purchase-provider-store-report-status-proof.d.ts"
+    },
+    "./app-install-purchase-provider-store-report-status-runtime-proof": {
+      "import": "./dist/app-install-purchase-provider-store-report-status-runtime-proof.js",
+      "types": "./dist/app-install-purchase-provider-store-report-status-runtime-proof.d.ts"
+    },
+    "./app-install-purchase-report-runtime-proof": {
+      "import": "./dist/app-install-purchase-report-runtime-proof.js",
+      "types": "./dist/app-install-purchase-report-runtime-proof.d.ts"
+    },
+    "./app-install-purchase-report-status-read-model-handoff-proof": {
+      "import": "./dist/app-install-purchase-report-status-read-model-handoff-proof.js",
+      "types": "./dist/app-install-purchase-report-status-read-model-handoff-proof.d.ts"
+    },
+    "./app-install-purchase-runtime-delivery-receipt-boundary-proof": {
+      "import": "./dist/app-install-purchase-runtime-delivery-receipt-boundary-proof.js",
+      "types": "./dist/app-install-purchase-runtime-delivery-receipt-boundary-proof.d.ts"
+    },
+    "./app-install-purchase-runtime-proof": {
+      "import": "./dist/app-install-purchase-runtime-proof.js",
+      "types": "./dist/app-install-purchase-runtime-proof.d.ts"
+    },
+    "./app-install-purchase-runtime-proof-rules": {
+      "import": "./dist/app-install-purchase-runtime-proof-rules.js",
+      "types": "./dist/app-install-purchase-runtime-proof-rules.d.ts"
+    },
+    "./app-install-purchase-runtime-report-writer-delivery-proof": {
+      "import": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.js",
+      "types": "./dist/app-install-purchase-runtime-report-writer-delivery-proof.d.ts"
+    },
+    "./app-install-purchase-runtime-transport-delivery-execution-proof": {
+      "import": "./dist/app-install-purchase-runtime-transport-delivery-execution-proof.js",
+      "types": "./dist/app-install-purchase-runtime-transport-delivery-execution-proof.d.ts"
+    },
+    "./app-install-purchase-runtime-writer-delivery-proof": {
+      "import": "./dist/app-install-purchase-runtime-writer-delivery-proof.js",
+      "types": "./dist/app-install-purchase-runtime-writer-delivery-proof.d.ts"
+    },
+    "./app-install-purchase-runtime-writer-execution-delivery-proof": {
+      "import": "./dist/app-install-purchase-runtime-writer-execution-delivery-proof.js",
+      "types": "./dist/app-install-purchase-runtime-writer-execution-delivery-proof.d.ts"
+    },
+    "./app-install-purchase-store-manual-evidence-proof": {
+      "import": "./dist/app-install-purchase-store-manual-evidence-proof.js",
+      "types": "./dist/app-install-purchase-store-manual-evidence-proof.d.ts"
+    },
+    "./app-install-purchase-store-status-handoff-proof": {
+      "import": "./dist/app-install-purchase-store-status-handoff-proof.js",
+      "types": "./dist/app-install-purchase-store-status-handoff-proof.d.ts"
+    },
+    "./app-install-purchase-windows-package-source-adapter-evidence": {
+      "import": "./dist/app-install-purchase-windows-package-source-adapter-evidence.js",
+      "types": "./dist/app-install-purchase-windows-package-source-adapter-evidence.d.ts"
+    },
+    "./app-log/types": {
+      "import": "./dist/app-log/types.js",
+      "types": "./dist/app-log/types.d.ts"
+    },
+    "./app-riskdetection": {
+      "import": "./dist/app-riskdetection.js",
+      "types": "./dist/app-riskdetection.d.ts"
+    },
+    "./app-riskdetection-data": {
+      "import": "./dist/app-riskdetection-data.js",
+      "types": "./dist/app-riskdetection-data.d.ts"
+    },
+    "./app-riskdetection-rules": {
+      "import": "./dist/app-riskdetection-rules.js",
+      "types": "./dist/app-riskdetection-rules.d.ts"
+    },
+    "./authority": {
+      "import": "./dist/authority.js",
+      "types": "./dist/authority.d.ts"
+    },
+    "./billing-account-runtime-boundary": {
+      "import": "./dist/billing-account-runtime-boundary.js",
+      "types": "./dist/billing-account-runtime-boundary.d.ts"
+    },
+    "./billing-account-runtime-boundary-proof": {
+      "import": "./dist/billing-account-runtime-boundary-proof.js",
+      "types": "./dist/billing-account-runtime-boundary-proof.d.ts"
+    },
+    "./billing-account-runtime-boundary-values": {
+      "import": "./dist/billing-account-runtime-boundary-values.js",
+      "types": "./dist/billing-account-runtime-boundary-values.d.ts"
+    },
+    "./billing-checkout-portal-boundary": {
+      "import": "./dist/billing-checkout-portal-boundary.js",
+      "types": "./dist/billing-checkout-portal-boundary.d.ts"
+    },
+    "./billing-checkout-portal-boundary-values": {
+      "import": "./dist/billing-checkout-portal-boundary-values.js",
+      "types": "./dist/billing-checkout-portal-boundary-values.d.ts"
+    },
+    "./billing-entitlement": {
+      "import": "./dist/billing-entitlement.js",
+      "types": "./dist/billing-entitlement.d.ts"
+    },
+    "./billing-entitlement-proof": {
+      "import": "./dist/billing-entitlement-proof.js",
+      "types": "./dist/billing-entitlement-proof.d.ts"
+    },
+    "./billing-entitlement-proof-read-model": {
+      "import": "./dist/billing-entitlement-proof-read-model.js",
+      "types": "./dist/billing-entitlement-proof-read-model.d.ts"
+    },
+    "./billing-entitlement-runtime-proof": {
+      "import": "./dist/billing-entitlement-runtime-proof.js",
+      "types": "./dist/billing-entitlement-runtime-proof.d.ts"
+    },
+    "./billing-entitlement-runtime-proof-values": {
+      "import": "./dist/billing-entitlement-runtime-proof-values.js",
+      "types": "./dist/billing-entitlement-runtime-proof-values.d.ts"
+    },
+    "./billing-entitlement-values": {
+      "import": "./dist/billing-entitlement-values.js",
+      "types": "./dist/billing-entitlement-values.d.ts"
+    },
+    "./billing-invoice-tax-refund-dispute": {
+      "import": "./dist/billing-invoice-tax-refund-dispute.js",
+      "types": "./dist/billing-invoice-tax-refund-dispute.d.ts"
+    },
+    "./billing-invoice-tax-refund-dispute-values": {
+      "import": "./dist/billing-invoice-tax-refund-dispute-values.js",
+      "types": "./dist/billing-invoice-tax-refund-dispute-values.d.ts"
+    },
+    "./billing-pricing-matrix": {
+      "import": "./dist/billing-pricing-matrix.js",
+      "types": "./dist/billing-pricing-matrix.d.ts"
+    },
+    "./billing-pricing-matrix-proof": {
+      "import": "./dist/billing-pricing-matrix-proof.js",
+      "types": "./dist/billing-pricing-matrix-proof.d.ts"
+    },
+    "./billing-referral-boundary": {
+      "import": "./dist/billing-referral-boundary.js",
+      "types": "./dist/billing-referral-boundary.d.ts"
+    },
+    "./billing-security-privacy-observability": {
+      "import": "./dist/billing-security-privacy-observability.js",
+      "types": "./dist/billing-security-privacy-observability.d.ts"
+    },
+    "./billing-security-privacy-observability-values": {
+      "import": "./dist/billing-security-privacy-observability-values.js",
+      "types": "./dist/billing-security-privacy-observability-values.d.ts"
+    },
+    "./billing-support-admin-api-boundary": {
+      "import": "./dist/billing-support-admin-api-boundary.js",
+      "types": "./dist/billing-support-admin-api-boundary.d.ts"
+    },
+    "./billing-support-admin-boundary": {
+      "import": "./dist/billing-support-admin-boundary.js",
+      "types": "./dist/billing-support-admin-boundary.d.ts"
+    },
+    "./billing-support-admin-boundary-proof": {
+      "import": "./dist/billing-support-admin-boundary-proof.js",
+      "types": "./dist/billing-support-admin-boundary-proof.d.ts"
+    },
+    "./billing-support-admin-boundary-values": {
+      "import": "./dist/billing-support-admin-boundary-values.js",
+      "types": "./dist/billing-support-admin-boundary-values.d.ts"
+    },
+    "./billing-support-admin-common-values": {
+      "import": "./dist/billing-support-admin-common-values.js",
+      "types": "./dist/billing-support-admin-common-values.d.ts"
+    },
+    "./billing-support-admin-runtime-boundary": {
+      "import": "./dist/billing-support-admin-runtime-boundary.js",
+      "types": "./dist/billing-support-admin-runtime-boundary.d.ts"
+    },
+    "./billing-support-admin-status-proof": {
+      "import": "./dist/billing-support-admin-status-proof.js",
+      "types": "./dist/billing-support-admin-status-proof.d.ts"
+    },
+    "./billing-support-admin-status-values": {
+      "import": "./dist/billing-support-admin-status-values.js",
+      "types": "./dist/billing-support-admin-status-values.d.ts"
+    },
+    "./browser-ai-analysis-queue-schemas": {
+      "import": "./dist/browser-ai-analysis-queue-schemas.js",
+      "types": "./dist/browser-ai-analysis-queue-schemas.d.ts"
+    },
+    "./browser-ai-analysis-queue-values": {
+      "import": "./dist/browser-ai-analysis-queue-values.js",
+      "types": "./dist/browser-ai-analysis-queue-values.d.ts"
+    },
+    "./browser-ai-analysis-schemas": {
+      "import": "./dist/browser-ai-analysis-schemas.js",
+      "types": "./dist/browser-ai-analysis-schemas.d.ts"
+    },
+    "./browser-ai-analysis-values": {
+      "import": "./dist/browser-ai-analysis-values.js",
+      "types": "./dist/browser-ai-analysis-values.d.ts"
+    },
+    "./browser-ai-child-ux-schemas": {
+      "import": "./dist/browser-ai-child-ux-schemas.js",
+      "types": "./dist/browser-ai-child-ux-schemas.d.ts"
+    },
+    "./browser-ai-child-ux-values": {
+      "import": "./dist/browser-ai-child-ux-values.js",
+      "types": "./dist/browser-ai-child-ux-values.d.ts"
+    },
+    "./browser-ai-family-hub-routing-schemas": {
+      "import": "./dist/browser-ai-family-hub-routing-schemas.js",
+      "types": "./dist/browser-ai-family-hub-routing-schemas.d.ts"
+    },
+    "./browser-ai-knowledge-graph-schemas": {
+      "import": "./dist/browser-ai-knowledge-graph-schemas.js",
+      "types": "./dist/browser-ai-knowledge-graph-schemas.d.ts"
+    },
+    "./browser-ai-knowledge-graph-values": {
+      "import": "./dist/browser-ai-knowledge-graph-values.js",
+      "types": "./dist/browser-ai-knowledge-graph-values.d.ts"
+    },
+    "./browser-ai-memory-cache-store-schemas": {
+      "import": "./dist/browser-ai-memory-cache-store-schemas.js",
+      "types": "./dist/browser-ai-memory-cache-store-schemas.d.ts"
+    },
+    "./browser-ai-memory-cache-store-values": {
+      "import": "./dist/browser-ai-memory-cache-store-values.js",
+      "types": "./dist/browser-ai-memory-cache-store-values.d.ts"
+    },
+    "./browser-ai-parent-explanation-schemas": {
+      "import": "./dist/browser-ai-parent-explanation-schemas.js",
+      "types": "./dist/browser-ai-parent-explanation-schemas.d.ts"
+    },
+    "./browser-ai-parent-explanation-values": {
+      "import": "./dist/browser-ai-parent-explanation-values.js",
+      "types": "./dist/browser-ai-parent-explanation-values.d.ts"
+    },
+    "./browser-ai-policy-evaluator-schemas": {
+      "import": "./dist/browser-ai-policy-evaluator-schemas.js",
+      "types": "./dist/browser-ai-policy-evaluator-schemas.d.ts"
+    },
+    "./browser-ai-policy-evaluator-values": {
+      "import": "./dist/browser-ai-policy-evaluator-values.js",
+      "types": "./dist/browser-ai-policy-evaluator-values.d.ts"
+    },
+    "./browser-ai-post-analysis-action-schemas": {
+      "import": "./dist/browser-ai-post-analysis-action-schemas.js",
+      "types": "./dist/browser-ai-post-analysis-action-schemas.d.ts"
+    },
+    "./browser-ai-post-analysis-action-values": {
+      "import": "./dist/browser-ai-post-analysis-action-values.js",
+      "types": "./dist/browser-ai-post-analysis-action-values.d.ts"
+    },
+    "./browser-ai-prompt-template-schemas": {
+      "import": "./dist/browser-ai-prompt-template-schemas.js",
+      "types": "./dist/browser-ai-prompt-template-schemas.d.ts"
+    },
+    "./browser-ai-prompt-template-values": {
+      "import": "./dist/browser-ai-prompt-template-values.js",
+      "types": "./dist/browser-ai-prompt-template-values.d.ts"
+    },
+    "./browser-ai-provider-fallback-schemas": {
+      "import": "./dist/browser-ai-provider-fallback-schemas.js",
+      "types": "./dist/browser-ai-provider-fallback-schemas.d.ts"
+    },
+    "./browser-ai-provider-routing-schemas": {
+      "import": "./dist/browser-ai-provider-routing-schemas.js",
+      "types": "./dist/browser-ai-provider-routing-schemas.d.ts"
+    },
+    "./browser-ai-remote-boundary-schemas": {
+      "import": "./dist/browser-ai-remote-boundary-schemas.js",
+      "types": "./dist/browser-ai-remote-boundary-schemas.d.ts"
+    },
+    "./browser-ai-remote-boundary-values": {
+      "import": "./dist/browser-ai-remote-boundary-values.js",
+      "types": "./dist/browser-ai-remote-boundary-values.d.ts"
+    },
+    "./browser-ai-riskbenefit-model-schemas": {
+      "import": "./dist/browser-ai-riskbenefit-model-schemas.js",
+      "types": "./dist/browser-ai-riskbenefit-model-schemas.d.ts"
+    },
+    "./browser-ai-riskbenefit-model-values": {
+      "import": "./dist/browser-ai-riskbenefit-model-values.js",
+      "types": "./dist/browser-ai-riskbenefit-model-values.d.ts"
+    },
+    "./browser-control-baseline-manifest": {
+      "import": "./dist/browser-control-baseline-manifest.js",
+      "types": "./dist/browser-control-baseline-manifest.d.ts"
+    },
+    "./browser-control-catalog-values": {
+      "import": "./dist/browser-control-catalog-values.js",
+      "types": "./dist/browser-control-catalog-values.d.ts"
+    },
+    "./browser-control-coverage-matrix": {
+      "import": "./dist/browser-control-coverage-matrix.js",
+      "types": "./dist/browser-control-coverage-matrix.d.ts"
+    },
+    "./browser-control-full-catalog": {
+      "import": "./dist/browser-control-full-catalog.js",
+      "types": "./dist/browser-control-full-catalog.d.ts"
+    },
+    "./browser-control-full-catalog-data-0": {
+      "import": "./dist/browser-control-full-catalog-data-0.js",
+      "types": "./dist/browser-control-full-catalog-data-0.d.ts"
+    },
+    "./browser-control-full-catalog-data-1": {
+      "import": "./dist/browser-control-full-catalog-data-1.js",
+      "types": "./dist/browser-control-full-catalog-data-1.d.ts"
+    },
+    "./browser-control-full-catalog-data-2": {
+      "import": "./dist/browser-control-full-catalog-data-2.js",
+      "types": "./dist/browser-control-full-catalog-data-2.d.ts"
+    },
+    "./browser-control-full-catalog-data-3": {
+      "import": "./dist/browser-control-full-catalog-data-3.js",
+      "types": "./dist/browser-control-full-catalog-data-3.d.ts"
+    },
+    "./browser-control-full-catalog-data-4": {
+      "import": "./dist/browser-control-full-catalog-data-4.js",
+      "types": "./dist/browser-control-full-catalog-data-4.d.ts"
+    },
+    "./browser-control-full-catalog-metadata": {
+      "import": "./dist/browser-control-full-catalog-metadata.js",
+      "types": "./dist/browser-control-full-catalog-metadata.d.ts"
+    },
+    "./browser-control-full-catalog-schema": {
+      "import": "./dist/browser-control-full-catalog-schema.js",
+      "types": "./dist/browser-control-full-catalog-schema.d.ts"
+    },
+    "./browser-control-identifiers": {
+      "import": "./dist/browser-control-identifiers.js",
+      "types": "./dist/browser-control-identifiers.d.ts"
+    },
+    "./browser-control-manifest": {
+      "import": "./dist/browser-control-manifest.js",
+      "types": "./dist/browser-control-manifest.d.ts"
+    },
+    "./browser-control-policy": {
+      "import": "./dist/browser-control-policy.js",
+      "types": "./dist/browser-control-policy.d.ts"
+    },
+    "./browser-control-values": {
+      "import": "./dist/browser-control-values.js",
+      "types": "./dist/browser-control-values.d.ts"
+    },
+    "./browser-extension-native-host-schemas": {
+      "import": "./dist/browser-extension-native-host-schemas.js",
+      "types": "./dist/browser-extension-native-host-schemas.d.ts"
+    },
+    "./browser-game-account-purchase-gate": {
+      "import": "./dist/browser-game-account-purchase-gate.js",
+      "types": "./dist/browser-game-account-purchase-gate.d.ts"
+    },
+    "./browser-game-account-purchase-gate-values": {
+      "import": "./dist/browser-game-account-purchase-gate-values.js",
+      "types": "./dist/browser-game-account-purchase-gate-values.d.ts"
+    },
+    "./browser-game-ai-analysis": {
+      "import": "./dist/browser-game-ai-analysis.js",
+      "types": "./dist/browser-game-ai-analysis.d.ts"
+    },
+    "./browser-game-ai-analysis-values": {
+      "import": "./dist/browser-game-ai-analysis-values.js",
+      "types": "./dist/browser-game-ai-analysis-values.d.ts"
+    },
+    "./browser-game-android-ios-capability-matrix": {
+      "import": "./dist/browser-game-android-ios-capability-matrix.js",
+      "types": "./dist/browser-game-android-ios-capability-matrix.d.ts"
+    },
+    "./browser-game-android-ios-capability-matrix-values": {
+      "import": "./dist/browser-game-android-ios-capability-matrix-values.js",
+      "types": "./dist/browser-game-android-ios-capability-matrix-values.d.ts"
+    },
+    "./browser-game-child-checking-block-ux": {
+      "import": "./dist/browser-game-child-checking-block-ux.js",
+      "types": "./dist/browser-game-child-checking-block-ux.d.ts"
+    },
+    "./browser-game-child-checking-block-ux-values": {
+      "import": "./dist/browser-game-child-checking-block-ux-values.js",
+      "types": "./dist/browser-game-child-checking-block-ux-values.d.ts"
+    },
+    "./browser-game-cloud-gaming-gate": {
+      "import": "./dist/browser-game-cloud-gaming-gate.js",
+      "types": "./dist/browser-game-cloud-gaming-gate.d.ts"
+    },
+    "./browser-game-cloud-gaming-gate-values": {
+      "import": "./dist/browser-game-cloud-gaming-gate-values.js",
+      "types": "./dist/browser-game-cloud-gaming-gate-values.d.ts"
+    },
+    "./browser-game-cloud-pattern-library": {
+      "import": "./dist/browser-game-cloud-pattern-library.js",
+      "types": "./dist/browser-game-cloud-pattern-library.d.ts"
+    },
+    "./browser-game-cloud-pattern-library-values": {
+      "import": "./dist/browser-game-cloud-pattern-library-values.js",
+      "types": "./dist/browser-game-cloud-pattern-library-values.d.ts"
+    },
+    "./browser-game-dashboard-ux": {
+      "import": "./dist/browser-game-dashboard-ux.js",
+      "types": "./dist/browser-game-dashboard-ux.d.ts"
+    },
+    "./browser-game-dashboard-ux-values": {
+      "import": "./dist/browser-game-dashboard-ux-values.js",
+      "types": "./dist/browser-game-dashboard-ux-values.d.ts"
+    },
+    "./browser-game-educational-classifier": {
+      "import": "./dist/browser-game-educational-classifier.js",
+      "types": "./dist/browser-game-educational-classifier.d.ts"
+    },
+    "./browser-game-educational-classifier-values": {
+      "import": "./dist/browser-game-educational-classifier-values.js",
+      "types": "./dist/browser-game-educational-classifier-values.d.ts"
+    },
+    "./browser-game-hidden-analysis-profile-safety": {
+      "import": "./dist/browser-game-hidden-analysis-profile-safety.js",
+      "types": "./dist/browser-game-hidden-analysis-profile-safety.d.ts"
+    },
+    "./browser-game-hidden-analysis-profile-safety-values": {
+      "import": "./dist/browser-game-hidden-analysis-profile-safety-values.js",
+      "types": "./dist/browser-game-hidden-analysis-profile-safety-values.d.ts"
+    },
+    "./browser-game-hold-block-adapter": {
+      "import": "./dist/browser-game-hold-block-adapter.js",
+      "types": "./dist/browser-game-hold-block-adapter.d.ts"
+    },
+    "./browser-game-hold-block-adapter-guards": {
+      "import": "./dist/browser-game-hold-block-adapter-guards.js",
+      "types": "./dist/browser-game-hold-block-adapter-guards.d.ts"
+    },
+    "./browser-game-hold-block-adapter-values": {
+      "import": "./dist/browser-game-hold-block-adapter-values.js",
+      "types": "./dist/browser-game-hold-block-adapter-values.d.ts"
+    },
+    "./browser-game-journal-sqlite-read-model": {
+      "import": "./dist/browser-game-journal-sqlite-read-model.js",
+      "types": "./dist/browser-game-journal-sqlite-read-model.d.ts"
+    },
+    "./browser-game-journal-sqlite-read-model-guards": {
+      "import": "./dist/browser-game-journal-sqlite-read-model-guards.js",
+      "types": "./dist/browser-game-journal-sqlite-read-model-guards.d.ts"
+    },
+    "./browser-game-journal-sqlite-read-model-values": {
+      "import": "./dist/browser-game-journal-sqlite-read-model-values.js",
+      "types": "./dist/browser-game-journal-sqlite-read-model-values.d.ts"
+    },
+    "./browser-game-memory-cache": {
+      "import": "./dist/browser-game-memory-cache.js",
+      "types": "./dist/browser-game-memory-cache.d.ts"
+    },
+    "./browser-game-memory-cache-values": {
+      "import": "./dist/browser-game-memory-cache-values.js",
+      "types": "./dist/browser-game-memory-cache-values.d.ts"
+    },
+    "./browser-game-metadata-extractor": {
+      "import": "./dist/browser-game-metadata-extractor.js",
+      "types": "./dist/browser-game-metadata-extractor.d.ts"
+    },
+    "./browser-game-metadata-extractor-values": {
+      "import": "./dist/browser-game-metadata-extractor-values.js",
+      "types": "./dist/browser-game-metadata-extractor-values.d.ts"
+    },
+    "./browser-game-platform-route-contract-values": {
+      "import": "./dist/browser-game-platform-route-contract-values.js",
+      "types": "./dist/browser-game-platform-route-contract-values.d.ts"
+    },
+    "./browser-game-platform-route-contracts": {
+      "import": "./dist/browser-game-platform-route-contracts.js",
+      "types": "./dist/browser-game-platform-route-contracts.d.ts"
+    },
+    "./browser-game-policy-compiler": {
+      "import": "./dist/browser-game-policy-compiler.js",
+      "types": "./dist/browser-game-policy-compiler.d.ts"
+    },
+    "./browser-game-policy-compiler-values": {
+      "import": "./dist/browser-game-policy-compiler-values.js",
+      "types": "./dist/browser-game-policy-compiler-values.d.ts"
+    },
+    "./browser-game-portal-pattern-library": {
+      "import": "./dist/browser-game-portal-pattern-library.js",
+      "types": "./dist/browser-game-portal-pattern-library.d.ts"
+    },
+    "./browser-game-portal-pattern-library-values": {
+      "import": "./dist/browser-game-portal-pattern-library-values.js",
+      "types": "./dist/browser-game-portal-pattern-library-values.d.ts"
+    },
+    "./browser-game-riskbenefit-signal": {
+      "import": "./dist/browser-game-riskbenefit-signal.js",
+      "types": "./dist/browser-game-riskbenefit-signal.d.ts"
+    },
+    "./browser-game-riskbenefit-signal-values": {
+      "import": "./dist/browser-game-riskbenefit-signal-values.js",
+      "types": "./dist/browser-game-riskbenefit-signal-values.d.ts"
+    },
+    "./browser-game-runtime-signal-detector": {
+      "import": "./dist/browser-game-runtime-signal-detector.js",
+      "types": "./dist/browser-game-runtime-signal-detector.d.ts"
+    },
+    "./browser-game-runtime-signal-detector-values": {
+      "import": "./dist/browser-game-runtime-signal-detector-values.js",
+      "types": "./dist/browser-game-runtime-signal-detector-values.d.ts"
+    },
+    "./browser-game-ugc-multiplayer-chat-risk": {
+      "import": "./dist/browser-game-ugc-multiplayer-chat-risk.js",
+      "types": "./dist/browser-game-ugc-multiplayer-chat-risk.d.ts"
+    },
+    "./browser-game-ugc-multiplayer-chat-risk-values": {
+      "import": "./dist/browser-game-ugc-multiplayer-chat-risk-values.js",
+      "types": "./dist/browser-game-ugc-multiplayer-chat-risk-values.d.ts"
+    },
+    "./browser-game-unblocked-site-detection": {
+      "import": "./dist/browser-game-unblocked-site-detection.js",
+      "types": "./dist/browser-game-unblocked-site-detection.d.ts"
+    },
+    "./browser-game-unblocked-site-detection-values": {
+      "import": "./dist/browser-game-unblocked-site-detection-values.js",
+      "types": "./dist/browser-game-unblocked-site-detection-values.d.ts"
+    },
+    "./browser-game-url-shape-parser": {
+      "import": "./dist/browser-game-url-shape-parser.js",
+      "types": "./dist/browser-game-url-shape-parser.d.ts"
+    },
+    "./browser-game-url-shape-parser-values": {
+      "import": "./dist/browser-game-url-shape-parser-values.js",
+      "types": "./dist/browser-game-url-shape-parser-values.d.ts"
+    },
+    "./browser-hidden-analysis-schemas": {
+      "import": "./dist/browser-hidden-analysis-schemas.js",
+      "types": "./dist/browser-hidden-analysis-schemas.d.ts"
+    },
+    "./browser-intervention-schemas": {
+      "import": "./dist/browser-intervention-schemas.js",
+      "types": "./dist/browser-intervention-schemas.d.ts"
+    },
+    "./browser-inventory-schemas": {
+      "import": "./dist/browser-inventory-schemas.js",
+      "types": "./dist/browser-inventory-schemas.d.ts"
+    },
+    "./browser-managed-profile-store": {
+      "import": "./dist/browser-managed-profile-store.js",
+      "types": "./dist/browser-managed-profile-store.d.ts"
+    },
+    "./browser-performance-health-schemas": {
+      "import": "./dist/browser-performance-health-schemas.js",
+      "types": "./dist/browser-performance-health-schemas.d.ts"
+    },
+    "./browser-platform-inventory-matrix": {
+      "import": "./dist/browser-platform-inventory-matrix.js",
+      "types": "./dist/browser-platform-inventory-matrix.d.ts"
+    },
+    "./browser-policy-questionnaire-forest-contract": {
+      "import": "./dist/browser-policy-questionnaire-forest-contract.js",
+      "types": "./dist/browser-policy-questionnaire-forest-contract.d.ts"
+    },
+    "./browser-policy-questionnaire-forest-data": {
+      "import": "./dist/browser-policy-questionnaire-forest-data.js",
+      "types": "./dist/browser-policy-questionnaire-forest-data.d.ts"
+    },
+    "./browser-schemas": {
+      "import": "./dist/browser-schemas.js",
+      "types": "./dist/browser-schemas.d.ts"
+    },
+    "./browser-social-account-creation-gate": {
+      "import": "./dist/browser-social-account-creation-gate.js",
+      "types": "./dist/browser-social-account-creation-gate.d.ts"
+    },
+    "./browser-social-account-flow-schemas": {
+      "import": "./dist/browser-social-account-flow-schemas.js",
+      "types": "./dist/browser-social-account-flow-schemas.d.ts"
+    },
+    "./browser-social-account-identity-registry": {
+      "import": "./dist/browser-social-account-identity-registry.js",
+      "types": "./dist/browser-social-account-identity-registry.d.ts"
+    },
+    "./browser-social-ai-analysis-result-builder": {
+      "import": "./dist/browser-social-ai-analysis-result-builder.js",
+      "types": "./dist/browser-social-ai-analysis-result-builder.d.ts"
+    },
+    "./browser-social-ai-analysis-schemas": {
+      "import": "./dist/browser-social-ai-analysis-schemas.js",
+      "types": "./dist/browser-social-ai-analysis-schemas.d.ts"
+    },
+    "./browser-social-ai-analysis-values": {
+      "import": "./dist/browser-social-ai-analysis-values.js",
+      "types": "./dist/browser-social-ai-analysis-values.d.ts"
+    },
+    "./browser-social-feed-route-classification": {
+      "import": "./dist/browser-social-feed-route-classification.js",
+      "types": "./dist/browser-social-feed-route-classification.d.ts"
+    },
+    "./browser-social-feed-video-route-gate": {
+      "import": "./dist/browser-social-feed-video-route-gate.js",
+      "types": "./dist/browser-social-feed-video-route-gate.d.ts"
+    },
+    "./browser-social-feed-video-route-gate-guards": {
+      "import": "./dist/browser-social-feed-video-route-gate-guards.js",
+      "types": "./dist/browser-social-feed-video-route-gate-guards.d.ts"
+    },
+    "./browser-social-feed-video-route-gate-values": {
+      "import": "./dist/browser-social-feed-video-route-gate-values.js",
+      "types": "./dist/browser-social-feed-video-route-gate-values.d.ts"
+    },
+    "./browser-social-form-shape-detector": {
+      "import": "./dist/browser-social-form-shape-detector.js",
+      "types": "./dist/browser-social-form-shape-detector.d.ts"
+    },
+    "./browser-social-platform-route-schemas": {
+      "import": "./dist/browser-social-platform-route-schemas.js",
+      "types": "./dist/browser-social-platform-route-schemas.d.ts"
+    },
+    "./browser-social-riskbenefit-signals": {
+      "import": "./dist/browser-social-riskbenefit-signals.js",
+      "types": "./dist/browser-social-riskbenefit-signals.d.ts"
+    },
+    "./browser-social-riskbenefit-values": {
+      "import": "./dist/browser-social-riskbenefit-values.js",
+      "types": "./dist/browser-social-riskbenefit-values.d.ts"
+    },
+    "./browser-social-unmanaged-bypass-detector": {
+      "import": "./dist/browser-social-unmanaged-bypass-detector.js",
+      "types": "./dist/browser-social-unmanaged-bypass-detector.d.ts"
+    },
+    "./browser-social-unmanaged-bypass-detector-values": {
+      "import": "./dist/browser-social-unmanaged-bypass-detector-values.js",
+      "types": "./dist/browser-social-unmanaged-bypass-detector-values.d.ts"
+    },
+    "./browser-social-url-patterns": {
+      "import": "./dist/browser-social-url-patterns.js",
+      "types": "./dist/browser-social-url-patterns.d.ts"
+    },
+    "./browser-social-video-metadata": {
+      "import": "./dist/browser-social-video-metadata.js",
+      "types": "./dist/browser-social-video-metadata.d.ts"
+    },
+    "./browser-target-schemas": {
+      "import": "./dist/browser-target-schemas.js",
+      "types": "./dist/browser-target-schemas.d.ts"
+    },
+    "./browser-unmanaged-process-schemas": {
+      "import": "./dist/browser-unmanaged-process-schemas.js",
+      "types": "./dist/browser-unmanaged-process-schemas.d.ts"
+    },
+    "./browser-url-intelligence-schemas": {
+      "import": "./dist/browser-url-intelligence-schemas.js",
+      "types": "./dist/browser-url-intelligence-schemas.d.ts"
+    },
+    "./browser-url-metadata-schemas": {
+      "import": "./dist/browser-url-metadata-schemas.js",
+      "types": "./dist/browser-url-metadata-schemas.d.ts"
+    },
+    "./browser-values": {
+      "import": "./dist/browser-values.js",
+      "types": "./dist/browser-values.d.ts"
+    },
+    "./browser-video-metadata": {
+      "import": "./dist/browser-video-metadata.js",
+      "types": "./dist/browser-video-metadata.d.ts"
+    },
+    "./browser-youtube-metadata": {
+      "import": "./dist/browser-youtube-metadata.js",
+      "types": "./dist/browser-youtube-metadata.d.ts"
+    },
+    "./capabilities": {
+      "import": "./dist/capabilities.js",
+      "types": "./dist/capabilities.d.ts"
+    },
+    "./capability-data": {
+      "import": "./dist/capability-data.js",
+      "types": "./dist/capability-data.d.ts"
+    },
+    "./child-android-device-proof-artifact-gate": {
+      "import": "./dist/child-android-device-proof-artifact-gate.js",
+      "types": "./dist/child-android-device-proof-artifact-gate.d.ts"
+    },
+    "./child-android-lifecycle-proof": {
+      "import": "./dist/child-android-lifecycle-proof.js",
+      "types": "./dist/child-android-lifecycle-proof.d.ts"
+    },
+    "./child-android-permission-capability-proof": {
+      "import": "./dist/child-android-permission-capability-proof.js",
+      "types": "./dist/child-android-permission-capability-proof.d.ts"
+    },
+    "./child-android-privileged-capability-proof": {
+      "import": "./dist/child-android-privileged-capability-proof.js",
+      "types": "./dist/child-android-privileged-capability-proof.d.ts"
+    },
+    "./child-android-service-protocol-proof": {
+      "import": "./dist/child-android-service-protocol-proof.js",
+      "types": "./dist/child-android-service-protocol-proof.d.ts"
+    },
+    "./child-android-storage-protocol-proof": {
+      "import": "./dist/child-android-storage-protocol-proof.js",
+      "types": "./dist/child-android-storage-protocol-proof.d.ts"
+    },
+    "./child-domain-runtime-events": {
+      "import": "./dist/child-domain-runtime-events.js",
+      "types": "./dist/child-domain-runtime-events.d.ts"
+    },
+    "./child-ios-entitlement-capability-proof": {
+      "import": "./dist/child-ios-entitlement-capability-proof.js",
+      "types": "./dist/child-ios-entitlement-capability-proof.d.ts"
+    },
+    "./child-runtime-gates": {
+      "import": "./dist/child-runtime-gates.js",
+      "types": "./dist/child-runtime-gates.d.ts"
+    },
+    "./contracts": {
+      "import": "./dist/contracts.js",
+      "types": "./dist/contracts.d.ts"
+    },
+    "./custody-boundary": {
+      "import": "./dist/custody-boundary.js",
+      "types": "./dist/custody-boundary.d.ts"
+    },
+    "./data-custody-matrix": {
+      "import": "./dist/data-custody-matrix.js",
+      "types": "./dist/data-custody-matrix.d.ts"
+    },
+    "./data-export-delete-lifecycle": {
+      "import": "./dist/data-export-delete-lifecycle.js",
+      "types": "./dist/data-export-delete-lifecycle.d.ts"
+    },
+    "./data-export-delete-lifecycle-guards": {
+      "import": "./dist/data-export-delete-lifecycle-guards.js",
+      "types": "./dist/data-export-delete-lifecycle-guards.d.ts"
+    },
+    "./data-export-delete-lifecycle-read-model": {
+      "import": "./dist/data-export-delete-lifecycle-read-model.js",
+      "types": "./dist/data-export-delete-lifecycle-read-model.d.ts"
+    },
+    "./delete-executor-proof": {
+      "import": "./dist/delete-executor-proof.js",
+      "types": "./dist/delete-executor-proof.d.ts"
+    },
+    "./delete-executor-read-model": {
+      "import": "./dist/delete-executor-read-model.js",
+      "types": "./dist/delete-executor-read-model.d.ts"
+    },
+    "./device-roles": {
+      "import": "./dist/device-roles.js",
+      "types": "./dist/device-roles.d.ts"
+    },
+    "./effect": {
+      "import": "./dist/effect.js",
+      "types": "./dist/effect.d.ts"
+    },
+    "./endpoint-billing-account": {
+      "import": "./dist/endpoint-billing-account.js",
+      "types": "./dist/endpoint-billing-account.d.ts"
+    },
+    "./endpoint-brands": {
+      "import": "./dist/endpoint-brands.js",
+      "types": "./dist/endpoint-brands.d.ts"
+    },
+    "./endpoint-constants": {
+      "import": "./dist/endpoint-constants.js",
+      "types": "./dist/endpoint-constants.d.ts"
+    },
+    "./endpoint-lan-pairing": {
+      "import": "./dist/endpoint-lan-pairing.js",
+      "types": "./dist/endpoint-lan-pairing.d.ts"
+    },
+    "./endpoint-sync-export": {
+      "import": "./dist/endpoint-sync-export.js",
+      "types": "./dist/endpoint-sync-export.d.ts"
+    },
+    "./enforcement": {
+      "import": "./dist/enforcement.js",
+      "types": "./dist/enforcement.d.ts"
+    },
+    "./enforcement-host-adapter-preflight": {
+      "import": "./dist/enforcement-host-adapter-preflight.js",
+      "types": "./dist/enforcement-host-adapter-preflight.d.ts"
+    },
+    "./enforcement-os-adapter-product-proof": {
+      "import": "./dist/enforcement-os-adapter-product-proof.js",
+      "types": "./dist/enforcement-os-adapter-product-proof.d.ts"
+    },
+    "./enforcement-policy-dispatch": {
+      "import": "./dist/enforcement-policy-dispatch.js",
+      "types": "./dist/enforcement-policy-dispatch.d.ts"
+    },
+    "./enforcement-process-package-identity": {
+      "import": "./dist/enforcement-process-package-identity.js",
+      "types": "./dist/enforcement-process-package-identity.d.ts"
+    },
+    "./enforcement-proof-shape": {
+      "import": "./dist/enforcement-proof-shape.js",
+      "types": "./dist/enforcement-proof-shape.d.ts"
+    },
+    "./enforcement-readiness": {
+      "import": "./dist/enforcement-readiness.js",
+      "types": "./dist/enforcement-readiness.d.ts"
+    },
+    "./event-primitives": {
+      "import": "./dist/event-primitives.js",
+      "types": "./dist/event-primitives.d.ts"
+    },
+    "./eventing": {
+      "import": "./dist/eventing.js",
+      "types": "./dist/eventing.d.ts"
+    },
+    "./evidence-contracts": {
+      "import": "./dist/evidence-contracts.js",
+      "types": "./dist/evidence-contracts.d.ts"
+    },
+    "./evidence-custody-contracts": {
+      "import": "./dist/evidence-custody-contracts.js",
+      "types": "./dist/evidence-custody-contracts.d.ts"
+    },
+    "./evidence-kinds": {
+      "import": "./dist/evidence-kinds.js",
+      "types": "./dist/evidence-kinds.d.ts"
+    },
+    "./evidence-primitives": {
+      "import": "./dist/evidence-primitives.js",
+      "types": "./dist/evidence-primitives.d.ts"
+    },
+    "./family-child-profile": {
+      "import": "./dist/family-child-profile.js",
+      "types": "./dist/family-child-profile.d.ts"
+    },
+    "./family-household-authority": {
+      "import": "./dist/family-household-authority.js",
+      "types": "./dist/family-household-authority.d.ts"
+    },
+    "./family-reference-primitives": {
+      "import": "./dist/family-reference-primitives.js",
+      "types": "./dist/family-reference-primitives.d.ts"
+    },
+    "./family-references": {
+      "import": "./dist/family-references.js",
+      "types": "./dist/family-references.d.ts"
+    },
+    "./family-restore-lifecycle": {
+      "import": "./dist/family-restore-lifecycle.js",
+      "types": "./dist/family-restore-lifecycle.d.ts"
+    },
+    "./family-session-lifecycle": {
+      "import": "./dist/family-session-lifecycle.js",
+      "types": "./dist/family-session-lifecycle.d.ts"
+    },
+    "./family-setup-bridge": {
+      "import": "./dist/family-setup-bridge.js",
+      "types": "./dist/family-setup-bridge.d.ts"
+    },
+    "./family-setup-invite": {
+      "import": "./dist/family-setup-invite.js",
+      "types": "./dist/family-setup-invite.d.ts"
+    },
+    "./family-web-route-map": {
+      "import": "./dist/family-web-route-map.js",
+      "types": "./dist/family-web-route-map.d.ts"
+    },
+    "./family-web-route-map-read-model": {
+      "import": "./dist/family-web-route-map-read-model.js",
+      "types": "./dist/family-web-route-map-read-model.d.ts"
+    },
+    "./family-web-route-map-values": {
+      "import": "./dist/family-web-route-map-values.js",
+      "types": "./dist/family-web-route-map-values.d.ts"
+    },
+    "./game-control-catalog": {
+      "import": "./dist/game-control-catalog.js",
+      "types": "./dist/game-control-catalog.d.ts"
+    },
+    "./game-control-catalog-data": {
+      "import": "./dist/game-control-catalog-data.js",
+      "types": "./dist/game-control-catalog-data.d.ts"
+    },
+    "./game-control-catalog-schema": {
+      "import": "./dist/game-control-catalog-schema.js",
+      "types": "./dist/game-control-catalog-schema.d.ts"
+    },
+    "./household-ai-provider-advertisement-heartbeat-proof": {
+      "import": "./dist/household-ai-provider-advertisement-heartbeat-proof.js",
+      "types": "./dist/household-ai-provider-advertisement-heartbeat-proof.d.ts"
+    },
+    "./household-ai-provider-claim-lease-proof": {
+      "import": "./dist/household-ai-provider-claim-lease-proof.js",
+      "types": "./dist/household-ai-provider-claim-lease-proof.d.ts"
+    },
+    "./household-device-spine": {
+      "import": "./dist/household-device-spine.js",
+      "types": "./dist/household-device-spine.d.ts"
+    },
+    "./lan-device-parent-actions": {
+      "import": "./dist/lan-device-parent-actions.js",
+      "types": "./dist/lan-device-parent-actions.d.ts"
+    },
+    "./lan-discovery-evidence": {
+      "import": "./dist/lan-discovery-evidence.js",
+      "types": "./dist/lan-discovery-evidence.d.ts"
+    },
+    "./lan-pairing-browser-runtime": {
+      "import": "./dist/lan-pairing-browser-runtime.js",
+      "types": "./dist/lan-pairing-browser-runtime.d.ts"
+    },
+    "./lan-pairing-control": {
+      "import": "./dist/lan-pairing-control.js",
+      "types": "./dist/lan-pairing-control.d.ts"
+    },
+    "./lan-pairing-device": {
+      "import": "./dist/lan-pairing-device.js",
+      "types": "./dist/lan-pairing-device.d.ts"
+    },
+    "./lan-pairing-product-proof": {
+      "import": "./dist/lan-pairing-product-proof.js",
+      "types": "./dist/lan-pairing-product-proof.d.ts"
+    },
+    "./lan-pairing-provider-selection-proof": {
+      "import": "./dist/lan-pairing-provider-selection-proof.js",
+      "types": "./dist/lan-pairing-provider-selection-proof.d.ts"
+    },
+    "./lan-pairing-support": {
+      "import": "./dist/lan-pairing-support.js",
+      "types": "./dist/lan-pairing-support.d.ts"
+    },
+    "./lan-pairing-values": {
+      "import": "./dist/lan-pairing-values.js",
+      "types": "./dist/lan-pairing-values.d.ts"
+    },
+    "./lan-product-proof": {
+      "import": "./dist/lan-product-proof.js",
+      "types": "./dist/lan-product-proof.d.ts"
+    },
+    "./lan-production-household-proof": {
+      "import": "./dist/lan-production-household-proof.js",
+      "types": "./dist/lan-production-household-proof.d.ts"
+    },
+    "./lan-relay-spine": {
+      "import": "./dist/lan-relay-spine.js",
+      "types": "./dist/lan-relay-spine.d.ts"
+    },
+    "./lan-source-matrix": {
+      "import": "./dist/lan-source-matrix.js",
+      "types": "./dist/lan-source-matrix.d.ts"
+    },
+    "./literal-contracts": {
+      "import": "./dist/literal-contracts.js",
+      "types": "./dist/literal-contracts.d.ts"
+    },
+    "./local-ai": {
+      "import": "./dist/local-ai.js",
+      "types": "./dist/local-ai.d.ts"
+    },
+    "./local-ai-activity-memory-graph": {
+      "import": "./dist/local-ai-activity-memory-graph.js",
+      "types": "./dist/local-ai-activity-memory-graph.d.ts"
+    },
+    "./local-ai-activity-memory-graph-read": {
+      "import": "./dist/local-ai-activity-memory-graph-read.js",
+      "types": "./dist/local-ai-activity-memory-graph-read.d.ts"
+    },
+    "./local-ai-classifier-read-model-manual-report-proof": {
+      "import": "./dist/local-ai-classifier-read-model-manual-report-proof.js",
+      "types": "./dist/local-ai-classifier-read-model-manual-report-proof.d.ts"
+    },
+    "./local-ai-context-builder": {
+      "import": "./dist/local-ai-context-builder.js",
+      "types": "./dist/local-ai-context-builder.d.ts"
+    },
+    "./local-ai-context-result": {
+      "import": "./dist/local-ai-context-result.js",
+      "types": "./dist/local-ai-context-result.d.ts"
+    },
+    "./local-ai-context-selection": {
+      "import": "./dist/local-ai-context-selection.js",
+      "types": "./dist/local-ai-context-selection.d.ts"
+    },
+    "./local-ai-contract-completeness-proof": {
+      "import": "./dist/local-ai-contract-completeness-proof.js",
+      "types": "./dist/local-ai-contract-completeness-proof.d.ts"
+    },
+    "./local-ai-deterministic-classifier-proof": {
+      "import": "./dist/local-ai-deterministic-classifier-proof.js",
+      "types": "./dist/local-ai-deterministic-classifier-proof.d.ts"
+    },
+    "./local-ai-graph-reference-contract-proof": {
+      "import": "./dist/local-ai-graph-reference-contract-proof.js",
+      "types": "./dist/local-ai-graph-reference-contract-proof.d.ts"
+    },
+    "./local-ai-parent-assistant-runtime-proof": {
+      "import": "./dist/local-ai-parent-assistant-runtime-proof.js",
+      "types": "./dist/local-ai-parent-assistant-runtime-proof.d.ts"
+    },
+    "./local-ai-parent-assistant-runtime-proof-values": {
+      "import": "./dist/local-ai-parent-assistant-runtime-proof-values.js",
+      "types": "./dist/local-ai-parent-assistant-runtime-proof-values.d.ts"
+    },
+    "./local-ai-parent-rule-context-builder-proof": {
+      "import": "./dist/local-ai-parent-rule-context-builder-proof.js",
+      "types": "./dist/local-ai-parent-rule-context-builder-proof.d.ts"
+    },
+    "./local-ai-prompt-template-version-proof": {
+      "import": "./dist/local-ai-prompt-template-version-proof.js",
+      "types": "./dist/local-ai-prompt-template-version-proof.d.ts"
+    },
+    "./local-ai-provider-scheduler": {
+      "import": "./dist/local-ai-provider-scheduler.js",
+      "types": "./dist/local-ai-provider-scheduler.d.ts"
+    },
+    "./local-ai-recent-memory-window-proof": {
+      "import": "./dist/local-ai-recent-memory-window-proof.js",
+      "types": "./dist/local-ai-recent-memory-window-proof.d.ts"
+    },
+    "./local-ai-remote-assistant-boundary-proof": {
+      "import": "./dist/local-ai-remote-assistant-boundary-proof.js",
+      "types": "./dist/local-ai-remote-assistant-boundary-proof.d.ts"
+    },
+    "./local-ai-result-journal-sqlite-proof": {
+      "import": "./dist/local-ai-result-journal-sqlite-proof.js",
+      "types": "./dist/local-ai-result-journal-sqlite-proof.d.ts"
+    },
+    "./local-ai-runtime-provider-proof": {
+      "import": "./dist/local-ai-runtime-provider-proof.js",
+      "types": "./dist/local-ai-runtime-provider-proof.d.ts"
+    },
+    "./local-ai-runtime-status-read-model-proof": {
+      "import": "./dist/local-ai-runtime-status-read-model-proof.js",
+      "types": "./dist/local-ai-runtime-status-read-model-proof.d.ts"
+    },
+    "./local-ai-screen-summary-parent-explanation": {
+      "import": "./dist/local-ai-screen-summary-parent-explanation.js",
+      "types": "./dist/local-ai-screen-summary-parent-explanation.d.ts"
+    },
+    "./local-ai-screen-summary-parent-explanation-read-model": {
+      "import": "./dist/local-ai-screen-summary-parent-explanation-read-model.js",
+      "types": "./dist/local-ai-screen-summary-parent-explanation-read-model.d.ts"
+    },
+    "./local-ai-screen-summary-parent-explanation-read-model-values": {
+      "import": "./dist/local-ai-screen-summary-parent-explanation-read-model-values.js",
+      "types": "./dist/local-ai-screen-summary-parent-explanation-read-model-values.d.ts"
+    },
+    "./local-ai-text-inference-dry-run-proof": {
+      "import": "./dist/local-ai-text-inference-dry-run-proof.js",
+      "types": "./dist/local-ai-text-inference-dry-run-proof.d.ts"
+    },
+    "./local-ai-text-llm-adapter-boundary-proof": {
+      "import": "./dist/local-ai-text-llm-adapter-boundary-proof.js",
+      "types": "./dist/local-ai-text-llm-adapter-boundary-proof.d.ts"
+    },
+    "./local-api-contracts": {
+      "import": "./dist/local-api-contracts.js",
+      "types": "./dist/local-api-contracts.d.ts"
+    },
+    "./logging-contracts": {
+      "import": "./dist/logging-contracts.js",
+      "types": "./dist/logging-contracts.d.ts"
+    },
+    "./mobile-child-agent-capability-proof": {
+      "import": "./dist/mobile-child-agent-capability-proof.js",
+      "types": "./dist/mobile-child-agent-capability-proof.d.ts"
+    },
+    "./native-game-budget-policy": {
+      "import": "./dist/native-game-budget-policy.js",
+      "types": "./dist/native-game-budget-policy.d.ts"
+    },
+    "./native-game-budget-policy-rules": {
+      "import": "./dist/native-game-budget-policy-rules.js",
+      "types": "./dist/native-game-budget-policy-rules.d.ts"
+    },
+    "./network-contracts": {
+      "import": "./dist/network-contracts.js",
+      "types": "./dist/network-contracts.d.ts"
+    },
+    "./network-control-catalog": {
+      "import": "./dist/network-control-catalog.js",
+      "types": "./dist/network-control-catalog.d.ts"
+    },
+    "./network-control-catalog-data": {
+      "import": "./dist/network-control-catalog-data.js",
+      "types": "./dist/network-control-catalog-data.d.ts"
+    },
+    "./network-control-catalog-metadata": {
+      "import": "./dist/network-control-catalog-metadata.js",
+      "types": "./dist/network-control-catalog-metadata.d.ts"
+    },
+    "./network-control-catalog-schema": {
+      "import": "./dist/network-control-catalog-schema.js",
+      "types": "./dist/network-control-catalog-schema.d.ts"
+    },
+    "./network-flow": {
+      "import": "./dist/network-flow.js",
+      "types": "./dist/network-flow.d.ts"
+    },
+    "./network-live-capture-status": {
+      "import": "./dist/network-live-capture-status.js",
+      "types": "./dist/network-live-capture-status.d.ts"
+    },
+    "./network-remote-delivery-status": {
+      "import": "./dist/network-remote-delivery-status.js",
+      "types": "./dist/network-remote-delivery-status.d.ts"
+    },
+    "./network-runtime-events": {
+      "import": "./dist/network-runtime-events.js",
+      "types": "./dist/network-runtime-events.d.ts"
+    },
+    "./notification-audit-history": {
+      "import": "./dist/notification-audit-history.js",
+      "types": "./dist/notification-audit-history.d.ts"
+    },
+    "./notification-audit-history-handoff": {
+      "import": "./dist/notification-audit-history-handoff.js",
+      "types": "./dist/notification-audit-history-handoff.d.ts"
+    },
+    "./notification-local-outbox": {
+      "import": "./dist/notification-local-outbox.js",
+      "types": "./dist/notification-local-outbox.d.ts"
+    },
+    "./notification-local-outbox-adapter-proof": {
+      "import": "./dist/notification-local-outbox-adapter-proof.js",
+      "types": "./dist/notification-local-outbox-adapter-proof.d.ts"
+    },
+    "./notification-local-outbox-adapter-proof-schemas": {
+      "import": "./dist/notification-local-outbox-adapter-proof-schemas.js",
+      "types": "./dist/notification-local-outbox-adapter-proof-schemas.d.ts"
+    },
+    "./notification-local-outbox-adapter-proof-values": {
+      "import": "./dist/notification-local-outbox-adapter-proof-values.js",
+      "types": "./dist/notification-local-outbox-adapter-proof-values.d.ts"
+    },
+    "./notification-local-outbox-scheduler-proof": {
+      "import": "./dist/notification-local-outbox-scheduler-proof.js",
+      "types": "./dist/notification-local-outbox-scheduler-proof.d.ts"
+    },
+    "./notification-local-outbox-scheduler-proof-guards": {
+      "import": "./dist/notification-local-outbox-scheduler-proof-guards.js",
+      "types": "./dist/notification-local-outbox-scheduler-proof-guards.d.ts"
+    },
+    "./notification-local-outbox-scheduler-proof-schemas": {
+      "import": "./dist/notification-local-outbox-scheduler-proof-schemas.js",
+      "types": "./dist/notification-local-outbox-scheduler-proof-schemas.d.ts"
+    },
+    "./notification-local-outbox-scheduler-proof-values": {
+      "import": "./dist/notification-local-outbox-scheduler-proof-values.js",
+      "types": "./dist/notification-local-outbox-scheduler-proof-values.d.ts"
+    },
+    "./notification-v3-provider-retry": {
+      "import": "./dist/notification-v3-provider-retry.js",
+      "types": "./dist/notification-v3-provider-retry.d.ts"
+    },
+    "./package-info": {
+      "import": "./dist/package-info.js",
+      "types": "./dist/package-info.d.ts"
+    },
+    "./parent-assistant": {
+      "import": "./dist/parent-assistant.js",
+      "types": "./dist/parent-assistant.d.ts"
+    },
+    "./parent-assistant-run-state": {
+      "import": "./dist/parent-assistant-run-state.js",
+      "types": "./dist/parent-assistant-run-state.d.ts"
+    },
+    "./parent-desktop-release-support": {
+      "import": "./dist/parent-desktop-release-support.js",
+      "types": "./dist/parent-desktop-release-support.d.ts"
+    },
+    "./parent-desktop-release-support-guards": {
+      "import": "./dist/parent-desktop-release-support-guards.js",
+      "types": "./dist/parent-desktop-release-support-guards.d.ts"
+    },
+    "./parent-desktop-release-support-incident": {
+      "import": "./dist/parent-desktop-release-support-incident.js",
+      "types": "./dist/parent-desktop-release-support-incident.d.ts"
+    },
+    "./parent-desktop-release-support-incident-guards": {
+      "import": "./dist/parent-desktop-release-support-incident-guards.js",
+      "types": "./dist/parent-desktop-release-support-incident-guards.d.ts"
+    },
+    "./parent-mobile-controller-observer-handoff-runtime": {
+      "import": "./dist/parent-mobile-controller-observer-handoff-runtime.js",
+      "types": "./dist/parent-mobile-controller-observer-handoff-runtime.d.ts"
+    },
+    "./parent-mobile-runtime": {
+      "import": "./dist/parent-mobile-runtime.js",
+      "types": "./dist/parent-mobile-runtime.d.ts"
+    },
+    "./parent-mobile-runtime-capability-statuses": {
+      "import": "./dist/parent-mobile-runtime-capability-statuses.js",
+      "types": "./dist/parent-mobile-runtime-capability-statuses.d.ts"
+    },
+    "./parent-mobile-service-bridge-runtime": {
+      "import": "./dist/parent-mobile-service-bridge-runtime.js",
+      "types": "./dist/parent-mobile-service-bridge-runtime.d.ts"
+    },
+    "./parent-owned-local-export-runtime": {
+      "import": "./dist/parent-owned-local-export-runtime.js",
+      "types": "./dist/parent-owned-local-export-runtime.d.ts"
+    },
+    "./parent-owned-local-export-runtime-values": {
+      "import": "./dist/parent-owned-local-export-runtime-values.js",
+      "types": "./dist/parent-owned-local-export-runtime-values.d.ts"
+    },
+    "./parent-owned-sync-export": {
+      "import": "./dist/parent-owned-sync-export.js",
+      "types": "./dist/parent-owned-sync-export.d.ts"
+    },
+    "./policy": {
+      "import": "./dist/policy.js",
+      "types": "./dist/policy.d.ts"
+    },
+    "./policy-authority": {
+      "import": "./dist/policy-authority.js",
+      "types": "./dist/policy-authority.d.ts"
+    },
+    "./policy-compiler": {
+      "import": "./dist/policy-compiler.js",
+      "types": "./dist/policy-compiler.d.ts"
+    },
+    "./policy-contracts": {
+      "import": "./dist/policy-contracts.js",
+      "types": "./dist/policy-contracts.d.ts"
+    },
+    "./policy-control-approval-notification-boundary": {
+      "import": "./dist/policy-control-approval-notification-boundary.js",
+      "types": "./dist/policy-control-approval-notification-boundary.d.ts"
+    },
+    "./policy-event": {
+      "import": "./dist/policy-event.js",
+      "types": "./dist/policy-event.d.ts"
+    },
+    "./policy-literal-contracts": {
+      "import": "./dist/policy-literal-contracts.js",
+      "types": "./dist/policy-literal-contracts.d.ts"
+    },
+    "./portal-contracts": {
+      "import": "./dist/portal-contracts.js",
+      "types": "./dist/portal-contracts.d.ts"
+    },
+    "./privacy-legal-disclosure-status": {
+      "import": "./dist/privacy-legal-disclosure-status.js",
+      "types": "./dist/privacy-legal-disclosure-status.d.ts"
+    },
+    "./privacy-legal-disclosure-status-guards": {
+      "import": "./dist/privacy-legal-disclosure-status-guards.js",
+      "types": "./dist/privacy-legal-disclosure-status-guards.d.ts"
+    },
+    "./privacy-legal-disclosure-status-read-model": {
+      "import": "./dist/privacy-legal-disclosure-status-read-model.js",
+      "types": "./dist/privacy-legal-disclosure-status-read-model.d.ts"
+    },
+    "./production-incident-support-status-proof": {
+      "import": "./dist/production-incident-support-status-proof.js",
+      "types": "./dist/production-incident-support-status-proof.d.ts"
+    },
+    "./production-incident-support-status-read-model": {
+      "import": "./dist/production-incident-support-status-read-model.js",
+      "types": "./dist/production-incident-support-status-read-model.d.ts"
+    },
+    "./production-incident-support-status-values": {
+      "import": "./dist/production-incident-support-status-values.js",
+      "types": "./dist/production-incident-support-status-values.d.ts"
+    },
+    "./production-proof-shape": {
+      "import": "./dist/production-proof-shape.js",
+      "types": "./dist/production-proof-shape.d.ts"
+    },
+    "./production-release-public-docs-freshness-proof": {
+      "import": "./dist/production-release-public-docs-freshness-proof.js",
+      "types": "./dist/production-release-public-docs-freshness-proof.d.ts"
+    },
+    "./production-release-public-docs-freshness-values": {
+      "import": "./dist/production-release-public-docs-freshness-values.js",
+      "types": "./dist/production-release-public-docs-freshness-values.d.ts"
+    },
+    "./production-release-public-docs-status": {
+      "import": "./dist/production-release-public-docs-status.js",
+      "types": "./dist/production-release-public-docs-status.d.ts"
+    },
+    "./production-release-public-docs-status-read-model": {
+      "import": "./dist/production-release-public-docs-status-read-model.js",
+      "types": "./dist/production-release-public-docs-status-read-model.d.ts"
+    },
+    "./production-release-public-docs-status-values": {
+      "import": "./dist/production-release-public-docs-status-values.js",
+      "types": "./dist/production-release-public-docs-status-values.d.ts"
+    },
+    "./production-release-public-runtime-handoff": {
+      "import": "./dist/production-release-public-runtime-handoff.js",
+      "types": "./dist/production-release-public-runtime-handoff.d.ts"
+    },
+    "./production-release-public-runtime-handoff-read-model": {
+      "import": "./dist/production-release-public-runtime-handoff-read-model.js",
+      "types": "./dist/production-release-public-runtime-handoff-read-model.d.ts"
+    },
+    "./production-release-public-runtime-handoff-values": {
+      "import": "./dist/production-release-public-runtime-handoff-values.js",
+      "types": "./dist/production-release-public-runtime-handoff-values.d.ts"
+    },
+    "./production-release-public-status-freshness-proof": {
+      "import": "./dist/production-release-public-status-freshness-proof.js",
+      "types": "./dist/production-release-public-status-freshness-proof.d.ts"
+    },
+    "./production-release-public-status-freshness-values": {
+      "import": "./dist/production-release-public-status-freshness-values.js",
+      "types": "./dist/production-release-public-status-freshness-values.d.ts"
+    },
+    "./production-release-public-status-proof": {
+      "import": "./dist/production-release-public-status-proof.js",
+      "types": "./dist/production-release-public-status-proof.d.ts"
+    },
+    "./production-release-public-status-proof-values": {
+      "import": "./dist/production-release-public-status-proof-values.js",
+      "types": "./dist/production-release-public-status-proof-values.d.ts"
+    },
+    "./production-support-account-sla-status-proof": {
+      "import": "./dist/production-support-account-sla-status-proof.js",
+      "types": "./dist/production-support-account-sla-status-proof.d.ts"
+    },
+    "./production-support-account-sla-status-read-model": {
+      "import": "./dist/production-support-account-sla-status-read-model.js",
+      "types": "./dist/production-support-account-sla-status-read-model.d.ts"
+    },
+    "./production-support-account-sla-status-values": {
+      "import": "./dist/production-support-account-sla-status-values.js",
+      "types": "./dist/production-support-account-sla-status-values.d.ts"
+    },
+    "./production-support-data-export-delete-lifecycle-proof": {
+      "import": "./dist/production-support-data-export-delete-lifecycle-proof.js",
+      "types": "./dist/production-support-data-export-delete-lifecycle-proof.d.ts"
+    },
+    "./production-support-data-export-delete-lifecycle-read-model": {
+      "import": "./dist/production-support-data-export-delete-lifecycle-read-model.js",
+      "types": "./dist/production-support-data-export-delete-lifecycle-read-model.d.ts"
+    },
+    "./production-support-data-export-delete-lifecycle-values": {
+      "import": "./dist/production-support-data-export-delete-lifecycle-values.js",
+      "types": "./dist/production-support-data-export-delete-lifecycle-values.d.ts"
+    },
+    "./production-support-legal-provider-readiness-proof": {
+      "import": "./dist/production-support-legal-provider-readiness-proof.js",
+      "types": "./dist/production-support-legal-provider-readiness-proof.d.ts"
+    },
+    "./production-support-legal-provider-readiness-read-model": {
+      "import": "./dist/production-support-legal-provider-readiness-read-model.js",
+      "types": "./dist/production-support-legal-provider-readiness-read-model.d.ts"
+    },
+    "./production-support-legal-provider-readiness-values": {
+      "import": "./dist/production-support-legal-provider-readiness-values.js",
+      "types": "./dist/production-support-legal-provider-readiness-values.d.ts"
+    },
+    "./production-support-process-runtime-status-proof": {
+      "import": "./dist/production-support-process-runtime-status-proof.js",
+      "types": "./dist/production-support-process-runtime-status-proof.d.ts"
+    },
+    "./production-support-process-runtime-status-read-model": {
+      "import": "./dist/production-support-process-runtime-status-read-model.js",
+      "types": "./dist/production-support-process-runtime-status-read-model.d.ts"
+    },
+    "./production-support-process-runtime-status-values": {
+      "import": "./dist/production-support-process-runtime-status-values.js",
+      "types": "./dist/production-support-process-runtime-status-values.d.ts"
+    },
+    "./production-support-proof-status-matrix-closure-proof": {
+      "import": "./dist/production-support-proof-status-matrix-closure-proof.js",
+      "types": "./dist/production-support-proof-status-matrix-closure-proof.d.ts"
+    },
+    "./production-support-proof-status-matrix-closure-read-model": {
+      "import": "./dist/production-support-proof-status-matrix-closure-read-model.js",
+      "types": "./dist/production-support-proof-status-matrix-closure-read-model.d.ts"
+    },
+    "./production-support-proof-status-matrix-closure-values": {
+      "import": "./dist/production-support-proof-status-matrix-closure-values.js",
+      "types": "./dist/production-support-proof-status-matrix-closure-values.d.ts"
+    },
+    "./production-support-publication-execution-status-proof": {
+      "import": "./dist/production-support-publication-execution-status-proof.js",
+      "types": "./dist/production-support-publication-execution-status-proof.d.ts"
+    },
+    "./production-support-publication-execution-status-read-model": {
+      "import": "./dist/production-support-publication-execution-status-read-model.js",
+      "types": "./dist/production-support-publication-execution-status-read-model.d.ts"
+    },
+    "./production-support-publication-execution-status-values": {
+      "import": "./dist/production-support-publication-execution-status-values.js",
+      "types": "./dist/production-support-publication-execution-status-values.d.ts"
+    },
+    "./production-support-publication-runtime-readiness-proof": {
+      "import": "./dist/production-support-publication-runtime-readiness-proof.js",
+      "types": "./dist/production-support-publication-runtime-readiness-proof.d.ts"
+    },
+    "./production-support-publication-runtime-readiness-read-model": {
+      "import": "./dist/production-support-publication-runtime-readiness-read-model.js",
+      "types": "./dist/production-support-publication-runtime-readiness-read-model.d.ts"
+    },
+    "./production-support-publication-runtime-readiness-values": {
+      "import": "./dist/production-support-publication-runtime-readiness-values.js",
+      "types": "./dist/production-support-publication-runtime-readiness-values.d.ts"
+    },
+    "./production-support-publication-status-freshness-proof": {
+      "import": "./dist/production-support-publication-status-freshness-proof.js",
+      "types": "./dist/production-support-publication-status-freshness-proof.d.ts"
+    },
+    "./production-support-publication-status-freshness-read-model": {
+      "import": "./dist/production-support-publication-status-freshness-read-model.js",
+      "types": "./dist/production-support-publication-status-freshness-read-model.d.ts"
+    },
+    "./production-support-publication-status-freshness-values": {
+      "import": "./dist/production-support-publication-status-freshness-values.js",
+      "types": "./dist/production-support-publication-status-freshness-values.d.ts"
+    },
+    "./production-support-publication-workflow": {
+      "import": "./dist/production-support-publication-workflow.js",
+      "types": "./dist/production-support-publication-workflow.d.ts"
+    },
+    "./production-support-publication-workflow-read-model": {
+      "import": "./dist/production-support-publication-workflow-read-model.js",
+      "types": "./dist/production-support-publication-workflow-read-model.d.ts"
+    },
+    "./production-support-publication-workflow-values": {
+      "import": "./dist/production-support-publication-workflow-values.js",
+      "types": "./dist/production-support-publication-workflow-values.d.ts"
+    },
+    "./production-support-status-backend-dead-letter-proof": {
+      "import": "./dist/production-support-status-backend-dead-letter-proof.js",
+      "types": "./dist/production-support-status-backend-dead-letter-proof.d.ts"
+    },
+    "./production-support-status-backend-dead-letter-read-model": {
+      "import": "./dist/production-support-status-backend-dead-letter-read-model.js",
+      "types": "./dist/production-support-status-backend-dead-letter-read-model.d.ts"
+    },
+    "./production-support-status-backend-dead-letter-values": {
+      "import": "./dist/production-support-status-backend-dead-letter-values.js",
+      "types": "./dist/production-support-status-backend-dead-letter-values.d.ts"
+    },
+    "./production-support-status-backend-durable-queue-runtime-proof": {
+      "import": "./dist/production-support-status-backend-durable-queue-runtime-proof.js",
+      "types": "./dist/production-support-status-backend-durable-queue-runtime-proof.d.ts"
+    },
+    "./production-support-status-backend-durable-queue-runtime-read-model": {
+      "import": "./dist/production-support-status-backend-durable-queue-runtime-read-model.js",
+      "types": "./dist/production-support-status-backend-durable-queue-runtime-read-model.d.ts"
+    },
+    "./production-support-status-backend-durable-queue-runtime-values": {
+      "import": "./dist/production-support-status-backend-durable-queue-runtime-values.js",
+      "types": "./dist/production-support-status-backend-durable-queue-runtime-values.d.ts"
+    },
+    "./production-support-status-backend-execution-continuation-proof": {
+      "import": "./dist/production-support-status-backend-execution-continuation-proof.js",
+      "types": "./dist/production-support-status-backend-execution-continuation-proof.d.ts"
+    },
+    "./production-support-status-backend-execution-continuation-read-model": {
+      "import": "./dist/production-support-status-backend-execution-continuation-read-model.js",
+      "types": "./dist/production-support-status-backend-execution-continuation-read-model.d.ts"
+    },
+    "./production-support-status-backend-execution-continuation-values": {
+      "import": "./dist/production-support-status-backend-execution-continuation-values.js",
+      "types": "./dist/production-support-status-backend-execution-continuation-values.d.ts"
+    },
+    "./production-support-status-backend-execution-queue-proof": {
+      "import": "./dist/production-support-status-backend-execution-queue-proof.js",
+      "types": "./dist/production-support-status-backend-execution-queue-proof.d.ts"
+    },
+    "./production-support-status-backend-execution-queue-read-model": {
+      "import": "./dist/production-support-status-backend-execution-queue-read-model.js",
+      "types": "./dist/production-support-status-backend-execution-queue-read-model.d.ts"
+    },
+    "./production-support-status-backend-execution-queue-values": {
+      "import": "./dist/production-support-status-backend-execution-queue-values.js",
+      "types": "./dist/production-support-status-backend-execution-queue-values.d.ts"
+    },
+    "./production-support-status-backend-public-runtime-followthrough-proof": {
+      "import": "./dist/production-support-status-backend-public-runtime-followthrough-proof.js",
+      "types": "./dist/production-support-status-backend-public-runtime-followthrough-proof.d.ts"
+    },
+    "./production-support-status-backend-public-runtime-followthrough-read-model": {
+      "import": "./dist/production-support-status-backend-public-runtime-followthrough-read-model.js",
+      "types": "./dist/production-support-status-backend-public-runtime-followthrough-read-model.d.ts"
+    },
+    "./production-support-status-backend-public-runtime-followthrough-values": {
+      "import": "./dist/production-support-status-backend-public-runtime-followthrough-values.js",
+      "types": "./dist/production-support-status-backend-public-runtime-followthrough-values.d.ts"
+    },
+    "./production-support-status-backend-queue-audit-persistence-proof": {
+      "import": "./dist/production-support-status-backend-queue-audit-persistence-proof.js",
+      "types": "./dist/production-support-status-backend-queue-audit-persistence-proof.d.ts"
+    },
+    "./production-support-status-backend-queue-audit-persistence-read-model": {
+      "import": "./dist/production-support-status-backend-queue-audit-persistence-read-model.js",
+      "types": "./dist/production-support-status-backend-queue-audit-persistence-read-model.d.ts"
+    },
+    "./production-support-status-backend-queue-audit-persistence-values": {
+      "import": "./dist/production-support-status-backend-queue-audit-persistence-values.js",
+      "types": "./dist/production-support-status-backend-queue-audit-persistence-values.d.ts"
+    },
+    "./production-support-status-backend-runtime-closure-proof": {
+      "import": "./dist/production-support-status-backend-runtime-closure-proof.js",
+      "types": "./dist/production-support-status-backend-runtime-closure-proof.d.ts"
+    },
+    "./production-support-status-backend-runtime-closure-read-model": {
+      "import": "./dist/production-support-status-backend-runtime-closure-read-model.js",
+      "types": "./dist/production-support-status-backend-runtime-closure-read-model.d.ts"
+    },
+    "./production-support-status-backend-runtime-closure-values": {
+      "import": "./dist/production-support-status-backend-runtime-closure-values.js",
+      "types": "./dist/production-support-status-backend-runtime-closure-values.d.ts"
+    },
+    "./production-support-status-backend-runtime-execution-proof": {
+      "import": "./dist/production-support-status-backend-runtime-execution-proof.js",
+      "types": "./dist/production-support-status-backend-runtime-execution-proof.d.ts"
+    },
+    "./production-support-status-backend-runtime-execution-read-model": {
+      "import": "./dist/production-support-status-backend-runtime-execution-read-model.js",
+      "types": "./dist/production-support-status-backend-runtime-execution-read-model.d.ts"
+    },
+    "./production-support-status-backend-runtime-execution-values": {
+      "import": "./dist/production-support-status-backend-runtime-execution-values.js",
+      "types": "./dist/production-support-status-backend-runtime-execution-values.d.ts"
+    },
+    "./provider-secret-custody-status": {
+      "import": "./dist/provider-secret-custody-status.js",
+      "types": "./dist/provider-secret-custody-status.d.ts"
+    },
+    "./provider-secret-custody-status-read-model": {
+      "import": "./dist/provider-secret-custody-status-read-model.js",
+      "types": "./dist/provider-secret-custody-status-read-model.d.ts"
+    },
+    "./provider-secret-execution-readiness": {
+      "import": "./dist/provider-secret-execution-readiness.js",
+      "types": "./dist/provider-secret-execution-readiness.d.ts"
+    },
+    "./provider-secret-execution-readiness-read-model": {
+      "import": "./dist/provider-secret-execution-readiness-read-model.js",
+      "types": "./dist/provider-secret-execution-readiness-read-model.d.ts"
+    },
+    "./provider-secret-rotation-revocation-status": {
+      "import": "./dist/provider-secret-rotation-revocation-status.js",
+      "types": "./dist/provider-secret-rotation-revocation-status.d.ts"
+    },
+    "./provider-secret-rotation-revocation-status-guards": {
+      "import": "./dist/provider-secret-rotation-revocation-status-guards.js",
+      "types": "./dist/provider-secret-rotation-revocation-status-guards.d.ts"
+    },
+    "./provider-secret-rotation-revocation-status-read-model": {
+      "import": "./dist/provider-secret-rotation-revocation-status-read-model.js",
+      "types": "./dist/provider-secret-rotation-revocation-status-read-model.d.ts"
+    },
+    "./public-support-contact-status-proof": {
+      "import": "./dist/public-support-contact-status-proof.js",
+      "types": "./dist/public-support-contact-status-proof.d.ts"
+    },
+    "./public-support-contact-status-read-model": {
+      "import": "./dist/public-support-contact-status-read-model.js",
+      "types": "./dist/public-support-contact-status-read-model.d.ts"
+    },
+    "./public-support-contact-status-values": {
+      "import": "./dist/public-support-contact-status-values.js",
+      "types": "./dist/public-support-contact-status-values.d.ts"
+    },
+    "./remote-access-session": {
+      "import": "./dist/remote-access-session.js",
+      "types": "./dist/remote-access-session.d.ts"
+    },
+    "./screen-ai-adapter-readiness-proof": {
+      "import": "./dist/screen-ai-adapter-readiness-proof.js",
+      "types": "./dist/screen-ai-adapter-readiness-proof.d.ts"
+    },
+    "./screen-ai-browser-trigger-proof": {
+      "import": "./dist/screen-ai-browser-trigger-proof.js",
+      "types": "./dist/screen-ai-browser-trigger-proof.d.ts"
+    },
+    "./screen-ai-enforcement-handoff-guard-proof": {
+      "import": "./dist/screen-ai-enforcement-handoff-guard-proof.js",
+      "types": "./dist/screen-ai-enforcement-handoff-guard-proof.d.ts"
+    },
+    "./screen-ai-memory-graph-source-guard-proof": {
+      "import": "./dist/screen-ai-memory-graph-source-guard-proof.js",
+      "types": "./dist/screen-ai-memory-graph-source-guard-proof.d.ts"
+    },
+    "./screen-ai-model-artifact-manifest-proof": {
+      "import": "./dist/screen-ai-model-artifact-manifest-proof.js",
+      "types": "./dist/screen-ai-model-artifact-manifest-proof.d.ts"
+    },
+    "./screen-ai-model-runtime-backpressure-proof": {
+      "import": "./dist/screen-ai-model-runtime-backpressure-proof.js",
+      "types": "./dist/screen-ai-model-runtime-backpressure-proof.d.ts"
+    },
+    "./screen-ai-stricter-parent-rule-proof": {
+      "import": "./dist/screen-ai-stricter-parent-rule-proof.js",
+      "types": "./dist/screen-ai-stricter-parent-rule-proof.d.ts"
+    },
+    "./screen-android-mediaprojection-capability-proof": {
+      "import": "./dist/screen-android-mediaprojection-capability-proof.js",
+      "types": "./dist/screen-android-mediaprojection-capability-proof.d.ts"
+    },
+    "./screen-child-disclosure": {
+      "import": "./dist/screen-child-disclosure.js",
+      "types": "./dist/screen-child-disclosure.d.ts"
+    },
+    "./screen-control-catalog": {
+      "import": "./dist/screen-control-catalog.js",
+      "types": "./dist/screen-control-catalog.d.ts"
+    },
+    "./screen-control-catalog-data-0": {
+      "import": "./dist/screen-control-catalog-data-0.js",
+      "types": "./dist/screen-control-catalog-data-0.d.ts"
+    },
+    "./screen-control-catalog-data-1": {
+      "import": "./dist/screen-control-catalog-data-1.js",
+      "types": "./dist/screen-control-catalog-data-1.d.ts"
+    },
+    "./screen-control-catalog-data-2": {
+      "import": "./dist/screen-control-catalog-data-2.js",
+      "types": "./dist/screen-control-catalog-data-2.d.ts"
+    },
+    "./screen-control-catalog-metadata": {
+      "import": "./dist/screen-control-catalog-metadata.js",
+      "types": "./dist/screen-control-catalog-metadata.d.ts"
+    },
+    "./screen-control-catalog-schema": {
+      "import": "./dist/screen-control-catalog-schema.js",
+      "types": "./dist/screen-control-catalog-schema.d.ts"
+    },
+    "./screen-control-settings-portal-proof": {
+      "import": "./dist/screen-control-settings-portal-proof.js",
+      "types": "./dist/screen-control-settings-portal-proof.d.ts"
+    },
+    "./screen-evidence-detector-prompt-pack": {
+      "import": "./dist/screen-evidence-detector-prompt-pack.js",
+      "types": "./dist/screen-evidence-detector-prompt-pack.d.ts"
+    },
+    "./screen-evidence-detector-prompt-pack-values": {
+      "import": "./dist/screen-evidence-detector-prompt-pack-values.js",
+      "types": "./dist/screen-evidence-detector-prompt-pack-values.d.ts"
+    },
+    "./screen-evidence-family-hub-routing": {
+      "import": "./dist/screen-evidence-family-hub-routing.js",
+      "types": "./dist/screen-evidence-family-hub-routing.d.ts"
+    },
+    "./screen-evidence-family-hub-routing-values": {
+      "import": "./dist/screen-evidence-family-hub-routing-values.js",
+      "types": "./dist/screen-evidence-family-hub-routing-values.d.ts"
+    },
+    "./screen-evidence-primitives": {
+      "import": "./dist/screen-evidence-primitives.js",
+      "types": "./dist/screen-evidence-primitives.d.ts"
+    },
+    "./screen-evidence-queue": {
+      "import": "./dist/screen-evidence-queue.js",
+      "types": "./dist/screen-evidence-queue.d.ts"
+    },
+    "./screen-evidence-read-model": {
+      "import": "./dist/screen-evidence-read-model.js",
+      "types": "./dist/screen-evidence-read-model.d.ts"
+    },
+    "./screen-evidence-resource-scheduler": {
+      "import": "./dist/screen-evidence-resource-scheduler.js",
+      "types": "./dist/screen-evidence-resource-scheduler.d.ts"
+    },
+    "./screen-evidence-resource-scheduler-proof": {
+      "import": "./dist/screen-evidence-resource-scheduler-proof.js",
+      "types": "./dist/screen-evidence-resource-scheduler-proof.d.ts"
+    },
+    "./screen-evidence-result": {
+      "import": "./dist/screen-evidence-result.js",
+      "types": "./dist/screen-evidence-result.d.ts"
+    },
+    "./screen-evidence-settings": {
+      "import": "./dist/screen-evidence-settings.js",
+      "types": "./dist/screen-evidence-settings.d.ts"
+    },
+    "./screen-evidence-settings-ui-proof": {
+      "import": "./dist/screen-evidence-settings-ui-proof.js",
+      "types": "./dist/screen-evidence-settings-ui-proof.d.ts"
+    },
+    "./screen-evidence-states": {
+      "import": "./dist/screen-evidence-states.js",
+      "types": "./dist/screen-evidence-states.d.ts"
+    },
+    "./screen-family-ai-hub-runtime-discovery-proof": {
+      "import": "./dist/screen-family-ai-hub-runtime-discovery-proof.js",
+      "types": "./dist/screen-family-ai-hub-runtime-discovery-proof.d.ts"
+    },
+    "./screen-intelligence-router": {
+      "import": "./dist/screen-intelligence-router.js",
+      "types": "./dist/screen-intelligence-router.d.ts"
+    },
+    "./screen-intelligence-router-values": {
+      "import": "./dist/screen-intelligence-router-values.js",
+      "types": "./dist/screen-intelligence-router-values.d.ts"
+    },
+    "./screen-ios-replaykit-capability-proof": {
+      "import": "./dist/screen-ios-replaykit-capability-proof.js",
+      "types": "./dist/screen-ios-replaykit-capability-proof.d.ts"
+    },
+    "./screen-linux-capture-capability-proof": {
+      "import": "./dist/screen-linux-capture-capability-proof.js",
+      "types": "./dist/screen-linux-capture-capability-proof.d.ts"
+    },
+    "./screen-live-view-parent-ui-persistence": {
+      "import": "./dist/screen-live-view-parent-ui-persistence.js",
+      "types": "./dist/screen-live-view-parent-ui-persistence.d.ts"
+    },
+    "./screen-live-view-platform-permission": {
+      "import": "./dist/screen-live-view-platform-permission.js",
+      "types": "./dist/screen-live-view-platform-permission.d.ts"
+    },
+    "./screen-live-view-readiness-core": {
+      "import": "./dist/screen-live-view-readiness-core.js",
+      "types": "./dist/screen-live-view-readiness-core.d.ts"
+    },
+    "./screen-live-view-service-session": {
+      "import": "./dist/screen-live-view-service-session.js",
+      "types": "./dist/screen-live-view-service-session.d.ts"
+    },
+    "./screen-macos-capture-capability-proof": {
+      "import": "./dist/screen-macos-capture-capability-proof.js",
+      "types": "./dist/screen-macos-capture-capability-proof.d.ts"
+    },
+    "./screen-managed-browser-cdp-capture": {
+      "import": "./dist/screen-managed-browser-cdp-capture.js",
+      "types": "./dist/screen-managed-browser-cdp-capture.d.ts"
+    },
+    "./screen-managed-browser-cdp-capture-values": {
+      "import": "./dist/screen-managed-browser-cdp-capture-values.js",
+      "types": "./dist/screen-managed-browser-cdp-capture-values.d.ts"
+    },
+    "./screen-ocr-contracts": {
+      "import": "./dist/screen-ocr-contracts.js",
+      "types": "./dist/screen-ocr-contracts.d.ts"
+    },
+    "./screen-ocr-redaction": {
+      "import": "./dist/screen-ocr-redaction.js",
+      "types": "./dist/screen-ocr-redaction.d.ts"
+    },
+    "./screen-ocr-worker": {
+      "import": "./dist/screen-ocr-worker.js",
+      "types": "./dist/screen-ocr-worker.d.ts"
+    },
+    "./screen-optional-visibility-capability-proof": {
+      "import": "./dist/screen-optional-visibility-capability-proof.js",
+      "types": "./dist/screen-optional-visibility-capability-proof.d.ts"
+    },
+    "./screen-optional-visibility-capability-status": {
+      "import": "./dist/screen-optional-visibility-capability-status.js",
+      "types": "./dist/screen-optional-visibility-capability-status.d.ts"
+    },
+    "./screen-optional-visibility-mode": {
+      "import": "./dist/screen-optional-visibility-mode.js",
+      "types": "./dist/screen-optional-visibility-mode.d.ts"
+    },
+    "./screen-optional-visibility-mode-values": {
+      "import": "./dist/screen-optional-visibility-mode-values.js",
+      "types": "./dist/screen-optional-visibility-mode-values.d.ts"
+    },
+    "./screen-optional-visibility-runtime-settings": {
+      "import": "./dist/screen-optional-visibility-runtime-settings.js",
+      "types": "./dist/screen-optional-visibility-runtime-settings.d.ts"
+    },
+    "./screen-policy-evidence-chain": {
+      "import": "./dist/screen-policy-evidence-chain.js",
+      "types": "./dist/screen-policy-evidence-chain.d.ts"
+    },
+    "./screen-vlm-execution-readiness": {
+      "import": "./dist/screen-vlm-execution-readiness.js",
+      "types": "./dist/screen-vlm-execution-readiness.d.ts"
+    },
+    "./screen-vlm-execution-readiness-values": {
+      "import": "./dist/screen-vlm-execution-readiness-values.js",
+      "types": "./dist/screen-vlm-execution-readiness-values.d.ts"
+    },
+    "./screen-vlm-journal-read-model": {
+      "import": "./dist/screen-vlm-journal-read-model.js",
+      "types": "./dist/screen-vlm-journal-read-model.d.ts"
+    },
+    "./screen-vlm-worker": {
+      "import": "./dist/screen-vlm-worker.js",
+      "types": "./dist/screen-vlm-worker.d.ts"
+    },
+    "./setup-pairing-intent": {
+      "import": "./dist/setup-pairing-intent.js",
+      "types": "./dist/setup-pairing-intent.d.ts"
+    },
+    "./setup-readiness": {
+      "import": "./dist/setup-readiness.js",
+      "types": "./dist/setup-readiness.d.ts"
+    },
+    "./setup-registration-entry": {
+      "import": "./dist/setup-registration-entry.js",
+      "types": "./dist/setup-registration-entry.d.ts"
+    },
+    "./setup-state-machine": {
+      "import": "./dist/setup-state-machine.js",
+      "types": "./dist/setup-state-machine.d.ts"
+    },
+    "./social-alert-report-intent": {
+      "import": "./dist/social-alert-report-intent.js",
+      "types": "./dist/social-alert-report-intent.d.ts"
+    },
+    "./social-alert-report-intent-values": {
+      "import": "./dist/social-alert-report-intent-values.js",
+      "types": "./dist/social-alert-report-intent-values.d.ts"
+    },
+    "./social-alert-report-provider-preflight-proof": {
+      "import": "./dist/social-alert-report-provider-preflight-proof.js",
+      "types": "./dist/social-alert-report-provider-preflight-proof.d.ts"
+    },
+    "./social-alert-report-provider-receipt-boundary-proof": {
+      "import": "./dist/social-alert-report-provider-receipt-boundary-proof.js",
+      "types": "./dist/social-alert-report-provider-receipt-boundary-proof.d.ts"
+    },
+    "./social-alert-report-provider-receipt-ingestion-readiness": {
+      "import": "./dist/social-alert-report-provider-receipt-ingestion-readiness.js",
+      "types": "./dist/social-alert-report-provider-receipt-ingestion-readiness.d.ts"
+    },
+    "./social-alert-report-provider-status-handoff-proof": {
+      "import": "./dist/social-alert-report-provider-status-handoff-proof.js",
+      "types": "./dist/social-alert-report-provider-status-handoff-proof.d.ts"
+    },
+    "./social-android-native-app-capability-matrix": {
+      "import": "./dist/social-android-native-app-capability-matrix.js",
+      "types": "./dist/social-android-native-app-capability-matrix.d.ts"
+    },
+    "./social-android-native-app-capability-matrix-values": {
+      "import": "./dist/social-android-native-app-capability-matrix-values.js",
+      "types": "./dist/social-android-native-app-capability-matrix-values.d.ts"
+    },
+    "./social-audit-explanation-read-model": {
+      "import": "./dist/social-audit-explanation-read-model.js",
+      "types": "./dist/social-audit-explanation-read-model.d.ts"
+    },
+    "./social-audit-explanation-read-model-values": {
+      "import": "./dist/social-audit-explanation-read-model-values.js",
+      "types": "./dist/social-audit-explanation-read-model-values.d.ts"
+    },
+    "./social-child-approval-block-ux": {
+      "import": "./dist/social-child-approval-block-ux.js",
+      "types": "./dist/social-child-approval-block-ux.d.ts"
+    },
+    "./social-child-approval-block-ux-values": {
+      "import": "./dist/social-child-approval-block-ux-values.js",
+      "types": "./dist/social-child-approval-block-ux-values.d.ts"
+    },
+    "./social-dashboard-ux": {
+      "import": "./dist/social-dashboard-ux.js",
+      "types": "./dist/social-dashboard-ux.d.ts"
+    },
+    "./social-dashboard-ux-values": {
+      "import": "./dist/social-dashboard-ux-values.js",
+      "types": "./dist/social-dashboard-ux-values.d.ts"
+    },
+    "./social-decision-memory-cache": {
+      "import": "./dist/social-decision-memory-cache.js",
+      "types": "./dist/social-decision-memory-cache.d.ts"
+    },
+    "./social-decision-memory-cache-values": {
+      "import": "./dist/social-decision-memory-cache-values.js",
+      "types": "./dist/social-decision-memory-cache-values.d.ts"
+    },
+    "./social-ios-screen-time-capability-matrix": {
+      "import": "./dist/social-ios-screen-time-capability-matrix.js",
+      "types": "./dist/social-ios-screen-time-capability-matrix.d.ts"
+    },
+    "./social-ios-screen-time-capability-matrix-values": {
+      "import": "./dist/social-ios-screen-time-capability-matrix-values.js",
+      "types": "./dist/social-ios-screen-time-capability-matrix-values.d.ts"
+    },
+    "./social-parent-approval": {
+      "import": "./dist/social-parent-approval.js",
+      "types": "./dist/social-parent-approval.d.ts"
+    },
+    "./social-parent-notification-delivery-readiness": {
+      "import": "./dist/social-parent-notification-delivery-readiness.js",
+      "types": "./dist/social-parent-notification-delivery-readiness.d.ts"
+    },
+    "./social-parent-sensitivity-settings": {
+      "import": "./dist/social-parent-sensitivity-settings.js",
+      "types": "./dist/social-parent-sensitivity-settings.d.ts"
+    },
+    "./social-parent-sensitivity-settings-values": {
+      "import": "./dist/social-parent-sensitivity-settings-values.js",
+      "types": "./dist/social-parent-sensitivity-settings-values.d.ts"
+    },
+    "./social-platform-connector-authorization": {
+      "import": "./dist/social-platform-connector-authorization.js",
+      "types": "./dist/social-platform-connector-authorization.d.ts"
+    },
+    "./social-platform-connector-authorization-values": {
+      "import": "./dist/social-platform-connector-authorization-values.js",
+      "types": "./dist/social-platform-connector-authorization-values.d.ts"
+    },
+    "./social-policy-compiler": {
+      "import": "./dist/social-policy-compiler.js",
+      "types": "./dist/social-policy-compiler.d.ts"
+    },
+    "./social-policy-compiler-values": {
+      "import": "./dist/social-policy-compiler-values.js",
+      "types": "./dist/social-policy-compiler-values.d.ts"
+    },
+    "./social-report-writer-delivery-proof": {
+      "import": "./dist/social-report-writer-delivery-proof.js",
+      "types": "./dist/social-report-writer-delivery-proof.d.ts"
+    },
+    "./stateless-report-compiler-status": {
+      "import": "./dist/stateless-report-compiler-status.js",
+      "types": "./dist/stateless-report-compiler-status.d.ts"
+    },
+    "./stateless-report-compiler-status-values": {
+      "import": "./dist/stateless-report-compiler-status-values.js",
+      "types": "./dist/stateless-report-compiler-status-values.d.ts"
+    },
+    "./status-backend-payload-custody": {
+      "import": "./dist/status-backend-payload-custody.js",
+      "types": "./dist/status-backend-payload-custody.d.ts"
+    },
+    "./status-backend-payload-custody-guards": {
+      "import": "./dist/status-backend-payload-custody-guards.js",
+      "types": "./dist/status-backend-payload-custody-guards.d.ts"
+    },
+    "./status-backend-payload-custody-read-model": {
+      "import": "./dist/status-backend-payload-custody-read-model.js",
+      "types": "./dist/status-backend-payload-custody-read-model.d.ts"
+    },
+    "./status-backend-redaction-manifest": {
+      "import": "./dist/status-backend-redaction-manifest.js",
+      "types": "./dist/status-backend-redaction-manifest.d.ts"
+    },
+    "./status-backend-redaction-manifest-guards": {
+      "import": "./dist/status-backend-redaction-manifest-guards.js",
+      "types": "./dist/status-backend-redaction-manifest-guards.d.ts"
+    },
+    "./status-backend-redaction-manifest-read-model": {
+      "import": "./dist/status-backend-redaction-manifest-read-model.js",
+      "types": "./dist/status-backend-redaction-manifest-read-model.d.ts"
+    },
+    "./support-backend-provider-runtime-readiness": {
+      "import": "./dist/support-backend-provider-runtime-readiness.js",
+      "types": "./dist/support-backend-provider-runtime-readiness.d.ts"
+    },
+    "./support-backend-provider-runtime-readiness-read-model": {
+      "import": "./dist/support-backend-provider-runtime-readiness-read-model.js",
+      "types": "./dist/support-backend-provider-runtime-readiness-read-model.d.ts"
+    },
+    "./support-backend-upload-custody-audit": {
+      "import": "./dist/support-backend-upload-custody-audit.js",
+      "types": "./dist/support-backend-upload-custody-audit.d.ts"
+    },
+    "./support-backend-upload-custody-audit-guards": {
+      "import": "./dist/support-backend-upload-custody-audit-guards.js",
+      "types": "./dist/support-backend-upload-custody-audit-guards.d.ts"
+    },
+    "./support-backend-upload-custody-audit-read-model": {
+      "import": "./dist/support-backend-upload-custody-audit-read-model.js",
+      "types": "./dist/support-backend-upload-custody-audit-read-model.d.ts"
+    },
+    "./support-backend-upload-execution-runtime": {
+      "import": "./dist/support-backend-upload-execution-runtime.js",
+      "types": "./dist/support-backend-upload-execution-runtime.d.ts"
+    },
+    "./support-backend-upload-execution-runtime-guards": {
+      "import": "./dist/support-backend-upload-execution-runtime-guards.js",
+      "types": "./dist/support-backend-upload-execution-runtime-guards.d.ts"
+    },
+    "./support-backend-upload-execution-runtime-read-model": {
+      "import": "./dist/support-backend-upload-execution-runtime-read-model.js",
+      "types": "./dist/support-backend-upload-execution-runtime-read-model.d.ts"
+    },
+    "./support-backend-upload-status": {
+      "import": "./dist/support-backend-upload-status.js",
+      "types": "./dist/support-backend-upload-status.d.ts"
+    },
+    "./support-backend-upload-status-guards": {
+      "import": "./dist/support-backend-upload-status-guards.js",
+      "types": "./dist/support-backend-upload-status-guards.d.ts"
+    },
+    "./support-backend-upload-status-read-model": {
+      "import": "./dist/support-backend-upload-status-read-model.js",
+      "types": "./dist/support-backend-upload-status-read-model.d.ts"
+    },
+    "./support-bundle-redaction": {
+      "import": "./dist/support-bundle-redaction.js",
+      "types": "./dist/support-bundle-redaction.d.ts"
+    },
+    "./support-bundle-redaction-read-model": {
+      "import": "./dist/support-bundle-redaction-read-model.js",
+      "types": "./dist/support-bundle-redaction-read-model.d.ts"
+    },
+    "./support-case-resolution-status": {
+      "import": "./dist/support-case-resolution-status.js",
+      "types": "./dist/support-case-resolution-status.d.ts"
+    },
+    "./support-case-resolution-status-guards": {
+      "import": "./dist/support-case-resolution-status-guards.js",
+      "types": "./dist/support-case-resolution-status-guards.d.ts"
+    },
+    "./support-case-resolution-status-read-model": {
+      "import": "./dist/support-case-resolution-status-read-model.js",
+      "types": "./dist/support-case-resolution-status-read-model.d.ts"
+    },
+    "./support-incident-workflow": {
+      "import": "./dist/support-incident-workflow.js",
+      "types": "./dist/support-incident-workflow.d.ts"
+    },
+    "./support-incident-workflow-guards": {
+      "import": "./dist/support-incident-workflow-guards.js",
+      "types": "./dist/support-incident-workflow-guards.d.ts"
+    },
+    "./support-incident-workflow-read-model": {
+      "import": "./dist/support-incident-workflow-read-model.js",
+      "types": "./dist/support-incident-workflow-read-model.d.ts"
+    },
+    "./support-proof-contract": {
+      "import": "./dist/support-proof-contract.js",
+      "types": "./dist/support-proof-contract.d.ts"
+    },
+    "./tamper-integrity-audit": {
+      "import": "./dist/tamper-integrity-audit.js",
+      "types": "./dist/tamper-integrity-audit.d.ts"
+    },
+    "./tamper-integrity-audit-read-model": {
+      "import": "./dist/tamper-integrity-audit-read-model.js",
+      "types": "./dist/tamper-integrity-audit-read-model.d.ts"
+    },
+    "./tamper-uninstall-artifact-status": {
+      "import": "./dist/tamper-uninstall-artifact-status.js",
+      "types": "./dist/tamper-uninstall-artifact-status.d.ts"
+    },
+    "./test-log/ndjsonBrands": {
+      "import": "./dist/test-log/ndjsonBrands.js",
+      "types": "./dist/test-log/ndjsonBrands.d.ts"
+    },
+    "./test-log/types": {
+      "import": "./dist/test-log/types.js",
+      "types": "./dist/test-log/types.d.ts"
+    },
+    "./text-app-game-child-ux": {
+      "import": "./dist/text-app-game-child-ux.js",
+      "types": "./dist/text-app-game-child-ux.d.ts"
+    },
+    "./text-browser-ux": {
+      "import": "./dist/text-browser-ux.js",
+      "types": "./dist/text-browser-ux.d.ts"
+    },
+    "./text-contracts": {
+      "import": "./dist/text-contracts.js",
+      "types": "./dist/text-contracts.d.ts"
+    },
+    "./text-portal-dev": {
+      "import": "./dist/text-portal-dev.js",
+      "types": "./dist/text-portal-dev.d.ts"
+    },
+    "./text-portal-dev-tracking-report": {
+      "import": "./dist/text-portal-dev-tracking-report.js",
+      "types": "./dist/text-portal-dev-tracking-report.d.ts"
+    },
+    "./text-portal-dev-tracking-unsupported": {
+      "import": "./dist/text-portal-dev-tracking-unsupported.js",
+      "types": "./dist/text-portal-dev-tracking-unsupported.d.ts"
+    },
+    "./text-portal-product": {
+      "import": "./dist/text-portal-product.js",
+      "types": "./dist/text-portal-product.d.ts"
+    },
+    "./text-social-ux": {
+      "import": "./dist/text-social-ux.js",
+      "types": "./dist/text-social-ux.d.ts"
+    },
+    "./tracking-ai-provider-routing-proof": {
+      "import": "./dist/tracking-ai-provider-routing-proof.js",
+      "types": "./dist/tracking-ai-provider-routing-proof.d.ts"
+    },
+    "./tracking-ai-stored-ref-consumer-proof": {
+      "import": "./dist/tracking-ai-stored-ref-consumer-proof.js",
+      "types": "./dist/tracking-ai-stored-ref-consumer-proof.d.ts"
+    },
+    "./tracking-android-emulator-artifact-inventory-proof": {
+      "import": "./dist/tracking-android-emulator-artifact-inventory-proof.js",
+      "types": "./dist/tracking-android-emulator-artifact-inventory-proof.d.ts"
+    },
+    "./tracking-android-permission-background-proof": {
+      "import": "./dist/tracking-android-permission-background-proof.js",
+      "types": "./dist/tracking-android-permission-background-proof.d.ts"
+    },
+    "./tracking-android-physical-device-runtime-proof": {
+      "import": "./dist/tracking-android-physical-device-runtime-proof.js",
+      "types": "./dist/tracking-android-physical-device-runtime-proof.d.ts"
+    },
+    "./tracking-android-status-proof": {
+      "import": "./dist/tracking-android-status-proof.js",
+      "types": "./dist/tracking-android-status-proof.d.ts"
+    },
+    "./tracking-android-system-geofence-blocker-proof": {
+      "import": "./dist/tracking-android-system-geofence-blocker-proof.js",
+      "types": "./dist/tracking-android-system-geofence-blocker-proof.d.ts"
+    },
+    "./tracking-authority-enrollment-manual-required-proof": {
+      "import": "./dist/tracking-authority-enrollment-manual-required-proof.js",
+      "types": "./dist/tracking-authority-enrollment-manual-required-proof.d.ts"
+    },
+    "./tracking-authority-runtime-artifact-gate-proof": {
+      "import": "./dist/tracking-authority-runtime-artifact-gate-proof.js",
+      "types": "./dist/tracking-authority-runtime-artifact-gate-proof.d.ts"
+    },
+    "./tracking-authority-runtime-readiness-blocker-proof": {
+      "import": "./dist/tracking-authority-runtime-readiness-blocker-proof.js",
+      "types": "./dist/tracking-authority-runtime-readiness-blocker-proof.d.ts"
+    },
+    "./tracking-child-check-in-timeout-escalation-proof": {
+      "import": "./dist/tracking-child-check-in-timeout-escalation-proof.js",
+      "types": "./dist/tracking-child-check-in-timeout-escalation-proof.d.ts"
+    },
+    "./tracking-child-runtime-android-emulator-readiness-bridge-proof": {
+      "import": "./dist/tracking-child-runtime-android-emulator-readiness-bridge-proof.js",
+      "types": "./dist/tracking-child-runtime-android-emulator-readiness-bridge-proof.d.ts"
+    },
+    "./tracking-child-runtime-artifact-gate-proof": {
+      "import": "./dist/tracking-child-runtime-artifact-gate-proof.js",
+      "types": "./dist/tracking-child-runtime-artifact-gate-proof.d.ts"
+    },
+    "./tracking-child-runtime-delivery-boundary-proof": {
+      "import": "./dist/tracking-child-runtime-delivery-boundary-proof.js",
+      "types": "./dist/tracking-child-runtime-delivery-boundary-proof.d.ts"
+    },
+    "./tracking-child-runtime-execution-readiness-proof": {
+      "import": "./dist/tracking-child-runtime-execution-readiness-proof.js",
+      "types": "./dist/tracking-child-runtime-execution-readiness-proof.d.ts"
+    },
+    "./tracking-child-runtime-product-readiness-blocker-proof": {
+      "import": "./dist/tracking-child-runtime-product-readiness-blocker-proof.js",
+      "types": "./dist/tracking-child-runtime-product-readiness-blocker-proof.d.ts"
+    },
+    "./tracking-child-runtime-snapshot-requirements-proof": {
+      "import": "./dist/tracking-child-runtime-snapshot-requirements-proof.js",
+      "types": "./dist/tracking-child-runtime-snapshot-requirements-proof.d.ts"
+    },
+    "./tracking-claim-audit-proof": {
+      "import": "./dist/tracking-claim-audit-proof.js",
+      "types": "./dist/tracking-claim-audit-proof.d.ts"
+    },
+    "./tracking-control-catalog": {
+      "import": "./dist/tracking-control-catalog.js",
+      "types": "./dist/tracking-control-catalog.d.ts"
+    },
+    "./tracking-control-catalog-data": {
+      "import": "./dist/tracking-control-catalog-data.js",
+      "types": "./dist/tracking-control-catalog-data.d.ts"
+    },
+    "./tracking-control-catalog-metadata": {
+      "import": "./dist/tracking-control-catalog-metadata.js",
+      "types": "./dist/tracking-control-catalog-metadata.d.ts"
+    },
+    "./tracking-control-catalog-schema": {
+      "import": "./dist/tracking-control-catalog-schema.js",
+      "types": "./dist/tracking-control-catalog-schema.d.ts"
+    },
+    "./tracking-cross-platform-runtime-capability-proof": {
+      "import": "./dist/tracking-cross-platform-runtime-capability-proof.js",
+      "types": "./dist/tracking-cross-platform-runtime-capability-proof.d.ts"
+    },
+    "./tracking-desktop-presence-hint-proof": {
+      "import": "./dist/tracking-desktop-presence-hint-proof.js",
+      "types": "./dist/tracking-desktop-presence-hint-proof.d.ts"
+    },
+    "./tracking-escalation-readiness-proof": {
+      "import": "./dist/tracking-escalation-readiness-proof.js",
+      "types": "./dist/tracking-escalation-readiness-proof.d.ts"
+    },
+    "./tracking-escalation-runtime-artifact-gate-proof": {
+      "import": "./dist/tracking-escalation-runtime-artifact-gate-proof.js",
+      "types": "./dist/tracking-escalation-runtime-artifact-gate-proof.d.ts"
+    },
+    "./tracking-escalation-runtime-readiness-blocker-proof": {
+      "import": "./dist/tracking-escalation-runtime-readiness-blocker-proof.js",
+      "types": "./dist/tracking-escalation-runtime-readiness-blocker-proof.d.ts"
+    },
+    "./tracking-evidence": {
+      "import": "./dist/tracking-evidence.js",
+      "types": "./dist/tracking-evidence.d.ts"
+    },
+    "./tracking-evidence-quality-gate": {
+      "import": "./dist/tracking-evidence-quality-gate.js",
+      "types": "./dist/tracking-evidence-quality-gate.d.ts"
+    },
+    "./tracking-expected-place-alert-policy-proof": {
+      "import": "./dist/tracking-expected-place-alert-policy-proof.js",
+      "types": "./dist/tracking-expected-place-alert-policy-proof.d.ts"
+    },
+    "./tracking-family-dashboard-rollup-proof": {
+      "import": "./dist/tracking-family-dashboard-rollup-proof.js",
+      "types": "./dist/tracking-family-dashboard-rollup-proof.d.ts"
+    },
+    "./tracking-fixture-coverage-proof": {
+      "import": "./dist/tracking-fixture-coverage-proof.js",
+      "types": "./dist/tracking-fixture-coverage-proof.d.ts"
+    },
+    "./tracking-fixture-coverage-proof-values": {
+      "import": "./dist/tracking-fixture-coverage-proof-values.js",
+      "types": "./dist/tracking-fixture-coverage-proof-values.d.ts"
+    },
+    "./tracking-full-product-ui-local-runtime-artifact-capture-proof": {
+      "import": "./dist/tracking-full-product-ui-local-runtime-artifact-capture-proof.js",
+      "types": "./dist/tracking-full-product-ui-local-runtime-artifact-capture-proof.d.ts"
+    },
+    "./tracking-full-product-ui-readiness-blocker-proof": {
+      "import": "./dist/tracking-full-product-ui-readiness-blocker-proof.js",
+      "types": "./dist/tracking-full-product-ui-readiness-blocker-proof.d.ts"
+    },
+    "./tracking-full-product-ui-runtime-artifact-gate-proof": {
+      "import": "./dist/tracking-full-product-ui-runtime-artifact-gate-proof.js",
+      "types": "./dist/tracking-full-product-ui-runtime-artifact-gate-proof.d.ts"
+    },
+    "./tracking-full-product-ui-runtime-preflight-proof": {
+      "import": "./dist/tracking-full-product-ui-runtime-preflight-proof.js",
+      "types": "./dist/tracking-full-product-ui-runtime-preflight-proof.d.ts"
+    },
+    "./tracking-geofence": {
+      "import": "./dist/tracking-geofence.js",
+      "types": "./dist/tracking-geofence.d.ts"
+    },
+    "./tracking-hosted-storage-default-boundary-proof": {
+      "import": "./dist/tracking-hosted-storage-default-boundary-proof.js",
+      "types": "./dist/tracking-hosted-storage-default-boundary-proof.d.ts"
+    },
+    "./tracking-ios-location-manual-required-proof": {
+      "import": "./dist/tracking-ios-location-manual-required-proof.js",
+      "types": "./dist/tracking-ios-location-manual-required-proof.d.ts"
+    },
+    "./tracking-ios-privacy-disclosure-release-proof": {
+      "import": "./dist/tracking-ios-privacy-disclosure-release-proof.js",
+      "types": "./dist/tracking-ios-privacy-disclosure-release-proof.d.ts"
+    },
+    "./tracking-ios-simulator-artifact-inventory-proof": {
+      "import": "./dist/tracking-ios-simulator-artifact-inventory-proof.js",
+      "types": "./dist/tracking-ios-simulator-artifact-inventory-proof.d.ts"
+    },
+    "./tracking-local-execution-strategy-proof": {
+      "import": "./dist/tracking-local-execution-strategy-proof.js",
+      "types": "./dist/tracking-local-execution-strategy-proof.d.ts"
+    },
+    "./tracking-local-place-store": {
+      "import": "./dist/tracking-local-place-store.js",
+      "types": "./dist/tracking-local-place-store.d.ts"
+    },
+    "./tracking-local-place-store-schemas": {
+      "import": "./dist/tracking-local-place-store-schemas.js",
+      "types": "./dist/tracking-local-place-store-schemas.d.ts"
+    },
+    "./tracking-local-platform-proof-batch": {
+      "import": "./dist/tracking-local-platform-proof-batch.js",
+      "types": "./dist/tracking-local-platform-proof-batch.d.ts"
+    },
+    "./tracking-location-policy": {
+      "import": "./dist/tracking-location-policy.js",
+      "types": "./dist/tracking-location-policy.d.ts"
+    },
+    "./tracking-location-policy-platform-proof": {
+      "import": "./dist/tracking-location-policy-platform-proof.js",
+      "types": "./dist/tracking-location-policy-platform-proof.d.ts"
+    },
+    "./tracking-location-policy-primitives": {
+      "import": "./dist/tracking-location-policy-primitives.js",
+      "types": "./dist/tracking-location-policy-primitives.d.ts"
+    },
+    "./tracking-location-policy-runtime": {
+      "import": "./dist/tracking-location-policy-runtime.js",
+      "types": "./dist/tracking-location-policy-runtime.d.ts"
+    },
+    "./tracking-location-policy-types": {
+      "import": "./dist/tracking-location-policy-types.js",
+      "types": "./dist/tracking-location-policy-types.d.ts"
+    },
+    "./tracking-missing-device-mode-proof": {
+      "import": "./dist/tracking-missing-device-mode-proof.js",
+      "types": "./dist/tracking-missing-device-mode-proof.d.ts"
+    },
+    "./tracking-notification-local-outbox-readiness-proof": {
+      "import": "./dist/tracking-notification-local-outbox-readiness-proof.js",
+      "types": "./dist/tracking-notification-local-outbox-readiness-proof.d.ts"
+    },
+    "./tracking-notification-parent-surface-history-proof": {
+      "import": "./dist/tracking-notification-parent-surface-history-proof.js",
+      "types": "./dist/tracking-notification-parent-surface-history-proof.d.ts"
+    },
+    "./tracking-notification-preference-preflight-proof": {
+      "import": "./dist/tracking-notification-preference-preflight-proof.js",
+      "types": "./dist/tracking-notification-preference-preflight-proof.d.ts"
+    },
+    "./tracking-notification-preference-status-handoff": {
+      "import": "./dist/tracking-notification-preference-status-handoff.js",
+      "types": "./dist/tracking-notification-preference-status-handoff.d.ts"
+    },
+    "./tracking-notification-receipt-boundary-proof": {
+      "import": "./dist/tracking-notification-receipt-boundary-proof.js",
+      "types": "./dist/tracking-notification-receipt-boundary-proof.d.ts"
+    },
+    "./tracking-parent-acknowledgement-action-readiness-proof": {
+      "import": "./dist/tracking-parent-acknowledgement-action-readiness-proof.js",
+      "types": "./dist/tracking-parent-acknowledgement-action-readiness-proof.d.ts"
+    },
+    "./tracking-parent-child-local-runtime-bridge-proof": {
+      "import": "./dist/tracking-parent-child-local-runtime-bridge-proof.js",
+      "types": "./dist/tracking-parent-child-local-runtime-bridge-proof.d.ts"
+    },
+    "./tracking-physical-device-artifact-gate-proof": {
+      "import": "./dist/tracking-physical-device-artifact-gate-proof.js",
+      "types": "./dist/tracking-physical-device-artifact-gate-proof.d.ts"
+    },
+    "./tracking-physical-device-evidence-review-proof": {
+      "import": "./dist/tracking-physical-device-evidence-review-proof.js",
+      "types": "./dist/tracking-physical-device-evidence-review-proof.d.ts"
+    },
+    "./tracking-place-category-ambiguity-proof": {
+      "import": "./dist/tracking-place-category-ambiguity-proof.js",
+      "types": "./dist/tracking-place-category-ambiguity-proof.d.ts"
+    },
+    "./tracking-poi-provider-adapter": {
+      "import": "./dist/tracking-poi-provider-adapter.js",
+      "types": "./dist/tracking-poi-provider-adapter.d.ts"
+    },
+    "./tracking-policy-compiler-runtime-proof": {
+      "import": "./dist/tracking-policy-compiler-runtime-proof.js",
+      "types": "./dist/tracking-policy-compiler-runtime-proof.d.ts"
+    },
+    "./tracking-primitives": {
+      "import": "./dist/tracking-primitives.js",
+      "types": "./dist/tracking-primitives.d.ts"
+    },
+    "./tracking-product-readiness-closure-proof": {
+      "import": "./dist/tracking-product-readiness-closure-proof.js",
+      "types": "./dist/tracking-product-readiness-closure-proof.d.ts"
+    },
+    "./tracking-production-durable-workers-readiness-blocker-proof": {
+      "import": "./dist/tracking-production-durable-workers-readiness-blocker-proof.js",
+      "types": "./dist/tracking-production-durable-workers-readiness-blocker-proof.d.ts"
+    },
+    "./tracking-production-worker-runtime-artifact-gate-proof": {
+      "import": "./dist/tracking-production-worker-runtime-artifact-gate-proof.js",
+      "types": "./dist/tracking-production-worker-runtime-artifact-gate-proof.d.ts"
+    },
+    "./tracking-production-worker-runtime-preflight-proof": {
+      "import": "./dist/tracking-production-worker-runtime-preflight-proof.js",
+      "types": "./dist/tracking-production-worker-runtime-preflight-proof.d.ts"
+    },
+    "./tracking-provider-delivery-artifact-gate-proof": {
+      "import": "./dist/tracking-provider-delivery-artifact-gate-proof.js",
+      "types": "./dist/tracking-provider-delivery-artifact-gate-proof.d.ts"
+    },
+    "./tracking-provider-notification-proof": {
+      "import": "./dist/tracking-provider-notification-proof.js",
+      "types": "./dist/tracking-provider-notification-proof.d.ts"
+    },
+    "./tracking-provider-runtime-readiness-blocker-proof": {
+      "import": "./dist/tracking-provider-runtime-readiness-blocker-proof.js",
+      "types": "./dist/tracking-provider-runtime-readiness-blocker-proof.d.ts"
+    },
+    "./tracking-read-model": {
+      "import": "./dist/tracking-read-model.js",
+      "types": "./dist/tracking-read-model.d.ts"
+    },
+    "./tracking-real-runtime-handoff-proof": {
+      "import": "./dist/tracking-real-runtime-handoff-proof.js",
+      "types": "./dist/tracking-real-runtime-handoff-proof.d.ts"
+    },
+    "./tracking-report-export-read-model-proof": {
+      "import": "./dist/tracking-report-export-read-model-proof.js",
+      "types": "./dist/tracking-report-export-read-model-proof.d.ts"
+    },
+    "./tracking-report-policy-consumer-proof": {
+      "import": "./dist/tracking-report-policy-consumer-proof.js",
+      "types": "./dist/tracking-report-policy-consumer-proof.d.ts"
+    },
+    "./tracking-retention-applied-settings-runtime-bridge-proof": {
+      "import": "./dist/tracking-retention-applied-settings-runtime-bridge-proof.js",
+      "types": "./dist/tracking-retention-applied-settings-runtime-bridge-proof.d.ts"
+    },
+    "./tracking-retention-durable-settings-proof": {
+      "import": "./dist/tracking-retention-durable-settings-proof.js",
+      "types": "./dist/tracking-retention-durable-settings-proof.d.ts"
+    },
+    "./tracking-retention-local-service-state-proof": {
+      "import": "./dist/tracking-retention-local-service-state-proof.js",
+      "types": "./dist/tracking-retention-local-service-state-proof.d.ts"
+    },
+    "./tracking-retention-platform-enforcement-preflight-proof": {
+      "import": "./dist/tracking-retention-platform-enforcement-preflight-proof.js",
+      "types": "./dist/tracking-retention-platform-enforcement-preflight-proof.d.ts"
+    },
+    "./tracking-retention-product-readiness-proof": {
+      "import": "./dist/tracking-retention-product-readiness-proof.js",
+      "types": "./dist/tracking-retention-product-readiness-proof.d.ts"
+    },
+    "./tracking-retention-product-settings-writable-execution-proof": {
+      "import": "./dist/tracking-retention-product-settings-writable-execution-proof.js",
+      "types": "./dist/tracking-retention-product-settings-writable-execution-proof.d.ts"
+    },
+    "./tracking-retention-proof-catalog": {
+      "import": "./dist/tracking-retention-proof-catalog.js",
+      "types": "./dist/tracking-retention-proof-catalog.d.ts"
+    },
+    "./tracking-retention-runtime": {
+      "import": "./dist/tracking-retention-runtime.js",
+      "types": "./dist/tracking-retention-runtime.d.ts"
+    },
+    "./tracking-retention-runtime-artifact-gate-proof": {
+      "import": "./dist/tracking-retention-runtime-artifact-gate-proof.js",
+      "types": "./dist/tracking-retention-runtime-artifact-gate-proof.d.ts"
+    },
+    "./tracking-retention-settings-mutation-proof": {
+      "import": "./dist/tracking-retention-settings-mutation-proof.js",
+      "types": "./dist/tracking-retention-settings-mutation-proof.d.ts"
+    },
+    "./tracking-retention-settings-read-model-proof": {
+      "import": "./dist/tracking-retention-settings-read-model-proof.js",
+      "types": "./dist/tracking-retention-settings-read-model-proof.d.ts"
+    },
+    "./tracking-retention-settings-writer-boundary-proof": {
+      "import": "./dist/tracking-retention-settings-writer-boundary-proof.js",
+      "types": "./dist/tracking-retention-settings-writer-boundary-proof.d.ts"
+    },
+    "./tracking-runtime": {
+      "import": "./dist/tracking-runtime.js",
+      "types": "./dist/tracking-runtime.d.ts"
+    },
+    "./tracking-temporary-live-mode-proof": {
+      "import": "./dist/tracking-temporary-live-mode-proof.js",
+      "types": "./dist/tracking-temporary-live-mode-proof.d.ts"
+    },
+    "./tracking-unsupported-platform-manual-proof": {
+      "import": "./dist/tracking-unsupported-platform-manual-proof.js",
+      "types": "./dist/tracking-unsupported-platform-manual-proof.d.ts"
+    },
+    "./transport/bridgeLogPayload": {
+      "import": "./dist/transport/bridgeLogPayload.js",
+      "types": "./dist/transport/bridgeLogPayload.d.ts"
+    },
+    "./v0-8-broad-os-adapter-proof": {
+      "import": "./dist/v0-8-broad-os-adapter-proof.js",
+      "types": "./dist/v0-8-broad-os-adapter-proof.d.ts"
+    },
+    "./v0-8-broad-os-adapter-runtime-proof": {
+      "import": "./dist/v0-8-broad-os-adapter-runtime-proof.js",
+      "types": "./dist/v0-8-broad-os-adapter-runtime-proof.d.ts"
+    },
+    "./v0-8-browser-domain-adapter-proof": {
+      "import": "./dist/v0-8-browser-domain-adapter-proof.js",
+      "types": "./dist/v0-8-browser-domain-adapter-proof.d.ts"
+    },
+    "./v0-8-browser-enforcement-timer-recovery-proof": {
+      "import": "./dist/v0-8-browser-enforcement-timer-recovery-proof.js",
+      "types": "./dist/v0-8-browser-enforcement-timer-recovery-proof.d.ts"
+    },
+    "./v0-8-cross-platform-enforcement-capability-proof": {
+      "import": "./dist/v0-8-cross-platform-enforcement-capability-proof.js",
+      "types": "./dist/v0-8-cross-platform-enforcement-capability-proof.d.ts"
+    },
+    "./v0-8-enforcement-integrity-runtime-audit": {
+      "import": "./dist/v0-8-enforcement-integrity-runtime-audit.js",
+      "types": "./dist/v0-8-enforcement-integrity-runtime-audit.d.ts"
+    },
+    "./v0-8-enforcement-product-control-spine": {
+      "import": "./dist/v0-8-enforcement-product-control-spine.js",
+      "types": "./dist/v0-8-enforcement-product-control-spine.d.ts"
+    },
+    "./v0-8-integrity-alert-status-bridge": {
+      "import": "./dist/v0-8-integrity-alert-status-bridge.js",
+      "types": "./dist/v0-8-integrity-alert-status-bridge.d.ts"
+    },
+    "./v0-8-notification-provider-status-boundary": {
+      "import": "./dist/v0-8-notification-provider-status-boundary.js",
+      "types": "./dist/v0-8-notification-provider-status-boundary.d.ts"
+    },
+    "./v0-8-os-adapter-manual-artifact-gates": {
+      "import": "./dist/v0-8-os-adapter-manual-artifact-gates.js",
+      "types": "./dist/v0-8-os-adapter-manual-artifact-gates.d.ts"
+    },
+    "./v0-8-supported-adapter-runtime-proof": {
+      "import": "./dist/v0-8-supported-adapter-runtime-proof.js",
+      "types": "./dist/v0-8-supported-adapter-runtime-proof.d.ts"
+    },
+    "./v0-9-household-discovery-mobile-controller-product-proof": {
+      "import": "./dist/v0-9-household-discovery-mobile-controller-product-proof.js",
+      "types": "./dist/v0-9-household-discovery-mobile-controller-product-proof.d.ts"
+    },
+    "./v0-9-household-lan-pairing-proof": {
+      "import": "./dist/v0-9-household-lan-pairing-proof.js",
+      "types": "./dist/v0-9-household-lan-pairing-proof.d.ts"
+    },
+    "./v0-9-household-multi-device-proof-gates": {
+      "import": "./dist/v0-9-household-multi-device-proof-gates.js",
+      "types": "./dist/v0-9-household-multi-device-proof-gates.d.ts"
+    },
+    "./v0-9-household-physical-proof-artifact-gate": {
+      "import": "./dist/v0-9-household-physical-proof-artifact-gate.js",
+      "types": "./dist/v0-9-household-physical-proof-artifact-gate.d.ts"
+    },
+    "./v0-9-mobile-controller-discovery-runtime": {
+      "import": "./dist/v0-9-mobile-controller-discovery-runtime.js",
+      "types": "./dist/v0-9-mobile-controller-discovery-runtime.d.ts"
+    },
+    "./v0-9-mobile-controller-observer-runtime": {
+      "import": "./dist/v0-9-mobile-controller-observer-runtime.js",
+      "types": "./dist/v0-9-mobile-controller-observer-runtime.d.ts"
+    },
+    "./v0-9-production-discovery-household-proof": {
+      "import": "./dist/v0-9-production-discovery-household-proof.js",
+      "types": "./dist/v0-9-production-discovery-household-proof.d.ts"
+    }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",

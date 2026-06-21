@@ -5,7 +5,8 @@ use std::{
 };
 
 use ocentra_parent_agent_core::{
-    JournalKey, ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue, JOURNAL_KEY_BYTES,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+    screen_evidence_queue::{ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue},
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,

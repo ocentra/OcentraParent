@@ -1,16 +1,19 @@
-import type { BrowserInterventionReadModel, BrowserInterventionRow } from '@ocentra-parent/browser-domain/browser';
-import type { ActivityEvidenceId } from '@ocentra-parent/evidence-domain/primitives';
-import { AgentProtocolDefaults, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
-import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
+import type {
+  BrowserInterventionReadModel,
+  BrowserInterventionRow,
+} from '@ocentra-parent/schema-domain/browser-intervention-schemas';
+import type { ActivityEvidenceId } from '@ocentra-parent/schema-domain/evidence-primitives';
+import { type AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import type { LogFieldValue } from '@ocentra-parent/schema-domain/logging-contracts';
 import {
-  PortalDetails,
   PortalDom,
   PortalText,
   PortalTextToken,
-  decodePortalDetailValue,
-  type PortalDetailValue,
   type PortalDisplayText,
 } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 

@@ -4,7 +4,7 @@ import {
   V08BroadOsAdapterRuntimeProofReadModel,
   V08BroadOsAdapterRuntimeProofReadModelSchema,
   V08BroadOsAdapterRuntimeSurface,
-} from '../../src/v0-8-broad-os-adapter-runtime-proof';
+} from '@ocentra-parent/schema-domain/v0-8-broad-os-adapter-runtime-proof';
 
 it('captures the final broad app domain and browser runtime proof pass without claim upgrades', () => {
   const readModel = V08BroadOsAdapterRuntimeProofReadModelSchema.parse(V08BroadOsAdapterRuntimeProofReadModel);

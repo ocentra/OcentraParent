@@ -1,7 +1,8 @@
 use ocentra_eventing::ids::SourceComponent;
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_dispatch_readiness;
+use super::remote_delivery_dispatch_readiness::prove_network_runtime_remote_delivery_dispatch_readiness;
+use super::remote_delivery_dispatch_readiness_types::NetworkRuntimeRemoteDeliveryDispatchReadinessReport;
 use super::remote_delivery_event_chain_store::source_component;
 use super::remote_delivery_no_enforcement_invariant_types::{
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError,
@@ -9,7 +10,6 @@ use super::remote_delivery_no_enforcement_invariant_types::{
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantState,
     NetworkRuntimeRemoteDeliveryNoEnforcementStage,
 };
-use super::NetworkRuntimeRemoteDeliveryDispatchReadinessReport;
 
 pub async fn prove_network_runtime_remote_delivery_no_enforcement_invariant() -> Result<
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,

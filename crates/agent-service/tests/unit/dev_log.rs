@@ -7,7 +7,8 @@ use std::{
 
 use ocentra_parent_agent_protocol::{constants, LogFields};
 use ocentra_parent_logging_core::{
-    compat_dev_log::resolve_compat_dev_log_path,
+    dev_log::DevLogger,
+    field::LogFields as CoreLogFields,
     path::{LOG_ROOT_ENV, LOG_SCOPE_ENV},
     source::LogSource,
 };
@@ -35,12 +36,20 @@ fn dev_log_path_uses_configured_directory_and_agent_file_prefix() {
     let temp_dir = temp_dev_log_dir();
     env::set_var(constants::env_var::DEV_LOG_DIR, &temp_dir);
 
-    let path = resolve_compat_dev_log_path(&LogSource::AgentService, "2026-06-15T01:00:00Z")
-        .expect("path resolves");
+    let path = DevLogger::from_env(LogSource::AgentService)
+        .expect("logger resolves")
+        .info("compat path", CoreLogFields::new())
+        .expect("compat path writes");
 
     env::remove_var(constants::env_var::DEV_LOG_DIR);
 
-    expect_eq_path(path, temp_dir.join("agent-service-2026-06-15.ndjson"));
+    assert_eq!(path.parent(), Some(temp_dir.as_path()));
+    let file_name = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .expect("file name");
+    assert!(file_name.starts_with("agent-service-"));
+    assert!(file_name.ends_with(".ndjson"));
 }
 
 #[test]
@@ -147,8 +156,4 @@ fn write_agent_all_levels_emit_ndjson_lines() {
         assert_eq!(row["source"].as_str(), Some("agent-service"));
         assert_eq!(row["fields"]["context"].as_str(), Some("hello-world"));
     }
-}
-
-fn expect_eq_path(actual: PathBuf, expected: PathBuf) {
-    assert_eq!(actual, expected);
 }

@@ -11,11 +11,10 @@ import {
   type BillingSubscriptionStatusProofRow,
   BillingSubscriptionStatusProofRowSchema,
   BillingSyncEventSchema,
-} from '../../src/billing-entitlement';
+} from '@ocentra-parent/schema-domain/billing-entitlement';
 import {
-  BillingEntitlementContractProofReadModel,
-  summarizeBillingFailureStates,
-} from '../../src/billing-entitlement-proof';
+  BillingEntitlementContractProofReadModel
+} from '@ocentra-parent/schema-domain/billing-entitlement-proof';
 
 describe('billing entitlement contracts', () => {
   acceptsBillingEntitlementProofWithoutProviderClaims();
@@ -71,7 +70,7 @@ function acceptsBillingEntitlementProofWithoutProviderClaims(): void {
       grace: 1,
       'manual-review': 1,
     });
-    expect(summarizeBillingFailureStates(proof.failureStates)).toEqual({
+    expect(countBy(proof.failureStates.map((entry: BillingFailureState) => entry.failureKind))).toEqual({
       'provider-unavailable': 1,
       'network-unavailable': 1,
       'stale-snapshot': 1,

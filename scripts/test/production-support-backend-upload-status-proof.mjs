@@ -16,6 +16,7 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
   await runCommand(
     ...npmCommand([
@@ -24,7 +25,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/support-backend-upload-status.test.ts',
+      'tests/unit/support-backend-upload-status.test.ts',
     ])
   );
 
@@ -40,10 +41,10 @@ async function main() {
     proofMode: 'production-support-backend-upload-status-proof',
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/support-backend-upload-status.ts',
-      guards: 'packages/logging-domain/src/support-backend-upload-status-guards.ts',
-      readModel: 'packages/logging-domain/src/support-backend-upload-status-read-model.ts',
-      contractTest: 'packages/logging-domain/tests/support-backend-upload-status.test.ts',
+      contract: 'packages/schema-domain/src/support-backend-upload-status.ts',
+      guards: 'packages/schema-domain/src/support-backend-upload-status-guards.ts',
+      readModel: 'packages/schema-domain/src/support-backend-upload-status-read-model.ts',
+      contractTest: 'packages/logging-domain/tests/unit/support-backend-upload-status.test.ts',
       proofOutput: relative(repoRoot, proofPath),
       summaryOutput: relative(repoRoot, summaryPath),
       featureDoc: 'docs/features/production-distribution-support.md',
@@ -57,7 +58,7 @@ async function main() {
       'Support backend upload status rows are parent-initiated and parent-consented before any queued, running, succeeded, failed, manual-required, backend-unavailable, or provider-unavailable state is accepted.',
       'Each status row is redaction-backed and audit-backed with support-safe status, support-bundle, retry, abandon, failure, manual-proof, and release package/runtime references only.',
       'Failed status rows prove retry exhaustion and parent/operator abandon references; backend/provider unavailable rows prove retry-queued behavior; manual-required rows require support backend implementation and operator runbook proof.',
-      'Package exports expose the support backend upload status contract and read-model to consumers through @ocentra-parent/logging-domain.',
+      'Package exports expose the support backend upload status contract and read-model to consumers through @ocentra-parent/schema-domain.',
       'Rows reject tokens, raw child activity, raw URLs, screenshots, journals, SQLite snapshots, private paths, command lines, keystrokes, clipboard data, message contents, provider secrets, remote support transcripts, real backend execution, account lookup, billing provider execution, and default Ocentra-hosted family data.',
     ],
     claimsNotProved: [
@@ -130,8 +131,8 @@ function assertReadModel(readModel) {
 }
 
 async function assertPackageExports() {
-  const contract = await import('@ocentra-parent/logging-domain/support-backend-upload-status');
-  const readModel = await import('@ocentra-parent/logging-domain/support-backend-upload-status-read-model');
+  const contract = await import('@ocentra-parent/schema-domain/support-backend-upload-status');
+  const readModel = await import('@ocentra-parent/schema-domain/support-backend-upload-status-read-model');
   assert.equal(typeof contract.SupportBackendUploadStatusReadModelSchema.parse, 'function');
   assert.equal(readModel.SupportBackendUploadStatusReadModel.entries.length, 7);
 }

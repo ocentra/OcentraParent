@@ -1,12 +1,12 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
+import { AppGameSchemaVersion } from '@ocentra-parent/schema-domain/app-game-primitives';
 import {
   AgentCommand,
   AgentEvent,
   type AgentCommandName,
   type AgentEventName,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import {
   AgentAppGameAdapterDispatchAdapterExecutionDecision,
   AgentAppGameAdapterDispatchAdapterExecutionState,
@@ -15,13 +15,16 @@ import {
   AgentAppGameAdapterDispatchExecutionAuditDecision,
   AgentAppGameAdapterDispatchExecutionAuditState,
   type AgentAppGameAdapterDispatchResultReadModel,
-} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-result';
+} from '@ocentra-parent/schema-domain/app-game-adapter-dispatch-result';
 import {
   AgentAppGameAdapterDispatchDecision,
   AgentAppGameAdapterDispatchOutcomeState,
   AgentAppGameAdapterDispatchPreflightState,
-} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-preflight';
-import { createAppGameAdapterDispatchResultPanelIntent, PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/schema-domain/app-game-adapter-dispatch-preflight';
+import {
+  createAppGameAdapterDispatchResultPanelIntent,
+} from '@ocentra-parent/portal-domain/app-game-adapter-dispatch-result-panel';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from '../src/portal-actions';
 import {
   AppGameAdapterDispatchRoutePanel,

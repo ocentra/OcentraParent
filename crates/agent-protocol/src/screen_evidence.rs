@@ -1,6 +1,12 @@
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, RuntimeRole, SchemaVersion};
 use serde::{Deserialize, Serialize};
 
-use crate::ActivityEvidenceRef;
+use crate::{constants, ActivityEvidenceRef};
+
+pub mod screen_household_mesh_input;
+pub mod screen_runtime_input;
 
 pub const SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST: &str = "manualParentTestCapture";
 pub const SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW: &str = "activeWindow";
@@ -271,4 +277,434 @@ pub struct ScreenEvidenceRecentSummary {
     pub latest_policy_eligible: Option<bool>,
     pub evidence: Vec<ActivityEvidenceRef>,
     pub results: Vec<ScreenAnalysisResult>,
+}
+
+const SCREEN_RUNTIME_PHASES: [ScreenRuntimePhase; 9] = [
+    ScreenRuntimePhase::CaptureObserved,
+    ScreenRuntimePhase::QueueEncrypted,
+    ScreenRuntimePhase::AiAnalysisRequested,
+    ScreenRuntimePhase::AiAnalysisCompleted,
+    ScreenRuntimePhase::SummaryCommitted,
+    ScreenRuntimePhase::PolicyDecisionCompleted,
+    ScreenRuntimePhase::ActionDryRunRecorded,
+    ScreenRuntimePhase::DeletionCommitted,
+    ScreenRuntimePhase::PortalReadModelUpdated,
+];
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenRuntimePhase {
+    CaptureObserved,
+    QueueEncrypted,
+    AiAnalysisRequested,
+    AiAnalysisCompleted,
+    SummaryCommitted,
+    PolicyDecisionCompleted,
+    ActionDryRunRecorded,
+    DeletionCommitted,
+    PortalReadModelUpdated,
+}
+
+impl ScreenRuntimePhase {
+    pub fn ordered_chain() -> &'static [Self] {
+        &SCREEN_RUNTIME_PHASES
+    }
+
+    pub fn event_type(self) -> &'static str {
+        match self {
+            Self::CaptureObserved => constants::screen_flow::EVENT_SCREEN_CAPTURE_OBSERVED,
+            Self::QueueEncrypted => constants::screen_flow::EVENT_SCREEN_QUEUE_ENCRYPTED,
+            Self::AiAnalysisRequested => constants::screen_flow::EVENT_SCREEN_AI_ANALYSIS_REQUESTED,
+            Self::AiAnalysisCompleted => constants::screen_flow::EVENT_SCREEN_AI_ANALYSIS_COMPLETED,
+            Self::SummaryCommitted => constants::screen_flow::EVENT_SCREEN_SUMMARY_COMMITTED,
+            Self::PolicyDecisionCompleted => {
+                constants::screen_flow::EVENT_SCREEN_POLICY_DECISION_COMPLETED
+            }
+            Self::ActionDryRunRecorded => {
+                constants::screen_flow::EVENT_SCREEN_ACTION_DRY_RUN_RECORDED
+            }
+            Self::DeletionCommitted => constants::screen_flow::EVENT_SCREEN_DELETION_COMMITTED,
+            Self::PortalReadModelUpdated => {
+                constants::screen_flow::EVENT_SCREEN_PORTAL_READ_MODEL_UPDATED
+            }
+        }
+    }
+
+    pub fn subscriber_id(self) -> &'static str {
+        match self {
+            Self::CaptureObserved => constants::screen_flow::SUBSCRIBER_SCREEN_CAPTURE_OBSERVER,
+            Self::QueueEncrypted => constants::screen_flow::SUBSCRIBER_SCREEN_QUEUE_WRITER,
+            Self::AiAnalysisRequested => constants::screen_flow::SUBSCRIBER_SCREEN_AI_REQUEST,
+            Self::AiAnalysisCompleted => constants::screen_flow::SUBSCRIBER_SCREEN_AI_COMPLETE,
+            Self::SummaryCommitted => constants::screen_flow::SUBSCRIBER_SCREEN_SUMMARY_WRITER,
+            Self::PolicyDecisionCompleted => {
+                constants::screen_flow::SUBSCRIBER_SCREEN_POLICY_DECISION
+            }
+            Self::ActionDryRunRecorded => constants::screen_flow::SUBSCRIBER_SCREEN_ACTION_DRY_RUN,
+            Self::DeletionCommitted => constants::screen_flow::SUBSCRIBER_SCREEN_DELETION_WORKER,
+            Self::PortalReadModelUpdated => {
+                constants::screen_flow::SUBSCRIBER_SCREEN_PORTAL_READ_MODEL
+            }
+        }
+    }
+
+    pub fn target_handler(self) -> &'static str {
+        match self {
+            Self::CaptureObserved => constants::screen_flow::TARGET_SCREEN_CAPTURE_OBSERVER,
+            Self::QueueEncrypted => constants::screen_flow::TARGET_SCREEN_QUEUE_WRITER,
+            Self::AiAnalysisRequested | Self::AiAnalysisCompleted => {
+                constants::screen_flow::TARGET_SCREEN_AI_ANALYZER
+            }
+            Self::SummaryCommitted => constants::screen_flow::TARGET_SCREEN_SUMMARY_WRITER,
+            Self::PolicyDecisionCompleted => constants::screen_flow::TARGET_SCREEN_POLICY_ENGINE,
+            Self::ActionDryRunRecorded => constants::screen_flow::TARGET_SCREEN_ACTION_DRY_RUN,
+            Self::DeletionCommitted => constants::screen_flow::TARGET_SCREEN_DELETION_WORKER,
+            Self::PortalReadModelUpdated => constants::screen_flow::TARGET_SCREEN_PORTAL_READ_MODEL,
+        }
+    }
+
+    pub fn runtime_role(self) -> RuntimeRole {
+        let value = match self {
+            Self::CaptureObserved | Self::QueueEncrypted => constants::eventing_source::ROLE_AGENT,
+            Self::AiAnalysisRequested | Self::AiAnalysisCompleted => {
+                constants::eventing_source::ROLE_ANALYZER
+            }
+            Self::SummaryCommitted | Self::DeletionCommitted => {
+                constants::eventing_source::ROLE_AUDIT_WRITER
+            }
+            Self::PolicyDecisionCompleted => constants::eventing_source::ROLE_DECISION_ENGINE,
+            Self::ActionDryRunRecorded => constants::eventing_source::ROLE_SIDE_EFFECT_ADAPTER,
+            Self::PortalReadModelUpdated => constants::eventing_source::ROLE_READ_MODEL,
+        };
+        match RuntimeRole::parse(value) {
+            Ok(role) => role,
+            Err(_) => std::process::abort(),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenEvidenceScope {
+    EncryptedLocalImage,
+    DeletedQueryStoreSummary,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenAiAuditState {
+    NotRequested,
+    Requested,
+    Completed,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenPolicyState {
+    NotReady,
+    ReadyForDryRun,
+    Completed,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenActionState {
+    NotReady,
+    DryRunRecorded,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenDeletionState {
+    Pending,
+    Committed,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ScreenRuntimeClaimBoundary {
+    pub raw_image_available_to_ai_provider: bool,
+    pub raw_image_available_to_policy: bool,
+    pub raw_image_available_to_portal: bool,
+    pub adapter_action_executed: bool,
+}
+
+impl ScreenRuntimeClaimBoundary {
+    pub fn child_owned_no_raw_escape() -> Self {
+        Self {
+            raw_image_available_to_ai_provider: false,
+            raw_image_available_to_policy: false,
+            raw_image_available_to_portal: false,
+            adapter_action_executed: false,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ScreenRuntimeEventPayload {
+    pub phase: ScreenRuntimePhase,
+    pub queue_job_id: String,
+    pub screen_analysis_result_id: String,
+    pub capture_reason: String,
+    pub capture_scope: String,
+    pub image_digest: String,
+    pub summary: String,
+    pub model_runtime_ref: String,
+    pub model_id: String,
+    pub prompt_or_template_version: String,
+    pub policy_decision_ref: Option<String>,
+    pub policy_action: Option<String>,
+    pub parent_rule_ref: Option<String>,
+    pub action_ref: Option<String>,
+    pub deletion_proof_ref: Option<String>,
+    pub portal_read_model_ref: Option<String>,
+    pub previous_phase_ref: Option<String>,
+    pub capture_event_ref: String,
+    pub queue_event_ref: Option<String>,
+    pub ai_request_ref: Option<String>,
+    pub ai_result_ref: Option<String>,
+    pub summary_ref: Option<String>,
+    pub evidence_scope: ScreenEvidenceScope,
+    pub ai_audit_state: ScreenAiAuditState,
+    pub policy_state: ScreenPolicyState,
+    pub action_state: ScreenActionState,
+    pub deletion_state: ScreenDeletionState,
+    pub custody_state: String,
+    pub claim_boundary: ScreenRuntimeClaimBoundary,
+    pub observed_at: String,
+}
+
+impl DomainEvent for ScreenRuntimeEventPayload {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(self.phase.event_type())?,
+            SchemaVersion::new(constants::screen_flow::EVENT_SCHEMA_VERSION)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(screen_runtime_aggregate_key(&self.queue_job_id))
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        let mut value = String::from(constants::screen_flow::IDEMPOTENCY_SCREEN_RUNTIME_PREFIX);
+        value.push_str(self.phase.event_type());
+        value.push(constants::delimiter::HYPHEN);
+        value.push_str(&screen_runtime_aggregate_key(&self.queue_job_id));
+        value.push(constants::delimiter::HYPHEN);
+        value.push_str(&self.observed_at);
+        IdempotencyKey::parse(value)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenHouseholdMeshPhase {
+    WorkQueued,
+    OfferPublished,
+    ClaimRequested,
+    ClaimGranted,
+    LeaseCreated,
+    ProviderResultReturned,
+    ChildResultAccepted,
+    PolicyRequested,
+}
+
+impl ScreenHouseholdMeshPhase {
+    pub fn ordered_chain() -> &'static [Self] {
+        &[
+            Self::WorkQueued,
+            Self::OfferPublished,
+            Self::ClaimRequested,
+            Self::ClaimGranted,
+            Self::LeaseCreated,
+            Self::ProviderResultReturned,
+            Self::ChildResultAccepted,
+            Self::PolicyRequested,
+        ]
+    }
+
+    pub fn event_type(self) -> &'static str {
+        match self {
+            Self::WorkQueued => constants::screen_flow::EVENT_SCREEN_MESH_WORK_QUEUED,
+            Self::OfferPublished => constants::screen_flow::EVENT_SCREEN_MESH_OFFER_PUBLISHED,
+            Self::ClaimRequested => constants::screen_flow::EVENT_SCREEN_MESH_CLAIM_REQUESTED,
+            Self::ClaimGranted => constants::screen_flow::EVENT_SCREEN_MESH_CLAIM_GRANTED,
+            Self::LeaseCreated => constants::screen_flow::EVENT_SCREEN_MESH_LEASE_CREATED,
+            Self::ProviderResultReturned => {
+                constants::screen_flow::EVENT_SCREEN_MESH_PROVIDER_RESULT_RETURNED
+            }
+            Self::ChildResultAccepted => {
+                constants::screen_flow::EVENT_SCREEN_MESH_CHILD_RESULT_ACCEPTED
+            }
+            Self::PolicyRequested => constants::screen_flow::EVENT_SCREEN_MESH_POLICY_REQUESTED,
+        }
+    }
+
+    pub fn subscriber_id(self) -> &'static str {
+        match self {
+            Self::WorkQueued => constants::screen_flow::SUBSCRIBER_SCREEN_MESH_WORK_QUEUE,
+            Self::OfferPublished => constants::screen_flow::SUBSCRIBER_SCREEN_MESH_OFFER,
+            Self::ClaimRequested => constants::screen_flow::SUBSCRIBER_SCREEN_MESH_CLAIM_REQUEST,
+            Self::ClaimGranted => constants::screen_flow::SUBSCRIBER_SCREEN_MESH_CLAIM_GRANT,
+            Self::LeaseCreated => constants::screen_flow::SUBSCRIBER_SCREEN_MESH_LEASE,
+            Self::ProviderResultReturned => {
+                constants::screen_flow::SUBSCRIBER_SCREEN_MESH_PROVIDER_RESULT
+            }
+            Self::ChildResultAccepted => {
+                constants::screen_flow::SUBSCRIBER_SCREEN_MESH_CHILD_VALIDATION
+            }
+            Self::PolicyRequested => constants::screen_flow::SUBSCRIBER_SCREEN_MESH_POLICY_REQUEST,
+        }
+    }
+
+    pub fn target_handler(self) -> &'static str {
+        match self {
+            Self::WorkQueued | Self::ClaimGranted | Self::LeaseCreated => {
+                constants::screen_flow::TARGET_SCREEN_MESH_CHILD_LEDGER
+            }
+            Self::OfferPublished | Self::ClaimRequested => {
+                constants::screen_flow::TARGET_SCREEN_MESH_BRIDGE
+            }
+            Self::ProviderResultReturned => {
+                constants::screen_flow::TARGET_SCREEN_MESH_PROVIDER_WORKER
+            }
+            Self::ChildResultAccepted => constants::screen_flow::TARGET_SCREEN_MESH_CHILD_VALIDATOR,
+            Self::PolicyRequested => constants::screen_flow::TARGET_SCREEN_POLICY_ENGINE,
+        }
+    }
+
+    pub fn runtime_role(self) -> RuntimeRole {
+        let value = match self {
+            Self::OfferPublished | Self::ClaimRequested => constants::eventing_source::ROLE_AGENT,
+            Self::ProviderResultReturned => constants::eventing_source::ROLE_ANALYZER,
+            Self::PolicyRequested => constants::eventing_source::ROLE_DECISION_ENGINE,
+            _ => constants::eventing_source::ROLE_AUDIT_WRITER,
+        };
+        match RuntimeRole::parse(value) {
+            Ok(role) => role,
+            Err(_) => std::process::abort(),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenMeshPayloadMode {
+    RedactedSummary,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenMeshClaimState {
+    NotRequested,
+    Requested,
+    Granted,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenMeshLeaseState {
+    NotCreated,
+    Active,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenMeshProviderResultState {
+    NotReturned,
+    Returned,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenMeshChildValidationState {
+    NotReady,
+    Requested,
+    Accepted,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenMeshPolicyState {
+    NotReady,
+    Ready,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScreenMeshResultRejectionReason {
+    DuplicateResult,
+    ExpiredLease,
+    WrongProvider,
+    WrongClaim,
+    EvidenceMismatch,
+    CustodyMismatch,
+    RawImageTransfer,
+    ProviderAuthorityViolation,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ScreenMeshCustodyBoundary {
+    pub raw_screenshot_transferred: bool,
+    pub raw_screenshot_retained_by_provider: bool,
+    pub provider_can_publish_policy: bool,
+    pub provider_can_publish_enforcement: bool,
+    pub child_agent_validates_before_policy: bool,
+}
+
+impl ScreenMeshCustodyBoundary {
+    pub fn child_owned_worker_only() -> Self {
+        Self {
+            raw_screenshot_transferred: false,
+            raw_screenshot_retained_by_provider: false,
+            provider_can_publish_policy: false,
+            provider_can_publish_enforcement: false,
+            child_agent_validates_before_policy: true,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ScreenHouseholdMeshResultValidation {
+    pub accepted: bool,
+    pub rejection_reason: Option<ScreenMeshResultRejectionReason>,
+    pub policy_may_run: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ScreenHouseholdMeshEventPayload {
+    pub phase: ScreenHouseholdMeshPhase,
+    pub queue_job_id: String,
+    pub screen_evidence_ref: String,
+    pub payload_ref: String,
+    pub payload_mode: ScreenMeshPayloadMode,
+    pub provider_peer_id: String,
+    pub claim_id: String,
+    pub lease_id: String,
+    pub provider_result_ref: Option<String>,
+    pub policy_decision_ref: Option<String>,
+    pub previous_phase_ref: Option<String>,
+    pub custody_label: String,
+    pub claim_state: ScreenMeshClaimState,
+    pub lease_state: ScreenMeshLeaseState,
+    pub provider_result_state: ScreenMeshProviderResultState,
+    pub child_validation_state: ScreenMeshChildValidationState,
+    pub policy_state: ScreenMeshPolicyState,
+    pub custody_boundary: ScreenMeshCustodyBoundary,
+    pub observed_at: String,
+}
+
+impl DomainEvent for ScreenHouseholdMeshEventPayload {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(self.phase.event_type())?,
+            SchemaVersion::new(constants::screen_flow::EVENT_SCHEMA_VERSION)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(screen_runtime_aggregate_key(&self.queue_job_id))
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        let mut value = String::from(constants::screen_flow::IDEMPOTENCY_SCREEN_MESH_PREFIX);
+        value.push_str(self.phase.event_type());
+        value.push(constants::delimiter::HYPHEN);
+        value.push_str(&screen_runtime_aggregate_key(&self.queue_job_id));
+        value.push(constants::delimiter::HYPHEN);
+        value.push_str(&self.observed_at);
+        IdempotencyKey::parse(value)
+    }
+}
+
+fn screen_runtime_aggregate_key(queue_job_id: &str) -> String {
+    let mut value = String::from(constants::screen_flow::AGGREGATE_SCREEN_QUEUE_PREFIX);
+    value.push_str(queue_job_id);
+    value
 }

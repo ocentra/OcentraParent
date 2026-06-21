@@ -2,7 +2,7 @@ use ocentra_parent_agent_protocol::constants::tracking_runtime::{
     READ_MODEL_DIFFERENTIAL_CONSISTENT, READ_MODEL_DIFFERENTIAL_REJECTED_COUNT_DRIFT,
     READ_MODEL_DIFFERENTIAL_REJECTED_TOMBSTONE_DRIFT,
 };
-use ocentra_tracking_core::{
+use ocentra_tracking_core::read_model_guard::{
     evaluate_tracking_read_model_differential, TrackingReadModelDifferentialState,
 };
 

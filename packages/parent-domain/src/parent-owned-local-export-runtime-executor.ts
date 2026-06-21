@@ -5,7 +5,7 @@ import { appendFile, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promis
 import { join } from 'node:path';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { getStackTrace, type StackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
-import { ParentEvidenceReferenceSchema, type ParentEvidenceReference } from '@ocentra-parent/family-domain/references';
+import { ParentEvidenceReferenceSchema, type ParentEvidenceReference } from '@ocentra-parent/schema-domain/family-references';
 import {
   ParentOwnedLocalExportRuntimeDeleteReceiptSchema,
   ParentOwnedLocalExportRuntimeJobSchema,
@@ -14,7 +14,7 @@ import {
   type ParentOwnedLocalExportRuntimeJob,
   type ParentOwnedLocalExportRuntimeOutput,
   type ParentOwnedLocalExportRuntimeScope,
-} from './parent-owned-local-export-runtime';
+} from '@ocentra-parent/schema-domain/parent-owned-local-export-runtime';
 
 const log = Logger.instance;
 const moduleUrl =

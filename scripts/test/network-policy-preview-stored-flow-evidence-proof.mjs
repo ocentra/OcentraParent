@@ -32,11 +32,10 @@ const sourceFiles = [
   'crates/agent-protocol/README.md',
   'packages/agent-protocol-domain/src/contracts.ts',
   'packages/agent-protocol-domain/src/defaults.ts',
-  'packages/agent-protocol-domain/tests/policy-preview-contracts.test.ts',
-  'packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts',
+  'packages/agent-protocol-domain/tests/unit/policy-preview-contracts.test.ts',
+  'packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts',
   'packages/agent-protocol-domain/README.md',
-  'packages/portal-domain/src/details.ts',
-  'apps/portal/src/policy-preview-read-model.ts',
+  'apps/portal/src/live-activity-state.ts',
   'apps/portal/src/policy-preview-details.ts',
   'apps/portal/tests/policy-preview-live-activity-state.test.ts',
   'docs/features/network-domain-control.md',
@@ -139,10 +138,10 @@ const commands = [
     log: join(proofRoot, 'agent-protocol-domain-build.log'),
   },
   {
-    name: 'portal-domain-build',
+    name: 'portal-build',
     command: 'cmd',
-    args: ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/portal-domain'],
-    log: join(proofRoot, 'portal-domain-build.log'),
+    args: ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/portal'],
+    log: join(proofRoot, 'portal-build.log'),
   },
   {
     name: 'agent-protocol-domain-policy-preview-contract-test',
@@ -282,10 +281,9 @@ function assertSourceContracts() {
   const serviceReadme = readText('crates/agent-service/README.md');
   const protocolReadme = readText('crates/agent-protocol/README.md');
   const tsReadme = readText('packages/agent-protocol-domain/README.md');
-  const tsContracts = readText('packages/agent-protocol-domain/tests/policy-preview-contracts.test.ts');
-  const remoteDeliveryTsTest = readText('packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts');
-  const portalDetails = readText('packages/portal-domain/src/details.ts');
-  const portalParser = readText('apps/portal/src/policy-preview-read-model.ts');
+  const tsContracts = readText('packages/agent-protocol-domain/tests/unit/policy-preview-contracts.test.ts');
+  const remoteDeliveryTsTest = readText('packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts');
+  const portalLiveActivityState = readText('apps/portal/src/live-activity-state.ts');
   const portalDetailView = readText('apps/portal/src/policy-preview-details.ts');
   const portalPolicyPreviewTest = readText('apps/portal/tests/policy-preview-live-activity-state.test.ts');
   const featureDoc = readText('docs/features/network-domain-control.md');
@@ -341,9 +339,9 @@ function assertSourceContracts() {
     [tsContracts, 'PolicyPreviewReadModelReported'],
     [tsContracts, 'NetworkEvidenceGrade'],
     [tsContracts, 'NetworkEnforcementCommandAuthorized'],
-    [portalDetails, 'NetworkEvidenceGrade'],
-    [portalParser, 'FalseOrNullSchema'],
-    [portalParser, 'NetworkEvidenceGrade'],
+    [portalLiveActivityState, 'resolvePortalDomainLiveActivityState'],
+    [portalDetailView, 'PortalDetails.NetworkEvidenceGrade'],
+    [portalPolicyPreviewTest, "networkEvidenceGrade: 'B'"],
     [portalDetailView, 'NetworkAdapterAuthorization'],
     [portalPolicyPreviewTest, 'rejects policy-preview payloads that claim network authorization'],
     [remoteDeliveryTsTest, 'parses row10t external cross-process transport status'],

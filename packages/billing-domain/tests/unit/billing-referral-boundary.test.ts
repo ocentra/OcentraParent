@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BillingReferralInviteResultSchema,
   BillingReferralSummarySchema,
-} from '../../src/billing-referral-boundary';
+} from '@ocentra-parent/schema-domain/billing-referral-boundary';
 
 describe('billing referral boundary', () => {
   it('accepts referral summaries with explicit invite and credit counts', () => {

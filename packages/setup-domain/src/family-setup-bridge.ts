@@ -5,152 +5,70 @@ import {
   HouseholdAuthorizationFailureReasonSchema,
   HouseholdAuthorizationFailureReason,
   HouseholdAuthorizationState,
-  ParentStepUpAssertionSchema,
   ParentStepUpValidationFailureReason,
+} from '@ocentra-parent/schema-domain/family-household-authority';
+import {
   requiresParentStepUp,
   authorizeHouseholdAction,
   validateParentStepUpAssertion,
 } from '@ocentra-parent/family-domain/household-authority';
 import {
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from '@ocentra-parent/schema-domain/family-reference-primitives';
-import {
-  ChildProfileReferenceSchema,
-  FamilyReferenceSchema,
   ParentAccountReferenceSchema,
-  ParentDeviceReferenceSchema,
-} from '@ocentra-parent/family-domain/references';
+} from '@ocentra-parent/schema-domain/family-references';
 import {
-  type RecoveryOperation as FamilyRecoveryOperation,
   deviceTrustStateForRecoveryOperation,
-  RecoveryBundleState,
-  RecoveryDataCustodyHandoffState,
-  RecoveryOperationSchema as FamilyRecoveryOperationSchema,
-  RecoveryState as FamilyRecoveryState,
-  type SetupInvite,
-  SetupInviteSchema,
-  SetupInviteState,
   isSetupInviteSinglePurpose,
   recoveryDataCustodyHandoffState,
   recoveryRequiresAuditedSupport,
 } from '@ocentra-parent/family-domain/setup-lifecycle';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  type RecoveryOperation as FamilyRecoveryOperation,
+  RecoveryBundleState,
+  RecoveryDataCustodyHandoffState,
+  RecoveryState as FamilyRecoveryState,
+} from '@ocentra-parent/schema-domain/family-restore-lifecycle';
+import {
+  type SetupInvite,
+  SetupInviteSchema,
+  SetupInviteState,
+} from '@ocentra-parent/schema-domain/family-setup-invite';
+import { type Infer } from '@ocentra-parent/schema-domain/effect';
+import {
+  SetupFamilyReadinessInputSchema,
+  SetupFamilyRecoveryOperationInputSchema,
+  SetupPairingProjectionSchema,
+  SetupRecoveryProjectionSchema,
+  type SetupFamilyReadinessInput,
+  type SetupFamilyRecoveryOperationInput,
+  type SetupPairingProjection,
+  type SetupRecoveryProjection,
+} from '@ocentra-parent/schema-domain/family-setup-bridge';
 import {
   SetupAccountReadinessState,
   SetupAccountReadinessStateSchema,
-  SetupChildAppReadinessStateSchema,
   SetupChildInstallState,
-  SetupChildInstallStateSchema,
   SetupChildServiceState,
-  SetupChildServiceStateSchema,
   SetupDataCustodySyncState,
-  SetupDataCustodySyncStateSchema,
   SetupNetworkReachabilityState,
-  SetupNetworkReachabilityStateSchema,
-  SetupParentAppReadinessStateSchema,
   SetupPermissionReadinessState,
-  SetupPermissionReadinessStateSchema,
-  SetupPolicyBaselineStateSchema,
   SetupReadinessChecklistItem,
   createSetupReadinessChecklist,
   deriveSetupChildInstallStateFromAppState,
   deriveSetupChildServiceStateFromAppState,
   SetupReadinessReport,
-  SetupReadinessReportIdSchema,
   SetupReadinessReportSchema,
-  SetupRecoveryKindSchema,
   SetupRecoveryOperation,
-  SetupRecoveryOperationIdSchema,
   SetupRecoveryOperationSchema,
   SetupRecoveryState,
   SetupRecoveryStateSchema,
-} from './readiness';
+} from '@ocentra-parent/schema-domain/setup-readiness';
 import {
   deriveParentStepUpAssertionFromSetupPairingApproval,
-  SetupPairingApprovalChallengeSchema,
-  SetupPairingApprovalResponseSchema,
   SetupPairingFailureReason,
   SetupPairingFailureReasonSchema,
-  SetupPairingIntentIdSchema,
   SetupPairingState,
   SetupPairingStateSchema,
-} from './pairing-intent';
-
-export const SetupFamilyReadinessInputSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    readinessReportId: SetupReadinessReportIdSchema,
-    family: FamilyReferenceSchema,
-    parentAccount: ParentAccountReferenceSchema,
-    parentDevice: ParentDeviceReferenceSchema,
-    childProfile: ChildProfileReferenceSchema,
-    pairingIntentId: SetupPairingIntentIdSchema,
-    setupInvite: SetupInviteSchema,
-    householdAuthorityInput: HouseholdAuthorityInputSchema,
-    recoveryOperation: Schema.Union(FamilyRecoveryOperationSchema, Schema.Null),
-    parentStepUpAssertion: Schema.optionalWith(Schema.Union(ParentStepUpAssertionSchema, Schema.Null), {
-      default: () => null,
-    }),
-    pairingApprovalChallenge: Schema.optionalWith(Schema.Union(SetupPairingApprovalChallengeSchema, Schema.Null), {
-      default: () => null,
-    }),
-    pairingApprovalResponse: Schema.optionalWith(Schema.Union(SetupPairingApprovalResponseSchema, Schema.Null), {
-      default: () => null,
-    }),
-    parentAppState: SetupParentAppReadinessStateSchema,
-    childAppState: SetupChildAppReadinessStateSchema,
-    childInstallState: Schema.optionalWith(Schema.Union(SetupChildInstallStateSchema, Schema.Null), {
-      default: () => null,
-    }),
-    childServiceState: Schema.optionalWith(Schema.Union(SetupChildServiceStateSchema, Schema.Null), {
-      default: () => null,
-    }),
-    permissionState: SetupPermissionReadinessStateSchema,
-    policyBaselineState: SetupPolicyBaselineStateSchema,
-    networkReachabilityState: SetupNetworkReachabilityStateSchema,
-    custodySyncPending: Schema.Boolean,
-    replayDetected: Schema.Boolean,
-    staleCode: Schema.Boolean,
-    childDeviceRevoked: Schema.Boolean,
-    observedAt: ParentTimestampSchema,
-  })
-);
-
-export const SetupFamilyRecoveryOperationInputSchema = withParser(
-  Schema.Struct({
-    recoveryOperationId: SetupRecoveryOperationIdSchema,
-    setupRecoveryKind: SetupRecoveryKindSchema,
-    parentAccount: ParentAccountReferenceSchema,
-    parentDevice: ParentDeviceReferenceSchema,
-    childProfile: ChildProfileReferenceSchema,
-    childDevice: Schema.Union(ParentDeviceReferenceSchema, Schema.Null),
-    sourcePairingState: SetupPairingStateSchema,
-    familyRecoveryOperation: FamilyRecoveryOperationSchema,
-  })
-);
-
-export const SetupPairingProjectionSchema = withParser(
-  Schema.Struct({
-    pairingState: SetupPairingStateSchema,
-    failureReason: Schema.Union(SetupPairingFailureReasonSchema, Schema.Null),
-    accountState: SetupAccountReadinessStateSchema,
-    recoveryState: SetupRecoveryStateSchema,
-  })
-);
-
-export const SetupRecoveryProjectionSchema = withParser(
-  Schema.Struct({
-    accountState: SetupAccountReadinessStateSchema,
-    recoveryState: SetupRecoveryStateSchema,
-    dataCustodySyncState: SetupDataCustodySyncStateSchema,
-  })
-);
-
-export type SetupFamilyReadinessInput = Infer<typeof SetupFamilyReadinessInputSchema>;
-export type SetupFamilyRecoveryOperationInput = Infer<typeof SetupFamilyRecoveryOperationInputSchema>;
-export type SetupPairingProjection = Infer<typeof SetupPairingProjectionSchema>;
-export type SetupRecoveryProjection = Infer<typeof SetupRecoveryProjectionSchema>;
+} from '@ocentra-parent/schema-domain/setup-pairing-intent';
 
 function resolvedChildInstallState(input: SetupFamilyReadinessInput) {
   return input.childInstallState ?? deriveSetupChildInstallStateFromAppState(input.childAppState);

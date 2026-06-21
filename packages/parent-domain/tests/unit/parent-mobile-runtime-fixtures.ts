@@ -1,4 +1,4 @@
-import type { ParentMobileServiceAvailabilityState } from '../../src/parent-mobile-runtime';
+import type { ParentMobileServiceAvailabilityState } from '@ocentra-parent/schema-domain/parent-mobile-runtime';
 
 const CheckedAt = '2026-05-28T16:05:00.000Z';
 type ParentMobileFixtureRouteId = 'route-parent-mobile-lan-provider' | null;

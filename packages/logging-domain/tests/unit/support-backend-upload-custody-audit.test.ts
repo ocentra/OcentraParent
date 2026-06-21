@@ -4,8 +4,8 @@ import {
   SupportBackendUploadCustodyAuditEntrySchema,
   SupportBackendUploadCustodyAuditReadModelSchema,
   SupportBackendUploadCustodyAuditRequiredDataClasses,
-} from '../../src/support-backend-upload-custody-audit';
-import { SupportBackendUploadCustodyAuditReadModel } from '../../src/support-backend-upload-custody-audit-read-model';
+} from '@ocentra-parent/schema-domain/support-backend-upload-custody-audit';
+import { SupportBackendUploadCustodyAuditReadModel } from '@ocentra-parent/schema-domain/support-backend-upload-custody-audit-read-model';
 
 describe('support backend upload custody audit logging contract', () => {
   it('covers custody retention delete and support-safe audit export states', assertCoverage);

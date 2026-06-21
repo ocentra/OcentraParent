@@ -7,8 +7,8 @@ import {
   AgentCommand,
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   ParentDevEnv,
   ParentDevPort,
@@ -35,7 +35,7 @@ await runPackageCommand([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/ai-domain',
   '--',
   'local-ai-provider-scheduler.test.ts',
 ]);
@@ -195,7 +195,7 @@ async function writeSchedulerProof() {
       'parent-and-child-roles-share-provider-runtime-on-one-physical-device',
     ],
     evidence: {
-      typescriptContractTest: '@ocentra-parent/parent-domain local-ai-provider-scheduler.test.ts',
+      typescriptContractTest: 'packages/ai-domain/tests/unit/local-ai-provider-scheduler.test.ts',
       rustProtocolParityTest: 'cargo test -p ocentra-parent-agent-protocol local_ai_provider_scheduler',
       rustServiceSchedulerTest: 'cargo test -p ocentra-parent-agent-service local_ai_provider_scheduler',
       liveUnavailableLifecycle: {

@@ -4,8 +4,8 @@ import {
   type Infer,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { TrackingPolicySchemaVersion } from './tracking-location-policy';
-import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from './tracking-location-policy-primitives';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
+import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 
 interface DesktopPresenceHintClaimShape {
   readonly source: Infer<typeof TrackingDesktopPresenceSourceSchema>;

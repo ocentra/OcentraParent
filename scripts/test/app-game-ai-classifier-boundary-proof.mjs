@@ -15,25 +15,25 @@ async function main() {
   await mkdir(appGameProofDir, { recursive: true });
   await mkdir(appProofDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'app-game-ai-classifier-boundary',
+      '--run',
+      'tests/unit/app-riskdetection.test.ts',
     ])
-  );
-  await runCommand(
-    ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game-evidence-claim'])
   );
 
   const { AppGameAiClassifierBoundaryProofMatrix } =
-    await import('../../packages/parent-domain/dist/app-game-ai-classifier-boundary-data.js');
+    await import('@ocentra-parent/schema-domain/app-game-ai-classifier-boundary-data');
+  commands.push('node import @ocentra-parent/schema-domain/app-game-ai-classifier-boundary-data');
   const { appGameAiClassifierForbiddenOutputKeyPaths, safeParseAppGameAiClassifierResult } =
-    await import('../../packages/parent-domain/dist/app-game-ai-classifier-boundary.js');
+    await import('@ocentra-parent/schema-domain/app-game-ai-classifier-boundary');
+  commands.push('node import @ocentra-parent/schema-domain/app-game-ai-classifier-boundary');
   const summary = summarizeMatrix(AppGameAiClassifierBoundaryProofMatrix);
   assertProof(AppGameAiClassifierBoundaryProofMatrix, summary, {
     appGameAiClassifierForbiddenOutputKeyPaths,
@@ -48,12 +48,11 @@ async function main() {
     commands,
     counts: summary,
     evidence: {
-      tsContract: 'packages/parent-domain/src/app-game-ai-classifier-boundary.ts',
-      tsContractValues: 'packages/parent-domain/src/app-game-ai-classifier-boundary-values.ts',
-      tsContractData: 'packages/parent-domain/src/app-game-ai-classifier-boundary-data.ts',
-      tsContractTest: 'packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts',
-      activityDigestSource: 'packages/app-game-domain/src/app-game.ts',
-      activityDigestTest: 'packages/app-game-domain/tests/unit/app-game-evidence-claim.test.ts',
+      schemaContract: 'packages/schema-domain/src/app-game-ai-classifier-boundary.ts',
+      schemaValues: 'packages/schema-domain/src/app-game-ai-classifier-boundary-values.ts',
+      schemaData: 'packages/schema-domain/src/app-game-ai-classifier-boundary-data.ts',
+      consumerSource: 'packages/app-game-domain/src/app-riskdetection-data.ts',
+      consumerTest: 'packages/app-game-domain/tests/unit/app-riskdetection.test.ts',
       proofHarness: 'scripts/test/app-game-ai-classifier-boundary-proof.mjs',
       appGameProofPack: 'output/app-game-plan-proof/24-ai-classifier-digest-boundary',
       appProofPack: 'output/app-plan-proof/23-app-ai-classifier-digest-boundary',
@@ -64,7 +63,7 @@ async function main() {
       'runtime, prompt template, prompt version, and fallback state are explicit',
       'AI output is evidence-only and cannot request direct action',
       'forbidden action, duration, and raw scan fields are rejected before policy handoff',
-      'existing activity-domain digest proof remains the source spine and was run without editing the locked package',
+      'existing app-game-domain risk-detection consumer keeps local-AI digest candidates review-routed and digest-backed',
     ],
     claimsNotProved: [
       'live local model quality',

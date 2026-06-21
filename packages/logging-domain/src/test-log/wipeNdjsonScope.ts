@@ -1,8 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import type {
+  RunType,
+  StoredTestLogLine,
+  TestLogScope,
+  TestSuiteType,
+} from '@ocentra-parent/schema-domain/test-log/types';
 import { getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
 import { readTestLogEntriesFromFile } from './ndjsonWriter';
-import type { RunType, StoredTestLogLine, TestLogScope, TestSuiteType } from './types';
 
 export interface WipeNdjsonScopeOptions {
   readonly scope: TestLogScope;

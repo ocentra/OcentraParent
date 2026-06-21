@@ -2,12 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   BillingSupportAdminBoundaryProofSchema,
   BillingSupportAdminBoundaryRowSchema,
-} from '../../src/billing-support-admin-boundary';
-import { BillingSupportAdminBoundaryProofReadModel } from '../../src/billing-support-admin-boundary-proof';
-import {
-  summarizeBillingSupportAdminActions,
-  summarizeBillingSupportAdminRuntimeStates,
-} from '../../src/billing-support-admin-boundary-values';
+} from '@ocentra-parent/schema-domain/billing-support-admin-boundary';
+import { BillingSupportAdminBoundaryProofReadModel } from '@ocentra-parent/schema-domain/billing-support-admin-boundary-proof';
 
 describe('billing support admin boundary', () => {
   acceptsBillingSupportAdminBoundaryProof();
@@ -122,4 +118,50 @@ function requiredRow(action: 'support-case-triage' | 'provider-contact-manual-re
     throw new Error(`missing billing support admin row: ${action}`);
   }
   return row;
+}
+
+function summarizeBillingSupportAdminActions(
+  rows: ReadonlyArray<{ readonly action: string }>
+): Record<
+  | 'support-case-triage'
+  | 'account-status-review'
+  | 'billing-escalation-request'
+  | 'provider-contact-manual-required'
+  | 'entitlement-admin-override-manual-required'
+  | 'refund-credit-manual-required',
+  number
+> {
+  return countKnownValues(
+    [
+      'support-case-triage',
+      'account-status-review',
+      'billing-escalation-request',
+      'provider-contact-manual-required',
+      'entitlement-admin-override-manual-required',
+      'refund-credit-manual-required',
+    ],
+    rows,
+    'action'
+  );
+}
+
+function summarizeBillingSupportAdminRuntimeStates(
+  rows: ReadonlyArray<{ readonly runtimeState: string }>
+): Record<'read-only-local-proof' | 'manual-required' | 'not-implemented', number> {
+  return countKnownValues(['read-only-local-proof', 'manual-required', 'not-implemented'], rows, 'runtimeState');
+}
+
+function countKnownValues<const Value extends string, const Key extends string>(
+  values: readonly Value[],
+  rows: ReadonlyArray<{ readonly [Field in Key]: Value }>,
+  key: Key
+): Record<Value, number> {
+  const counts = {} as Record<Value, number>;
+  for (const value of values) {
+    counts[value] = 0;
+  }
+  for (const row of rows) {
+    counts[row[key]] += 1;
+  }
+  return counts;
 }

@@ -3,8 +3,8 @@ import {
   ProductionIncidentSupportStatusProofSchema,
   ProductionIncidentSupportStatusRowSchema,
   summarizeProductionIncidentSupportStatusRows,
-} from '../../src/production-incident-support-status-proof';
-import { ProductionIncidentSupportStatusReadModel } from '../../src/production-incident-support-status-read-model';
+} from '@ocentra-parent/schema-domain/production-incident-support-status-proof';
+import { ProductionIncidentSupportStatusReadModel } from '@ocentra-parent/schema-domain/production-incident-support-status-read-model';
 
 describe('production incident support status proof', () => {
   acceptsIncidentSupportStatusRows();

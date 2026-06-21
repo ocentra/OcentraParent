@@ -7,8 +7,8 @@ import {
   BrowserGameHiddenAnalysisLoaderRequestSchema,
   BrowserGameHiddenAnalysisLoaderResultSchema,
   BrowserGameHiddenAnalysisProfileDesignSchema,
-  planBrowserGameHiddenAnalysisProfileSafety,
-} from '../../packages/parent-domain/dist/browser-game-hidden-analysis-profile-safety.js';
+} from '@ocentra-parent/schema-domain/browser-game-hidden-analysis-profile-safety';
+import { planBrowserGameHiddenAnalysisProfileSafety } from '@ocentra-parent/browser-domain/browser-game-hidden-analysis-profile-safety';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-hidden-analysis-profile-safety-live-evidence-proof';

@@ -7,9 +7,9 @@ const outputDirectory = join(root, 'output', 'browser-plan-proof', 'social-alert
 const resultDirectory = join(root, 'test-results', 'social-alert-report-intent-proof');
 
 const requiredFiles = [
-  'packages/parent-domain/src/social-alert-report-intent-values.ts',
-  'packages/parent-domain/src/social-alert-report-intent.ts',
-  'packages/parent-domain/tests/social-alert-report-intent.test.ts',
+  'packages/schema-domain/src/social-alert-report-intent-values.ts',
+  'packages/schema-domain/src/social-alert-report-intent.ts',
+  'packages/browser-domain/tests/unit/social-alert-report-intent.test.ts',
 ];
 
 await main();
@@ -18,15 +18,16 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  const packageJson = await readText('packages/parent-domain/package.json');
+  const packageJson = await readText('packages/browser-domain/package.json');
+  const browserPackageJson = JSON.parse(packageJson);
   const featureDoc = await readText('docs/features/social-video-control.md');
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/readme.md');
-  const contract = await readText('packages/parent-domain/src/social-alert-report-intent.ts');
-  const test = await readText('packages/parent-domain/tests/social-alert-report-intent.test.ts');
+  const contract = await readText('packages/schema-domain/src/social-alert-report-intent.ts');
+  const test = await readText('packages/browser-domain/tests/unit/social-alert-report-intent.test.ts');
 
   const checks = [
     checkFilesExist(),
-    checkIncludes(packageJson, './social-alert-report-intent', 'parent-domain package export'),
+    checkMissingExport(browserPackageJson, './social-alert-report-intent', 'browser-domain retired export removed'),
     checkIncludes(featureDoc, 'social-alert-report-intent-proof', 'social/video feature proof note'),
     checkIncludes(workpackReadme, 'social-alert-report-intent-proof', 'social workpack README proof note'),
     checkIncludes(contract, 'reportDeliveryClaimed', 'report delivery non-claim guard'),
@@ -85,6 +86,13 @@ function checkIncludes(text, expected, label) {
   };
 }
 
+function checkMissingExport(packageJson, exportPath, label) {
+  return {
+    label,
+    pass: packageJson?.exports?.[exportPath] === undefined,
+  };
+}
+
 function markdownFor(proof) {
   return [
     '# Social Alert/Report Intent Proof',
@@ -99,7 +107,7 @@ function markdownFor(proof) {
     `Final policy decision: ${proof.summary.finalPolicyDecision}`,
     `Enforcement: ${proof.summary.enforcement}`,
     '',
-    'This proof adds the parent-domain alert/report intent boundary for social',
+    'This proof uses the centralized schema-domain alert/report intent boundary for social',
     'signals. It proves minimal ref-only payloads can be queued for the local',
     'outbox and parent report linkage while rejecting raw account, video,',
     'message, screenshot, provider-delivery, report-delivery, final-policy, and',

@@ -3,21 +3,21 @@ import {
   AgentCommand,
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
-  AgentProtocolSchemaVersion,
-  AppGameTimerParentPreferenceSetupRequestSchema,
   type AgentEventEnvelope,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
+import { AppGameTimerParentPreferenceSetupRequestSchema } from '@ocentra-parent/schema-domain/app-game-timer-parent-preference-setup-request';
 import {
   AgentAppGameTimerParentSurfaceState,
   AgentAppGameTimerParentSurfaceTargetDomain,
-} from '@ocentra-parent/agent-protocol-domain/app-game-timer-parent-surface-read-model';
+} from '@ocentra-parent/schema-domain/app-game-timer-parent-surface-read-model';
 import {
   createAppGameTimerParentPreferenceSetupCommandResultDetails,
   createAppGameTimerParentPreferenceSetupRequestPayload,
   createAppGameTimerParentSurfacePanelIntent,
-  PortalRoute,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/app-game-timer-parent-surface-panel';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import { isCommandResultEvent } from '@ocentra-parent/portal-domain/command-results';
 import { shouldRenderAppGameTimerParentSurfaceRoute } from '../src/AppGameTimerParentSurfaceRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';

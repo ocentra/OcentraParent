@@ -1,4 +1,4 @@
-import type { BridgeEntry, BridgeLogPayload } from '../transport/bridgeLogPayload';
+import type { BridgeEntry, BridgeLogPayload } from '@ocentra-parent/schema-domain/transport/bridgeLogPayload';
 import {
   RunType,
   TestLogScope,
@@ -6,7 +6,7 @@ import {
   type RunType as RunTypeValue,
   type StoredTestLogLine,
   type TestLogScope as TestLogScopeValue,
-} from './types';
+} from '@ocentra-parent/schema-domain/test-log/types';
 
 export interface BridgePayloadToStoredLogOptions {
   readonly testName: string;

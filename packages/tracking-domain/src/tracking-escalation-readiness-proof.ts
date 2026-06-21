@@ -8,10 +8,8 @@ import {
 import {
   TrackingLocationPolicyReadModelSchema,
   TrackingPolicySchemaVersion,
-  evaluateTrackingAcknowledgementImpact,
-  resolveTrackingChildCheckIn,
-} from './tracking-location-policy';
-import { TrackingPolicyAuditRefSchema } from './tracking-location-policy-primitives';
+} from '@ocentra-parent/schema-domain/tracking-location-policy';
+import { TrackingPolicyAuditRefSchema } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 import type {
   TrackingAcknowledgement,
   TrackingAlertIntent,
@@ -20,7 +18,11 @@ import type {
   TrackingEscalationChain,
   TrackingLocationPolicyReadModel,
   TrackingPolicyDecision,
-} from './tracking-location-policy-types';
+} from '@ocentra-parent/schema-domain/tracking-location-policy-types';
+import {
+  evaluateTrackingAcknowledgementImpact,
+  resolveTrackingChildCheckIn,
+} from './tracking-location-policy-runtime';
 
 export const RequiredTrackingEscalationReadinessNonClaims = [
   'no-emergency-auto-contact',

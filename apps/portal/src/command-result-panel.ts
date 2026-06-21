@@ -1,15 +1,20 @@
-import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
-import { DevLogField, DevLogMessage } from '@ocentra-parent/logging-domain/contracts';
+import {
+  AgentEvent,
+  type AgentEventEnvelope
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { DevLogField, DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
 import {
   PortalDom,
-  PortalFormatting,
   PortalText,
   PortalTextToken,
   PortalTiming,
-  createAppGameTimerParentPreferenceSetupCommandResultDetails,
-  decodePortalClipboardText,
-  type AppGameTimerParentSurfacePanelDetail,
 } from '@ocentra-parent/portal-domain/contracts';
+import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
+import {
+  createAppGameTimerParentPreferenceSetupCommandResultDetails,
+  type AppGameTimerParentSurfacePanelDetail,
+} from '@ocentra-parent/portal-domain/app-game-timer-parent-surface-panel';
+import { decodePortalClipboardText } from '@ocentra-parent/portal-domain/detail-values';
 import { latestCommandResult } from '@ocentra-parent/portal-domain/command-results';
 import { writeClipboardText } from './clipboard';
 import { writePortalDevLog } from './dev-logger';

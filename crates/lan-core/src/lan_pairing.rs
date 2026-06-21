@@ -12,12 +12,11 @@ use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainObservedSignal, ChildDomainPolicyEvaluationRequestedEvent,
     ChildDomainPolicyEvaluationRequirement, ChildDomainRefSuffix, ChildRuntimeDomain,
 };
+use ocentra_parent_agent_protocol::{constants, LAN_PAIRING_SCHEMA_VERSION};
 use serde::{Deserialize, Serialize};
 
 pub const CRATE_NAME: &str = "ocentra-lan-core";
-const LAN_SCHEMA_VERSION: u16 = 1;
 const LAN_DISCOVERY_DECISION_RECORDED_EVENT_TYPE: &str = "lan.discovery.decision-recorded";
-const LAN_IDEMPOTENCY_SEPARATOR: &str = ":";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LanObservationIntent {
@@ -143,7 +142,7 @@ impl DomainEvent for LanDiscoveryDecisionRecordedEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(
             EventType::parse(LAN_DISCOVERY_DECISION_RECORDED_EVENT_TYPE)?,
-            SchemaVersion::new(LAN_SCHEMA_VERSION)?,
+            SchemaVersion::new(LAN_PAIRING_SCHEMA_VERSION)?,
         ))
     }
 
@@ -154,7 +153,9 @@ impl DomainEvent for LanDiscoveryDecisionRecordedEvent {
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         IdempotencyKey::parse(format!(
             "{}{}{}",
-            LAN_DISCOVERY_DECISION_RECORDED_EVENT_TYPE, LAN_IDEMPOTENCY_SEPARATOR, self.decision_id,
+            LAN_DISCOVERY_DECISION_RECORDED_EVENT_TYPE,
+            constants::child_domain_runtime::IDEMPOTENCY_SEPARATOR,
+            self.decision_id,
         ))
     }
 }

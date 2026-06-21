@@ -3,8 +3,8 @@ import {
   PublicSupportContactStatusProofSchema,
   PublicSupportContactStatusRowSchema,
   summarizePublicSupportContactStatusRows,
-} from '../../src/public-support-contact-status-proof';
-import { PublicSupportContactStatusReadModel } from '../../src/public-support-contact-status-read-model';
+} from '@ocentra-parent/schema-domain/public-support-contact-status-proof';
+import { PublicSupportContactStatusReadModel } from '@ocentra-parent/schema-domain/public-support-contact-status-read-model';
 
 describe('public support contact status proof', () => {
   acceptsPublicSupportContactStatusRows();

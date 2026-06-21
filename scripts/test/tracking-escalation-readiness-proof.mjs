@@ -23,7 +23,7 @@ async function main() {
   ]);
 
   const policy = await tsImport(
-    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-location-policy.ts')).href,
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-location-policy.ts')).href,
     import.meta.url
   );
   const escalationProof = await tsImport(
@@ -37,7 +37,7 @@ async function main() {
       generatedAt: '2026-06-05T12:10:00.000Z',
       readinessId: 'tracking-escalation-readiness-proof',
       sourceContractRefs: [
-        'packages/tracking-domain/src/tracking-location-policy.ts',
+        'packages/schema-domain/src/tracking-location-policy.ts',
         'docs/plans/tracking-plan/workpacks/27-escalation-engine.md',
         'docs/expectations/notifications.md',
         'docs/expectations/policy.md',
@@ -130,7 +130,7 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- proof module: packages/tracking-domain/src/tracking-escalation-readiness-proof.ts',
     '- proof tests: packages/tracking-domain/tests/contract/tracking-escalation-readiness-proof.test.ts',
     '- proof harness: scripts/test/tracking-escalation-readiness-proof.mjs',
-    '- source contracts: packages/tracking-domain/src/tracking-location-policy.ts',
+    '- source contracts: packages/schema-domain/src/tracking-location-policy.ts',
     '',
   ].join('\n');
 }

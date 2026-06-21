@@ -8,6 +8,7 @@ use ocentra_eventing::topology::{
     EventTopologyEntry, EventTopologyFamilyVariant, EventTopologyManifest, EventTopologyPublisher,
     EventTopologyStatus, EventTopologySubscriber,
 };
+use serde_json::Value;
 
 const NO_SUBSCRIBER_EVENT_TYPE: &str = "eventing.topology.no_subscriber";
 const ACCEPTED_NO_PUBLISHER_EVENT_TYPE: &str = "eventing.topology.accepted_no_publisher";
@@ -119,6 +120,40 @@ fn topology_manifest_renders_deterministic_markdown() {
     assert!(markdown.contains("| eventing.test.other | 1 | none | none | none | no-publisher |"));
 }
 
+#[test]
+fn topology_manifest_serializes_canonical_eventing_entry_keys() {
+    let registry = topology_registry();
+    let manifest = EventTopologyManifest::from_registry(
+        &registry,
+        &[publisher(TEST_EVENT_TYPE, COVERED_PUBLISHER)],
+        &[subscriber(TEST_EVENT_TYPE, COVERED_SUBSCRIBER)],
+        &[family_variant(TEST_EVENT_TYPE)],
+        &[],
+    );
+
+    let manifest_json = serde_json::to_value(&manifest).expect("manifest serializes");
+    let entry = manifest_entry(&manifest_json, TEST_EVENT_TYPE);
+    let subscriber_target = entry["subscribers"][0]
+        .as_object()
+        .expect("subscriber target object");
+
+    assert_eq!(entry["contract"]["eventType"], Value::from(TEST_EVENT_TYPE));
+    assert_eq!(entry["contract"]["schemaVersion"], Value::from(1));
+    assert_eq!(
+        entry["rustType"],
+        Value::from("contract::support::TestEvent")
+    );
+    assert!(entry.get("rust_type").is_none());
+    assert_eq!(
+        subscriber_target.get("subscriberId"),
+        Some(&Value::from(COVERED_SUBSCRIBER))
+    );
+    assert_eq!(
+        subscriber_target.get("targetHandler"),
+        Some(&Value::from(TOPOLOGY_TARGET))
+    );
+}
+
 fn topology_registry() -> EventContractRegistry {
     let mut registry = EventContractRegistry::new();
     registry
@@ -168,4 +203,19 @@ fn entry<'a>(manifest: &'a EventTopologyManifest, event_type: &str) -> &'a Event
         .iter()
         .find(|entry| entry.contract.event_type.as_str() == event_type)
         .expect_value("topology entry exists")
+}
+
+fn manifest_entry<'a>(
+    manifest_json: &'a Value,
+    event_type: &str,
+) -> &'a serde_json::Map<String, Value> {
+    manifest_json["entries"]
+        .as_array()
+        .expect("entries array")
+        .iter()
+        .find_map(|entry| {
+            let entry = entry.as_object()?;
+            (entry["contract"]["eventType"] == Value::from(event_type)).then_some(entry)
+        })
+        .expect("manifest entry exists")
 }

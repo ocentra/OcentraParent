@@ -1,14 +1,17 @@
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::read_model::{
+    TrackingReadModel, TrackingReadModelCount, TrackingReadModelRow,
+    TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE, TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE,
+    TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE, TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
+};
 use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceRef, LogFieldValue, LogFields, TrackingEvidenceRef,
-    TrackingReadModel, TrackingReadModelCapabilityStatus, TrackingReadModelCount,
-    TrackingReadModelCountValue, TrackingReadModelCustodyLabel, TrackingReadModelDeletedAt,
-    TrackingReadModelDeviceId, TrackingReadModelEventId, TrackingReadModelGeneratedAt,
-    TrackingReadModelKind, TrackingReadModelObservedAt, TrackingReadModelObserver,
-    TrackingReadModelPlatform, TrackingReadModelQueryVisibility, TrackingReadModelRow,
+    ActivityEvidenceRef, LogFieldValue, LogFields, TrackingEvidenceRef,
+    TrackingReadModelCapabilityStatus, TrackingReadModelCountValue, TrackingReadModelCustodyLabel,
+    TrackingReadModelDeletedAt, TrackingReadModelDeviceId, TrackingReadModelEventId,
+    TrackingReadModelGeneratedAt, TrackingReadModelKind, TrackingReadModelObservedAt,
+    TrackingReadModelObserver, TrackingReadModelPlatform, TrackingReadModelQueryVisibility,
     TrackingReadModelSubjectDisplayName, TrackingReadModelSubjectId, TrackingReadModelSubjectKind,
-    ACTIVITY_QUERY_SCHEMA_VERSION, TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE, TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE,
-    TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS,
+    ACTIVITY_QUERY_SCHEMA_VERSION,
 };
 use rusqlite::Connection;
 use std::collections::BTreeMap;

@@ -17,7 +17,6 @@
     "@ocentra-parent/agent-protocol-domain": "file:../../packages/agent-protocol-domain",
     "@ocentra-parent/app-game-domain": "file:../../packages/app-game-domain",
     "@ocentra-parent/browser-domain": "file:../../packages/browser-domain",
-    "@ocentra-parent/evidence-domain": "file:../../packages/evidence-domain",
     "@ocentra-parent/logging-domain": "file:../../packages/logging-domain",
     "@ocentra-parent/network-domain": "file:../../packages/network-domain",
     "@ocentra-parent/portal-domain": "file:../../packages/portal-domain",

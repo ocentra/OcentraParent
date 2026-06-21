@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type BrowserGameDashboardUxSnapshot,
   BrowserGameDashboardUxSnapshotSchema,
-} from '../../src/browser-game-dashboard-ux';
+} from '@ocentra-parent/schema-domain/browser-game-dashboard-ux';
 
 describe('browser-game dashboard UX contracts', () => {
   it('accepts a contract-only parent browser-game dashboard section snapshot', acceptsHonestSnapshot);

@@ -58,7 +58,8 @@ async function main() {
       childDeliveryClaimed: false,
     },
     claimsProved: [
-      'TypeScript protocol parses the dedicated app/game notification readiness event payload',
+      'schema-domain owns the dedicated app/game notification readiness read-model contract surface',
+      'TypeScript protocol parser consumes the dedicated app/game notification readiness event payload',
       'Rust protocol serializes notification readiness rows and no-delivery/no-adapter claim flags',
       'Agent service answers the notification readiness command from the existing activity-store app/game service read model',
       'Eligible app/game evidence rows can become local-intent-ready rows without provider delivery or adapter dispatch',
@@ -72,8 +73,9 @@ async function main() {
       'policy evaluator execution, adapter dispatch, broad blocking, or platform support',
     ],
     evidence: {
-      typescriptContract: 'packages/agent-protocol-domain/src/app-game-notification-readiness.ts',
-      typescriptTest: 'packages/agent-protocol-domain/tests/app-game-notification-readiness.test.ts',
+      schemaContract: 'packages/schema-domain/src/app-game-notification-readiness.ts',
+      typescriptParserConsumer: 'packages/agent-protocol-domain/src/app-game-notification-readiness.ts',
+      typescriptTest: 'packages/agent-protocol-domain/tests/unit/app-game-notification-readiness.test.ts',
       rustProtocol: 'crates/agent-protocol/src/app_game_notification_readiness.rs',
       rustProtocolTest: 'crates/agent-protocol/src/app_game_notification_readiness_tests.rs',
       servicePayload: 'crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs',

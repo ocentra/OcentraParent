@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BrowserGameJournalSqliteReadModelRowSchema,
   BrowserGameJournalSqliteReadModelSnapshotSchema,
-} from '../../src/browser-game-journal-sqlite-read-model';
+} from '@ocentra-parent/schema-domain/browser-game-journal-sqlite-read-model';
 import {
   browserGameReadModelRow,
   browserGameReadModelSnapshot,

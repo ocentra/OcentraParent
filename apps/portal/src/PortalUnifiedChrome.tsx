@@ -1,17 +1,16 @@
 import type { ReactElement, ReactNode } from 'react';
 import {
-  PortalAssets,
   PortalDom,
-  PortalRoute,
   PortalText,
   PortalTextToken,
   PortalTheme,
-  PortalUnifiedChrome,
   type PortalThemeValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import { UnifiedFooter } from '../../../vendor/ocentra-parent-core-ui/Footer/UnifiedFooter';
 import { BrandedLoadingSpinner } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/BrandedLoadingSpinner';
-import { ScopeToggle } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ScopeToggle';
+import { ScopeToggle } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ScopeToggle/ScopeToggle';
 import { UnifiedPageShell } from '../../../vendor/ocentra-parent-core-ui/Shell/UnifiedPageShell';
 import { PortalBackgroundLayer } from './PortalBackgroundLayer';
 import { PortalHeaderSvgFrame } from './PortalHeaderSvgFrame';

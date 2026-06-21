@@ -1,7 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const RepoRoot = process.cwd();
 const SourceProofPath = resolve(
@@ -30,9 +29,10 @@ const ClaimBoundaries = {
   enforcementClaimed: false,
 };
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
-const { buildScreenAiStricterParentRuleProof } = await importDist('screen-ai-stricter-parent-rule-proof.js');
+const { buildScreenAiStricterParentRuleProof } =
+  await import('@ocentra-parent/schema-domain/screen-ai-stricter-parent-rule-proof');
 const sourceProof = JSON.parse(readFileSync(SourceProofPath, 'utf8'));
 const sourceDecision = JSON.parse(readFileSync(SourceDecisionPath, 'utf8'));
 const generatedAt = new Date().toISOString();
@@ -105,10 +105,6 @@ function parentRuleFor(category) {
     effectiveFrom: null,
     effectiveUntil: null,
   };
-}
-
-async function importDist(fileName) {
-  return import(pathToFileURL(join(RepoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
 }
 
 function runCommand(command, args) {

@@ -9,14 +9,14 @@ const outputDir = join('output', 'browser-plan-proof', 'browser-runtime-portal-t
 mkdirSync(testResultsDir, { recursive: true });
 mkdirSync(outputDir, { recursive: true });
 
-const portalSource = readFileSync('packages/portal-domain/src/live-activity-state.ts', 'utf8');
+const portalSource = readFileSync('apps/portal/src/live-activity-state.ts', 'utf8');
 const portalTestSource = readFileSync('apps/portal/tests/live-activity-state.test.ts', 'utf8');
 
 const sourceChecks = {
-  portalUsesSharedTypedParser: portalSource.includes('parseAgentBrowserRuntimeEventChainStreamFields'),
+  portalDelegatesToSharedTypedConsumer: portalSource.includes('resolvePortalDomainLiveActivityState'),
   portalRemovedLooseEntryParser: !portalSource.includes('function parseBrowserRuntimeEventChainEntry'),
-  portalTypesEntriesFromProtocolContract: portalSource.includes(
-    'PortalBrowserRuntimeEventChainEntry = AgentBrowserRuntimeEventChainEntry'
+  portalReexportsTypedBrowserRuntimeEntries: portalSource.includes(
+    'export type PortalBrowserRuntimeEventChainEntry = PortalDomainPortalBrowserRuntimeEventChainEntry'
   ),
   testsRejectEventTypePhaseDrift: portalTestSource.includes('event type and phase drift'),
   testsRejectAiAuthorityOverclaim: portalTestSource.includes('claim AI authority in the portal'),
@@ -76,9 +76,9 @@ writeFileSync(
     '# Browser Runtime Portal Typed Stream Consumer Proof',
     '',
     `- Branch head: ${proof.branchHead}`,
-    `- Portal uses shared typed parser: ${sourceChecks.portalUsesSharedTypedParser}`,
+    `- Portal delegates to shared typed consumer: ${sourceChecks.portalDelegatesToSharedTypedConsumer}`,
     `- Loose local entry parser removed: ${sourceChecks.portalRemovedLooseEntryParser}`,
-    `- Portal entries typed from protocol contract: ${sourceChecks.portalTypesEntriesFromProtocolContract}`,
+    `- Portal reexports typed browser runtime entries: ${sourceChecks.portalReexportsTypedBrowserRuntimeEntries}`,
     `- Event type/phase drift rejected by portal test: ${sourceChecks.testsRejectEventTypePhaseDrift}`,
     `- AI authority overclaim rejected by portal test: ${sourceChecks.testsRejectAiAuthorityOverclaim}`,
     `- Stream count drift rejected by portal test: ${sourceChecks.testsRejectCountDrift}`,

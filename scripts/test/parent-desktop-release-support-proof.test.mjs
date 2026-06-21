@@ -137,12 +137,16 @@ test('release-support proof separates preview mechanics from product claims', ()
   );
 });
 
-test('parent-domain package exposes the release-support contract', () => {
+test('schema-domain owns the release-support contract export', () => {
   const parentDomainPackage = JSON.parse(
     readFileSync(join(repoRoot, 'packages', 'parent-domain', 'package.json'), 'utf8')
   );
+  const schemaDomainPackage = JSON.parse(
+    readFileSync(join(repoRoot, 'packages', 'schema-domain', 'package.json'), 'utf8')
+  );
 
-  assert.deepEqual(parentDomainPackage.exports['./parent-desktop-release-support'], {
+  assert.equal(parentDomainPackage.exports['./parent-desktop-release-support'], undefined);
+  assert.deepEqual(schemaDomainPackage.exports['./parent-desktop-release-support'], {
     import: './dist/parent-desktop-release-support.js',
     types: './dist/parent-desktop-release-support.d.ts',
   });

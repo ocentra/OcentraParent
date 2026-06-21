@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import { shouldRenderScreenSummaryRoute } from '../src/ScreenSummaryRoutePanel';
 
 describe('screen summary route panel', () => {

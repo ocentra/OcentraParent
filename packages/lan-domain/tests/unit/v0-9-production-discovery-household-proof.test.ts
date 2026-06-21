@@ -7,7 +7,7 @@ import {
   V09ProductionDiscoveryHouseholdRuntimeOwnerSchema,
   V09ProductionDiscoveryHouseholdSourceStateSchema,
   V09ProductionDiscoveryHouseholdStateEvidenceSchema,
-} from '../../src/v0-9-production-discovery-household-proof';
+} from '@ocentra-parent/schema-domain/v0-9-production-discovery-household-proof';
 
 const checkedAt = '2026-05-30T20:50:00.000Z';
 const routeId = 'lan-route-production-discovery-household-proof';

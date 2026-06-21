@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createSocialAuditExplanationPanelIntent } from '../../src/social-audit-explanation-panel';
-import type { SocialAuditExplanationSnapshot } from '@ocentra-parent/browser-domain/social-audit-explanation-read-model';
+import type { SocialAuditExplanationSnapshot } from '@ocentra-parent/schema-domain/social-audit-explanation-read-model';
 
 describe('social audit explanation panel intent', () => {
   it('renders six schema-backed explanation rows from an honest snapshot', () => {

@@ -8,7 +8,7 @@ import { chromium } from 'playwright';
 import {
   BrowserGameRuntimeSignalDetectionSchema,
   BrowserGameRuntimeSignalRowSchema,
-} from '../../packages/parent-domain/dist/browser-game-runtime-signal-detector.js';
+} from '@ocentra-parent/schema-domain/browser-game-runtime-signal-detector';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-runtime-signal-detector-live-evidence-proof';

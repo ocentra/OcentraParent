@@ -17,6 +17,7 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
   await runCommand(
     ...npmCommand([
@@ -25,7 +26,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/provider-secret-custody-status.test.ts',
+      'tests/unit/provider-secret-custody-status.test.ts',
     ])
   );
 
@@ -41,9 +42,9 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/provider-secret-custody-status.ts',
-      readModel: 'packages/logging-domain/src/provider-secret-custody-status-read-model.ts',
-      contractTest: 'packages/logging-domain/tests/provider-secret-custody-status.test.ts',
+      contract: 'packages/schema-domain/src/provider-secret-custody-status.ts',
+      readModel: 'packages/schema-domain/src/provider-secret-custody-status-read-model.ts',
+      contractTest: 'packages/logging-domain/tests/unit/provider-secret-custody-status.test.ts',
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
       featureDoc: 'docs/features/production-distribution-support.md',
@@ -53,15 +54,15 @@ async function main() {
         'docs/expectations/billing.md',
       ],
       packageExports: [
-        '@ocentra-parent/logging-domain/provider-secret-custody-status',
-        '@ocentra-parent/logging-domain/provider-secret-custody-status-read-model',
+        '@ocentra-parent/schema-domain/provider-secret-custody-status',
+        '@ocentra-parent/schema-domain/provider-secret-custody-status-read-model',
       ],
     },
     claimsProved: [
       'Provider-secret custody status rows cover boundary recorded, provider-secret absent, backend secret store manual-required, rotation manual-required, revocation manual-required, and support-safe audit export states.',
       'Rows link to legal/provider readiness, billing support status, redaction, audit, and data-custody refs while disclosing only support-safe status metadata.',
       'Provider-secret custody, backend secret store, rotation, and revocation remain not implemented or manual-required until real provider secret custody proof exists.',
-      'Package exports expose the provider-secret custody status contract and read model through @ocentra-parent/logging-domain.',
+      'Package exports expose the provider-secret custody status contract and read model through @ocentra-parent/schema-domain.',
       'Rows reject provider secrets, payment provider tokens, raw child activity, raw support bundle payloads, account lookup results, billing provider contact records, remote support transcripts, provider custody execution, backend secret store implementation, rotation/revocation execution, support backend upload execution, account lookup execution, billing provider contact execution, remote support sessions, production SLA, and default Ocentra-hosted family data.',
     ],
     claimsNotProved: [
@@ -136,8 +137,8 @@ function assertReadModel(readModel) {
 }
 
 async function assertPackageExports() {
-  const contract = await import('@ocentra-parent/logging-domain/provider-secret-custody-status');
-  const readModel = await import('@ocentra-parent/logging-domain/provider-secret-custody-status-read-model');
+  const contract = await import('@ocentra-parent/schema-domain/provider-secret-custody-status');
+  const readModel = await import('@ocentra-parent/schema-domain/provider-secret-custody-status-read-model');
   assert.equal(typeof contract.ProviderSecretCustodyStatusReadModelSchema.parse, 'function');
   assert.equal(readModel.ProviderSecretCustodyStatusReadModel.entries.length, 6);
 }

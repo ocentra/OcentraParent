@@ -248,21 +248,6 @@ pub struct LocalAiEvidenceContextSourceRefWire {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct LocalAiParentRuleContextRefWire {
-    pub parent_rule_ref_id: LocalAiParentRuleContextRefId,
-    pub policy_version: ParentPolicyVersion,
-    pub family: FamilyReference,
-    pub child_profile: ChildProfileReference,
-    pub device: ParentDeviceReference,
-    pub rule: PolicyRule,
-    pub target_evidence_refs: Vec<LocalAiEvidenceContextRefId>,
-    pub custody: LocalAiEvidenceCustody,
-    pub updated_at: LocalAiTimestamp,
-    pub expires_at: Option<LocalAiTimestamp>,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct LocalAiEvidenceContextValidationSummaryWire {
     pub evidence_reference_count: u64,
     pub source_evidence_reference_count: u64,
@@ -289,7 +274,7 @@ pub struct LocalAiEvidenceContextWire {
     pub network_flow_evidence_refs: Vec<LocalAiEvidenceContextRefId>,
     pub screen_summary_refs: Vec<LocalAiEvidenceContextRefId>,
     pub parent_rule_references: Vec<PolicyRuleId>,
-    pub parent_rule_context_references: Vec<LocalAiParentRuleContextRefWire>,
+    pub parent_rule_context_references: Vec<LocalAiParentRuleContextRef>,
     pub recent_activity_summary_refs: Vec<LocalAiEvidenceContextRefId>,
     pub memory_references: Vec<LocalAiMemoryReferenceWire>,
     pub graph_references: Vec<LocalAiGraphReferenceWire>,
@@ -311,7 +296,7 @@ pub struct LocalAiEvidenceContextBuildRequestWire {
     pub device: ParentDeviceReference,
     pub requested_evaluation_kind: LocalAiRequestedEvaluationKind,
     pub required_evidence_kinds: Vec<LocalAiEvidenceContextKind>,
-    pub parent_rule_context_references: Vec<LocalAiParentRuleContextRefWire>,
+    pub parent_rule_context_references: Vec<LocalAiParentRuleContextRef>,
     pub model_task_requirements: Vec<LocalAiCapabilityFlag>,
     pub allowed_custody: Vec<LocalAiEvidenceCustody>,
     pub prompt_version: LocalAiPromptVersion,

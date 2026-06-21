@@ -3,7 +3,7 @@ import {
   BillingInvoiceTaxRefundDisputeProofReadModel,
   BillingInvoiceTaxRefundDisputeProofSchema,
   BillingInvoiceTaxRefundDisputeRowSchema,
-} from '../../src/billing-invoice-tax-refund-dispute';
+} from '@ocentra-parent/schema-domain/billing-invoice-tax-refund-dispute';
 
 describe('billing invoice tax refund dispute lifecycle', () => {
   provesInvoiceVisibility();

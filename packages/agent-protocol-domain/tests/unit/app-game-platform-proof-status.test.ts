@@ -1,13 +1,11 @@
-import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
+import type { AppGamePlatformProofStatusReadModel } from '@ocentra-parent/schema-domain/app-game-platform-proof-status';
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
-import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import {
-  AgentAppGamePlatformProofStatusHostCapability,
-  AgentAppGamePlatformProofStatusPayloadField,
-  AgentAppGamePlatformProofStatusState,
   parseAgentAppGamePlatformProofStatusEvent,
 } from '../../src/app-game-platform-proof-status';
+import { AgentProtocolDefaults } from '../../src/defaults';
 
 const Source = {
   peerId: 'agent-service',
@@ -20,82 +18,64 @@ const Target = {
 } as const;
 
 const PlatformProofStatusReadModel = {
-  schemaVersion: AppGameSchemaVersion,
+  schemaVersion: 'app-game-platform-proof-status',
   readModelId: 'app-game-platform-proof-status',
   generatedAt: '2026-06-08T17:10:00.000Z',
-  sourceReadModelIds: ['v0-8-supported-adapter-runtime-proof'],
-  custodyLabel: 'app-game-platform-proof-status',
-  capabilityStatus: 'app-game-platform-proof-status-partial',
-  returned: 2,
-  hostVisibleCount: 1,
-  hostNotDetectedCount: 1,
-  localRuntimeNotApplicableCount: 0,
-  enforcementReadyCount: 0,
-  openGapCount: 7,
-  adapterDispatchClaimed: false,
-  broadInstalledAppBlockingClaimed: false,
-  platformEnforcementClaimed: false,
-  providerDeliveryClaimed: false,
-  childDeviceDeliveryClaimed: false,
-  privateDiagnosticsClaimed: false,
   rows: [
     {
-      schemaVersion: AppGameSchemaVersion,
-      rowId: 'app-game-platform-proof-status-windows',
       platform: 'windows',
-      proofState: AgentAppGamePlatformProofStatusState.ScopedWindowsExecutionProved,
-      authorityState: 'scoped-execution-only',
-      hostCapabilityState: AgentAppGamePlatformProofStatusHostCapability.Available,
-      hostCapabilityEvidenceRefs: ['adapter-capability-state-ref'],
-      hostCapabilityProbeRefs: ['windows-host-local-probe-ref'],
-      productMeanings: ['native-app', 'native-game'],
-      proofRefs: ['app-game-session-evidence-ref'],
-      openGaps: [
-        'broad-installed-app-blocking-not-proved',
-        'platform-enforcement-not-proved',
-        'child-device-delivery-not-proved',
-      ],
+      proofState: 'windows-policy-preflight-observed',
+      authorityState: 'visibility-only',
+      parentVisibleSummary: 'Windows policy preflight observed.',
+      packageVisibilityCount: 2,
+      runtimeVisibilityCount: 1,
+      ownerProofAttached: true,
+      mechanismProofAttached: true,
+      rollbackProofAttached: false,
+      auditProofAttached: false,
       adapterDispatchClaimed: false,
-      broadInstalledAppBlockingClaimed: false,
+      broadBlockingClaimed: false,
       platformEnforcementClaimed: false,
-      providerDeliveryClaimed: false,
-      childDeviceDeliveryClaimed: false,
       childDeliveryClaimed: false,
-      privateDiagnosticsClaimed: false,
-      lastCheckedAt: '2026-06-08T17:10:00.000Z',
+      proofRefs: ['windows-local-policy-evidence-proof-ref', 'app-game-platform-proof-status-ref'],
+      openGaps: [
+        'windows-broad-blocking-not-proved',
+        'cross-platform-child-delivery-not-proved',
+      ],
     },
     {
-      schemaVersion: AppGameSchemaVersion,
-      rowId: 'app-game-platform-proof-status-android',
       platform: 'android',
-      proofState: AgentAppGamePlatformProofStatusState.AndroidHostNotDetected,
+      proofState: 'physical-device-observed',
       authorityState: 'visibility-only',
-      hostCapabilityState: AgentAppGamePlatformProofStatusHostCapability.NotDetected,
-      hostCapabilityEvidenceRefs: [],
-      hostCapabilityProbeRefs: [],
-      productMeanings: ['native-app', 'native-game'],
+      parentVisibleSummary: 'Android physical device observed.',
+      packageVisibilityCount: 1,
+      runtimeVisibilityCount: 1,
+      ownerProofAttached: false,
+      mechanismProofAttached: true,
+      rollbackProofAttached: false,
+      auditProofAttached: false,
+      adapterDispatchClaimed: false,
+      broadBlockingClaimed: false,
+      platformEnforcementClaimed: false,
+      childDeliveryClaimed: false,
       proofRefs: [
-        'android-adb-host-toolchain-ref',
         'android-physical-device-proof-ref',
-        'android-usage-events-foreground-ref',
+        'android-authority-preflight-ref',
+        'android-usage-events-replay-ref',
       ],
       openGaps: [
         'android-device-owner-not-proved',
         'android-durable-usage-events-replay-not-proved',
-        'platform-enforcement-not-proved',
-        'child-device-delivery-not-proved',
+        'cross-platform-child-delivery-not-proved',
       ],
-      adapterDispatchClaimed: false,
-      broadInstalledAppBlockingClaimed: false,
-      platformEnforcementClaimed: false,
-      providerDeliveryClaimed: false,
-      childDeviceDeliveryClaimed: false,
-      childDeliveryClaimed: false,
-      privateDiagnosticsClaimed: false,
-      lastCheckedAt: '2026-06-08T17:10:00.000Z',
     },
   ],
-} as const;
+  platformProofObservedCount: 2,
+  visibilityOnlyCount: 2,
+  enforcementReadyCount: 0,
+  openGapCount: 5,
+  productClaim: 'visibility-only-platform-proof',
+} satisfies AppGamePlatformProofStatusReadModel;
 
 describe('agent app-game platform proof status parser', () => {
   it('parses the platform proof status read-model event payload', () => {
@@ -146,7 +126,7 @@ describe('agent app-game platform proof status parser', () => {
         platformProofStatusEvent(
           JSON.stringify({
             ...PlatformProofStatusReadModel,
-            hostVisibleCount: 0,
+            visibilityOnlyCount: 1,
           })
         )
       )
@@ -168,7 +148,7 @@ function platformProofStatusEvent(serializedReadModel: string): AgentEventEnvelo
     event: AgentEvent.ActivityAppGamePlatformProofStatusReadModelReported,
     severity: 'info',
     payload: {
-      [AgentAppGamePlatformProofStatusPayloadField]: serializedReadModel,
+      [AgentProtocolDefaults.Field.ActivityAppGamePlatformProofStatusReadModel]: serializedReadModel,
     },
     snapshot: null,
   };

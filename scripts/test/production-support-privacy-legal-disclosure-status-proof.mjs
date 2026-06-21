@@ -19,6 +19,7 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
   await runCommand(
     ...npmCommand([
@@ -27,7 +28,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/privacy-legal-disclosure-status.test.ts',
+      'tests/unit/privacy-legal-disclosure-status.test.ts',
     ])
   );
 
@@ -42,10 +43,10 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/privacy-legal-disclosure-status.ts',
-      guards: 'packages/logging-domain/src/privacy-legal-disclosure-status-guards.ts',
-      readModel: 'packages/logging-domain/src/privacy-legal-disclosure-status-read-model.ts',
-      contractTest: 'packages/logging-domain/tests/privacy-legal-disclosure-status.test.ts',
+      contract: 'packages/schema-domain/src/privacy-legal-disclosure-status.ts',
+      guards: 'packages/schema-domain/src/privacy-legal-disclosure-status-guards.ts',
+      readModel: 'packages/schema-domain/src/privacy-legal-disclosure-status-read-model.ts',
+      contractTest: 'packages/logging-domain/tests/unit/privacy-legal-disclosure-status.test.ts',
       proofHarness: 'scripts/test/production-support-privacy-legal-disclosure-status-proof.mjs',
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -57,7 +58,7 @@ async function main() {
       'Privacy/legal disclosure status rows cover requested, parent-authorized, legal-review queued/running, parent-notification-ready, publication-ready, failed, and manual-required states.',
       'Each row is parent-authorized and carries only support-safe disclosure status, parent consent, privacy policy, legal review, publication, support runbook, audit, and manual proof references.',
       'Failed rows require failure audit refs and manual-required rows require manual proof requirements before any disclosure execution claim can be made.',
-      'Package exports expose the privacy/legal disclosure status contract and read model through @ocentra-parent/logging-domain.',
+      'Package exports expose the privacy/legal disclosure status contract and read model through @ocentra-parent/schema-domain.',
       'Rows reject tokens, raw child activity, raw URLs, screenshots, journals, SQLite snapshots, private paths, command lines, keystrokes, clipboard data, message contents, provider secrets, remote support transcripts, legal disclosure execution, public runtime execution, support backend upload execution, account lookup, billing provider contact, remote support sessions, production SLA, and child activity custody.',
     ],
     claimsNotProved: [
@@ -127,8 +128,8 @@ function assertReadModel(readModel) {
 }
 
 async function assertPackageExports() {
-  const contract = await import('@ocentra-parent/logging-domain/privacy-legal-disclosure-status');
-  const readModel = await import('@ocentra-parent/logging-domain/privacy-legal-disclosure-status-read-model');
+  const contract = await import('@ocentra-parent/schema-domain/privacy-legal-disclosure-status');
+  const readModel = await import('@ocentra-parent/schema-domain/privacy-legal-disclosure-status-read-model');
   assert.equal(typeof contract.PrivacyLegalDisclosureReadModelSchema.parse, 'function');
   assert.equal(readModel.PrivacyLegalDisclosureReadModel.entries.length, 8);
 }

@@ -14,18 +14,18 @@ await rm(testOutputDir, { recursive: true, force: true });
 await mkdir(testOutputDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
   'tracking-poi-provider-adapter',
   'tracking-location-policy',
 ]);
 
-const tracking = await importDist('tracking-location-policy.js');
+const tracking = await importSchemaDist('tracking-location-policy.js');
 const adapter = await importDist('tracking-poi-provider-adapter.js');
 const searchInput = adapter.TrackingGooglePlacesNearbySearchInputSchema.parse(sourceSearchInput(tracking, adapter));
 const request = adapter.buildGooglePlacesNearbySearchRequest(searchInput);
@@ -53,8 +53,8 @@ const proof = {
   providerParitySummary: summarizeProviderParity(parityRows),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-poi-provider-adapter.ts',
-    test: 'packages/parent-domain/tests/tracking-poi-provider-adapter.test.ts',
+    source: 'packages/tracking-domain/src/tracking-poi-provider-adapter.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-poi-provider-adapter.test.ts',
     harness: 'scripts/test/tracking-poi-provider-adapter-proof.mjs',
     evidence: 'test-results/tracking-poi-provider-adapter-proof/proof.json',
     trackingProofPack: 'output/tracking-plan-proof/20-google-places-and-poi-provider-adapter',
@@ -77,7 +77,11 @@ console.log('tracking-poi-provider-adapter-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-poi-provider-adapter-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function sourceSearchInput(tracking, adapter) {
@@ -207,8 +211,8 @@ async function writeProofPack(path, proof) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-poi-provider-adapter tracking-location-policy: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/tracking-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tracking-poi-provider-adapter tracking-location-policy: PASS',
       '- Google Places Nearby Search request uses POST, a bounded circle locationRestriction, included types, maxResultCount 1..20, and the minimal production field mask.',
       '- Provider response mapping preserves provider id/resource, display text, primary type, category, distance, confidence, ambiguity, and source evidence reference.',
       '- Provider parity rows keep Google request-mapped while Apple MapKit and OSM stay manual-required until provider terms/runtime proof exists.',

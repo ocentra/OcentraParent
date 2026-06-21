@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserAiAnalysisSchemaVersion } from '../../src/browser-ai-analysis-schemas';
+import { BrowserAiAnalysisSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-analysis-schemas';
 import {
   BrowserAiPolicyEvaluatorInputSchema,
   BrowserAiPolicyEvaluatorSchemaVersion,
   BrowserPolicyDecisionSchema,
-} from '../../src/browser-ai-policy-evaluator-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-policy-evaluator-schemas';
 
 describe('browser AI policy evaluator integration contract', () => {
   it('accepts ready evaluator input with validated AI, memory, graph, and parent rule refs', acceptsReadyInput);

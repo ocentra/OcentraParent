@@ -5,11 +5,13 @@ import {
   AgentBrowserRuntimeEventType,
   AgentBrowserRuntimePhase,
   AgentBrowserRuntimeQueryVisibility,
-  AgentProtocolDefaults,
+} from '@ocentra-parent/schema-domain/agent-browser-runtime-events';
+import { AgentProtocolDefaults } from '../../src/defaults';
+import {
   deriveAgentBrowserRuntimeActionIntentStatus,
   deriveAgentBrowserRuntimeSocialProviderReceiptStatus,
   parseAgentBrowserRuntimeEventChainStreamFields,
-} from '../../src/contracts';
+} from '../../src/browser-runtime-events';
 
 const EvidenceObservedPayload = {
   phase: AgentBrowserRuntimePhase.EvidenceObserved,

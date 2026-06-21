@@ -57,17 +57,16 @@ async function main() {
 
 async function buildProof() {
   const trackingLocationPolicyModule = await tsImport(
-    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-location-policy.ts')).href,
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-location-policy.ts')).href,
     import.meta.url
   );
   const providerProofModule = await tsImport(
-    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-provider-notification-proof.ts')).href,
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-provider-notification-proof.ts')).href,
     import.meta.url
   );
   const receiptProofModule = await tsImport(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-notification-receipt-boundary-proof.ts')
-    ).href,
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-notification-receipt-boundary-proof.ts'))
+      .href,
     import.meta.url
   );
 
@@ -117,7 +116,7 @@ async function buildProof() {
     summary: summarize(readModel),
     nonClaims: nonClaims(readModel),
     proofPaths: {
-      source: 'packages/tracking-domain/src/tracking-notification-receipt-boundary-proof.ts',
+      source: 'packages/schema-domain/src/tracking-notification-receipt-boundary-proof.ts',
       test: 'packages/tracking-domain/tests/contract/tracking-notification-receipt-boundary-proof.test.ts',
       harness: 'scripts/test/tracking-notification-receipt-boundary-proof.mjs',
       evidence: 'test-results/tracking-notification-receipt-boundary-proof/proof.json',

@@ -20,23 +20,29 @@ for (const path of [join(appGameProofDir, '06-ui-snapshots'), join(appProofDir, 
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
-  'app-game-source-freshness-preview-gate',
-  'app-game-source-freshness-policy-consumption',
-  'app-game-policy-preview-handoff',
+  '--run',
+  'tests/unit/app-game-source-freshness-preview-gate.test.ts',
 ]);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 
-const gate = await importDist('app-game-source-freshness-preview-gate.js');
-const sourceData = await importDist('app-game-source-freshness-policy-consumption-data.js');
-const compilerRules = await importDist('app-game-policy-target-compiler-rules.js');
-const policy = await importDist('policy.js');
-const refs = await importDist('reference-primitives.js');
+const schemaGate = await import('@ocentra-parent/schema-domain/app-game-source-freshness-preview-gate');
+commands.push('node import @ocentra-parent/schema-domain/app-game-source-freshness-preview-gate');
+if (!('AppGameSourceFreshnessPreviewGateReadModelSchema' in schemaGate)) {
+  throw new Error('Missing AppGameSourceFreshnessPreviewGateReadModelSchema export from schema-domain');
+}
+
+const gate = await importAppGameDist('app-game-source-freshness-preview-gate.js');
+const sourceData = await importAppGameDist('app-game-source-freshness-policy-consumption-data.js');
+const compilerRules = await importSchemaDist('app-game-policy-target-compiler-rules.js');
+const policy = await importSchemaDist('policy.js');
+const refs = await importSchemaDist('family-reference-primitives.js');
 
 const [readyAppSource, readyGameSource, manualGameSource] =
   sourceData.AppGameSourceFreshnessPolicyConsumptionMatrix.readiness;
@@ -122,9 +128,10 @@ const proof = {
     platformEnforcementClaimed: readModel.platformEnforcementClaimed,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-source-freshness-preview-gate.ts',
-    rules: 'packages/parent-domain/src/app-game-source-freshness-preview-gate-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-freshness-preview-gate.test.ts',
+    schemaSource: 'packages/schema-domain/src/app-game-source-freshness-preview-gate.ts',
+    schemaRules: 'packages/schema-domain/src/app-game-source-freshness-preview-gate-rules.ts',
+    consumerSource: 'packages/app-game-domain/src/app-game-source-freshness-preview-gate.ts',
+    consumerTest: 'packages/app-game-domain/tests/unit/app-game-source-freshness-preview-gate.test.ts',
     harness: 'scripts/test/app-game-source-freshness-preview-gate-proof.mjs',
     evidence: 'test-results/app-game-source-freshness-preview-gate-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
@@ -142,8 +149,12 @@ await writeProofPack(appProofDir, proof, 'app WP75');
 console.log('app-game-source-freshness-preview-gate-proof-ok');
 console.log(`evidence=${join('test-results', 'app-game-source-freshness-preview-gate-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function gateOptions(refs) {
@@ -302,7 +313,7 @@ async function writeProofPack(proofDir, proof, label) {
       '```',
       '',
       '- Scope: app/game source freshness readiness gating before read-only policy preview handoff.',
-      '- Stack note: WP74 source freshness policy-consumption contracts have landed on main, so this proof targets current main.',
+      '- Stack note: schema-domain owns the preview-gate contract surface; app-game-domain consumes it for local gate construction.',
       '',
     ].join('\n'),
     'utf8'
@@ -312,8 +323,9 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/app-game-domain -- --run tests/unit/app-game-source-freshness-preview-gate.test.ts: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/app-game-domain: PASS',
       '- Policy-ready source freshness rows can build read-only policy preview rows.',
       '- Manual-required source freshness rows block preview before a compiled decision is accepted.',
       '- Source/compiled app-game target domain mismatches are rejected.',
@@ -323,7 +335,7 @@ async function writeProofPack(proofDir, proof, label) {
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust protocol proof not applicable: this workpack adds a TypeScript parent-domain gate and does not add a Rust-crossing shape.\n',
+    'Rust protocol proof not applicable: this workpack validates schema-domain contract ownership plus the app-game-domain consumer only.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof.summary);

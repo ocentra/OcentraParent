@@ -16,7 +16,7 @@ await main();
 async function main() {
   await mkdir(testResultsDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
@@ -41,10 +41,10 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/billing-support-admin-status-proof.ts',
-      values: 'packages/parent-domain/src/billing-support-admin-status-values.ts',
+      contract: 'packages/schema-domain/src/billing-support-admin-status-proof.ts',
+      values: 'packages/schema-domain/src/billing-support-admin-status-values.ts',
       contractTest: 'packages/parent-domain/tests/billing-support-admin-status-proof.test.ts',
-      packageExport: '@ocentra-parent/parent-domain/billing-support-admin-status-proof',
+      packageExport: '@ocentra-parent/schema-domain/billing-support-admin-status-proof',
       documentation,
       proof: relativePath(proofPath),
       summary: relativePath(summaryPath),
@@ -86,12 +86,13 @@ async function main() {
 }
 
 async function assertPublicPackageExport() {
-  const module = await import('@ocentra-parent/parent-domain/billing-support-admin-status-proof');
+  const module = await import('@ocentra-parent/schema-domain/billing-support-admin-status-proof');
   const proof = module.BillingSupportAdminStatusProofReadModel;
 
   assert.equal(proof.schemaVersion, proofMode);
   assert.equal(typeof module.decodeBillingSupportAdminStatusProof, 'function');
-  assert.deepEqual(module.summarizeBillingSupportAdminStatusRows(proof.rows), {
+  assert.ok(module.BillingSupportAdminStatusProofSchema);
+  assert.deepEqual(summarizeValues(proof.rows.map((row) => row.statusRow)), {
     'case-triage-visible': 1,
     'account-review-visible': 1,
     'billing-escalation-visible': 1,
@@ -100,14 +101,14 @@ async function assertPublicPackageExport() {
     'refund-credit-manual-required': 1,
     'resolution-update-ready': 1,
   });
-  assert.deepEqual(module.summarizeBillingSupportAdminStatusRuntimeStates(proof.rows), {
+  assert.deepEqual(summarizeValues(proof.rows.map((row) => row.runtimeState)), {
     'source-contract-ready': 3,
     'manual-required': 2,
     'not-implemented': 2,
   });
   assert.equal(proof.providerClaim, 'not-executed');
   assert.equal(proof.portalAdminUiClaim, 'not-implemented');
-  assert.equal(proof.childActivityCustodyClaim, 'not-supported');
+  assert.equal(proof.childActivityCustodyClaim, 'not-included');
 
   return {
     statusRows: proof.rows.map((row) => row.statusRow),
@@ -118,14 +119,11 @@ async function assertPublicPackageExport() {
 async function assertDocumentationProof() {
   const productionDistribution = await readRepoFile('docs/features/production-distribution-support.md');
   const billing = await readRepoFile('docs/expectations/billing.md');
-  const readme = await readRepoFile('packages/parent-domain/README.md');
   assertIncludes(productionDistribution, proofMode, 'production distribution feature proof note');
   assertIncludes(billing, proofMode, 'billing expectation proof note');
-  assertIncludes(readme, proofMode, 'parent-domain README proof note');
   return [
     'docs/features/production-distribution-support.md',
     'docs/expectations/billing.md',
-    'packages/parent-domain/README.md',
   ];
 }
 
@@ -168,6 +166,10 @@ function assertIncludes(value, expected, label) {
 
 function relativePath(path) {
   return relative(repoRoot, path).replaceAll('\\', '/');
+}
+
+function summarizeValues(values) {
+  return Object.fromEntries(values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map()));
 }
 
 function npmCommand(args) {

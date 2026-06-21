@@ -6,19 +6,21 @@ import {
   BrowserCapabilityStatus,
   BrowserChannel,
   BrowserCustodyLabel,
-  BrowserEvidenceSchemaVersion,
   BrowserFamily,
-  BrowserManagedSessionStatusSchema,
   BrowserManagedState,
   BrowserQueryVisibilityLabel,
-  BrowserTabEvidenceSchema,
   BrowserUnmanagedDetectionConfidence,
   BrowserUnmanagedDetectionReason,
-  BrowserUnmanagedProcessEvidenceSchema,
   BrowserUnmanagedProcessKind,
+} from '@ocentra-parent/schema-domain/browser-values';
+import {
+  BrowserEvidenceSchemaVersion,
+  BrowserManagedSessionStatusSchema,
+  BrowserTabEvidenceSchema,
+  BrowserUnmanagedProcessEvidenceSchema,
   BrowserUrlSchema,
   decodeBrowserUrl,
-} from '../../src/browser';
+} from '@ocentra-parent/schema-domain/browser-schemas';
 
 describe('browser tab evidence contracts', () => {
   it('accepts managed Chromium tab evidence with explicit active-state certainty', () => {

@@ -1,117 +1,23 @@
 import { PortalDetails } from './details';
+import {
+  RequiredTrackingNotificationParentSurfaceHistoryNonClaims,
+  TrackingNotificationParentSurfaceHistoryReadModelSchema,
+  TrackingNotificationParentSurfaceHistoryStatus,
+  type TrackingNotificationParentSurfaceHistoryReadModel,
+  type TrackingNotificationParentSurfaceHistoryRow,
+} from '@ocentra-parent/schema-domain/tracking-notification-parent-surface-history-proof';
 import type { DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
 import { TrackingStatusProofArtifacts, type TrackingStatusProofArtifact } from './tracking-status-proof-artifacts';
-import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
 type PortalDisplayText = DisplayText;
-
-const TrackingNotificationParentSurfaceHistoryStatus = {
-  HistoryIntentReady: 'history-intent-ready',
-  ManualActionRequired: 'manual-action-required',
-  ProviderUnavailable: 'provider-unavailable',
-} as const;
-
-const RequiredTrackingNotificationParentSurfaceHistoryNonClaims = [
-  'no-rendered-parent-notification-ui',
-  'no-parent-preference-mutation-runtime',
-  'no-parent-frequency-control-ui',
-  'no-quiet-hours-timer-runtime',
-  'no-provider-delivery-execution',
-  'no-provider-receipt-ingestion-runtime',
-  'no-provider-credentials',
-  'no-cloud-routing',
-  'no-child-device-delivery',
-  'no-mobile-physical-device-proof',
-  'no-authority-proof',
-  'no-retry-worker-runtime',
-  'no-production-durable-history-storage',
-  'no-production-durable-outbox-storage',
-  'no-adapter-dispatch',
-] as const;
 
 const TrackingNotificationParentSurfaceHostedUiValues = {
   NotReported: 'not reported',
   ReferenceSeparator: ' | ',
   SchemaVersion: 'v0.6',
 } as const;
-
-const FalseSchema = Schema.Literal(false);
-const NonNegativeCountSchema = Schema.Number.pipe(Schema.int(), Schema.nonNegative());
-const TrackingNotificationParentSurfaceHistoryStatusSchema = withParser(
-  Schema.Literal(...Object.values(TrackingNotificationParentSurfaceHistoryStatus))
-);
-const TrackingNotificationParentSurfaceHistoryRowSchema = withParser(
-  Schema.Struct({
-    historyRowId: NonEmptyStringSchema,
-    sourceAlertId: NonEmptyStringSchema,
-    sourceProviderNotificationRowId: NonEmptyStringSchema,
-    sourceReceiptBoundaryRowId: NonEmptyStringSchema,
-    sourcePreferencePreflightRowId: NonEmptyStringSchema,
-    status: TrackingNotificationParentSurfaceHistoryStatusSchema,
-    sourcePolicyDecisionId: NonEmptyStringSchema,
-    evidenceRefs: Schema.Array(NonEmptyStringSchema),
-    notificationStatusRefs: Schema.Array(NonEmptyStringSchema),
-    reasonCodeRefs: Schema.Array(NonEmptyStringSchema),
-    providerStatusEntryRef: NonEmptyStringSchema,
-    providerAttemptRef: NonEmptyStringSchema,
-    auditRefs: Schema.Array(NonEmptyStringSchema),
-    providerPreferenceRefs: Schema.Array(NonEmptyStringSchema),
-    parentPreferenceRequirementRefs: Schema.Array(NonEmptyStringSchema),
-    quietHoursRequirementRefs: Schema.Array(NonEmptyStringSchema),
-    receiptRequirementRefs: Schema.Array(NonEmptyStringSchema),
-    manualProofRequirements: Schema.Array(NonEmptyStringSchema),
-    drillInRefs: Schema.Array(NonEmptyStringSchema),
-    redactedParentSummaryRef: NonEmptyStringSchema,
-    renderedParentNotificationUiClaimed: FalseSchema,
-    parentPreferenceMutationRuntimeClaimed: FalseSchema,
-    providerDeliveryClaimed: FalseSchema,
-    receiptIngestionRuntimeClaimed: FalseSchema,
-    childDeviceDeliveryClaimed: FalseSchema,
-    mobilePhysicalDeviceProofClaimed: FalseSchema,
-    authorityProofClaimed: FalseSchema,
-  })
-);
-const TrackingNotificationParentSurfaceHistoryReadModelSchema = withParser(
-  Schema.Struct({
-    schemaVersion: NonEmptyStringSchema,
-    proofId: NonEmptyStringSchema,
-    generatedAt: NonEmptyStringSchema,
-    family: Schema.Struct({
-      familyId: NonEmptyStringSchema,
-    }),
-    sourceProviderNotificationProofRef: NonEmptyStringSchema,
-    sourceReceiptBoundaryProofRef: NonEmptyStringSchema,
-    sourcePreferencePreflightProofRef: NonEmptyStringSchema,
-    sourceContractRefs: Schema.Array(NonEmptyStringSchema),
-    rows: Schema.Array(TrackingNotificationParentSurfaceHistoryRowSchema),
-    historyIntentReadyCount: NonNegativeCountSchema,
-    manualActionRequiredCount: NonNegativeCountSchema,
-    providerUnavailableCount: NonNegativeCountSchema,
-    proofNonClaims: Schema.Array(NonEmptyStringSchema),
-    renderedParentNotificationUiClaimed: FalseSchema,
-    parentPreferenceMutationRuntimeClaimed: FalseSchema,
-    parentFrequencyControlUiClaimed: FalseSchema,
-    quietHoursTimerRuntimeClaimed: FalseSchema,
-    providerDeliveryRuntimeClaimed: FalseSchema,
-    providerReceiptIngestionRuntimeClaimed: FalseSchema,
-    providerCredentialsClaimed: FalseSchema,
-    cloudRoutingClaimed: FalseSchema,
-    childDeviceDeliveryClaimed: FalseSchema,
-    mobilePhysicalDeviceProofClaimed: FalseSchema,
-    authorityProofClaimed: FalseSchema,
-    retryExecutionRuntimeClaimed: FalseSchema,
-    productionDurableHistoryStorageClaimed: FalseSchema,
-    productionDurableOutboxStorageClaimed: FalseSchema,
-    adapterDispatchClaimed: FalseSchema,
-  })
-);
-
-type TrackingNotificationParentSurfaceHistoryRow = Infer<typeof TrackingNotificationParentSurfaceHistoryRowSchema>;
-type TrackingNotificationParentSurfaceHistoryReadModel = Infer<
-  typeof TrackingNotificationParentSurfaceHistoryReadModelSchema
->;
 
 export type TrackingNotificationParentSurfaceHostedUiRow = {
   readonly title: PortalDisplayText;

@@ -7,21 +7,21 @@ import {
   AgentLanBrowserRuntimeCommandSchema,
   AgentLanBrowserRuntimeEventSchema,
   AgentLanPairingSupportedWebSocketCommand,
-  AgentProtocolDefaults,
 } from '../../src/contracts';
 import {
   AgentLanBrowserRuntimeCommandNameLiteral,
   AgentLanBrowserRuntimeEventNameLiteral,
-} from '../../src/lan-pairing-browser-runtime';
+} from '@ocentra-parent/schema-domain/lan-pairing-browser-runtime';
+import { LanPairingSchemaVersion } from '@ocentra-parent/schema-domain/lan-pairing-values';
 
 describe('agent protocol browser-first LAN runtime commands', () => {
   it('parses scan and add-device request contracts for service-backed portal commands', () => {
     const scan = AgentLanBrowserDiscoveryScanRequestSchema.parse({
-      schemaVersion: AgentProtocolDefaults.SchemaVersion,
+      schemaVersion: LanPairingSchemaVersion.V0_9,
       requestedDiscoverySource: 'local-service',
     });
     const addDevice = AgentLanBrowserAddDeviceRequestSchema.parse({
-      schemaVersion: AgentProtocolDefaults.SchemaVersion,
+      schemaVersion: LanPairingSchemaVersion.V0_9,
       childDeviceId: 'child-device-1',
       parentDeviceId: 'parent-device-1',
       routeId: 'lan-route-local-network',

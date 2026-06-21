@@ -4,8 +4,8 @@ import {
   StatusBackendPayloadCustodyEntrySchema,
   StatusBackendPayloadCustodyReadModelSchema,
   StatusBackendPayloadCustodyRequiredDataClasses,
-} from '../../src/status-backend-payload-custody';
-import { StatusBackendPayloadCustodyReadModel } from '../../src/status-backend-payload-custody-read-model';
+} from '@ocentra-parent/schema-domain/status-backend-payload-custody';
+import { StatusBackendPayloadCustodyReadModel } from '@ocentra-parent/schema-domain/status-backend-payload-custody-read-model';
 
 describe('status backend payload custody logging contract', () => {
   it('covers custody retention delete audit export and backend unavailable states', assertCoverage);

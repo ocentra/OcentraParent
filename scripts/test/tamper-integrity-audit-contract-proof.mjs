@@ -13,15 +13,16 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
   await runCommand(
     ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/logging-domain', '--', 'tamper-integrity-audit'])
   );
 
   const { TamperIntegrityAuditRequiredPayloadFields } =
-    await import('@ocentra-parent/logging-domain/tamper-integrity-audit');
+    await import('@ocentra-parent/schema-domain/tamper-integrity-audit');
   const { TamperIntegrityAuditReadModel } =
-    await import('@ocentra-parent/logging-domain/tamper-integrity-audit-read-model');
+    await import('@ocentra-parent/schema-domain/tamper-integrity-audit-read-model');
   const summary = summarizeReadModel(TamperIntegrityAuditReadModel);
   assertPackageExports(TamperIntegrityAuditRequiredPayloadFields, TamperIntegrityAuditReadModel);
   assertReadModel(TamperIntegrityAuditReadModel, summary);
@@ -34,16 +35,16 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/logging-domain/src/tamper-integrity-audit.ts',
-      tsReadModel: 'packages/logging-domain/src/tamper-integrity-audit-read-model.ts',
-      tsContractTest: 'packages/logging-domain/tests/tamper-integrity-audit.test.ts',
+      tsContract: 'packages/schema-domain/src/tamper-integrity-audit.ts',
+      tsReadModel: 'packages/schema-domain/src/tamper-integrity-audit-read-model.ts',
+      tsContractTest: 'packages/logging-domain/tests/unit/tamper-integrity-audit.test.ts',
       featureDoc: 'docs/features/enforcement-integrity-tamper.md',
       expectationDoc: 'docs/expectations/tamper-uninstall-protection.md',
       proofHarness: 'scripts/test/tamper-integrity-audit-contract-proof.mjs',
       proofArtifact: 'test-results/tamper-integrity-audit-contract-proof/proof.json',
       packageExports: [
-        '@ocentra-parent/logging-domain/tamper-integrity-audit',
-        '@ocentra-parent/logging-domain/tamper-integrity-audit-read-model',
+        '@ocentra-parent/schema-domain/tamper-integrity-audit',
+        '@ocentra-parent/schema-domain/tamper-integrity-audit-read-model',
       ],
     },
     counts: summary,

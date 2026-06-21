@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { DevLogBridge, LogLevel, type LogLevel as LogLevelValue } from '../contracts';
+import { DevLogBridge, LogLevel, type LogLevel as LogLevelValue } from '@ocentra-parent/schema-domain/logging-contracts';
 
 export type BridgeMode = 'local' | 'tunnel' | 'disabled';
 

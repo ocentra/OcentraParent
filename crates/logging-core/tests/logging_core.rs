@@ -15,7 +15,7 @@ use ocentra_parent_logging_core::{
     field::{LogFieldValue, LogFields},
     level::LogLevel,
     ndjson_writer::NdjsonWriter,
-    path::{path_string, DEV_LOG_DIR_ENV, LOG_ROOT_ENV},
+    path::{path_string, DEV_LOG_DIR_ENV, LANE_ID_ENV, LOG_ROOT_ENV, LOG_RUN_ID_ENV},
     redaction::{redact_fields, REDACTED_VALUE},
     source::LogSource,
 };
@@ -91,6 +91,12 @@ fn typescript_fixture_deserializes_into_parent_log_event() {
 #[test]
 fn dev_logger_writes_legacy_file_when_compat_dir_is_set() {
     let result = dev_logger_writes_legacy_file_when_compat_dir_is_set_impl();
+    assert!(result.is_ok(), "{result:?}");
+}
+
+#[test]
+fn dev_logger_prefers_shared_runtime_env_names() {
+    let result = dev_logger_prefers_shared_runtime_env_names_impl();
     assert!(result.is_ok(), "{result:?}");
 }
 
@@ -204,5 +210,39 @@ fn dev_logger_writes_legacy_file_when_compat_dir_is_set_impl() -> Result<(), Box
     let value: serde_json::Value = serde_json::from_str(line)?;
     assert!(path_string(&path).contains("agent-service-"));
     assert_eq!(value["message"], "Agent service dev runtime started.");
+    Ok(())
+}
+
+fn dev_logger_prefers_shared_runtime_env_names_impl() -> Result<(), Box<dyn Error>> {
+    let guard = env_lock().lock();
+    assert!(guard.is_ok());
+    let _guard = guard.ok();
+
+    let temp = temp_dir("shared-runtime-env");
+    env::set_var(DEV_LOG_DIR_ENV, &temp);
+    env::set_var(LOG_RUN_ID_ENV, "shared-run-id");
+    env::set_var("OCENTRA_PARENT_CODEX_RUN_ID", "legacy-run-id");
+    env::set_var("LEDGER_LANE", "ledger-lane");
+    env::set_var(LANE_ID_ENV, "shared-lane");
+    env::set_var("OCENTRA_PARENT_CODEX_LANE_ID", "legacy-lane");
+
+    let path = write_agent_info(
+        LogSource::AgentService,
+        "Agent service dev runtime started.",
+        BTreeMap::new(),
+    )?;
+
+    env::remove_var(DEV_LOG_DIR_ENV);
+    env::remove_var(LOG_RUN_ID_ENV);
+    env::remove_var("OCENTRA_PARENT_CODEX_RUN_ID");
+    env::remove_var("LEDGER_LANE");
+    env::remove_var(LANE_ID_ENV);
+    env::remove_var("OCENTRA_PARENT_CODEX_LANE_ID");
+
+    let payload = fs::read_to_string(path)?;
+    let line = payload.lines().next().unwrap_or_default();
+    let value: serde_json::Value = serde_json::from_str(line)?;
+    assert_eq!(value["runId"].as_str(), Some("shared-run-id"));
+    assert_eq!(value["laneId"].as_str(), Some("ledger-lane"));
     Ok(())
 }

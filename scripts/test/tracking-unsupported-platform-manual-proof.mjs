@@ -15,18 +15,18 @@ await rm(resultRoot, { recursive: true, force: true });
 await mkdir(proofRoot, { recursive: true });
 await mkdir(resultRoot, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
   'tracking-unsupported-platform-manual-proof',
 ]);
 
 const proofModule = await import(
-  pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-unsupported-platform-manual-proof.js'))
+  pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', 'tracking-unsupported-platform-manual-proof.js'))
     .href
 );
 const readModel = proofModule.buildTrackingUnsupportedPlatformManualProof(generatedAt);
@@ -45,8 +45,8 @@ const proof = {
     productionClaimReady: false,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-unsupported-platform-manual-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-unsupported-platform-manual-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-unsupported-platform-manual-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-unsupported-platform-manual-proof.test.ts',
     harness: 'scripts/test/tracking-unsupported-platform-manual-proof.mjs',
     evidence: 'test-results/tracking-unsupported-platform-manual-proof/proof.json',
     trackingProofPack: 'output/tracking-plan-proof/unsupported-platform-manual-proof',

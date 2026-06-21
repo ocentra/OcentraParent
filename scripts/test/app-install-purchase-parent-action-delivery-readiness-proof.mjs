@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -13,31 +13,21 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-parent-action-delivery-readiness-proof.test.ts',
+      'tests/unit/app-install-purchase-parent-action-delivery-readiness-proof.test.ts',
     ])
   );
 
   const proofModule = await loadParentActionDeliveryReadinessProofModule();
-  const packageModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-parent-action-delivery-readiness-proof');
-  const parentDomainPackageJson = await loadParentDomainPackageJson();
   const parsedReadModel = proofModule.AppInstallPurchaseParentActionDeliveryReadinessProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseParentActionDeliveryReadinessProof(parsedReadModel);
-  const packageExportKey = './app-install-purchase-parent-action-delivery-readiness-proof';
-
-  assert.equal(packageModule.AppInstallPurchaseParentActionDeliveryReadinessProofReadModel, parsedReadModel);
-  assert.deepEqual(parentDomainPackageJson.exports[packageExportKey], {
-    import: './dist/app-install-purchase-parent-action-delivery-readiness-proof.js',
-    types: './dist/app-install-purchase-parent-action-delivery-readiness-proof.d.ts',
-  });
   assert.deepEqual(summary, {
     parentActionDeliveryReadinessRows: 4,
     parentActionDeliveryReadyRows: 3,
@@ -71,20 +61,22 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-parent-action-delivery-readiness-proof',
     commands,
-    packageExportState: 'validated-public-package-export',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     checklistState: 'validated-product-capability-checklist-row',
     evidence: {
       parentActionDeliveryReadinessContract:
-        'packages/parent-domain/src/app-install-purchase-parent-action-delivery-readiness-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-parent-action-delivery-readiness-proof.ts',
       sourceParentActionRuntimeHandoffContract:
-        'packages/parent-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
       sourceChildDeviceDeliveryRuntimeWriterContract:
-        'packages/parent-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-parent-action-delivery-readiness-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-parent-action-delivery-readiness-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       packageExport:
-        'COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-parent-action-delivery-readiness-proof.',
+        '@ocentra-parent/app-game-domain/app-install-purchase-parent-action-delivery-readiness-proof',
+      packageReadme: 'packages/app-game-domain/package.json',
       checklistRow:
         'COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes parent-action delivery readiness proof.',
       output: relative(repoRoot, proofPath),
@@ -124,16 +116,11 @@ async function loadParentActionDeliveryReadinessProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-parent-action-delivery-readiness-proof.js'
   );
   return import(pathToFileURL(modulePath).href);
-}
-
-async function loadParentDomainPackageJson() {
-  const packageJsonPath = join(repoRoot, 'packages', 'parent-domain', 'package.json');
-  return JSON.parse(await readFile(packageJsonPath, 'utf8'));
 }
 
 async function gitHead() {

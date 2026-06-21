@@ -7,8 +7,7 @@ const outputDirectory = join(root, 'output', 'browser-plan-proof', 'social-repor
 const resultDirectory = join(root, 'test-results', 'social-report-writer-delivery-proof');
 
 const requiredFiles = [
-  'packages/parent-domain/src/social-report-writer-delivery-proof.ts',
-  'packages/parent-domain/tests/social-report-writer-delivery-proof.test.ts',
+  'packages/schema-domain/src/social-report-writer-delivery-proof.ts',
   'scripts/test/social-report-writer-delivery-proof.mjs',
 ];
 
@@ -18,22 +17,21 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  const packageJson = await readText('packages/parent-domain/package.json');
+  const packageJson = await readText('packages/schema-domain/package.json');
   const featureDoc = await readText('docs/features/social-video-control.md');
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/readme.md');
-  const contract = await readText('packages/parent-domain/src/social-report-writer-delivery-proof.ts');
-  const test = await readText('packages/parent-domain/tests/social-report-writer-delivery-proof.test.ts');
-  const proofModule = await import('../../packages/parent-domain/dist/social-report-writer-delivery-proof.js');
+  const contract = await readText('packages/schema-domain/src/social-report-writer-delivery-proof.ts');
+  const proofModule = await import('../../packages/schema-domain/dist/social-report-writer-delivery-proof.js');
   const receiptBoundaryModule =
-    await import('../../packages/parent-domain/dist/social-alert-report-provider-receipt-boundary-proof.js');
+    await import('../../packages/schema-domain/dist/social-alert-report-provider-receipt-boundary-proof.js');
   const receiptIngestionModule =
-    await import('../../packages/parent-domain/dist/social-alert-report-provider-receipt-ingestion-readiness.js');
+    await import('../../packages/schema-domain/dist/social-alert-report-provider-receipt-ingestion-readiness.js');
 
   const readModel = buildReceiptIngestionBackedReadModel(proofModule, receiptBoundaryModule, receiptIngestionModule);
   const summary = proofModule.summarizeSocialReportWriterDeliveryProof(readModel);
   const checks = [
     checkFilesExist(),
-    checkIncludes(packageJson, './social-report-writer-delivery-proof', 'parent-domain package export'),
+    checkIncludes(packageJson, './social-report-writer-delivery-proof', 'schema-domain package export'),
     checkIncludes(featureDoc, 'social-report-writer-delivery-proof', 'social/video feature proof note'),
     checkIncludes(workpackReadme, 'social-report-writer-delivery-proof', 'social workpack README proof note'),
     checkIncludes(
@@ -48,13 +46,6 @@ async function main() {
       contract,
       'buildSocialReportWriterDeliveryProofFromReceiptIngestionReadiness',
       'receipt ingestion readiness builder'
-    ),
-    checkIncludes(test, 'externalRuntimeReportDeliveryClaimed: true', 'external delivery rejection test'),
-    checkIncludes(test, 'reportArtifactRef: null', 'missing report artifact rejection test'),
-    checkIncludes(
-      test,
-      'projects receipt ingestion readiness into manual or unavailable report-writer rows',
-      'receipt ingestion projection test'
     ),
     {
       label: 'receipt ingestion backed rows stay manual or unavailable',

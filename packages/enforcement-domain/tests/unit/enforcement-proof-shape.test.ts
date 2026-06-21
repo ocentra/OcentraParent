@@ -5,7 +5,7 @@ import {
   enforcementProofRequiredUniqueValuesAreCovered,
   enforcementProofRequiredValuesAreCovered,
   enforcementProofValuesAreUnique,
-} from '../../src/enforcement-proof-shape';
+} from '@ocentra-parent/schema-domain/enforcement-proof-shape';
 
 describe('enforcement proof shape predicates', () => {
   it('checks proof row uniqueness and required coverage without accepting duplicate required values', () => {

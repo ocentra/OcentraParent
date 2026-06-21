@@ -27,7 +27,7 @@ pub(crate) mod lan_ai_route_metadata;
 #[path = "../tests/unit/lan_pairing/lan_ai_route_metadata.rs"]
 mod lan_ai_route_metadata_tests;
 
-use ocentra_parent_agent_core::TrustedDeviceRegistry;
+use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
     AgentRoute, DeviceRoleRuntimeReadModel, LanPairingDeviceRef, LanPairingParentAuthority,
@@ -43,7 +43,9 @@ use crate::{
     },
     lan_pairing_browser_runtime::{browser_add_device_request_event, browser_discovery_scan_event},
     lan_pairing_payload::{is_challenge_request, parse_intent, parse_pairing_proof},
-    lan_pairing_runtime_state::{LanAiJobLeaseState, LanAiProviderHeartbeatState},
+    lan_pairing_runtime_state::{
+        job_leases::LanAiJobLeaseState, provider_heartbeat::LanAiProviderHeartbeatState,
+    },
     lan_pairing_status::{pairing_challenge_status_event, pairing_status_event},
     time::timestamp_now,
 };

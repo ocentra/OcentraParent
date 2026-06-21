@@ -1,4 +1,4 @@
-import { V08EnforcementProductControlSpineReadModel } from '@ocentra-parent/enforcement-domain/v0-8-enforcement-product-control-spine';
+import { V08EnforcementProductControlSpineReadModel } from '@ocentra-parent/schema-domain/v0-8-enforcement-product-control-spine';
 import { expect, it } from 'vitest';
 import { parseEnforcementProductControlSpineEvent } from '../../src/enforcement-product-control-adapter';
 import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '../../src/contracts';

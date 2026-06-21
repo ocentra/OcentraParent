@@ -5,7 +5,7 @@ import {
   V08TimerRecoverySurface,
   V08UnmanagedBrowserFallbackProofEntrySchema,
   V08UnmanagedBrowserFallbackSurface,
-} from '../../src/v0-8-browser-enforcement-timer-recovery-proof';
+} from '@ocentra-parent/schema-domain/v0-8-browser-enforcement-timer-recovery-proof';
 import { V08BrowserEnforcementTimerRecoveryProofReadModel } from '../../src/v0-8-browser-enforcement-timer-recovery-proof-values';
 
 describe('V0.8 browser enforcement timer recovery proof', () => {

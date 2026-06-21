@@ -2,8 +2,6 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { NotificationLocalOutboxAdapterProofReadModel } from '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof';
-import { NotificationLocalOutboxSchedulerProofReadModel } from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof';
 import { tsImport } from 'tsx/esm/api';
 import { runNpmCommand } from './run-npm-command.mjs';
 
@@ -51,7 +49,7 @@ async function main() {
   const sourceReceiptProof = JSON.parse(await readFile(sourceReceiptProofPath, 'utf8'));
   const readinessProofModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-notification-local-outbox-readiness-proof.ts')
+      join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-notification-local-outbox-readiness-proof.ts')
     ).href,
     import.meta.url
   );
@@ -69,8 +67,8 @@ async function main() {
       ],
     },
     sourceReceiptProof.readModel,
-    NotificationLocalOutboxAdapterProofReadModel,
-    NotificationLocalOutboxSchedulerProofReadModel
+    (await loadSchemaModule('notification-local-outbox-adapter-proof.ts')).NotificationLocalOutboxAdapterProofReadModel,
+    (await loadSchemaModule('notification-local-outbox-scheduler-proof.ts')).NotificationLocalOutboxSchedulerProofReadModel
   );
 
   const proof = {
@@ -83,7 +81,7 @@ async function main() {
     summary: summarize(readModel),
     nonClaims: nonClaims(readModel),
     proofPaths: {
-      source: 'packages/tracking-domain/src/tracking-notification-local-outbox-readiness-proof.ts',
+      source: 'packages/schema-domain/src/tracking-notification-local-outbox-readiness-proof.ts',
       test: 'packages/tracking-domain/tests/contract/tracking-notification-local-outbox-readiness-proof.test.ts',
       harness: 'scripts/test/tracking-notification-local-outbox-readiness-proof.mjs',
       evidence: 'test-results/tracking-notification-local-outbox-readiness-proof/proof.json',
@@ -106,6 +104,10 @@ async function main() {
 
   console.log('tracking-notification-local-outbox-readiness-proof-ok');
   console.log(`evidence=${join('test-results', proofMode, 'proof.json')}`);
+}
+
+async function loadSchemaModule(fileName) {
+  return tsImport(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', fileName)).href, import.meta.url);
 }
 
 function summarize(readModel) {

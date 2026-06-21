@@ -38,13 +38,13 @@ const commands = [
       '--workspace',
       '@ocentra-parent/agent-protocol-domain',
       '--',
-      'contracts.test.ts',
+      'tests/unit/contracts.test.ts',
     ],
   },
   {
     name: 'portal-domain-command-contracts',
     command: 'cmd',
-    args: ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/portal-domain', '--', 'contracts.test.ts'],
+    args: ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/portal-domain', '--', 'tests/unit/contracts.test.ts'],
   },
   {
     name: 'portal-live-activity-browser-stream-state',
@@ -57,8 +57,8 @@ const commands = [
       '--workspace',
       '@ocentra-parent/portal',
       '--',
-      'live-activity-state.test.ts',
-      'live-activity-browser-status.test.ts',
+      'tests/live-activity-state.test.ts',
+      'tests/live-activity-browser-status.test.ts',
     ],
   },
 ];

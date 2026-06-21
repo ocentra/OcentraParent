@@ -3,7 +3,7 @@ import {
   BrowserExtensionNativeHostBoundarySchema,
   BrowserExtensionNativeHostSchemaVersion,
   BrowserNativeHostMaxMessageLengthBytes,
-} from '../../src/browser';
+} from '@ocentra-parent/schema-domain/browser-extension-native-host-schemas';
 
 describe('browser extension native-host boundary contracts', () => {
   it('accepts managed-profile-only origin and schema validated native-host state', acceptsManagedNativeHostState);

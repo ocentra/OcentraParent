@@ -14,12 +14,12 @@ import {
   ChildRuntimeRemoteAccessDecisionSchema,
   ChildRuntimeStartState,
   ChildRuntimeStorageRemoteUploadState,
-} from '../../src/child-runtime-gates';
+} from '@ocentra-parent/schema-domain/child-runtime-gates';
 import {
   SetupChildInstallState,
   SetupChildServiceState,
   SetupReadinessOverallState,
-} from '@ocentra-parent/setup-domain/readiness';
+} from '@ocentra-parent/schema-domain/setup-readiness';
 
 describe('child runtime gate contracts', () => {
   it('accepts a coherent ready preflight decision with provisioningDecision', () => {

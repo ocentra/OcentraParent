@@ -10,7 +10,7 @@ use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use ocentra_family_identity_core::family_identity::{
-    DeviceOwnershipScope, DeviceTrustState, HouseholdMembership,
+    DeviceOwnershipScope, DeviceTrustState, HouseholdMembershipState,
 };
 use ocentra_family_identity_core::household_authority::{
     authorize_household_action, HouseholdAuthorityDecision, HouseholdAuthorityInput,
@@ -20,8 +20,8 @@ use ocentra_family_identity_core::session_lifecycle::{
     authorize_session_token_action, SessionTokenFailureReason, SessionTokenInput,
 };
 use ocentra_family_identity_core::setup_lifecycle::{
-    authorize_setup_invite, evaluate_recovery_operation, RecoveryDataCustodyHandoffState,
-    RecoveryDecision, RecoveryKind as FamilyRecoveryKind,
+    authorize_setup_invite, device_trust_state_for_recovery_operation, evaluate_recovery_operation,
+    RecoveryDataCustodyHandoffState, RecoveryDecision, RecoveryKind as FamilyRecoveryKind,
     RecoveryOperation as FamilyRecoveryOperation, RecoveryState as FamilyRecoveryState,
     RecoverySupportChannel, SetupInviteFailureReason, SetupInviteInput, SetupInvitePurpose,
     SetupInviteState, SetupInviteTargetRole,
@@ -370,7 +370,7 @@ pub enum ProvisioningAuditState {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProvisioningReadinessInput {
-    pub household_membership: HouseholdMembership,
+    pub membership_state: HouseholdMembershipState,
     pub account_readiness_state: AccountReadinessState,
     pub parent_app_readiness_state: ParentAppReadinessState,
     pub parent_device_registration_state: ParentDeviceRegistrationState,
@@ -551,7 +551,7 @@ pub fn derive_provisioning_readiness_input_from_family_context(
     let recovery_decision = input.recovery_operation.map(evaluate_recovery_operation);
 
     ProvisioningReadinessInput {
-        household_membership: input.household_authority_input.household_membership,
+        membership_state: input.household_authority_input.membership_state,
         account_readiness_state: provisioning_account_state_from_family_context(
             input,
             authority_decision,
@@ -567,7 +567,10 @@ pub fn derive_provisioning_readiness_input_from_family_context(
             input.child_service_state,
         ),
         child_device_ownership_scope: input.household_authority_input.device_ownership_scope,
-        device_trust_state: input.household_authority_input.device_trust_state,
+        device_trust_state: input
+            .recovery_operation
+            .map(device_trust_state_for_recovery_operation)
+            .unwrap_or(input.household_authority_input.device_trust_state),
         permission_readiness_state: input.permission_readiness_state,
         pairing_lifecycle_state: provisioning_pairing_state_from_family_context(
             input,
@@ -649,7 +652,7 @@ pub fn provisioning_action_planned_event(
 fn provisioning_blocker_reason(
     input: ProvisioningReadinessInput,
 ) -> Option<ProvisioningBlockerReason> {
-    if input.household_membership != HouseholdMembership::Member {
+    if input.membership_state != HouseholdMembershipState::Active {
         return Some(ProvisioningBlockerReason::HouseholdMemberRequired);
     }
 
@@ -1212,7 +1215,7 @@ fn provisioning_setup_invite_failure_reason(
         return Some(SetupInviteFailureReason::WrongTargetRole);
     }
 
-    if input.household_membership != HouseholdMembership::Member {
+    if !input.same_family {
         return Some(SetupInviteFailureReason::WrongHousehold);
     }
 

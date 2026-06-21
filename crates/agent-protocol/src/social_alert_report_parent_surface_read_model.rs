@@ -1,4 +1,10 @@
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, RequestId, SchemaVersion};
+use ocentra_eventing::request::{EventResponseContract, RequestEvent};
 use serde::{Deserialize, Serialize};
+
+use crate::constants;
 
 pub const SOCIAL_ALERT_REPORT_PARENT_SURFACE_SCHEMA_VERSION: &str =
     "social-alert-report-parent-surface-read-model";
@@ -130,6 +136,41 @@ pub struct SocialAlertReportParentSurfaceReadModelSnapshot {
     pub enforcement_claimed: bool,
 }
 
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SocialAlertReportParentSurfaceReadModelRequest {
+    pub request_id: RequestId,
+    pub requested_at: String,
+}
+
+impl DomainEvent for SocialAlertReportParentSurfaceReadModelRequest {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(constants::browser::EVENT_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_REQUESTED)?,
+            SchemaVersion::new(constants::browser::EVENT_SCHEMA_VERSION)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        AggregateKey::parse(constants::browser::AGGREGATE_BROWSER_RUNTIME_PREFIX)
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        let mut value = String::from(
+            constants::browser::IDEMPOTENCY_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_PREFIX,
+        );
+        value.push_str(self.request_id.as_str());
+        IdempotencyKey::parse(value)
+    }
+}
+
+impl RequestEvent for SocialAlertReportParentSurfaceReadModelRequest {
+    type Response = SocialAlertReportParentSurfaceReadModelResponse;
+
+    fn request_id(&self) -> Result<RequestId, EventingError> {
+        Ok(self.request_id.clone())
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SocialAlertReportParentSurfaceReadModelRow {
@@ -161,3 +202,10 @@ pub struct SocialAlertReportParentSurfaceReadModelRow {
     pub adapter_dispatch_claimed: bool,
     pub enforcement_claimed: bool,
 }
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SocialAlertReportParentSurfaceReadModelResponse {
+    pub read_model: SocialAlertReportParentSurfaceReadModelSnapshot,
+}
+
+impl EventResponseContract for SocialAlertReportParentSurfaceReadModelResponse {}

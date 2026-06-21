@@ -20,14 +20,15 @@ await mkdir(wp26Dir, { recursive: true });
 await mkdir(wp33Dir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 run('cmd', [
   '/c',
   'npm',
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
   'tracking-notification-parent-surface-history-proof',
   'tracking-notification-receipt-boundary-proof',
@@ -35,11 +36,21 @@ run('cmd', [
   'tracking-provider-notification-proof',
 ]);
 
-const tracking = await importDist('tracking-location-policy.js');
-const providerModule = await importDist('tracking-provider-notification-proof.js');
-const receiptModule = await importDist('tracking-notification-receipt-boundary-proof.js');
-const preferenceModule = await importDist('tracking-notification-preference-preflight-proof.js');
-const historyModule = await importDist('tracking-notification-parent-surface-history-proof.js');
+const tracking = await importSchemaDist('tracking-location-policy.js');
+const preferenceModule = await importSchemaDist('tracking-notification-preference-preflight-proof.js');
+const providerModule = await import(
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'tracking-provider-notification-proof.js')).href
+);
+const receiptModule = await import(
+  pathToFileURL(
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'tracking-notification-receipt-boundary-proof.js')
+  ).href
+);
+const historyModule = await import(
+  pathToFileURL(
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'tracking-notification-parent-surface-history-proof.js')
+  ).href
+);
 const sourceReadModel = tracking.TrackingLocationPolicyReadModelSchema.parse(sourceTrackingReadModel(tracking));
 const providerReadModel = providerModule.buildTrackingProviderNotificationProofReadModel(
   providerOptions(),
@@ -85,8 +96,8 @@ await writeJson(join(wp33Dir, '26-notification-parent-surface-history-proof.json
 console.log('tracking-notification-parent-surface-history-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-notification-parent-surface-history-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function providerOptions() {
@@ -217,8 +228,8 @@ function nonClaims(readModel) {
 
 function proofPaths() {
   return {
-    source: 'packages/parent-domain/src/tracking-notification-parent-surface-history-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-notification-parent-surface-history-proof.test.ts',
+    source: 'packages/schema-domain/src/tracking-notification-parent-surface-history-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-notification-parent-surface-history-proof.test.ts',
     harness: 'scripts/test/tracking-notification-parent-surface-history-proof.mjs',
     evidence: 'test-results/tracking-notification-parent-surface-history-proof/proof.json',
     focusedProofRoot: 'output/tracking-plan-proof/tracking-notification-parent-surface-history-proof',
@@ -268,8 +279,9 @@ async function writeProofPack(path, proof) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-notification-parent-surface-history-proof tracking-notification-receipt-boundary-proof tracking-notification-preference-preflight-proof tracking-provider-notification-proof: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/tracking-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tracking-notification-parent-surface-history-proof tracking-notification-receipt-boundary-proof tracking-notification-preference-preflight-proof tracking-provider-notification-proof: PASS',
       '- Parent-surface history rows preserve source provider, receipt, preference, evidence, policy decision, notification status, reason, audit, drill-in, quiet-hours, and manual proof refs.',
       '- Rows are parent-surface intent/readiness rows only; no rendered notification UI, preference mutation, provider delivery, or receipt runtime is claimed.',
       '',

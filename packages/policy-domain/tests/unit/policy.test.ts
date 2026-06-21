@@ -16,7 +16,7 @@ import {
   parsePolicyPreview,
   parsePolicySchedule,
   resolvePolicyPreviewBudgetBoundaryState,
-} from '../../src/policy';
+} from '@ocentra-parent/schema-domain/policy';
 
 function previewDecision() {
   return {

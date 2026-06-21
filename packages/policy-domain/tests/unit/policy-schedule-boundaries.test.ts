@@ -9,7 +9,7 @@ import {
   PolicyPreviewBudgetBoundaryState,
   parsePolicyScheduleBoundary,
   resolvePolicyPreviewBudgetBoundaryState,
-} from '../../src/policy';
+} from '@ocentra-parent/schema-domain/policy';
 
 function createBoundary() {
   return {

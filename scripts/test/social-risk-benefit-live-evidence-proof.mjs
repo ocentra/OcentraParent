@@ -8,7 +8,7 @@ import {
   BrowserSocialRiskBenefitSignalSetSchema,
   BrowserSocialRiskSignalSchema,
   buildBrowserSocialRiskBenefitSignalSet,
-} from '../../packages/browser-domain/dist/browser-social-riskbenefit-signals.js';
+} from '@ocentra-parent/schema-domain/browser-social-riskbenefit-signals';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -19,12 +19,12 @@ const testResultPath = join(repoRoot, 'test-results/social-risk-benefit-live-evi
 const observedAt = new Date().toISOString();
 
 const sourceFiles = [
-  'packages/browser-domain/src/browser-social-riskbenefit-values.ts',
-  'packages/browser-domain/src/browser-social-riskbenefit-signals.ts',
+  'packages/schema-domain/src/browser-social-riskbenefit-values.ts',
+  'packages/schema-domain/src/browser-social-riskbenefit-signals.ts',
 ];
 const builtFiles = [
-  'packages/browser-domain/dist/browser-social-riskbenefit-values.js',
-  'packages/browser-domain/dist/browser-social-riskbenefit-signals.js',
+  'packages/schema-domain/dist/browser-social-riskbenefit-values.js',
+  'packages/schema-domain/dist/browser-social-riskbenefit-signals.js',
 ];
 
 assertBuiltContractsAreFresh();

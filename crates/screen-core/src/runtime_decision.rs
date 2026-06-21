@@ -1,8 +1,8 @@
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
 use ocentra_parent_agent_protocol::child_domain_runtime::ChildDomainObservedEvent;
-use ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus;
 use ocentra_parent_screen_capture_adapter::{
     trigger_scheduler::ScreenCaptureScheduleDecision, ScreenCaptureAttempt,
 };

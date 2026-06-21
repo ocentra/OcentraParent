@@ -28,7 +28,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/support-backend-provider-runtime-readiness.test.ts',
+      'tests/unit/support-backend-provider-runtime-readiness.test.ts',
     ])
   );
 
@@ -44,9 +44,9 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/support-backend-provider-runtime-readiness.ts',
-      readModel: 'packages/logging-domain/src/support-backend-provider-runtime-readiness-read-model.ts',
-      contractTest: 'packages/logging-domain/tests/support-backend-provider-runtime-readiness.test.ts',
+      contract: 'packages/schema-domain/src/support-backend-provider-runtime-readiness.ts',
+      readModel: 'packages/schema-domain/src/support-backend-provider-runtime-readiness-read-model.ts',
+      contractTest: 'packages/logging-domain/tests/unit/support-backend-provider-runtime-readiness.test.ts',
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
       featureDoc: 'docs/features/production-distribution-support.md',
@@ -57,15 +57,15 @@ async function main() {
         'docs/expectations/static-analysis-security.md',
       ],
       packageExports: [
-        '@ocentra-parent/logging-domain/support-backend-provider-runtime-readiness',
-        '@ocentra-parent/logging-domain/support-backend-provider-runtime-readiness-read-model',
+        '@ocentra-parent/schema-domain/support-backend-provider-runtime-readiness',
+        '@ocentra-parent/schema-domain/support-backend-provider-runtime-readiness-read-model',
       ],
     },
     claimsProved: [
       'Support backend provider runtime readiness rows compose existing upload execution, custody audit, provider-secret readiness, account/SLA, privacy/legal, and case status proof refs.',
       'Rows cover upload runtime linked, provider-secret preflight linked, billing provider manual-required, account lookup manual-required, legal disclosure manual-required, remote support manual-required, SLA manual-required, and support-safe audit export states.',
       'Rows disclose only support-safe status refs and manual proof refs while preserving no Ocentra-hosted family data as the custody state.',
-      'Package exports expose the support backend provider runtime readiness contract and read model through @ocentra-parent/logging-domain.',
+      'Package exports expose the support backend provider runtime readiness contract and read model through @ocentra-parent/schema-domain.',
       'Rows reject provider secrets, payment provider tokens, raw child activity, raw support bundle payloads, account lookup results, billing provider contact records, remote support transcripts, support backend upload execution, provider-secret delivery, account lookup execution, billing provider contact execution, legal disclosure execution, remote support sessions, production SLA, and default Ocentra-hosted family data.',
     ],
     claimsNotProved: [
@@ -147,17 +147,17 @@ function assertReadModel(readModel) {
 }
 
 async function assertPackageExports() {
-  const contract = await import('@ocentra-parent/logging-domain/support-backend-provider-runtime-readiness');
+  const contract = await import('@ocentra-parent/schema-domain/support-backend-provider-runtime-readiness');
   const readModel =
-    await import('@ocentra-parent/logging-domain/support-backend-provider-runtime-readiness-read-model');
+    await import('@ocentra-parent/schema-domain/support-backend-provider-runtime-readiness-read-model');
   assert.equal(typeof contract.SupportBackendProviderRuntimeReadinessReadModelSchema.parse, 'function');
   assert.equal(readModel.SupportBackendProviderRuntimeReadinessReadModel.entries.length, 8);
 }
 
 async function assertLinkedProofExports() {
-  const upload = await import('@ocentra-parent/logging-domain/support-backend-upload-execution-runtime-read-model');
-  const custody = await import('@ocentra-parent/logging-domain/support-backend-upload-custody-audit-read-model');
-  const provider = await import('@ocentra-parent/logging-domain/provider-secret-execution-readiness-read-model');
+  const upload = await import('@ocentra-parent/schema-domain/support-backend-upload-execution-runtime-read-model');
+  const custody = await import('@ocentra-parent/schema-domain/support-backend-upload-custody-audit-read-model');
+  const provider = await import('@ocentra-parent/schema-domain/provider-secret-execution-readiness-read-model');
   assert.equal(upload.SupportBackendUploadExecutionRuntimeReadModel.entries.length, 7);
   assert.equal(custody.SupportBackendUploadCustodyAuditReadModel.entries.length, 5);
   assert.equal(provider.ProviderSecretExecutionReadinessReadModel.entries.length, 7);

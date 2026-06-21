@@ -15,15 +15,15 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-windows-package-source-adapter-evidence.test.ts',
+      'tests/unit/app-install-purchase-windows-package-source-adapter-evidence.test.ts',
     ])
   );
 
@@ -31,16 +31,6 @@ async function main() {
   await writeFile(hostEvidencePath, `${JSON.stringify(hostEvidenceArtifact, null, 2)}\n`);
 
   const proofModule = await loadProofModule();
-  const packageProofModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-windows-package-source-adapter-evidence');
-  assert.equal(
-    packageProofModule.AppInstallPurchaseWindowsPackageSourceAdapterEvidenceProofReadModel.schemaVersion,
-    proofModule.AppInstallPurchaseWindowsPackageSourceAdapterEvidenceProofReadModel.schemaVersion
-  );
-  assert.equal(
-    packageProofModule.AppInstallPurchaseWindowsPackageSourceRuntimeHandoffProofReadModel.schemaVersion,
-    proofModule.AppInstallPurchaseWindowsPackageSourceRuntimeHandoffProofReadModel.schemaVersion
-  );
 
   const parsedReadModel =
     proofModule.buildAppInstallPurchaseWindowsPackageSourceAdapterEvidenceProof(hostEvidenceArtifact);
@@ -80,25 +70,26 @@ async function main() {
     proofMode: 'app-install-purchase-windows-package-source-adapter-evidence',
     baseMainState: 'after-pr487-platform-adapter-evidence-gap-proof-merged',
     commands,
-    packageExportState: 'validated-via-public-parent-domain-subpath-export',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     checklistState: 'updated-app-install-purchase-approval-row',
     evidence: {
       windowsPackageSourceAdapterEvidenceContract:
-        'packages/parent-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts',
+        'packages/app-game-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts',
       windowsPackageSourceRuntimeHandoffContract:
-        'packages/parent-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts',
+        'packages/app-game-domain/src/app-install-purchase-windows-package-source-adapter-evidence.ts',
       sourcePlatformAdapterEvidenceGapContract:
-        'packages/parent-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts',
       sourcePackageSourceAdapterExecutionContract:
-        'packages/parent-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-windows-package-source-adapter-evidence.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-windows-package-source-adapter-evidence.test.ts',
       hostEvidenceArtifact: relative(repoRoot, hostEvidencePath),
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistDoc: 'docs/product-capability-checklist.md',
-      packageReadme: 'packages/parent-domain/README.md',
-      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-windows-package-source-adapter-evidence',
+      packageReadme: 'packages/app-game-domain/package.json',
+      packageExportDeferred:
+        'packages/app-game-domain/package.json does not currently publish this proof as a public subpath export.',
       output: relative(repoRoot, proofPath),
     },
     windowsHostEvidenceSummary: {
@@ -168,7 +159,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-windows-package-source-adapter-evidence.js'
   );

@@ -3,7 +3,7 @@ import {
   LocalAiTextLlmAdapterBoundaryInputSchema,
   LocalAiTextLlmAdapterBoundaryProofSchema,
   proveLocalAiTextLlmAdapterBoundary,
-} from '../../src/local-ai-text-llm-adapter-boundary-proof';
+} from '@ocentra-parent/schema-domain/local-ai-text-llm-adapter-boundary-proof';
 
 describe('local AI text LLM adapter boundary proof', () => {
   it('marks schema-valid local runtime input ready for the local adapter without executing a model', provesReady);

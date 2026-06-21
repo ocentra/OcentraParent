@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import {
   PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
@@ -129,11 +129,15 @@ function summarizeManageItem(item: ParentPortalNavItem) {
 }
 
 function expectManageItemOrder(): void {
-    expect(manageNavItems().map((item) => item.routePath)).toEqual([
+  expect(manageNavItems().map((item) => item.routePath)).toEqual([
     portalRouteHashPath(PortalRoute.SettingsRules),
     portalRouteHashPath(PortalRoute.Devices),
     portalRouteHashPath(PortalRoute.Activity),
     portalRouteHashPath(PortalRoute.BrowserSettings),
+    portalRouteHashPath(PortalRoute.RuleManagement),
+    portalRouteHashPath(PortalRoute.Schedules),
+    portalRouteHashPath(PortalRoute.Approvals),
+    portalRouteHashPath(PortalRoute.Enforcement),
     portalRouteHashPath(PortalRoute.PolicyApps),
     portalRouteHashPath(PortalRoute.PolicyGames),
     portalRouteHashPath(PortalRoute.PolicyScreen),
@@ -321,6 +325,10 @@ describe('portal guide route contracts', () => {
     );
     expect(policyRoutes).toEqual([
       portalRouteHashPath(PortalRoute.BrowserSettings),
+      portalRouteHashPath(PortalRoute.RuleManagement),
+      portalRouteHashPath(PortalRoute.Schedules),
+      portalRouteHashPath(PortalRoute.Approvals),
+      portalRouteHashPath(PortalRoute.Enforcement),
       portalRouteHashPath(PortalRoute.PolicyApps),
       portalRouteHashPath(PortalRoute.PolicyGames),
       portalRouteHashPath(PortalRoute.PolicyScreen),
@@ -328,10 +336,6 @@ describe('portal guide route contracts', () => {
       portalRouteHashPath(PortalRoute.PolicyTracking),
       portalRouteHashPath(PortalRoute.PolicyRemoteScreen),
     ]);
-    expect(manageItems.some((item) => item.routePath === portalRouteHashPath(PortalRoute.RuleManagement))).toBe(false);
-    expect(manageItems.some((item) => item.routePath === portalRouteHashPath(PortalRoute.Schedules))).toBe(false);
-    expect(manageItems.some((item) => item.routePath === portalRouteHashPath(PortalRoute.Approvals))).toBe(false);
-    expect(manageItems.some((item) => item.routePath === portalRouteHashPath(PortalRoute.Enforcement))).toBe(false);
     expect(guideAi?.routePath).toBe(portalRouteHashPath(PortalRoute.AiGuide));
     expect(guideReports?.routePath).toBe(portalRouteHashPath(PortalRoute.ReportsGuide));
     expect(parentPortalRouteContext(PortalRoute.Policy).pageMode).toBe('parentGuide');
@@ -457,6 +461,10 @@ describe('portal manage section contracts', () => {
     expectManageItemOrder();
     expectManageSectionRoutes(PARENT_PORTAL_NAV_LABELS.Policies, [
       portalRouteHashPath(PortalRoute.BrowserSettings),
+      portalRouteHashPath(PortalRoute.RuleManagement),
+      portalRouteHashPath(PortalRoute.Schedules),
+      portalRouteHashPath(PortalRoute.Approvals),
+      portalRouteHashPath(PortalRoute.Enforcement),
       portalRouteHashPath(PortalRoute.PolicyApps),
       portalRouteHashPath(PortalRoute.PolicyGames),
       portalRouteHashPath(PortalRoute.PolicyScreen),

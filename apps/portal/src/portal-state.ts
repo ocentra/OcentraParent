@@ -1,15 +1,17 @@
 import {
   AgentEvent,
-  AgentProtocolDefaults,
   type AgentEventEnvelope,
   type AgentEventName,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import {
   type AgentMessageTarget,
   type AgentWebSocketUrl,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
-import type { AgentLogSnapshot } from '@ocentra-parent/logging-domain/contracts';
+} from '@ocentra-parent/schema-domain/event-primitives';
+import type { AgentLogSnapshot } from '@ocentra-parent/schema-domain/logging-contracts';
 import {
   PortalConnectionState,
-  type PortalConnectionState as PortalConnectionStateValue,
+  type PortalConnectionStateValue,
 } from '@ocentra-parent/portal-domain/contracts';
 
 export interface PortalRuntimeState {

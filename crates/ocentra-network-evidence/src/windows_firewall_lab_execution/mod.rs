@@ -1,11 +1,9 @@
-mod types;
+pub mod types;
 mod validation;
 
-pub use types::{
-    NetworkWindowsFirewallLabCommandEvidence, NetworkWindowsFirewallLabCommandKind,
+use types::{
     NetworkWindowsFirewallLabExecutionError, NetworkWindowsFirewallLabExecutionInput,
     NetworkWindowsFirewallLabExecutionProof, NetworkWindowsFirewallLabExecutionState,
-    NetworkWindowsFirewallLabUnsupportedClaims,
 };
 
 use validation::{command_flags, execution_state, normalize_input};

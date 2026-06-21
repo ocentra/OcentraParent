@@ -13,26 +13,19 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-external-runtime-device-delivery-proof.test.ts',
+      'tests/unit/app-install-purchase-external-runtime-device-delivery-proof.test.ts',
     ])
   );
 
   const proofModule = await loadExternalRuntimeDeviceDeliveryProofModule();
-  const packageProofModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-device-delivery-proof');
-  assert.equal(
-    packageProofModule.AppInstallPurchaseExternalRuntimeDeviceDeliveryProofReadModel.schemaVersion,
-    proofModule.AppInstallPurchaseExternalRuntimeDeviceDeliveryProofReadModel.schemaVersion
-  );
-
   const parsedReadModel = proofModule.AppInstallPurchaseExternalRuntimeDeviceDeliveryProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseExternalRuntimeDeviceDeliveryProof(parsedReadModel);
 
@@ -67,21 +60,22 @@ async function main() {
     commitMetadataState: 'omitted-for-deterministic-proof-artifact',
     proofMode: 'app-install-purchase-external-runtime-device-delivery-proof',
     commands,
-    packageExportState: 'validated-via-public-parent-domain-subpath-export',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     checklistState: 'updated-app-install-purchase-approval-row',
     evidence: {
       externalRuntimeDeviceDeliveryContract:
-        'packages/parent-domain/src/app-install-purchase-external-runtime-device-delivery-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-external-runtime-device-delivery-proof.ts',
       sourceRuntimeWriterExecutionDeliveryContract:
-        'packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts',
       sourceChildDeviceDeliveryRuntimeWriterContract:
-        'packages/parent-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-external-runtime-device-delivery-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-external-runtime-device-delivery-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-external-runtime-device-delivery-proof',
-      packageReadme: 'packages/parent-domain/README.md',
+      packageReadme: 'packages/app-game-domain/package.json',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
       output: relative(repoRoot, proofPath),
     },
@@ -126,7 +120,7 @@ async function loadExternalRuntimeDeviceDeliveryProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-external-runtime-device-delivery-proof.js'
   );

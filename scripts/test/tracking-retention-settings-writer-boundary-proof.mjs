@@ -26,12 +26,12 @@ await mkdir(wp32ProofDir, { recursive: true });
 await mkdir(wp33ProofDir, { recursive: true });
 await mkdir(companionDir, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
   'tracking-retention-settings-writer-boundary-proof',
   'tracking-retention-settings-read-model-proof',
@@ -50,8 +50,8 @@ const proof = {
   proofClaims: proofModel.proofClaims,
   productClaims: proofModel.productClaims,
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-retention-settings-writer-boundary-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-retention-settings-writer-boundary-proof.test.ts',
+    source: 'packages/schema-domain/src/tracking-retention-settings-writer-boundary-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-retention-settings-writer-boundary-proof.test.ts',
     harness: 'scripts/test/tracking-retention-settings-writer-boundary-proof.mjs',
     evidence: 'test-results/tracking-retention-settings-writer-boundary-proof/proof.json',
     retentionProofPack:
@@ -77,7 +77,7 @@ console.log('tracking-retention-settings-writer-boundary-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-retention-settings-writer-boundary-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function summarize(rows) {
@@ -173,8 +173,8 @@ async function writeCompanionPack(path, proof) {
       proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
       '```',
       '',
-      '- Scope: parent-domain retention settings writer intent/preflight rows consuming existing read-model proof refs.',
-      '- Source inspected: location/geofence feature doc, WP07, WP32, parent-domain README, and retention settings read-model proof.',
+      '- Scope: schema-domain retention settings writer intent/preflight rows consuming existing read-model proof refs.',
+      '- Source inspected: location/geofence feature doc, WP07, WP32, and retention settings read-model proof.',
       '',
     ].join('\n'),
     'utf8'
@@ -184,9 +184,9 @@ async function writeCompanionPack(path, proof) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-settings-writer-boundary-proof tracking-retention-settings-read-model-proof: PASS',
-      '- Writer rows parse through parent-domain schemas for retention window, delete-after-alert, parent export, remote sync disabled, and remote AI disabled settings.',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tracking-retention-settings-writer-boundary-proof tracking-retention-settings-read-model-proof: PASS',
+      '- Writer rows parse through schema-domain schemas for retention window, delete-after-alert, parent export, remote sync disabled, and remote AI disabled settings.',
       '',
     ].join('\n'),
     'utf8'

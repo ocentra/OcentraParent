@@ -3,8 +3,8 @@ import {
   ProductionSupportLegalProviderReadinessProofSchema,
   ProductionSupportLegalProviderReadinessRowSchema,
   summarizeProductionSupportLegalProviderReadinessRows,
-} from '../../src/production-support-legal-provider-readiness-proof';
-import { ProductionSupportLegalProviderReadinessReadModel } from '../../src/production-support-legal-provider-readiness-read-model';
+} from '@ocentra-parent/schema-domain/production-support-legal-provider-readiness-proof';
+import { ProductionSupportLegalProviderReadinessReadModel } from '@ocentra-parent/schema-domain/production-support-legal-provider-readiness-read-model';
 
 describe('production support legal provider readiness proof', () => {
   acceptsLegalProviderReadinessRows();

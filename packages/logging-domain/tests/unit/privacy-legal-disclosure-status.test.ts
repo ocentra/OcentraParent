@@ -4,8 +4,8 @@ import {
   PrivacyLegalDisclosureEntrySchema,
   PrivacyLegalDisclosureReadModelSchema,
   PrivacyLegalDisclosureRequiredDataClasses,
-} from '../../src/privacy-legal-disclosure-status';
-import { PrivacyLegalDisclosureReadModel } from '../../src/privacy-legal-disclosure-status-read-model';
+} from '@ocentra-parent/schema-domain/privacy-legal-disclosure-status';
+import { PrivacyLegalDisclosureReadModel } from '@ocentra-parent/schema-domain/privacy-legal-disclosure-status-read-model';
 
 describe('privacy legal disclosure status logging contract', () => {
   it('covers privacy legal disclosure lifecycle states', () => {

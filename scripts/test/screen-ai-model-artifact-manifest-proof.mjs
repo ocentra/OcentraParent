@@ -1,7 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const RepoRoot = process.cwd();
 const OutputRoot = resolve(RepoRoot, 'output', 'ai-plan-proof', 'screen-ai-model-artifact-manifest-proof');
@@ -10,9 +9,11 @@ const ProofPath = join(OutputRoot, 'proof-summary.json');
 const TestResultPath = join(TestResultRoot, 'proof.json');
 const generatedAt = new Date().toISOString();
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
-const { buildScreenAiModelArtifactManifestProof } = await importDist('screen-ai-model-artifact-manifest-proof.js');
+const { buildScreenAiModelArtifactManifestProof } = await import(
+  '@ocentra-parent/schema-domain/screen-ai-model-artifact-manifest-proof'
+);
 
 const manifest = buildScreenAiModelArtifactManifestProof({
   schemaVersion: 'v0.6',
@@ -105,10 +106,6 @@ mkdirSync(TestResultRoot, { recursive: true });
 writeFileSync(ProofPath, `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(TestResultPath, `${JSON.stringify({ status: 'ok', proof: relativePath(ProofPath) }, null, 2)}\n`);
 console.log(`screen-ai-model-artifact-manifest-proof-ok:${ProofPath}`);
-
-function importDist(fileName) {
-  return import(pathToFileURL(resolve(RepoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
-}
 
 function relativePath(filePath) {
   return relative(RepoRoot, filePath).replaceAll('\\', '/');

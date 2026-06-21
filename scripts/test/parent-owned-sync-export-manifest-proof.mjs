@@ -14,7 +14,7 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
@@ -76,10 +76,10 @@ async function main() {
     proofMode: 'parent-owned-sync-export-manifest-proof',
     commands,
     evidence: {
-      contract: 'packages/production-domain/src/parent-owned-sync-export.ts',
+      contract: 'packages/schema-domain/src/parent-owned-sync-export.ts',
       contractTest: 'packages/production-domain/tests/unit/parent-owned-sync-export.test.ts',
-      builtModule: 'packages/production-domain/dist/src/parent-owned-sync-export.js',
-      packageExport: '@ocentra-parent/production-domain/parent-owned-sync-export',
+      builtModule: 'packages/schema-domain/dist/parent-owned-sync-export.js',
+      packageExport: '@ocentra-parent/schema-domain/parent-owned-sync-export',
       featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDoc: 'docs/expectations/sync-export.md',
       output: relative(repoRoot, proofPath),
@@ -110,12 +110,12 @@ async function main() {
 }
 
 async function loadContractProofModule() {
-  const modulePath = join(repoRoot, 'packages', 'production-domain', 'dist', 'src', 'parent-owned-sync-export.js');
+  const modulePath = join(repoRoot, 'packages', 'schema-domain', 'dist', 'parent-owned-sync-export.js');
   return import(pathToFileURL(modulePath).href);
 }
 
 async function assertPackageExport(proofModule) {
-  const exportedModule = await import('@ocentra-parent/production-domain/parent-owned-sync-export');
+  const exportedModule = await import('@ocentra-parent/schema-domain/parent-owned-sync-export');
   assert.equal(
     exportedModule.ParentOwnedSyncExportContractProofReadModel.manifest.manifestId,
     proofModule.ParentOwnedSyncExportContractProofReadModel.manifest.manifestId

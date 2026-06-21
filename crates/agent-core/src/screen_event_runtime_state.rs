@@ -1,58 +1,12 @@
-use ocentra_parent_agent_protocol::constants;
-use serde::{Deserialize, Serialize};
+use ocentra_parent_agent_protocol::{constants, ScreenRuntimePhase};
 
-use crate::screen_event_runtime_phase::ScreenRuntimePhase;
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ScreenEvidenceScope {
-    EncryptedLocalImage,
-    DeletedQueryStoreSummary,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ScreenAiAuditState {
-    NotRequested,
-    Requested,
-    Completed,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ScreenPolicyState {
-    NotReady,
-    ReadyForDryRun,
-    Completed,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ScreenActionState {
-    NotReady,
-    DryRunRecorded,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ScreenDeletionState {
-    Pending,
-    Committed,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ScreenRuntimeClaimBoundary {
-    pub raw_image_available_to_ai_provider: bool,
-    pub raw_image_available_to_policy: bool,
-    pub raw_image_available_to_portal: bool,
-    pub adapter_action_executed: bool,
-}
-
-impl ScreenRuntimeClaimBoundary {
-    pub(crate) fn child_owned_no_raw_escape() -> Self {
-        Self {
-            raw_image_available_to_ai_provider: false,
-            raw_image_available_to_policy: false,
-            raw_image_available_to_portal: false,
-            adapter_action_executed: false,
-        }
-    }
-}
+pub(crate) type ScreenEvidenceScope = ocentra_parent_agent_protocol::ScreenEvidenceScope;
+pub(crate) type ScreenAiAuditState = ocentra_parent_agent_protocol::ScreenAiAuditState;
+pub(crate) type ScreenPolicyState = ocentra_parent_agent_protocol::ScreenPolicyState;
+pub(crate) type ScreenActionState = ocentra_parent_agent_protocol::ScreenActionState;
+pub(crate) type ScreenDeletionState = ocentra_parent_agent_protocol::ScreenDeletionState;
+pub(crate) type ScreenRuntimeClaimBoundary =
+    ocentra_parent_agent_protocol::ScreenRuntimeClaimBoundary;
 
 pub(crate) fn evidence_scope(phase: ScreenRuntimePhase) -> ScreenEvidenceScope {
     match phase {

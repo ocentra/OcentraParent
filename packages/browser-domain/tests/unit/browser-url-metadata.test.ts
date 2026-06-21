@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserUrlMetadataEvidenceSchema, BrowserUrlMetadataSchemaVersion } from '../../src/browser';
+import {
+  BrowserUrlMetadataEvidenceSchema,
+  BrowserUrlMetadataSchemaVersion,
+} from '@ocentra-parent/schema-domain/browser-url-metadata-schemas';
 
 describe('browser URL metadata evidence available contract', () => {
   it('accepts evidence-backed metadata that can drive AI input but not authority claims', () => {

@@ -15,21 +15,23 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
 
   await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/enforcement-domain',
       '--',
-      'enforcement-host-adapter-preflight',
+      'enforcement-host-adapter-preflight.test.ts',
     ])
   );
 
   const { EnforcementBroadAdapterCapability, V08BroadOsAdapterReadinessMatrix } =
-    await import('../../packages/parent-domain/dist/enforcement-readiness.js');
+    await import('../../packages/schema-domain/dist/enforcement-readiness.js');
   const { V08HostAdapterProofPreflightMatrix } =
-    await import('../../packages/parent-domain/dist/enforcement-host-adapter-preflight.js');
+    await import('../../packages/schema-domain/dist/enforcement-host-adapter-preflight.js');
   const proofMatrix = JSON.parse(await readFile(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json')));
 
   assertPreflightMatrix(V08HostAdapterProofPreflightMatrix, V08BroadOsAdapterReadinessMatrix);
@@ -43,9 +45,9 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      preflightContract: 'packages/parent-domain/src/enforcement-host-adapter-preflight.ts',
-      preflightTest: 'packages/parent-domain/tests/enforcement-host-adapter-preflight.test.ts',
-      readinessContract: 'packages/parent-domain/src/enforcement-readiness.ts',
+      preflightContract: 'packages/schema-domain/src/enforcement-host-adapter-preflight.ts',
+      preflightTest: 'packages/enforcement-domain/tests/unit/enforcement-host-adapter-preflight.test.ts',
+      readinessContract: 'packages/schema-domain/src/enforcement-readiness.ts',
       proofMatrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/v0-8-host-adapter-proof-preflight-2026-05-29.md',
     },

@@ -3,48 +3,8 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Shared AI boundary contracts for UI-facing schemas and runtime protocol handoff.",
+  "description": "AI-domain package identity and focused tests; canonical shared AI contracts live in @ocentra-parent/schema-domain.",
   "exports": {
-    "./*": {
-      "import": "./dist/*.js",
-      "types": "./dist/*.d.ts"
-    },
-    "./local-ai-context": {
-      "import": "./dist/local-ai-context.js",
-      "types": "./dist/local-ai-context.d.ts"
-    },
-    "./local-ai-context-builder": {
-      "import": "./dist/local-ai-context-builder.js",
-      "types": "./dist/local-ai-context-builder.d.ts"
-    },
-    "./local-ai-model-artifacts": {
-      "import": "./dist/local-ai-model-artifacts.js",
-      "types": "./dist/local-ai-model-artifacts.d.ts"
-    },
-    "./local-ai-primitives": {
-      "import": "./dist/local-ai-primitives.js",
-      "types": "./dist/local-ai-primitives.d.ts"
-    },
-    "./local-ai-runtime": {
-      "import": "./dist/local-ai-runtime.js",
-      "types": "./dist/local-ai-runtime.d.ts"
-    },
-    "./local-ai-provider-scheduler": {
-      "import": "./dist/local-ai-provider-scheduler.js",
-      "types": "./dist/local-ai-provider-scheduler.d.ts"
-    },
-    "./context-primitives": {
-      "import": "./dist/context-primitives.js",
-      "types": "./dist/context-primitives.d.ts"
-    },
-    "./primitives": {
-      "import": "./dist/primitives.js",
-      "types": "./dist/primitives.d.ts"
-    },
-    "./references": {
-      "import": "./dist/references.js",
-      "types": "./dist/references.d.ts"
-    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
@@ -58,7 +18,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
     "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/lan-domain": "file:../lan-domain",
     "@ocentra-parent/policy-domain": "file:../policy-domain",

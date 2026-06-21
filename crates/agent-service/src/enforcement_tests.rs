@@ -1,7 +1,9 @@
 use std::fs::{read, read_to_string, remove_file};
 
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::enforcement_readiness::broad_os_adapter_readiness;
-use ocentra_parent_agent_core::{ActivityJournal, ActivityStore, JournalKey, JOURNAL_KEY_BYTES};
+use ocentra_parent_agent_core::journal::ActivityJournal;
+use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope,
     AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,

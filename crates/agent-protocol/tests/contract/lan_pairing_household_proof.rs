@@ -1,6 +1,7 @@
-use ocentra_parent_agent_protocol::{
-    constants, LanPairingDeviceReachability, LanPairingProductionDiscoveryState,
-    LanPairingRejectionReason, LanPairingTrustState, V09ProductionDiscoveryHouseholdCheck,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing::{
+    LanPairingDeviceReachability, LanPairingProductionDiscoveryState, LanPairingRejectionReason,
+    LanPairingTrustState, V09ProductionDiscoveryHouseholdCheck,
     V09ProductionDiscoveryHouseholdManualChecklistItem,
     V09ProductionDiscoveryHouseholdManualProofGate, V09ProductionDiscoveryHouseholdProofBoundary,
     V09ProductionDiscoveryHouseholdProofReadModel, V09ProductionDiscoveryHouseholdProofState,

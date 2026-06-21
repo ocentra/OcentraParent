@@ -8,6 +8,7 @@ const repoRoot = join(__dirname, '..', '..');
 const proofDir = join(repoRoot, 'output', 'screen-plan-proof', 'raw-retention-runtime');
 const proofPath = join(proofDir, 'proof-summary.json');
 
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 run('cargo', [
   'test',
@@ -19,9 +20,17 @@ run('cargo', [
 ]);
 run('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'screen_settings_runtime_', '--', '--nocapture']);
 
-const screenEvidence = await import(
-  pathToFileURL(join(repoRoot, 'packages', 'activity-domain', 'dist', 'screen-evidence.js')).href
+const screenEvidenceSettingsModule = await import(
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-evidence-settings.js')).href
 );
+const screenEvidencePrimitivesModule = await import(
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-evidence-primitives.js')).href
+);
+
+const screenEvidence = {
+  ScreenAnalysisParentSettingSchema: screenEvidenceSettingsModule.ScreenAnalysisParentSettingSchema,
+  ScreenEvidenceSchemaVersion: screenEvidencePrimitivesModule.ScreenEvidenceSchemaVersion,
+};
 
 const approved = screenEvidence.ScreenAnalysisParentSettingSchema.parse({
   schemaVersion: screenEvidence.ScreenEvidenceSchemaVersion,

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import type { ParentMobileServiceAvailabilityState } from '../../src/parent-mobile-runtime';
+import type { ParentMobileServiceAvailabilityState } from '@ocentra-parent/schema-domain/parent-mobile-runtime';
 import {
   V09MobileControllerObserverRuntimeReadModelSchema,
   type V09MobileControllerObserverOperation,
   type V09MobileControllerObserverRouteKind,
-} from '../../src/v0-9-mobile-controller-observer-runtime';
+} from '@ocentra-parent/schema-domain/v0-9-mobile-controller-observer-runtime';
 
 const CheckedAt = '2026-05-29T20:35:00.000Z';
 

@@ -6,7 +6,7 @@ import { dirname, join, relative } from 'node:path';
 import {
   BrowserGameDashboardPanelSchema,
   BrowserGameDashboardUxSnapshotSchema,
-} from '../../packages/parent-domain/dist/browser-game-dashboard-ux.js';
+} from '@ocentra-parent/schema-domain/browser-game-dashboard-ux';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-dashboard-ux-live-evidence-proof';

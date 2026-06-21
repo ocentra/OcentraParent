@@ -13,6 +13,7 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
   await runCommand(
     ...npmCommand([
@@ -41,13 +42,13 @@ async function main() {
   ]);
 
   const { V08BroadOsAdapterProofReadModel } =
-    await import('@ocentra-parent/enforcement-domain/v0-8-broad-os-adapter-proof');
+    await import('@ocentra-parent/schema-domain/v0-8-broad-os-adapter-proof');
   const { V08OsAdapterProductProofReadModel } =
-    await import('@ocentra-parent/enforcement-domain/enforcement-os-adapter-product-proof');
+    await import('@ocentra-parent/schema-domain/enforcement-os-adapter-product-proof');
   const { V08BroadOsAdapterReadinessMatrix } =
-    await import('@ocentra-parent/enforcement-domain/enforcement-readiness');
+    await import('@ocentra-parent/schema-domain/enforcement-readiness');
   const { V08HostAdapterProofPreflightMatrix } =
-    await import('@ocentra-parent/enforcement-domain/enforcement-host-adapter-preflight');
+    await import('@ocentra-parent/schema-domain/enforcement-host-adapter-preflight');
 
   const broadProofSummary = summarizeBroadProof(V08BroadOsAdapterProofReadModel);
   assertBroadProof(V08BroadOsAdapterProofReadModel, broadProofSummary);
@@ -65,13 +66,13 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/enforcement-domain/src/v0-8-broad-os-adapter-proof.ts',
+      tsContract: 'packages/schema-domain/src/v0-8-broad-os-adapter-proof.ts',
       tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-broad-os-adapter-proof.test.ts',
       proofHarness: 'scripts/test/v0-8-broad-os-adapter-proof.mjs',
       proofMatrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/v0-8-broad-os-adapter-proof-2026-05-30.md',
-      existingProductProofContract: 'packages/enforcement-domain/src/enforcement-os-adapter-product-proof.ts',
-      existingHostPreflightContract: 'packages/enforcement-domain/src/enforcement-host-adapter-preflight.ts',
+      existingProductProofContract: 'packages/schema-domain/src/enforcement-os-adapter-product-proof.ts',
+      existingHostPreflightContract: 'packages/schema-domain/src/enforcement-host-adapter-preflight.ts',
     },
     counts: broadProofSummary,
     claimsProved: [

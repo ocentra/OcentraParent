@@ -1,5 +1,5 @@
-import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AppGameSchemaVersion } from '@ocentra-parent/schema-domain/app-game-primitives';
+import { AgentCommand, AgentEvent } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import {
   AgentAppGameAdapterDispatchAdapterExecutionDecision,
   AgentAppGameAdapterDispatchAdapterExecutionState,
@@ -9,12 +9,12 @@ import {
   AgentAppGameAdapterDispatchExecutionAuditState,
   type AgentAppGameAdapterDispatchExecuteResult,
   type AgentAppGameAdapterDispatchResultReadModel,
-} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-result';
+} from '@ocentra-parent/schema-domain/app-game-adapter-dispatch-result';
 import {
   AgentAppGameAdapterDispatchDecision,
   AgentAppGameAdapterDispatchOutcomeState,
   AgentAppGameAdapterDispatchPreflightState,
-} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-preflight';
+} from '@ocentra-parent/schema-domain/app-game-adapter-dispatch-preflight';
 import { describe, expect, it } from 'vitest';
 import { createAppGameAdapterDispatchResultPanelIntent } from '../../src/app-game-adapter-dispatch-result-panel';
 

@@ -1,18 +1,23 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::EventBus, envelope::DomainEvent,
-    envelope::EventContract, envelope::EventMetadata, envelope::EventSource, error::EventingError,
-    ids::AggregateKey, ids::CorrelationId, ids::EventType, ids::IdempotencyKey, ids::RecordedAt,
-    ids::RequestId, ids::RuntimeInstanceId, ids::SchemaVersion, ids::SourceComponent,
-    ids::SourceService, ids::SubscriberId, ids::TargetHandler, request::EventResponseContract,
-    request::RequestEvent, request::RequestOptions,
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventType,
+    ids::RecordedAt, ids::RequestId, ids::RuntimeInstanceId, ids::SourceComponent,
+    ids::SourceService, ids::SubscriberId, ids::TargetHandler, request::RequestOptions,
+};
+use ocentra_parent_agent_protocol::browser::social_report_writer_delivery_handoff::{
+    SocialReportWriterDeliveryReadModel, SocialReportWriterDeliveryReadModelRow,
+};
+use ocentra_parent_agent_protocol::social_parent_notification_delivery_read_model::{
+    SocialParentNotificationDeliveryReadinessRow,
+    SocialParentNotificationDeliveryReadinessSnapshot,
+    SocialParentNotificationDeliveryReadModelRequest,
+    SocialParentNotificationDeliveryReadModelResponse,
 };
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, SocialParentNotificationDeliveryReadinessRow,
-    SocialParentNotificationDeliveryReadinessSnapshot,
-    SOCIAL_PARENT_NOTIFICATION_DELIVERY_CAPABILITY_READY,
+    LogLevel, SOCIAL_PARENT_NOTIFICATION_DELIVERY_CAPABILITY_READY,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_EXECUTION_REPORT_READY,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_ENFORCEMENT,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_NON_CLAIM_EXTERNAL_RUNTIME,
@@ -33,7 +38,6 @@ use ocentra_parent_agent_protocol::{
     SOCIAL_REPORT_WRITER_DELIVERY_STATE_MANUAL_REQUIRED,
     SOCIAL_REPORT_WRITER_DELIVERY_STATE_REPORT_READY,
 };
-use serde::{Deserialize, Serialize};
 
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
 
@@ -41,8 +45,7 @@ pub(crate) mod social_report_writer_delivery_event_handoff;
 
 use self::social_report_writer_delivery_event_handoff::{
     request_social_report_writer_delivery_read_model_from_service,
-    social_report_writer_delivery_read_model_from_service, SocialReportWriterDeliveryReadModel,
-    SocialReportWriterDeliveryReadModelRow,
+    social_report_writer_delivery_read_model_from_service,
 };
 
 type FieldPair = (&'static str, LogFieldValue);
@@ -163,50 +166,6 @@ pub async fn build_browser_social_parent_notification_delivery_read_model_report
         None,
     )
 }
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-struct SocialParentNotificationDeliveryReadModelRequest {
-    request_id: RequestId,
-    requested_at: String,
-}
-
-impl DomainEvent for SocialParentNotificationDeliveryReadModelRequest {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        Ok(EventContract::new(
-            EventType::parse(
-                constants::browser::EVENT_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_REQUESTED,
-            )?,
-            SchemaVersion::new(constants::browser::EVENT_SCHEMA_VERSION)?,
-        ))
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(constants::browser::AGGREGATE_BROWSER_RUNTIME_PREFIX)
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        let mut value = String::from(
-            constants::browser::IDEMPOTENCY_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_PREFIX,
-        );
-        value.push_str(self.request_id.as_str());
-        IdempotencyKey::parse(value)
-    }
-}
-
-impl RequestEvent for SocialParentNotificationDeliveryReadModelRequest {
-    type Response = SocialParentNotificationDeliveryReadModelResponse;
-
-    fn request_id(&self) -> Result<RequestId, EventingError> {
-        Ok(self.request_id.clone())
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-struct SocialParentNotificationDeliveryReadModelResponse {
-    read_model: SocialParentNotificationDeliveryReadinessSnapshot,
-}
-
-impl EventResponseContract for SocialParentNotificationDeliveryReadModelResponse {}
 
 fn social_parent_notification_delivery_metadata(
     request: &SocialParentNotificationDeliveryReadModelRequest,

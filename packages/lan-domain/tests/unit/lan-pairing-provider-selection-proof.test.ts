@@ -4,7 +4,7 @@ import {
   LanProviderSelectionLifecycleStateSchema,
   LanProviderSelectionPolicyDecisionSchema,
   LanProviderSelectionReadModelSchema,
-} from '../../src/lan-pairing-provider-selection-proof';
+} from '@ocentra-parent/schema-domain/lan-pairing-provider-selection-proof';
 
 const checkedAt = '2026-05-30T17:50:00.000Z';
 const routeId = 'lan-route-provider-selection-proof';

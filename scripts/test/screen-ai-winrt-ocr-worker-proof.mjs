@@ -41,11 +41,10 @@ await main();
 async function main() {
   rmSync(outputRoot, { recursive: true, force: true });
   mkdirSync(outputRoot, { recursive: true });
-  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
-  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
-  const activityDomain = await import('../../packages/screen-domain/dist/screen-ocr-worker.js');
-  const parentDomain = await import('../../packages/parent-domain/dist/policy.js');
+  const activityDomain = await import('@ocentra-parent/schema-domain/screen-ocr-worker');
+  const parentDomain = await import('@ocentra-parent/schema-domain/policy');
   const rows = [];
 
   for (const scenario of scenarios) {

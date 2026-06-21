@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { ActivityEvidenceKind, ActivityObserver } from '@ocentra-parent/evidence-domain/kinds';
+import { ActivityEvidenceKind, ActivityObserver } from '@ocentra-parent/schema-domain/evidence-kinds';
 import {
   ActivityNetworkFlowDigestSchema,
   ActivityNetworkFlowObservationSchema,
   ActivityNetworkFlowReadModelSchema,
-} from '../../src/network-flow';
-import { ActivityQuerySchemaVersion } from '../../src/network-flow';
+  ActivityQuerySchemaVersion,
+} from '@ocentra-parent/schema-domain/network-flow';
 
 const NetworkFlowObservationSample = {
   schemaVersion: ActivityQuerySchemaVersion,

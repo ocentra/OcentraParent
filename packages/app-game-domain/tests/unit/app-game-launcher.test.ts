@@ -4,13 +4,15 @@ import {
   AppGameCatalogReadyState,
   AppGameClassificationState,
   AppGameForegroundState,
-  AppGameLauncherEvidenceSchema,
-  AppGameLauncherGameProofState,
   AppGameObservationMode,
   AppGameRuntimeState,
   AppGameSchemaVersion,
-} from '../../src/app-game';
-import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
+} from '@ocentra-parent/schema-domain/app-game-primitives';
+import {
+  AppGameLauncherEvidenceSchema,
+  AppGameLauncherGameProofState,
+} from '@ocentra-parent/schema-domain/app-game-launcher';
+import { ActivityEvidenceKind } from '@ocentra-parent/schema-domain/evidence-kinds';
 
 const LauncherEvidenceRef = {
   evidenceId: 'journal-entry-app-game-launcher-1',

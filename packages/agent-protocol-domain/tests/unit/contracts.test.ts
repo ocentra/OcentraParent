@@ -11,7 +11,7 @@ import {
 import {
   AgentLanBrowserRuntimeCommandNameLiteral,
   AgentLanBrowserRuntimeEventNameLiteral,
-} from '../../src/lan-pairing-browser-runtime';
+} from '@ocentra-parent/schema-domain/lan-pairing-browser-runtime';
 
 const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['ActivityIngestStatusGet', 'agent.activity.ingest.status.get'],

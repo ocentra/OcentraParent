@@ -1,1 +1,4 @@
-export * from '@ocentra-parent/enforcement-domain/package-info';
+export const ParentDomainPackage = {
+  Name: '@ocentra-parent/parent-domain',
+  Boundary: 'parent-runtime-behavior',
+} as const;

@@ -5,7 +5,7 @@ import {
   EnforcementBroadOsAdapterReadinessMatrixSchema,
   EnforcementReadinessState,
   V08BroadOsAdapterReadinessMatrix,
-} from '../../src/enforcement-readiness';
+} from '@ocentra-parent/schema-domain/enforcement-readiness';
 
 describe('broad OS adapter readiness contracts', () => {
   it('captures the V0.8 broad adapter readiness matrix without upgrading product claims', () => {

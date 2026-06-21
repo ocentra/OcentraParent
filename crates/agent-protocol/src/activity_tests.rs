@@ -4,11 +4,12 @@ use super::{
     ActivityNetworkTcpState, ActivityObservationMode, ActivityObserver,
     ActivityProcessAttributionStatus, ActivitySource, ActivitySubject, ActivitySubjectKind,
     BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
-    BrowserCustodyLabel, BrowserEvidenceRecentSummary, BrowserFamily, BrowserInterventionAction,
+    BrowserCustodyLabel, BrowserFamily, BrowserInterventionAction,
     BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
     BrowserInterventionMechanism, BrowserUnmanagedEnforcementState, LogFieldValue, LogFields,
     ACTIVITY_SCHEMA_VERSION, BROWSER_EVIDENCE_SCHEMA_VERSION,
 };
+use crate::browser::BrowserEvidenceRecentSummary;
 
 #[test]
 fn activity_event_serializes_to_typescript_contract_shape() {

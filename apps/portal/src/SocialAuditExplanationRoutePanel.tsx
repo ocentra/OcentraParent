@@ -2,21 +2,22 @@ import type { ReactElement } from 'react';
 import {
   AgentCommand,
   AgentEvent,
-  AgentProtocolDefaults,
   isAgentProtocolLogText,
   type AgentEventEnvelope,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
-import { SocialAuditExplanationSnapshotSchema } from '@ocentra-parent/browser-domain/social-audit-explanation-read-model';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { SocialAuditExplanationSnapshotSchema } from '@ocentra-parent/schema-domain/social-audit-explanation-read-model';
+import { PortalDom, PortalEnvironment } from '@ocentra-parent/portal-domain/contracts';
 import {
-  PortalDom,
-  PortalEnvironment,
   createSocialAuditExplanationPanelIntent,
-  isPortalBrowserParentSurfaceRoute,
   type SocialAuditExplanationPanelDetail,
   type SocialAuditExplanationPanelIntent,
   type SocialAuditExplanationPanelRow,
+} from '@ocentra-parent/portal-domain/social-audit-explanation-panel';
+import {
+  isPortalBrowserParentSurfaceRoute,
   type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 
 export function shouldRenderSocialAuditExplanationRoute(route: PortalRouteValue): boolean {

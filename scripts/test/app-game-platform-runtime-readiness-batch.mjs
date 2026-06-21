@@ -21,7 +21,7 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-android-usage-events-child-runtime-replay',
       'app-game-linux-foreground-source-preflight',
@@ -29,26 +29,26 @@ async function main() {
       'app-game-linux-foreground-capture-readiness',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
   const androidProof = await readJson(
     join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json')
   );
   const linuxProof = await readJson(join(repoRoot, 'test-results', 'app-game-linux-wsl-runtime-proof', 'proof.json'));
   const androidReplayModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
   );
   const androidRuntimeModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-child-runtime-replay.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-child-runtime-replay.js')
     ).href
   );
   const linuxReadinessModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-foreground-capture-readiness.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-linux-foreground-capture-readiness.js'))
       .href
   );
   const linuxPreflightModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-foreground-source-preflight.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-linux-foreground-source-preflight.js'))
       .href
   );
 
@@ -91,10 +91,10 @@ async function main() {
     linuxForegroundPreflight,
     linuxSummary,
     evidence: {
-      androidContract: 'packages/parent-domain/src/app-game-android-usage-events-child-runtime-replay.ts',
-      androidContractTest: 'packages/parent-domain/tests/app-game-android-usage-events-child-runtime-replay.test.ts',
-      linuxContract: 'packages/parent-domain/src/app-game-linux-foreground-source-preflight.ts',
-      linuxContractTest: 'packages/parent-domain/tests/app-game-linux-foreground-source-preflight.test.ts',
+      androidContract: 'packages/app-game-domain/src/app-game-android-usage-events-child-runtime-replay.ts',
+      androidContractTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-child-runtime-replay.test.ts',
+      linuxContract: 'packages/app-game-domain/src/app-game-linux-foreground-source-preflight.ts',
+      linuxContractTest: 'packages/app-game-domain/tests/unit/app-game-linux-foreground-source-preflight.test.ts',
       androidPhysicalProof: 'test-results/app-game-android-physical-device-proof/proof.json',
       linuxWslProof: 'test-results/app-game-linux-wsl-runtime-proof/proof.json',
     },

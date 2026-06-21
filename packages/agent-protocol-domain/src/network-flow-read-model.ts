@@ -3,10 +3,10 @@ import {
   ActivityNetworkFlowReadModelSchema,
   type ActivityNetworkFlowDigest,
   type ActivityNetworkFlowReadModel,
-} from '@ocentra-parent/network-domain/network-flow';
-import type { ActivityEvidenceRef } from '@ocentra-parent/evidence-domain/contracts';
-import { decodeActivityEvidenceId, type ActivityEvidenceId } from '@ocentra-parent/evidence-domain/primitives';
-import { ActivityQuerySchemaVersion } from '@ocentra-parent/activity-domain/query';
+} from '@ocentra-parent/schema-domain/network-flow';
+import type { ActivityEvidenceRef } from '@ocentra-parent/schema-domain/evidence-contracts';
+import { decodeActivityEvidenceId, type ActivityEvidenceId } from '@ocentra-parent/schema-domain/evidence-primitives';
+import { ActivityQuerySchemaVersion } from '@ocentra-parent/schema-domain/activity-query';
 import { AgentProtocolDefaults, isAgentProtocolLogText, type AgentProtocolLogFields } from './contracts';
 
 export function parseNetworkFlowReadModel(payload: AgentProtocolLogFields): ActivityNetworkFlowReadModel | null {

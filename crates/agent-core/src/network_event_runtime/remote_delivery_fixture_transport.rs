@@ -1,6 +1,5 @@
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_outbox_handoff;
 use super::remote_delivery_event_chain_store::source_component;
 use super::remote_delivery_fixture_transport_types::{
     NetworkRuntimeRemoteDeliveryFixtureTransportError,
@@ -8,6 +7,7 @@ use super::remote_delivery_fixture_transport_types::{
     NetworkRuntimeRemoteDeliveryFixtureTransportReport,
     NetworkRuntimeRemoteDeliveryFixtureTransportState,
 };
+use super::remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff;
 use super::remote_delivery_outbox_handoff_types::{
     NetworkRuntimeRemoteDeliveryOutboxCandidate, NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
 };

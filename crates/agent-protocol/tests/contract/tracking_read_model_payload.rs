@@ -1,15 +1,18 @@
-use ocentra_parent_agent_protocol::{
-    constants, tracking_read_model_payload, LogFieldValue, LogFields, TrackingEvidenceRef,
-    TrackingReadModel, TrackingReadModelCapabilityStatus, TrackingReadModelCount,
-    TrackingReadModelCountValue, TrackingReadModelCustodyLabel, TrackingReadModelDeviceId,
-    TrackingReadModelEventId, TrackingReadModelGeneratedAt, TrackingReadModelKind,
-    TrackingReadModelObservedAt, TrackingReadModelObserver, TrackingReadModelPlatform,
-    TrackingReadModelQueryVisibility, TrackingReadModelRow, TrackingReadModelSubjectDisplayName,
-    TrackingReadModelSubjectId, TrackingReadModelSubjectKind, ACTIVITY_QUERY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::tracking::read_model::{
     TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     TRACKING_READ_MODEL_FIELD_ACTIVE_DEVICE_COUNTS, TRACKING_READ_MODEL_FIELD_ACTIVE_KIND_COUNTS,
     TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS, TRACKING_READ_MODEL_FIELD_LATEST_ACTIVE_EVENT_ID,
     TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS, TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE,
+};
+use ocentra_parent_agent_protocol::tracking::read_model_payload::tracking_read_model_payload;
+use ocentra_parent_agent_protocol::{
+    constants, LogFieldValue, LogFields, TrackingEvidenceRef, TrackingReadModel,
+    TrackingReadModelCapabilityStatus, TrackingReadModelCount, TrackingReadModelCountValue,
+    TrackingReadModelCustodyLabel, TrackingReadModelDeviceId, TrackingReadModelEventId,
+    TrackingReadModelGeneratedAt, TrackingReadModelKind, TrackingReadModelObservedAt,
+    TrackingReadModelObserver, TrackingReadModelPlatform, TrackingReadModelQueryVisibility,
+    TrackingReadModelRow, TrackingReadModelSubjectDisplayName, TrackingReadModelSubjectId,
+    TrackingReadModelSubjectKind, ACTIVITY_QUERY_SCHEMA_VERSION,
 };
 
 #[test]

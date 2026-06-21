@@ -1,6 +1,7 @@
 use ocentra_child_notification_core::policy_control_notification::{
     build_policy_control_parent_notification, PolicyControlNotificationState,
 };
+use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
     apply_policy_delivery_transition, queue_policy_delivery, PolicyDeliveryAttemptId,
     PolicyDeliveryId, PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget,
@@ -403,4 +404,23 @@ fn denied_request_cannot_fake_override_or_delivery() {
     assert!(error
         .to_string()
         .contains("policy_control_notification.override_id"));
+}
+
+#[test]
+fn replay_rejected_request_is_rejected_for_parent_notification() {
+    let mut replay_rejected = approved_request();
+    replay_rejected.status = PolicyRequestStatus::ReplayRejected;
+    replay_rejected.resolved_approval_id = None;
+    replay_rejected.resolved_at = None;
+
+    let error = build_policy_control_parent_notification(&replay_rejected, None, None)
+        .expect_err("replay-rejected status must not produce a parent notification");
+
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_request.status",
+            value: "replay-rejected".to_string(),
+        }
+    );
 }

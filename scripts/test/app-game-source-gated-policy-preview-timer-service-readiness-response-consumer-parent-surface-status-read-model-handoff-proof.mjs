@@ -18,21 +18,22 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff',
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff',
 ]);
 
-const statusReadModelContract = await importDist(
+const statusReadModelContract = await importAppGameDist(
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.js'
 );
-const refs = await importDist('reference-primitives.js');
+const refs = await importSchemaDist('reference-primitives.js');
 const parentSurfaceStatusHandoff = await readJson(
   join(repoRoot, 'test-results', 'app-game-timer-parent-status-proof', 'handoff.json')
 );
@@ -53,7 +54,7 @@ const proof = {
     wp97Branch:
       'codex/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff',
     reason:
-      'WP98 consumes WP97 response-consumer parent-surface status handoff rows and creates a parent-domain parent-surface status read-model handoff while actual status read-model implementation, status implementation, parent-surface rendering, portal rendering, service consumer implementation, service command registration, service handler implementation, service event emission, service read API implementation, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports are sequenced separately.',
+      'Schema-domain owns the response-consumer parent-surface status read-model handoff contract surface; app-game-domain consumes WP97 response-consumer parent-surface status handoff rows while actual status read-model implementation, status implementation, parent-surface rendering, portal rendering, service consumer implementation, service command registration, service handler implementation, service event emission, service read API implementation, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports remain sequenced separately.',
   },
   summary: summarize(parentSurfaceStatusReadModelHandoff),
   nonClaims: {
@@ -88,12 +89,16 @@ const proof = {
     rawPrivateSourceRowsIncluded: parentSurfaceStatusReadModelHandoff.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.ts',
-    rules:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.test.ts',
-    harness: 'scripts/test/app-game-timer-parent-status-rm-proof.mjs',
+    schemaSource:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.ts',
+    schemaRules:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff-rules.ts',
+    consumerSource:
+      'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.ts',
+    consumerTest:
+      'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.test.ts',
+    harness:
+      'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff-proof.mjs',
     evidence: 'test-results/app-game-timer-parent-status-rm-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
     appProofPack: `output/app-plan-proof/${proofSlug}`,
@@ -110,8 +115,12 @@ await writeProofPack(appProofDir, proof, 'app WP98');
 console.log('app-game-timer-parent-status-rm-proof-ok');
 console.log(`evidence=${join('test-results', 'app-game-timer-parent-status-rm-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function parentSurfaceStatusReadModelHandoffOptions(refs) {

@@ -6,7 +6,7 @@ import {
   PlannedLanPairingEndpointId,
   PlannedLanPairingHttpApiPath,
   PlannedLanPairingHttpEndpointSupport,
-} from '../../src/constants/lan-pairing';
+} from '@ocentra-parent/schema-domain/endpoint-lan-pairing';
 
 describe('LAN pairing endpoint constants', () => {
   it('LanPairingSupportedRuntimeApiPath: advertises only the served WebSocket runtime path', () => {

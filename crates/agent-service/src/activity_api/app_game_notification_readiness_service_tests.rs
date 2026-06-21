@@ -1,15 +1,14 @@
 use std::fs::{remove_file, write};
 use std::path::Path;
 
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
     ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, AgentCommandEnvelope,
     AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
     AppGameEvidenceClaim, AppGameNotificationReadinessReadModel, LogFieldValue, LogFields,
     ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION, APP_GAME_CATALOG_READY,
-    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY,
-    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED,
+    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_FOREGROUND_NOT_CLAIMED,
     APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL, APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE,
     APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL, APP_GAME_JOURNAL_FIELD_REPLAY_STATE,
     APP_GAME_JOURNAL_FIELD_ROW_JSON, APP_GAME_JOURNAL_FIELD_ROW_KIND,
@@ -18,15 +17,21 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_NOTIFICATION_READINESS_REASON_SUSPICIOUS_UNKNOWN,
     APP_GAME_NOTIFICATION_READINESS_STATE_MANUAL_REQUIRED,
     APP_GAME_NOTIFICATION_READINESS_STATE_READY_FOR_LOCAL_INTENT,
-    APP_GAME_NOTIFICATION_READINESS_STATUS_PARTIAL, APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN,
-    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL,
-    APP_GAME_TEST_EVIDENCE_CLAIM_ID, APP_GAME_TEST_EVIDENCE_REF_ID, APP_GAME_TEST_TIMESTAMP,
+    APP_GAME_NOTIFICATION_READINESS_STATUS_PARTIAL, APP_GAME_RUNTIME_NOT_CLAIMED,
+    APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL,
 };
 
 use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK, lan_pairing::LanPairingRuntime,
     websocket::handle_command_text_for_test,
 };
+
+const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &str = "inventory";
+const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &str = "catalogMatched";
+const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &str = "inventoryScan";
+const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &str = "claim-ocentra-inventory";
+const APP_GAME_TEST_EVIDENCE_REF_ID: &str = "evidence-app-game-session-1";
+const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
 
 #[tokio::test]
 async fn app_game_notification_readiness_command_reports_service_backed_intent_rows() {

@@ -13,7 +13,7 @@ import {
   BillingAccountEndpointSupport,
   BillingAccountHeader,
   BillingAccountQueryParam,
-} from '../../src/constants/billing-account';
+} from '@ocentra-parent/schema-domain/endpoint-billing-account';
 
 const expectedBillingEndpointIds = {
   AccountStatus: 'billing-account.account-status',

@@ -1,18 +1,23 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::EventBus, envelope::DomainEvent,
-    envelope::EventContract, envelope::EventMetadata, envelope::EventSource, error::EventingError,
-    ids::AggregateKey, ids::CorrelationId, ids::EventType, ids::IdempotencyKey, ids::RecordedAt,
-    ids::RequestId, ids::RuntimeInstanceId, ids::SchemaVersion, ids::SourceComponent,
-    ids::SourceService, ids::SubscriberId, ids::TargetHandler, request::EventResponseContract,
-    request::RequestEvent, request::RequestOptions,
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventType,
+    ids::RecordedAt, ids::RequestId, ids::RuntimeInstanceId, ids::SourceComponent,
+    ids::SourceService, ids::SubscriberId, ids::TargetHandler, request::RequestOptions,
+};
+use ocentra_parent_agent_protocol::browser::social_parent_surface_status_handoff::{
+    SocialPreferenceStatusHandoffReadModel, SocialPreferenceStatusHandoffRow,
+    SocialProviderStatusHandoffReadModel, SocialProviderStatusHandoffRow,
+};
+use ocentra_parent_agent_protocol::social_alert_report_parent_surface_read_model::{
+    SocialAlertReportParentSurfaceReadModelRequest,
+    SocialAlertReportParentSurfaceReadModelResponse, SocialAlertReportParentSurfaceReadModelRow,
+    SocialAlertReportParentSurfaceReadModelSnapshot,
 };
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
-    LogLevel, SocialAlertReportParentSurfaceReadModelRow,
-    SocialAlertReportParentSurfaceReadModelSnapshot,
-    SOCIAL_ALERT_REPORT_PARENT_SURFACE_HISTORY_UNAVAILABLE,
+    LogLevel, SOCIAL_ALERT_REPORT_PARENT_SURFACE_HISTORY_UNAVAILABLE,
     SOCIAL_ALERT_REPORT_PARENT_SURFACE_HISTORY_VISIBLE,
     SOCIAL_ALERT_REPORT_PARENT_SURFACE_INTENT_ID,
     SOCIAL_ALERT_REPORT_PARENT_SURFACE_MINIMAL_BOUNDARY,
@@ -43,7 +48,6 @@ use ocentra_parent_agent_protocol::{
     SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATE_MANUAL,
     SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATE_UNAVAILABLE,
 };
-use serde::{Deserialize, Serialize};
 
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
 
@@ -53,8 +57,6 @@ use social_parent_surface_status_handoff::{
     request_social_preference_status_handoff_from_service,
     request_social_provider_status_handoff_from_service,
     social_preference_status_handoff_from_service, social_provider_status_handoff_from_service,
-    SocialPreferenceStatusHandoffReadModel, SocialPreferenceStatusHandoffRow,
-    SocialProviderStatusHandoffReadModel, SocialProviderStatusHandoffRow,
 };
 
 pub fn social_alert_report_parent_surface_read_model_from_service(
@@ -216,50 +218,6 @@ pub fn parent_surface_payload(
         ),
     ])
 }
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-struct SocialAlertReportParentSurfaceReadModelRequest {
-    request_id: RequestId,
-    requested_at: String,
-}
-
-impl DomainEvent for SocialAlertReportParentSurfaceReadModelRequest {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        Ok(EventContract::new(
-            EventType::parse(
-                constants::browser::EVENT_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_REQUESTED,
-            )?,
-            SchemaVersion::new(constants::browser::EVENT_SCHEMA_VERSION)?,
-        ))
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(constants::browser::AGGREGATE_BROWSER_RUNTIME_PREFIX)
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        let mut value = String::from(
-            constants::browser::IDEMPOTENCY_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_PREFIX,
-        );
-        value.push_str(self.request_id.as_str());
-        IdempotencyKey::parse(value)
-    }
-}
-
-impl RequestEvent for SocialAlertReportParentSurfaceReadModelRequest {
-    type Response = SocialAlertReportParentSurfaceReadModelResponse;
-
-    fn request_id(&self) -> Result<RequestId, EventingError> {
-        Ok(self.request_id.clone())
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-struct SocialAlertReportParentSurfaceReadModelResponse {
-    read_model: SocialAlertReportParentSurfaceReadModelSnapshot,
-}
-
-impl EventResponseContract for SocialAlertReportParentSurfaceReadModelResponse {}
 
 fn parent_surface_metadata(
     request: &SocialAlertReportParentSurfaceReadModelRequest,

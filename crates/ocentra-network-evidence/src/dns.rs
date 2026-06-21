@@ -1,8 +1,8 @@
-mod message;
-mod types;
+pub mod message;
+pub mod types;
 
-pub use message::parse_dns_message;
-pub use types::{
+use message::parse_dns_message;
+use types::{
     DnsMessage, DnsObservation, DnsQueryType, DnsQuestion, DnsRecordData, DnsResourceRecord,
     NetworkEvidenceGrade, NetworkReplayError, NetworkReplaySummary,
 };

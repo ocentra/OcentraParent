@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
-import { browserControlFullCatalogSettings } from '../../src/browser-control-full-catalog';
+import { browserControlFullCatalogSettings } from '@ocentra-parent/schema-domain/browser-control-full-catalog';
 import {
   BrowserControlCandidateMvpItems,
   BrowserControlCatalogMajorSections,
   BrowserControlCoverageMatrix,
   BrowserControlCoverageMatrixSchema,
   type BrowserControlCoverageEntry,
-} from '../../src/browser-control-coverage-matrix';
-import { BrowserControlWritesToPath } from '../../src/browser-control-values';
+} from '@ocentra-parent/schema-domain/browser-control-coverage-matrix';
+import { BrowserControlWritesToPath } from '@ocentra-parent/schema-domain/browser-control-values';
 import { browserPolicyForestSourceSettingIds } from '../../src/browser-policy-questionnaire-forest';
-import { BrowserInventoryPlatformMatrix } from '../../src/browser-platform-inventory-matrix';
-import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
+import { BrowserInventoryPlatformMatrix } from '@ocentra-parent/schema-domain/browser-platform-inventory-matrix';
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/schema-domain/policy-compiler';
 
 describe('browser control coverage matrix', () => {
   it('covers every candidate MVP item and major catalog section exactly once', () => {

@@ -18,6 +18,7 @@ await Promise.all([
   mkdir(testResultRoot, { recursive: true }),
 ]);
 
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 runCommand(
   ...npmCommand([
@@ -31,15 +32,6 @@ runCommand(
 );
 
 const {
-  ScreenVlmWorkerJobSchema,
-  ScreenVlmWorkerMaxImagePixels,
-  ScreenVlmWorkerModelId,
-  ScreenVlmWorkerResultSchema,
-  ScreenVlmWorkerRuntimeRef,
-  ScreenVlmWorkerSchemaVersion,
-  ScreenVlmWorkerTemplateVersion,
-} = await import('@ocentra-parent/screen-domain/screen-vlm-worker');
-const {
   ScreenVlmExecutionReadinessProofSchema,
   ScreenVlmExecutionReadinessProofTier,
   ScreenVlmExecutionReadinessSchemaVersion,
@@ -47,7 +39,16 @@ const {
   screenVlmManualRequiredStatus,
   screenVlmQueueHandoffFromJob,
   screenVlmQueuedStatusFromHandoff,
-} = await import('@ocentra-parent/screen-domain/screen-vlm-execution-readiness');
+} = await import('@ocentra-parent/schema-domain/screen-vlm-execution-readiness');
+const {
+  ScreenVlmWorkerJobSchema,
+  ScreenVlmWorkerMaxImagePixels,
+  ScreenVlmWorkerModelId,
+  ScreenVlmWorkerResultSchema,
+  ScreenVlmWorkerRuntimeRef,
+  ScreenVlmWorkerSchemaVersion,
+  ScreenVlmWorkerTemplateVersion,
+} = await import('@ocentra-parent/schema-domain/screen-vlm-worker');
 
 const evidenceRef = {
   evidenceId: 'screen-vlm-execution-readiness-proof-evidence',
@@ -215,6 +216,7 @@ const summary = {
   })),
   assertions,
   validationCommands: [
+    'npm run build --workspace @ocentra-parent/schema-domain',
     'npm run build --workspace @ocentra-parent/screen-domain',
     'npm run test --workspace @ocentra-parent/screen-domain -- screen-vlm-execution-readiness',
     'node scripts/test/screen-ai-vlm-execution-readiness-proof.mjs',

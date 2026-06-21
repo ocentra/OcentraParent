@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { LocalAiDegradedState } from '../../src/local-ai-primitives';
+import { LocalAiDegradedState } from '@ocentra-parent/schema-domain/ai-primitives';
 import {
   LocalModelRuntimeStatusSchema,
   LocalProviderAdapterProbeSchema,
   LocalProviderCapabilitySchema,
-} from '../../src/local-ai-runtime';
+} from '@ocentra-parent/schema-domain/ai-runtime';
 
 const readyRuntimeStatus = {
   runtimeReferenceId: 'runtime-1',

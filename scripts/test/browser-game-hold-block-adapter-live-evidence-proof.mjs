@@ -6,7 +6,7 @@ import { dirname, join, relative } from 'node:path';
 import {
   BrowserGameHoldBlockAdapterPlanSchema,
   BrowserGameHoldBlockAdapterSnapshotSchema,
-} from '../../packages/parent-domain/dist/browser-game-hold-block-adapter.js';
+} from '@ocentra-parent/schema-domain/browser-game-hold-block-adapter';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-hold-block-adapter-live-evidence-proof';

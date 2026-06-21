@@ -21,8 +21,8 @@ import {
   SetupRecoveryOperationSchema,
   SetupRecoveryKind,
   SetupRecoveryState,
-} from '../../src/readiness';
-import { SetupPairingState } from '../../src/pairing-intent';
+} from '@ocentra-parent/schema-domain/setup-readiness';
+import { SetupPairingState } from '@ocentra-parent/schema-domain/setup-pairing-intent';
 
 const ReadinessReport = SetupReadinessReportSchema.parse({
   schemaVersion: ParentContractSchemaVersion.V0_6,

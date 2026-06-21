@@ -1,13 +1,13 @@
 use serde_json::Value;
 
-use ocentra_parent_agent_core::{NetworkInterventionState, NetworkRuntimeEventPayload};
 use ocentra_parent_agent_protocol::{
     constants, NetworkActivityClassifiedEvent, NetworkActivityKind,
     NetworkAiAnalysisCompletedEvent, NetworkAiAnalysisRequestedEvent,
     NetworkAuditEntryCommittedEvent, NetworkAuditOutcome, NetworkDomainObservedEvent,
     NetworkEnforcementCommandIssuedEvent, NetworkEnforcementResultObservedEvent,
-    NetworkFlowObservedEvent, NetworkPolicyDecisionCompletedEvent,
+    NetworkFlowObservedEvent, NetworkInterventionState, NetworkPolicyDecisionCompletedEvent,
     NetworkPolicyEvaluationRequestedEvent, NetworkPortalReadModelUpdatedEvent,
+    NetworkRuntimeEventPayload,
 };
 
 use crate::network_runtime_stream_event_values as values;

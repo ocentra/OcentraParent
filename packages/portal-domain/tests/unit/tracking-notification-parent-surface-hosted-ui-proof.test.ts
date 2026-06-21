@@ -1,26 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { RequiredTrackingNotificationParentSurfaceHistoryNonClaims } from '@ocentra-parent/schema-domain/tracking-notification-parent-surface-history-proof';
 import {
   trackingNotificationParentSurfaceHostedUiProof,
   trackingNotificationParentSurfaceHostedUiProofFromReadModel,
 } from '../../src/tracking-notification-parent-surface-hosted-ui-proof';
-
-const RequiredTrackingNotificationParentSurfaceHistoryNonClaims = [
-  'no-rendered-parent-notification-ui',
-  'no-parent-preference-mutation-runtime',
-  'no-parent-frequency-control-ui',
-  'no-quiet-hours-timer-runtime',
-  'no-provider-delivery-execution',
-  'no-provider-receipt-ingestion-runtime',
-  'no-provider-credentials',
-  'no-cloud-routing',
-  'no-child-device-delivery',
-  'no-mobile-physical-device-proof',
-  'no-authority-proof',
-  'no-retry-worker-runtime',
-  'no-production-durable-history-storage',
-  'no-production-durable-outbox-storage',
-  'no-adapter-dispatch',
-] as const;
 
 describe('tracking notification parent-surface hosted ui proof', () => {
   it('maps schema-backed history rows into portal proof rows', () => {

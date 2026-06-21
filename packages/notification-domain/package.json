@@ -3,51 +3,11 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Notification provider, local outbox, scheduler, retry, and delivery contracts.",
+  "description": "Notification-domain package identity and focused tests; canonical shared notification contracts live in @ocentra-parent/schema-domain.",
   "exports": {
     "./package-info": {
-      "import": "./dist/package-info.js",
-      "types": "./dist/package-info.d.ts"
-    },
-    "./policy-control-approval-notification-boundary": {
-      "import": "./dist/policy-control-approval-notification-boundary.js",
-      "types": "./dist/policy-control-approval-notification-boundary.d.ts"
-    },
-    "./notification-local-outbox-adapter-proof": {
-      "import": "./dist/notification-local-outbox-adapter-proof.js",
-      "types": "./dist/notification-local-outbox-adapter-proof.d.ts"
-    },
-    "./notification-local-outbox-adapter-proof-schemas": {
-      "import": "./dist/notification-local-outbox-adapter-proof-schemas.js",
-      "types": "./dist/notification-local-outbox-adapter-proof-schemas.d.ts"
-    },
-    "./notification-local-outbox-adapter-proof-values": {
-      "import": "./dist/notification-local-outbox-adapter-proof-values.js",
-      "types": "./dist/notification-local-outbox-adapter-proof-values.d.ts"
-    },
-    "./notification-local-outbox-scheduler-proof": {
-      "import": "./dist/notification-local-outbox-scheduler-proof.js",
-      "types": "./dist/notification-local-outbox-scheduler-proof.d.ts"
-    },
-    "./notification-local-outbox-scheduler-proof-guards": {
-      "import": "./dist/notification-local-outbox-scheduler-proof-guards.js",
-      "types": "./dist/notification-local-outbox-scheduler-proof-guards.d.ts"
-    },
-    "./notification-local-outbox-scheduler-proof-schemas": {
-      "import": "./dist/notification-local-outbox-scheduler-proof-schemas.js",
-      "types": "./dist/notification-local-outbox-scheduler-proof-schemas.d.ts"
-    },
-    "./notification-local-outbox-scheduler-proof-values": {
-      "import": "./dist/notification-local-outbox-scheduler-proof-values.js",
-      "types": "./dist/notification-local-outbox-scheduler-proof-values.d.ts"
-    },
-    "./v0-8-notification-provider-status-boundary": {
-      "import": "./dist/v0-8-notification-provider-status-boundary.js",
-      "types": "./dist/v0-8-notification-provider-status-boundary.d.ts"
-    },
-    "./v3-notification-rule-provider-retry-contract": {
-      "import": "./dist/v3-notification-rule-provider-retry-contract.js",
-      "types": "./dist/v3-notification-rule-provider-retry-contract.d.ts"
+      "import": "./dist/src/package-info.js",
+      "types": "./dist/src/package-info.d.ts"
     }
   },
   "scripts": {

@@ -3,7 +3,7 @@ import {
   buildLocalAiRecentMemoryWindowReadModel,
   LocalAiRecentMemoryWindowReadModelSchema,
   LocalAiRecentMemoryWindowSchema,
-} from '../../src/local-ai-recent-memory-window-proof';
+} from '@ocentra-parent/schema-domain/local-ai-recent-memory-window-proof';
 
 const observedAt = '2026-06-06T05:20:00.000Z';
 const asOf = '2026-06-06T05:30:00.000Z';

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PortalFrameTuner } from '@ocentra-parent/portal-domain/contracts';
+import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
 import { normalizePortalFrameLayout } from './portal-frame-layout-state';
 import { DEFAULT_PORTAL_FRAME_LAYOUT, type PortalFrameLayout } from './portal-frame-layout-types';
 

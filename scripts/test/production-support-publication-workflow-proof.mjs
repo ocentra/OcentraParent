@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const proofMode = 'production-support-publication-workflow-proof';
@@ -10,24 +11,32 @@ const outputDir = join(repoRoot, 'output', proofMode);
 const proofPath = join(resultDir, 'proof.json');
 const summaryPath = join(outputDir, 'proof-summary.json');
 const commands = [];
+const requiredPackageExports = [
+  '@ocentra-parent/schema-domain/production-support-publication-workflow',
+  '@ocentra-parent/schema-domain/production-support-publication-workflow-read-model',
+  '@ocentra-parent/schema-domain/production-support-publication-workflow-values',
+];
+const retiredProductionDomainExport = './production-support-publication-workflow';
 
 await main();
 
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-support-publication-workflow.test.ts',
+      'tests/unit/production-support-publication-workflow.test.ts',
     ])
   );
 
+  const packageExport = await assertPackageExports();
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
   const commit = await gitHead();
@@ -36,12 +45,14 @@ async function main() {
     checkedAt: new Date().toISOString(),
     commit,
     proofMode,
+    packageExport,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-support-publication-workflow.ts',
-      values: 'packages/parent-domain/src/production-support-publication-workflow-values.ts',
-      readModel: 'packages/parent-domain/src/production-support-publication-workflow-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/production-support-publication-workflow.test.ts',
+      contract: 'packages/schema-domain/src/production-support-publication-workflow.ts',
+      values: 'packages/schema-domain/src/production-support-publication-workflow-values.ts',
+      readModel: 'packages/schema-domain/src/production-support-publication-workflow-read-model.ts',
+      contractTest: 'packages/production-domain/tests/unit/production-support-publication-workflow.test.ts',
+      proofHarness: 'scripts/test/production-support-publication-workflow-proof.mjs',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -55,6 +66,7 @@ async function main() {
     checkedAt: proof.checkedAt,
     commit,
     proofMode,
+    packageExport: proof.packageExport.state,
     rowCount: proof.rows.length,
     rows: proof.rows.map((row) => row.item),
     output: relativePath(proofPath),
@@ -67,10 +79,9 @@ async function main() {
 }
 
 async function assertBuiltContract() {
-  const contractModule = await import('@ocentra-parent/production-domain/production-support-publication-workflow');
-  const readModelModule =
-    await import('@ocentra-parent/production-domain/production-support-publication-workflow-read-model');
-  const valuesModule = await import('@ocentra-parent/production-domain/production-support-publication-workflow-values');
+  const contractModule = await importBuiltSchemaDomainModule('production-support-publication-workflow');
+  const readModelModule = await importBuiltSchemaDomainModule('production-support-publication-workflow-read-model');
+  const valuesModule = await importBuiltSchemaDomainModule('production-support-publication-workflow-values');
   const proof = contractModule.ProductionSupportPublicationWorkflowProofSchema.parse(
     readModelModule.ProductionSupportPublicationWorkflowReadModel
   );
@@ -116,6 +127,22 @@ async function assertBuiltContract() {
   };
 }
 
+async function assertPackageExports() {
+  const productionDomainPackageJson = JSON.parse(await readRepoFile('packages/production-domain/package.json'));
+  const [contract, readModel, values] = await Promise.all(requiredPackageExports.map((specifier) => import(specifier)));
+
+  assert.equal(typeof contract.ProductionSupportPublicationWorkflowProofSchema.parse, 'function');
+  assert.equal(typeof readModel.ProductionSupportPublicationWorkflowReadModel, 'object');
+  assert(Object.keys(values).length > 0);
+  assert.equal(productionDomainPackageJson.exports[retiredProductionDomainExport], null);
+
+  return {
+    state: 'schema-domain-live-export-with-production-domain-retired',
+    liveExports: requiredPackageExports,
+    retiredExport: retiredProductionDomainExport,
+  };
+}
+
 function assertPublicationRowsRemainManual(rows) {
   for (const row of rows) {
     assert.notEqual(row.publicPublicationState, 'implemented', `${row.item} must not claim implemented publication`);
@@ -128,11 +155,15 @@ function assertPublicationRowsRemainManual(rows) {
 }
 
 async function assertDocumentationProof() {
-  const docs = ['docs/features/production-distribution-support.md', 'packages/parent-domain/README.md'];
+  const docs = ['docs/features/production-distribution-support.md'];
   for (const path of docs) {
     assertIncludes(await readRepoFile(path), proofMode, `${path} proof note`);
   }
   return docs;
+}
+
+async function importBuiltSchemaDomainModule(moduleName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', `${moduleName}.js`)).href);
 }
 
 async function readRepoFile(path) {

@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ocentra_parent_agent_core::ForegroundWindowObservation;
+use ocentra_parent_agent_core::window_capture::ForegroundWindowObservation;
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, SCREEN_SERVICE_ANALYSIS_ENABLED_ENV,
     SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME, SCREEN_SERVICE_FOREGROUND_ENABLED_ENV,

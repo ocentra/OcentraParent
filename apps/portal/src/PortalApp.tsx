@@ -13,19 +13,18 @@ import {
 import {
   AgentCommand,
   AgentEvent,
-  AgentProtocolDefaults,
   type AgentEventEnvelope,
-  type AgentEventId,
   type AgentEventName,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { type AgentEventId } from '@ocentra-parent/schema-domain/event-primitives';
 import {
   PortalDom,
-  PortalFrameTuner,
   PortalLanPairingScan,
-  PortalRoute,
-  type PortalRoute as PortalRouteValue,
   type PortalThemeValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
+import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 import { routeDescriptor } from './portal-route-descriptor';
 import { renderRouteContent } from './portal-route-content';

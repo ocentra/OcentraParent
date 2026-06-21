@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type BrowserGameMobileCapabilityMatrix,
   BrowserGameMobileCapabilityMatrixSchema,
-} from '../../src/browser-game-android-ios-capability-matrix';
+} from '@ocentra-parent/schema-domain/browser-game-android-ios-capability-matrix';
 
 describe('browser game Android/iOS capability matrix contracts', () => {
   it('accepts an honest mobile browser-game capability matrix', acceptsHonestMatrix);

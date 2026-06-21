@@ -1,7 +1,8 @@
 use std::{fs::read, fs::remove_file, path::PathBuf};
 
-use ocentra_parent_agent_core::{
-    browser_tab_observation_event, ActivityStore, BrowserBridgeTargetObservation,
+use ocentra_parent_agent_core::activity_store::ActivityStore;
+use ocentra_parent_agent_core::browser_bridge_event::{
+    browser_tab_observation_event, BrowserBridgeTargetObservation,
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityIngestStatus, BrowserActiveProofSource,

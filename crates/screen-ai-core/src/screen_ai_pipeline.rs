@@ -8,7 +8,7 @@
 
 use ocentra_eventing::{
     envelope::DomainEvent, envelope::EventContract, error::EventingError, ids::AggregateKey,
-    ids::EventType, ids::IdempotencyKey, SchemaVersion,
+    ids::EventType, ids::IdempotencyKey, ids::SchemaVersion,
 };
 use ocentra_evidence::EvidenceReferenceState;
 use serde::{Deserialize, Serialize};

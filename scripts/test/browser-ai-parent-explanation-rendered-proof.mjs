@@ -65,9 +65,14 @@ try {
     'run',
     'test',
     '--',
-    'browser-ai-parent-explanation.test.ts',
+    'tests/unit/browser-ai-parent-explanation.test.ts',
   ]);
-  await runNpmWorkspace('@ocentra-parent/text-domain', ['run', 'test', '--', 'browser-parent-explanation.test.ts']);
+  await runNpmWorkspace('@ocentra-parent/text-domain', [
+    'run',
+    'test',
+    '--',
+    'tests/unit/browser-parent-explanation.test.ts',
+  ]);
   await runNpmWorkspace('@ocentra-parent/portal-domain', ['run', 'type-check']);
   await runNpmWorkspace('@ocentra-parent/portal', ['run', 'type-check']);
   await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
@@ -101,11 +106,11 @@ async function buildProofBundle() {
     { BrowserAiPostAnalysisActionSchemaVersion },
     { BrowserAiChildUxSchemaVersion },
   ] = await Promise.all([
-    import('@ocentra-parent/browser-domain/browser-ai-parent-explanation-schemas'),
-    import('@ocentra-parent/browser-domain/browser-ai-analysis-schemas'),
-    import('@ocentra-parent/browser-domain/browser-ai-policy-evaluator-schemas'),
-    import('@ocentra-parent/browser-domain/browser-ai-post-analysis-action-schemas'),
-    import('@ocentra-parent/browser-domain/browser-ai-child-ux-schemas'),
+    import('@ocentra-parent/schema-domain/browser-ai-parent-explanation-schemas'),
+    import('@ocentra-parent/schema-domain/browser-ai-analysis-schemas'),
+    import('@ocentra-parent/schema-domain/browser-ai-policy-evaluator-schemas'),
+    import('@ocentra-parent/schema-domain/browser-ai-post-analysis-action-schemas'),
+    import('@ocentra-parent/schema-domain/browser-ai-child-ux-schemas'),
   ]);
   const childUxProof = await readLatestChildUxProof();
   const warningCase = childUxProof.cases.find((entry) => entry.state === 'warning');

@@ -2,7 +2,7 @@ import type { ActivitySurfaceAdapterResult } from '@ocentra-parent/agent-protoco
 import {
   ActivityScreenReadModelSchema,
   type ActivityScreenReadModel,
-} from '@ocentra-parent/activity-domain/activity-surface';
+} from '@ocentra-parent/schema-domain/activity-surface';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { PortalDetails, PortalReadableValues } from './details';

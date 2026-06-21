@@ -1,7 +1,8 @@
 use std::fs::remove_file;
 
 use ocentra_parent_agent_core::{
-    network_observation_event, ActivityStore, NetworkObservation, NetworkRuntimePhase,
+    activity_store::ActivityStore, network_capture::NetworkObservation,
+    network_capture_event::network_observation_event,
 };
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
@@ -10,7 +11,7 @@ use ocentra_parent_agent_protocol::{
     ActivityNetworkProtocol, ActivityNetworkTcpState, ActivityObserver, ActivitySource,
     ActivitySubject, ActivitySubjectKind, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
+    NetworkRuntimePhase, ACTIVITY_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
     NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
     NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
     NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,

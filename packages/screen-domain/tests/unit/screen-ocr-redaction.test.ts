@@ -4,8 +4,8 @@ import {
   ScreenOcrRedactionProofSchema,
   ScreenOcrRedactionSchemaVersion,
   redactScreenOcrText,
-} from '../../src/screen-ocr-redaction';
-import { ScreenAnalysisParentSettingSchema } from '../../src/screen-evidence-settings';
+} from '@ocentra-parent/schema-domain/screen-ocr-redaction';
+import { ScreenAnalysisParentSettingSchema } from '@ocentra-parent/schema-domain/screen-evidence-settings';
 
 const EvidenceRef = {
   evidenceId: 'screen-ocr-redaction-evidence',

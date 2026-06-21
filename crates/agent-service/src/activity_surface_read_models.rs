@@ -15,12 +15,12 @@ use crate::activity_surface_read_model_states::{
 mod app_game_boundary_evidence_tests;
 #[cfg(test)]
 mod app_game_source_status_tests;
-mod app_use;
-mod games;
+pub(crate) mod app_use;
+pub(crate) mod games;
 mod shared;
 
-pub(crate) use app_use::app_use_read_model;
-pub(crate) use games::games_read_model;
+use app_use::app_use_read_model;
+use games::games_read_model;
 use shared::row_device_id;
 
 pub(crate) fn screen_read_model(

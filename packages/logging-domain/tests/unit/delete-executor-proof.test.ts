@@ -7,8 +7,8 @@ import {
   DeleteExecutorRowSchema,
   summarizeDeleteExecutorStatuses,
   summarizeDeleteExecutorTargets,
-} from '../../src/delete-executor-proof';
-import { DeleteExecutorReadModel } from '../../src/delete-executor-read-model';
+} from '@ocentra-parent/schema-domain/delete-executor-proof';
+import { DeleteExecutorReadModel } from '@ocentra-parent/schema-domain/delete-executor-read-model';
 
 describe('delete executor logging proof contract', () => {
   it('covers delete executor targets and manual runtime statuses without execution claims', () => {

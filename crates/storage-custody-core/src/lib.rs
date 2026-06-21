@@ -1,5 +1,3 @@
 #![forbid(unsafe_code)]
 
-mod storage_custody;
-
-pub use storage_custody::*;
+pub mod storage_custody;

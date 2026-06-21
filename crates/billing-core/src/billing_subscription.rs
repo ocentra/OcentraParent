@@ -109,31 +109,67 @@ pub enum BillingAccountMatchState {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum BillingSubscriptionLifecycleState {
+pub enum BillingSubscriptionStatus {
     #[serde(rename = "trialing")]
     Trialing,
     #[serde(rename = "active")]
     Active,
-    #[serde(rename = "grace")]
-    Grace,
     #[serde(rename = "past-due")]
     PastDue,
+    #[serde(rename = "cancelled")]
+    Cancelled,
+    #[serde(rename = "expired")]
+    Expired,
+    #[serde(rename = "grace")]
+    Grace,
+    #[serde(rename = "unknown")]
+    Unknown,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BillingCollectionRecoveryState {
+    #[serde(rename = "active")]
+    Active,
+    #[serde(rename = "trialing")]
+    Trialing,
+    #[serde(rename = "past-due")]
+    PastDue,
+    #[serde(rename = "grace")]
+    Grace,
+    #[serde(rename = "cancelled")]
+    Cancelled,
     #[serde(rename = "unpaid")]
     Unpaid,
-    #[serde(rename = "canceled")]
-    Canceled,
-    #[serde(rename = "refunded")]
-    Refunded,
-    #[serde(rename = "disputed")]
-    Disputed,
+    #[serde(rename = "support-required")]
+    SupportRequired,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BillingRefundLifecycleState {
+    #[serde(rename = "none")]
+    None,
+    #[serde(rename = "refund-requested")]
+    RefundRequested,
+    #[serde(rename = "refund-issued")]
+    RefundIssued,
+    #[serde(rename = "refund-settled")]
+    RefundSettled,
+    #[serde(rename = "refund-denied")]
+    RefundDenied,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BillingDisputeLifecycleState {
+    #[serde(rename = "none")]
+    None,
+    #[serde(rename = "dispute-opened")]
+    DisputeOpened,
     #[serde(rename = "dispute-won")]
     DisputeWon,
     #[serde(rename = "dispute-lost")]
     DisputeLost,
-    #[serde(rename = "support-required")]
-    SupportRequired,
-    #[serde(rename = "unknown")]
-    Unknown,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -246,8 +282,10 @@ pub enum BillingChildEntitlementRejectionReason {
     StaleSnapshot,
     #[serde(rename = "expired-snapshot")]
     ExpiredSnapshot,
-    #[serde(rename = "unknown-lifecycle")]
-    UnknownLifecycle,
+    #[serde(rename = "unknown-subscription-status")]
+    UnknownSubscriptionStatus,
+    #[serde(rename = "unavailable-subscription-status")]
+    UnavailableSubscriptionStatus,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -257,14 +295,20 @@ pub struct BillingProviderWebhookEvent {
     pub signature_state: BillingProviderSignatureState,
     pub duplicate_state: BillingProviderDuplicateState,
     pub account_match_state: BillingAccountMatchState,
-    pub lifecycle_state: BillingSubscriptionLifecycleState,
+    pub subscription_status: BillingSubscriptionStatus,
+    pub collection_recovery_state: BillingCollectionRecoveryState,
+    pub refund_state: BillingRefundLifecycleState,
+    pub dispute_state: BillingDisputeLifecycleState,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BillingProviderWebhookDecision {
     pub event_id: BillingProviderEventId,
     pub decision_state: BillingProviderEventDecisionState,
-    pub lifecycle_state: BillingSubscriptionLifecycleState,
+    pub subscription_status: BillingSubscriptionStatus,
+    pub collection_recovery_state: BillingCollectionRecoveryState,
+    pub refund_state: BillingRefundLifecycleState,
+    pub dispute_state: BillingDisputeLifecycleState,
     pub entitlement_update_requirement: BillingEntitlementUpdateRequirement,
     pub manual_review_requirement: BillingManualReviewRequirement,
 }
@@ -273,7 +317,10 @@ pub struct BillingProviderWebhookDecision {
 pub struct BillingEntitlementTransition {
     pub event_id: BillingProviderEventId,
     pub scope: BillingEntitlementScope,
-    pub lifecycle_state: BillingSubscriptionLifecycleState,
+    pub subscription_status: BillingSubscriptionStatus,
+    pub collection_recovery_state: BillingCollectionRecoveryState,
+    pub refund_state: BillingRefundLifecycleState,
+    pub dispute_state: BillingDisputeLifecycleState,
     pub transition_state: BillingEntitlementTransitionState,
     pub write_state: BillingEntitlementWriteState,
     pub manual_review_requirement: BillingManualReviewRequirement,
@@ -359,7 +406,7 @@ pub struct BillingEntitlementTransitionProjectedEvent {
 pub struct BillingChildEntitlementSnapshot {
     pub snapshot_id: BillingEntitlementSnapshotId,
     pub child_device_id: BillingChildDeviceId,
-    pub lifecycle_state: BillingSubscriptionLifecycleState,
+    pub subscription_status: BillingSubscriptionStatus,
     pub signature_state: BillingChildSnapshotSignatureState,
     pub freshness_state: BillingChildSnapshotFreshnessState,
 }
@@ -369,7 +416,7 @@ pub struct BillingChildEntitlementConsumptionDecision {
     pub snapshot_id: BillingEntitlementSnapshotId,
     pub child_device_id: BillingChildDeviceId,
     pub decision_state: BillingChildEntitlementConsumptionState,
-    pub lifecycle_state: BillingSubscriptionLifecycleState,
+    pub subscription_status: BillingSubscriptionStatus,
     pub access_state: BillingChildEntitlementAccessState,
     pub write_state: BillingEntitlementWriteState,
     pub manual_review_requirement: BillingManualReviewRequirement,
@@ -481,30 +528,18 @@ pub fn decide_billing_provider_webhook(
         && event.duplicate_state == BillingProviderDuplicateState::Fresh
         && event.account_match_state == BillingAccountMatchState::Matched;
     let manual_review_required = !accepted
+        || event.collection_recovery_state == BillingCollectionRecoveryState::SupportRequired
+        || event.refund_state == BillingRefundLifecycleState::RefundIssued
+        || event.dispute_state == BillingDisputeLifecycleState::DisputeOpened
         || matches!(
-            event.event_kind,
-            BillingProviderEventKind::DisputeOpened | BillingProviderEventKind::RefundIssued
-        )
-        || matches!(
-            event.lifecycle_state,
-            BillingSubscriptionLifecycleState::Disputed
-                | BillingSubscriptionLifecycleState::SupportRequired
-                | BillingSubscriptionLifecycleState::Unknown
+            event.subscription_status,
+            BillingSubscriptionStatus::Unknown | BillingSubscriptionStatus::Unavailable
         );
     let entitlement_update_required = accepted
-        && event.event_kind != BillingProviderEventKind::RefundIssued
-        && matches!(
-            event.lifecycle_state,
-            BillingSubscriptionLifecycleState::Trialing
-                | BillingSubscriptionLifecycleState::Active
-                | BillingSubscriptionLifecycleState::Grace
-                | BillingSubscriptionLifecycleState::PastDue
-                | BillingSubscriptionLifecycleState::Unpaid
-                | BillingSubscriptionLifecycleState::Canceled
-                | BillingSubscriptionLifecycleState::Refunded
-                | BillingSubscriptionLifecycleState::Disputed
-                | BillingSubscriptionLifecycleState::DisputeWon
-                | BillingSubscriptionLifecycleState::DisputeLost
+        && event.refund_state != BillingRefundLifecycleState::RefundIssued
+        && !matches!(
+            event.subscription_status,
+            BillingSubscriptionStatus::Unknown | BillingSubscriptionStatus::Unavailable
         );
 
     BillingProviderWebhookDecision {
@@ -514,7 +549,10 @@ pub fn decide_billing_provider_webhook(
         } else {
             BillingProviderEventDecisionState::Rejected
         },
-        lifecycle_state: event.lifecycle_state,
+        subscription_status: event.subscription_status,
+        collection_recovery_state: event.collection_recovery_state,
+        refund_state: event.refund_state,
+        dispute_state: event.dispute_state,
         entitlement_update_requirement: if entitlement_update_required {
             BillingEntitlementUpdateRequirement::Required
         } else {
@@ -536,7 +574,7 @@ pub fn decide_child_entitlement_snapshot(
             snapshot_id: snapshot.snapshot_id,
             child_device_id: snapshot.child_device_id,
             decision_state: BillingChildEntitlementConsumptionState::Rejected,
-            lifecycle_state: snapshot.lifecycle_state,
+            subscription_status: snapshot.subscription_status,
             access_state: BillingChildEntitlementAccessState::NoChange,
             write_state: BillingEntitlementWriteState::DoNotWrite,
             manual_review_requirement: BillingManualReviewRequirement::Required,
@@ -544,44 +582,33 @@ pub fn decide_child_entitlement_snapshot(
         };
     }
 
-    let (access_state, manual_review_requirement) = match snapshot.lifecycle_state {
-        BillingSubscriptionLifecycleState::Trialing
-        | BillingSubscriptionLifecycleState::Active
-        | BillingSubscriptionLifecycleState::DisputeWon => (
+    let (access_state, manual_review_requirement) = match snapshot.subscription_status {
+        BillingSubscriptionStatus::Trialing | BillingSubscriptionStatus::Active => (
             BillingChildEntitlementAccessState::FullAccess,
             BillingManualReviewRequirement::NotRequired,
         ),
-        BillingSubscriptionLifecycleState::Grace => (
+        BillingSubscriptionStatus::Grace => (
             BillingChildEntitlementAccessState::GraceAccess,
             BillingManualReviewRequirement::NotRequired,
         ),
-        BillingSubscriptionLifecycleState::PastDue => (
+        BillingSubscriptionStatus::PastDue => (
             BillingChildEntitlementAccessState::LimitedAccess,
             BillingManualReviewRequirement::NotRequired,
         ),
-        BillingSubscriptionLifecycleState::Unpaid
-        | BillingSubscriptionLifecycleState::Canceled
-        | BillingSubscriptionLifecycleState::Refunded
-        | BillingSubscriptionLifecycleState::DisputeLost => (
+        BillingSubscriptionStatus::Cancelled | BillingSubscriptionStatus::Expired => (
             BillingChildEntitlementAccessState::Revoked,
             BillingManualReviewRequirement::NotRequired,
         ),
-        BillingSubscriptionLifecycleState::Disputed
-        | BillingSubscriptionLifecycleState::SupportRequired => (
-            BillingChildEntitlementAccessState::HoldForReview,
-            BillingManualReviewRequirement::Required,
-        ),
-        BillingSubscriptionLifecycleState::Unknown => (
-            BillingChildEntitlementAccessState::NoChange,
-            BillingManualReviewRequirement::Required,
-        ),
+        BillingSubscriptionStatus::Unknown | BillingSubscriptionStatus::Unavailable => {
+            unreachable!()
+        }
     };
 
     BillingChildEntitlementConsumptionDecision {
         snapshot_id: snapshot.snapshot_id,
         child_device_id: snapshot.child_device_id,
         decision_state: BillingChildEntitlementConsumptionState::Accepted,
-        lifecycle_state: snapshot.lifecycle_state,
+        subscription_status: snapshot.subscription_status,
         access_state,
         write_state: BillingEntitlementWriteState::WriteRequired,
         manual_review_requirement,
@@ -625,30 +652,21 @@ pub fn project_billing_entitlement_transition(
         && decision.entitlement_update_requirement == BillingEntitlementUpdateRequirement::Required;
     let transition_state = if !write_allowed {
         BillingEntitlementTransitionState::NoWrite
+    } else if decision.collection_recovery_state == BillingCollectionRecoveryState::SupportRequired
+        || decision.dispute_state == BillingDisputeLifecycleState::DisputeOpened
+    {
+        BillingEntitlementTransitionState::HoldForReview
     } else {
-        match decision.lifecycle_state {
-            BillingSubscriptionLifecycleState::Trialing
-            | BillingSubscriptionLifecycleState::Active
-            | BillingSubscriptionLifecycleState::DisputeWon => {
+        match decision.subscription_status {
+            BillingSubscriptionStatus::Trialing | BillingSubscriptionStatus::Active => {
                 BillingEntitlementTransitionState::GrantFullAccess
             }
-            BillingSubscriptionLifecycleState::Grace => {
-                BillingEntitlementTransitionState::GraceAccess
-            }
-            BillingSubscriptionLifecycleState::PastDue => {
-                BillingEntitlementTransitionState::LimitAccess
-            }
-            BillingSubscriptionLifecycleState::Unpaid
-            | BillingSubscriptionLifecycleState::Canceled
-            | BillingSubscriptionLifecycleState::Refunded
-            | BillingSubscriptionLifecycleState::DisputeLost => {
+            BillingSubscriptionStatus::Grace => BillingEntitlementTransitionState::GraceAccess,
+            BillingSubscriptionStatus::PastDue => BillingEntitlementTransitionState::LimitAccess,
+            BillingSubscriptionStatus::Cancelled | BillingSubscriptionStatus::Expired => {
                 BillingEntitlementTransitionState::RevokeAccess
             }
-            BillingSubscriptionLifecycleState::Disputed
-            | BillingSubscriptionLifecycleState::SupportRequired => {
-                BillingEntitlementTransitionState::HoldForReview
-            }
-            BillingSubscriptionLifecycleState::Unknown => {
+            BillingSubscriptionStatus::Unknown | BillingSubscriptionStatus::Unavailable => {
                 BillingEntitlementTransitionState::NoWrite
             }
         }
@@ -657,7 +675,10 @@ pub fn project_billing_entitlement_transition(
     BillingEntitlementTransition {
         event_id: decision.event_id,
         scope,
-        lifecycle_state: decision.lifecycle_state,
+        subscription_status: decision.subscription_status,
+        collection_recovery_state: decision.collection_recovery_state,
+        refund_state: decision.refund_state,
+        dispute_state: decision.dispute_state,
         transition_state,
         write_state: if write_allowed {
             BillingEntitlementWriteState::WriteRequired
@@ -743,9 +764,14 @@ fn child_entitlement_snapshot_rejection_reason(
             Some(BillingChildEntitlementRejectionReason::ExpiredSnapshot)
         }
         BillingChildSnapshotFreshnessState::Fresh
-            if snapshot.lifecycle_state == BillingSubscriptionLifecycleState::Unknown =>
+            if snapshot.subscription_status == BillingSubscriptionStatus::Unknown =>
         {
-            Some(BillingChildEntitlementRejectionReason::UnknownLifecycle)
+            Some(BillingChildEntitlementRejectionReason::UnknownSubscriptionStatus)
+        }
+        BillingChildSnapshotFreshnessState::Fresh
+            if snapshot.subscription_status == BillingSubscriptionStatus::Unavailable =>
+        {
+            Some(BillingChildEntitlementRejectionReason::UnavailableSubscriptionStatus)
         }
         BillingChildSnapshotFreshnessState::Fresh => None,
     }

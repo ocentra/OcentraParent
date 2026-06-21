@@ -4,8 +4,8 @@ import {
   BrowserUrlIntelligenceMemorySchemaVersion,
   BrowserUrlShapeClassificationResultSchema,
   BrowserUrlShapeSchemaVersion,
-  parseBrowserUrlShape,
-} from '../../src/browser';
+} from '@ocentra-parent/schema-domain/browser-url-intelligence-schemas';
+import { parseBrowserUrlShape } from '../../src/browser-url-intelligence';
 
 describe('browser URL intelligence shape contract', () => {
   it('accepts managed exact YouTube video URL shape without AI, policy, or content claims', () => {

@@ -3,7 +3,7 @@ import {
   BrowserGamePortalPatternEntrySchema,
   BrowserGamePortalPatternLibrarySchema,
   type BrowserGamePortalPatternLibrary,
-} from '../../src/browser-game-portal-pattern-library';
+} from '@ocentra-parent/schema-domain/browser-game-portal-pattern-library';
 
 describe('browser-game portal pattern library contracts', () => {
   it('accepts reviewed portal pattern libraries backed by refs and fingerprints', acceptsReviewedPatternLibrary);

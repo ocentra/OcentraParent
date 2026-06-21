@@ -3,7 +3,7 @@ import {
   V08NotificationProviderStatusBoundaryEntrySchema,
   V08NotificationProviderStatusBoundaryReadModel,
   V08NotificationProviderStatusBoundaryReadModelSchema,
-} from '../../src/v0-8-notification-provider-status-boundary';
+} from '@ocentra-parent/schema-domain/v0-8-notification-provider-status-boundary';
 
 describe('V0.8 notification provider status boundary', () => {
   registerProviderStatusCoverageTest();

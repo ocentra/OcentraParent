@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
   SocialParentApprovalDecisionSchema,
   SocialParentApprovalRequestSchema,
-} from '../../packages/parent-domain/dist/social-parent-approval.js';
+} from '../../packages/schema-domain/dist/social-parent-approval.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');

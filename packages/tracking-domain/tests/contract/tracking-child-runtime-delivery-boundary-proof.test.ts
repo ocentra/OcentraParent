@@ -4,7 +4,7 @@ import {
   TrackingChildRuntimeDeliveryBoundaryRowSchema,
   buildTrackingChildRuntimeDeliveryBoundaryReadModel,
 } from '../../src/tracking-child-runtime-delivery-boundary-proof';
-import { TrackingPolicySchemaVersion } from '../../src/tracking-location-policy';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 import { buildTrackingChildCheckInTimeoutReadModel } from '../../src/tracking-child-check-in-timeout-escalation-proof';
 
 const EvidenceTrace = {

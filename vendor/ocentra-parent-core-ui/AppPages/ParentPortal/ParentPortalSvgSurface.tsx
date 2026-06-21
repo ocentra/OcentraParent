@@ -75,34 +75,39 @@ import { AnimatedSidebarIconButton } from './AnimatedSidebarIconButton';
 import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubble';
 import { defaultChatBubbleConfig as defaultRulesBubbleConfig, RulesBubbleSvgFrame } from './ParentPortalRulesBubble';
 import {
+  PortalLanPairingScan,
+} from '@ocentra-parent/portal-domain/contracts';
+import {
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
+  type ParentAssistantPortalQuickActionId,
+} from '@ocentra-parent/portal-domain/parent-assistant-chat';
+import {
   PARENT_PORTAL_GUIDE_QUERY,
   PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES,
   PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS,
-  PortalAssets,
-  PortalLanPairingScan,
-  PortalUnifiedChrome,
-  type ParentAssistantPortalQuickActionId,
-} from '@ocentra-parent/portal-domain/contracts';
-import { parentPortalManageLaneForRoute } from '../../../../packages/portal-domain/src/parent-portal-data';
-import { createPolicyWorkspacePreviewRows } from '../../../../packages/portal-domain/src/policy-preview-workspace';
-import { portalRouteFromHashPath } from '../../../../packages/portal-domain/src/routes';
+} from '@ocentra-parent/portal-domain/parent-portal-guide-controls';
+import { parentPortalManageLaneForRoute } from '@ocentra-parent/portal-domain/parent-portal-data';
+import { createPolicyWorkspacePreviewRows } from '@ocentra-parent/portal-domain/policy-preview-workspace';
+import { portalRouteFromHashPath } from '@ocentra-parent/portal-domain/routes';
+import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
+import {
+  AgentCommand,
+  type AgentCommandName,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   BrowserPolicyDefaultAnswers,
+  type BrowserPolicyAnswerMap,
+} from '@ocentra-parent/schema-domain/browser-policy-questionnaire-forest-contract';
+import type { AgentEventId } from '@ocentra-parent/schema-domain/event-primitives';
+import {
   browserPolicyQuestionState,
   browserPolicyVisibleQuestions,
-  type BrowserPolicyAnswerMap,
-} from '@ocentra-parent/parent-domain/browser-control-manifest';
+} from '@ocentra-parent/browser-domain/browser-policy-questionnaire-forest';
 import {
   LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD,
   LAN_HOUSEHOLD_DEVICE_KIND_VALUES,
-} from '@ocentra-parent/parent-domain/lan-pairing';
-import {
-  AgentCommand,
-  AgentProtocolDefaults,
-  type AgentCommandName,
-  type AgentEventId,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/lan-device-parent-actions';
 import { ParentPortalPanelFrame } from './ParentPortalPanelFrame';
 import {
   AccountProfileIcon,
@@ -139,7 +144,7 @@ import {
   UpdatesSyncDocumentIcon,
   WebGlobeIcon,
   parentNavIconAssetUrls,
-} from '../../Common/NavSvgIcons';
+} from '../../Common/NavSvgIcons/ParentNavSvgIcons';
 import { ScopeToggle } from './ScopeToggle/ScopeToggle';
 import { BrowserRulesQuestionnaire, type BrowserRulesQuestion } from './BrowserRulesQuestionnaire';
 import './ParentPortalSvgSurface.css';

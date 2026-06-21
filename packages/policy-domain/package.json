@@ -3,12 +3,8 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Shared parent policy decision, action, target, and reason contracts.",
+  "description": "Legacy workspace anchor for policy-domain package identity only.",
   "exports": {
-    "./*": {
-      "import": "./dist/src/*.js",
-      "types": "./dist/src/*.d.ts"
-    },
     "./package-info": {
       "import": "./dist/src/package-info.js",
       "types": "./dist/src/package-info.d.ts"

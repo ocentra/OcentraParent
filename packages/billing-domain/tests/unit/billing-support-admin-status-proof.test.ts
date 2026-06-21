@@ -3,11 +3,7 @@ import {
   BillingSupportAdminStatusProofReadModel,
   BillingSupportAdminStatusProofRowSchema,
   BillingSupportAdminStatusProofSchema,
-} from '../../src/billing-support-admin-status-proof';
-import {
-  summarizeBillingSupportAdminStatusRows,
-  summarizeBillingSupportAdminStatusRuntimeStates,
-} from '../../src/billing-support-admin-status-values';
+} from '@ocentra-parent/schema-domain/billing-support-admin-status-proof';
 
 describe('billing support admin status proof', () => {
   acceptsBillingSupportAdminStatusProof();
@@ -134,4 +130,52 @@ function requiredRow(statusRow: 'provider-contact-manual-required' | 'resolution
     throw new Error(`missing billing support admin status row: ${statusRow}`);
   }
   return row;
+}
+
+function summarizeBillingSupportAdminStatusRows(
+  rows: ReadonlyArray<{ readonly statusRow: string }>
+): Record<
+  | 'case-triage-visible'
+  | 'account-review-visible'
+  | 'billing-escalation-visible'
+  | 'provider-contact-manual-required'
+  | 'entitlement-override-manual-required'
+  | 'refund-credit-manual-required'
+  | 'resolution-update-ready',
+  number
+> {
+  return countKnownValues(
+    [
+      'case-triage-visible',
+      'account-review-visible',
+      'billing-escalation-visible',
+      'provider-contact-manual-required',
+      'entitlement-override-manual-required',
+      'refund-credit-manual-required',
+      'resolution-update-ready',
+    ],
+    rows,
+    'statusRow'
+  );
+}
+
+function summarizeBillingSupportAdminStatusRuntimeStates(
+  rows: ReadonlyArray<{ readonly runtimeState: string }>
+): Record<'source-contract-ready' | 'manual-required' | 'not-implemented', number> {
+  return countKnownValues(['source-contract-ready', 'manual-required', 'not-implemented'], rows, 'runtimeState');
+}
+
+function countKnownValues<const Value extends string, const Key extends string>(
+  values: readonly Value[],
+  rows: ReadonlyArray<{ readonly [Field in Key]: Value }>,
+  key: Key
+): Record<Value, number> {
+  const counts = {} as Record<Value, number>;
+  for (const value of values) {
+    counts[value] = 0;
+  }
+  for (const row of rows) {
+    counts[row[key]] += 1;
+  }
+  return counts;
 }

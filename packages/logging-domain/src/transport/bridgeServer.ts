@@ -1,16 +1,16 @@
 import http from 'node:http';
-import { clearDirectory, getDefaultLogRoot } from '../test-log/ndjsonPaths';
-import { appendTestLogEntries } from '../test-log/ndjsonWriter';
-import { wipeNdjsonScope } from '../test-log/wipeNdjsonScope';
 import {
   RunType,
   TestLogScope,
   parseRunTypeOrDefault,
   parseSuiteTypeOrNull,
   parseTestLogScopeOrDefault,
-} from '../test-log/types';
+} from '@ocentra-parent/schema-domain/test-log/types';
+import { clearDirectory, getDefaultLogRoot } from '../test-log/ndjsonPaths';
+import { appendTestLogEntries } from '../test-log/ndjsonWriter';
+import { wipeNdjsonScope } from '../test-log/wipeNdjsonScope';
 import { bridgeEntryToStoredLog } from '../test-log/bridgeConvert';
-import { BridgeEntryArraySchema } from './bridgeLogPayload';
+import { BridgeEntryArraySchema } from '@ocentra-parent/schema-domain/transport/bridgeLogPayload';
 
 export interface BridgeServerOptions {
   readonly host?: string;

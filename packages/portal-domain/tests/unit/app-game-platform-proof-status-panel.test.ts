@@ -2,95 +2,21 @@ import { describe, expect, it } from 'vitest';
 import { createAppGamePlatformProofStatusPanelIntent } from '../../src/app-game-platform-proof-status-panel';
 
 const ReadModel = {
-  schemaVersion: 1,
-  readModelId: 'app-game-platform-proof-status',
   generatedAt: '2026-06-08T16:20:00.000Z',
-  sourceReadModelIds: ['v0-8-supported-adapter-runtime-proof'],
-  custodyLabel: 'app-game-platform-proof-status',
-  capabilityStatus: 'app-game-platform-proof-status-partial',
-  returned: 5,
-  hostVisibleCount: 2,
+  returned: 3,
+  hostVisibleCount: 1,
   hostNotDetectedCount: 1,
-  localRuntimeNotApplicableCount: 2,
+  localRuntimeNotApplicableCount: 1,
   enforcementReadyCount: 0,
-  openGapCount: 14,
-  adapterDispatchClaimed: false,
-  broadInstalledAppBlockingClaimed: false,
-  platformEnforcementClaimed: false,
-  providerDeliveryClaimed: false,
-  childDeviceDeliveryClaimed: false,
-  privateDiagnosticsClaimed: false,
+  openGapCount: 8,
   rows: [
     {
-      schemaVersion: 1,
-      rowId: 'app-game-platform-proof-status-android',
-      platform: 'android',
-      proofState: 'android-host-visible',
-      authorityState: 'visibility-only',
-      hostCapabilityState: 'available',
-      hostCapabilityEvidenceRefs: ['android-adb-host-toolchain-ref'],
-      hostCapabilityProbeRefs: ['android-adb-path-probe-ref'],
-      productMeanings: ['native-app', 'native-game'],
-      adapterDispatchClaimed: false,
-      broadInstalledAppBlockingClaimed: false,
-      platformEnforcementClaimed: false,
-      providerDeliveryClaimed: false,
-      childDeliveryClaimed: false,
-      privateDiagnosticsClaimed: false,
-      proofRefs: [
-        'android-adb-host-toolchain-ref',
-        'android-physical-device-proof-ref',
-        'android-usage-events-foreground-ref',
-      ],
-      openGaps: [
-        'android-device-owner-not-proved',
-        'android-durable-usage-events-replay-not-proved',
-        'platform-enforcement-not-proved',
-        'child-device-delivery-not-proved',
-      ],
-      lastCheckedAt: '2026-06-08T16:20:00.000Z',
-    },
-    {
-      schemaVersion: 1,
-      rowId: 'app-game-platform-proof-status-linux',
-      platform: 'linux',
-      proofState: 'linux-host-not-detected',
-      authorityState: 'visibility-only',
-      hostCapabilityState: 'not-detected',
-      hostCapabilityEvidenceRefs: [],
-      hostCapabilityProbeRefs: [],
-      productMeanings: ['native-app', 'native-game'],
-      adapterDispatchClaimed: false,
-      broadInstalledAppBlockingClaimed: false,
-      platformEnforcementClaimed: false,
-      providerDeliveryClaimed: false,
-      childDeliveryClaimed: false,
-      privateDiagnosticsClaimed: false,
-      proofRefs: [
-        'linux-wsl-host-toolchain-ref',
-        'linux-wslg-display-ref',
-        'linux-wslg-x11-socket-ref',
-        'linux-wslg-wayland-socket-ref',
-      ],
-      openGaps: [
-        'linux-native-service-not-proved',
-        'linux-foreground-capture-not-proved',
-        'linux-rollback-not-proved',
-        'platform-enforcement-not-proved',
-        'child-device-delivery-not-proved',
-      ],
-      lastCheckedAt: '2026-06-08T16:20:00.000Z',
-    },
-    {
-      schemaVersion: 1,
-      rowId: 'app-game-platform-proof-status-windows',
       platform: 'windows',
       proofState: 'windows-policy-preflight-observed',
-      authorityState: 'scoped-execution-only',
+      authorityState: 'visibility-only',
       hostCapabilityState: 'available',
-      hostCapabilityEvidenceRefs: ['windows-host-local-probe-ref'],
+      hostCapabilityEvidenceRefs: ['windows-local-policy-evidence-proof-ref'],
       hostCapabilityProbeRefs: ['windows-host-local-probe-ref'],
-      productMeanings: ['native-app', 'native-game'],
       adapterDispatchClaimed: false,
       broadInstalledAppBlockingClaimed: false,
       platformEnforcementClaimed: false,
@@ -99,46 +25,38 @@ const ReadModel = {
       privateDiagnosticsClaimed: false,
       proofRefs: ['windows-broad-blocking-authority-preflight-ref'],
       openGaps: [
-        'windows-applocker-enforce-proof-not-attached',
-        'windows-app-control-enforce-proof-not-attached',
-        'rollback-proof-not-attached',
+        'windows-applocker-enforce-not-proved',
+        'windows-broad-blocking-not-proved',
+        'cross-platform-child-delivery-not-proved',
       ],
-      lastCheckedAt: '2026-06-08T16:20:00.000Z',
     },
     {
-      schemaVersion: 1,
-      rowId: 'app-game-platform-proof-status-macos',
-      platform: 'macos',
-      proofState: 'apple-ci-artifacts-required',
-      authorityState: 'not-locally-provable',
-      hostCapabilityState: 'not-applicable',
+      platform: 'linux',
+      proofState: 'physical-device-observed',
+      authorityState: 'visibility-only',
+      hostCapabilityState: 'not-detected',
       hostCapabilityEvidenceRefs: [],
-      hostCapabilityProbeRefs: [],
-      productMeanings: ['native-app', 'native-game'],
+      hostCapabilityProbeRefs: ['linux-host-local-probe-ref'],
       adapterDispatchClaimed: false,
       broadInstalledAppBlockingClaimed: false,
       platformEnforcementClaimed: false,
       providerDeliveryClaimed: false,
       childDeliveryClaimed: false,
       privateDiagnosticsClaimed: false,
-      proofRefs: ['apple-ci-platform-proof-preflight-ref'],
+      proofRefs: ['android-physical-device-proof-ref'],
       openGaps: [
-        'macos-ci-runner-not-proved',
-        'macos-mdm-endpoint-not-proved',
-        'apple-platform-adapter-dispatch-blocked-before-ci-proof',
+        'android-device-owner-not-proved',
+        'android-authority-preflight-not-attached',
+        'cross-platform-child-delivery-not-proved',
       ],
-      lastCheckedAt: '2026-06-08T16:20:00.000Z',
     },
     {
-      schemaVersion: 1,
-      rowId: 'app-game-platform-proof-status-ios',
       platform: 'ios',
       proofState: 'apple-ci-artifacts-required',
-      authorityState: 'not-locally-provable',
+      authorityState: 'visibility-only',
       hostCapabilityState: 'not-applicable',
       hostCapabilityEvidenceRefs: [],
       hostCapabilityProbeRefs: [],
-      productMeanings: ['native-app', 'native-game'],
       adapterDispatchClaimed: false,
       broadInstalledAppBlockingClaimed: false,
       platformEnforcementClaimed: false,
@@ -148,17 +66,14 @@ const ReadModel = {
       proofRefs: ['apple-ci-platform-proof-preflight-ref'],
       openGaps: [
         'ios-family-controls-not-proved',
-        'ios-managed-settings-not-proved',
-        'ios-testflight-device-not-proved',
         'apple-platform-adapter-dispatch-blocked-before-ci-proof',
       ],
-      lastCheckedAt: '2026-06-08T16:20:00.000Z',
     },
   ],
 } as const;
 
 describe('app-game platform proof status panel intent', () => {
-  it('renders five-platform proof rows as review-only visibility without enforcement upgrades', () => {
+  it('renders normalized host-capability proof rows without enforcement upgrades', () => {
     const intent = createAppGamePlatformProofStatusPanelIntent(ReadModel);
 
     expect(intent.body).toBe(
@@ -170,59 +85,47 @@ describe('app-game platform proof status panel intent', () => {
     expect(intent.loadState).toBe('Review');
     expect(intent.summaryDetails).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ label: 'Platform proofs', value: '5' }),
-        expect.objectContaining({ label: 'Host-visible rows', value: '2' }),
-        expect.objectContaining({ label: 'Host not detected rows', value: '1' }),
-        expect.objectContaining({ label: 'Not-applicable rows', value: '2' }),
+        expect.objectContaining({ label: 'Platform proofs', value: '3' }),
+        expect.objectContaining({ label: 'Host-visible rows', value: '1' }),
+        expect.objectContaining({ label: 'Host not-detected rows', value: '1' }),
+        expect.objectContaining({ label: 'Not-applicable rows', value: '1' }),
         expect.objectContaining({ label: 'Enforcement-ready rows', value: '0' }),
-        expect.objectContaining({ label: 'Open gaps', value: '14' }),
+        expect.objectContaining({ label: 'Open gaps', value: '8' }),
       ])
     );
-    expect(intent.rows.map((row) => row.title)).toEqual(['android', 'linux', 'windows', 'macos', 'ios']);
+    expect(intent.rows.map((row) => row.title)).toEqual(['windows', 'linux', 'ios']);
     expect(intent.rows[0].details).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ label: 'Platform', value: 'android' }),
+        expect.objectContaining({ label: 'Platform', value: 'windows' }),
         expect.objectContaining({ label: 'Authority state', value: 'visibility-only' }),
         expect.objectContaining({ label: 'Host capability', value: 'available' }),
+        expect.objectContaining({ label: 'Host capability evidence', value: 'windows-local-policy-evidence-proof-ref' }),
+        expect.objectContaining({ label: 'Host capability probe', value: 'windows-host-local-probe-ref' }),
         expect.objectContaining({ label: 'Platform state', value: 'Not claimed' }),
-        expect.objectContaining({ label: 'Child delivery', value: 'Not claimed' }),
       ])
     );
     expect(intent.rows[1].details).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ label: 'Platform', value: 'linux' }),
         expect.objectContaining({ label: 'Host capability', value: 'not-detected' }),
+        expect.objectContaining({ label: 'Host capability evidence', value: 'Not reported' }),
         expect.objectContaining({
-          label: 'Evidence references',
-          value:
-            'linux-wsl-host-toolchain-ref | linux-wslg-display-ref | linux-wslg-x11-socket-ref | linux-wslg-wayland-socket-ref',
+          label: 'Host capability probe',
+          value: 'linux-host-local-probe-ref',
         }),
-        expect.objectContaining({ label: 'Enforcement', value: 'Not claimed' }),
+        expect.objectContaining({ label: 'Broad blocking', value: 'Not claimed' }),
       ])
     );
-    expect(intent.rows[3].details).toEqual(
+    expect(intent.rows[2].details).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ label: 'Platform', value: 'macos' }),
+        expect.objectContaining({ label: 'Platform', value: 'ios' }),
         expect.objectContaining({ label: 'Host capability', value: 'not-applicable' }),
         expect.objectContaining({ label: 'Evidence references', value: 'apple-ci-platform-proof-preflight-ref' }),
         expect.objectContaining({
           label: 'Open gaps',
-          value:
-            'macos-ci-runner-not-proved | macos-mdm-endpoint-not-proved | apple-platform-adapter-dispatch-blocked-before-ci-proof',
+          value: 'ios-family-controls-not-proved | apple-platform-adapter-dispatch-blocked-before-ci-proof',
         }),
         expect.objectContaining({ label: 'Platform state', value: 'Not claimed' }),
-      ])
-    );
-    expect(intent.rows[4].details).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ label: 'Platform', value: 'ios' }),
-        expect.objectContaining({ label: 'Host capability', value: 'not-applicable' }),
-        expect.objectContaining({
-          label: 'Open gaps',
-          value:
-            'ios-family-controls-not-proved | ios-managed-settings-not-proved | ios-testflight-device-not-proved | apple-platform-adapter-dispatch-blocked-before-ci-proof',
-        }),
-        expect.objectContaining({ label: 'Child delivery', value: 'Not claimed' }),
       ])
     );
   });

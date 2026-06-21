@@ -13,27 +13,21 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-report-runtime-proof.test.ts',
+      'tests/unit/app-install-purchase-report-runtime-proof.test.ts',
     ])
   );
 
   const proofModule = await loadReportRuntimeProofModule();
-  const packageModule = await import('@ocentra-parent/app-game-domain/app-install-purchase-report-runtime-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseReportRuntimeProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseReportRuntimeProof(parsedReadModel);
-
-  assert.equal(
-    packageModule.AppInstallPurchaseReportRuntimeProofReadModel.schemaVersion,
-    parsedReadModel.schemaVersion
-  );
   assert.deepEqual(summary, {
     reportRuntimeRows: 4,
     compilerLinkedRows: 4,
@@ -60,11 +54,11 @@ async function main() {
     proofMode: 'app-install-purchase-report-runtime-proof',
     commands,
     evidence: {
-      reportRuntimeContract: 'packages/parent-domain/src/app-install-purchase-report-runtime-proof.ts',
-      sourceChildArtifactContract: 'packages/parent-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
-      sourcePlatformArtifactContract: 'packages/parent-domain/src/app-install-purchase-platform-artifact-proof.ts',
-      sourceReportCompilerContract: 'packages/parent-domain/src/stateless-report-compiler-status.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-report-runtime-proof.test.ts',
+      reportRuntimeContract: 'packages/app-game-domain/src/app-install-purchase-report-runtime-proof.ts',
+      sourceChildArtifactContract: 'packages/app-game-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
+      sourcePlatformArtifactContract: 'packages/app-game-domain/src/app-install-purchase-platform-artifact-proof.ts',
+      sourceReportCompilerContract: 'packages/schema-domain/src/stateless-report-compiler-status.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-report-runtime-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDelta: 'DOC_DELTA: docs/product-capability-checklist.md row Install/purchase approval',
@@ -110,7 +104,7 @@ async function loadReportRuntimeProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-report-runtime-proof.js'
   );

@@ -9,7 +9,7 @@ import { AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerPar
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const UpstreamServiceHandoffPath = new URL(
-  '../../../test-results/app-game-timer-service-handoff-proof/handoff.json',
+  '../../../../test-results/app-game-timer-service-handoff-proof/handoff.json',
   import.meta.url
 );
 

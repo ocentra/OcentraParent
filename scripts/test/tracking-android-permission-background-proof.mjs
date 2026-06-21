@@ -21,14 +21,15 @@ await mkdir(testOutputDir, { recursive: true });
 await mkdir(wp08ProofDir, { recursive: true });
 await mkdir(wp09ProofDir, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
-  'tracking-android-permission-background-proof',
+  'tracking-android-permission-background-proof.test.ts',
 ]);
 
 const proofModule = await importDist('tracking-android-permission-background-proof.js');
@@ -60,8 +61,8 @@ const proof = {
   summary: summarize(readModel),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-android-permission-background-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-android-permission-background-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-android-permission-background-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-android-permission-background-proof.test.ts',
     harness: 'scripts/test/tracking-android-permission-background-proof.mjs',
     evidence: 'test-results/tracking-android-permission-background-proof/proof.json',
     foregroundProofPack: 'output/tracking-plan-proof/08-android-foreground-location-adapter',
@@ -79,7 +80,7 @@ console.log('tracking-android-permission-background-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-android-permission-background-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
 }
 
 function permissionRows() {
@@ -257,7 +258,7 @@ function sourceSnapshot(proof, title, scope) {
     proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
     '```',
     '',
-    `- Scope: parent-domain Android ${scope} read model against existing emulator scaffold/manual proof plans.`,
+    `- Scope: tracking-domain Android ${scope} read model against existing emulator scaffold/manual proof plans.`,
     '- Source inspected: location/geofence feature doc, location/geofence expectations, platform expectations, WP08 workpack, and WP09 workpack.',
     '- Boundary: this proof keeps Android foreground permission, foreground sample, background permission, and geofence transitions manual-required until device/runtime artifacts exist.',
     '',

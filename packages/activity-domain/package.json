@@ -3,39 +3,11 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Device activity capture, journal, read-model, and family aggregation contracts.",
+  "description": "Package metadata and focused proof coverage for centralized activity schemas.",
   "exports": {
-    "./activity-family-aggregation": {
-      "import": "./dist/activity-family-aggregation.js",
-      "types": "./dist/activity-family-aggregation.d.ts"
-    },
-    "./activity-surface": {
-      "import": "./dist/activity-surface.js",
-      "types": "./dist/activity-surface.d.ts"
-    },
-    "./capture": {
-      "import": "./dist/capture.js",
-      "types": "./dist/capture.d.ts"
-    },
-    "./journal": {
-      "import": "./dist/journal.js",
-      "types": "./dist/journal.d.ts"
-    },
-    "./journal-primitives": {
-      "import": "./dist/journal-primitives.js",
-      "types": "./dist/journal-primitives.d.ts"
-    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
-    },
-    "./query": {
-      "import": "./dist/query.js",
-      "types": "./dist/query.d.ts"
-    },
-    "./screen-vlm-journal-read-model": {
-      "import": "./dist/screen-vlm-journal-read-model.js",
-      "types": "./dist/screen-vlm-journal-read-model.d.ts"
     }
   },
   "scripts": {
@@ -46,9 +18,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/app-game-domain": "file:../app-game-domain",
-    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
-    "@ocentra-parent/schema-domain": "file:../schema-domain",
-    "@ocentra-parent/screen-domain": "file:../screen-domain"
+    "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

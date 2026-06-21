@@ -36,7 +36,7 @@ async function main() {
 
   const proofModule = await tsImport(
     pathToFileURL(
-      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-authority-enrollment-manual-required-proof.ts')
+      path.join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-authority-enrollment-manual-required-proof.ts')
     ).href,
     import.meta.url
   );

@@ -4,8 +4,8 @@ import {
   StatusBackendRedactionManifestEntrySchema,
   StatusBackendRedactionManifestReadModelSchema,
   StatusBackendRedactionManifestRequiredDataClasses,
-} from '../../src/status-backend-redaction-manifest';
-import { StatusBackendRedactionManifestReadModel } from '../../src/status-backend-redaction-manifest-read-model';
+} from '@ocentra-parent/schema-domain/status-backend-redaction-manifest';
+import { StatusBackendRedactionManifestReadModel } from '@ocentra-parent/schema-domain/status-backend-redaction-manifest-read-model';
 
 describe('status backend redaction manifest logging contract', () => {
   it('covers manifest ready manual review and backend unavailable states', assertCoverage);

@@ -3,7 +3,7 @@ import {
   type ChildAndroidDeviceProofArtifactGateReadModel,
   ChildAndroidAddDevicePairingReadinessStateSchema,
   ChildAndroidDeviceProofArtifactGateReadModelSchema,
-} from '../../src/child-android-device-proof-artifact-gate';
+} from '@ocentra-parent/schema-domain/child-android-device-proof-artifact-gate';
 
 describe('child Android device proof artifact gate contracts', () => {
   acceptsHonestDeviceProofGate();

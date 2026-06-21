@@ -1,19 +1,26 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
+import type { AgentAppGamePolicyReadinessResult } from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
 import {
-  PortalDetails,
+  AgentCommand,
+  AgentEvent
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import {
   PortalDom,
   PortalText,
   PortalTextToken,
+  type PortalDisplayText,
+} from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import {
   createAppGamePolicyReadinessPanelIntent,
-  isPortalAppGameParentSurfaceRoute,
   type AppGamePolicyReadinessPanelDetail,
   type AppGamePolicyReadinessPanelIntent,
   type AppGamePolicyReadinessPanelRow,
-  type PortalDisplayText,
+} from '@ocentra-parent/portal-domain/app-game-policy-readiness-panel';
+import {
+  isPortalAppGameParentSurfaceRoute,
   type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
-import type { AgentAppGamePolicyReadinessResult } from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
+} from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 
 export function shouldRenderAppGamePolicyReadinessRoute(route: PortalRouteValue): boolean {

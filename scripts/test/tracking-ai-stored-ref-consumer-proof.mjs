@@ -19,18 +19,19 @@ await mkdir(wp24Dir, { recursive: true });
 await mkdir(wp32Dir, { recursive: true });
 await mkdir(wp33Dir, { recursive: true });
 
-runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 run('cmd', [
   '/c',
   'npm',
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
-  'tracking-ai-stored-ref-consumer-proof',
-  'tracking-ai-provider-routing-proof',
-  'tracking-report-policy-consumer-proof',
+  'tracking-ai-stored-ref-consumer-proof.test.ts',
+  'tracking-ai-provider-routing-proof.test.ts',
+  'tracking-report-policy-consumer-proof.test.ts',
 ]);
 
 const storedRefConsumer = await importDist('tracking-ai-stored-ref-consumer-proof.js');
@@ -45,8 +46,8 @@ const proof = {
   summary: summarize(proofModel.rows),
   productClaims: proofModel.productClaims,
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-ai-stored-ref-consumer-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-ai-stored-ref-consumer-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-ai-stored-ref-consumer-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-ai-stored-ref-consumer-proof.test.ts',
     harness: 'scripts/test/tracking-ai-stored-ref-consumer-proof.mjs',
     evidence: 'test-results/tracking-ai-stored-ref-consumer-proof/proof.json',
     wp24ProofPack: 'output/tracking-plan-proof/24-ai-provider-routing/19-ai-stored-ref-consumer-proof.json',
@@ -69,7 +70,7 @@ console.log('tracking-ai-stored-ref-consumer-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-ai-stored-ref-consumer-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
 }
 
 function summarize(rows) {

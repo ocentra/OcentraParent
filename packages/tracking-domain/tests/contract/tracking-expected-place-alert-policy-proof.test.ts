@@ -4,7 +4,7 @@ import {
   TrackingExpectedPlaceAlertPolicyRowStatus,
   buildTrackingExpectedPlaceAlertPolicyProof,
 } from '../../src/tracking-expected-place-alert-policy-proof';
-import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from '../../src/tracking-location-policy';
+import { TrackingLocationPolicyReadModelSchema, TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 const Timestamp = '2026-06-06T17:16:00.000Z';
 

@@ -1,7 +1,8 @@
 use super::{
-    constants, ActivityEventKind, ActivityIngestStatus, ActivityObserver, ActivityRecentQuery,
-    ActivityRecentSummary, ActivitySubjectKind, ACTIVITY_QUERY_SCHEMA_VERSION,
+    constants, ActivityEventKind, ActivityIngestStatus, ActivityObserver, ActivityRecentSummary,
+    ActivitySubjectKind, ACTIVITY_QUERY_SCHEMA_VERSION,
 };
+use crate::activity_query::ActivityRecentQuery;
 
 #[test]
 fn activity_ingest_status_serializes_to_typescript_contract_shape() {

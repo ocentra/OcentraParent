@@ -1,6 +1,8 @@
 use std::fs::{read, remove_file, write};
 
-use ocentra_parent_agent_core::{ActivityJournal, ActivityStore};
+use ocentra_parent_agent_core::activity_store::ActivityStore;
+use ocentra_parent_agent_core::journal::ActivityJournal;
+use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_protocol::{constants, ActivityEventKind, ActivityObserver};
 #[cfg(windows)]
 use ocentra_parent_agent_protocol::{
@@ -90,13 +92,10 @@ fn record_process_snapshot_reuses_journal_key_for_replay() {
     record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1, 1)
         .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
     let key_bytes = read(&key_path).expect(constants::error::JOURNAL_READS);
-    let mut key = [0; ocentra_parent_agent_core::JOURNAL_KEY_BYTES];
+    let mut key = [0; JOURNAL_KEY_BYTES];
     key.copy_from_slice(&key_bytes);
-    let journal = ActivityJournal::open(
-        journal_path.clone(),
-        ocentra_parent_agent_core::JournalKey::from_bytes(key),
-    )
-    .expect(constants::error::JOURNAL_OPENS);
+    let journal = ActivityJournal::open(journal_path.clone(), JournalKey::from_bytes(key))
+        .expect(constants::error::JOURNAL_OPENS);
     let lines = journal.lines().expect(constants::error::JOURNAL_READS);
     assert_optional_foreground_event_count(lines.len() as u64);
     let process_event = journal

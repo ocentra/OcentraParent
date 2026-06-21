@@ -17,21 +17,22 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff',
   'app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff',
 ]);
 
-const consumerContract = await importDist(
+const consumerContract = await importAppGameDist(
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.js'
 );
-const refs = await importDist('reference-primitives.js');
+const refs = await importSchemaDist('reference-primitives.js');
 const responseHandoff = await readJson(
   join(
     repoRoot,
@@ -55,7 +56,7 @@ const proof = {
   stackedOn: {
     wp94Branch: 'codex/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff',
     reason:
-      'WP95 consumes WP94 response-consumer handoff rows and creates a parent-domain parent-surface handoff while actual parent-surface rendering, portal rendering, service consumer implementation, service command registration, service handler implementation, service event emission, service read API implementation, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports are sequenced separately.',
+      'Schema-domain owns the response-consumer parent-surface handoff contract surface; app-game-domain consumes WP94 response-consumer handoff rows while actual parent-surface rendering, portal rendering, service consumer implementation, service command registration, service handler implementation, service event emission, service read API implementation, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports remain sequenced separately.',
   },
   summary: summarize(ResponseConsumerParentSurfaceHandoff),
   nonClaims: {
@@ -86,12 +87,16 @@ const proof = {
     rawPrivateSourceRowsIncluded: ResponseConsumerParentSurfaceHandoff.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.ts',
-    rules:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.test.ts',
-    harness: 'scripts/test/app-game-timer-parent-surface-proof.mjs',
+    schemaSource:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.ts',
+    schemaRules:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-rules.ts',
+    consumerSource:
+      'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.ts',
+    consumerTest:
+      'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.test.ts',
+    harness:
+      'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff-proof.mjs',
     evidence: 'test-results/app-game-timer-parent-surface-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
     appProofPack: `output/app-plan-proof/${proofSlug}`,
@@ -108,8 +113,12 @@ await writeProofPack(appProofDir, proof, 'app WP95');
 console.log('app-game-timer-parent-surface-proof-ok');
 console.log(`evidence=${join('test-results', 'app-game-timer-parent-surface-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function ResponseConsumerParentSurfaceHandoffOptions(refs) {

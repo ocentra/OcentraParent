@@ -1,12 +1,9 @@
-import type { AgentEventEnvelope, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
-import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
-import {
-  PortalReadableValues,
-  PortalText,
-  PortalTextToken,
-  decodePortalDetailValue,
-  type PortalDetailValue,
-} from '@ocentra-parent/portal-domain/contracts';
+import { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import type { LogFieldValue } from '@ocentra-parent/schema-domain/logging-contracts';
+import { PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import { PortalReadableValues } from '@ocentra-parent/portal-domain/details';
+import { decodePortalDetailValue, type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 
 export type AgentPayloadField = (typeof AgentProtocolDefaults.Field)[keyof typeof AgentProtocolDefaults.Field];
 

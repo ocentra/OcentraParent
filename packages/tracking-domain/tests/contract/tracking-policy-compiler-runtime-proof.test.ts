@@ -5,18 +5,18 @@ import {
   PolicyCompilerNoClaimLabel,
   PolicyCompilerRuleStatus,
   parsePolicyCompiledArtifact,
-} from '@ocentra-parent/policy-domain/policy-compiler';
+} from '@ocentra-parent/schema-domain/policy-compiler';
 import {
   TrackingLocationAiAnalysisResultSchema,
   TrackingPolicySchemaVersion,
-} from '../../src/tracking-location-policy';
+} from '@ocentra-parent/schema-domain/tracking-location-policy';
 import {
   TrackingPolicyCompilerRuntimeProofRequestSchema,
-  compileTrackingPolicyRuntimeProofDecision,
   type TrackingPolicyCompilerRuntimeProofRequest,
   type TrackingPolicyCompilerRuntimeProofResult,
-} from '../../src/tracking-policy-compiler-runtime-proof';
-import type { TrackingPolicyRule } from '../../src/tracking-location-policy-types';
+} from '@ocentra-parent/schema-domain/tracking-policy-compiler-runtime-proof';
+import type { TrackingPolicyRule } from '@ocentra-parent/schema-domain/tracking-location-policy-types';
+import { compileTrackingPolicyRuntimeProofDecision } from '../../src/tracking-policy-compiler-runtime-proof';
 
 const EvidenceTrace = {
   evidenceReferenceId: 'tracking-policy-evidence-1',

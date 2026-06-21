@@ -3,12 +3,8 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Operational logging, audit history, redaction, provider custody, and support workflow contracts.",
+  "description": "Parent-local logging runtime helpers and focused proof coverage built on centralized schemas.",
   "exports": {
-    "./contracts": {
-      "import": "./dist/contracts.js",
-      "types": "./dist/contracts.d.ts"
-    },
     "./core/logConfig": {
       "import": "./dist/core/logConfig.js",
       "types": "./dist/core/logConfig.d.ts"
@@ -24,14 +20,6 @@
     "./core/stackTrace": {
       "import": "./dist/core/stackTrace.js",
       "types": "./dist/core/stackTrace.d.ts"
-    },
-    "./test-log/types": {
-      "import": "./dist/test-log/types.js",
-      "types": "./dist/test-log/types.d.ts"
-    },
-    "./test-log/ndjsonBrands": {
-      "import": "./dist/test-log/ndjsonBrands.js",
-      "types": "./dist/test-log/ndjsonBrands.d.ts"
     },
     "./test-log/bridgeConvert": {
       "import": "./dist/test-log/bridgeConvert.js",
@@ -69,10 +57,6 @@
       "import": "./dist/test-log/testLogDuckDb.js",
       "types": "./dist/test-log/testLogDuckDb.d.ts"
     },
-    "./transport/bridgeLogPayload": {
-      "import": "./dist/transport/bridgeLogPayload.js",
-      "types": "./dist/transport/bridgeLogPayload.d.ts"
-    },
     "./transport/bridgeTransport": {
       "import": "./dist/transport/bridgeTransport.js",
       "types": "./dist/transport/bridgeTransport.d.ts"
@@ -81,10 +65,6 @@
       "import": "./dist/transport/bridgeServer.js",
       "types": "./dist/transport/bridgeServer.d.ts"
     },
-    "./app-log/types": {
-      "import": "./dist/app-log/types.js",
-      "types": "./dist/app-log/types.d.ts"
-    },
     "./app-log/appNdjsonWriter": {
       "import": "./dist/app-log/appNdjsonWriter.js",
       "types": "./dist/app-log/appNdjsonWriter.d.ts"
@@ -92,134 +72,6 @@
     "./app-log/createAppLogStorage": {
       "import": "./dist/app-log/createAppLogStorage.js",
       "types": "./dist/app-log/createAppLogStorage.d.ts"
-    },
-    "./notification-audit-history": {
-      "import": "./dist/notification-audit-history.js",
-      "types": "./dist/notification-audit-history.d.ts"
-    },
-    "./notification-audit-history-handoff": {
-      "import": "./dist/notification-audit-history-handoff.js",
-      "types": "./dist/notification-audit-history-handoff.d.ts"
-    },
-    "./support-bundle-redaction": {
-      "import": "./dist/support-bundle-redaction.js",
-      "types": "./dist/support-bundle-redaction.d.ts"
-    },
-    "./support-bundle-redaction-read-model": {
-      "import": "./dist/support-bundle-redaction-read-model.js",
-      "types": "./dist/support-bundle-redaction-read-model.d.ts"
-    },
-    "./support-backend-upload-status": {
-      "import": "./dist/support-backend-upload-status.js",
-      "types": "./dist/support-backend-upload-status.d.ts"
-    },
-    "./support-backend-upload-status-read-model": {
-      "import": "./dist/support-backend-upload-status-read-model.js",
-      "types": "./dist/support-backend-upload-status-read-model.d.ts"
-    },
-    "./support-backend-upload-execution-runtime": {
-      "import": "./dist/support-backend-upload-execution-runtime.js",
-      "types": "./dist/support-backend-upload-execution-runtime.d.ts"
-    },
-    "./support-backend-upload-execution-runtime-read-model": {
-      "import": "./dist/support-backend-upload-execution-runtime-read-model.js",
-      "types": "./dist/support-backend-upload-execution-runtime-read-model.d.ts"
-    },
-    "./support-backend-upload-custody-audit": {
-      "import": "./dist/support-backend-upload-custody-audit.js",
-      "types": "./dist/support-backend-upload-custody-audit.d.ts"
-    },
-    "./support-backend-upload-custody-audit-read-model": {
-      "import": "./dist/support-backend-upload-custody-audit-read-model.js",
-      "types": "./dist/support-backend-upload-custody-audit-read-model.d.ts"
-    },
-    "./support-backend-provider-runtime-readiness": {
-      "import": "./dist/support-backend-provider-runtime-readiness.js",
-      "types": "./dist/support-backend-provider-runtime-readiness.d.ts"
-    },
-    "./support-backend-provider-runtime-readiness-read-model": {
-      "import": "./dist/support-backend-provider-runtime-readiness-read-model.js",
-      "types": "./dist/support-backend-provider-runtime-readiness-read-model.d.ts"
-    },
-    "./support-case-resolution-status": {
-      "import": "./dist/support-case-resolution-status.js",
-      "types": "./dist/support-case-resolution-status.d.ts"
-    },
-    "./support-case-resolution-status-read-model": {
-      "import": "./dist/support-case-resolution-status-read-model.js",
-      "types": "./dist/support-case-resolution-status-read-model.d.ts"
-    },
-    "./provider-secret-custody-status": {
-      "import": "./dist/provider-secret-custody-status.js",
-      "types": "./dist/provider-secret-custody-status.d.ts"
-    },
-    "./provider-secret-custody-status-read-model": {
-      "import": "./dist/provider-secret-custody-status-read-model.js",
-      "types": "./dist/provider-secret-custody-status-read-model.d.ts"
-    },
-    "./provider-secret-execution-readiness": {
-      "import": "./dist/provider-secret-execution-readiness.js",
-      "types": "./dist/provider-secret-execution-readiness.d.ts"
-    },
-    "./provider-secret-execution-readiness-read-model": {
-      "import": "./dist/provider-secret-execution-readiness-read-model.js",
-      "types": "./dist/provider-secret-execution-readiness-read-model.d.ts"
-    },
-    "./provider-secret-rotation-revocation-status": {
-      "import": "./dist/provider-secret-rotation-revocation-status.js",
-      "types": "./dist/provider-secret-rotation-revocation-status.d.ts"
-    },
-    "./provider-secret-rotation-revocation-status-read-model": {
-      "import": "./dist/provider-secret-rotation-revocation-status-read-model.js",
-      "types": "./dist/provider-secret-rotation-revocation-status-read-model.d.ts"
-    },
-    "./privacy-legal-disclosure-status": {
-      "import": "./dist/privacy-legal-disclosure-status.js",
-      "types": "./dist/privacy-legal-disclosure-status.d.ts"
-    },
-    "./privacy-legal-disclosure-status-read-model": {
-      "import": "./dist/privacy-legal-disclosure-status-read-model.js",
-      "types": "./dist/privacy-legal-disclosure-status-read-model.d.ts"
-    },
-    "./status-backend-payload-custody": {
-      "import": "./dist/status-backend-payload-custody.js",
-      "types": "./dist/status-backend-payload-custody.d.ts"
-    },
-    "./status-backend-payload-custody-read-model": {
-      "import": "./dist/status-backend-payload-custody-read-model.js",
-      "types": "./dist/status-backend-payload-custody-read-model.d.ts"
-    },
-    "./status-backend-redaction-manifest": {
-      "import": "./dist/status-backend-redaction-manifest.js",
-      "types": "./dist/status-backend-redaction-manifest.d.ts"
-    },
-    "./status-backend-redaction-manifest-read-model": {
-      "import": "./dist/status-backend-redaction-manifest-read-model.js",
-      "types": "./dist/status-backend-redaction-manifest-read-model.d.ts"
-    },
-    "./delete-executor-proof": {
-      "import": "./dist/delete-executor-proof.js",
-      "types": "./dist/delete-executor-proof.d.ts"
-    },
-    "./delete-executor-read-model": {
-      "import": "./dist/delete-executor-read-model.js",
-      "types": "./dist/delete-executor-read-model.d.ts"
-    },
-    "./support-incident-workflow": {
-      "import": "./dist/support-incident-workflow.js",
-      "types": "./dist/support-incident-workflow.d.ts"
-    },
-    "./support-incident-workflow-read-model": {
-      "import": "./dist/support-incident-workflow-read-model.js",
-      "types": "./dist/support-incident-workflow-read-model.d.ts"
-    },
-    "./tamper-integrity-audit": {
-      "import": "./dist/tamper-integrity-audit.js",
-      "types": "./dist/tamper-integrity-audit.d.ts"
-    },
-    "./tamper-integrity-audit-read-model": {
-      "import": "./dist/tamper-integrity-audit-read-model.js",
-      "types": "./dist/tamper-integrity-audit-read-model.d.ts"
     },
     "./package-info": {
       "import": "./dist/package-info.js",

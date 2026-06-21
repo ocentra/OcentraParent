@@ -1,5 +1,5 @@
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { SetupPairingState } from '@ocentra-parent/setup-domain/pairing-intent';
+import { SetupPairingState } from '@ocentra-parent/schema-domain/setup-pairing-intent';
 import {
   createSetupReadinessChecklist,
   SetupAccountReadinessState,
@@ -13,7 +13,7 @@ import {
   SetupRecoveryState,
   type SetupReadinessChecklistItem,
   type SetupReadinessReport,
-} from '@ocentra-parent/setup-domain/readiness';
+} from '@ocentra-parent/schema-domain/setup-readiness';
 import {
   getAllowedSetupFirstRunTransitions,
   resolveSetupFirstRunState,
@@ -21,7 +21,7 @@ import {
   SetupFirstRunStateId,
   type SetupFirstRunState,
   type SetupFirstRunStateId as SetupFirstRunStateIdValue,
-} from '@ocentra-parent/setup-domain/setup-state-machine';
+} from '@ocentra-parent/schema-domain/setup-state-machine';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDetails, PortalReadableValues } from './details';
 

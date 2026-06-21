@@ -23,13 +23,15 @@ async function main() {
   await runCommand(...npmCommand(['run', 'build:contracts']));
   await runCommand(
     ...npmCommand([
-      'run',
-      'test',
+      'exec',
       '--workspace',
       '@ocentra-parent/portal-domain',
       '--',
-      'app-game-child-runtime-transport-receipt-panel',
-      'contracts',
+      'vitest',
+      'run',
+      'tests/unit/contracts.test.ts',
+      '-t',
+      'PortalCommandButtons|PortalOverviewCommands',
     ])
   );
   await runCommand(
@@ -37,9 +39,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/portal',
+      '@ocentra-parent/portal-domain',
       '--',
-      'app-game-child-runtime-transport-receipt-route-panel',
+      'tests/unit/app-game-child-runtime-transport-receipt-panel.test.ts',
     ])
   );
 
@@ -64,19 +66,17 @@ async function main() {
       rawPrivateSourceRowsIncluded: false,
     },
     evidence: {
-      portalIntent: 'packages/portal-domain/src/app-game-child-runtime-transport-receipt-panel.ts',
-      portalIntentTest: 'packages/portal-domain/tests/app-game-child-runtime-transport-receipt-panel.test.ts',
-      portalRoute: 'apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx',
+      portalCommands: 'packages/portal-domain/src/commands.ts',
+      portalCommandsTest: 'packages/portal-domain/tests/unit/contracts.test.ts',
+      portalPanel: 'packages/portal-domain/src/app-game-child-runtime-transport-receipt-panel.ts',
+      portalPanelTest: 'packages/portal-domain/tests/unit/app-game-child-runtime-transport-receipt-panel.test.ts',
       portalLiveState: 'packages/portal-domain/src/live-activity-state.ts',
-      portalRouteTest: 'apps/portal/tests/app-game-child-runtime-transport-receipt-route-panel.test.ts',
-      portalCommandList: 'packages/portal-domain/src/commands.ts',
-      portalCommandContractTest: 'packages/portal-domain/tests/contracts.test.ts',
     },
     claimsProved: [
-      'The parent portal command list includes the child runtime transport receipt read-model request',
-      'The portal live-activity state parses the service-reported child runtime transport receipt event',
-      'The App/Game Sessions surface renders transport-required, manual-required, and unavailable rows with parent-safe refs',
-      'The parent surface keeps runtime transport, receipt ingestion, provider delivery, platform channel delivery, adapter dispatch, platform enforcement, and raw private rows unclaimed',
+      'The portal-domain command catalog includes the child runtime transport receipt read-model request and result event',
+      'The portal-domain live-activity state parses the service-reported child runtime transport receipt event',
+      'The portal-domain panel intent renders transport-required, manual-required, and unavailable rows with parent-safe refs',
+      'The portal-domain parent surface keeps runtime transport, receipt ingestion, provider delivery, platform channel delivery, adapter dispatch, platform enforcement, and raw private rows unclaimed',
     ],
     claimsNotProved: [
       'Child runtime transport execution',
@@ -96,13 +96,13 @@ async function main() {
       '',
       '- Branch: codex/app-game-control-product-completion',
       '- Commit: uncommitted full-goal batch, validated by harness before final checkpoint commit',
-      '- Portal intent: packages/portal-domain/src/app-game-child-runtime-transport-receipt-panel.ts',
-      '- Portal route: apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx',
+      '- Portal commands: packages/portal-domain/src/commands.ts',
+      '- Portal panel: packages/portal-domain/src/app-game-child-runtime-transport-receipt-panel.ts',
       '- Live state parser: packages/portal-domain/src/live-activity-state.ts',
       '',
       'Evidence:',
-      '- The parent portal requests the service-backed child runtime transport receipt read model.',
-      '- The App/Game Sessions route renders transport-required, manual-required, and unavailable rows.',
+      '- The portal-domain command catalog requests the service-backed child runtime transport receipt read model.',
+      '- The portal-domain panel renders transport-required, manual-required, and unavailable rows.',
       '- Runtime transport execution, receipt ingestion, provider delivery, adapter dispatch, and platform enforcement stay unclaimed.',
       '',
     ].join('\n')

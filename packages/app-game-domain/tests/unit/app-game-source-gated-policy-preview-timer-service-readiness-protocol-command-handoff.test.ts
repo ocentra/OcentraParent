@@ -9,7 +9,7 @@ import { AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelSc
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const UpstreamProtocolReadModelPath = new URL(
-  '../../../test-results/app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model-proof/timer-service-readiness-protocol-read-model.json',
+  '../../../../test-results/app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model-proof/timer-service-readiness-protocol-read-model.json',
   import.meta.url
 );
 

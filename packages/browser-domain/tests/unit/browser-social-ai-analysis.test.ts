@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   BrowserSocialAiAnalysisInputSchema,
   BrowserSocialAiAnalysisResultSchema,
-} from '../../src/browser-social-ai-analysis-schemas';
-import { buildBrowserSocialAiAnalysisResult } from '../../src/browser-social-ai-analysis-result-builder';
+} from '@ocentra-parent/schema-domain/browser-social-ai-analysis-schemas';
+import { buildBrowserSocialAiAnalysisResult } from '@ocentra-parent/schema-domain/browser-social-ai-analysis-result-builder';
 
 describe('browser social AI analysis contract', () => {
   it('accepts social video analysis from typed route and metadata refs only', acceptsVideoAnalysis);

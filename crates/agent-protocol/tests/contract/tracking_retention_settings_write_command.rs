@@ -1,18 +1,20 @@
 use ocentra_eventing::envelope::DomainEvent;
 use ocentra_eventing::request::{EventResponseContract, RequestEvent};
-use ocentra_parent_agent_protocol::{
-    constants, tracking_durable_settings_store_ref, tracking_local_service_state_snapshot_ref,
+use ocentra_parent_agent_protocol::tracking::retention_settings_write_command::{
+    tracking_durable_settings_store_ref, tracking_local_service_state_snapshot_ref,
     tracking_mutation_proof_ref, tracking_read_model_proof_ref, tracking_retention_accepted_at,
     tracking_retention_command_id, tracking_retention_settings_kind,
-    tracking_retention_write_state_accepted, tracking_writer_intent_ref, AgentCommandName,
-    AgentEventName, TrackingChildCheckInDeliveryState, TrackingChildCheckInRequestReceipt,
-    TrackingChildCheckInRequestState, TrackingChildCheckInRequestedEvent, TrackingConfigAckState,
-    TrackingConfigEffectiveState, TrackingConfigUpdateResponseState,
-    TrackingDeleteAfterAlertResolutionState, TrackingDurableSettingsPersistenceState,
-    TrackingExecutionClaimState, TrackingParentExportState, TrackingPolicyViolationId,
-    TrackingReasonCode, TrackingRemoteAiState, TrackingRemoteSyncState,
-    TrackingRetentionSettingsWriteRequest, TrackingRetentionSettingsWriteResult, TrackingTimestamp,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
+    tracking_retention_write_state_accepted, tracking_writer_intent_ref,
+};
+use ocentra_parent_agent_protocol::{
+    constants, AgentCommandName, AgentEventName, TrackingChildCheckInDeliveryState,
+    TrackingChildCheckInRequestReceipt, TrackingChildCheckInRequestState,
+    TrackingChildCheckInRequestedEvent, TrackingConfigAckState, TrackingConfigEffectiveState,
+    TrackingConfigUpdateResponseState, TrackingDeleteAfterAlertResolutionState,
+    TrackingDurableSettingsPersistenceState, TrackingExecutionClaimState,
+    TrackingParentExportState, TrackingPolicyViolationId, TrackingReasonCode,
+    TrackingRemoteAiState, TrackingRemoteSyncState, TrackingRetentionSettingsWriteRequest,
+    TrackingRetentionSettingsWriteResult, TrackingTimestamp, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 #[test]

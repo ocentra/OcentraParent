@@ -1,7 +1,7 @@
 import {
   EnforcementPolicyDispatchReadModelSchema,
   type EnforcementPolicyDispatchReadModel,
-} from '@ocentra-parent/enforcement-domain/enforcement-policy-dispatch';
+} from '@ocentra-parent/schema-domain/enforcement-policy-dispatch';
 import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from './contracts';
 
 export type EnforcementPolicyDispatchParseResult =

@@ -1,8 +1,5 @@
-use ocentra_parent_agent_protocol::{
-    AppGameSessionSummary, APP_GAME_CLASSIFICATION_ADAPTER_ERROR,
-    APP_GAME_CLASSIFICATION_PERMISSION_LIMITED, APP_GAME_CLASSIFICATION_POSSIBLY_GAME,
-    APP_GAME_SESSION_END_REASON_PROCESS_EXIT, APP_GAME_SESSION_END_REASON_TIMEOUT_INFERRED,
-};
+use ocentra_parent_agent_protocol::app_game::*;
+use ocentra_parent_agent_protocol::constants;
 
 use crate::{
     activity_store_app_game_observation::AppGameObservation,
@@ -125,10 +122,10 @@ impl SessionizationState {
             .chain(self.active_sessions.iter().map(|session| &session.summary))
             .filter(|summary| summary.primary_process_identity == process_identity)
             .count();
-        let mut session_id = ocentra_parent_agent_protocol::APP_GAME_SESSION_ID_PREFIX.to_string();
+        let mut session_id = APP_GAME_SESSION_ID_PREFIX.to_string();
         session_id.push_str(process_identity);
         if duplicate_count > 0 {
-            session_id.push(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
+            session_id.push(constants::delimiter::HYPHEN);
             session_id.push_str(&duplicate_count.to_string());
         }
         session_id

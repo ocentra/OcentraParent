@@ -1,6 +1,6 @@
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::{constants, NetworkRuntimePhase};
 
-use crate::{network_event_runtime_phase::NetworkRuntimePhase, NetworkObservation};
+use crate::NetworkObservation;
 
 use super::{network_correlation_id, should_publish_phase};
 

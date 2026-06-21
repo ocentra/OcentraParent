@@ -15,20 +15,20 @@ await rm(testOutputDir, { recursive: true, force: true });
 await mkdir(testOutputDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 run('cmd', [
   '/c',
   'npm',
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
   'tracking-place-category-ambiguity-proof',
   'tracking-poi-provider-adapter',
 ]);
 
-const tracking = await importDist('tracking-location-policy.js');
+const tracking = await importSchemaDist('tracking-location-policy.js');
 const adapter = await importDist('tracking-poi-provider-adapter.js');
 const categoryProof = await importDist('tracking-place-category-ambiguity-proof.js');
 const searchInput = adapter.TrackingGooglePlacesNearbySearchInputSchema.parse(sourceSearchInput(tracking, adapter));
@@ -71,8 +71,8 @@ const proof = {
     automaticActionClaimed: false,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-place-category-ambiguity-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-place-category-ambiguity-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-place-category-ambiguity-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-place-category-ambiguity-proof.test.ts',
     harness: 'scripts/test/tracking-place-category-ambiguity-proof.mjs',
     evidence: 'test-results/tracking-place-category-ambiguity-proof/proof.json',
     trackingProofPack: 'output/tracking-plan-proof/21-place-category-taxonomy-and-ambiguity-model',
@@ -91,7 +91,11 @@ console.log('tracking-place-category-ambiguity-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-place-category-ambiguity-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function sourceSearchInput(tracking, adapter) {
@@ -191,7 +195,7 @@ async function writeProofPack(path, proof) {
       proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
       '```',
       '',
-      '- Scope: parent-domain place category ambiguity review proof built on the existing POI provider adapter.',
+      '- Scope: tracking-domain place category ambiguity review proof built on the existing POI provider adapter.',
       '- No live provider execution, exact-place claim, physical-device proof, automatic action, or provider delivery is claimed.',
       '',
     ].join('\n'),
@@ -202,8 +206,8 @@ async function writeProofPack(path, proof) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-place-category-ambiguity-proof tracking-poi-provider-adapter: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/tracking-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tracking-place-category-ambiguity-proof tracking-poi-provider-adapter: PASS',
       '- Multiple nearby candidates remain manual-required review rows.',
       '- Low accuracy rows remain manual-required review rows.',
       '- Category evidence is policy input only and cannot trigger action directly.',

@@ -5,7 +5,7 @@ import {
   ActivityJournalRotationPolicySchema,
   ActivityJournalSchemaVersion,
   ActivityJournalStatusSchema,
-} from '../../src/journal';
+} from '@ocentra-parent/schema-domain/activity-journal';
 
 describe('activity journal contracts', () => {
   it('parses encrypted journal lines without exposing activity payload fields', () => {

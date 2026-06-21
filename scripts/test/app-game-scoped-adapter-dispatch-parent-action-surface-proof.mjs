@@ -26,9 +26,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/portal-domain',
+      '@ocentra-parent/portal',
       '--',
-      'app-game-adapter-dispatch-result-panel',
+      'app-game-adapter-dispatch-route-panel',
     ])
   );
   await runCommand(
@@ -59,8 +59,8 @@ async function main() {
       routePanel: 'apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx',
       routeMount: 'apps/portal/src/ParentPortalRoute.tsx',
       routePanelTest: 'apps/portal/tests/app-game-adapter-dispatch-route-panel.test.tsx',
-      portalPanelIntent: 'packages/portal-domain/src/app-game-adapter-dispatch-result-panel.ts',
-      portalPanelIntentTest: 'packages/portal-domain/tests/app-game-adapter-dispatch-result-panel.test.ts',
+      portalPanelIntent: 'apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx',
+      portalPanelIntentTest: 'apps/portal/tests/app-game-adapter-dispatch-route-panel.test.tsx',
     },
     summary: {
       appGameSessionsRouteMounted: true,

@@ -1,10 +1,10 @@
-import { TrackingPolicyReasonCodeSchema } from './tracking-location-policy-primitives';
+import { TrackingPolicyReasonCodeSchema } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 import type {
   TrackingAcknowledgement,
   TrackingAlertIntent,
   TrackingChildCheckInRequest,
   TrackingChildCheckInResponse,
-} from './tracking-location-policy-types';
+} from '@ocentra-parent/schema-domain/tracking-location-policy-types';
 
 type TrackingPolicyReasonCode = ReturnType<typeof TrackingPolicyReasonCodeSchema.parse>;
 type TrackingAcknowledgementImpactState = 'open' | 'expired' | 'suppressed-by-acknowledgement' | 'critical-still-alert';

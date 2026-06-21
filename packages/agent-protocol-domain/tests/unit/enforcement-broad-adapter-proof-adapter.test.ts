@@ -1,4 +1,4 @@
-import { V08BroadOsAdapterRuntimeProofReadModel } from '@ocentra-parent/enforcement-domain/v0-8-broad-os-adapter-runtime-proof';
+import { V08BroadOsAdapterRuntimeProofReadModel } from '@ocentra-parent/schema-domain/v0-8-broad-os-adapter-runtime-proof';
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '../../src/contracts';
 import { parseEnforcementBroadAdapterProofEvent } from '../../src/enforcement-broad-adapter-proof-adapter';

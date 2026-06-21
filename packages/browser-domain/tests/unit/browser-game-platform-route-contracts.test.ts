@@ -4,7 +4,7 @@ import {
   BrowserGamePlatformRouteContractSchema,
   type BrowserGamePlatformRouteCatalog,
   type BrowserGamePlatformRouteContract,
-} from '../../src/browser-game-platform-route-contracts';
+} from '@ocentra-parent/schema-domain/browser-game-platform-route-contracts';
 
 describe('browser-game platform route contracts', () => {
   it(

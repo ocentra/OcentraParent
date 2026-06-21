@@ -5,7 +5,7 @@ import {
   PolicyDecisionHandoffState,
   PolicyDecisionSchema,
   selectStricterPolicyAction,
-} from '../../src/policy';
+} from '@ocentra-parent/schema-domain/policy';
 
 const evidenceReference = {
   evidenceReferenceId: 'evidence-1',

@@ -1,4 +1,5 @@
-use ocentra_parent_agent_protocol::{constants, TrackingLocationObservedEvent};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::runtime_event::TrackingLocationObservedEvent;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TrackingLocationValidationResultState {

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserSocialAiAnalysisInputSchema } from '@ocentra-parent/browser-domain/browser-social-ai-analysis-schemas';
-import { buildBrowserSocialAiAnalysisResult } from '@ocentra-parent/browser-domain/browser-social-ai-analysis-result-builder';
+import { BrowserSocialAiAnalysisInputSchema } from '@ocentra-parent/schema-domain/browser-social-ai-analysis-schemas';
+import { buildBrowserSocialAiAnalysisResult } from '@ocentra-parent/schema-domain/browser-social-ai-analysis-result-builder';
 import {
   BrowserSocialFeedVideoRouteGatePlanSchema,
   type BrowserSocialFeedVideoRouteGatePlan,
-} from '@ocentra-parent/browser-domain/browser-social-feed-video-route-gate';
-import { buildBrowserSocialRiskBenefitSignalSet } from '@ocentra-parent/browser-domain/browser-social-riskbenefit-signals';
+} from '@ocentra-parent/schema-domain/browser-social-feed-video-route-gate';
+import { buildBrowserSocialRiskBenefitSignalSet } from '@ocentra-parent/schema-domain/browser-social-riskbenefit-signals';
 import {
   buildSocialVideoAiSignalAggregate,
   SocialVideoAiSignalAggregateSchema,

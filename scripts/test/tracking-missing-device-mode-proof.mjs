@@ -15,19 +15,19 @@ await rm(testOutputDir, { recursive: true, force: true });
 await mkdir(testOutputDir, { recursive: true });
 await mkdir(screenshotDir, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
-  'tracking-missing-device-mode-proof',
-  'tracking-location-policy',
+  'tracking-missing-device-mode-proof.test.ts',
 ]);
 
-const tracking = await importDist('tracking-location-policy.js');
-const proofModule = await importDist('tracking-missing-device-mode-proof.js');
+const tracking = await importSchemaDist('tracking-location-policy.js');
+const proofModule = await importTrackingDist('tracking-missing-device-mode-proof.js');
 const sourceReadModel = tracking.TrackingLocationPolicyReadModelSchema.parse(sourceTrackingReadModel(tracking));
 const readModel = proofModule.buildTrackingMissingDeviceModeProofReadModel(
   {
@@ -60,8 +60,8 @@ const proof = {
   summary: summarize(readModel),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-missing-device-mode-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-missing-device-mode-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-missing-device-mode-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-missing-device-mode-proof.test.ts',
     harness: 'scripts/test/tracking-missing-device-mode-proof.mjs',
     evidence: 'test-results/tracking-missing-device-mode-proof/proof.json',
     trackingProofPack: 'output/tracking-plan-proof/29-missing-device-mode',
@@ -77,8 +77,12 @@ await writeProofPack(proofDir, proof);
 console.log('tracking-missing-device-mode-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-missing-device-mode-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
+}
+
+function importTrackingDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
 }
 
 function sourceTrackingReadModel(tracking) {
@@ -207,7 +211,7 @@ async function writeProofPack(path, proof) {
       proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
       '```',
       '',
-      '- Scope: parent-domain missing-device read model for last-known location, battery, connectivity, stale/offline, pending upload, contact actions, and UI state tokens.',
+      '- Scope: tracking-domain missing-device read model for last-known location, battery, connectivity, stale/offline, pending upload, contact actions, and UI state tokens.',
       '- Source inspected: device location tracking capability guide, raw tracking control settings inventory, UI/UX requirements guide, location/geofence feature doc, and WP29 checklist.',
       '',
     ].join('\n'),
@@ -257,7 +261,7 @@ async function writeProofPack(path, proof) {
       '',
       '- No browser surface was changed or claimed in this workpack.',
       '- Contract-backed UI state matrix written to 11-ui-snapshots/missing-device-ui-state-matrix.json.',
-      '- Parent portal runtime screenshots remain gated by WP30 hosted UI work; this WP29 proof only proves parent-domain UI state tokens and no-current-location copy gates.',
+      '- Parent portal runtime screenshots remain gated by WP30 hosted UI work; this WP29 proof only proves tracking-domain UI state tokens and no-current-location copy gates.',
       '',
     ].join('\n'),
     'utf8'
@@ -277,7 +281,7 @@ async function writeProofPack(path, proof) {
   await writeFile(join(path, '16-validation-commands.log'), `${proof.commands.join('\n')}\n`, 'utf8');
   await writeFile(
     join(path, 'README.md'),
-    '# WP29 Missing-Device Mode Proof\n\nThis proof pack records parent-domain missing-device mode rows for last-known location, offline/powered-off contact state, battery/connectivity/pending-upload evidence, parent contact actions, and UI state tokens without claiming current location, live tracking runtime, remote sync runtime, provider delivery, portal runtime UI, physical-device proof, or OS lost-mode APIs.\n',
+    '# WP29 Missing-Device Mode Proof\n\nThis proof pack records tracking-domain missing-device mode rows for last-known location, offline/powered-off contact state, battery/connectivity/pending-upload evidence, parent contact actions, and UI state tokens without claiming current location, live tracking runtime, remote sync runtime, provider delivery, portal runtime UI, physical-device proof, or OS lost-mode APIs.\n',
     'utf8'
   );
   await writeJson(join(path, 'proof.json'), proof);

@@ -2,11 +2,16 @@ use serde::{Deserialize, Serialize};
 
 pub mod family {
     use super::*;
+    use crate::activity::policy::{
+        ParentActorReference as PolicyParentActorReference,
+        ParentActorRole as PolicyParentActorRole,
+    };
 
     pub type ParentActorId = String;
     pub type ParentAccountId = String;
     pub type FamilyId = String;
     pub type ChildProfileId = String;
+    pub type ChildProfileDisplayName = String;
     pub type ParentDeviceId = String;
     pub type ParentEvidenceReferenceId = String;
     pub type ParentActionReferenceId = String;
@@ -18,8 +23,28 @@ pub mod family {
     #[serde(rename_all = "kebab-case")]
     pub enum ParentActorRole {
         Parent,
-        Caregiver,
+        Guardian,
         System,
+    }
+
+    impl From<PolicyParentActorRole> for ParentActorRole {
+        fn from(role: PolicyParentActorRole) -> Self {
+            match role {
+                PolicyParentActorRole::Parent => Self::Parent,
+                PolicyParentActorRole::Guardian => Self::Guardian,
+                PolicyParentActorRole::System => Self::System,
+            }
+        }
+    }
+
+    impl From<ParentActorRole> for PolicyParentActorRole {
+        fn from(role: ParentActorRole) -> Self {
+            match role {
+                ParentActorRole::Parent => Self::Parent,
+                ParentActorRole::Guardian => Self::Guardian,
+                ParentActorRole::System => Self::System,
+            }
+        }
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -30,8 +55,6 @@ pub mod family {
         Linux,
         Android,
         Ios,
-        Web,
-        Unknown,
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -39,6 +62,24 @@ pub mod family {
     pub struct ParentActorReference {
         pub actor_id: ParentActorId,
         pub role: ParentActorRole,
+    }
+
+    impl From<PolicyParentActorReference> for ParentActorReference {
+        fn from(actor: PolicyParentActorReference) -> Self {
+            Self {
+                actor_id: actor.actor_id,
+                role: actor.role.into(),
+            }
+        }
+    }
+
+    impl From<ParentActorReference> for PolicyParentActorReference {
+        fn from(actor: ParentActorReference) -> Self {
+            Self {
+                actor_id: actor.actor_id,
+                role: actor.role.into(),
+            }
+        }
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -51,7 +92,7 @@ pub mod family {
     #[serde(rename_all = "camelCase")]
     pub struct ChildProfileReference {
         pub child_profile_id: ChildProfileId,
-        pub family_id: FamilyId,
+        pub display_name: ChildProfileDisplayName,
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -66,13 +107,11 @@ pub mod family {
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
     #[serde(rename_all = "kebab-case")]
     pub enum ParentEvidenceReferenceKind {
-        PolicyDecision,
+        JournalEvent,
+        QueryStoreSummary,
         ActivityEvent,
-        BrowserEvidence,
-        NetworkEvidence,
-        ScreenEvidence,
-        AppGameEvidence,
-        AuditEvent,
+        PolicyDecision,
+        LocalAiResult,
     }
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -90,6 +129,32 @@ pub mod family {
         pub actor: ParentActorReference,
         pub policy_version: ParentPolicyVersion,
         pub created_at: ParentTimestamp,
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn schema_domain_mirrors_parent_actor_role_converts_from_policy_role() {
+            let mirror: ParentActorRole = PolicyParentActorRole::Guardian.into();
+            let policy: PolicyParentActorRole = mirror.into();
+
+            assert_eq!(policy, PolicyParentActorRole::Guardian);
+        }
+
+        #[test]
+        fn schema_domain_mirrors_parent_actor_reference_round_trips_with_policy_actor() {
+            let policy = PolicyParentActorReference {
+                actor_id: "actor-1".to_string(),
+                role: PolicyParentActorRole::Parent,
+            };
+
+            let mirror: ParentActorReference = policy.clone().into();
+            let restored: PolicyParentActorReference = mirror.into();
+
+            assert_eq!(restored, policy);
+        }
     }
 }
 
@@ -315,6 +380,82 @@ pub mod policy {
 
     #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
+    pub struct PolicyScheduleDstBoundary {
+        pub transition: PolicyScheduleDstTransition,
+        pub local_time: PolicyLocalTime,
+        pub offset_before_minutes: f64,
+        pub offset_after_minutes: f64,
+        pub resolution: PolicyScheduleDstResolution,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PolicyScheduleClockSkew {
+        pub observed_at: PolicyTimestamp,
+        pub observed_skew_minutes: f64,
+        pub allowed_skew_minutes: f64,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PolicyScheduleException {
+        pub exception_id: PolicyScheduleExceptionId,
+        pub action: PolicyAction,
+        pub reason_code: PolicyReasonCode,
+        pub starts_at: PolicyTimestamp,
+        pub expires_at: PolicyTimestamp,
+        pub created_by: ParentActorReference,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PolicyScheduleExpiry {
+        pub expires_at: PolicyTimestamp,
+        pub expired_at: PolicyTimestamp,
+        pub reason_code: PolicyReasonCode,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PolicyScheduleOfflineRecoveryStatus {
+        pub state: PolicyScheduleOfflineRecoveryState,
+        pub recovered_at: Option<PolicyTimestamp>,
+        pub recovered_offline_minutes: f64,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PolicyScheduleTimeBudgetStatus {
+        pub budget_window_minutes: f64,
+        pub used_minutes: f64,
+        pub remaining_minutes: f64,
+        pub carryover_minutes: f64,
+        pub grace_period_minutes: f64,
+        pub reset_at: PolicyTimestamp,
+        pub clock_source: PolicyScheduleClockSource,
+        pub offline_recovery: PolicyScheduleOfflineRecoveryStatus,
+        pub bonus_time_minutes: Option<f64>,
+        pub bonus_time_remaining_minutes: Option<f64>,
+        pub bonus_time_expires_at: Option<PolicyTimestamp>,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PolicyScheduleBoundary {
+        pub schedule_id: PolicyScheduleId,
+        pub time_zone: PolicyTimeZone,
+        pub evaluated_at: PolicyTimestamp,
+        pub local_time: PolicyLocalTime,
+        pub state: PolicyScheduleBoundaryState,
+        pub dst_boundary: Option<PolicyScheduleDstBoundary>,
+        pub clock_skew: Option<PolicyScheduleClockSkew>,
+        pub exception: Option<PolicyScheduleException>,
+        pub expiry: Option<PolicyScheduleExpiry>,
+        pub time_budget: Option<PolicyScheduleTimeBudgetStatus>,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct PolicyRule {
         pub rule_id: PolicyRuleId,
         pub target: PolicyTarget,
@@ -367,6 +508,20 @@ pub mod policy {
         pub dry_run: bool,
         pub enforcement_handoff_state: PolicyDecisionHandoffState,
         pub expires_at: Option<PolicyTimestamp>,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PolicyPreview {
+        pub preview_id: PolicyPreviewId,
+        pub origin: PolicyPreviewOrigin,
+        pub confirmation_state: PolicyPreviewConfirmationState,
+        pub confirmed_by: Option<ParentActorReference>,
+        pub confirmed_at: Option<PolicyTimestamp>,
+        pub target: PolicyTarget,
+        pub requested_action: PolicyAction,
+        pub schedule_boundary: Option<PolicyScheduleBoundary>,
+        pub decision: PolicyDecision,
     }
 }
 
@@ -587,6 +742,12 @@ pub mod notification {
 
     #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
     #[serde(rename_all = "kebab-case")]
+    pub enum NotificationLocalOutboxAdapterProofSchemaVersion {
+        NotificationLocalOutboxAdapterProof,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "kebab-case")]
     pub enum V3NotificationRuleReasonCode {
         PolicyViolation,
         ParentRequest,
@@ -631,6 +792,18 @@ pub mod notification {
         LocalOutboxOnly,
         ProviderReceiptRequired,
         ManualRequired,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "kebab-case")]
+    pub enum NotificationLocalOutboxNonClaim {
+        NoProviderDelivery,
+        NoProviderReceiptIngestion,
+        NoProviderCredentials,
+        NoCloudRouting,
+        NoParentNotificationUi,
+        NoRawChildEvidence,
+        NoSensitiveProviderMetadata,
     }
 
     #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -684,13 +857,13 @@ pub mod notification {
     #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct NotificationLocalOutboxAdapterProof {
-        pub schema_version: String,
+        pub schema_version: NotificationLocalOutboxAdapterProofSchemaVersion,
         pub contract_version: ParentContractSchemaVersion,
         pub read_model_id: NotificationLocalOutboxReadModelId,
         pub generated_at: ParentTimestamp,
         pub outbox_root_ref: NotificationLocalOutboxReference,
         pub records: Vec<NotificationLocalOutboxRecord>,
-        pub non_claims: Vec<String>,
+        pub non_claims: Vec<NotificationLocalOutboxNonClaim>,
         pub provider_delivery_runtime_claimed: bool,
         pub provider_receipt_ingestion_claimed: bool,
         pub provider_credentials_claimed: bool,

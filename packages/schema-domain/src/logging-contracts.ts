@@ -16,6 +16,7 @@ export const AgentServiceVersionSchema = brandedNonEmptyStringSchema('AgentServi
 export const LogEntryIdSchema = brandedNonEmptyStringSchema('LogEntryId');
 export const LogTimestampSchema = brandedNonEmptyStringSchema('LogTimestamp');
 export const LogMessageSchema = brandedNonEmptyStringSchema('LogMessage');
+export const StackTraceSchema = Schema.String.pipe(Schema.brand('StackTrace'));
 
 export const LogFieldValueSchema = withParser(Schema.Union(Schema.String, Schema.Number, Schema.Boolean, Schema.Null));
 export const LogFieldsSchema = withParser(Schema.Record({ key: Schema.String, value: LogFieldValueSchema }));
@@ -67,6 +68,7 @@ export type AgentServiceVersion = typeof AgentServiceVersionSchema.Type;
 export type LogEntryId = typeof LogEntryIdSchema.Type;
 export type LogTimestamp = typeof LogTimestampSchema.Type;
 export type LogMessage = typeof LogMessageSchema.Type;
+export type StackTrace = typeof StackTraceSchema.Type;
 export type AgentIdentity = Infer<typeof AgentIdentitySchema>;
 export type AgentLogEntry = Infer<typeof AgentLogEntrySchema>;
 export type AgentLogSnapshot = Infer<typeof AgentLogSnapshotSchema>;
@@ -75,6 +77,7 @@ export type DevLogEntry = Infer<typeof DevLogEntrySchema>;
 export const decodeLogEntryId = Schema.decodeUnknownSync(LogEntryIdSchema);
 export const decodeLogMessage = Schema.decodeUnknownSync(LogMessageSchema);
 export const decodeLogTimestamp = Schema.decodeUnknownSync(LogTimestampSchema);
+export const decodeStackTrace = Schema.decodeUnknownSync(StackTraceSchema);
 
 export const LogLevel = {
   Trace: LogLevelSchema.parse('trace'),

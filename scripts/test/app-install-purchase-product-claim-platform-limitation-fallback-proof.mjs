@@ -17,26 +17,19 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-product-claim-platform-limitation-fallback-proof.test.ts',
+      'tests/unit/app-install-purchase-product-claim-platform-limitation-fallback-proof.test.ts',
     ])
   );
 
   const proofModule = await loadProofModule();
-  const packageProofModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-product-claim-platform-limitation-fallback-proof');
-  assert.equal(
-    packageProofModule.AppInstallPurchaseProductClaimPlatformLimitationFallbackProofReadModel.schemaVersion,
-    proofModule.AppInstallPurchaseProductClaimPlatformLimitationFallbackProofReadModel.schemaVersion
-  );
-
   const parsedReadModel = proofModule.AppInstallPurchaseProductClaimPlatformLimitationFallbackProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseProductClaimPlatformLimitationFallbackProof(parsedReadModel);
 
@@ -56,24 +49,24 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-product-claim-platform-limitation-fallback-proof',
     commands,
-    packageExportState: 'validated-via-public-parent-domain-subpath-export',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     checklistState: 'updated-docs-product-capability-checklist-app-install-row',
     evidence: {
       platformLimitationFallbackContract:
-        'packages/parent-domain/src/app-install-purchase-product-claim-platform-limitation-fallback-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-product-claim-platform-limitation-fallback-proof.ts',
       sourcePlatformPreclaimContract:
-        'packages/parent-domain/src/app-install-purchase-product-claim-platform-preclaim-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-product-claim-platform-preclaim-proof.ts',
       sourceSafeParentWorkflowContract:
-        'packages/parent-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts',
       sourcePlatformLimitationActionContract:
-        'packages/parent-domain/src/app-install-purchase-platform-limitation-action-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-platform-limitation-action-proof.ts',
       contractTest:
-        'packages/parent-domain/tests/app-install-purchase-product-claim-platform-limitation-fallback-proof.test.ts',
+        'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-platform-limitation-fallback-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistDoc: 'docs/product-capability-checklist.md',
-      packageReadme: 'packages/parent-domain/README.md',
+      packageReadme: 'packages/app-game-domain/package.json',
       packageExport:
         '@ocentra-parent/app-game-domain/app-install-purchase-product-claim-platform-limitation-fallback-proof',
       output: relative(repoRoot, proofPath),
@@ -94,7 +87,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-product-claim-platform-limitation-fallback-proof.js'
   );

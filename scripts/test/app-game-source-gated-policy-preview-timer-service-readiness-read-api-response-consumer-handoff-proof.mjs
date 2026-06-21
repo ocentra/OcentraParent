@@ -21,21 +21,22 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff',
   'app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff',
 ]);
 
-const consumerContract = await importDist(
+const consumerContract = await importAppGameDist(
   'app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff.js'
 );
-const refs = await importDist('reference-primitives.js');
+const refs = await importSchemaDist('reference-primitives.js');
 const responseHandoff = await readJson(
   join(
     repoRoot,
@@ -59,7 +60,7 @@ const proof = {
   stackedOn: {
     wp93Branch: 'codex/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff',
     reason:
-      'WP94 consumes WP93 response handoff rows and creates a parent-domain response-consumer handoff while actual response implementation, service consumer implementation, portal rendering, service command registration, service handler implementation, service event emission, service read API implementation, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports are sequenced separately.',
+      'Schema-domain owns the read-api-response-consumer handoff contract surface; app-game-domain consumes WP93 response handoff rows while actual response implementation, service consumer implementation, portal rendering, service command registration, service handler implementation, service event emission, service read API implementation, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports remain sequenced separately.',
   },
   summary: summarize(readApiResponseConsumerHandoff),
   nonClaims: {
@@ -88,11 +89,14 @@ const proof = {
     rawPrivateSourceRowsIncluded: readApiResponseConsumerHandoff.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff.ts',
-    rules:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff.test.ts',
+    schemaSource:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff.ts',
+    schemaRules:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff-rules.ts',
+    consumerSource:
+      'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff.ts',
+    consumerTest:
+      'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff.test.ts',
     harness:
       'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff-proof.mjs',
     evidence:
@@ -121,8 +125,12 @@ console.log(
   )}`
 );
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function readApiResponseConsumerHandoffOptions(refs) {

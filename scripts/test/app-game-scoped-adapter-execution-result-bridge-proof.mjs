@@ -44,10 +44,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/portal-domain',
+      '@ocentra-parent/portal',
       '--',
-      'app-game-adapter-dispatch-result-panel',
-      'contracts',
+      'app-game-adapter-dispatch-route-panel',
     ])
   );
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal']));
@@ -67,7 +66,7 @@ async function main() {
       rustProtocol: 'crates/agent-protocol/src/app_game_adapter_dispatch_result.rs',
       servicePayload: 'crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs',
       realExecutionPath: 'crates/agent-service/src/enforcement_api.rs',
-      portalPanel: 'packages/portal-domain/src/app-game-adapter-dispatch-result-panel.ts',
+      portalPanel: 'apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx',
     },
     summary: {
       expectedRows: 8,

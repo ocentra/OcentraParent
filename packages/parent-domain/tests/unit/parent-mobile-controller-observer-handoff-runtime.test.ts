@@ -3,7 +3,7 @@ import {
   ParentMobileControllerObserverHandoffRuntimeReadModelSchema,
   type ParentMobileControllerObserverHandoffPhase,
   type ParentMobileControllerObserverHandoffRouteState,
-} from '../../src/parent-mobile-controller-observer-handoff-runtime';
+} from '@ocentra-parent/schema-domain/parent-mobile-controller-observer-handoff-runtime';
 
 const CheckedAt = '2026-05-30T19:10:00.000Z';
 

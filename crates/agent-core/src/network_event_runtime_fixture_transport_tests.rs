@@ -1,12 +1,16 @@
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_event_runtime::{
-    prove_network_runtime_remote_delivery_fixture_transport,
-    prove_network_runtime_remote_delivery_fixture_transport_from_outbox,
-    prove_network_runtime_remote_delivery_outbox_handoff,
-    NetworkRuntimeRemoteDeliveryFixtureTransportError,
-    NetworkRuntimeRemoteDeliveryFixtureTransportReport,
-    NetworkRuntimeRemoteDeliveryFixtureTransportState,
+    remote_delivery_fixture_transport::{
+        prove_network_runtime_remote_delivery_fixture_transport,
+        prove_network_runtime_remote_delivery_fixture_transport_from_outbox,
+    },
+    remote_delivery_fixture_transport_types::{
+        NetworkRuntimeRemoteDeliveryFixtureTransportError,
+        NetworkRuntimeRemoteDeliveryFixtureTransportReport,
+        NetworkRuntimeRemoteDeliveryFixtureTransportState,
+    },
+    remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff,
 };
 
 #[tokio::test]

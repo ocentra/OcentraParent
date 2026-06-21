@@ -5,7 +5,7 @@ use ocentra_billing_core::billing_subscription::{
     BillingChildEntitlementRejectionReason, BillingChildEntitlementSnapshot,
     BillingChildEntitlementSnapshotReceivedEvent, BillingChildSnapshotFreshnessState,
     BillingChildSnapshotSignatureState, BillingEntitlementSnapshotId, BillingEntitlementWriteState,
-    BillingManualReviewRequirement, BillingSubscriptionLifecycleState,
+    BillingManualReviewRequirement, BillingSubscriptionStatus,
 };
 use ocentra_eventing::envelope::DomainEvent;
 
@@ -16,7 +16,7 @@ const SNAPSHOT_RECEIVED_EVENT_TYPE: &str = "billing.child-entitlement-snapshot.r
 const CONSUMPTION_RECORDED_EVENT_TYPE: &str = "billing.child-entitlement-consumption.recorded";
 
 fn snapshot(
-    lifecycle_state: BillingSubscriptionLifecycleState,
+    subscription_status: BillingSubscriptionStatus,
     signature_state: BillingChildSnapshotSignatureState,
     freshness_state: BillingChildSnapshotFreshnessState,
 ) -> BillingChildEntitlementSnapshot {
@@ -25,7 +25,7 @@ fn snapshot(
             .expect("billing entitlement snapshot id"),
         child_device_id: BillingChildDeviceId::parse(CHILD_DEVICE_ID)
             .expect("billing child device id"),
-        lifecycle_state,
+        subscription_status,
         signature_state,
         freshness_state,
     }
@@ -34,7 +34,7 @@ fn snapshot(
 #[test]
 fn trusted_active_child_snapshot_grants_full_access() {
     let decision = decide_child_entitlement_snapshot(snapshot(
-        BillingSubscriptionLifecycleState::Active,
+        BillingSubscriptionStatus::Active,
         BillingChildSnapshotSignatureState::Trusted,
         BillingChildSnapshotFreshnessState::Fresh,
     ));
@@ -61,7 +61,7 @@ fn trusted_active_child_snapshot_grants_full_access() {
 #[test]
 fn trusted_grace_child_snapshot_projects_grace_access() {
     let decision = decide_child_entitlement_snapshot(snapshot(
-        BillingSubscriptionLifecycleState::Grace,
+        BillingSubscriptionStatus::Grace,
         BillingChildSnapshotSignatureState::Trusted,
         BillingChildSnapshotFreshnessState::Fresh,
     ));
@@ -83,7 +83,7 @@ fn trusted_grace_child_snapshot_projects_grace_access() {
 #[test]
 fn stale_child_snapshot_is_rejected_without_overwriting_local_state() {
     let decision = decide_child_entitlement_snapshot(snapshot(
-        BillingSubscriptionLifecycleState::Active,
+        BillingSubscriptionStatus::Active,
         BillingChildSnapshotSignatureState::Trusted,
         BillingChildSnapshotFreshnessState::Stale,
     ));
@@ -113,7 +113,7 @@ fn stale_child_snapshot_is_rejected_without_overwriting_local_state() {
 #[test]
 fn missing_signature_child_snapshot_is_rejected_before_local_access_changes() {
     let decision = decide_child_entitlement_snapshot(snapshot(
-        BillingSubscriptionLifecycleState::Active,
+        BillingSubscriptionStatus::Active,
         BillingChildSnapshotSignatureState::Missing,
         BillingChildSnapshotFreshnessState::Fresh,
     ));
@@ -143,7 +143,7 @@ fn missing_signature_child_snapshot_is_rejected_before_local_access_changes() {
 #[test]
 fn invalid_signature_child_snapshot_is_rejected_before_lifecycle_changes() {
     let decision = decide_child_entitlement_snapshot(snapshot(
-        BillingSubscriptionLifecycleState::PastDue,
+        BillingSubscriptionStatus::PastDue,
         BillingChildSnapshotSignatureState::Invalid,
         BillingChildSnapshotFreshnessState::Fresh,
     ));
@@ -165,7 +165,7 @@ fn invalid_signature_child_snapshot_is_rejected_before_lifecycle_changes() {
 #[test]
 fn expired_child_snapshot_is_rejected_without_overwriting_local_state() {
     let decision = decide_child_entitlement_snapshot(snapshot(
-        BillingSubscriptionLifecycleState::Active,
+        BillingSubscriptionStatus::Active,
         BillingChildSnapshotSignatureState::Trusted,
         BillingChildSnapshotFreshnessState::Expired,
     ));
@@ -193,9 +193,10 @@ fn expired_child_snapshot_is_rejected_without_overwriting_local_state() {
 }
 
 #[test]
-fn unknown_lifecycle_child_snapshot_is_rejected_even_when_signature_and_freshness_are_valid() {
+fn unknown_subscription_status_child_snapshot_is_rejected_even_when_signature_and_freshness_are_valid(
+) {
     let decision = decide_child_entitlement_snapshot(snapshot(
-        BillingSubscriptionLifecycleState::Unknown,
+        BillingSubscriptionStatus::Unknown,
         BillingChildSnapshotSignatureState::Trusted,
         BillingChildSnapshotFreshnessState::Fresh,
     ));
@@ -218,41 +219,44 @@ fn unknown_lifecycle_child_snapshot_is_rejected_even_when_signature_and_freshnes
     );
     assert_eq!(
         decision.rejection_reason,
-        Some(BillingChildEntitlementRejectionReason::UnknownLifecycle)
+        Some(BillingChildEntitlementRejectionReason::UnknownSubscriptionStatus)
     );
 }
 
 #[test]
-fn support_required_child_snapshot_holds_access_for_review_with_a_writeable_decision() {
+fn unavailable_subscription_status_child_snapshot_is_rejected_without_overwriting_local_state() {
     let decision = decide_child_entitlement_snapshot(snapshot(
-        BillingSubscriptionLifecycleState::SupportRequired,
+        BillingSubscriptionStatus::Unavailable,
         BillingChildSnapshotSignatureState::Trusted,
         BillingChildSnapshotFreshnessState::Fresh,
     ));
 
     assert_eq!(
         decision.decision_state,
-        BillingChildEntitlementConsumptionState::Accepted
+        BillingChildEntitlementConsumptionState::Rejected
     );
     assert_eq!(
         decision.access_state,
-        BillingChildEntitlementAccessState::HoldForReview
+        BillingChildEntitlementAccessState::NoChange
     );
     assert_eq!(
         decision.write_state,
-        BillingEntitlementWriteState::WriteRequired
+        BillingEntitlementWriteState::DoNotWrite
     );
     assert_eq!(
         decision.manual_review_requirement,
         BillingManualReviewRequirement::Required
     );
-    assert_eq!(decision.rejection_reason, None);
+    assert_eq!(
+        decision.rejection_reason,
+        Some(BillingChildEntitlementRejectionReason::UnavailableSubscriptionStatus)
+    );
 }
 
 #[test]
-fn dispute_won_child_snapshot_restores_full_access() {
+fn cancelled_child_snapshot_revokes_access() {
     let decision = decide_child_entitlement_snapshot(snapshot(
-        BillingSubscriptionLifecycleState::DisputeWon,
+        BillingSubscriptionStatus::Cancelled,
         BillingChildSnapshotSignatureState::Trusted,
         BillingChildSnapshotFreshnessState::Fresh,
     ));
@@ -263,11 +267,11 @@ fn dispute_won_child_snapshot_restores_full_access() {
     );
     assert_eq!(
         decision.access_state,
-        BillingChildEntitlementAccessState::FullAccess
+        BillingChildEntitlementAccessState::Revoked
     );
     assert_eq!(
-        decision.manual_review_requirement,
-        BillingManualReviewRequirement::NotRequired
+        decision.write_state,
+        BillingEntitlementWriteState::WriteRequired
     );
 }
 
@@ -277,7 +281,7 @@ fn consumption_record_projects_typed_domain_events() {
         aggregate_id: BillingAggregateId::parse(BILLING_AGGREGATE_ID)
             .expect("billing aggregate id"),
         snapshot: snapshot(
-            BillingSubscriptionLifecycleState::Canceled,
+            BillingSubscriptionStatus::Cancelled,
             BillingChildSnapshotSignatureState::Trusted,
             BillingChildSnapshotFreshnessState::Fresh,
         ),

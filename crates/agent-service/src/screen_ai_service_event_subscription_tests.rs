@@ -1,10 +1,9 @@
 use ocentra_eventing::{bus::reports::HandlerOutcome, bus::EventBus};
-use ocentra_parent_agent_core::ScreenRuntimePhase;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceRef, ActivityReadModelState, ActivityScreenReadModelRow,
-    SCREEN_CAPABILITY_READY, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CATEGORY_SCHOOL,
-    SCREEN_CUSTODY_JOURNAL, SCREEN_DELETION_DELETED, SCREEN_POLICY_CONFIDENCE_READY,
-    SCREEN_PROVIDER_LOCAL_OCR, SCREEN_PROVIDER_LOCAL_VISION,
+    ScreenRuntimePhase, SCREEN_CAPABILITY_READY, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
+    SCREEN_CATEGORY_SCHOOL, SCREEN_CUSTODY_JOURNAL, SCREEN_DELETION_DELETED,
+    SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_OCR, SCREEN_PROVIDER_LOCAL_VISION,
 };
 
 use super::screen_ai_service_event_bridge::ScreenAiServiceEventBridgeError;

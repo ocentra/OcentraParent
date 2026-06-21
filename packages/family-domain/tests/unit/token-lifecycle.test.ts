@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   authorizeSessionTokenAction,
+} from '../../src/session-lifecycle';
+import {
   SessionActivityState,
   SessionCredentialKind,
   SessionLifecycleAction,
@@ -10,8 +12,11 @@ import {
   TokenAuditRedactionState,
   TokenReplayState,
   TokenValidityWindowState,
-} from '../../src/session-lifecycle';
-import { AuditRequirementState, SessionFreshnessState } from '../../src/household-authority';
+} from '@ocentra-parent/schema-domain/family-session-lifecycle';
+import {
+  AuditRequirementState,
+  SessionFreshnessState,
+} from '@ocentra-parent/schema-domain/family-household-authority';
 
 describe('session token lifecycle contracts', () => {
   it('rejects replayed and invalid token windows', () => {

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { TestLogDuckDb } from '../src/test-log/testLogDuckDb';
-import { parseTestLogScopeOrDefault } from '../src/test-log/types';
+import { parseTestLogScopeOrDefault } from '@ocentra-parent/schema-domain/test-log/types';
 
 function parseFlag(name: string): string | null {
   const prefix = `--${name}=`;

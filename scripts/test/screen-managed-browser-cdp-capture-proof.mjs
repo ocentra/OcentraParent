@@ -26,19 +26,17 @@ await runPackageCommand([
   'run',
   'tests/screen-managed-browser-cdp-capture.test.ts',
 ]);
-await runPackageCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
+await runPackageCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 await runManagedBrowserCdpProof();
 
 console.log(`screen-managed-browser-cdp-capture-proof-ok:${proofSummaryPath}`);
 
 async function runManagedBrowserCdpProof() {
-  const {
-    ScreenAnalysisQueueJobSchema,
-    ScreenManagedBrowserCdpCaptureSchemaVersion,
-    ScreenManagedBrowserCdpMaxPixels,
-    ScreenManagedBrowserCdpScreenshotArtifactSchema,
-    ScreenManagedBrowserCdpScreenshotRequestSchema,
-  } = await import('@ocentra-parent/screen-domain/screen-evidence');
+  const { ScreenAnalysisQueueJobSchema } = await import('@ocentra-parent/schema-domain/screen-evidence-queue');
+  const { ScreenManagedBrowserCdpScreenshotArtifactSchema, ScreenManagedBrowserCdpScreenshotRequestSchema } =
+    await import('@ocentra-parent/schema-domain/screen-managed-browser-cdp-capture');
+  const { ScreenManagedBrowserCdpCaptureSchemaVersion, ScreenManagedBrowserCdpMaxPixels } =
+    await import('@ocentra-parent/schema-domain/screen-managed-browser-cdp-capture-values');
 
   const browser = await chromium.launch({
     headless: true,

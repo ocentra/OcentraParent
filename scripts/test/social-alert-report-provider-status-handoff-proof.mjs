@@ -16,18 +16,18 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
   runNpm([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/browser-domain',
     '--',
-    'social-alert-report-provider-status-handoff-proof.test.ts',
+    'social-alert-report-preference-status-handoff.test.ts',
   ]);
 
-  const source = await readText('packages/parent-domain/src/social-alert-report-provider-status-handoff-proof.ts');
-  const test = await readText('packages/parent-domain/tests/social-alert-report-provider-status-handoff-proof.test.ts');
+  const source = await readText('packages/schema-domain/src/social-alert-report-provider-status-handoff-proof.ts');
+  const test = await readText('packages/browser-domain/tests/unit/social-alert-report-preference-status-handoff.test.ts');
   const socialFeature = await readText('docs/features/social-video-control.md');
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/readme.md');
   const preflightModule = await importDist('social-alert-report-provider-preflight-proof.js');
@@ -57,15 +57,16 @@ async function main() {
   );
   const summary = handoffModule.summarizeSocialAlertReportProviderStatusHandoff(readModel);
   const checks = [
-    checkFile('packages/parent-domain/src/social-alert-report-provider-status-handoff-proof.ts'),
-    checkFile('packages/parent-domain/tests/social-alert-report-provider-status-handoff-proof.test.ts'),
+    checkFile('packages/schema-domain/src/social-alert-report-provider-status-handoff-proof.ts'),
+    checkFile('packages/browser-domain/tests/unit/social-alert-report-preference-status-handoff.test.ts'),
     checkFile('scripts/test/social-alert-report-provider-status-handoff-proof.mjs'),
     checkIncludes(source, 'providerDeliveryRuntimeClaimed: Schema.Literal(false)', 'provider delivery non-claim guard'),
     checkIncludes(source, 'providerReceiptIngestionClaimed: Schema.Literal(false)', 'provider receipt non-claim guard'),
     checkIncludes(source, 'finalPolicyExecutionClaimed: Schema.Literal(false)', 'final policy non-claim guard'),
     checkIncludes(source, 'enforcementClaimed: Schema.Literal(false)', 'enforcement non-claim guard'),
     checkIncludes(test, 'providerDeliveryRuntimeClaimed: true', 'provider delivery rejection test'),
-    checkIncludes(test, 'providerStatusBoundaryCoverageRefs: []', 'boundary coverage rejection test'),
+    checkIncludes(test, 'parentNotificationPreferenceUiClaimed: true', 'preference UI overclaim rejection test'),
+    checkIncludes(test, 'providerReceiptRefs.length === 0', 'receipt ref boundary test'),
     checkIncludes(
       socialFeature,
       'social-alert-report-provider-preflight-proof',
@@ -109,8 +110,8 @@ async function main() {
       providerReceiptRefs: row.providerStatusBoundaryEntry.providerReceiptRefs,
     })),
     proofPaths: {
-      source: 'packages/parent-domain/src/social-alert-report-provider-status-handoff-proof.ts',
-      test: 'packages/parent-domain/tests/social-alert-report-provider-status-handoff-proof.test.ts',
+      source: 'packages/schema-domain/src/social-alert-report-provider-status-handoff-proof.ts',
+      test: 'packages/browser-domain/tests/unit/social-alert-report-preference-status-handoff.test.ts',
       harness: 'scripts/test/social-alert-report-provider-status-handoff-proof.mjs',
       evidence: 'test-results/social-alert-report-provider-status-handoff-proof/proof.json',
       readModel:
@@ -139,7 +140,7 @@ async function main() {
 }
 
 function importDist(name) {
-  return import(pathToFileURL(join(root, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(root, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function proofIntents(intent, refs) {

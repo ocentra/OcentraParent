@@ -13,15 +13,15 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-approval.test.ts',
+      'tests/unit/app-install-purchase-approval.test.ts',
     ])
   );
 
@@ -72,10 +72,10 @@ async function main() {
     proofMode: 'app-install-package-source-artifact-proof',
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/app-install-purchase-approval-package-sources.ts',
-      aggregateContract: 'packages/parent-domain/src/app-install-purchase-approval.ts',
-      proofReadModel: 'packages/parent-domain/src/app-install-purchase-approval-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-approval.test.ts',
+      contract: 'packages/app-game-domain/src/app-install-purchase-approval-package-sources.ts',
+      aggregateContract: 'packages/app-game-domain/src/app-install-purchase-approval.ts',
+      proofReadModel: 'packages/app-game-domain/src/app-install-purchase-approval-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-approval.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       output: relative(repoRoot, proofPath),
@@ -116,7 +116,7 @@ async function main() {
 }
 
 async function loadContractProofModule() {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-install-purchase-approval-proof.js');
+  const modulePath = join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-install-purchase-approval-proof.js');
   return import(pathToFileURL(modulePath).href);
 }
 

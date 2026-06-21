@@ -10,9 +10,9 @@ import {
 import {
   buildSocialAlertReportProviderPreflightReadModel,
   SocialAlertReportProviderPreflightStatus,
-} from '../../src/social-alert-report-provider-preflight-proof';
-import { buildSocialAlertReportProviderReceiptBoundaryReadModel } from '../../src/social-alert-report-provider-receipt-boundary-proof';
-import { buildSocialAlertReportProviderStatusHandoffReadModel } from '../../src/social-alert-report-provider-status-handoff-proof';
+} from '@ocentra-parent/schema-domain/social-alert-report-provider-preflight-proof';
+import { buildSocialAlertReportProviderReceiptBoundaryReadModel } from '@ocentra-parent/schema-domain/social-alert-report-provider-receipt-boundary-proof';
+import { buildSocialAlertReportProviderStatusHandoffReadModel } from '@ocentra-parent/schema-domain/social-alert-report-provider-status-handoff-proof';
 import {
   SocialAlertReportAdapterDispatchState,
   SocialAlertReportDeliveryClaimState,
@@ -21,7 +21,7 @@ import {
   SocialAlertReportParentCopyToken,
   SocialAlertReportPayloadField,
   SocialAlertReportReasonCode,
-} from '../../src/social-alert-report-intent';
+} from '@ocentra-parent/schema-domain/social-alert-report-intent';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

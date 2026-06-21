@@ -23,11 +23,16 @@ run('npx', [
 ]);
 run('npm', ['run', 'build', '--workspace=@ocentra-parent/screen-domain']);
 
-const screenEvidence = await import('../../packages/screen-domain/dist/screen-evidence.js');
-const snapshots = screenEvidence.screenChildDisclosureProofSnapshots();
-const parsed = snapshots.map((snapshot) => screenEvidence.ScreenChildDisclosureSnapshotSchema.parse(snapshot));
-const pageModel = screenEvidence.createScreenChildDisclosurePageModel(parsed);
-const renderedHtml = screenEvidence.renderScreenChildDisclosurePage(pageModel);
+const { ScreenChildDisclosureSnapshotSchema, screenChildDisclosureProofSnapshots } =
+  await import('@ocentra-parent/schema-domain/screen-child-disclosure');
+const {
+  createScreenChildDisclosurePageModel,
+  renderScreenChildDisclosurePage,
+} = await import('../../packages/screen-domain/dist/screen-child-disclosure-page.js');
+const snapshots = screenChildDisclosureProofSnapshots();
+const parsed = snapshots.map((snapshot) => ScreenChildDisclosureSnapshotSchema.parse(snapshot));
+const pageModel = createScreenChildDisclosurePageModel(parsed);
+const renderedHtml = renderScreenChildDisclosurePage(pageModel);
 
 assert.deepEqual(
   parsed.map((snapshot) => snapshot.state),

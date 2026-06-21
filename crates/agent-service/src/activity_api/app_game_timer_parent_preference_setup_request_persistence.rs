@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use super::app_game_timer_parent_preference_setup_request_outbox::append_setup_outbox_record;
 
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
     ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, AgentCommandEnvelope,

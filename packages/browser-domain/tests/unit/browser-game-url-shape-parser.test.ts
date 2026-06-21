@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
-  BrowserGameUrlShapeParseResultSchema,
-  parseBrowserGameUrlShape,
   type BrowserGameUrlShapeParseResult,
-} from '../../src/browser-game-url-shape-parser';
+  BrowserGameUrlShapeParseResultSchema,
+} from '@ocentra-parent/schema-domain/browser-game-url-shape-parser';
+import { parseBrowserGameUrlShape } from '../../src/browser-game-url-shape-parser';
 
 describe('browser-game URL shape parser contracts', () => {
   it('parses play URL shape without storing raw URL/domain/path/query values', parsesPlayShape);

@@ -32,8 +32,9 @@ const ParentAssistantRuntimeField = {
 };
 
 await runPackageCommand(['run', 'build:contracts']);
-({ AgentCommand, AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } =
-  await import('@ocentra-parent/agent-protocol-domain/contracts'));
+({ AgentCommand, AgentEvent, AgentEventEnvelopeSchema } =
+  await import('@ocentra-parent/schema-domain/agent-command-event-contracts'));
+({ AgentProtocolDefaults } = await import('@ocentra-parent/schema-domain/agent-protocol-defaults'));
 await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
 await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'activity_surface', '--', '--test-threads=1']);
 await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'parent_assistant']);

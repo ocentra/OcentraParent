@@ -1,10 +1,10 @@
-import { type ScreenAnalysisParentSetting } from '@ocentra-parent/screen-domain/screen-evidence-settings';
+import { type ScreenAnalysisParentSetting } from '@ocentra-parent/schema-domain/screen-evidence-settings';
 import {
   AgentCommand,
   type AgentCommandName,
   type AgentEventEnvelope,
   type AgentProtocolLogFields,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import {
   createScreenSettingsCommandPayload,
   createScreenSettingsGetRequest,
@@ -15,7 +15,7 @@ import {
   ScreenSettingsUpdateStatus,
   type ScreenSettingsUpdateResponse,
 } from '@ocentra-parent/agent-protocol-domain/screen-settings-adapter';
-import { type ScreenEvidenceSettingsUiProof } from '@ocentra-parent/screen-domain/screen-evidence';
+import { type ScreenEvidenceSettingsUiProof } from '@ocentra-parent/schema-domain/screen-evidence-settings-ui-proof';
 
 export type ScreenSettingsServiceRequestId = ReturnType<typeof createScreenSettingsPortalRequestId>;
 

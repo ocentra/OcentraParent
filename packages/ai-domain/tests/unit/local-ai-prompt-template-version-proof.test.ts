@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildLocalAiPromptTemplateVersionProof } from '../../src/local-ai-prompt-template-version-proof';
-import { LocalAiDegradedState, LocalAiUnknownState } from '../../src/local-ai-primitives';
+import { buildLocalAiPromptTemplateVersionProof } from '@ocentra-parent/schema-domain/local-ai-prompt-template-version-proof';
+import { LocalAiDegradedState, LocalAiUnknownState } from '@ocentra-parent/schema-domain/ai-primitives';
 
 const observedAt = '2026-06-06T09:18:00.000Z';
 const promptVersion = 'local-ai-safety-template-v1';

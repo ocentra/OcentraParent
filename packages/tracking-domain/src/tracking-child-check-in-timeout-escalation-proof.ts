@@ -8,15 +8,15 @@ import {
 import {
   TrackingLocationPolicyReadModelSchema,
   TrackingPolicySchemaVersion,
-  resolveTrackingChildCheckIn,
-} from './tracking-location-policy';
-import { TrackingPolicyAuditRefSchema } from './tracking-location-policy-primitives';
+} from '@ocentra-parent/schema-domain/tracking-location-policy';
+import { TrackingPolicyAuditRefSchema } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 import type {
   TrackingAlertIntent,
   TrackingChildCheckInRequest,
   TrackingChildCheckInResponse,
   TrackingLocationPolicyReadModel,
-} from './tracking-location-policy-types';
+} from '@ocentra-parent/schema-domain/tracking-location-policy-types';
+import { resolveTrackingChildCheckIn } from './tracking-location-policy-runtime';
 
 export const RequiredTrackingChildCheckInTimeoutNonClaims = [
   'no-child-device-delivery-runtime',

@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 
-import { BrowserGameMobileCapabilityMatrixSchema } from '../../packages/parent-domain/dist/browser-game-android-ios-capability-matrix.js';
+import { BrowserGameMobileCapabilityMatrixSchema } from '@ocentra-parent/schema-domain/browser-game-android-ios-capability-matrix';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-android-ios-capability-matrix-host-proof';

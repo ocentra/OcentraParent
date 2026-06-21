@@ -13,7 +13,7 @@ use ocentra_entitlement_core::entitlement_access::{
 use ocentra_eventing::envelope::DomainEvent;
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildDisclosureState, ChildProfileBindingState, DeviceOwnershipScope,
-    DeviceScopeInput, DeviceTrustState, FamilyActorRole, HouseholdMembership,
+    DeviceScopeInput, DeviceTrustState, HouseholdMembershipState, HouseholdRole,
 };
 use ocentra_policy_control_core::policy_authority::ParentAuthorityState;
 use ocentra_provisioning_core::provisioning_install::{
@@ -26,9 +26,9 @@ use ocentra_remote_access_core::remote_access_session::{
     RemoteAccessInputAuthorityState, RemoteAccessRelayState, RemoteAccessReplayState,
     RemoteAccessSessionAuthorizationState, RemoteAccessSessionRequest,
 };
-use ocentra_storage_custody_core::{
-    ParentExportState, RemoteSyncState, RetentionWindowState, StorageCustodyInput,
-    StorageCustodyLocation,
+use ocentra_storage_custody_core::storage_custody::{
+    ParentExportState, RemoteSyncState, RemoteUploadState, RetentionWindowState,
+    StorageCustodyInput, StorageCustodyLocation,
 };
 
 #[test]
@@ -46,8 +46,8 @@ fn child_runtime_preflight_allows_start_when_identity_setup_entitlement_and_stor
         ocentra_child_runtime::ChildRuntimeManualReviewState::NotRequired
     );
     assert_eq!(
-        ocentra_child_runtime::child_runtime_remote_upload_allowed(&decision),
-        true
+        decision.storage_custody_decision.remote_upload_state,
+        RemoteUploadState::Allowed
     );
 }
 
@@ -64,7 +64,7 @@ fn child_runtime_preflight_blocks_when_entitlement_is_parent_portal_only() {
     );
     assert_eq!(
         decision.manual_review_state,
-        ocentra_child_runtime::ChildRuntimeManualReviewState::Required
+        ocentra_child_runtime::ChildRuntimeManualReviewState::NotRequired
     );
     assert_eq!(
         decision.entitlement_decision.rejection_reason,
@@ -88,7 +88,7 @@ fn child_runtime_preflight_blocks_when_entitlement_snapshot_household_binding_is
     );
     assert_eq!(
         decision.manual_review_state,
-        ocentra_child_runtime::ChildRuntimeManualReviewState::Required
+        ocentra_child_runtime::ChildRuntimeManualReviewState::NotRequired
     );
     assert_eq!(
         decision.entitlement_decision.rejection_reason,
@@ -112,7 +112,7 @@ fn child_runtime_preflight_blocks_when_entitlement_snapshot_device_binding_is_wr
     );
     assert_eq!(
         decision.manual_review_state,
-        ocentra_child_runtime::ChildRuntimeManualReviewState::Required
+        ocentra_child_runtime::ChildRuntimeManualReviewState::NotRequired
     );
     assert_eq!(
         decision.entitlement_decision.rejection_reason,
@@ -262,14 +262,15 @@ fn child_runtime_preflight_request_records_typed_decision_event() {
 fn valid_child_runtime_preflight_input() -> ocentra_child_runtime::ChildRuntimePreflightInput {
     ocentra_child_runtime::ChildRuntimePreflightInput {
         device_scope_input: DeviceScopeInput {
-            actor_role: FamilyActorRole::Parent,
+            actor_role: HouseholdRole::ParentOwner,
+            same_family: true,
             actor_account_state: ActorAccountState::Active,
-            household_membership: HouseholdMembership::Member,
+            membership_state: HouseholdMembershipState::Active,
             child_profile_binding_state: ChildProfileBindingState::Bound,
             device_ownership_scope: DeviceOwnershipScope::ChildProfileDevice,
         },
         provisioning_input: ProvisioningReadinessInput {
-            household_membership: HouseholdMembership::Member,
+            membership_state: HouseholdMembershipState::Active,
             account_readiness_state: AccountReadinessState::Ready,
             parent_app_readiness_state: ParentAppReadinessState::Ready,
             parent_device_registration_state: ParentDeviceRegistrationState::Registered,

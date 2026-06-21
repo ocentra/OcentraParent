@@ -24,21 +24,22 @@ for (const path of [join(appGameProofDir, '06-ui-snapshots'), join(appProofDir, 
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff',
   'app-game-source-gated-policy-preview-timer-service-readiness-protocol-read-model',
 ]);
 
-const ProtocolCommandHandoffContract = await importDist(
+const ProtocolCommandHandoffContract = await importAppGameDist(
   'app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.js'
 );
-const refs = await importDist('reference-primitives.js');
+const refs = await importSchemaDist('reference-primitives.js');
 const protocolReadModel = await readJson(
   join(
     repoRoot,
@@ -62,7 +63,7 @@ const proof = {
   stackedOn: {
     wp88Branch: 'codex/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff',
     reason:
-      'WP90 consumes WP89 protocol read-model rows and creates a parent-domain protocol command handoff while agent-protocol contracts, Rust protocol mirrors, service command registration, service handler implementation, service event emission, service read API implementation, portal rendering, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports are sequenced separately.',
+      'Schema-domain owns the service-readiness protocol-command-handoff contract surface; app-game-domain consumes WP89 protocol read-model rows while agent-protocol contracts, Rust protocol mirrors, service command registration, service handler implementation, service event emission, service read API implementation, portal rendering, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports remain sequenced separately.',
   },
   summary: summarize(protocolCommandHandoff),
   nonClaims: {
@@ -89,11 +90,14 @@ const proof = {
     rawPrivateSourceRowsIncluded: protocolCommandHandoff.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.ts',
-    rules:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.test.ts',
+    schemaSource:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.ts',
+    schemaRules:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff-rules.ts',
+    consumerSource:
+      'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.ts',
+    consumerTest:
+      'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.test.ts',
     harness:
       'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff-proof.mjs',
     evidence:
@@ -115,8 +119,12 @@ console.log(
   `evidence=${join('test-results', 'app-game-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff-proof', 'proof.json')}`
 );
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function ProtocolCommandHandoffOptions(refs) {

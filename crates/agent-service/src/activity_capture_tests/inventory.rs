@@ -3,7 +3,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ocentra_parent_agent_core::ActivityJournal;
+use ocentra_parent_agent_core::{
+    activity_store::ActivityStore,
+    journal::ActivityJournal,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+};
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, AppGameServiceReadModel,
     APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD,
@@ -263,13 +267,10 @@ fn temp_registry_inventory_root() -> PathBuf {
 
 fn decrypted_events(journal_path: &Path, key_path: &Path) -> Vec<ActivityEvent> {
     let key_bytes = read(key_path).expect(constants::error::JOURNAL_READS);
-    let mut key = [0; ocentra_parent_agent_core::JOURNAL_KEY_BYTES];
+    let mut key = [0; JOURNAL_KEY_BYTES];
     key.copy_from_slice(&key_bytes);
-    let journal = ActivityJournal::open(
-        journal_path.to_path_buf(),
-        ocentra_parent_agent_core::JournalKey::from_bytes(key),
-    )
-    .expect(constants::error::JOURNAL_OPENS);
+    let journal = ActivityJournal::open(journal_path.to_path_buf(), JournalKey::from_bytes(key))
+        .expect(constants::error::JOURNAL_OPENS);
     journal
         .lines()
         .expect(constants::error::JOURNAL_READS)
@@ -280,8 +281,7 @@ fn decrypted_events(journal_path: &Path, key_path: &Path) -> Vec<ActivityEvent> 
 }
 
 fn app_game_read_model(store_path: &Path) -> AppGameServiceReadModel {
-    let store = ocentra_parent_agent_core::ActivityStore::open(store_path)
-        .expect(constants::error::ACTIVITY_STORE_OPENS);
+    let store = ActivityStore::open(store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
     store
         .app_game_service_read_model(
             constants::activity_store::DEFAULT_RECENT_LIMIT,

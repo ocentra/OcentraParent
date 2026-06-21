@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { LocalAiEvaluationInputSchema } from '../../src/local-ai';
-import { LocalAiGraphReferenceSchema, LocalAiMemoryReferenceSchema } from '../../src/local-ai-references';
+import { LocalAiEvaluationInputSchema } from '@ocentra-parent/schema-domain/local-ai';
+import { LocalAiGraphReferenceSchema, LocalAiMemoryReferenceSchema } from '@ocentra-parent/schema-domain/ai-references';
 
 const evidenceReference = {
   evidenceReferenceId: 'evidence-1',

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
+import { ActivityEvidenceKind } from '@ocentra-parent/schema-domain/evidence-kinds';
 import {
   ScreenAnalysisParentSettingSchema,
-  ScreenAnalysisQueueJobSchema,
-  ScreenAnalysisResultSchema,
   ScreenEvidenceRemoteBoundarySettingSchema,
-  ScreenEvidenceSchemaVersion,
-} from '../../src/screen-evidence';
+} from '@ocentra-parent/schema-domain/screen-evidence-settings';
+import { ScreenEvidenceSchemaVersion } from '@ocentra-parent/schema-domain/screen-evidence-primitives';
+import { ScreenAnalysisQueueJobSchema } from '@ocentra-parent/schema-domain/screen-evidence-queue';
+import { ScreenAnalysisResultSchema } from '@ocentra-parent/schema-domain/screen-evidence-result';
 
 const JournalEvidence = {
   evidenceId: 'journal-entry-screen-retention-1',

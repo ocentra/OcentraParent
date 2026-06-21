@@ -13,13 +13,13 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/enforcement-domain',
       '--',
       'enforcement-os-adapter-product-proof',
     ])
@@ -40,7 +40,7 @@ async function main() {
   ]);
 
   const { V08OsAdapterProductProofReadModel } =
-    await import('../../packages/parent-domain/dist/enforcement-os-adapter-product-proof.js');
+    await import('@ocentra-parent/schema-domain/enforcement-os-adapter-product-proof');
   const proofSummary = summarizeReadModel(V08OsAdapterProductProofReadModel);
   assertReadModel(V08OsAdapterProductProofReadModel, proofSummary);
 
@@ -52,8 +52,8 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/parent-domain/src/enforcement-os-adapter-product-proof.ts',
-      tsContractTest: 'packages/parent-domain/tests/enforcement-os-adapter-product-proof.test.ts',
+      tsContract: 'packages/schema-domain/src/enforcement-os-adapter-product-proof.ts',
+      tsContractTest: 'packages/enforcement-domain/tests/unit/enforcement-os-adapter-product-proof.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_os_adapter_product_proof.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_os_adapter_product_proof_tests.rs',
       rustServiceReadModel: 'crates/agent-service/src/enforcement_os_adapter_product_proof_read_model.rs',

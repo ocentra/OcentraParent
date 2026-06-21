@@ -18,6 +18,9 @@ use crate::policy_source::{
 
 const POLICY_PREVIEW_SCHEMA_VERSION_VALUE: u16 = 1;
 
+pub type PolicyPreviewTargetState = ocentra_parent_agent_protocol::PolicyPreviewTargetState;
+pub type PolicyPreviewFindingKind = ocentra_parent_agent_protocol::PolicyPreviewFindingKind;
+
 macro_rules! policy_preview_text_id {
     ($name:ident, $field:expr) => {
         #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -71,44 +74,6 @@ pub enum PolicyPreviewSaveState {
     ReadyToSave,
     #[serde(rename = "blocked")]
     Blocked,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum PolicyPreviewTargetState {
-    #[serde(rename = "supported")]
-    Supported,
-    #[serde(rename = "unsupported")]
-    Unsupported,
-    #[serde(rename = "manual-required")]
-    ManualRequired,
-    #[serde(rename = "offline")]
-    Offline,
-    #[serde(rename = "stale")]
-    Stale,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum PolicyPreviewFindingKind {
-    #[serde(rename = "overlapping-schedule")]
-    OverlappingSchedule,
-    #[serde(rename = "timezone-boundary")]
-    TimezoneBoundary,
-    #[serde(rename = "ambiguous-local-time")]
-    AmbiguousLocalTime,
-    #[serde(rename = "nonexistent-local-time")]
-    NonexistentLocalTime,
-    #[serde(rename = "clock-skew")]
-    ClockSkew,
-    #[serde(rename = "unsupported-target")]
-    UnsupportedTarget,
-    #[serde(rename = "manual-required-target")]
-    ManualRequiredTarget,
-    #[serde(rename = "offline-target")]
-    OfflineTarget,
-    #[serde(rename = "stale-target")]
-    StaleTarget,
-    #[serde(rename = "stale-source-document")]
-    StaleSourceDocument,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

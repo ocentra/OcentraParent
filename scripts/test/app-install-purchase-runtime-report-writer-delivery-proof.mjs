@@ -13,25 +13,19 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-runtime-report-writer-delivery-proof.test.ts',
+      'tests/unit/app-install-purchase-runtime-report-writer-delivery-proof.test.ts',
     ])
   );
 
   const proofModule = await loadRuntimeReportWriterDeliveryProofModule();
-  const packageProofModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-runtime-report-writer-delivery-proof');
-  assert.equal(
-    packageProofModule.AppInstallPurchaseRuntimeReportWriterDeliveryProofReadModel.schemaVersion,
-    proofModule.AppInstallPurchaseRuntimeReportWriterDeliveryProofReadModel.schemaVersion
-  );
 
   const parsedReadModel = proofModule.AppInstallPurchaseRuntimeReportWriterDeliveryProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseRuntimeReportWriterDeliveryProof(parsedReadModel);
@@ -70,19 +64,20 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-runtime-report-writer-delivery-proof',
     commands,
-    packageExportState: 'validated-via-public-parent-domain-subpath-export',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     evidence: {
       runtimeReportWriterDeliveryContract:
-        'packages/parent-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
       sourceRuntimeWriterExecutionDeliveryContract:
-        'packages/parent-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts',
-      sourceReportRuntimeContract: 'packages/parent-domain/src/app-install-purchase-report-runtime-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-runtime-report-writer-delivery-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-runtime-writer-execution-delivery-proof.ts',
+      sourceReportRuntimeContract: 'packages/app-game-domain/src/app-install-purchase-report-runtime-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-runtime-report-writer-delivery-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistRow: 'docs/product-capability-checklist.md row Install/purchase approval',
-      packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-runtime-report-writer-delivery-proof',
-      packageReadme: 'packages/parent-domain/README.md',
+      packageExportDeferred:
+        'packages/app-game-domain/package.json does not currently publish this proof as a public subpath export.',
+      packageReadme: 'packages/app-game-domain/package.json',
       output: relative(repoRoot, proofPath),
     },
     runtimeReportWriterDeliverySummary: summary,
@@ -123,7 +118,7 @@ async function loadRuntimeReportWriterDeliveryProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-runtime-report-writer-delivery-proof.js'
   );

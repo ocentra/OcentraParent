@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use ocentra_parent_agent_core::TrustedDeviceRegistry;
+use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::{
     constants, LanPairingProof, LanPairingRejectionReason, LanSelectedRouteTarget,
 };
@@ -14,15 +14,15 @@ use crate::{
 };
 
 mod device_roles;
-mod job_leases;
-mod provider_heartbeat;
+pub(crate) mod job_leases;
+pub(crate) mod provider_heartbeat;
 mod provider_routing;
 use device_roles::{
     default_device_role_read_model, device_role_read_model_from_env,
     lan_ai_provider_capabilities_from_env, non_empty_env,
 };
-pub(crate) use job_leases::{LanAiJobLeaseState, LanAiJobLeaseTransition};
-pub(crate) use provider_heartbeat::LanAiProviderHeartbeatState;
+use job_leases::{LanAiJobLeaseState, LanAiJobLeaseTransition};
+use provider_heartbeat::LanAiProviderHeartbeatState;
 
 impl LanPairingRuntime {
     pub fn empty() -> Self {

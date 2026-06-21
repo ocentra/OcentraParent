@@ -33,10 +33,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/portal-domain',
+      '@ocentra-parent/portal',
       '--',
-      'app-game-adapter-dispatch-result-panel',
-      'contracts',
+      'tests/app-game-adapter-dispatch-route-panel.test.tsx',
     ])
   );
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal']));
@@ -54,9 +53,9 @@ async function main() {
       agentProtocolDomain: 'packages/agent-protocol-domain/src/app-game-adapter-dispatch-result.ts',
       rustProtocol: 'crates/agent-protocol/src/app_game_adapter_dispatch_result.rs',
       servicePayload: 'crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs',
-      portalPanel: 'packages/portal-domain/src/app-game-adapter-dispatch-result-panel.ts',
-      liveState: 'packages/portal-domain/src/live-activity-state.ts',
-      commandSurface: 'packages/portal-domain/src/commands.ts',
+      portalPanel: 'apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx',
+      liveState: 'apps/portal/src/live-activity-state.ts',
+      commandSurface: 'apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx',
     },
     summary: {
       expectedRows: 8,
@@ -77,7 +76,7 @@ async function main() {
       'Rust protocol and service carry execution audit state/counts/refs',
       'Rust service records one service-local execution audit for the scoped Windows owned-process timer row',
       'all broad/manual/degraded/unavailable/unsupported rows remain blocked before execution audit',
-      'portal-domain renders execution audit status and refs without claiming adapter execution',
+      'portal route surface renders execution audit status and refs without claiming adapter execution',
     ],
     claimsNotProved: [
       'actual adapter dispatch execution',

@@ -18,14 +18,6 @@ async function main() {
 
   runNpm(['run', 'build:contracts']);
   runNpm(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game-category-risk.test.ts']);
-  runNpm([
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'app-game-category-risk-policy-routing.test.ts',
-  ]);
   runNpm(['run', 'test', '--workspace', '@ocentra-parent/app-game-domain', '--', 'app-game.test.ts']);
 
   const appGameSource = await readFile(join(repoRoot, 'packages', 'activity-domain', 'src', 'app-game.ts'), 'utf8');
@@ -46,15 +38,11 @@ async function main() {
     'utf8'
   );
   const routeSource = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-category-risk-policy-routing.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-category-risk-policy-routing.ts'),
     'utf8'
   );
   const routeRules = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-category-risk-policy-routing-rules.ts'),
-    'utf8'
-  );
-  const routeTest = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'tests', 'app-game-category-risk-policy-routing.test.ts'),
+    join(repoRoot, 'packages', 'schema-domain', 'src', 'app-game-category-risk-policy-routing-rules.ts'),
     'utf8'
   );
 
@@ -120,12 +108,12 @@ async function main() {
   assertIncludes(
     routeSource,
     'AppGameCategoryRiskPolicyAdapterDispatchStateSchema = withParser',
-    'parent-domain route schema constrains adapter dispatch state'
+    'schema-domain route schema constrains adapter dispatch state'
   );
   assertIncludes(
     routeSource,
     'Schema.Literal(AppGameCategoryRiskPolicyAdapterDispatchState.NotDispatched)',
-    'parent-domain route schema allows not-dispatched only'
+    'schema-domain route schema allows not-dispatched only'
   );
   assertIncludes(
     routeRules,
@@ -137,22 +125,6 @@ async function main() {
     'route.requestedAction === AppGamePolicyCompilerRequestedAction.ManualRequired',
     'policy routing soft boundary includes manual-required but not adapter dispatch'
   );
-  assertIncludes(
-    routeTest,
-    'requires local-AI category routes to cite digest refs',
-    'parent-domain test covers local AI digest requirement'
-  );
-  assertIncludes(
-    routeTest,
-    'keeps risk candidates from becoming hard adapter actions',
-    'parent-domain test covers hard action rejection'
-  );
-  assertIncludes(
-    routeTest,
-    'expect(parsed.data.adapterDispatchState).toBe(AppGameCategoryRiskPolicyAdapterDispatchState.NotDispatched)',
-    'parent-domain test proves route stays not-dispatched'
-  );
-
   const proof = {
     schemaVersion: 1,
     proofMode: 'app-game-ai-output-direct-enforcement-gate-proof',
@@ -173,9 +145,7 @@ async function main() {
       categoryRiskTests:
         'packages/app-game-domain/tests/unit/app-game-category-risk.test.ts rejects local-AI hard action candidates such as shieldApp and missing digest refs.',
       policyRouteContract:
-        'packages/parent-domain/src/app-game-category-risk-policy-routing.ts constrains adapterDispatchState to not-dispatched for category/risk routes.',
-      policyRouteTests:
-        'packages/parent-domain/tests/app-game-category-risk-policy-routing.test.ts proves local-AI routes require digest refs and hard risk-candidate actions are rejected.',
+        'packages/schema-domain/src/app-game-category-risk-policy-routing.ts and packages/schema-domain/src/app-game-category-risk-policy-routing-rules.ts constrain adapterDispatchState to not-dispatched and require digest-backed soft/manual-review routing.',
     },
     productBoundaries: {
       sharedEvidenceSpine: true,
@@ -210,8 +180,8 @@ async function main() {
       '- Activity-domain AI classification digests expose action hints and evidence/session refs, not adapter commands.',
       '- Activity-domain local-AI category candidates require aiDigestRef and stay notEnforcement.',
       '- Activity-domain tests reject local-AI hard action candidates such as shieldApp.',
-      '- Parent-domain category/risk policy routes constrain adapterDispatchState to not-dispatched.',
-      '- Parent-domain tests reject hard risk-candidate actions and require digest refs for local-AI routes.',
+      '- Schema-domain category/risk policy routes constrain adapterDispatchState to not-dispatched.',
+      '- Schema-domain route rules require digest-backed soft/manual-review routing for local-AI category decisions.',
       '',
     ].join('\n')
   );

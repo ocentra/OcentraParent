@@ -3,11 +3,11 @@ import os from 'node:os';
 import path from 'node:path';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
+import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 import { Logger } from '../../src/core/logger';
 import { getStackTrace, type StackTrace } from '../../src/core/stackTrace';
 import { createBridgeServer } from '../../src/transport/bridgeServer';
 import { getTestLogScopeDir, listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
-import { RunType, TestLogOrigin, TestLogScope } from '../../src/test-log/types';
 
 class LoggerTestFixture {
   private readonly log = Logger.instance;

@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{LocalAiDegradedState, LocalModelRuntimeStatus};
+use crate::local_ai_runtime::{lifecycle::LocalAiDegradedState, status::LocalModelRuntimeStatus};
 
-use super::{policy_constants, ParentEvidenceReference, PolicyAction};
+use super::policy::{policy_constants, ParentEvidenceReference, PolicyAction};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LocalAiUnknownState {

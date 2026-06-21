@@ -4,8 +4,8 @@ import {
   TrackingDeviceStatusEvidenceSchema,
   TrackingLocationEvidenceSchema,
   TrackingRetentionPolicySchema,
-} from '../../src/tracking-evidence';
-import { TrackingCapabilityStatusSchema } from '../../src/tracking-primitives';
+} from '@ocentra-parent/schema-domain/tracking-evidence';
+import { TrackingCapabilityStatusSchema } from '@ocentra-parent/schema-domain/tracking-primitives';
 import {
   TrackingExpectedPlaceDecisionSchema,
   TrackingExpectedPlaceScheduleSchema,
@@ -13,8 +13,8 @@ import {
   TrackingGeofenceTransitionSchema,
   TrackingNearbyPlaceEvidenceSchema,
   TrackingParentDefinedPlaceSchema,
-} from '../../src/tracking-geofence';
-import { TrackingReadModelSchema } from '../../src/tracking-read-model';
+} from '@ocentra-parent/schema-domain/tracking-geofence';
+import { TrackingReadModelSchema } from '@ocentra-parent/schema-domain/tracking-read-model';
 import { applyTrackingRetentionDelete, applyTrackingRetentionExport } from '../../src/tracking-retention-runtime';
 import { evaluateTrackingExpectedPlaceDecision, evaluateTrackingGeofenceTransition } from '../../src/tracking-runtime';
 

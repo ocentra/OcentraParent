@@ -1,4 +1,4 @@
-use ocentra_parent_agent_core::EnforcementBoundaryOutcome;
+use ocentra_parent_agent_core::enforcement_boundary::EnforcementBoundaryOutcome;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityIngestStatus, ActivityObserver,
     ActivitySource, ActivitySubject, ActivitySubjectKind, EnforcementActiveTimerState,

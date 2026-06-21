@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { BaselineBrowserControlAuthoringManifest } from '../../src/browser-control-baseline-manifest';
+import { BaselineBrowserControlAuthoringManifest } from '@ocentra-parent/schema-domain/browser-control-baseline-manifest';
 import {
   BrowserControlAuthoringManifestSchema,
   BrowserControlManifestDefaults,
   browserControlVisibleSectionIds,
-} from '../../src/browser-control-manifest';
+} from '@ocentra-parent/schema-domain/browser-control-manifest';
 import {
   BrowserControlCandidateMvpItems,
   BrowserControlCatalogMajorSections,
   BrowserControlCoverageMatrix,
-} from '../../src/browser-control-coverage-matrix';
+} from '@ocentra-parent/schema-domain/browser-control-coverage-matrix';
 import {
   BrowserControlCapabilityRegistrySchema,
   BrowserControlEffectivePolicySchema,
@@ -18,10 +18,16 @@ import {
   BrowserControlPatchPolicyRequestSchema,
   BrowserControlPolicyValueSchema,
   BrowserControlUpdateRequestSchema,
-} from '../../src/browser-control-policy';
-import { BrowserControlFieldIdSchema, BrowserControlRequestIdSchema } from '../../src/browser-control-identifiers';
-import { BrowserControlUnmanagedBrowserModeSchema, BrowserControlWritesToPath } from '../../src/browser-control-values';
-import { BrowserControlRuleActionSchema } from '../../src/browser-control-catalog-values';
+} from '@ocentra-parent/schema-domain/browser-control-policy';
+import {
+  BrowserControlFieldIdSchema,
+  BrowserControlRequestIdSchema,
+} from '@ocentra-parent/schema-domain/browser-control-identifiers';
+import {
+  BrowserControlUnmanagedBrowserModeSchema,
+  BrowserControlWritesToPath,
+} from '@ocentra-parent/schema-domain/browser-control-values';
+import { BrowserControlRuleActionSchema } from '@ocentra-parent/schema-domain/browser-control-catalog-values';
 
 const expectedSectionIds = [
   BrowserControlManifestDefaults.Section.Management,

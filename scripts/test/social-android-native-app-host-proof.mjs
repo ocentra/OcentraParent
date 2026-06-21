@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SocialAndroidNativeAppCapabilityMatrixSchema } from '../../packages/parent-domain/dist/social-android-native-app-capability-matrix.js';
+import { SocialAndroidNativeAppCapabilityMatrixSchema } from '../../packages/schema-domain/dist/social-android-native-app-capability-matrix.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -13,12 +13,12 @@ const outputProofPath = join(proofRoot, '11-android-host-device-proof.json');
 const observedAt = new Date().toISOString();
 
 const sourceFiles = [
-  'packages/parent-domain/src/social-android-native-app-capability-matrix-values.ts',
-  'packages/parent-domain/src/social-android-native-app-capability-matrix.ts',
+  'packages/schema-domain/src/social-android-native-app-capability-matrix-values.ts',
+  'packages/schema-domain/src/social-android-native-app-capability-matrix.ts',
 ];
 const builtFiles = [
-  'packages/parent-domain/dist/social-android-native-app-capability-matrix-values.js',
-  'packages/parent-domain/dist/social-android-native-app-capability-matrix.js',
+  'packages/schema-domain/dist/social-android-native-app-capability-matrix-values.js',
+  'packages/schema-domain/dist/social-android-native-app-capability-matrix.js',
 ];
 
 const targetPackages = [
@@ -112,10 +112,10 @@ console.log(`resultState=${proof.hostProofSummary.resultState}`);
 function buildCapabilityMatrix({ generatedAt, deviceAvailable, packageVisibility }) {
   const packageVisibilityProofState =
     deviceAvailable && packageVisibility.length > 0
-      ? 'existing-parent-domain-proof-ref'
+      ? 'existing-schema-domain-proof-ref'
       : 'manual-device-proof-required';
   const packageVisibilityCapabilityState =
-    packageVisibilityProofState === 'existing-parent-domain-proof-ref'
+    packageVisibilityProofState === 'existing-schema-domain-proof-ref'
       ? 'app-level-capable-with-proof'
       : 'manual-required';
 
@@ -131,7 +131,7 @@ function buildCapabilityMatrix({ generatedAt, deviceAvailable, packageVisibility
         capabilityState: packageVisibilityCapabilityState,
         proofState: packageVisibilityProofState,
         policyScope:
-          packageVisibilityProofState === 'existing-parent-domain-proof-ref' ? 'app-level-only' : 'manual-review-only',
+          packageVisibilityProofState === 'existing-schema-domain-proof-ref' ? 'app-level-only' : 'manual-review-only',
         reasons: ['package-visibility-limited', 'route-level-unavailable', 'content-proof-unavailable'],
       }),
       matrixRow('android-usage-stats-foreground', {
@@ -242,7 +242,7 @@ function buildNegativeChecks(matrix) {
       ...matrix,
       rows: matrix.rows.map((row) =>
         row.surface === 'android-device-owner-app-control'
-          ? { ...row, capabilityState: 'app-level-capable-with-proof', proofState: 'existing-parent-domain-proof-ref' }
+          ? { ...row, capabilityState: 'app-level-capable-with-proof', proofState: 'existing-schema-domain-proof-ref' }
           : row
       ),
     }).success,

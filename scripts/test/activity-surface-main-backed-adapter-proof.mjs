@@ -48,10 +48,10 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      activityDomain: 'packages/activity-domain/src/activity-surface.ts',
+      activityDomain: 'packages/schema-domain/src/activity-surface.ts',
       activityDomainTest: 'packages/activity-domain/tests/activity-surface.test.ts',
       agentProtocolDomainAdapter: 'packages/agent-protocol-domain/src/activity-surface-adapter.ts',
-      agentProtocolDomainAdapterTest: 'packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts',
+      agentProtocolDomainAdapterTest: 'packages/agent-protocol-domain/tests/unit/activity-surface-adapter.test.ts',
       rustProtocol: 'crates/agent-protocol/src/activity_surface.rs',
       rustServiceAdapter: 'crates/agent-service/src/activity_surface_adapter.rs',
       rustServiceReadModels: 'crates/agent-service/src/activity_surface_read_models.rs',

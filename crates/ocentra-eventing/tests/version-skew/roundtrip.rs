@@ -93,7 +93,7 @@ fn stored_envelope_rejects_older_schema_version_without_silent_decode() {
 
     let stored_json = serde_json::to_value(&stored).expect_value("stored envelope serializes");
     let mut skewed_json = stored_json;
-    skewed_json["contract"]["schema_version"] = serde_json::Value::from(0);
+    skewed_json["contract"]["schemaVersion"] = serde_json::Value::from(0);
 
     let error = serde_json::from_value::<StoredEventEnvelope>(skewed_json)
         .expect_err_value("zero stored schema version must fail during deserialize");

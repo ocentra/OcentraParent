@@ -3,32 +3,8 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Network evidence, capture, adapter, flow, and runtime-readiness contracts.",
+  "description": "Network package boundary metadata; shared network contracts now live in schema-domain.",
   "exports": {
-    "./network-contracts": {
-      "import": "./dist/network-contracts.js",
-      "types": "./dist/network-contracts.d.ts"
-    },
-    "./network-control-catalog": {
-      "import": "./dist/network-control-catalog.js",
-      "types": "./dist/network-control-catalog.d.ts"
-    },
-    "./network-control-catalog-data": {
-      "import": "./dist/network-control-catalog-data.js",
-      "types": "./dist/network-control-catalog-data.d.ts"
-    },
-    "./network-control-catalog-metadata": {
-      "import": "./dist/network-control-catalog-metadata.js",
-      "types": "./dist/network-control-catalog-metadata.d.ts"
-    },
-    "./network-control-catalog-schema": {
-      "import": "./dist/network-control-catalog-schema.js",
-      "types": "./dist/network-control-catalog-schema.d.ts"
-    },
-    "./network-flow": {
-      "import": "./dist/network-flow.js",
-      "types": "./dist/network-flow.d.ts"
-    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
@@ -42,9 +18,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/activity-domain": "file:../activity-domain",
-    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
-    "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

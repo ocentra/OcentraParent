@@ -7,10 +7,14 @@ const outputRoot = resolve(repoRoot, 'output', 'screen-ai-pipeline-proof', 'obse
 const artifactSummaryPath = join(outputRoot, 'proof-summary.json');
 
 await mkdir(outputRoot, { recursive: true });
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 
-const { ScreenAnalysisParentSettingSchema, ScreenAnalysisResultSchema, ScreenEvidenceSchemaVersion } =
-  await import('../../packages/screen-domain/dist/screen-evidence.js');
+const { ScreenAnalysisParentSettingSchema } =
+  await import('../../packages/schema-domain/dist/screen-evidence-settings.js');
+const { ScreenAnalysisResultSchema } = await import('../../packages/schema-domain/dist/screen-evidence-result.js');
+const { ScreenEvidenceSchemaVersion } =
+  await import('../../packages/schema-domain/dist/screen-evidence-primitives.js');
 
 const observedAt = '2026-06-03T21:05:00.000Z';
 const evidenceRef = {

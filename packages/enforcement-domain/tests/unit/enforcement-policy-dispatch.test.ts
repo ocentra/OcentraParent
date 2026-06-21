@@ -4,7 +4,7 @@ import {
   EnforcementPolicyDispatchIntentSchema,
   EnforcementPolicyDispatchReadModel,
   EnforcementPolicyDispatchReadModelSchema,
-} from '../../src/enforcement-policy-dispatch';
+} from '@ocentra-parent/schema-domain/enforcement-policy-dispatch';
 
 describe('enforcement policy dispatch contracts', () => {
   it('keeps the V0.8 dispatch proof matrix schema-backed and parent-visible', () => {

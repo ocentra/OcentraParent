@@ -3,7 +3,7 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
+import { ParentEvidenceReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const AppGameControlApprovalCandidateKindSchema = withParser(

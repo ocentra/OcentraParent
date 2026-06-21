@@ -17,22 +17,22 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
   runNpm([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/browser-domain',
     '--',
-    'social-alert-report-provider-receipt-ingestion-readiness.test.ts',
+    'browser-plan-package-exports.test.ts',
   ]);
 
   const source = await readText(
-    'packages/parent-domain/src/social-alert-report-provider-receipt-ingestion-readiness.ts'
+    'packages/schema-domain/src/social-alert-report-provider-receipt-ingestion-readiness.ts'
   );
-  const test = await readText(
-    'packages/parent-domain/tests/social-alert-report-provider-receipt-ingestion-readiness.test.ts'
-  );
+  const browserPackage = await readText('packages/browser-domain/package.json');
+  const browserPackageJson = JSON.parse(browserPackage);
+  const test = await readText('packages/browser-domain/tests/unit/browser-plan-package-exports.test.ts');
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/README.md');
   const checklist = await readText('docs/plans/browser-plan/implementation-checklist.md');
   const featureDoc = await readText('docs/features/browser-web-control.md');
@@ -89,8 +89,9 @@ async function main() {
   );
   const summary = ingestionModule.summarizeSocialAlertReportProviderReceiptIngestionReadiness(readModel);
   const checks = [
-    checkFile('packages/parent-domain/src/social-alert-report-provider-receipt-ingestion-readiness.ts'),
-    checkFile('packages/parent-domain/tests/social-alert-report-provider-receipt-ingestion-readiness.test.ts'),
+    checkFile('packages/schema-domain/src/social-alert-report-provider-receipt-ingestion-readiness.ts'),
+    checkFile('packages/browser-domain/package.json'),
+    checkFile('packages/browser-domain/tests/unit/browser-plan-package-exports.test.ts'),
     checkFile('scripts/test/social-alert-report-provider-receipt-ingestion-readiness-proof.mjs'),
     checkIncludes(
       source,
@@ -100,7 +101,16 @@ async function main() {
     checkIncludes(source, 'providerWebhookRuntimeClaimed: Schema.Literal(false)', 'webhook runtime non-claim'),
     checkIncludes(source, 'providerCredentialsClaimed: Schema.Literal(false)', 'credentials non-claim'),
     checkIncludes(source, 'providerReceiptObservedRefs.length === 0', 'provider receipt observed ref gate'),
-    checkIncludes(test, "webhookEndpointRef: 'provider-webhook-endpoint-observed'", 'webhook overclaim rejection'),
+    checkMissingExport(
+      browserPackageJson,
+      './social-alert-report-provider-receipt-ingestion-readiness',
+      'browser package retired export removed'
+    ),
+    checkIncludes(
+      test,
+      "'./social-alert-report-provider-receipt-ingestion-readiness'",
+      'browser export retirement test coverage'
+    ),
     checkIncludes(
       workpackReadme,
       'social-alert-report-provider-receipt-ingestion-readiness-proof',
@@ -149,8 +159,9 @@ async function main() {
       ingestionProofRequirements: row.ingestionProofRequirements,
     })),
     proofPaths: {
-      source: 'packages/parent-domain/src/social-alert-report-provider-receipt-ingestion-readiness.ts',
-      test: 'packages/parent-domain/tests/social-alert-report-provider-receipt-ingestion-readiness.test.ts',
+      source: 'packages/schema-domain/src/social-alert-report-provider-receipt-ingestion-readiness.ts',
+      package: 'packages/browser-domain/package.json',
+      test: 'packages/browser-domain/tests/unit/browser-plan-package-exports.test.ts',
       harness: 'scripts/test/social-alert-report-provider-receipt-ingestion-readiness-proof.mjs',
       evidence: 'test-results/social-alert-report-provider-receipt-ingestion-readiness-proof/proof.json',
       readModel:
@@ -179,7 +190,7 @@ async function main() {
 }
 
 function importDist(name) {
-  return import(pathToFileURL(join(root, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(root, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function proofIntents(intent, refs) {
@@ -326,7 +337,7 @@ function markdownFor(proof) {
     '- Final policy execution: false',
     '- Connector/native runtime: false',
     '- Enforcement: false',
-    '- Package subpath export: deferred because `packages/parent-domain/package.json` is currently owned by another lane.',
+    '- Canonical source ownership now lives in packages/schema-domain; browser-domain no longer exports this retired subpath.',
   ].join('\n');
 }
 
@@ -358,6 +369,13 @@ function checkFile(path) {
 
 function checkIncludes(text, expected, label) {
   return { label, pass: text.includes(expected) };
+}
+
+function checkMissingExport(packageJson, exportPath, label) {
+  return {
+    label,
+    pass: packageJson?.exports?.[exportPath] === undefined,
+  };
 }
 
 async function readText(path) {

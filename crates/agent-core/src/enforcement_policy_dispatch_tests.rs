@@ -243,10 +243,7 @@ fn intent(suffix: &str) -> EnforcementPolicyDispatchIntent {
             ocentra_parent_agent_protocol::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6
                 .to_string(),
         intent_id: prefixed(dispatch::PREFIX_INTENT, suffix),
-        actor: ParentActorReference {
-            actor_id: dispatch::PARENT_ACTOR_PRIMARY_ID.to_string(),
-            role: ParentActorRole::Parent,
-        },
+        actor: parent_actor(),
         device: ParentDeviceReference {
             device_id: dispatch::LOCAL_DEV_AGENT_DEVICE_ID.to_string(),
             child_profile_id: Some(dispatch::LOCAL_DEV_CHILD_PROFILE_ID.to_string()),
@@ -271,10 +268,7 @@ fn intent(suffix: &str) -> EnforcementPolicyDispatchIntent {
         }],
         approval_ref: Some(ParentActionReference {
             action_reference_id: prefixed(dispatch::PREFIX_APPROVAL, suffix),
-            actor: ParentActorReference {
-                actor_id: dispatch::PARENT_ACTOR_PRIMARY_ID.to_string(),
-                role: ParentActorRole::Parent,
-            },
+            actor: parent_actor().into(),
             policy_version: dispatch::POLICY_VERSION_V0_8_DISPATCH.to_string(),
             created_at: dispatch::GENERATED_AT.to_string(),
         }),
@@ -282,6 +276,13 @@ fn intent(suffix: &str) -> EnforcementPolicyDispatchIntent {
         source_state: EnforcementPolicyDispatchSourceState::Ready,
         dry_run: false,
         requested_at: dispatch::GENERATED_AT.to_string(),
+    }
+}
+
+fn parent_actor() -> ParentActorReference {
+    ParentActorReference {
+        actor_id: dispatch::PARENT_ACTOR_PRIMARY_ID.to_string(),
+        role: ParentActorRole::Parent,
     }
 }
 

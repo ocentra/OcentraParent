@@ -94,7 +94,7 @@ pub type AppGameLiveProcessSnapshotError = AppGameLiveProcessSnapshotErrorImpl;
 pub type AppGameLiveRegistryInventorySourceError = AppGameLiveRegistryInventorySourceErrorImpl;
 pub type AppGameLiveStorePackageSourceError = AppGameLiveStorePackageSourceErrorImpl;
 
-pub(crate) fn live_windows_foreground_window_journal_event(
+pub fn live_windows_foreground_window_journal_event(
     device_id: &str,
     platform: &str,
     observed_at: &str,
@@ -103,7 +103,7 @@ pub(crate) fn live_windows_foreground_window_journal_event(
     live_windows_foreground_window_journal_event_impl(device_id, platform, observed_at)
 }
 
-pub(crate) fn live_windows_inventory_journal_events_with_limit(
+pub fn live_windows_inventory_journal_events_with_limit(
     device_id: &str,
     platform: &str,
     observed_at: &str,
@@ -112,7 +112,7 @@ pub(crate) fn live_windows_inventory_journal_events_with_limit(
     live_windows_inventory_journal_events_with_limit_impl(device_id, platform, observed_at, limit)
 }
 
-pub(crate) fn live_windows_inventory_journal_events_from_roots(
+pub fn live_windows_inventory_journal_events_from_roots(
     device_id: &str,
     platform: &str,
     observed_at: &str,
@@ -128,7 +128,7 @@ pub(crate) fn live_windows_inventory_journal_events_from_roots(
     )
 }
 
-pub(crate) fn live_windows_process_snapshot_journal_events_with_limit(
+pub fn live_windows_process_snapshot_journal_events_with_limit(
     device_id: &str,
     platform: &str,
     observed_at: &str,
@@ -142,7 +142,7 @@ pub(crate) fn live_windows_process_snapshot_journal_events_with_limit(
     )
 }
 
-pub(crate) fn live_windows_registry_inventory_journal_events_with_limit(
+pub fn live_windows_registry_inventory_journal_events_with_limit(
     device_id: &str,
     platform: &str,
     observed_at: &str,
@@ -159,7 +159,7 @@ pub(crate) fn live_windows_registry_inventory_journal_events_with_limit(
     )
 }
 
-pub(crate) fn live_windows_registry_inventory_journal_events_from_roots(
+pub fn live_windows_registry_inventory_journal_events_from_roots(
     device_id: &str,
     platform: &str,
     observed_at: &str,
@@ -178,7 +178,7 @@ pub(crate) fn live_windows_registry_inventory_journal_events_from_roots(
     )
 }
 
-pub(crate) fn live_windows_store_package_journal_events_with_limit(
+pub fn live_windows_store_package_journal_events_with_limit(
     device_id: &str,
     platform: &str,
     observed_at: &str,
@@ -192,7 +192,7 @@ pub(crate) fn live_windows_store_package_journal_events_with_limit(
     )
 }
 
-pub(crate) fn live_windows_store_package_journal_events_from_roots(
+pub fn live_windows_store_package_journal_events_from_roots(
     device_id: &str,
     platform: &str,
     observed_at: &str,
@@ -231,7 +231,7 @@ pub(crate) fn app_game_service_read_model(
     limit: u64,
     generated_at: &str,
 ) -> Result<AppGameServiceReadModel, ActivityStoreError> {
-    app_game_journal_sqlite_ingest::app_game_journal_sqlite_read_model(
+    app_game_journal_sqlite_ingest::read_model::app_game_journal_sqlite_read_model(
         connection,
         limit,
         generated_at,

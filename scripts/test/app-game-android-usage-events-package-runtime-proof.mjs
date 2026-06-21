@@ -38,12 +38,12 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-android-usage-events-package-runtime-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -64,7 +64,7 @@ async function main() {
 
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-package-runtime-proof.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-package-runtime-proof.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidUsageEventsPackageRuntimeProof({
@@ -87,8 +87,8 @@ async function main() {
     summary,
     sourceState,
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-android-usage-events-package-runtime-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-android-usage-events-package-runtime-proof.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-android-usage-events-package-runtime-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-package-runtime-proof.test.ts',
       packageInstall: 'adb install -r target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk',
       packageLaunch: `adb shell am start -n ${activityId}`,
       uiDump: 'uiautomator dump observed package runtime state text; raw UI XML is redacted in command log',
@@ -97,7 +97,7 @@ async function main() {
     claimsProved: [
       'Android debug package installs and MainActivity launches on the physical Samsung Galaxy S9 target',
       'Package UI exposes UsageEvents permission/sample states from the package-local runtime preflight',
-      'Parent-domain records install/launch/AppOps/UI evidence without raw device serial, raw package list, raw UsageEvents rows, or enforcement claims',
+      'App-game-domain records install/launch/AppOps/UI evidence without raw device serial, raw package list, raw UsageEvents rows, or enforcement claims',
     ],
     claimsNotProved: [
       'UsageStats settings grant if AppOps still reports ignored/default',

@@ -7,7 +7,7 @@ const proofRoot = join('output', 'network-plan-proof', 'portal-risk-performance-
 const testRoot = join('test-results', 'network-portal-risk-performance-platform-proof');
 const proofPath = join(testRoot, 'proof.json');
 const planProofPath = join(proofRoot, 'proof-summary.json');
-const sourceRoots = ['apps/portal/src', 'packages/portal-domain/src'];
+const sourceRoots = ['apps/portal/src'];
 const sourceExtensions = new Set(['.ts', '.tsx']);
 const commands = [];
 const proofLabels = [];
@@ -41,7 +41,6 @@ mkdirSync(testRoot, { recursive: true });
 await main();
 
 async function main() {
-  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal-domain']));
   runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal']));
   runCommand(
     ...npmCommand([
@@ -61,10 +60,8 @@ async function main() {
       '@ocentra-parent/portal',
       '--',
       'eslint',
-      '../../packages/portal-domain/src/network-evidence-drawer.ts',
       'src/NetworkEvidenceDrawerRoutePanel.tsx',
       'tests/live-activity-network-flow.test.ts',
-      '../../packages/portal-domain/src/details.ts',
     ])
   );
   runCommand('node', ['scripts/check-source-shape.mjs']);
@@ -88,19 +85,17 @@ async function main() {
       testProof: proofPath,
     },
     evidence: {
-      networkEvidenceDrawer: 'packages/portal-domain/src/network-evidence-drawer.ts',
       networkEvidenceDrawerRoutePanel: 'apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx',
-      portalLabels: 'packages/portal-domain/src/details.ts',
       portalNetworkFlowTest: 'apps/portal/tests/live-activity-network-flow.test.ts',
       scannedSourceRoots: sourceRoots,
       scannedFiles,
     },
     claimsProved: [
-      'portal drawer renders platform/capability status from the service-backed network read model',
+      'portal route renders platform/capability status from the service-backed network read model',
       'portal drawer renders active/tombstone/exportable row counts without inventing evidence',
       'portal drawer renders retention tombstone and deleted evidence refs when the service reports them',
       'portal drawer renders degraded adapter/platform states from read-model capability status',
-      'portal keeps policy, AI, exact URL, and intervention facets Not reported without service refs',
+      'portal keeps exact URL, policy, and intervention facets Not reported without service refs',
       'portal source contains no network event publish, policy evaluation, evidence grade computation, adapter execution, or enforcement dispatch authority',
     ],
     notClaimed: [
@@ -121,26 +116,11 @@ async function main() {
 }
 
 function assertPortalStatusProjection() {
-  const drawer = readText('packages/portal-domain/src/network-evidence-drawer.ts');
   const panel = readText('apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx');
-  const labels = readText('packages/portal-domain/src/details.ts');
   const test = readText('apps/portal/tests/live-activity-network-flow.test.ts');
 
   for (const expected of [
-    'readModelPlatformState(readModel)',
-    'readModelRows(readModel)',
-    'retentionState(readModel)',
-    'degradedState(row, readModel)',
-    'deletedEvidenceReferences(readModel)',
-    'policyDecisionRef: notReported()',
-    'interventionResultRef: notReported()',
-    'exactUrlClaim: notReported()',
-  ]) {
-    assertIncludes(drawer, expected, `drawer status projection: ${expected}`);
-  }
-  proofLabels.push('drawer.projects-service-backed-platform-performance-retention-state');
-
-  for (const expected of [
+    'networkEvidenceDrawerSummary(liveActivity.networkFlowReadModel, {',
     'PortalDetails.PlatformState',
     'PortalDetails.ReadModelRows',
     'PortalDetails.DeletedEvidenceReferences',
@@ -148,17 +128,7 @@ function assertPortalStatusProjection() {
   ]) {
     assertIncludes(panel, expected, `drawer route renders field: ${expected}`);
   }
-  proofLabels.push('drawer.route-renders-new-status-fields');
-
-  for (const expected of [
-    "PlatformState: decodeDisplayText('Platform state')",
-    "ReadModelRows: decodeDisplayText('Read-model rows')",
-    "PerformanceState: decodeDisplayText('Performance state')",
-    "DeletedEvidenceReferences: decodeDisplayText('Deleted evidence refs')",
-  ]) {
-    assertIncludes(labels, expected, `portal-domain owns label: ${expected}`);
-  }
-  proofLabels.push('portal-domain.owns-display-labels');
+  proofLabels.push('drawer.route-renders-platform-performance-retention-fields');
 
   for (const expected of [
     "expect(summary.platformState).toBe('child-device-query-store | available')",

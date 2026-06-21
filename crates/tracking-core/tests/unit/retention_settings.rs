@@ -1,18 +1,20 @@
 use ocentra_parent_agent_protocol::{
-    default_tracking_config_update_request, tracking_read_model_proof_ref,
-    tracking_retention_command_id, tracking_retention_settings_kind, tracking_writer_intent_ref,
+    default_tracking_config_update_request, default_tracking_retention_settings_write_request,
     TrackingDeleteAfterAlertResolutionState, TrackingDurableSettingsPersistenceState,
     TrackingParentExportState, TrackingRemoteAiState, TrackingRemoteSyncState,
     TrackingRetentionSettingsWriteRequest, TrackingRuntimeEnabledState,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
-use ocentra_tracking_core::{
+use ocentra_tracking_core::retention_settings::{
     apply_tracking_config_update, apply_tracking_retention_settings_write,
     tracking_retention_settings_durable_store_path,
 };
+use std::sync::{Mutex, MutexGuard, OnceLock};
+
+static RETENTION_SETTINGS_TEST_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
 
 #[test]
 fn retention_settings_write_state_is_owned_by_agent_core_not_websocket_transport() {
+    let _guard = lock_retention_settings_test_state();
     let applied = apply_tracking_retention_settings_write(&retention_write_request());
 
     assert!(applied.local_service_state_revision > 0);
@@ -25,6 +27,7 @@ fn retention_settings_write_state_is_owned_by_agent_core_not_websocket_transport
 
 #[test]
 fn retention_settings_write_persists_requested_remote_states() {
+    let _guard = lock_retention_settings_test_state();
     let mut request = retention_write_request();
     request.requested_remote_sync_state = TrackingRemoteSyncState::Enabled;
     request.requested_remote_ai_state = TrackingRemoteAiState::Enabled;
@@ -42,6 +45,7 @@ fn retention_settings_write_persists_requested_remote_states() {
 
 #[test]
 fn tracking_config_update_persists_runtime_state_and_can_disable_tracking() {
+    let _guard = lock_retention_settings_test_state();
     let mut request = default_tracking_config_update_request();
     request.runtime_config.tracking_enabled_state = TrackingRuntimeEnabledState::Disabled;
 
@@ -60,19 +64,19 @@ fn tracking_config_update_persists_runtime_state_and_can_disable_tracking() {
 }
 
 fn retention_write_request() -> TrackingRetentionSettingsWriteRequest {
-    TrackingRetentionSettingsWriteRequest {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        command_id: tracking_retention_command_id(),
-        settings_kind: tracking_retention_settings_kind(),
-        requested_retention_window_hours: Some(168),
-        requested_delete_after_alert_resolution_state:
-            TrackingDeleteAfterAlertResolutionState::DeleteAfterAlertResolved,
-        requested_parent_export_state: TrackingParentExportState::Prepared,
-        requested_remote_sync_state: TrackingRemoteSyncState::Disabled,
-        requested_remote_ai_state: TrackingRemoteAiState::Disabled,
-        source_writer_intent_refs: vec![tracking_writer_intent_ref()],
-        source_read_model_proof_refs: vec![tracking_read_model_proof_ref(
-            ocentra_parent_agent_protocol::constants::tracking_retention_settings_write::READ_MODEL_PROOF_REF,
-        )],
-    }
+    let mut request = default_tracking_retention_settings_write_request();
+    request.requested_delete_after_alert_resolution_state =
+        TrackingDeleteAfterAlertResolutionState::DeleteAfterAlertResolved;
+    request.requested_parent_export_state = TrackingParentExportState::Prepared;
+    request.requested_remote_sync_state = TrackingRemoteSyncState::Disabled;
+    request.requested_remote_ai_state = TrackingRemoteAiState::Disabled;
+    request.source_read_model_proof_refs.truncate(1);
+    request
+}
+
+fn lock_retention_settings_test_state() -> MutexGuard<'static, ()> {
+    RETENTION_SETTINGS_TEST_LOCK
+        .get_or_init(|| Mutex::new(()))
+        .lock()
+        .expect("retention settings test lock")
 }

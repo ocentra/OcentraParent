@@ -1,7 +1,7 @@
 import {
   V08EnforcementProductControlSpineReadModelSchema,
   type V08EnforcementProductControlSpineReadModel,
-} from '@ocentra-parent/enforcement-domain/v0-8-enforcement-product-control-spine';
+} from '@ocentra-parent/schema-domain/v0-8-enforcement-product-control-spine';
 import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from './contracts';
 
 export type EnforcementProductControlParseResult =

@@ -1,26 +1,33 @@
 use ocentra_billing_core::billing_subscription::{
     decide_billing_provider_webhook, project_billing_entitlement_transition,
     project_billing_entitlement_transition_event, record_billing_provider_webhook_decision_event,
-    BillingAccountMatchState, BillingAggregateId, BillingEntitlementScope,
-    BillingEntitlementTransitionState, BillingEntitlementUpdateRequirement,
-    BillingEntitlementWriteState, BillingManualReviewRequirement, BillingProviderDuplicateState,
+    BillingAccountMatchState, BillingAggregateId, BillingCollectionRecoveryState,
+    BillingDisputeLifecycleState, BillingEntitlementScope, BillingEntitlementTransitionState,
+    BillingEntitlementUpdateRequirement, BillingEntitlementWriteState,
+    BillingManualReviewRequirement, BillingProviderDuplicateState,
     BillingProviderEventDecisionState, BillingProviderEventId, BillingProviderEventKind,
     BillingProviderSignatureState, BillingProviderWebhookEvent,
-    BillingProviderWebhookReceivedEvent, BillingSubscriptionLifecycleState,
+    BillingProviderWebhookReceivedEvent, BillingRefundLifecycleState, BillingSubscriptionStatus,
 };
 use ocentra_eventing::envelope::DomainEvent;
 
 fn provider_event() -> BillingProviderWebhookEvent {
     provider_event_with(
         "billing-provider-event-1",
-        BillingSubscriptionLifecycleState::Active,
+        BillingSubscriptionStatus::Active,
+        BillingCollectionRecoveryState::Active,
+        BillingRefundLifecycleState::None,
+        BillingDisputeLifecycleState::None,
         BillingProviderDuplicateState::Fresh,
     )
 }
 
 fn provider_event_with(
     event_id: &str,
-    lifecycle_state: BillingSubscriptionLifecycleState,
+    subscription_status: BillingSubscriptionStatus,
+    collection_recovery_state: BillingCollectionRecoveryState,
+    refund_state: BillingRefundLifecycleState,
+    dispute_state: BillingDisputeLifecycleState,
     duplicate_state: BillingProviderDuplicateState,
 ) -> BillingProviderWebhookEvent {
     BillingProviderWebhookEvent {
@@ -30,7 +37,10 @@ fn provider_event_with(
         signature_state: BillingProviderSignatureState::Verified,
         duplicate_state,
         account_match_state: BillingAccountMatchState::Matched,
-        lifecycle_state,
+        subscription_status,
+        collection_recovery_state,
+        refund_state,
+        dispute_state,
     }
 }
 
@@ -119,7 +129,9 @@ fn rejects_account_mismatched_provider_event_pending_manual_review() {
 fn dispute_provider_event_requires_manual_review() {
     let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
         event_kind: BillingProviderEventKind::DisputeOpened,
-        lifecycle_state: BillingSubscriptionLifecycleState::Disputed,
+        subscription_status: BillingSubscriptionStatus::Active,
+        collection_recovery_state: BillingCollectionRecoveryState::SupportRequired,
+        dispute_state: BillingDisputeLifecycleState::DisputeOpened,
         ..provider_event()
     });
 
@@ -137,7 +149,8 @@ fn dispute_provider_event_requires_manual_review() {
 fn grace_lifecycle_stays_accepted_and_projects_an_entitlement_write() {
     let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
         event_kind: BillingProviderEventKind::SubscriptionUpdated,
-        lifecycle_state: BillingSubscriptionLifecycleState::Grace,
+        subscription_status: BillingSubscriptionStatus::Grace,
+        collection_recovery_state: BillingCollectionRecoveryState::Grace,
         ..provider_event()
     });
 
@@ -159,7 +172,7 @@ fn grace_lifecycle_stays_accepted_and_projects_an_entitlement_write() {
 fn refund_event_is_safe_but_does_not_auto_update_entitlement() {
     let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
         event_kind: BillingProviderEventKind::RefundIssued,
-        lifecycle_state: BillingSubscriptionLifecycleState::Canceled,
+        refund_state: BillingRefundLifecycleState::RefundIssued,
         ..provider_event()
     });
 
@@ -178,10 +191,10 @@ fn refund_event_is_safe_but_does_not_auto_update_entitlement() {
 }
 
 #[test]
-fn support_required_lifecycle_blocks_automatic_updates_pending_manual_review() {
+fn support_required_recovery_projects_manual_review_instead_of_silent_no_write() {
     let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
         event_kind: BillingProviderEventKind::CustomerPortalUpdated,
-        lifecycle_state: BillingSubscriptionLifecycleState::SupportRequired,
+        collection_recovery_state: BillingCollectionRecoveryState::SupportRequired,
         ..provider_event()
     });
 
@@ -191,7 +204,7 @@ fn support_required_lifecycle_blocks_automatic_updates_pending_manual_review() {
     );
     assert_eq!(
         decision.entitlement_update_requirement,
-        BillingEntitlementUpdateRequirement::NotRequired
+        BillingEntitlementUpdateRequirement::Required
     );
     assert_eq!(
         decision.manual_review_requirement,
@@ -200,10 +213,11 @@ fn support_required_lifecycle_blocks_automatic_updates_pending_manual_review() {
 }
 
 #[test]
-fn verified_unknown_lifecycle_blocks_entitlement_write_pending_manual_review() {
+fn verified_unknown_subscription_status_blocks_entitlement_write_pending_manual_review() {
     let decision = decide_billing_provider_webhook(BillingProviderWebhookEvent {
         event_kind: BillingProviderEventKind::CustomerPortalUpdated,
-        lifecycle_state: BillingSubscriptionLifecycleState::Unknown,
+        subscription_status: BillingSubscriptionStatus::Unknown,
+        collection_recovery_state: BillingCollectionRecoveryState::SupportRequired,
         ..provider_event()
     });
 
@@ -252,7 +266,8 @@ fn active_subscription_projects_household_entitlement_grant() {
 fn past_due_subscription_projects_limited_child_device_entitlement() {
     let transition = project_billing_entitlement_transition(
         decide_billing_provider_webhook(BillingProviderWebhookEvent {
-            lifecycle_state: BillingSubscriptionLifecycleState::PastDue,
+            subscription_status: BillingSubscriptionStatus::PastDue,
+            collection_recovery_state: BillingCollectionRecoveryState::PastDue,
             ..provider_event()
         }),
         BillingEntitlementScope::ChildDevice,
@@ -344,7 +359,10 @@ fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
         aggregate_id: aggregate_id.clone(),
         provider_event: provider_event_with(
             "billing-provider-event-replay",
-            BillingSubscriptionLifecycleState::Active,
+            BillingSubscriptionStatus::Active,
+            BillingCollectionRecoveryState::Active,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingProviderDuplicateState::Fresh,
         ),
     };
@@ -352,7 +370,10 @@ fn replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant() {
         aggregate_id,
         provider_event: provider_event_with(
             "billing-provider-event-replay",
-            BillingSubscriptionLifecycleState::Active,
+            BillingSubscriptionStatus::Active,
+            BillingCollectionRecoveryState::Active,
+            BillingRefundLifecycleState::None,
+            BillingDisputeLifecycleState::None,
             BillingProviderDuplicateState::Duplicate,
         ),
     };

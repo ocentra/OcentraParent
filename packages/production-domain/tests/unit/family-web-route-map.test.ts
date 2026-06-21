@@ -4,8 +4,8 @@ import {
   mapFamilyWebLinks,
   mapFamilyWebRoutes,
   summarizeFamilyWebCollectionPolicies,
-} from '../../src/family-web-route-map';
-import { FamilyWebRouteMapReadModel } from '../../src/family-web-route-map-read-model';
+} from '@ocentra-parent/schema-domain/family-web-route-map';
+import { FamilyWebRouteMapReadModel } from '@ocentra-parent/schema-domain/family-web-route-map-read-model';
 
 describe('family web route map', () => {
   acceptsRouteAndLinkMap();

@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    constants::policy_control, LocalAiParentRuleContextRef, ParentEvidenceReference,
-    PolicyDecision, PolicyTarget,
+use crate::constants::policy_control;
+
+use super::{
+    policy::{ParentEvidenceReference, PolicyDecision, PolicyTarget},
+    policy_context::LocalAiParentRuleContextRef,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

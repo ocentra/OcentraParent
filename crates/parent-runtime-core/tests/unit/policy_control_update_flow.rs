@@ -9,9 +9,8 @@ use ocentra_policy_control_core::policy_authority::{
     PolicyDecisionMode, PolicyDecisionSource, PolicyEvaluationRequestedEvent,
 };
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_transition, queue_policy_delivery, PolicyDeliveryApplyOutcome,
-    PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryState, PolicyDeliveryTarget,
-    PolicyDeliveryTransition,
+    queue_policy_delivery, PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId,
+    PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, parent_policy_source_schema_version, ParentPolicyActorRole,

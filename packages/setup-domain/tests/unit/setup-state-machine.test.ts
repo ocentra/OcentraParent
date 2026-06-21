@@ -12,15 +12,15 @@ import {
   SetupReadinessReportSchema,
   SetupRecoveryState,
   type SetupReadinessReport,
-} from '../../src/readiness';
-import { SetupPairingState } from '../../src/pairing-intent';
+} from '@ocentra-parent/schema-domain/setup-readiness';
+import { SetupPairingState } from '@ocentra-parent/schema-domain/setup-pairing-intent';
 import {
   canTransitionSetupFirstRunState,
   resolveSetupFirstRunState,
   SetupFirstRunScreenId,
   SetupFirstRunStateId,
   transitionSetupFirstRunState,
-} from '../../src/setup-state-machine';
+} from '@ocentra-parent/schema-domain/setup-state-machine';
 
 const BaseReadinessReport = SetupReadinessReportSchema.parse({
   schemaVersion: ParentContractSchemaVersion.V0_6,

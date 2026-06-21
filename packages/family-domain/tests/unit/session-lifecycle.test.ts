@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   authorizeSessionCredentialIssuance,
   authorizeSessionTokenAction,
+} from '../../src/session-lifecycle';
+import {
   SessionActivityState,
   SessionActivityStateSchema,
   SessionCredentialKind,
@@ -19,8 +21,11 @@ import {
   TokenAuditRedactionState,
   TokenReplayState,
   TokenValidityWindowState,
-} from '../../src/session-lifecycle';
-import { AuditRequirementState, SessionFreshnessState } from '../../src/household-authority';
+} from '@ocentra-parent/schema-domain/family-session-lifecycle';
+import {
+  AuditRequirementState,
+  SessionFreshnessState,
+} from '@ocentra-parent/schema-domain/family-household-authority';
 
 describe('family session lifecycle contracts', () => {
   registerSessionLifecycleParsingTests();

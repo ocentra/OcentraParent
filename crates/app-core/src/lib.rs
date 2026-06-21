@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
-pub mod runtime_decision;
+#[cfg(test)]
+mod runtime_decision;
 
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_ai_analysis_requested_event_if_required,

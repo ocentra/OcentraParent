@@ -6,8 +6,10 @@ import { dirname, join, relative } from 'node:path';
 import {
   BrowserGamePolicyCompilerInputSchema,
   BrowserGamePolicyDecisionCandidateSchema,
+} from '@ocentra-parent/schema-domain/browser-game-policy-compiler';
+import {
   compileBrowserGamePolicyCandidate,
-} from '../../packages/parent-domain/dist/browser-game-policy-compiler.js';
+} from '@ocentra-parent/browser-domain/browser-game-policy-compiler';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-policy-compiler-live-evidence-proof';

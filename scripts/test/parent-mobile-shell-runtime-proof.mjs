@@ -106,7 +106,7 @@ async function main() {
     '--workspace',
     '@ocentra-parent/parent-domain',
     '--',
-    'tests/parent-mobile-runtime.test.ts',
+    'tests/unit/parent-mobile-runtime.test.ts',
   ]);
 
   const runtimeModels = await parentMobileRuntimeModels();
@@ -133,13 +133,13 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      parentDomainContract: relative(
+      schemaDomainContract: relative(
         repoRoot,
-        join(repoRoot, 'packages', 'parent-domain', 'src', 'parent-mobile-runtime.ts')
+        join(repoRoot, 'packages', 'schema-domain', 'src', 'parent-mobile-runtime.ts')
       ),
       parentDomainContractTest: relative(
         repoRoot,
-        join(repoRoot, 'packages', 'parent-domain', 'tests', 'parent-mobile-runtime.test.ts')
+        join(repoRoot, 'packages', 'parent-domain', 'tests', 'unit', 'parent-mobile-runtime.test.ts')
       ),
       matrix: relative(repoRoot, join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json')),
       output: relative(repoRoot, proofPath),
@@ -173,7 +173,7 @@ async function main() {
 }
 
 async function parentMobileRuntimeModels() {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'parent-mobile-runtime.js');
+  const modulePath = join(repoRoot, 'packages', 'schema-domain', 'dist', 'parent-mobile-runtime.js');
   if (!existsSync(modulePath)) {
     throw new Error(`Missing built parent mobile runtime module: ${modulePath}`);
   }
@@ -316,7 +316,7 @@ async function assertPackageShells() {
 }
 
 async function assertParentMobileCapabilityData(runtimeModels) {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'capabilities.js');
+  const modulePath = join(repoRoot, 'packages', 'schema-domain', 'dist', 'capabilities.js');
   if (!existsSync(modulePath)) {
     throw new Error(`Missing built platform capability module: ${modulePath}`);
   }
@@ -372,20 +372,20 @@ async function assertProofMatrix() {
 
 async function assertScriptWiring() {
   const packageJson = JSON.parse(await readRepoFile('package.json'));
-  const parentDomainPackage = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
+  const schemaDomainPackage = JSON.parse(await readRepoFile('packages/schema-domain/package.json'));
   if (
     packageJson.scripts['test:parent-mobile-shell-runtime'] !==
     'node scripts/test/parent-mobile-shell-runtime-proof.mjs'
   ) {
     throw new Error('Missing root test:parent-mobile-shell-runtime script.');
   }
-  if (!parentDomainPackage.exports['./parent-mobile-runtime']) {
-    throw new Error('Missing parent-domain parent-mobile-runtime export.');
+  if (!schemaDomainPackage.exports['./parent-mobile-runtime']) {
+    throw new Error('Missing schema-domain parent-mobile-runtime export.');
   }
   proofLabels.push('package-scripts.parent-mobile-shell-runtime');
   return {
     rootScript: 'test:parent-mobile-shell-runtime',
-    parentDomainExport: './parent-mobile-runtime',
+    schemaDomainExport: './parent-mobile-runtime',
   };
 }
 

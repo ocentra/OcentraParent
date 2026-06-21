@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
-  AgentAppGamePolicyReadinessKind,
-  AgentAppGamePolicyReadinessState,
   type AgentAppGamePolicyReadinessResult,
 } from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
+import {
+  AgentAppGamePolicyReadinessKind,
+  AgentAppGamePolicyReadinessState,
+} from '@ocentra-parent/schema-domain/app-game-policy-readiness';
 import { createAppGamePolicyReadinessPanelIntent, PortalDetails } from '../../src/contracts';
 
 const AppGameSchemaVersion = 1;

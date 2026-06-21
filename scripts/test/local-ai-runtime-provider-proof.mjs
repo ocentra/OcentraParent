@@ -22,7 +22,7 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/ai-domain',
       '--',
       'local-ai-runtime-provider-proof',
     ])
@@ -43,7 +43,7 @@ async function main() {
   ]);
 
   const { LocalAiRuntimeProviderProofReadModel } =
-    await import('../../packages/parent-domain/dist/local-ai-runtime-provider-proof.js');
+    await import('@ocentra-parent/schema-domain/local-ai-runtime-provider-proof');
   const proofSummary = summarizeReadModel(LocalAiRuntimeProviderProofReadModel);
   assertReadModel(LocalAiRuntimeProviderProofReadModel, proofSummary);
 
@@ -55,8 +55,8 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/parent-domain/src/local-ai-runtime-provider-proof.ts',
-      tsContractTest: 'packages/parent-domain/tests/local-ai-runtime-provider-proof.test.ts',
+      tsContract: 'packages/schema-domain/src/local-ai-runtime-provider-proof.ts',
+      tsContractTest: 'packages/ai-domain/tests/unit/local-ai-runtime-provider-proof.test.ts',
       rustProtocol: 'crates/agent-protocol/src/local_ai_runtime_provider_proof.rs',
       rustProtocolTest: 'crates/agent-protocol/src/local_ai_runtime_provider_proof_tests.rs',
       rustServiceReadModel: 'crates/agent-service/src/local_ai_runtime_provider_proof_read_model.rs',

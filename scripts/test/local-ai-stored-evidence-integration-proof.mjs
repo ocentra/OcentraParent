@@ -14,11 +14,11 @@ const OutputRoot = resolve(RepoRoot, 'output', 'ai-plan-proof', 'local-ai-stored
 const ProofPath = join(OutputRoot, 'proof-summary.json');
 const generatedAt = new Date().toISOString();
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build:contracts']));
 
-const { LocalAiEvaluationInputSchema } = await import('@ocentra-parent/ai-domain/local-ai');
+const { LocalAiEvaluationInputSchema } = await import('@ocentra-parent/schema-domain/local-ai');
 const { runLocalAiTextInferenceDryRun } =
-  await import('@ocentra-parent/ai-domain/local-ai-text-inference-dry-run-proof');
+  await import('@ocentra-parent/schema-domain/local-ai-text-inference-dry-run-proof');
 
 const contextProof = JSON.parse(readFileSync(ContextProofPath, 'utf8'));
 const readyContextRow = contextProof.rows.find((row) => row.rowId === 'mixed-stored-evidence-ready');

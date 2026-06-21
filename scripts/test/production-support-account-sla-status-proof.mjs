@@ -11,26 +11,33 @@ const outputDir = join(repoRoot, 'output', proofMode);
 const proofPath = join(resultDir, 'proof.json');
 const summaryPath = join(outputDir, 'proof-summary.json');
 const commands = [];
+const requiredPackageExports = [
+  '@ocentra-parent/schema-domain/production-support-account-sla-status-proof',
+  '@ocentra-parent/schema-domain/production-support-account-sla-status-read-model',
+  '@ocentra-parent/schema-domain/production-support-account-sla-status-values',
+];
+const retiredProductionDomainExport = './production-support-account-sla-status-proof';
 
 await main();
 
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-support-account-sla-status-proof.test.ts',
+      'tests/unit/production-support-account-sla-status-proof.test.ts',
     ])
   );
 
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
+  const packageExport = await assertPackageExports();
   const commit = await gitHead();
   const proof = {
     schemaVersion: 1,
@@ -39,10 +46,12 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-support-account-sla-status-proof.ts',
-      values: 'packages/parent-domain/src/production-support-account-sla-status-values.ts',
-      readModel: 'packages/parent-domain/src/production-support-account-sla-status-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/production-support-account-sla-status-proof.test.ts',
+      contract: 'packages/schema-domain/src/production-support-account-sla-status-proof.ts',
+      values: 'packages/schema-domain/src/production-support-account-sla-status-values.ts',
+      readModel: 'packages/schema-domain/src/production-support-account-sla-status-read-model.ts',
+      contractTest: 'packages/production-domain/tests/unit/production-support-account-sla-status-proof.test.ts',
+      proofHarness: 'scripts/test/production-support-account-sla-status-proof.mjs',
+      packageExport,
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -60,6 +69,7 @@ async function main() {
     rows: proof.rows.map((row) => row.surface),
     output: relativePath(proofPath),
     knownGaps: proof.knownGaps,
+    packageExport,
   };
 
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
@@ -68,8 +78,11 @@ async function main() {
 }
 
 async function assertBuiltContract() {
-  const contractModule = await importBuiltParentDomainModule('production-support-account-sla-status-proof');
-  const readModelModule = await importBuiltParentDomainModule('production-support-account-sla-status-read-model');
+  const contractModule = await importBuiltModule('schema-domain', 'production-support-account-sla-status-proof.js');
+  const readModelModule = await importBuiltModule(
+    'schema-domain',
+    'production-support-account-sla-status-read-model.js'
+  );
   const proof = contractModule.ProductionSupportAccountSlaStatusProofSchema.parse(
     readModelModule.ProductionSupportAccountSlaStatusReadModel
   );
@@ -119,8 +132,24 @@ async function assertDocumentationProof() {
   return docs;
 }
 
-async function importBuiltParentDomainModule(moduleName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', `${moduleName}.js`)).href);
+async function assertPackageExports() {
+  const [contract, readModel, values] = await Promise.all(requiredPackageExports.map((specifier) => import(specifier)));
+  const productionDomainPackageJson = JSON.parse(await readRepoFile('packages/production-domain/package.json'));
+
+  assert.equal(typeof contract.ProductionSupportAccountSlaStatusProofSchema.parse, 'function');
+  assert.equal(typeof readModel.ProductionSupportAccountSlaStatusReadModel, 'object');
+  assert(Object.keys(values).length > 0);
+  assert.equal(productionDomainPackageJson.exports[retiredProductionDomainExport], null);
+
+  return {
+    state: 'schema-domain-live-export-with-production-domain-retired',
+    liveExports: requiredPackageExports,
+    retiredExport: retiredProductionDomainExport,
+  };
+}
+
+async function importBuiltModule(packageDirectory, fileName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', packageDirectory, 'dist', fileName)).href);
 }
 
 async function readRepoFile(path) {

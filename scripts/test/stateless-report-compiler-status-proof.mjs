@@ -14,7 +14,7 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
@@ -67,11 +67,11 @@ async function main() {
     proofMode: 'stateless-report-compiler-status-proof',
     commands,
     evidence: {
-      contract: 'packages/production-domain/src/stateless-report-compiler-status.ts',
-      values: 'packages/production-domain/src/stateless-report-compiler-status-values.ts',
+      contract: 'packages/schema-domain/src/stateless-report-compiler-status.ts',
+      values: 'packages/schema-domain/src/stateless-report-compiler-status-values.ts',
       contractTest: 'packages/production-domain/tests/unit/stateless-report-compiler-status.test.ts',
-      builtModule: 'packages/production-domain/dist/src/stateless-report-compiler-status.js',
-      packageExport: '@ocentra-parent/production-domain/stateless-report-compiler-status',
+      builtModule: 'packages/schema-domain/dist/stateless-report-compiler-status.js',
+      packageExport: '@ocentra-parent/schema-domain/stateless-report-compiler-status',
       featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDocs: [
         'docs/expectations/sync-export.md',
@@ -108,12 +108,12 @@ async function main() {
 }
 
 async function loadContractProofModule() {
-  const modulePath = join(repoRoot, 'packages', 'production-domain', 'dist', 'src', 'stateless-report-compiler-status.js');
+  const modulePath = join(repoRoot, 'packages', 'schema-domain', 'dist', 'stateless-report-compiler-status.js');
   return import(pathToFileURL(modulePath).href);
 }
 
 async function assertPackageExport(proofModule) {
-  const exportedModule = await import('@ocentra-parent/production-domain/stateless-report-compiler-status');
+  const exportedModule = await import('@ocentra-parent/schema-domain/stateless-report-compiler-status');
   assert.equal(
     exportedModule.StatelessReportCompilerContractProofReadModel.request.requestId,
     proofModule.StatelessReportCompilerContractProofReadModel.request.requestId

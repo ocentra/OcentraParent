@@ -16,6 +16,7 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
   await runCommand(
     ...npmCommand([
@@ -24,7 +25,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/support-case-resolution-status.test.ts',
+      'tests/unit/support-case-resolution-status.test.ts',
     ])
   );
 
@@ -40,10 +41,10 @@ async function main() {
     proofMode: 'production-support-case-resolution-status-proof',
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/support-case-resolution-status.ts',
-      guards: 'packages/logging-domain/src/support-case-resolution-status-guards.ts',
-      readModel: 'packages/logging-domain/src/support-case-resolution-status-read-model.ts',
-      contractTest: 'packages/logging-domain/tests/support-case-resolution-status.test.ts',
+      contract: 'packages/schema-domain/src/support-case-resolution-status.ts',
+      guards: 'packages/schema-domain/src/support-case-resolution-status-guards.ts',
+      readModel: 'packages/schema-domain/src/support-case-resolution-status-read-model.ts',
+      contractTest: 'packages/logging-domain/tests/unit/support-case-resolution-status.test.ts',
       proofOutput: relative(repoRoot, proofPath),
       summaryOutput: relative(repoRoot, summaryPath),
       featureDoc: 'docs/features/production-distribution-support.md',
@@ -53,7 +54,7 @@ async function main() {
       'Support case resolution rows cover opened, triage-ready, parent-update-ready, escalation-manual-required, response-manual-required, closure-ready, and SLA-manual-required states.',
       'Each row is parent-initiated and parent-consented with support-safe status refs, redaction refs, audit refs, publication refs, upload-status refs, and custody refs only.',
       'Escalation, operator response, and SLA rows remain manual-required until real operator workflow, provider contact, response execution, and published SLA proof exist.',
-      'Package exports expose the support case resolution status contract and read-model to consumers through @ocentra-parent/logging-domain.',
+      'Package exports expose the support case resolution status contract and read-model to consumers through @ocentra-parent/schema-domain.',
       'Rows reject tokens, raw child activity, raw URLs, screenshots, journals, SQLite snapshots, private paths, command lines, keystrokes, clipboard data, message contents, provider secrets, remote support transcripts, backend upload execution, account lookup, billing provider contact, remote support session execution, production SLA claims, and default Ocentra-hosted family data.',
     ],
     claimsNotProved: [
@@ -125,8 +126,8 @@ function assertReadModel(readModel) {
 }
 
 async function assertPackageExports() {
-  const contract = await import('@ocentra-parent/logging-domain/support-case-resolution-status');
-  const readModel = await import('@ocentra-parent/logging-domain/support-case-resolution-status-read-model');
+  const contract = await import('@ocentra-parent/schema-domain/support-case-resolution-status');
+  const readModel = await import('@ocentra-parent/schema-domain/support-case-resolution-status-read-model');
   assert.equal(typeof contract.SupportCaseResolutionStatusReadModelSchema.parse, 'function');
   assert.equal(readModel.SupportCaseResolutionStatusReadModel.entries.length, 7);
 }

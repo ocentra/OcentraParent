@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { parseBrowserUrlShape } from '../../src/browser-url-intelligence';
-import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '../../src/browser-social-account-flow-schemas';
+import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '@ocentra-parent/schema-domain/browser-social-account-flow-schemas';
 import {
   BrowserSocialAccountIdentityRegistryEntrySchema,
   BrowserSocialAccountIdentityRegistrySchemaVersion,
   buildUnverifiedSocialAccountIdentityContextFromFlow,
-} from '../../src/browser-social-account-identity-registry';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../src/browser-social-url-patterns';
+} from '@ocentra-parent/schema-domain/browser-social-account-identity-registry';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 
 describe('browser social account identity registry contract', () => {
   it('builds unverified route-context identity entries from account-flow evidence', buildsRouteContextEntry);

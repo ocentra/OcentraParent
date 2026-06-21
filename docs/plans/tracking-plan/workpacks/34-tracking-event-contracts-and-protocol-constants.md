@@ -34,11 +34,14 @@ location/geofence/expected-place/nearby-place semantics.
 
 ## Required Source Behavior
 
+Canonical tracking config event owners live in
+`packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts`.
+
 - Add event type constants for:
-  - `tracking.config.change_requested`
-  - `tracking.config.change_approved`
-  - `tracking.config.change_rejected`
-  - `tracking.config.applied`
+  - `AgentTrackingConfigCommandFlowEventType.ChangeRequested`
+  - `AgentTrackingConfigCommandFlowEventType.ChangeApproved`
+  - `AgentTrackingConfigCommandFlowEventType.ChangeRejected`
+  - `AgentTrackingConfigUpdateEventType.Applied`
   - `location.evidence.observed`
   - `geofence.transition.evaluated`
   - `expected_place.status.evaluated`

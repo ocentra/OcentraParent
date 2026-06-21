@@ -6,16 +6,16 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
-import { DevLogMessage } from '../../packages/logging-domain/src/contracts.ts';
-import { appendTestLogEntries } from '../../packages/logging-domain/src/test-log/ndjsonWriter.ts';
-import { getTestLogScopeDir, listNdjsonFiles } from '../../packages/logging-domain/src/test-log/ndjsonPaths.ts';
-import { RunType, TestLogOrigin, TestLogScope } from '../../packages/logging-domain/src/test-log/types.ts';
-import { createBridgeServer } from '../../packages/logging-domain/src/transport/bridgeServer.ts';
+import { appendTestLogEntries } from '@ocentra-parent/logging-domain/test-log/ndjsonWriter';
+import { getTestLogScopeDir, listNdjsonFiles } from '@ocentra-parent/logging-domain/test-log/ndjsonPaths';
+import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
+import { createBridgeServer } from '@ocentra-parent/logging-domain/transport/bridgeServer';
 import {
   fetchRunInfoFromBridge,
   flushBridgeRun,
   notifyBridgeRunStarted,
-} from '../../packages/logging-domain/src/transport/bridgeTransport.ts';
+} from '@ocentra-parent/logging-domain/transport/bridgeTransport';
+import { DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
 import { sendPortalProofTraceLog } from '../../apps/portal/src/dev-logger.ts';
 import { getProofTrace, getProofTraceGaps } from './lib/log-query-service.mjs';
 

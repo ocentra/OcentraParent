@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   ScreenAnalysisParentSettingSchema,
   ScreenEvidenceRemoteBoundarySettingSchema,
+} from '@ocentra-parent/schema-domain/screen-evidence-settings';
+import {
   ScreenEvidenceSettingsUiProofSchema,
   screenEvidenceSettingsWritableUiProof,
-} from '../../src/screen-evidence';
+} from '@ocentra-parent/schema-domain/screen-evidence-settings-ui-proof';
 
 describe('screen evidence settings UI proof', () => {
   specifyWritableIntentProof();

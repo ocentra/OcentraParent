@@ -3,7 +3,7 @@ import {
   V08IntegrityAlertStatusBridgeEntrySchema,
   V08IntegrityAlertStatusBridgeReadModel,
   V08IntegrityAlertStatusBridgeReadModelSchema,
-} from '../../src/v0-8-integrity-alert-status-bridge';
+} from '@ocentra-parent/schema-domain/v0-8-integrity-alert-status-bridge';
 
 describe('V0.8 integrity alert status bridge', () => {
   registerBridgeSummaryTest();

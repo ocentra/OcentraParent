@@ -9,9 +9,10 @@ use ocentra_eventing::{
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
+    NetworkRuntimePhase,
 };
 
-use crate::{network_event_runtime_phase::NetworkRuntimePhase, NetworkObservation};
+use crate::NetworkObservation;
 
 use super::remote_delivery_event_chain_journal_types::{
     count_payloads, NetworkRuntimeRemoteEventChainJournalError, UnsupportedClaimCounts,
@@ -38,7 +39,7 @@ pub(super) async fn publish_network_runtime_remote_event_chain_store(
         .copied()
         .filter(|phase| should_publish_phase(*phase, &observation))
     {
-        let payload = NetworkRuntimeEventPayload::from_observation(
+        let payload = super::network_runtime_event_payload_from_observation(
             phase,
             &observation,
             constants::activity_store::TEST_FIRST_OBSERVED_AT,

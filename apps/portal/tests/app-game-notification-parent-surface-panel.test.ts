@@ -2,17 +2,17 @@ import { describe, expect, it } from 'vitest';
 import {
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   AppGameNotificationParentSurfaceIntentReadModelSchema,
   RequiredAppGameNotificationParentSurfaceIntentNonClaims,
-} from '@ocentra-parent/app-game-domain/app-game-notification-parent-surface-intent';
+} from '@ocentra-parent/schema-domain/app-game-notification-parent-surface-intent';
 import {
   createAppGameNotificationParentSurfacePanelIntent,
   type AppGameNotificationParentSurfacePanelIntent,
-  PortalRoute,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/app-game-notification-parent-surface-panel';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import { shouldRenderAppGameNotificationParentSurfaceRoute } from '../src/AppGameNotificationParentSurfaceRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 
@@ -91,7 +91,10 @@ function rowPairs(row: AppGameNotificationParentSurfacePanelIntent['rows'][numbe
 
 function panelRow(intent: AppGameNotificationParentSurfacePanelIntent, index: number) {
   const row = intent.rows[index];
-  expect(row).toBeDefined();
+  expect(typeof row?.key).toBe('string');
+  expect((row?.key ?? '').length).toBeGreaterThan(0);
+  expect(typeof row?.title).toBe('string');
+  expect((row?.title ?? '').length).toBeGreaterThan(0);
   return row as AppGameNotificationParentSurfacePanelIntent['rows'][number];
 }
 

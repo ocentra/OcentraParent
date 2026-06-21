@@ -4,7 +4,7 @@ import {
   ProductionReleasePublicStatusFreshnessReadModel,
   ProductionReleasePublicStatusFreshnessRowSchema,
   summarizeProductionReleasePublicStatusFreshnessRows,
-} from '../../src/production-release-public-status-freshness-proof';
+} from '@ocentra-parent/schema-domain/production-release-public-status-freshness-proof';
 
 describe('production release public status freshness proof', () => {
   acceptsPublicStatusFreshnessRows();

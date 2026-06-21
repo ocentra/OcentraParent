@@ -32,7 +32,7 @@ async function main() {
     'tests/contract/tracking-child-check-in-timeout-escalation-proof.test.ts',
   ]);
 
-  const policy = await importSource('packages/tracking-domain/src/tracking-location-policy.ts');
+  const policy = await importSource('packages/schema-domain/src/tracking-location-policy.ts');
   const timeoutProof = await importSource('packages/tracking-domain/src/tracking-child-check-in-timeout-escalation-proof.ts');
   const boundaryProof = await importSource('packages/tracking-domain/src/tracking-child-runtime-delivery-boundary-proof.ts');
   const checkedAt = new Date().toISOString();
@@ -42,7 +42,7 @@ async function main() {
       generatedAt: '2026-06-07T14:05:00.000Z',
       readinessId: 'tracking-child-check-in-timeout-escalation-proof',
       sourceContractRefs: [
-        'packages/tracking-domain/src/tracking-location-policy.ts',
+        'packages/schema-domain/src/tracking-location-policy.ts',
         'packages/tracking-domain/src/tracking-child-check-in-timeout-escalation-proof.ts',
         'docs/plans/tracking-plan/workpacks/18-child-check-in-flow.md',
       ],

@@ -1,18 +1,29 @@
 import {
-  BrowserBoundaryState,
-  BrowserCustodyLabel,
-  BrowserExactUrlClaimState,
-  BrowserInterventionCapabilityState,
-  BrowserInterventionDeliveryState,
+  BrowserBoundaryStateSchema,
+  BrowserExactUrlClaimStateSchema,
+  BrowserInterventionCapabilityStateSchema,
+  BrowserInterventionDeliveryStateSchema,
   BrowserInterventionReadModelSchema,
   BrowserInterventionSchemaVersion,
-  BrowserQueryVisibilityLabel,
-  BrowserUnmanagedDetectionState,
-  BrowserUnmanagedEnforcementState,
-  BrowserUnmanagedFallbackActionState,
+  BrowserUnmanagedDetectionStateSchema,
+  BrowserUnmanagedEnforcementStateSchema,
+  BrowserUnmanagedFallbackActionStateSchema,
   type BrowserInterventionReadModel,
-} from '@ocentra-parent/browser-domain/browser';
+} from '@ocentra-parent/schema-domain/browser-intervention-schemas';
+import { BrowserCustodyLabel, BrowserQueryVisibilityLabel } from '@ocentra-parent/schema-domain/browser-values';
 import { AgentProtocolDefaults, isAgentProtocolLogText, type AgentProtocolLogFields } from './contracts';
+
+const DefaultManagedSessionInterventionCapability =
+  BrowserInterventionCapabilityStateSchema.parse('needs-managed-session');
+const DefaultUnmanagedBrowserEnforcement =
+  BrowserUnmanagedEnforcementStateSchema.parse('requires-os-app-control');
+const DefaultUnmanagedFallbackAction =
+  BrowserUnmanagedFallbackActionStateSchema.parse('os-block-manual-required');
+const DefaultBrowserBoundaryState = BrowserBoundaryStateSchema.parse('unknown');
+const DefaultExactUrlClaimState = BrowserExactUrlClaimStateSchema.parse('not-claimed');
+const DefaultUnmanagedDetectionState = BrowserUnmanagedDetectionStateSchema.parse('unavailable');
+const DefaultUnavailableFallbackAction = BrowserUnmanagedFallbackActionStateSchema.parse('unavailable');
+const DefaultChildDeliveryState = BrowserInterventionDeliveryStateSchema.parse('not-delivered');
 
 export function parseBrowserInterventionReadModel(
   payload: AgentProtocolLogFields
@@ -28,13 +39,13 @@ export function parseBrowserInterventionReadModel(
     latestObservedAt: payload[AgentProtocolDefaults.Field.LatestObservedAt],
     managedSessionInterventionCapability:
       payload[AgentProtocolDefaults.Field.ManagedSessionInterventionCapability] ??
-      BrowserInterventionCapabilityState.NeedsManagedSession,
+      DefaultManagedSessionInterventionCapability,
     unmanagedBrowserEnforcement:
       payload[AgentProtocolDefaults.Field.UnmanagedBrowserEnforcement] ??
-      BrowserUnmanagedEnforcementState.RequiresOsAppControl,
+      DefaultUnmanagedBrowserEnforcement,
     unmanagedFallbackAction:
       payload[AgentProtocolDefaults.Field.UnmanagedFallbackAction] ??
-      BrowserUnmanagedFallbackActionState.OsBlockManualRequired,
+      DefaultUnmanagedFallbackAction,
     rows,
   });
 
@@ -68,14 +79,14 @@ function browserInterventionRow(payload: AgentProtocolLogFields) {
     observedUrl: nullIfMissing(payload[AgentProtocolDefaults.Field.ObservedUrl]),
     interventionMechanism: payload[AgentProtocolDefaults.Field.InterventionMechanism],
     interventionOutcome: payload[AgentProtocolDefaults.Field.InterventionOutcome],
-    browserBoundaryState: payload[AgentProtocolDefaults.Field.BrowserBoundaryState] ?? BrowserBoundaryState.Unknown,
-    exactUrlClaimState: payload[AgentProtocolDefaults.Field.ExactUrlClaimState] ?? BrowserExactUrlClaimState.NotClaimed,
+    browserBoundaryState: payload[AgentProtocolDefaults.Field.BrowserBoundaryState] ?? DefaultBrowserBoundaryState,
+    exactUrlClaimState: payload[AgentProtocolDefaults.Field.ExactUrlClaimState] ?? DefaultExactUrlClaimState,
     unmanagedDetectionState:
-      payload[AgentProtocolDefaults.Field.UnmanagedDetectionState] ?? BrowserUnmanagedDetectionState.Unavailable,
+      payload[AgentProtocolDefaults.Field.UnmanagedDetectionState] ?? DefaultUnmanagedDetectionState,
     unmanagedFallbackAction:
-      payload[AgentProtocolDefaults.Field.UnmanagedFallbackAction] ?? BrowserUnmanagedFallbackActionState.Unavailable,
+      payload[AgentProtocolDefaults.Field.UnmanagedFallbackAction] ?? DefaultUnavailableFallbackAction,
     childDeliveryState:
-      payload[AgentProtocolDefaults.Field.ChildDeliveryState] ?? BrowserInterventionDeliveryState.NotDelivered,
+      payload[AgentProtocolDefaults.Field.ChildDeliveryState] ?? DefaultChildDeliveryState,
     reason: nullIfMissing(payload[AgentProtocolDefaults.Field.Reason]),
     custodyLabel: payload[AgentProtocolDefaults.Field.CustodyLabel] ?? BrowserCustodyLabel.Unavailable,
     queryVisibility: payload[AgentProtocolDefaults.Field.QueryVisibility] ?? BrowserQueryVisibilityLabel.Unavailable,

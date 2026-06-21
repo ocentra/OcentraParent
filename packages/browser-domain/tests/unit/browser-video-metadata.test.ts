@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseBrowserUrlShape } from '../../src/browser-url-intelligence';
-import { buildVideoMetadataEvidence } from '../../src/browser-video-metadata';
+import { buildVideoMetadataEvidence } from '@ocentra-parent/schema-domain/browser-video-metadata';
 
 describe('browser Vimeo and generic video parser metadata adapter', () => {
   it('parses Vimeo page and player URLs', parsesVimeoUrls);

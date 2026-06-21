@@ -1,17 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { ChildProfileSchema } from '../../src/child-profile';
+import { ChildProfileSchema } from '@ocentra-parent/schema-domain/family-child-profile';
 import {
   ActorAccountState,
   AuditRequirementState,
-  authorizeHouseholdAction,
-  canParentMemberAuthorizeDeviceAction,
-  canHouseholdRoleAuthorizeAction,
   ChildProfileBindingState,
-  DeviceAuthorityAction,
+  DeviceAuthorityActionLiteral as DeviceAuthorityAction,
   DeviceOwnershipScope,
   DeviceRegistrationSchema,
   DeviceTrustState,
-  isTrustedDeviceState,
   ElevatedConfirmationState,
   HouseholdAuthorityDecisionSchema,
   HouseholdAuthorityInputSchema,
@@ -20,16 +16,22 @@ import {
   HouseholdMembershipState,
   HouseholdProfileSchema,
   HouseholdRole,
-  isTrustedChildAgentRegistrationForProfile,
-  isActiveParentMember,
   ParentControllerLeaseSchema,
   ParentControllerLeaseState,
   ParentMemberSchema,
   ParentStepUpAssertionSchema,
   ParentStepUpMethod,
   ParentStepUpValidationFailureReason,
-  requiresParentStepUp,
   SessionFreshnessState,
+} from '@ocentra-parent/schema-domain/family-household-authority';
+import {
+  authorizeHouseholdAction,
+  canParentMemberAuthorizeDeviceAction,
+  canHouseholdRoleAuthorizeAction,
+  isActiveParentMember,
+  isTrustedChildAgentRegistrationForProfile,
+  isTrustedDeviceState,
+  requiresParentStepUp,
   validateParentStepUpAssertion,
 } from '../../src/household-authority';
 

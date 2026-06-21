@@ -18,21 +18,22 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model',
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff',
 ]);
 
-const contract = await importDist(
+const contract = await importAppGameDist(
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.js'
 );
-const refs = await importDist('reference-primitives.js');
+const refs = await importSchemaDist('reference-primitives.js');
 const sourceHandoff = await readJson(
   join(
     repoRoot,
@@ -58,7 +59,7 @@ const proof = {
     wp100Branch:
       'codex/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff',
     reason:
-      'WP101 consumes WP100 parent-surface read-model handoff rows and produces a parent-domain parent-surface read-model contract while service runtime, persistence, portal rendering, protocol implementation, timer runtime, scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, package exports, and raw source rows remain sequenced separately.',
+      'Schema-domain owns the response-consumer parent-surface status-read-model parent-surface read-model contract surface; app-game-domain consumes WP100 parent-surface read-model handoff rows while service runtime, persistence, portal rendering, protocol implementation, timer runtime, scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, package exports, and raw source rows remain sequenced separately.',
   },
   summary: summarize(parentSurfaceReadModel),
   nonClaims: {
@@ -90,11 +91,14 @@ const proof = {
     rawPrivateSourceRowsIncluded: parentSurfaceReadModel.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.ts',
-    rules:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.test.ts',
+    schemaSource:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.ts',
+    schemaRules:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-rules.ts',
+    consumerSource:
+      'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.ts',
+    consumerTest:
+      'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.test.ts',
     harness:
       'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-proof.mjs',
     evidence: 'test-results/app-game-timer-parent-read-model-proof/proof.json',
@@ -115,8 +119,12 @@ console.log(
 );
 console.log(`evidence=${join('test-results', 'app-game-timer-parent-read-model-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function parentSurfaceReadModelOptions(refs) {

@@ -11,11 +11,12 @@ const outputDir = join(repoRoot, 'output', proofMode);
 const proofPath = join(resultDir, 'proof.json');
 const summaryPath = join(outputDir, 'proof-summary.json');
 const commands = [];
-const expectedPackageExports = [
-  './production-support-proof-status-matrix-closure',
-  './production-support-proof-status-matrix-closure-read-model',
-  './production-support-proof-status-matrix-closure-values',
+const requiredPackageExports = [
+  '@ocentra-parent/schema-domain/production-support-proof-status-matrix-closure-proof',
+  '@ocentra-parent/schema-domain/production-support-proof-status-matrix-closure-read-model',
+  '@ocentra-parent/schema-domain/production-support-proof-status-matrix-closure-values',
 ];
+const retiredProductionDomainExport = './production-support-proof-status-matrix-closure-proof';
 
 await main();
 
@@ -24,15 +25,14 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-support-proof-status-matrix-closure-proof.test.ts',
+      'tests/unit/production-support-proof-status-matrix-closure-proof.test.ts',
     ])
   );
 
@@ -48,10 +48,11 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-support-proof-status-matrix-closure-proof.ts',
-      values: 'packages/parent-domain/src/production-support-proof-status-matrix-closure-values.ts',
-      readModel: 'packages/parent-domain/src/production-support-proof-status-matrix-closure-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/production-support-proof-status-matrix-closure-proof.test.ts',
+      contract: 'packages/schema-domain/src/production-support-proof-status-matrix-closure-proof.ts',
+      values: 'packages/schema-domain/src/production-support-proof-status-matrix-closure-values.ts',
+      readModel: 'packages/schema-domain/src/production-support-proof-status-matrix-closure-read-model.ts',
+      contractTest: 'packages/production-domain/tests/unit/production-support-proof-status-matrix-closure-proof.test.ts',
+      proofHarness: 'scripts/test/production-support-proof-status-matrix-closure-proof.mjs',
       linkedProofs,
       documentation,
       proofOutput: relativePath(proofPath),
@@ -82,15 +83,15 @@ async function main() {
 
 async function assertBuiltContract() {
   const contractModule = await importBuiltModule(
-    'parent-domain',
+    'schema-domain',
     'production-support-proof-status-matrix-closure-proof.js'
   );
   const readModelModule = await importBuiltModule(
-    'parent-domain',
+    'schema-domain',
     'production-support-proof-status-matrix-closure-read-model.js'
   );
   const valuesModule = await importBuiltModule(
-    'parent-domain',
+    'schema-domain',
     'production-support-proof-status-matrix-closure-values.js'
   );
   const proof = contractModule.ProductionSupportProofStatusMatrixClosureProofSchema.parse(
@@ -137,7 +138,7 @@ async function assertBuiltContract() {
 }
 
 async function assertLinkedProofs() {
-  const parentModules = [
+  const schemaModules = [
     [
       'production-support-status-backend-execution-continuation-read-model.js',
       'ProductionSupportStatusBackendExecutionContinuationReadModel',
@@ -172,9 +173,9 @@ async function assertLinkedProofs() {
     ['delete-executor-read-model.js', 'DeleteExecutorReadModel'],
   ];
 
-  const parent = await readModelIds('parent-domain', parentModules);
+  const schemaDomain = await readModelIds('schema-domain', schemaModules);
   const logging = await readModelIds('logging-domain', loggingModules);
-  return { parent, logging };
+  return { schemaDomain, logging };
 }
 
 async function readModelIds(packageDirectory, modules) {
@@ -192,7 +193,6 @@ async function assertDocumentationProof() {
   const docs = [
     'docs/features/production-distribution-support.md',
     'docs/product-capability-checklist.md',
-    'packages/parent-domain/README.md',
   ];
   for (const path of docs) {
     assertIncludes(await readRepoFile(path), proofMode, `${path} proof note`);
@@ -201,13 +201,18 @@ async function assertDocumentationProof() {
 }
 
 async function assertPackageExports() {
-  const packageJson = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
-  const missingExports = expectedPackageExports.filter((exportPath) => !packageJson.exports[exportPath]);
-  assert.deepEqual(missingExports, []);
+  const [contract, readModel, values] = await Promise.all(requiredPackageExports.map((specifier) => import(specifier)));
+  const productionDomainPackageJson = JSON.parse(await readRepoFile('packages/production-domain/package.json'));
+
+  assert.equal(typeof contract.ProductionSupportProofStatusMatrixClosureProofSchema.parse, 'function');
+  assert.equal(typeof readModel.ProductionSupportProofStatusMatrixClosureReadModel, 'object');
+  assert(Object.keys(values).length > 0);
+  assert.equal(productionDomainPackageJson.exports[retiredProductionDomainExport], null);
+
   return {
-    state: 'added-package-json-exports',
-    exports: expectedPackageExports,
-    missingExports,
+    state: 'schema-domain-live-export-with-production-domain-retired',
+    liveExports: requiredPackageExports,
+    retiredExport: retiredProductionDomainExport,
   };
 }
 

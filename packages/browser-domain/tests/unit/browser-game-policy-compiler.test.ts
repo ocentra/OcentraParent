@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/schema-domain/policy-compiler';
 import {
   BrowserGamePolicyCompilerInputSchema,
   BrowserGamePolicyDecisionCandidateSchema,
+} from '@ocentra-parent/schema-domain/browser-game-policy-compiler';
+import {
   compileBrowserGamePolicyCandidate,
 } from '../../src/browser-game-policy-compiler';
 

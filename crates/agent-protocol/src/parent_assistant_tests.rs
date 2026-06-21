@@ -433,7 +433,7 @@ fn sample_action_preview(enforcement_applied: bool) -> ParentAssistantActionPrev
         summary: Some("Preview a shorter evening game window.".to_string()),
         action_reference: Some(ParentActionReference {
             action_reference_id: "action-preview-1".to_string(),
-            actor: sample_actor(),
+            actor: sample_actor().into(),
             policy_version: "policy-v1".to_string(),
             created_at: "2026-05-27T06:31:02Z".to_string(),
         }),

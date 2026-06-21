@@ -8,7 +8,7 @@ use ocentra_eventing::{
     ids::SchemaVersion, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
     ids::TargetHandler,
 };
-use ocentra_parent_agent_core::ScreenRuntimeReport;
+use ocentra_parent_agent_core::screen_event_runtime::ScreenRuntimeReport;
 use ocentra_parent_agent_protocol::{constants, ActivityScreenReadModelRow};
 use serde::{Deserialize, Serialize};
 

@@ -17,21 +17,21 @@ async function main() {
   await mkdir(join(appGameProofDir, '06-ui-snapshots'), { recursive: true });
   await mkdir(join(appProofDir, '06-ui-snapshots'), { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-time-budget-policy-runtime',
     ])
   );
 
-  const runtime = await import('../../packages/parent-domain/dist/app-game-time-budget-policy-runtime.js');
-  const rules = await import('../../packages/parent-domain/dist/app-game-time-budget-policy-rules.js');
-  const refs = await import('../../packages/parent-domain/dist/reference-primitives.js');
+  const runtime = await import('../../packages/app-game-domain/dist/app-game-time-budget-policy-runtime.js');
+  const rules = await import('../../packages/schema-domain/dist/app-game-time-budget-policy-rules.js');
+  const refs = await import('../../packages/schema-domain/dist/family-reference-primitives.js');
 
   const fixtures = buildFixtures(runtime, rules, refs);
   const dryRunDecision = runtime.buildAppGameTimeBudgetRuntimeDecision(fixtures.baseInput);
@@ -129,7 +129,7 @@ async function main() {
       rejectedCrossDevice,
     },
     claimsProved: [
-      'parent-domain runtime helper builds app/game time-budget dry-run decisions from stored policy and session inputs',
+      'app-game-domain runtime helper builds app/game time-budget dry-run decisions from stored policy and session inputs',
       'target matching counts only native app sessions for an all-native-app policy and excludes native game sessions',
       'running and foreground duration modes are delegated through the existing time-budget policy rules',
       'exceeded budget decisions can resolve to dry-run timer, warn-only, ask-parent, or manual-required states without adapter dispatch',
@@ -144,10 +144,10 @@ async function main() {
       'live classifier/provider execution or category quality',
     ],
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-time-budget-policy-runtime.ts',
-      existingContract: 'packages/parent-domain/src/app-game-time-budget-policy.ts',
-      existingRules: 'packages/parent-domain/src/app-game-time-budget-policy-rules.ts',
-      test: 'packages/parent-domain/tests/app-game-time-budget-policy-runtime.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-time-budget-policy-runtime.ts',
+      existingContract: 'packages/app-game-domain/src/app-game-time-budget-policy.ts',
+      existingRules: 'packages/schema-domain/src/app-game-time-budget-policy-rules.ts',
+      test: 'packages/app-game-domain/tests/unit/app-game-time-budget-policy-runtime.test.ts',
       harness: 'scripts/test/app-game-policy-evaluator-runtime-proof.mjs',
       appGameProofPack: 'output/app-game-plan-proof/51-policy-evaluator-runtime-breadth',
       appProofPack: 'output/app-plan-proof/51-policy-evaluator-runtime-breadth',
@@ -317,8 +317,8 @@ async function writeProofPack(proofDir, proof, label) {
       '',
       `- Branch: ${await gitBranch()}`,
       `- Commit: ${proof.commit}`,
-      '- Scope: parent-domain runtime helper for app/game time-budget policy evaluation.',
-      '- Source inspected: existing app/game time-budget policy contract and rules.',
+      '- Scope: app-game-domain runtime helper for app/game time-budget policy evaluation with centralized schema rules.',
+      '- Source inspected: current app/game time-budget policy contract plus centralized schema rules.',
       '- UI, service WebSocket runtime, notifications, persistence, and adapters are intentionally not changed.',
     ]),
     'utf8'
@@ -328,8 +328,8 @@ async function writeProofPack(proofDir, proof, label) {
     lines([
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-time-budget-policy-runtime: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/app-game-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/app-game-domain -- app-game-time-budget-policy-runtime: PASS',
       '- Dry-run, warn-only, ask-parent, manual-required, and approved-bonus runtime decisions build through schema parsing.',
       '- Cross-device session input is rejected before runtime handoff state can be represented.',
     ]),
@@ -337,7 +337,7 @@ async function writeProofPack(proofDir, proof, label) {
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust/service protocol not changed. This is TypeScript parent-domain policy evaluator runtime proof only.\n',
+    'Rust/service protocol not changed. This is TypeScript app-game-domain policy evaluator runtime proof backed by centralized schema rules only.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof);
@@ -403,15 +403,15 @@ async function writeProofPack(proofDir, proof, label) {
     lines([
       'Validation run:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-time-budget-policy-runtime: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/app-game-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/app-game-domain -- app-game-time-budget-policy-runtime: PASS',
       '- node scripts/test/app-game-policy-evaluator-runtime-proof.mjs: PASS',
     ]),
     'utf8'
   );
   await writeFile(
     join(proofDir, '11-authority-tier-proof.md'),
-    '# Authority Tier Proof\n\nNo authority tier is raised. Decisions remain parent-domain runtime proof with adapter execution unclaimed.\n',
+    '# Authority Tier Proof\n\nNo authority tier is raised. Decisions remain app-game-domain runtime proof with adapter execution unclaimed.\n',
     'utf8'
   );
   await writeFile(

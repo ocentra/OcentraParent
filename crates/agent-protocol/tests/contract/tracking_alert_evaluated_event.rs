@@ -1,8 +1,10 @@
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    TrackingAlertEvaluatedEvent, TrackingParentNotificationState,
+};
 use ocentra_parent_agent_protocol::{
-    constants, TrackingAlertEvaluatedEvent, TrackingAlertEvaluationId, TrackingAlertSeverity,
-    TrackingChildDeviceId, TrackingChildProfileId, TrackingEvidenceRef,
-    TrackingParentNotificationState, TrackingPolicyRuleRef, TrackingPolicyViolationId,
+    constants, TrackingAlertEvaluationId, TrackingAlertSeverity, TrackingChildDeviceId,
+    TrackingChildProfileId, TrackingEvidenceRef, TrackingPolicyRuleRef, TrackingPolicyViolationId,
     TrackingTimestamp,
 };
 

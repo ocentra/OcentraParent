@@ -12,9 +12,11 @@ if (process.env.OCENTRA_PARENT_DOMAIN_TEST_SKIP_PROOF_CHAIN === '1') {
 }
 
 runNpm(['run', 'build']);
-runNodeScript(join(repoRoot, 'scripts', 'test', 'app-game-timer-proof-chain.mjs'), {
-  OCENTRA_PARENT_DOMAIN_TEST_SKIP_PROOF_CHAIN: '1',
-});
+if (shouldRunProofChain()) {
+  runNodeScript(join(repoRoot, 'scripts', 'test', 'app-game-timer-proof-chain.mjs'), {
+    OCENTRA_PARENT_DOMAIN_TEST_SKIP_PROOF_CHAIN: '1',
+  });
+}
 runNpmBin('vitest', ['run', ...forwardedArgs]);
 
 function runNpm(args) {
@@ -69,4 +71,8 @@ function sanitizeForwardedVitestArgs(args) {
     }
     return arg;
   });
+}
+
+function shouldRunProofChain() {
+  return process.env.OCENTRA_PARENT_DOMAIN_TEST_INCLUDE_PROOF_CHAIN === '1';
 }

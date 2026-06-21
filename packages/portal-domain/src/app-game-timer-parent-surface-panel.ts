@@ -1,31 +1,51 @@
 import {
   AgentCommand,
   AgentEvent,
-  AgentProtocolDefaults,
-  AppGameTimerParentPreferenceSetupRequestSchema,
-  parseAgentAppGameTimerParentPreferenceSetupRequestEvent,
+  isAgentProtocolLogText,
   type AgentCommandName,
   type AgentEventEnvelope,
   type AgentEventName,
   type AgentProtocolLogFields,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import {
+  type AgentAppGameTimerParentSurfaceResult,
+} from '@ocentra-parent/agent-protocol-domain/app-game-timer-parent-surface-read-model';
+import {
+  AppGameTimerParentPreferenceSetupRequestSchema,
+  AppGameTimerParentPreferenceSetupRequestResultSchema,
   type AppGameTimerParentPreferenceSetupRequestResult,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/app-game-timer-parent-preference-setup-request';
 import {
   AgentAppGameTimerParentSurfaceState,
   AgentAppGameTimerParentSurfaceTargetDomain,
   type AgentAppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord,
   type AgentAppGameTimerParentSurfaceReadModel,
-  type AgentAppGameTimerParentSurfaceResult,
   type AgentAppGameTimerParentSurfaceRow,
-} from '@ocentra-parent/agent-protocol-domain/app-game-timer-parent-surface-read-model';
-import { AppGameChildUxParentPreferenceSetupDraftStatus } from '@ocentra-parent/app-game-domain/app-game-child-facing-ux-parent-preference-setup-draft';
+} from '@ocentra-parent/schema-domain/app-game-timer-parent-surface-read-model';
+import { AppGameChildUxParentPreferenceSetupDraftStatus } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-parent-preference-setup-draft';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { PortalDetails, PortalReadableValues } from './details';
-
 const DetailSeparator = ' | ';
 const RequestIdSeparator = '::';
 const ParentPreferenceSetupRequestIdPrefix = 'app-game-parent-preference-setup-request';
+
+type TimerParentPreferenceSetupRequestFailureReason =
+  | 'wrong-event'
+  | 'missing-json-field'
+  | 'invalid-json'
+  | 'invalid-payload';
+
+type TimerParentPreferenceSetupRequestParseResult =
+  | {
+      readonly ok: true;
+      readonly value: AppGameTimerParentPreferenceSetupRequestResult;
+    }
+  | {
+      readonly ok: false;
+      readonly reason: TimerParentPreferenceSetupRequestFailureReason;
+    };
 
 const Readable = {
   HandoffReady: decodeDisplayText('Handoff ready'),
@@ -523,7 +543,7 @@ export function createAppGameTimerParentPreferenceSetupRequestPayload(
 export function createAppGameTimerParentPreferenceSetupCommandResultDetails(
   event: AgentEventEnvelope
 ): readonly AppGameTimerParentSurfacePanelDetail[] {
-  const result = parseAgentAppGameTimerParentPreferenceSetupRequestEvent(event);
+  const result = parseTimerParentPreferenceSetupRequestEvent(event);
 
   if (!result.ok) {
     return [detail(PortalDetails.Status, Readable.Review), detail(PortalDetails.Reason, displayText(result.reason))];
@@ -560,6 +580,36 @@ export function createAppGameTimerParentPreferenceSetupCommandResultDetails(
     detail(PortalDetails.AdapterDispatch, claimedValue(result.value.adapterDispatchClaimed)),
     detail(PortalDetails.PlatformState, claimedValue(result.value.platformEnforcementClaimed)),
   ];
+}
+
+function parseTimerParentPreferenceSetupRequestEvent(
+  event: AgentEventEnvelope
+): TimerParentPreferenceSetupRequestParseResult {
+  if (event.event !== AgentEvent.ActivityAppGameTimerParentPreferenceSetupRequested) {
+    return { ok: false, reason: 'wrong-event' };
+  }
+
+  const raw = event.payload[AgentProtocolDefaults.Field.ActivityAppGameTimerParentPreferenceSetupRequest];
+  if (!isAgentProtocolLogText(raw)) {
+    return { ok: false, reason: 'missing-json-field' };
+  }
+
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(raw);
+  } catch {
+    return { ok: false, reason: 'invalid-json' };
+  }
+
+  const parsed = AppGameTimerParentPreferenceSetupRequestResultSchema.safeParse(decoded);
+  if (!parsed.success || parsed.data === undefined) {
+    return { ok: false, reason: 'invalid-payload' };
+  }
+
+  return {
+    ok: true,
+    value: parsed.data,
+  };
 }
 
 function parentPreferenceSetupChildRuntimeDetails(

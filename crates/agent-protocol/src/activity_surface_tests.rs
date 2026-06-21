@@ -12,6 +12,7 @@ use super::{
     SCREEN_CATEGORY_SCHOOL, SCREEN_CUSTODY_JOURNAL, SCREEN_DELETION_DELETED,
     SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_VISION,
 };
+use crate::activity_surface::source_status;
 
 #[test]
 fn activity_surface_command_names_match_typescript_contracts() {
@@ -442,8 +443,8 @@ fn sample_evidence() -> ActivityEvidenceRef {
 fn sample_app_game_source_status(
     source_kind: &str,
     last_observed_at: &str,
-) -> super::ActivityAppGameSourceStatusRow {
-    super::ActivityAppGameSourceStatusRow {
+) -> source_status::ActivityAppGameSourceStatusRow {
+    source_status::ActivityAppGameSourceStatusRow {
         source_kind: source_kind.to_string(),
         state: ActivityReadModelState::Ready,
         row_count: 1,

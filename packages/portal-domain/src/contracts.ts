@@ -1,9 +1,7 @@
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { PortalRouteHashPrefix, PortalRouteHashQuerySeparator } from './routes';
-export { PortalFormatting } from './formatting';
-export {
+import { PortalFormatting } from './formatting';
+import {
   decodePortalClipboardText,
   decodePortalDetailValue,
   PortalClipboardTextSchema,
@@ -11,41 +9,41 @@ export {
   type PortalClipboardText,
   type PortalDetailValue,
 } from './detail-values';
-export { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
-export { PortalDiagnostics } from './diagnostics';
-export {
+import { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
+import { PortalDiagnostics } from './diagnostics';
+import {
   createAppGameNotificationParentSurfacePanelIntent,
   type AppGameNotificationParentSurfaceDetail,
   type AppGameNotificationParentSurfacePanelIntent,
   type AppGameNotificationParentSurfacePanelRow,
 } from './app-game-notification-parent-surface-panel';
-export {
+import {
   createAppGameAdapterExecutionReadinessPanelIntent,
   type AppGameAdapterExecutionReadinessPanelDetail,
   type AppGameAdapterExecutionReadinessPanelIntent,
   type AppGameAdapterExecutionReadinessPanelRow,
 } from './app-game-adapter-execution-readiness-panel';
-export {
+import {
   createAppGameAdapterDispatchResultPanelIntent,
   type AppGameAdapterDispatchResultPanelExecuteAction,
   type AppGameAdapterDispatchResultPanelDetail,
   type AppGameAdapterDispatchResultPanelIntent,
   type AppGameAdapterDispatchResultPanelRow,
 } from './app-game-adapter-dispatch-result-panel';
-export {
+import {
   createAppGameAdapterDispatchPreflightPanelIntent,
   type AppGameAdapterDispatchPreflightPanelDetail,
   type AppGameAdapterDispatchPreflightPanelIntent,
   type AppGameAdapterDispatchPreflightPanelRow,
 } from './app-game-adapter-dispatch-preflight-panel';
-export {
+import {
   createLocalAiRuntimePanelIntent,
   type LocalAiRuntimePanelCard,
   type LocalAiRuntimePanelDetail,
   type LocalAiRuntimePanelIntent,
 } from './local-ai-runtime-panel';
-export { createAppGameNotificationParentSurfaceReadModelFromReadiness } from './app-game-notification-parent-surface-live-readiness';
-export {
+import { createAppGameNotificationParentSurfaceReadModelFromReadiness } from './app-game-notification-parent-surface-live-readiness';
+import {
   PortalFrameChromeNumberFields,
   PortalCarouselContentNumberFields,
   PortalCarouselFrameNumberFields,
@@ -79,9 +77,9 @@ export {
   type PortalFrameTargetValue,
   type PortalFrameTunerFrameSectionValue,
 } from './frame-tuner';
-export { PortalFrameColorFields, PortalFrameTunerFrameSections } from './frame-tuner-lists';
-export { PortalAssets, PortalExternalLinks, PortalUnifiedChrome } from './unified-chrome';
-export {
+import { PortalFrameColorFields, PortalFrameTunerFrameSections } from './frame-tuner-lists';
+import { PortalAssets, PortalExternalLinks, PortalUnifiedChrome } from './unified-chrome';
+import {
   createPortalAppLayoutButtonDraft,
   createPortalAppLayoutFoldoutDraft,
   defaultPortalAppLayoutContentDraft,
@@ -96,13 +94,13 @@ export {
   type PortalAppLayoutSurfaceKey,
   type PortalAppLayoutTone,
 } from './app-layout';
-export {
+import {
   PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
   type ParentAssistantPortalQuickAction,
   type ParentAssistantPortalQuickActionId,
 } from './parent-assistant-chat';
-export {
+import {
   PARENT_PORTAL_CONTENT,
   PARENT_PORTAL_ROUTE,
   PARENT_PORTAL_ROUTE_CONTEXT,
@@ -117,17 +115,17 @@ export {
   type ParentPortalTabId,
   type ParentPortalTone,
 } from './parent-portal-data';
-export {
+import {
   PARENT_PORTAL_SERVICE_STATE,
   resolveParentPortalServiceState,
   type ParentPortalServiceState,
 } from './parent-portal-service-state';
-export {
+import {
   TrackingStatusProofArtifacts,
   TrackingStatusProofArtifactSchema,
   type TrackingStatusProofArtifact,
 } from './tracking-status-proof-artifacts';
-export {
+import {
   trackingFamilyDashboardHostedRollupProof,
   trackingStatusLiveSummary,
   trackingStatusProofRows,
@@ -143,19 +141,19 @@ export {
   TrackingUnsupportedManualPlatformProof,
   TrackingUnsupportedManualPlatformRow,
 } from './tracking-status-panel';
-export {
+import {
   TrackingEvidenceDrawerHostedUiProofDetails,
   trackingEvidenceDrawerHostedUiProof,
   type TrackingEvidenceDrawerHostedUiProof,
   type TrackingEvidenceDrawerSourceCitation,
 } from './tracking-evidence-drawer-hosted-ui-proof';
-export {
+import {
   trackingRetentionSettingsHostedUiProof,
   type TrackingRetentionSettingsHostedUiProof,
   type TrackingRetentionSettingsHostedUiRow,
   type TrackingRetentionSettingsWritePreflight,
 } from './tracking-retention-settings-hosted-ui-proof';
-export {
+import {
   PARENT_PORTAL_NAV_LABELS,
   type ParentPortalHashRoutePath,
   type ParentPortalNavGroup,
@@ -164,20 +162,20 @@ export {
   type ParentPortalNavLabel,
   type ParentPortalNavSectionLabel,
 } from './parent-portal-nav';
-export {
+import {
   parseActivityMemoryGraphReadModel,
   type PortalActivityMemoryGraphEdge,
   type PortalActivityMemoryGraphNode,
   type PortalActivityMemoryGraphNodeId,
   type PortalActivityMemoryGraphReadModel,
 } from './activity-memory-graph';
-export {
+import {
   createAppGamePolicyReadinessPanelIntent,
   type AppGamePolicyReadinessPanelDetail,
   type AppGamePolicyReadinessPanelIntent,
   type AppGamePolicyReadinessPanelRow,
 } from './app-game-policy-readiness-panel';
-export {
+import {
   createAppGameTimerParentPreferenceSetupCommandResultDetails,
   createAppGameTimerParentPreferenceSetupRequestPayload,
   createAppGameTimerParentSurfacePanelIntent,
@@ -186,54 +184,55 @@ export {
   type AppGameTimerParentSurfacePanelIntent,
   type AppGameTimerParentSurfacePanelRow,
 } from './app-game-timer-parent-surface-panel';
-export {
+import {
   createBrowserParentExplanationPanelIntent,
   type BrowserParentExplanationPanelDetail,
   type BrowserParentExplanationPanelIntent,
   type BrowserParentExplanationPanelRow,
 } from './browser-parent-explanation-panel';
-
-export {
+import {
   createSocialDashboardPanelIntent,
   type SocialDashboardPanelDetail,
   type SocialDashboardPanelIntent,
   type SocialDashboardPanelRow,
 } from './social-dashboard-panel';
-export {
+import {
   createSocialAuditExplanationPanelIntent,
   type SocialAuditExplanationPanelDetail,
   type SocialAuditExplanationPanelIntent,
   type SocialAuditExplanationPanelRow,
 } from './social-audit-explanation-panel';
-export {
+import {
   createSocialAlertReportPanelIntent,
   type SocialAlertReportPanelDetail,
   type SocialAlertReportPanelIntent,
   type SocialAlertReportPanelRow,
 } from './social-alert-report-panel';
-export {
+import {
   createSocialParentNotificationDeliveryPanelIntent,
   type SocialParentNotificationDeliveryPanelDetail,
   type SocialParentNotificationDeliveryPanelIntent,
   type SocialParentNotificationDeliveryPanelRow,
 } from './social-parent-notification-delivery-panel';
-export {
+import {
   createSocialAlertReportParentSurfacePanelIntent,
   type SocialAlertReportParentSurfacePanelDetail,
   type SocialAlertReportParentSurfacePanelIntent,
   type SocialAlertReportParentSurfacePanelRow,
 } from './social-alert-report-parent-surface-panel';
-export {
+import {
   createBrowserSocialProviderReceiptStreamStatusIntent,
   type BrowserSocialProviderReceiptStreamStatusDetail,
   type BrowserSocialProviderReceiptStreamStatusIntent,
 } from './browser-social-provider-receipt-stream-status';
-export {
+import {
   createBrowserSocialProviderReceiptIngestionReadinessStatusIntent,
   type BrowserSocialProviderReceiptIngestionReadinessStatusDetail,
   type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
 } from './browser-social-provider-receipt-ingestion-readiness-status';
-export {
+import {
+  PortalConnectionState,
+  PortalConnectionStateSchema,
   PortalRoute,
   PortalRouteLiteral,
   PortalRouteHashPrefix,
@@ -262,13 +261,14 @@ export {
   portalDevToolUrl,
   portalRouteHashPath,
   portalRouteHashPathWithQuery,
+  type PortalConnectionState as PortalConnectionStateValue,
   type PortalDevToolUrl,
   type PortalRouteHashPath,
   type PortalRouteHashQueryPath,
   type PortalRouteDescriptor,
   type PortalRouteGroupValue,
 } from './routes';
-export {
+import {
   DEFAULT_PORTAL_BACKGROUND_CONFIG,
   DEFAULT_PORTAL_BACKGROUND_DARK_COLORS,
   DEFAULT_PORTAL_BACKGROUND_LIGHT_COLORS,
@@ -280,13 +280,13 @@ export {
   type PortalBackgroundRenderConfig,
   type PortalBackgroundThemeColors,
 } from './portal-background';
-export {
+import {
   PORTAL_BACKGROUND_SVG_HEIGHT,
   PORTAL_BACKGROUND_SVG_WIDTH,
   portalBackgroundSvgContent,
   portalBackgroundSvgMarkup,
 } from './portal-background-svg-markup';
-export {
+import {
   BrowserChildInterventionPageDefaults,
   BrowserChildInterventionPageSamples,
   renderBrowserChildInterventionPage,
@@ -295,7 +295,7 @@ export {
   type BrowserChildInterventionPageModel,
   type BrowserChildInterventionPageTheme,
 } from './browser-child-intervention-page';
-export {
+import {
   createSocialChildInterventionPageModels,
   type SocialChildInterventionPageModelOptions,
   type SocialChildInterventionPageModelResult,
@@ -303,16 +303,6 @@ export {
 } from './social-child-intervention-page-model';
 
 type PortalDisplayText = DisplayText;
-
-const PortalConnectionStateSchema = withParser(Schema.Literal('disconnected', 'connecting', 'connected', 'error'));
-export type PortalConnectionState = Infer<typeof PortalConnectionStateSchema>;
-
-const PortalConnectionState = {
-  Disconnected: PortalConnectionStateSchema.parse('disconnected'),
-  Connecting: PortalConnectionStateSchema.parse('connecting'),
-  Connected: PortalConnectionStateSchema.parse('connected'),
-  Error: PortalConnectionStateSchema.parse('error'),
-} as const;
 
 const PortalDom = {
   RootSelector: '#app',
@@ -553,9 +543,136 @@ const PortalText = {
 const PortalTextToken = PortalDevTextToken;
 
 export {
+  PortalFormatting,
+  decodePortalClipboardText,
+  decodePortalDetailValue,
+  PortalClipboardTextSchema,
+  PortalDetailValueSchema,
+  PortalBrowserInventoryFields,
+  PortalDetails,
+  PortalReadableValues,
+  PortalDiagnostics,
+  createAppGameNotificationParentSurfacePanelIntent,
+  createAppGameAdapterExecutionReadinessPanelIntent,
+  createAppGameAdapterDispatchResultPanelIntent,
+  createAppGameAdapterDispatchPreflightPanelIntent,
+  createLocalAiRuntimePanelIntent,
+  createAppGameNotificationParentSurfaceReadModelFromReadiness,
+  PortalFrameChromeNumberFields,
+  PortalCarouselContentNumberFields,
+  PortalCarouselFrameNumberFields,
+  PortalCarouselRailNumberFields,
+  PortalFrameContentBooleanFields,
+  PortalFrameContentNumberFields,
+  PortalFrameGeometryNumberFields,
+  PortalGoldenCardBooleanFields,
+  PortalGoldenCardContentNumberFields,
+  PortalGoldenCardFrameNumberFields,
+  PortalFrameInnerEdgeNumberFields,
+  PortalFrameInnerGapNumberFields,
+  PortalFrameInnerSegmentNumberFields,
+  PortalFrameInnerShapeNumberFields,
+  PortalFrameOuterEdgeNumberFields,
+  PortalFrameOuterGapNumberFields,
+  PortalFrameOuterSegmentNumberFields,
+  PortalFrameOuterShapeNumberFields,
+  PortalFrameShellNumberFields,
+  PortalFrameSlotNumberFields,
+  PortalFrameTuner,
+  portalFrameCssNumber,
+  portalFrameCssOpacity,
+  portalFrameCssPercent,
+  portalFrameCssPixel,
+  PortalFrameColorFields,
+  PortalFrameTunerFrameSections,
+  PortalAssets,
+  PortalExternalLinks,
+  PortalUnifiedChrome,
+  createPortalAppLayoutButtonDraft,
+  createPortalAppLayoutFoldoutDraft,
+  defaultPortalAppLayoutContentDraft,
+  defaultPortalAppLayoutSurfaceContent,
+  normalizePortalAppLayoutContentDraft,
+  normalizePortalAppLayoutSurfaceContentDraft,
+  PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,
+  PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
+  PARENT_PORTAL_CONTENT,
+  PARENT_PORTAL_ROUTE,
+  PARENT_PORTAL_ROUTE_CONTEXT,
+  PARENT_PORTAL_ROWS,
+  parentPortalRouteContext,
+  PARENT_PORTAL_SERVICE_STATE,
+  resolveParentPortalServiceState,
+  TrackingStatusProofArtifacts,
+  TrackingStatusProofArtifactSchema,
+  trackingFamilyDashboardHostedRollupProof,
+  trackingStatusLiveSummary,
+  trackingStatusProofRows,
+  trackingStatusServiceDataCoverage,
+  trackingUnsupportedManualPlatformProof,
+  TrackingEvidenceDrawerHostedUiProofDetails,
+  trackingEvidenceDrawerHostedUiProof,
+  trackingRetentionSettingsHostedUiProof,
+  PARENT_PORTAL_NAV_LABELS,
+  parseActivityMemoryGraphReadModel,
+  createAppGamePolicyReadinessPanelIntent,
+  createAppGameTimerParentPreferenceSetupCommandResultDetails,
+  createAppGameTimerParentPreferenceSetupRequestPayload,
+  createAppGameTimerParentSurfacePanelIntent,
+  createBrowserParentExplanationPanelIntent,
+  createSocialDashboardPanelIntent,
+  createSocialAuditExplanationPanelIntent,
+  createSocialAlertReportPanelIntent,
+  createSocialParentNotificationDeliveryPanelIntent,
+  createSocialAlertReportParentSurfacePanelIntent,
+  createBrowserSocialProviderReceiptStreamStatusIntent,
+  createBrowserSocialProviderReceiptIngestionReadinessStatusIntent,
   PortalClipboard,
   PortalConnectionState,
   PortalConnectionStateSchema,
+  PortalRoute,
+  PortalRouteLiteral,
+  PortalRouteHashPrefix,
+  PortalRouteHashQuerySeparator,
+  PortalDevToolWindow,
+  PortalAiRuntimeRoutes,
+  PortalRouteDescriptors,
+  PortalAppGameParentSurfaceRoutes,
+  PortalBrowserParentSurfaceRoutes,
+  PortalNetworkEvidenceDrawerRoutes,
+  PortalRouteGroup,
+  PortalRoutes,
+  PortalRouteSchema,
+  PortalScreenSettingsRoutes,
+  PortalScreenSummaryRoutes,
+  PortalSidebarRouteDescriptors,
+  PortalTrackingStatusRoutes,
+  PortalDevToolUrlSchema,
+  isPortalAiRuntimeRoute,
+  isPortalAppGameParentSurfaceRoute,
+  isPortalBrowserParentSurfaceRoute,
+  isPortalNetworkEvidenceDrawerRoute,
+  isPortalScreenSettingsRoute,
+  isPortalScreenSummaryRoute,
+  isPortalTrackingStatusRoute,
+  portalDevToolUrl,
+  portalRouteHashPath,
+  portalRouteHashPathWithQuery,
+  DEFAULT_PORTAL_BACKGROUND_CONFIG,
+  DEFAULT_PORTAL_BACKGROUND_DARK_COLORS,
+  DEFAULT_PORTAL_BACKGROUND_LIGHT_COLORS,
+  PortalBackgroundRuntime,
+  normalizePortalBackgroundConfig,
+  portalBackgroundAppRenderConfig,
+  portalBackgroundRenderConfig,
+  PORTAL_BACKGROUND_SVG_HEIGHT,
+  PORTAL_BACKGROUND_SVG_WIDTH,
+  portalBackgroundSvgContent,
+  portalBackgroundSvgMarkup,
+  BrowserChildInterventionPageDefaults,
+  BrowserChildInterventionPageSamples,
+  renderBrowserChildInterventionPage,
+  createSocialChildInterventionPageModels,
   PortalDom,
   PortalEnvironment,
   PortalLanPairingScan,
@@ -563,6 +680,119 @@ export {
   PortalTextToken,
   PortalTheme,
   PortalTiming,
+  type PortalClipboardText,
+  type PortalDetailValue,
+  type AppGameNotificationParentSurfaceDetail,
+  type AppGameNotificationParentSurfacePanelIntent,
+  type AppGameNotificationParentSurfacePanelRow,
+  type AppGameAdapterExecutionReadinessPanelDetail,
+  type AppGameAdapterExecutionReadinessPanelIntent,
+  type AppGameAdapterExecutionReadinessPanelRow,
+  type AppGameAdapterDispatchResultPanelExecuteAction,
+  type AppGameAdapterDispatchResultPanelDetail,
+  type AppGameAdapterDispatchResultPanelIntent,
+  type AppGameAdapterDispatchResultPanelRow,
+  type AppGameAdapterDispatchPreflightPanelDetail,
+  type AppGameAdapterDispatchPreflightPanelIntent,
+  type AppGameAdapterDispatchPreflightPanelRow,
+  type LocalAiRuntimePanelCard,
+  type LocalAiRuntimePanelDetail,
+  type LocalAiRuntimePanelIntent,
+  type PortalFrameCssStyle,
+  type PortalFrameCssValue,
+  type PortalFrameBooleanField,
+  type PortalFrameColorField,
+  type PortalFrameNumberField,
+  type PortalFrameTargetValue,
+  type PortalFrameTunerFrameSectionValue,
+  type PortalAppLayoutButtonDraft,
+  type PortalAppLayoutContentAreaKey,
+  type PortalAppLayoutContentDraft,
+  type PortalAppLayoutFoldoutDraft,
+  type PortalAppLayoutSurfaceContentDraft,
+  type PortalAppLayoutSurfaceKey,
+  type PortalAppLayoutTone,
+  type ParentAssistantPortalQuickAction,
+  type ParentAssistantPortalQuickActionId,
+  type ParentPortalContent,
+  type ParentPortalIconName,
+  type ParentPortalPageMode,
+  type ParentPortalRow,
+  type ParentPortalRowSource,
+  type ParentPortalRouteContext,
+  type ParentPortalTabId,
+  type ParentPortalTone,
+  type ParentPortalServiceState,
+  type TrackingStatusProofArtifact,
+  type TrackingFamilyDashboardHostedRollupProof,
+  type TrackingFamilyDashboardHostedRollupRow,
+  type TrackingStatusLiveCitation,
+  type TrackingStatusLiveProjectionInput,
+  type TrackingStatusLiveSummary,
+  type TrackingStatusProofRow,
+  type TrackingStatusServiceDataCoverage,
+  type TrackingUnsupportedManualPlatformProof,
+  type TrackingUnsupportedManualPlatformRow,
+  type TrackingEvidenceDrawerHostedUiProof,
+  type TrackingEvidenceDrawerSourceCitation,
+  type TrackingRetentionSettingsHostedUiProof,
+  type TrackingRetentionSettingsHostedUiRow,
+  type TrackingRetentionSettingsWritePreflight,
+  type ParentPortalHashRoutePath,
+  type ParentPortalNavGroup,
+  type ParentPortalNavGroupId,
+  type ParentPortalNavItem,
+  type ParentPortalNavLabel,
+  type ParentPortalNavSectionLabel,
+  type PortalActivityMemoryGraphEdge,
+  type PortalActivityMemoryGraphNode,
+  type PortalActivityMemoryGraphNodeId,
+  type PortalActivityMemoryGraphReadModel,
+  type AppGamePolicyReadinessPanelDetail,
+  type AppGamePolicyReadinessPanelIntent,
+  type AppGamePolicyReadinessPanelRow,
+  type AppGameTimerParentSurfacePreferenceSetupRequestAction,
+  type AppGameTimerParentSurfacePanelDetail,
+  type AppGameTimerParentSurfacePanelIntent,
+  type AppGameTimerParentSurfacePanelRow,
+  type BrowserParentExplanationPanelDetail,
+  type BrowserParentExplanationPanelIntent,
+  type BrowserParentExplanationPanelRow,
+  type SocialDashboardPanelDetail,
+  type SocialDashboardPanelIntent,
+  type SocialDashboardPanelRow,
+  type SocialAuditExplanationPanelDetail,
+  type SocialAuditExplanationPanelIntent,
+  type SocialAuditExplanationPanelRow,
+  type SocialAlertReportPanelDetail,
+  type SocialAlertReportPanelIntent,
+  type SocialAlertReportPanelRow,
+  type SocialParentNotificationDeliveryPanelDetail,
+  type SocialParentNotificationDeliveryPanelIntent,
+  type SocialParentNotificationDeliveryPanelRow,
+  type SocialAlertReportParentSurfacePanelDetail,
+  type SocialAlertReportParentSurfacePanelIntent,
+  type SocialAlertReportParentSurfacePanelRow,
+  type BrowserSocialProviderReceiptStreamStatusDetail,
+  type BrowserSocialProviderReceiptStreamStatusIntent,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusDetail,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+  type PortalConnectionStateValue,
+  type PortalDevToolUrl,
+  type PortalRouteHashPath,
+  type PortalRouteHashQueryPath,
+  type PortalRouteDescriptor,
+  type PortalRouteGroupValue,
+  type PortalBackgroundConfig,
+  type PortalBackgroundRenderConfig,
+  type PortalBackgroundThemeColors,
+  type BrowserChildInterventionPageAction,
+  type BrowserChildInterventionPageBackdrop,
+  type BrowserChildInterventionPageModel,
+  type BrowserChildInterventionPageTheme,
+  type SocialChildInterventionPageModelOptions,
+  type SocialChildInterventionPageModelResult,
+  type SocialChildInterventionRequestedUrlResolver,
   type PortalDisplayText,
   type PortalThemeValue,
 };

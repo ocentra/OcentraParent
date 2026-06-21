@@ -1,8 +1,8 @@
 #![allow(clippy::panic)]
 
-use crate::{
-    constants, LogFieldValue, LogFields, TrackingReadModel, TrackingReadModelCount,
-    TrackingReadModelRow, TRACKING_READ_MODEL_FIELD_ACTIVE_CAPABILITY_STATUS_COUNTS,
+use super::read_model::{
+    TrackingReadModel, TrackingReadModelCount, TrackingReadModelRow,
+    TRACKING_READ_MODEL_FIELD_ACTIVE_CAPABILITY_STATUS_COUNTS,
     TRACKING_READ_MODEL_FIELD_ACTIVE_DEVICE_COUNTS, TRACKING_READ_MODEL_FIELD_ACTIVE_KIND_COUNTS,
     TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS,
     TRACKING_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
@@ -12,6 +12,7 @@ use crate::{
     TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT,
     TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
+use crate::{constants, LogFieldValue, LogFields};
 
 type FieldPair = (&'static str, LogFieldValue);
 

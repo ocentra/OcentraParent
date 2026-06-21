@@ -12,20 +12,22 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'app-game-adapter-execution-readiness',
+      '--run',
+      'tests/unit/app-game-adapter-execution-readiness.test.ts',
     ])
   );
 
   const { AppGameAdapterExecutionReadinessReadModel, summarizeAppGameAdapterExecutionReadiness } =
-    await import('../../packages/parent-domain/dist/app-game-adapter-execution-readiness.js');
+    await import('../../packages/app-game-domain/dist/app-game-adapter-execution-readiness.js');
   const summary = summarizeAppGameAdapterExecutionReadiness(AppGameAdapterExecutionReadinessReadModel);
 
   assertEqual(AppGameAdapterExecutionReadinessReadModel.readModelId, 'app-game-adapter-execution-readiness', 'id');
@@ -47,13 +49,15 @@ async function main() {
     commands,
     sourceReadModel: 'v0-8-supported-adapter-runtime-proof',
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-adapter-execution-readiness.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-adapter-execution-readiness.test.ts',
+      schemaContract: 'packages/schema-domain/src/app-game-adapter-execution-readiness.ts',
+      consumerReadModel: 'packages/app-game-domain/src/app-game-adapter-execution-readiness.ts',
+      consumerTest: 'packages/app-game-domain/tests/unit/app-game-adapter-execution-readiness.test.ts',
       proofHarness: 'scripts/test/app-game-adapter-execution-readiness-proof.mjs',
-      sourceRuntimeProof: 'packages/parent-domain/src/v0-8-supported-adapter-runtime-proof.ts',
+      sourceRuntimeProof: 'packages/schema-domain/src/v0-8-supported-adapter-runtime-proof.ts',
     },
     summary,
     claimsProved: [
+      'App/game adapter execution readiness consumes the central schema-domain contract through the app-game-domain read-model consumer',
       'App/game adapter execution readiness is derived from existing V0.8 supported adapter runtime proof',
       'Windows owned-process time-limit is the only execution-allowed app/game adapter row',
       'Broad installed-app blocking remains blocked before execution',
@@ -62,7 +66,7 @@ async function main() {
     ],
     claimsNotProved: [
       'runtime service command exposure for this read model',
-      'package export for this read model',
+      'app-game-domain package export for this read model',
       'broad installed-app blocking execution',
       'platform enforcement outside the scoped Windows owned-process boundary',
       'provider delivery or child-device delivery',

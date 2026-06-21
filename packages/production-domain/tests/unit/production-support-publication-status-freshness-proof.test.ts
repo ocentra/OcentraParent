@@ -3,8 +3,8 @@ import {
   ProductionSupportPublicationStatusFreshnessProofSchema,
   ProductionSupportPublicationStatusFreshnessRowSchema,
   summarizeProductionSupportPublicationStatusFreshnessRows,
-} from '../../src/production-support-publication-status-freshness-proof';
-import { ProductionSupportPublicationStatusFreshnessReadModel } from '../../src/production-support-publication-status-freshness-read-model';
+} from '@ocentra-parent/schema-domain/production-support-publication-status-freshness-proof';
+import { ProductionSupportPublicationStatusFreshnessReadModel } from '@ocentra-parent/schema-domain/production-support-publication-status-freshness-read-model';
 
 describe('production support publication status freshness proof', () => {
   acceptsPublicationStatusFreshnessRows();

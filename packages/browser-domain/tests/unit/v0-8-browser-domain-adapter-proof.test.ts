@@ -5,7 +5,7 @@ import {
   V08BrowserDomainAdapterProofReadModelSchema,
   V08BrowserDomainAdapterProofSurface,
   V08WindowsAppControlProofStateSchema,
-} from '../../src/v0-8-browser-domain-adapter-proof';
+} from '@ocentra-parent/schema-domain/v0-8-browser-domain-adapter-proof';
 
 describe('V0.8 browser domain adapter proof', () => {
   capturesBrowserAndDomainAdapterStates();

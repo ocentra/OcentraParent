@@ -24,21 +24,22 @@ for (const path of [join(appGameProofDir, '06-ui-snapshots'), join(appProofDir, 
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff',
   'app-game-source-gated-policy-preview-timer-service-readiness-read-model',
 ]);
 
-const protocolHandoffContract = await importDist(
+const protocolHandoffContract = await importAppGameDist(
   'app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff.js'
 );
-const refs = await importDist('reference-primitives.js');
+const refs = await importSchemaDist('reference-primitives.js');
 const serviceReadinessReadModel = await readJson(
   join(
     repoRoot,
@@ -62,7 +63,7 @@ const proof = {
   stackedOn: {
     wp87Branch: 'codex/app-game-source-gated-policy-preview-timer-service-readiness-read-model',
     reason:
-      'WP88 consumes WP87 service-readiness read-model rows and creates a parent-domain protocol handoff manifest while agent-protocol contracts, Rust protocol mirrors, service command registration, service event emission, read API implementation, portal rendering, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports are sequenced separately.',
+      'Schema-domain owns the service-readiness protocol-handoff contract surface; app-game-domain consumes WP87 service-readiness read-model rows while agent-protocol contracts, Rust protocol mirrors, service command registration, service event emission, read API implementation, portal rendering, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports remain sequenced separately.',
   },
   summary: summarize(protocolHandoff),
   nonClaims: {
@@ -87,11 +88,14 @@ const proof = {
     rawPrivateSourceRowsIncluded: protocolHandoff.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff.ts',
-    rules:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff.test.ts',
+    schemaSource:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff.ts',
+    schemaRules:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-rules.ts',
+    consumerSource:
+      'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff.ts',
+    consumerTest:
+      'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff.test.ts',
     harness: 'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-proof.mjs',
     evidence:
       'test-results/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-proof/proof.json',
@@ -112,8 +116,12 @@ console.log(
   `evidence=${join('test-results', 'app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-proof', 'proof.json')}`
 );
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function protocolHandoffOptions(refs) {

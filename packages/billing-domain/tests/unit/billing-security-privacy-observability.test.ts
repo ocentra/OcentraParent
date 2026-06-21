@@ -7,11 +7,7 @@ import {
   BillingSecurityPrivacyObservabilityProofReadModel,
   BillingSecurityPrivacyObservabilityProofSchema,
   BillingWebhookSecurityRowSchema,
-} from '../../src/billing-security-privacy-observability';
-import {
-  summarizeBillingAlertKinds,
-  summarizeBillingMetadataSurfaces,
-} from '../../src/billing-security-privacy-observability-values';
+} from '@ocentra-parent/schema-domain/billing-security-privacy-observability';
 
 describe('billing security privacy observability', () => {
   acceptsBillingSecurityBoundaryProof();
@@ -28,13 +24,40 @@ function acceptsBillingSecurityBoundaryProof(): void {
       BillingSecurityPrivacyObservabilityProofReadModel
     );
 
-    expect(summarizeBillingMetadataSurfaces(proof.metadataAllowlistRows)).toEqual({
+    const metadataSurfaceCounts = proof.metadataAllowlistRows.reduce(
+      (counts, row) => {
+        counts[row.metadataSurface] += 1;
+        return counts;
+      },
+      {
+        'checkout-session': 0,
+        'billing-portal-session': 0,
+        'provider-webhook-event': 0,
+        'support-audit-export': 0,
+      } as Record<(typeof proof.metadataAllowlistRows)[number]['metadataSurface'], number>
+    );
+
+    expect(metadataSurfaceCounts).toEqual({
       'checkout-session': 3,
       'billing-portal-session': 1,
       'provider-webhook-event': 1,
       'support-audit-export': 0,
     });
-    expect(summarizeBillingAlertKinds(proof.alertRows)).toEqual({
+    const alertKindCounts = proof.alertRows.reduce(
+      (counts, row) => {
+        counts[row.alertKind] += 1;
+        return counts;
+      },
+      {
+        'webhook-failure': 0,
+        'payment-drift': 0,
+        'checkout-abuse': 0,
+        'fraud-signal': 0,
+        'secret-exposure': 0,
+      } as Record<(typeof proof.alertRows)[number]['alertKind'], number>
+    );
+
+    expect(alertKindCounts).toEqual({
       'webhook-failure': 1,
       'payment-drift': 1,
       'checkout-abuse': 1,

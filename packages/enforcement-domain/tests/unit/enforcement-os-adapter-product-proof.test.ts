@@ -4,7 +4,7 @@ import {
   V08OsAdapterProductProofReadModel,
   V08OsAdapterProductProofReadModelSchema,
   V08OsAdapterProductProofSurface,
-} from '../../src/enforcement-os-adapter-product-proof';
+} from '@ocentra-parent/schema-domain/enforcement-os-adapter-product-proof';
 
 it('captures the product proof read model without broad blocking or exact URL upgrades', () => {
   const readModel = V08OsAdapterProductProofReadModelSchema.parse(V08OsAdapterProductProofReadModel);

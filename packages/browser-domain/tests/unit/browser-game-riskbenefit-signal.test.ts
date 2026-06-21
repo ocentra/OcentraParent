@@ -4,7 +4,7 @@ import {
   BrowserGameRiskBenefitSignalSetSchema,
   type BrowserGameRiskBenefitSignalSet,
   BrowserGameRiskSignalSchema,
-} from '../../src/browser-game-riskbenefit-signal';
+} from '@ocentra-parent/schema-domain/browser-game-riskbenefit-signal';
 
 describe('browser-game risk and benefit signal contracts', () => {
   it('accepts an evidence-backed candidate risk/benefit signal set', acceptsCandidateSignalSet);

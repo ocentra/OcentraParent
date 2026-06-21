@@ -193,6 +193,23 @@ fn replay_with_changed_decision_is_rejected() {
 }
 
 #[test]
+fn replay_rejected_status_is_rejected_for_core_request_registration() {
+    let mut request = child_request();
+    request.status = PolicyRequestStatus::ReplayRejected;
+
+    let error = register_child_policy_request(None, request)
+        .expect_err("replay-rejected is not a core request status");
+
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_request.status",
+            value: "replay-rejected".to_string(),
+        }
+    );
+}
+
+#[test]
 fn duplicate_submission_key_with_changed_payload_is_rejected() {
     let registered = register_child_policy_request(None, child_request())
         .expect("registered child policy request");

@@ -125,13 +125,13 @@ mkdirSync(proofRoot, { recursive: true });
 mkdirSync(aiProofRoot, { recursive: true });
 
 await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
-await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
 const { ScreenAnalysisResultSchema, ScreenLocalModelOutputSchema } =
-  await import('../../packages/screen-domain/dist/screen-evidence.js');
-const { LocalAiSafetyResultSchema } = await import('../../packages/parent-domain/dist/local-ai.js');
+  await import('@ocentra-parent/schema-domain/screen-evidence-result');
+const { LocalAiSafetyResultSchema } = await import('@ocentra-parent/schema-domain/local-ai');
 const { FamilyPolicySetSchema, PolicyDecisionSchema, selectStricterPolicyAction } =
-  await import('../../packages/parent-domain/dist/policy.js');
+  await import('@ocentra-parent/schema-domain/policy');
 
 const scenarioResults = [];
 for (const scenario of scenarios) {

@@ -3,7 +3,7 @@ use ocentra_eventing::{
 };
 use ocentra_parent_agent_protocol::constants;
 
-use crate::network_event_runtime::{
+use crate::network_event_runtime::broker_delivery::{
     prove_network_runtime_broker_delivery_semantics, NetworkRuntimeBrokerDeliveryProofError,
     NetworkRuntimeBrokerDeliverySemantics, NetworkRuntimeBrokerDeliverySemanticsReport,
 };

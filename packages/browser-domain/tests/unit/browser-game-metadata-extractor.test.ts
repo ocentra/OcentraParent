@@ -4,7 +4,7 @@ import {
   BrowserGameMetadataFieldShapeSchema,
   type BrowserGameMetadataExtraction,
   type BrowserGameMetadataFieldShape,
-} from '../../src/browser-game-metadata-extractor';
+} from '@ocentra-parent/schema-domain/browser-game-metadata-extractor';
 
 describe('browser-game metadata extractor contracts', () => {
   it('accepts redacted metadata field shapes for title, rating, subject, and cloud-title rows', acceptsFieldShapes);

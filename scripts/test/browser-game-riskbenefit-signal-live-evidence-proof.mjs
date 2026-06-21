@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 
-import { BrowserGameRiskBenefitSignalSetSchema } from '../../packages/parent-domain/dist/browser-game-riskbenefit-signal.js';
+import { BrowserGameRiskBenefitSignalSetSchema } from '@ocentra-parent/schema-domain/browser-game-riskbenefit-signal';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-riskbenefit-signal-live-evidence-proof';

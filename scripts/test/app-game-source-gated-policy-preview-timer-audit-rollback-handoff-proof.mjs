@@ -24,23 +24,24 @@ for (const path of [join(appGameProofDir, '06-ui-snapshots'), join(appProofDir, 
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-source-gated-policy-preview-timer-audit-rollback-handoff',
   'app-game-source-gated-policy-preview-timer-scheduler-persistence',
 ]);
 
-const auditRollbackContract = await importDist('app-game-source-gated-policy-preview-timer-audit-rollback-handoff.js');
+const auditRollbackContract = await importAppGameDist('app-game-source-gated-policy-preview-timer-audit-rollback-handoff.js');
 const wp82Proof = await readJson(
   join(repoRoot, 'test-results', 'app-game-source-gated-policy-preview-timer-scheduler-persistence-proof', 'proof.json')
 );
 const handoff = auditRollbackContract.buildAppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoff(
-  auditRollbackOptions(await importDist('reference-primitives.js')),
+  auditRollbackOptions(await importSchemaDist('reference-primitives.js')),
   wp82Proof.persistence
 );
 const proof = {
@@ -53,7 +54,7 @@ const proof = {
   stackedOn: {
     wp82Branch: 'codex/app-game-source-gated-policy-preview-timer-scheduler-persistence',
     reason:
-      'WP83 consumes WP82 timer scheduler-persistence rows and remains parent-domain only while durable audit logs, rollback execution, timer runtime, service scheduling, and package exports are sequenced separately.',
+      'Schema-domain owns the audit-rollback handoff contract surface; app-game-domain consumes WP82 timer scheduler-persistence rows while durable audit logs, rollback execution, timer runtime, service scheduling, and package behavior remain sequenced separately.',
   },
   summary: summarize(handoff),
   nonClaims: {
@@ -74,9 +75,10 @@ const proof = {
     rawPrivateSourceRowsIncluded: handoff.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-handoff.ts',
-    rules: 'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-handoff-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-audit-rollback-handoff.test.ts',
+    schemaSource: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-handoff.ts',
+    schemaRules: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-handoff-rules.ts',
+    consumerSource: 'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-handoff.ts',
+    consumerTest: 'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-audit-rollback-handoff.test.ts',
     harness: 'scripts/test/app-game-source-gated-policy-preview-timer-audit-rollback-handoff-proof.mjs',
     evidence: 'test-results/app-game-source-gated-policy-preview-timer-audit-rollback-handoff-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
@@ -96,8 +98,12 @@ console.log(
   `evidence=${join('test-results', 'app-game-source-gated-policy-preview-timer-audit-rollback-handoff-proof', 'proof.json')}`
 );
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function auditRollbackOptions(refs) {

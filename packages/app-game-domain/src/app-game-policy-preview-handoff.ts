@@ -12,7 +12,7 @@ import {
   AppGamePolicyCompilerOutcomeStateSchema,
   AppGamePolicyCompilerRejectionReasonSchema,
   AppGamePolicyTargetKindSchema,
-} from './app-game-policy-target-compiler';
+} from '@ocentra-parent/schema-domain/app-game-policy-target-compiler';
 import {
   AppGamePolicyPreviewStatus,
   AppGamePolicyPreviewTargetDomain,
@@ -33,8 +33,8 @@ import {
   PolicyDecisionIdSchema,
   PolicyRuleIdSchema,
   PolicyTargetSchema,
-} from '@ocentra-parent/policy-domain/policy';
-import { ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/family-domain/references';
+} from '@ocentra-parent/schema-domain/policy-contracts';
+import { ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
 import {
   ParentContractSchemaVersionSchema,
   ParentPolicyVersionSchema,

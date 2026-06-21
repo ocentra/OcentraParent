@@ -20,15 +20,15 @@ async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-release-public-runtime-handoff.test.ts',
+      'tests/unit/production-release-public-runtime-handoff.test.ts',
     ])
   );
 
@@ -42,10 +42,10 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-release-public-runtime-handoff.ts',
-      values: 'packages/parent-domain/src/production-release-public-runtime-handoff-values.ts',
-      readModel: 'packages/parent-domain/src/production-release-public-runtime-handoff-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/production-release-public-runtime-handoff.test.ts',
+      contract: 'packages/schema-domain/src/production-release-public-runtime-handoff.ts',
+      values: 'packages/schema-domain/src/production-release-public-runtime-handoff-values.ts',
+      readModel: 'packages/schema-domain/src/production-release-public-runtime-handoff-read-model.ts',
+      contractTest: 'packages/production-domain/tests/unit/production-release-public-runtime-handoff.test.ts',
       packageExports,
       documentation,
       proofOutput: relativePath(proofPath),
@@ -77,10 +77,10 @@ async function main() {
 
 async function assertBuiltContract() {
   const contractModulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'production-release-public-runtime-handoff.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'production-release-public-runtime-handoff.js')
   );
   const readModelPath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'production-release-public-runtime-handoff-read-model.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'production-release-public-runtime-handoff-read-model.js')
   );
   const contractModule = await import(contractModulePath.href);
   const readModelModule = await import(readModelPath.href);
@@ -134,10 +134,10 @@ async function assertBuiltContract() {
 }
 
 async function assertPublicPackageExports() {
-  const contractModule = await import('@ocentra-parent/production-domain/production-release-public-runtime-handoff');
+  const contractModule = await import('@ocentra-parent/schema-domain/production-release-public-runtime-handoff');
   const readModelModule =
-    await import('@ocentra-parent/production-domain/production-release-public-runtime-handoff-read-model');
-  const valuesModule = await import('@ocentra-parent/production-domain/production-release-public-runtime-handoff-values');
+    await import('@ocentra-parent/schema-domain/production-release-public-runtime-handoff-read-model');
+  const valuesModule = await import('@ocentra-parent/schema-domain/production-release-public-runtime-handoff-values');
 
   assert.equal(typeof contractModule.decodeProductionReleasePublicRuntimeHandoffProof, 'function');
   assert.ok(contractModule.ProductionReleasePublicRuntimeHandoffProofSchema);
@@ -152,9 +152,9 @@ async function assertPublicPackageExports() {
   ]);
 
   return [
-    '@ocentra-parent/production-domain/production-release-public-runtime-handoff',
-    '@ocentra-parent/production-domain/production-release-public-runtime-handoff-read-model',
-    '@ocentra-parent/production-domain/production-release-public-runtime-handoff-values',
+    '@ocentra-parent/schema-domain/production-release-public-runtime-handoff',
+    '@ocentra-parent/schema-domain/production-release-public-runtime-handoff-read-model',
+    '@ocentra-parent/schema-domain/production-release-public-runtime-handoff-values',
   ];
 }
 

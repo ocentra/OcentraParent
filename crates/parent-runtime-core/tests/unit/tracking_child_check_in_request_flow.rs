@@ -1,4 +1,4 @@
-use ocentra_eventing::RequestCompletionOutcome;
+use ocentra_eventing::request::RequestCompletionOutcome;
 use ocentra_parent_agent_protocol::{
     constants, TrackingChildCheckInDeliveryState, TrackingChildCheckInRequestState,
     TrackingChildCheckInRequestedEvent, TrackingEvidenceRef, TrackingPolicyViolationId,

@@ -3,7 +3,11 @@ import {
   AgentEvent,
   type AgentCommandName,
   type AgentEventName,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import {
+  type AgentAppGameAdapterDispatchExecute,
+  type AgentAppGameAdapterDispatchResult,
+} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-result';
 import {
   AgentAppGameAdapterDispatchAdapterExecutionDecision,
   AgentAppGameAdapterDispatchAdapterExecutionState,
@@ -11,12 +15,10 @@ import {
   AgentAppGameAdapterDispatchCommandResultState,
   AgentAppGameAdapterDispatchExecutionAuditDecision,
   AgentAppGameAdapterDispatchExecutionAuditState,
-  type AgentAppGameAdapterDispatchExecute,
   type AgentAppGameAdapterDispatchExecuteResult,
-  type AgentAppGameAdapterDispatchResult,
   type AgentAppGameAdapterDispatchResultReadModel,
   type AgentAppGameAdapterDispatchResultRow,
-} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-result';
+} from '@ocentra-parent/schema-domain/app-game-adapter-dispatch-result';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDetails, PortalReadableValues } from './details';
 

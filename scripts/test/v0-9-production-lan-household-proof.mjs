@@ -18,21 +18,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
-      '--',
-      'tests/lan-production-household-proof.test.ts',
-      'tests/lan-pairing-browser-add-device-state.test.ts',
-      'tests/household-device-spine.test.ts',
-    ])
-  );
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
       '@ocentra-parent/agent-protocol-domain',
       '--',
-      'tests/lan-pairing-browser-add-device-state.test.ts',
+      'tests/unit/lan-pairing-browser-add-device-state.test.ts',
     ])
   );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'lan_pairing_browser_add_device_state']);

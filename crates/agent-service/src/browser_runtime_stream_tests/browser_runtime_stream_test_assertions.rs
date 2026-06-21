@@ -1,6 +1,5 @@
-use ocentra_parent_agent_core::BrowserRuntimePhase;
 use ocentra_parent_agent_protocol::{
-    constants, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
+    constants, AgentEventEnvelope, AgentEventName, BrowserRuntimePhase, LogFieldValue, LogFields,
 };
 use serde_json::Value;
 

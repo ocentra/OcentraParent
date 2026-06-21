@@ -36,8 +36,8 @@ async function main() {
     ],
     evidence: {
       upstreamFinalPassProof: relative(repoRoot, finalPassProofPath),
-      activityDomain: 'packages/activity-domain/src/activity-surface.ts',
-      parentDomain: 'packages/parent-domain/src/parent-assistant.ts',
+      activityDomain: 'packages/schema-domain/src/activity-surface.ts',
+      parentDomain: 'packages/schema-domain/src/parent-assistant.ts',
       rustProtocolActivity: 'crates/agent-protocol/src/activity_surface.rs',
       rustProtocolParentAssistant: 'crates/agent-protocol/src/parent_assistant.rs',
       rustReportStore: 'crates/agent-service/src/activity_surface_report_store.rs',

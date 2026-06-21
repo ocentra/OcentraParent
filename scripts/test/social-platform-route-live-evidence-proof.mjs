@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
   BrowserSocialRouteEvidenceSchema,
   BrowserSocialRouteSchemaVersion,
-} from '../../packages/browser-domain/dist/browser-social-platform-route-schemas.js';
+} from '@ocentra-parent/schema-domain/browser-social-platform-route-schemas';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');

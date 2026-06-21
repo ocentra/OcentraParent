@@ -8,7 +8,7 @@ import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-refe
 import {
   TrackingFixtureCoverageRequiredStates,
   TrackingFixtureCoverageStateExpectations,
-} from './tracking-fixture-coverage-proof-values';
+} from '@ocentra-parent/schema-domain/tracking-fixture-coverage-proof-values';
 
 export const TrackingFixtureCoverageProofSchemaVersionSchema = withParser(
   Schema.Literal('tracking-fixture-coverage-proof')

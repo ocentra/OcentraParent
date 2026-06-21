@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..', '..');
@@ -15,13 +15,9 @@ const emulatorProofPath = join(
   'proof-summary.json'
 );
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 
-const screenAndroid = await import(
-  pathToFileURL(
-    join(repoRoot, 'packages', 'activity-domain', 'dist', 'screen-android-mediaprojection-capability-proof.js')
-  ).href
-);
+const screenAndroid = await import('@ocentra-parent/schema-domain/screen-android-mediaprojection-capability-proof');
 
 const generatedAt = new Date().toISOString();
 const emulatorProof = readJson(emulatorProofPath);

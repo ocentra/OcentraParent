@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
-import {
-  AgentNetworkAndroidVpnServiceGateStatusSchema,
-  parseAgentNetworkAndroidVpnServiceGateStatusEvent,
-} from '../../src/network-android-vpnservice-gate-status';
+import { AgentNetworkAndroidVpnServiceGateStatusSchema } from '@ocentra-parent/schema-domain/agent-network-android-vpnservice-status';
+import { parseAgentNetworkAndroidVpnServiceGateStatusEvent } from '../../src/network-android-vpnservice-gate-status';
 
 const AndroidRefs = AgentProtocolDefaults.NetworkAndroidVpnServiceGateStatus;
 

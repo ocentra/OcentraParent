@@ -19,7 +19,7 @@ async function main() {
   await runCommand('node', ['scripts/test/v0-8-supported-adapter-runtime-proof.mjs']);
 
   const { V08SupportedAdapterRuntimeProofReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-supported-adapter-runtime-proof.js');
+    await import('@ocentra-parent/schema-domain/v0-8-supported-adapter-runtime-proof');
   const artifactEntries = artifactStatusEntries(V08SupportedAdapterRuntimeProofReadModel);
 
   assertArtifactStatusReadModel(V08SupportedAdapterRuntimeProofReadModel, artifactEntries);
@@ -32,8 +32,8 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsRuntimeContract: 'packages/parent-domain/src/v0-8-supported-adapter-runtime-proof.ts',
-      tsRuntimeContractTest: 'packages/parent-domain/tests/v0-8-supported-adapter-runtime-proof.test.ts',
+      tsRuntimeContract: 'packages/schema-domain/src/v0-8-supported-adapter-runtime-proof.ts',
+      tsRuntimeContractTest: 'packages/enforcement-domain/tests/unit/v0-8-supported-adapter-runtime-proof.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_supported_adapter_runtime_proof.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_supported_adapter_runtime_proof_tests.rs',
       rustServiceReadModel:

@@ -18,24 +18,20 @@ async function main() {
   await mkdir(join(appGameProofDir, '06-ui-snapshots'), { recursive: true });
   await mkdir(join(appProofDir, '06-ui-snapshots'), { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/notification-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/notification-domain',
       '--',
-      'app-game-notification-local-outbox-bridge',
       'notification-local-outbox-adapter-proof',
-      'app-game-notification-intent',
     ])
   );
 
-  const bridge = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-notification-local-outbox-bridge.js'))
-      .href
-  );
+  const bridge = await importSchemaDist('app-game-notification-local-outbox-bridge.js');
   const readModel = bridge.buildAppGameNotificationLocalOutboxBridgeReadModel(bridgeOptions(), proofIntents());
   const jsonl = bridge.serializeAppGameNotificationLocalOutboxJsonl(readModel);
   const rereadRecords = bridge.parseAppGameNotificationLocalOutboxJsonl(jsonl);
@@ -49,7 +45,7 @@ async function main() {
     commit: await gitHead(),
     commands,
     summary: {
-      bridge: 'App/game notification intent to parent-owned local outbox JSONL records',
+      bridge: 'Central app/game notification intent to parent-owned local outbox JSONL records',
       linkedRecordCount: readModel.linkedRecordCount,
       manualRequiredCount: readModel.manualRequiredCount,
       unavailableCount: readModel.unavailableCount,
@@ -63,7 +59,7 @@ async function main() {
       adapterDispatchClaimed: readModel.adapterDispatchClaimed,
     },
     claimsProved: [
-      'Local-outbox-eligible app/game notification intents parse through the parent-domain intent contract before outbox linking',
+      'Local-outbox-eligible app/game notification intents parse through the central schema-domain intent contract before outbox linking',
       'Eligible intents become existing NotificationLocalOutboxRecord rows with minimal payload fields and parent-owned local path refs',
       'JSONL output is reread through the existing local outbox record parser',
       'Manual-required and unavailable intents are visible in the bridge read model but do not produce queued JSONL records',
@@ -78,10 +74,11 @@ async function main() {
       'policy evaluator execution, adapter dispatch, broad blocking, or platform support',
     ],
     evidence: {
-      bridgeSource: 'packages/parent-domain/src/app-game-notification-local-outbox-bridge.ts',
-      bridgeTest: 'packages/parent-domain/tests/app-game-notification-local-outbox-bridge.test.ts',
-      existingIntentContract: 'packages/parent-domain/src/app-game-notification-intent.ts',
-      existingOutboxContract: 'packages/parent-domain/src/notification-local-outbox-adapter-proof.ts',
+      bridgeSource: 'packages/schema-domain/src/app-game-notification-local-outbox-bridge.ts',
+      intentContract: 'packages/schema-domain/src/app-game-notification-intent.ts',
+      outboxContract: 'packages/schema-domain/src/notification-local-outbox.ts',
+      outboxProof: 'packages/schema-domain/src/notification-local-outbox-adapter-proof.ts',
+      outboxProofTest: 'packages/notification-domain/tests/unit/notification-local-outbox-adapter-proof.test.ts',
       harness: 'scripts/test/app-game-notification-local-outbox-bridge-proof.mjs',
       jsonl: 'test-results/app-game-notification-local-outbox-bridge-proof/local-outbox-records.jsonl',
       appGameProofPack: 'output/app-game-plan-proof/58-notification-local-outbox-bridge',
@@ -96,6 +93,10 @@ async function main() {
 
   console.log('app-game-notification-local-outbox-bridge-proof-ok');
   console.log(`evidence=${relative(repoRoot, join(testOutputDir, 'proof.json'))}`);
+}
+
+async function importSchemaDist(moduleName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', moduleName)).href);
 }
 
 function bridgeOptions() {
@@ -245,9 +246,8 @@ async function writeProofPack(proofDir, proof, label) {
       '',
       `- Branch: ${await gitBranch()}`,
       `- Commit: ${proof.commit}`,
-      '- Scope: app/game notification local outbox bridge from validated notification intents to existing parent-owned local outbox record schema.',
-      '- Source inspected: app/game notification intent contract, notification local outbox adapter proof, notification expectation docs, app/game notification readiness service proof, and app/app-game implementation checklists.',
-      '- Package export and module README update were intentionally not touched because E-B currently owns `packages/parent-domain/package.json` and `packages/parent-domain/README.md`.',
+      '- Scope: central schema-domain app/game notification intent to existing parent-owned local outbox record schema.',
+      '- Source inspected: schema-domain notification intent, local outbox bridge, and the canonical schema-domain local outbox proof surface for downstream validation.',
       '',
     ].join('\n'),
     'utf8'
@@ -257,8 +257,9 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-local-outbox-bridge notification-local-outbox-adapter-proof app-game-notification-intent: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/notification-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/notification-domain -- notification-local-outbox-adapter-proof: PASS',
       '- Eligible app/game notification intents parse before local outbox linking.',
       '- Unsafe provider delivery, raw child evidence, cloud routing, parent UI, and adapter claims are rejected or pinned false.',
       '',
@@ -267,7 +268,7 @@ async function writeProofPack(proofDir, proof, label) {
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust protocol proof not applicable: this workpack reuses the existing WP56 service readiness event and parent-domain local outbox schema without adding a Rust-crossing shape.\n',
+    'Rust protocol proof not applicable: this workpack reuses the central schema-domain local outbox schema without adding a Rust-crossing shape.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof.summary);
@@ -335,8 +336,9 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Validation run:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-local-outbox-bridge notification-local-outbox-adapter-proof app-game-notification-intent: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/notification-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/notification-domain -- notification-local-outbox-adapter-proof: PASS',
       '- node scripts/test/app-game-notification-local-outbox-bridge-proof.mjs: PASS',
       '',
     ].join('\n'),

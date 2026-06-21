@@ -3,8 +3,8 @@ import {
   ProductionSupportDataExportDeleteLifecycleProofSchema,
   ProductionSupportDataExportDeleteLifecycleRowSchema,
   summarizeProductionSupportDataExportDeleteLifecycleRows,
-} from '../../src/production-support-data-export-delete-lifecycle-proof';
-import { ProductionSupportDataExportDeleteLifecycleReadModel } from '../../src/production-support-data-export-delete-lifecycle-read-model';
+} from '@ocentra-parent/schema-domain/production-support-data-export-delete-lifecycle-proof';
+import { ProductionSupportDataExportDeleteLifecycleReadModel } from '@ocentra-parent/schema-domain/production-support-data-export-delete-lifecycle-read-model';
 
 describe('production support data export delete lifecycle proof', () => {
   it('accepts export and delete lifecycle rows without runtime or custody overclaims', () => {

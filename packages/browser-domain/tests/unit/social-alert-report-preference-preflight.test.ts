@@ -12,7 +12,7 @@ import {
   SocialAlertReportParentCopyToken,
   SocialAlertReportPayloadField,
   SocialAlertReportReasonCode,
-} from '../../src/social-alert-report-intent';
+} from '@ocentra-parent/schema-domain/social-alert-report-intent';
 import {
   buildSocialAlertReportLocalOutboxBridgeReadModel,
   type SocialAlertReportLocalOutboxBridgeReadModel,

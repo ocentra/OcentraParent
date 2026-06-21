@@ -17,6 +17,7 @@ async function main() {
   await mkdir(join(appGameProofDir, '06-ui-snapshots'), { recursive: true });
   await mkdir(join(appProofDir, '06-ui-snapshots'), { recursive: true });
 
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/agent-protocol-domain']));
   await runCommand(
     ...npmCommand([
@@ -30,6 +31,11 @@ async function main() {
   );
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'app_game_policy_readiness']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'app_game_policy_readiness']);
+  const schemaPolicyReadiness = await import('@ocentra-parent/schema-domain/app-game-policy-readiness');
+  commands.push('node import @ocentra-parent/schema-domain/app-game-policy-readiness');
+  if (!('AgentAppGamePolicyReadinessReadModelSchema' in schemaPolicyReadiness)) {
+    throw new Error('Missing AgentAppGamePolicyReadinessReadModelSchema export from schema-domain');
+  }
 
   const proof = {
     schemaVersion: 1,
@@ -41,6 +47,7 @@ async function main() {
       command: 'agent.activity.app-game.policy-readiness.read-model.get',
       event: 'agent.activity.app-game.policy-readiness.read-model.reported',
       payloadField: 'appGamePolicyReadinessReadModel',
+      schemaOwner: '@ocentra-parent/schema-domain/app-game-policy-readiness',
       readinessRows: [
         'policyEvidence',
         'approvalAuthority',
@@ -51,6 +58,7 @@ async function main() {
       adapterDispatchClaimed: false,
     },
     claimsProved: [
+      'schema-domain owns the app/game policy readiness read-model contract surface',
       'TypeScript protocol parses the dedicated app/game policy readiness event payload',
       'Rust protocol serializes readiness rows and read model with adapterDispatchClaimed=false',
       'Agent service answers the policy readiness command from the existing activity store app-game service read model',
@@ -65,8 +73,9 @@ async function main() {
       'adapter execution, broad installed-app blocking, or platform support',
     ],
     evidence: {
-      typescriptContract: 'packages/agent-protocol-domain/src/app-game-policy-readiness.ts',
-      typescriptTest: 'packages/agent-protocol-domain/tests/app-game-policy-readiness.test.ts',
+      schemaContract: 'packages/schema-domain/src/app-game-policy-readiness.ts',
+      typescriptConsumer: 'packages/agent-protocol-domain/src/app-game-policy-readiness.ts',
+      typescriptConsumerTest: 'packages/agent-protocol-domain/tests/unit/app-game-policy-readiness.test.ts',
       rustProtocol: 'crates/agent-protocol/src/app_game_policy_readiness.rs',
       rustProtocolTest: 'crates/agent-protocol/src/app_game_policy_readiness_tests.rs',
       servicePayload: 'crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs',
@@ -95,7 +104,7 @@ async function writeProofPack(proofDir, proof, label) {
       `- Branch: ${await gitBranch()}`,
       `- Commit: ${proof.commit}`,
       '- Scope: service-backed app/game policy readiness read model.',
-      '- Source inspected: existing app/game boundary read-model protocol, activity API, WebSocket routing, and activity store app-game service model.',
+      '- Source inspected: schema-domain policy-readiness contract, agent-protocol consumer/parser, activity API, WebSocket routing, and activity store app-game service model.',
       '- Portal UI, product checklist, policy evaluator execution, notifications, adapters, and platform support are intentionally not changed.',
       '',
     ].join('\n'),
@@ -106,7 +115,9 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
       '- cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain: PASS',
+      '- node import @ocentra-parent/schema-domain/app-game-policy-readiness: PASS',
       '- cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- app-game-policy-readiness: PASS',
       '- Parser accepts only the dedicated policy readiness event and rejects adapterDispatchClaimed=true.',
       '',
@@ -189,7 +200,9 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Validation run:',
       '',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
       '- cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain: PASS',
+      '- node import @ocentra-parent/schema-domain/app-game-policy-readiness: PASS',
       '- cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- app-game-policy-readiness: PASS',
       '- cargo test -p ocentra-parent-agent-protocol app_game_policy_readiness: PASS',
       '- cargo test -p ocentra-parent-agent-service app_game_policy_readiness: PASS',

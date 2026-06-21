@@ -1,6 +1,6 @@
 use ocentra_evidence::ManualReviewState;
 use ocentra_parent_agent_protocol::{constants, TrackingChildDeviceId};
-use ocentra_tracking_core::{
+use ocentra_tracking_core::status::{
     TrackingBackgroundCapabilityState, TrackingChargingState, TrackingConnectivityState,
     TrackingLowPowerModeState, TrackingPermissionState, TrackingPlatformState, TrackingRadioState,
     TrackingRuntimeServiceState,
@@ -13,8 +13,8 @@ fn child_device_id() -> TrackingChildDeviceId {
 
 #[test]
 fn device_status_reports_live_when_runtime_inputs_are_healthy() {
-    let decision = ocentra_tracking_core::evaluate_tracking_device_status(
-        ocentra_tracking_core::TrackingDeviceStatusInput {
+    let decision = ocentra_tracking_core::status::evaluate_tracking_device_status(
+        ocentra_tracking_core::status::TrackingDeviceStatusInput {
             child_device_id: child_device_id(),
             last_heartbeat_age_seconds: 45,
             last_location_sample_age_seconds: 30,
@@ -39,8 +39,8 @@ fn device_status_reports_live_when_runtime_inputs_are_healthy() {
 
 #[test]
 fn device_status_reports_stale_without_claiming_live_location() {
-    let decision = ocentra_tracking_core::evaluate_tracking_device_status(
-        ocentra_tracking_core::TrackingDeviceStatusInput {
+    let decision = ocentra_tracking_core::status::evaluate_tracking_device_status(
+        ocentra_tracking_core::status::TrackingDeviceStatusInput {
             child_device_id: child_device_id(),
             last_heartbeat_age_seconds: 360,
             last_location_sample_age_seconds: 320,
@@ -72,8 +72,8 @@ fn device_status_reports_stale_without_claiming_live_location() {
 
 #[test]
 fn device_status_reports_pending_upload_backlog_explicitly() {
-    let decision = ocentra_tracking_core::evaluate_tracking_device_status(
-        ocentra_tracking_core::TrackingDeviceStatusInput {
+    let decision = ocentra_tracking_core::status::evaluate_tracking_device_status(
+        ocentra_tracking_core::status::TrackingDeviceStatusInput {
             child_device_id: child_device_id(),
             last_heartbeat_age_seconds: 45,
             last_location_sample_age_seconds: 45,
@@ -99,8 +99,8 @@ fn device_status_reports_pending_upload_backlog_explicitly() {
 
 #[test]
 fn device_status_reports_service_disabled_explicitly() {
-    let decision = ocentra_tracking_core::evaluate_tracking_device_status(
-        ocentra_tracking_core::TrackingDeviceStatusInput {
+    let decision = ocentra_tracking_core::status::evaluate_tracking_device_status(
+        ocentra_tracking_core::status::TrackingDeviceStatusInput {
             child_device_id: child_device_id(),
             last_heartbeat_age_seconds: 10,
             last_location_sample_age_seconds: 10,
@@ -124,8 +124,8 @@ fn device_status_reports_service_disabled_explicitly() {
 
 #[test]
 fn capability_status_distinguishes_foreground_only_background_ready_and_approximate_only() {
-    let foreground_only = ocentra_tracking_core::evaluate_tracking_capability_status(
-        ocentra_tracking_core::TrackingCapabilityStatusInput {
+    let foreground_only = ocentra_tracking_core::status::evaluate_tracking_capability_status(
+        ocentra_tracking_core::status::TrackingCapabilityStatusInput {
             permission_state: TrackingPermissionState::GrantedForeground,
             platform_state: TrackingPlatformState::Android,
             background_capability_state: TrackingBackgroundCapabilityState::Ready,
@@ -134,8 +134,8 @@ fn capability_status_distinguishes_foreground_only_background_ready_and_approxim
             device_status: constants::tracking_runtime::DEVICE_STATUS_LIVE,
         },
     );
-    let background_ready = ocentra_tracking_core::evaluate_tracking_capability_status(
-        ocentra_tracking_core::TrackingCapabilityStatusInput {
+    let background_ready = ocentra_tracking_core::status::evaluate_tracking_capability_status(
+        ocentra_tracking_core::status::TrackingCapabilityStatusInput {
             permission_state: TrackingPermissionState::GrantedBackground,
             platform_state: TrackingPlatformState::Android,
             background_capability_state: TrackingBackgroundCapabilityState::Ready,
@@ -144,8 +144,8 @@ fn capability_status_distinguishes_foreground_only_background_ready_and_approxim
             device_status: constants::tracking_runtime::DEVICE_STATUS_LIVE,
         },
     );
-    let approximate_only = ocentra_tracking_core::evaluate_tracking_capability_status(
-        ocentra_tracking_core::TrackingCapabilityStatusInput {
+    let approximate_only = ocentra_tracking_core::status::evaluate_tracking_capability_status(
+        ocentra_tracking_core::status::TrackingCapabilityStatusInput {
             permission_state: TrackingPermissionState::ApproximateOnly,
             platform_state: TrackingPlatformState::Android,
             background_capability_state: TrackingBackgroundCapabilityState::PermissionRequired,
@@ -171,8 +171,8 @@ fn capability_status_distinguishes_foreground_only_background_ready_and_approxim
 
 #[test]
 fn capability_status_requires_action_for_permission_platform_and_service_failures() {
-    let permission_required = ocentra_tracking_core::evaluate_tracking_capability_status(
-        ocentra_tracking_core::TrackingCapabilityStatusInput {
+    let permission_required = ocentra_tracking_core::status::evaluate_tracking_capability_status(
+        ocentra_tracking_core::status::TrackingCapabilityStatusInput {
             permission_state: TrackingPermissionState::Denied,
             platform_state: TrackingPlatformState::Android,
             background_capability_state: TrackingBackgroundCapabilityState::PermissionRequired,
@@ -181,8 +181,8 @@ fn capability_status_requires_action_for_permission_platform_and_service_failure
             device_status: constants::tracking_runtime::DEVICE_STATUS_LIVE,
         },
     );
-    let platform_unsupported = ocentra_tracking_core::evaluate_tracking_capability_status(
-        ocentra_tracking_core::TrackingCapabilityStatusInput {
+    let platform_unsupported = ocentra_tracking_core::status::evaluate_tracking_capability_status(
+        ocentra_tracking_core::status::TrackingCapabilityStatusInput {
             permission_state: TrackingPermissionState::GrantedBackground,
             platform_state: TrackingPlatformState::Unsupported,
             background_capability_state: TrackingBackgroundCapabilityState::Unsupported,
@@ -191,8 +191,8 @@ fn capability_status_requires_action_for_permission_platform_and_service_failure
             device_status: constants::tracking_runtime::DEVICE_STATUS_LIVE,
         },
     );
-    let adapter_error = ocentra_tracking_core::evaluate_tracking_capability_status(
-        ocentra_tracking_core::TrackingCapabilityStatusInput {
+    let adapter_error = ocentra_tracking_core::status::evaluate_tracking_capability_status(
+        ocentra_tracking_core::status::TrackingCapabilityStatusInput {
             permission_state: TrackingPermissionState::GrantedBackground,
             platform_state: TrackingPlatformState::Android,
             background_capability_state: TrackingBackgroundCapabilityState::Ready,
@@ -220,8 +220,8 @@ fn capability_status_requires_action_for_permission_platform_and_service_failure
 
 #[test]
 fn capability_status_tracks_runtime_degradation_from_device_status() {
-    let offline_last_known = ocentra_tracking_core::evaluate_tracking_capability_status(
-        ocentra_tracking_core::TrackingCapabilityStatusInput {
+    let offline_last_known = ocentra_tracking_core::status::evaluate_tracking_capability_status(
+        ocentra_tracking_core::status::TrackingCapabilityStatusInput {
             permission_state: TrackingPermissionState::GrantedBackground,
             platform_state: TrackingPlatformState::Android,
             background_capability_state: TrackingBackgroundCapabilityState::Ready,
@@ -230,8 +230,8 @@ fn capability_status_tracks_runtime_degradation_from_device_status() {
             device_status: constants::tracking_runtime::DEVICE_STATUS_OFFLINE_LAST_KNOWN_ONLY,
         },
     );
-    let battery_throttled = ocentra_tracking_core::evaluate_tracking_capability_status(
-        ocentra_tracking_core::TrackingCapabilityStatusInput {
+    let battery_throttled = ocentra_tracking_core::status::evaluate_tracking_capability_status(
+        ocentra_tracking_core::status::TrackingCapabilityStatusInput {
             permission_state: TrackingPermissionState::GrantedBackground,
             platform_state: TrackingPlatformState::Android,
             background_capability_state: TrackingBackgroundCapabilityState::Ready,

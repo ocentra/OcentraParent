@@ -4,7 +4,9 @@ use std::{
     sync::atomic::{AtomicU64, Ordering},
 };
 
-use ocentra_parent_agent_core::{ActivityStore, ForegroundWindowObservation};
+use ocentra_parent_agent_core::{
+    activity_store::ActivityStore, window_capture::ForegroundWindowObservation,
+};
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, SCREEN_CATEGORY_UNKNOWN,
     SCREEN_PROVIDER_SERVICE_METADATA, SCREEN_SERVICE_FOREGROUND_KEY_WINDOW_PREFIX,

@@ -2,51 +2,80 @@ use ocentra_parent_agent_protocol::{
     constants, ActivityEvidenceKind, ActivityEvidenceRef, ActivityReadModelState,
     ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind,
     AppGameAiClassifierResult, AppGameControlActionResult, AppGameControlApprovalAuthority,
-    AppGameControlApprovalDecision, AppGameControlApprovalRequest, AppGameControlSettingReference,
+    AppGameControlApprovalDecision, AppGameControlApprovalRequest,
     AppGameEnforcementCapabilityStatus, AppGameEvidenceClaim, AppGameIdentity,
     AppGameInventoryEvidenceRow, AppGameParentActionReference, AppGameParentActorReference,
     AppGameParentDeviceReference, AppGameParentEvidenceReference, AppGamePlatformAuthorityMatrix,
-    AppGamePlatformAuthorityRow, AppGamePolicyTarget, AppGameServiceReadModel,
-    ACTIVITY_SURFACE_SCHEMA_VERSION, APP_GAME_AI_CLASSIFIER_CANDIDATE_UNKNOWN_IDENTITY,
-    APP_GAME_AI_CLASSIFIER_DIGEST_INVENTORY,
-    APP_GAME_AI_CLASSIFIER_FALLBACK_LOCAL_MODEL_UNAVAILABLE,
-    APP_GAME_AI_CLASSIFIER_HANDOFF_MANUAL_REVIEW, APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_APP,
-    APP_GAME_AI_CLASSIFIER_STATE_PROVIDER_UNAVAILABLE, APP_GAME_CAPABILITY_STATUS_AVAILABLE,
+    AppGameServiceReadModel, ACTIVITY_SURFACE_SCHEMA_VERSION, APP_GAME_CAPABILITY_STATUS_AVAILABLE,
     APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_CLASSIFICATION_KNOWN_GAME,
     APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED,
     APP_GAME_CONTROL_APPROVAL_STATE_MANUAL_REQUIRED, APP_GAME_CONTROL_AUTHORITY_ACTIVE,
-    APP_GAME_CONTROL_CHILD_REASON_NOT_REQUESTED, APP_GAME_CONTROL_DECISION_DENIED,
-    APP_GAME_CONTROL_EVIDENCE_PROOF_LAUNCHER_ONLY, APP_GAME_CONTROL_PERSISTENCE_NOT_PERSISTED,
-    APP_GAME_CONTROL_POLICY_KIND_APP, APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY,
-    APP_GAME_ENFORCEMENT_ADAPTER_PROCESS_CONTROL, APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED,
-    APP_GAME_ENFORCEMENT_DEPENDENCY_INSTALLED, APP_GAME_ENFORCEMENT_PERMISSION_ALLOWED,
-    APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY, APP_GAME_FOREGROUND_NOT_CLAIMED,
-    APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC, APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED,
-    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE,
-    APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED, APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN,
+    APP_GAME_CONTROL_CHILD_REASON_NOT_REQUESTED, APP_GAME_CONTROL_POLICY_KIND_APP,
+    APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY, APP_GAME_ENFORCEMENT_ADAPTER_PROCESS_CONTROL,
+    APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED, APP_GAME_INVENTORY_STATE_INSTALLED,
+    APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE, APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED,
     APP_GAME_PARENT_ACTOR_ROLE_PARENT, APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
     APP_GAME_PARENT_EVIDENCE_KIND_ACTIVITY_EVENT, APP_GAME_PARENT_PLATFORM_WINDOWS,
-    APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH, APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED,
-    APP_GAME_PLATFORM_PROOF_KIND_ROLLBACK, APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER,
-    APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED, APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED,
-    APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED, APP_GAME_POLICY_ACTION_BLOCK,
+    APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH, APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
     APP_GAME_POLICY_TARGET_TYPE_APP, APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_PRODUCT_NATIVE_GAME,
-    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_ACTION_REFERENCE_ID,
-    APP_GAME_TEST_ACTION_RESULT_ID, APP_GAME_TEST_AUTHORITY_ID, APP_GAME_TEST_CATALOG_REF,
-    APP_GAME_TEST_CHILD_PROFILE_ID, APP_GAME_TEST_CLASSIFIER_DIGEST_REF,
-    APP_GAME_TEST_CLASSIFIER_EVIDENCE_REF, APP_GAME_TEST_CLASSIFIER_LABEL,
-    APP_GAME_TEST_CLASSIFIER_PROMPT_REF, APP_GAME_TEST_CLASSIFIER_REASON_CODE,
-    APP_GAME_TEST_CLASSIFIER_RUNTIME_REF, APP_GAME_TEST_CLASSIFIER_RUN_ID,
-    APP_GAME_TEST_DECISION_ID, APP_GAME_TEST_DEVICE_ID, APP_GAME_TEST_DEVICE_LABEL,
-    APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_EVIDENCE_CLAIM_ID, APP_GAME_TEST_EVIDENCE_REF_ID,
-    APP_GAME_TEST_GAME_DISPLAY_LABEL, APP_GAME_TEST_IDENTITY_ID, APP_GAME_TEST_PARENT_ACTOR_ID,
-    APP_GAME_TEST_PLATFORM_MATRIX_ID, APP_GAME_TEST_POLICY_VERSION, APP_GAME_TEST_REQUEST_ID,
-    APP_GAME_TEST_SETTING_ID, APP_GAME_TEST_SETTING_PATH, APP_GAME_TEST_TARGET_ID,
-    APP_GAME_TEST_TARGET_VALUE, APP_GAME_TEST_TIMESTAMP, APP_GAME_TEST_WINDOWS_LIMITATION,
-    APP_GAME_TEST_WINDOWS_ROW_ID,
+    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL,
 };
 
 use super::{app_use_read_model, games_read_model};
+
+const APP_GAME_AI_CLASSIFIER_CANDIDATE_UNKNOWN_IDENTITY: &str = "unknownIdentityCandidate";
+const APP_GAME_AI_CLASSIFIER_DIGEST_INVENTORY: &str = "inventoryEvidence";
+const APP_GAME_AI_CLASSIFIER_FALLBACK_LOCAL_MODEL_UNAVAILABLE: &str = "localModelUnavailable";
+const APP_GAME_AI_CLASSIFIER_HANDOFF_MANUAL_REVIEW: &str = "manualReview";
+const APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_APP: &str = "unknownApp";
+const APP_GAME_AI_CLASSIFIER_STATE_PROVIDER_UNAVAILABLE: &str = "providerUnavailable";
+const APP_GAME_CONTROL_DECISION_DENIED: &str = "denied";
+const APP_GAME_CONTROL_EVIDENCE_PROOF_LAUNCHER_ONLY: &str = "launcher-only";
+const APP_GAME_CONTROL_PERSISTENCE_NOT_PERSISTED: &str = "not-persisted";
+const APP_GAME_ENFORCEMENT_DEPENDENCY_INSTALLED: &str = "installed";
+const APP_GAME_ENFORCEMENT_PERMISSION_ALLOWED: &str = "allowed";
+const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &str = "inventory";
+const APP_GAME_FOREGROUND_NOT_CLAIMED: &str = "notClaimed";
+const APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC: &str = "deterministic";
+const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &str = "catalogMatched";
+const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &str = "inventoryScan";
+const APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED: &str = "manual-required";
+const APP_GAME_PLATFORM_PROOF_KIND_ROLLBACK: &str = "rollback-proof";
+const APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER: &str = "windows-applocker-proof";
+const APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED: &str = "manual-required";
+const APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED: &str = "manual-required";
+const APP_GAME_POLICY_ACTION_BLOCK: &str = "block";
+const APP_GAME_TEST_ACTION_REFERENCE_ID: &str = "parent-action-app-game-1";
+const APP_GAME_TEST_ACTION_RESULT_ID: &str = "action-result-app-game-1";
+const APP_GAME_TEST_AUTHORITY_ID: &str = "authority-app-game-1";
+const APP_GAME_TEST_CATALOG_REF: &str = "catalog-ref-ocentra-game";
+const APP_GAME_TEST_CHILD_PROFILE_ID: &str = "child-app-game-1";
+const APP_GAME_TEST_CLASSIFIER_DIGEST_REF: &str = "classifier-digest-app-game-1";
+const APP_GAME_TEST_CLASSIFIER_EVIDENCE_REF: &str = "classifier-evidence-app-game-1";
+const APP_GAME_TEST_CLASSIFIER_LABEL: &str = "Possible native game";
+const APP_GAME_TEST_CLASSIFIER_PROMPT_REF: &str = "prompt-app-game-classifier";
+const APP_GAME_TEST_CLASSIFIER_REASON_CODE: &str = "unknown-game-like";
+const APP_GAME_TEST_CLASSIFIER_RUNTIME_REF: &str = "local-ai-runtime-app-game";
+const APP_GAME_TEST_CLASSIFIER_RUN_ID: &str = "classifier-run-app-game-1";
+const APP_GAME_TEST_DECISION_ID: &str = "approval-decision-app-game-1";
+const APP_GAME_TEST_DEVICE_ID: &str = "device-windows-app-game-1";
+const APP_GAME_TEST_DEVICE_LABEL: &str = "Study PC";
+const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &str = "claim-ocentra-inventory";
+const APP_GAME_TEST_EVIDENCE_REF_ID: &str = "evidence-app-game-session-1";
+const APP_GAME_TEST_GAME_DISPLAY_LABEL: &str = "Ocentra Game Fixture";
+const APP_GAME_TEST_IDENTITY_ID: &str = "identity-ocentra-game";
+const APP_GAME_TEST_PARENT_ACTOR_ID: &str = "parent-actor-app-game-1";
+const APP_GAME_TEST_PLATFORM_MATRIX_ID: &str = "app-game-platform-authority-matrix";
+const APP_GAME_TEST_POLICY_VERSION: &str = "policy-version-app-game-1";
+const APP_GAME_TEST_REQUEST_ID: &str = "approval-request-app-game-1";
+const APP_GAME_TEST_SETTING_ID: &str = "app.enforcement.allowedActions";
+const APP_GAME_TEST_SETTING_PATH: &str = "/appPolicy/enforcement/allowedActions";
+const APP_GAME_TEST_TARGET_ID: &str = "target-app-game-1";
+const APP_GAME_TEST_TARGET_VALUE: &str = "process:ocentra-game.exe";
+const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
+const APP_GAME_TEST_WINDOWS_LIMITATION: &str =
+    "Broad installed-app blocking needs AppLocker or App Control proof before execution.";
+const APP_GAME_TEST_WINDOWS_ROW_ID: &str = "windows-block-launch-row";
 
 #[test]
 fn app_use_read_model_preserves_app_game_boundary_evidence_refs() {
@@ -265,30 +294,31 @@ fn manual_action_result() -> AppGameControlActionResult {
 }
 
 fn approval_request() -> AppGameControlApprovalRequest {
-    AppGameControlApprovalRequest {
-        schema_version: APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION.to_string(),
-        request_id: APP_GAME_TEST_REQUEST_ID.to_string(),
-        policy_kind: APP_GAME_CONTROL_POLICY_KIND_APP.to_string(),
-        device: child_device(),
-        target: AppGamePolicyTarget {
-            target_id: APP_GAME_TEST_TARGET_ID.to_string(),
-            target_type: APP_GAME_POLICY_TARGET_TYPE_APP.to_string(),
-            target_value: APP_GAME_TEST_TARGET_VALUE.to_string(),
+    serde_json::from_value(serde_json::json!({
+        "schemaVersion": APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
+        "requestId": APP_GAME_TEST_REQUEST_ID,
+        "policyKind": APP_GAME_CONTROL_POLICY_KIND_APP,
+        "device": child_device(),
+        "target": {
+            "targetId": APP_GAME_TEST_TARGET_ID,
+            "targetType": APP_GAME_POLICY_TARGET_TYPE_APP,
+            "targetValue": APP_GAME_TEST_TARGET_VALUE
         },
-        requested_action: APP_GAME_POLICY_ACTION_BLOCK.to_string(),
-        requested_mode: None,
-        requested_setting_refs: vec![AppGameControlSettingReference {
-            setting_id: APP_GAME_TEST_SETTING_ID.to_string(),
-            writes_to: APP_GAME_TEST_SETTING_PATH.to_string(),
+        "requestedAction": APP_GAME_POLICY_ACTION_BLOCK,
+        "requestedMode": null,
+        "requestedSettingRefs": [{
+            "settingId": APP_GAME_TEST_SETTING_ID,
+            "writesTo": APP_GAME_TEST_SETTING_PATH
         }],
-        evidence_references: vec![parent_evidence()],
-        candidate: None,
-        child_reason_state: APP_GAME_CONTROL_CHILD_REASON_NOT_REQUESTED.to_string(),
-        child_reason_references: Vec::new(),
-        child_status_references: Vec::new(),
-        expires_at: APP_GAME_TEST_TIMESTAMP.to_string(),
-        unanswered_fallback: APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY.to_string(),
-    }
+        "evidenceReferences": [parent_evidence()],
+        "candidate": null,
+        "childReasonState": APP_GAME_CONTROL_CHILD_REASON_NOT_REQUESTED,
+        "childReasonReferences": [],
+        "childStatusReferences": [],
+        "expiresAt": APP_GAME_TEST_TIMESTAMP,
+        "unansweredFallback": APP_GAME_CONTROL_UNANSWERED_FALLBACK_DENY
+    }))
+    .expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn approval_decision() -> AppGameControlApprovalDecision {
@@ -316,34 +346,35 @@ fn approval_decision() -> AppGameControlApprovalDecision {
 }
 
 fn platform_matrix() -> AppGamePlatformAuthorityMatrix {
-    AppGamePlatformAuthorityMatrix {
-        schema_version: APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION.to_string(),
-        matrix_id: APP_GAME_TEST_PLATFORM_MATRIX_ID.to_string(),
-        rows: vec![AppGamePlatformAuthorityRow {
-            schema_version: APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION.to_string(),
-            row_id: APP_GAME_TEST_WINDOWS_ROW_ID.to_string(),
-            platform: APP_GAME_PARENT_PLATFORM_WINDOWS.to_string(),
-            action: APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH.to_string(),
-            authority_tier: APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED.to_string(),
-            setup_state: APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED.to_string(),
-            proof_state: APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED.to_string(),
-            capability_state: APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED.to_string(),
-            parent_visible_state: APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED.to_string(),
-            parent_visible_limitation: APP_GAME_TEST_WINDOWS_LIMITATION.to_string(),
-            can_execute_adapter: false,
-            supported_modes: Vec::new(),
-            proof_references: Vec::new(),
-            proof_needed_to_claim: vec![
-                APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER.to_string(),
-                APP_GAME_PLATFORM_PROOF_KIND_ROLLBACK.to_string(),
+    serde_json::from_value(serde_json::json!({
+        "schemaVersion": APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
+        "matrixId": APP_GAME_TEST_PLATFORM_MATRIX_ID,
+        "rows": [{
+            "schemaVersion": APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
+            "rowId": APP_GAME_TEST_WINDOWS_ROW_ID,
+            "platform": APP_GAME_PARENT_PLATFORM_WINDOWS,
+            "action": APP_GAME_PLATFORM_ACTION_BLOCK_LAUNCH,
+            "authorityTier": APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
+            "setupState": APP_GAME_PLATFORM_SETUP_MANUAL_REQUIRED,
+            "proofState": APP_GAME_PLATFORM_PROOF_STATE_MANUAL_REQUIRED,
+            "capabilityState": APP_GAME_ENFORCEMENT_CAPABILITY_MANUAL_REQUIRED,
+            "parentVisibleState": APP_GAME_PLATFORM_PARENT_VISIBLE_MANUAL_REQUIRED,
+            "parentVisibleLimitation": APP_GAME_TEST_WINDOWS_LIMITATION,
+            "canExecuteAdapter": false,
+            "supportedModes": [],
+            "proofReferences": [],
+            "proofNeededToClaim": [
+                APP_GAME_PLATFORM_PROOF_KIND_WINDOWS_APPLOCKER,
+                APP_GAME_PLATFORM_PROOF_KIND_ROLLBACK
             ],
-            linux_mechanism: None,
-            linux_distro: None,
-            linux_session: None,
-            last_checked_at: APP_GAME_TEST_TIMESTAMP.to_string(),
+            "linuxMechanism": null,
+            "linuxDistro": null,
+            "linuxSession": null,
+            "lastCheckedAt": APP_GAME_TEST_TIMESTAMP
         }],
-        generated_at: APP_GAME_TEST_TIMESTAMP.to_string(),
-    }
+        "generatedAt": APP_GAME_TEST_TIMESTAMP
+    }))
+    .expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn classifier_result() -> AppGameAiClassifierResult {

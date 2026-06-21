@@ -6,7 +6,7 @@ import { dirname, join, relative } from 'node:path';
 import {
   BrowserGameUnblockedSiteDetectionSchema,
   BrowserGameUnblockedSiteSignalSchema,
-} from '../../packages/parent-domain/dist/browser-game-unblocked-site-detection.js';
+} from '@ocentra-parent/schema-domain/browser-game-unblocked-site-detection';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-unblocked-site-detection-live-evidence-proof';

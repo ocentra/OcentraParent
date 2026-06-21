@@ -4,12 +4,8 @@ import {
   BillingAccountRuntimeEntitlementSigningBoundarySchema,
   BillingAccountRuntimeOperationRowSchema,
   BillingAccountRuntimeStatusRowSchema,
-} from '../../src/billing-account-runtime-boundary';
-import { BillingAccountRuntimeBoundaryProofReadModel } from '../../src/billing-account-runtime-boundary-proof';
-import {
-  summarizeBillingAccountRuntimeOperations,
-  summarizeBillingAccountRuntimeStatuses,
-} from '../../src/billing-account-runtime-boundary-values';
+} from '@ocentra-parent/schema-domain/billing-account-runtime-boundary';
+import { BillingAccountRuntimeBoundaryProofReadModel } from '@ocentra-parent/schema-domain/billing-account-runtime-boundary-proof';
 
 describe('billing account runtime boundary', () => {
   acceptsBillingAccountRuntimeBoundaryProof();
@@ -216,4 +212,57 @@ function requiredFailure(failureKind: 'validation-failed') {
     throw new Error(`missing billing failure state: ${failureKind}`);
   }
   return failure;
+}
+
+function summarizeBillingAccountRuntimeStatuses(
+  rows: ReadonlyArray<{ readonly accountStatus: string }>
+): Record<
+  'trialing' | 'active' | 'past-due' | 'backend-unavailable' | 'provider-unavailable' | 'manual-review',
+  number
+> {
+  return countKnownValues(
+    ['trialing', 'active', 'past-due', 'backend-unavailable', 'provider-unavailable', 'manual-review'],
+    rows,
+    'accountStatus'
+  );
+}
+
+function summarizeBillingAccountRuntimeOperations(
+  rows: ReadonlyArray<{ readonly operation: string }>
+): Record<
+  | 'account-status-read'
+  | 'subscription-status-read'
+  | 'entitlement-snapshot-read'
+  | 'device-limit-decision-read'
+  | 'download-status-read'
+  | 'provider-webhook-sync',
+  number
+> {
+  return countKnownValues(
+    [
+      'account-status-read',
+      'subscription-status-read',
+      'entitlement-snapshot-read',
+      'device-limit-decision-read',
+      'download-status-read',
+      'provider-webhook-sync',
+    ],
+    rows,
+    'operation'
+  );
+}
+
+function countKnownValues<const Value extends string, const Key extends string>(
+  values: readonly Value[],
+  rows: ReadonlyArray<{ readonly [Field in Key]: Value }>,
+  key: Key
+): Record<Value, number> {
+  const counts = {} as Record<Value, number>;
+  for (const value of values) {
+    counts[value] = 0;
+  }
+  for (const row of rows) {
+    counts[row[key]] += 1;
+  }
+  return counts;
 }

@@ -3,6 +3,7 @@ use ocentra_parent_agent_protocol::{
     SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATE_MANUAL,
     SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATE_UNAVAILABLE,
 };
+use ocentra_parent_agent_protocol::social_alert_report_parent_surface_read_model::SocialAlertReportParentSurfaceReadModelSnapshot;
 
 use super::social_alert_report_parent_surface_read_model_payload::{
     parent_surface_payload, request_social_alert_report_parent_surface_read_model_from_service,
@@ -57,7 +58,7 @@ fn parent_surface_payload_exposes_status_json_without_delivery_claims() {
     let LogFieldValue::String(json) = json else {
         std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES);
     };
-    let decoded: ocentra_parent_agent_protocol::SocialAlertReportParentSurfaceReadModelSnapshot =
+    let decoded: SocialAlertReportParentSurfaceReadModelSnapshot =
         serde_json::from_str(json).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert!(json.contains(SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATE_MANUAL));

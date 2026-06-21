@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use ocentra_parent_agent_core::ScreenEvidenceExpiredQueueEntry;
+use ocentra_parent_agent_core::screen_evidence_queue::ScreenEvidenceExpiredQueueEntry;
 
 use crate::screen_ai_service_event_bridge::publish_screen_deletion_event_for_queue_job;
 

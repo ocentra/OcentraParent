@@ -16,7 +16,7 @@ import {
   type StoredTestLogLine,
   type TestLogScope as TestLogScopeType,
   type TestLogStats,
-} from './types';
+} from '@ocentra-parent/schema-domain/test-log/types';
 
 const require = createRequire(import.meta.url);
 

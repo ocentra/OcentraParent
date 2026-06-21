@@ -1,8 +1,9 @@
-use crate::{
-    constants, ChildCapabilityState, ChildCapabilityStateUpdatedEvent, ChildCommandAcceptedEvent,
+use crate::child_agent::child_agent_events::{
+    ChildCapabilityState, ChildCapabilityStateUpdatedEvent, ChildCommandAcceptedEvent,
     ChildCommandDecision, ChildCommandKind, ChildCommandReceivedEvent, ChildCommandRejectedEvent,
     ChildRuntimeHealthState, ChildRuntimeHealthUpdatedEvent,
 };
+use crate::constants;
 
 pub(super) fn child_command_received_event() -> ChildCommandReceivedEvent {
     ChildCommandReceivedEvent {

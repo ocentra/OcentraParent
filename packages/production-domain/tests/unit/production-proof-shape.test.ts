@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { countProductionProofValues } from '../../src/production-proof-shape';
+import { countProductionProofValues } from '@ocentra-parent/schema-domain/production-proof-shape';
 
 describe('production proof shape helpers', () => {
   it('counts expected proof values while preserving zero-count entries', () => {

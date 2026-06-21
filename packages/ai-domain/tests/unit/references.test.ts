@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { LocalAiDegradedState } from '../../src/primitives';
-import { LocalAiMemoryReferenceSchema } from '../../src/references';
+import { LocalAiDegradedState } from '@ocentra-parent/schema-domain/ai-primitives';
+import { LocalAiMemoryReferenceSchema } from '@ocentra-parent/schema-domain/ai-references';
 
 describe('ai-domain references', () => {
   it('parses shared AI references through evidence-backed contracts', () => {

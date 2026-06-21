@@ -13,15 +13,15 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-child-device-delivery-readiness-proof.test.ts',
+      'tests/unit/app-install-purchase-child-device-delivery-readiness-proof.test.ts',
     ])
   );
 
@@ -51,14 +51,15 @@ async function main() {
     commands,
     evidence: {
       childDeviceDeliveryReadinessContract:
-        'packages/parent-domain/src/app-install-purchase-child-device-delivery-readiness-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-child-device-delivery-readiness-proof.ts',
       sourceChildDeliveryRuntimeWriterContract:
-        'packages/parent-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-child-device-delivery-runtime-writer-proof.ts',
       sourcePackageSourceAdapterExecutionContract:
-        'packages/parent-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-package-source-adapter-execution-proof.ts',
       sourcePlatformLimitationActionContract:
-        'packages/parent-domain/src/app-install-purchase-platform-limitation-action-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-child-device-delivery-readiness-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-platform-limitation-action-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-child-device-delivery-readiness-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       output: relative(repoRoot, proofPath),
@@ -95,7 +96,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-child-device-delivery-readiness-proof.js'
   );

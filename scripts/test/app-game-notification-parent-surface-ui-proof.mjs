@@ -15,9 +15,9 @@ async function main() {
   await mkdir(appGameProofDir, { recursive: true });
   await mkdir(appProofDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/text-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal']));
   await runCommand(
     ...npmCommand([
       'exec',
@@ -41,9 +41,10 @@ async function main() {
     commands,
     rendererAssertions,
     evidence: {
+      notificationSurfaceSchema: 'packages/schema-domain/src/app-game-notification-parent-surface-intent.ts',
       routePanel: 'apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx',
-      panelIntentReexport: 'apps/portal/src/app-game-notification-parent-surface-panel.ts',
       portalDomainPanelIntent: 'packages/portal-domain/src/app-game-notification-parent-surface-panel.ts',
+      portalDomainUnitTest: 'packages/portal-domain/tests/unit/app-game-notification-parent-surface-panel.test.ts',
       portalTest: 'apps/portal/tests/app-game-notification-parent-surface-panel.test.ts',
       proofHarness: 'scripts/test/app-game-notification-parent-surface-ui-proof.mjs',
       appGameProofPack: 'output/app-game-plan-proof/67-notification-parent-surface-renderer',
@@ -95,7 +96,7 @@ async function collectRendererAssertions() {
 
   return {
     routeGateAssertion:
-      routePanelSource.includes('PortalRoute.AppGameSessions') &&
+      routePanelSource.includes('isPortalAppGameParentSurfaceRoute') &&
       portalTestSource.includes('mounts only on the App/Game Sessions route'),
     schemaBackedRowsAssertion:
       panelIntentSource.includes('AppGameNotificationParentSurfaceIntentReadModelSchema') &&

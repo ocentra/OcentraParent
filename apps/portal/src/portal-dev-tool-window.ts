@@ -1,12 +1,10 @@
+import { PortalDom, PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
 import {
   PortalDevToolWindow,
-  PortalDom,
   PortalRoute,
-  PortalText,
-  PortalTextToken,
   portalDevToolUrl,
   type PortalDevToolUrl,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/routes';
 import { WebviewWindow, getAllWebviewWindows } from '@tauri-apps/api/webviewWindow';
 
 export async function openPortalFrameTunerWindow(): Promise<void> {

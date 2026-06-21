@@ -4,7 +4,7 @@ import {
   AppGameBroadBlockingGateMatrixSchema,
   AppGameBroadBlockingGateSchema,
 } from '../../src/app-game-broad-blocking-proof-gates';
-import { EnforcementMode } from '@ocentra-parent/enforcement-domain/enforcement';
+import { EnforcementMode } from '@ocentra-parent/schema-domain/enforcement';
 
 const gateFor = (gateId: string) => {
   const gate = AppGameBroadBlockingGateMatrix.gates.find((candidate) => candidate.gateId === gateId);

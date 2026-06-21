@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{constants, ActivityIngestStatus, AppGameServiceReadModel};
 
 use crate::activity_capture::{record_activity_capture_to_paths_at, ActivityCaptureError};

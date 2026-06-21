@@ -10,9 +10,25 @@ const artifactSummaryPath = join(outputRoot, 'proof-summary.json');
 await main();
 
 async function main() {
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
 
-  const screenEvidence = await import('../../packages/screen-domain/dist/screen-evidence.js');
+  const familyHubRoutingModule = await import(
+    '../../packages/screen-domain/dist/screen-evidence-family-hub-routing.js'
+  );
+  const familyHubRoutingValuesModule = await import(
+    '../../packages/schema-domain/dist/screen-evidence-family-hub-routing-values.js'
+  );
+  const screenEvidence = {
+    planScreenFamilyAiHubRoute: familyHubRoutingModule.planScreenFamilyAiHubRoute,
+    ScreenFamilyAiHubCapabilitySchema: (
+      await import('../../packages/schema-domain/dist/screen-evidence-family-hub-routing.js')
+    ).ScreenFamilyAiHubCapabilitySchema,
+    ScreenFamilyAiHubRouteSchema: (
+      await import('../../packages/schema-domain/dist/screen-evidence-family-hub-routing.js')
+    ).ScreenFamilyAiHubRouteSchema,
+    ScreenFamilyAiHubRouteSchemaVersion: familyHubRoutingValuesModule.ScreenFamilyAiHubRouteSchemaVersion,
+  };
   const selectedRoute = screenEvidence.planScreenFamilyAiHubRoute(routeRequest(screenEvidence));
   const parentDisabledRoute = screenEvidence.planScreenFamilyAiHubRoute({
     ...routeRequest(screenEvidence),

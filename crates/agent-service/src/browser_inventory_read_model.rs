@@ -1,4 +1,4 @@
-use ocentra_parent_agent_core::BrowserWindowsInventoryObservation;
+use ocentra_parent_agent_core::browser_windows_inventory::BrowserWindowsInventoryObservation;
 use ocentra_parent_agent_protocol::{
     constants, BrowserActiveTabCapability, BrowserCapabilityStatus, BrowserChannel,
     BrowserCustodyLabel, BrowserExactUrlCapability, BrowserFamily, BrowserInventoryInstallState,

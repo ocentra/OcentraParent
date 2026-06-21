@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { parseBrowserUrlShape } from '../../src/browser-url-intelligence';
-import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '../../src/browser-social-account-flow-schemas';
 import {
   buildBrowserSocialRouteEvidenceFromUrlPattern,
   matchBrowserSocialUrlPattern,
-} from '../../src/browser-social-url-patterns';
+} from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 import {
+  buildBrowserSocialAccountFlowEvidenceFromRoute,
   BrowserSocialAccountFlowEvidenceSchema,
   BrowserSocialAccountFlowSchemaVersion,
-} from '../../src/browser-social-account-flow-schemas';
+} from '@ocentra-parent/schema-domain/browser-social-account-flow-schemas';
 
 describe('browser social account flow evidence contract', () => {
   it('builds signup route-only account flow evidence from managed social route evidence', buildsSignupEvidence);

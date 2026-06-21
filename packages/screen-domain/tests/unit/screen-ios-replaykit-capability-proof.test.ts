@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   screenIosReplayKitCapabilityProof,
   ScreenIosReplayKitCapabilityRowSchema,
-} from '../../src/screen-ios-replaykit-capability-proof';
+} from '@ocentra-parent/schema-domain/screen-ios-replaykit-capability-proof';
 
 const CheckedAt = '2026-06-07T15:55:00Z';
 

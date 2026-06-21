@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  AgentEvent,
+  AgentEventEnvelopeSchema,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 
 describe('portal policy-preview live activity state', () => {

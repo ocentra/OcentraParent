@@ -10,9 +10,21 @@ const artifactSummaryPath = join(outputRoot, 'proof-summary.json');
 await main();
 
 async function main() {
-  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
-  const screenEvidence = await import('../../packages/screen-domain/dist/screen-evidence.js');
+  const promptPackModule = await import(
+    '../../packages/schema-domain/dist/screen-evidence-detector-prompt-pack.js'
+  );
+  const promptPackValuesModule = await import(
+    '../../packages/schema-domain/dist/screen-evidence-detector-prompt-pack-values.js'
+  );
+  const screenEvidence = {
+    ScreenDetectorPromptDefinitionSchema: promptPackModule.ScreenDetectorPromptDefinitionSchema,
+    ScreenDetectorPromptOutputSchema: promptPackModule.ScreenDetectorPromptOutputSchema,
+    ScreenDetectorPromptPackSchema: promptPackModule.ScreenDetectorPromptPackSchema,
+    ScreenDetectorPromptPackSchemaVersion: promptPackValuesModule.ScreenDetectorPromptPackSchemaVersion,
+    ScreenDetectorRequiredIds: promptPackValuesModule.ScreenDetectorRequiredIds,
+  };
   const pack = screenEvidence.ScreenDetectorPromptPackSchema.parse(promptPack(screenEvidence));
   const validOutput = screenEvidence.ScreenDetectorPromptOutputSchema.parse(detectorOutput(screenEvidence));
   const invalidRows = {

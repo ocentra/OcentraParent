@@ -6,8 +6,8 @@ import {
   BaselineScreenControlCatalog,
   screenControlCatalogSettingCount,
   screenControlCatalogSettings,
-} from '../../src/screen-control-catalog';
-import { ScreenControlCatalogSchema } from '../../src/screen-control-catalog-schema';
+} from '@ocentra-parent/schema-domain/screen-control-catalog';
+import { ScreenControlCatalogSchema } from '@ocentra-parent/schema-domain/screen-control-catalog-schema';
 
 interface SourceBullet {
   readonly sectionTitle: string;

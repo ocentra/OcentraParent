@@ -17,25 +17,19 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
+      'tests/unit/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
     ])
   );
 
   const proofModule = await loadPlatformAdapterEvidenceGapModule();
-  const packageProofModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-platform-adapter-evidence-gap-proof');
-  assert.equal(
-    packageProofModule.AppInstallPurchasePlatformAdapterEvidenceGapProofReadModel.schemaVersion,
-    proofModule.AppInstallPurchasePlatformAdapterEvidenceGapProofReadModel.schemaVersion
-  );
 
   const summary = proofModule.summarizeAppInstallPurchasePlatformAdapterEvidenceGapProof(
     proofModule.AppInstallPurchasePlatformAdapterEvidenceGapProofReadModel
@@ -66,14 +60,14 @@ async function main() {
     gitStatusShort: 'validated-by-explicit-handoff-status-check',
     baseMainState: 'after-pr487-platform-adapter-evidence-gap-proof-merged',
     commands,
-    packageExportState: 'validated-existing-platform-adapter-evidence-gap-export',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     productDocsState: 'no-product-doc-update-needed-current-docs-already-own-required-limitation-and-nonclaim-language',
     checklistState: 'not-touched-current-codex-b-docs-product-capability-checklist-lock',
     evidence: {
       sourcePlatformAdapterEvidenceGapContract:
-        'packages/parent-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-platform-adapter-evidence-gap-proof.ts',
       sourcePlatformAdapterEvidenceGapTest:
-        'packages/parent-domain/tests/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
+        'packages/app-game-domain/tests/unit/app-install-purchase-platform-adapter-evidence-gap-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
@@ -114,7 +108,7 @@ async function loadPlatformAdapterEvidenceGapModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-platform-adapter-evidence-gap-proof.js'
   );

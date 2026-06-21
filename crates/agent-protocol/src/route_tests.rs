@@ -1,4 +1,5 @@
-use super::{AgentRoute, AgentRouteSecurityPolicy};
+use super::AgentRoute;
+use crate::transport::AgentRouteSecurityPolicy;
 
 #[test]
 fn local_network_route_serializes_to_typescript_contract_shape() {

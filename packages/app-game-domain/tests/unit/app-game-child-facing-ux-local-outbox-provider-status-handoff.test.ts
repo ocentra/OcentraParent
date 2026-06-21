@@ -8,17 +8,19 @@ import {
   AppGameChildUxPrimaryAction,
   AppGameChildUxSurfaceState,
   AppGameChildUxTargetKind,
-} from '../../src/app-game-child-facing-ux-rules';
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-rules';
 import { buildAppGameChildUxHandoffReadModel } from '../../src/app-game-child-facing-ux-handoff';
 import { buildAppGameChildUxLocalHandoffArtifactReadModel } from '../../src/app-game-child-facing-ux-local-handoff';
-import { buildAppGameChildUxLocalOutboxBridgeReadModel } from '../../src/app-game-child-facing-ux-local-outbox-bridge';
-import { buildAppGameChildUxLocalOutboxSchedulerBridgeReadModel } from '../../src/app-game-child-facing-ux-local-outbox-scheduler-bridge';
 import { buildAppGameChildUxLocalOutboxProviderPreflightReadModel } from '../../src/app-game-child-facing-ux-local-outbox-provider-preflight';
+import {
+  buildAppGameChildUxLocalOutboxProviderStatusHandoffReadModel,
+} from '../../src/app-game-child-facing-ux-local-outbox-provider-status-handoff';
+import { buildAppGameChildUxLocalOutboxBridgeReadModel } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-bridge';
+import { buildAppGameChildUxLocalOutboxSchedulerBridgeReadModel } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-scheduler-bridge';
 import {
   AppGameChildUxLocalOutboxProviderStatusHandoffReadModelSchema,
   AppGameChildUxLocalOutboxProviderStatusHandoffRowSchema,
-  buildAppGameChildUxLocalOutboxProviderStatusHandoffReadModel,
-} from '../../src/app-game-child-facing-ux-local-outbox-provider-status-handoff';
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-provider-status-handoff';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

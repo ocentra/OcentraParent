@@ -1,7 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const outputRoot = resolve(repoRoot, 'output', 'ai-plan-proof', 'household-ai-provider-claim-lease-proof');
@@ -11,21 +10,19 @@ const validationLogPath = join(outputRoot, 'validation-commands.log');
 const testResultPath = join(testResultRoot, 'proof.json');
 const generatedAt = new Date().toISOString();
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build:contracts']));
 runCommand(
   ...npmCommand([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/ai-domain',
     '--',
     'household-ai-provider-claim-lease-proof',
   ])
 );
 
-const proofModule = await import(
-  pathToFileURL(resolve(repoRoot, 'packages', 'parent-domain', 'dist', 'household-ai-provider-claim-lease-proof.js'))
-);
+const proofModule = await import('@ocentra-parent/schema-domain/household-ai-provider-claim-lease-proof');
 
 const proof = proofModule.HouseholdAiProviderClaimLeaseProofSchema.parse({
   ...proofModule.HouseholdAiProviderClaimLeaseProof,
@@ -37,7 +34,7 @@ const proofSummary = {
   proofKind: 'household-ai-provider-claim-lease-proof',
   generatedAt,
   proof: relativePath(proofPath),
-  sourceContracts: ['packages/parent-domain/src/household-ai-provider-claim-lease-proof.ts'],
+  sourceContracts: ['packages/schema-domain/src/household-ai-provider-claim-lease-proof.ts'],
   job: {
     jobId: proof.jobId,
     workKind: proof.workKind,
@@ -80,7 +77,7 @@ const proofSummary = {
     'This proof does not execute a model or prove model quality.',
     'This proof does not grant provider policy authority or dispatch enforcement.',
     'This proof does not transfer raw screenshots, retain raw screen pixels, or use remote/API AI.',
-    'This proof does not add a package export while packages/parent-domain/package.json is locked by another lane.',
+    'This proof does not claim a parent-domain facade or any new package export surface.',
   ],
 };
 
@@ -90,8 +87,8 @@ writeFileSync(proofPath, `${JSON.stringify(proofSummary, null, 2)}\n`);
 writeFileSync(
   validationLogPath,
   [
-    'cmd /c npm run build --workspace @ocentra-parent/parent-domain',
-    'cmd /c npm run test --workspace @ocentra-parent/parent-domain -- household-ai-provider-claim-lease-proof',
+    'cmd /c npm run build:contracts',
+    'cmd /c npm run test --workspace @ocentra-parent/ai-domain -- household-ai-provider-claim-lease-proof',
   ].join('\n') + '\n'
 );
 writeFileSync(testResultPath, `${JSON.stringify({ status: 'ok', proof: relativePath(proofPath) }, null, 2)}\n`);

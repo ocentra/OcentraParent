@@ -2,7 +2,7 @@ import {
   activityFamilyAggregationModelFromHistory,
   activityFamilyAggregationModelFromReport,
   type ActivityFamilyAggregationModel,
-} from '@ocentra-parent/activity-domain/activity-family-aggregation';
+} from '@ocentra-parent/schema-domain/activity-family-aggregation';
 import {
   ActivityAppUseReadModelSchema,
   ActivityBrowserReadModelSchema,
@@ -14,7 +14,7 @@ import {
   ActivityScreenReadModelSchema,
   ActivitySurfaceRequestSchema,
   ActivitySurfaceSchemaVersion,
-} from '@ocentra-parent/activity-domain/activity-surface';
+} from '@ocentra-parent/schema-domain/activity-surface';
 import type {
   ActivityAppUseReadModel,
   ActivityBrowserReadModel,
@@ -26,7 +26,7 @@ import type {
   ActivityReportSourceState,
   ActivityScreenReadModel,
   ActivitySurfaceRequest,
-} from '@ocentra-parent/activity-domain/activity-surface';
+} from '@ocentra-parent/schema-domain/activity-surface';
 import {
   AgentCommand,
   AgentCommandEnvelopeSchema,
@@ -40,7 +40,7 @@ import {
   ActivitySurfaceAdapterOperationId,
   ActivitySurfaceAdapterOperationManifest,
   type ActivitySurfaceAdapterOperation,
-} from './activity-surface-adapter-manifest';
+} from '@ocentra-parent/schema-domain/agent-activity-surface-adapter-manifest';
 
 export type ActivitySurfaceReportFrequency = 'daily' | 'weekly' | 'monthly';
 export const ActivitySurfaceReadModelKindName = {

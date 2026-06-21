@@ -13,15 +13,15 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-package-source-capture-status-proof.test.ts',
+      'tests/unit/app-install-purchase-package-source-capture-status-proof.test.ts',
     ])
   );
 
@@ -57,17 +57,10 @@ async function main() {
   assert.equal(parsedReadModel.nonClaims.includes('no-portal-approval-ui'), true);
   assert.equal(parsedReadModel.nonClaims.includes('no-child-device-delivery'), true);
   assert.equal(parsedReadModel.nonClaims.includes('no-ocentra-hosted-family-data-custody'), true);
-  const parentDomainPackageJson = JSON.parse(
-    await readFile(join(repoRoot, 'packages', 'parent-domain', 'package.json'), 'utf8')
-  );
-  assert.deepEqual(parentDomainPackageJson.exports['./app-install-purchase-package-source-capture-status-proof'], {
-    import: './dist/app-install-purchase-package-source-capture-status-proof.js',
-    types: './dist/app-install-purchase-package-source-capture-status-proof.d.ts',
-  });
   const productCapabilityChecklist = await readFile(join(repoRoot, 'docs', 'product-capability-checklist.md'), 'utf8');
   assert.match(
     productCapabilityChecklist,
-    /Install\/purchase approval.*package-source capture\/status proofs.*child-device package-source capture requests/s
+    /Install\/purchase approval.*package-source capture\/status.*child-device package-source capture requests/s
   );
 
   const proof = {
@@ -78,18 +71,18 @@ async function main() {
     commands,
     evidence: {
       packageSourceCaptureStatusContract:
-        'packages/parent-domain/src/app-install-purchase-package-source-capture-status-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-package-source-capture-status-proof.ts',
       sourceChildArtifactDeliveryContract:
-        'packages/parent-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
-      sourceStoreStatusHandoffContract: 'packages/parent-domain/src/app-install-purchase-store-status-handoff-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-package-source-capture-status-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
+      sourceStoreStatusHandoffContract: 'packages/app-game-domain/src/app-install-purchase-store-status-handoff-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-package-source-capture-status-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       checklistRow:
         'COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes package-source capture/status proof with captured/blocked/manual-required/unavailable rows.',
       packageExport:
-        'COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-package-source-capture-status-proof.',
+        'packages/app-game-domain/package.json no longer publishes this proof as a public subpath export; the script imports the built dist module directly.',
       output: relative(repoRoot, proofPath),
     },
     packageSourceCaptureStatusSummary: summary,
@@ -136,7 +129,7 @@ async function loadPackageSourceCaptureStatusProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-package-source-capture-status-proof.js'
   );

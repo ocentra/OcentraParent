@@ -7,13 +7,16 @@ use ocentra_eventing::request::{EventResponseContract, RequestEvent};
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use super::{
-    default_tracking_retention_settings_write_request, default_tracking_runtime_config,
-    TrackingAcceptedAt, TrackingDurableSettingsPersistenceState, TrackingPolicyRuleRef,
-    TrackingReadModelEventId, TrackingRetentionCommandId, TrackingRetentionSettingsWriteRequest,
-    TrackingRuntimeConfig, TrackingSourceMessageId, TrackingSourcePeerId, TrackingTargetDeviceId,
-    TrackingTargetPlatform,
+use super::identifiers::{
+    TrackingAcceptedAt, TrackingPolicyRuleRef, TrackingReadModelEventId,
+    TrackingRetentionCommandId, TrackingSourceMessageId, TrackingSourcePeerId,
+    TrackingTargetDeviceId, TrackingTargetPlatform,
 };
+use super::retention_settings_write_command::{
+    default_tracking_retention_settings_write_request, TrackingDurableSettingsPersistenceState,
+    TrackingRetentionSettingsWriteRequest,
+};
+use super::runtime_event::{default_tracking_runtime_config, TrackingRuntimeConfig};
 use crate::{constants, AgentCommandEnvelope, AgentRoute, AGENT_PROTOCOL_SCHEMA_VERSION};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

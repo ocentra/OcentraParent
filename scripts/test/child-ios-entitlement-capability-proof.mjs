@@ -40,7 +40,7 @@ async function main() {
     proofLabels,
     evidence: {
       sourceProof,
-      contract: 'packages/child-runtime-domain/src/child-ios-entitlement-capability-proof.ts',
+      contract: 'packages/schema-domain/src/child-ios-entitlement-capability-proof.ts',
       contractTest: 'packages/child-runtime-domain/tests/unit/child-ios-entitlement-capability-proof.test.ts',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/child-ios-entitlement-capability-proof-2026-05-31.md',
@@ -164,9 +164,9 @@ function buildRuntimeReadModel() {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await importTsModule('packages/child-runtime-domain/src/child-ios-entitlement-capability-proof.ts');
+  const module = await importTsModule('packages/schema-domain/src/child-ios-entitlement-capability-proof.ts');
   const parsed = module.ChildIosEntitlementCapabilityReadModelSchema.parse(readModel);
-  proofLabels.push('child-runtime-domain.child-ios-entitlement-capability-proof-parse');
+  proofLabels.push('schema-domain.child-ios-entitlement-capability-proof-parse');
   return parsed;
 }
 
@@ -190,19 +190,19 @@ async function assertProofMatrix() {
 
 async function assertScriptWiring() {
   const packageJson = JSON.parse(await readRepoFile('package.json'));
-  const childRuntimeDomainPackage = JSON.parse(await readRepoFile('packages/child-runtime-domain/package.json'));
+  const schemaDomainPackage = JSON.parse(await readRepoFile('packages/schema-domain/package.json'));
   const script = packageJson.scripts['test:child-ios-entitlement-capability-proof'];
   if (script !== `node scripts/test/${proofMode}.mjs`) {
     throw new Error('Missing root test:child-ios-entitlement-capability-proof script.');
   }
-  if (!childRuntimeDomainPackage.exports['./*']) {
-    throw new Error('Missing child-runtime-domain wildcard export.');
+  if (!schemaDomainPackage.exports['./child-ios-entitlement-capability-proof']) {
+    throw new Error('Missing schema-domain export for ./child-ios-entitlement-capability-proof.');
   }
   proofLabels.push('package-scripts.child-ios-entitlement-capability-proof');
   return {
     rootScript: 'test:child-ios-entitlement-capability-proof',
-    childRuntimeDomainExport: './*',
-    sourceContract: 'packages/child-runtime-domain/src/child-ios-entitlement-capability-proof.ts',
+    schemaDomainExport: './child-ios-entitlement-capability-proof',
+    sourceContract: 'packages/schema-domain/src/child-ios-entitlement-capability-proof.ts',
   };
 }
 

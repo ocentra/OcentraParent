@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..', '..');
@@ -22,10 +22,10 @@ const eventProofPath = join(
   'proof-summary.json'
 );
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 
-const localAi = await import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'local-ai.js')).href);
-const policy = await import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'policy.js')).href);
+const localAi = await import('@ocentra-parent/schema-domain/local-ai');
+const policy = await import('@ocentra-parent/schema-domain/policy');
 const checkedAt = new Date().toISOString();
 const evidenceRef = evidence('screen-summary-wikipedia-winrt');
 const parentRuleRef = 'rule-school-allow';

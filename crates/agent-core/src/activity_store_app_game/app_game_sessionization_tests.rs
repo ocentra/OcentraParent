@@ -1,6 +1,6 @@
+use ocentra_parent_agent_protocol::app_game::*;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, LogFieldValue, APP_GAME_OBSERVATION_MODE_PROCESS_EXIT,
-    APP_GAME_SESSION_END_REASON_PROCESS_EXIT, APP_GAME_SESSION_END_REASON_TIMEOUT_INFERRED,
 };
 
 use super::app_game_session_rollups::daily_rollups_from_summaries;
@@ -138,9 +138,7 @@ fn daily_rollup_sums_session_durations_by_day_and_classification() {
     );
 }
 
-fn summaries_from_events(
-    events: &[ActivityEvent],
-) -> Vec<ocentra_parent_agent_protocol::AppGameSessionSummary> {
+fn summaries_from_events(events: &[ActivityEvent]) -> Vec<AppGameSessionSummary> {
     let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     store
         .ingest_events(events)

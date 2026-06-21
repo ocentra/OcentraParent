@@ -133,7 +133,7 @@ async function main() {
       policyReadinessTest:
         'apps/portal/tests/app-game-policy-readiness-panel.test.ts proves not-claimed app/game policy readiness capability and adapter dispatch states render in summary details.',
       policyReadinessPanel:
-        'packages/portal-domain/src/app-game-policy-readiness-panel.ts renders capability status, manual review, and adapter dispatch details from the service-backed read model.',
+        'apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx renders capability status, manual review, and adapter dispatch details from the service-backed read model.',
     },
     productBoundaries: {
       sharedEvidenceSpine: true,

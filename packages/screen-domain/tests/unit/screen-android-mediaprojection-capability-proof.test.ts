@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   screenAndroidMediaProjectionCapabilityProof,
   ScreenAndroidMediaProjectionCapabilityRowSchema,
-} from '../../src/screen-android-mediaprojection-capability-proof';
+} from '@ocentra-parent/schema-domain/screen-android-mediaprojection-capability-proof';
 
 const CheckedAt = '2026-06-07T16:05:00Z';
 

@@ -15,6 +15,11 @@ use crate::policy_source::{
 
 const POLICY_REQUEST_SCHEMA_VERSION_VALUE: u16 = 1;
 
+pub type PolicyRequestOrigin = ocentra_parent_agent_protocol::PolicyRequestOrigin;
+pub type PolicyAssistantConfirmationState =
+    ocentra_parent_agent_protocol::PolicyAssistantConfirmationState;
+pub type PolicyRequestStatus = ocentra_parent_agent_protocol::PolicyRequestStatus;
+
 macro_rules! policy_request_text_id {
     ($name:ident, $field:expr) => {
         #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -99,40 +104,6 @@ impl From<PolicyDurationMinutes> for u16 {
     fn from(value: PolicyDurationMinutes) -> Self {
         value.0
     }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum PolicyRequestOrigin {
-    #[serde(rename = "child")]
-    Child,
-    #[serde(rename = "assistant-draft")]
-    AssistantDraft,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum PolicyAssistantConfirmationState {
-    #[serde(rename = "not-required")]
-    NotRequired,
-    #[serde(rename = "parent-confirmation-required")]
-    ParentConfirmationRequired,
-    #[serde(rename = "parent-confirmed")]
-    ParentConfirmed,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum PolicyRequestStatus {
-    #[serde(rename = "preview-only")]
-    PreviewOnly,
-    #[serde(rename = "pending-parent-review")]
-    PendingParentReview,
-    #[serde(rename = "approved")]
-    Approved,
-    #[serde(rename = "denied")]
-    Denied,
-    #[serde(rename = "modified")]
-    Modified,
-    #[serde(rename = "expired")]
-    Expired,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -264,6 +235,7 @@ pub fn validate_child_policy_request(request: &ChildPolicyRequest) -> Result<(),
         &request.audit_reference_ids,
         policy_control::request::FIELD_AUDIT_REFERENCE_IDS,
     )?;
+    assert_request_status_supported(request.status)?;
     assert_request_scope(&request.scope)?;
     assert_request_origin_shape(request)?;
     assert_request_resolution_shape(request)?;
@@ -541,6 +513,17 @@ fn assert_request_scope(scope: &PolicyRequestScope) -> Result<(), EventingError>
     Ok(())
 }
 
+fn assert_request_status_supported(status: PolicyRequestStatus) -> Result<(), EventingError> {
+    if status == PolicyRequestStatus::ReplayRejected {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::request::FIELD_STATUS,
+            value: policy_request_status_name(status).to_string(),
+        });
+    }
+
+    Ok(())
+}
+
 fn assert_request_origin_shape(request: &ChildPolicyRequest) -> Result<(), EventingError> {
     match request.origin {
         PolicyRequestOrigin::Child => {
@@ -738,6 +721,7 @@ fn policy_request_status_name(status: PolicyRequestStatus) -> &'static str {
         PolicyRequestStatus::Denied => policy_control::request::STATUS_DENIED,
         PolicyRequestStatus::Modified => policy_control::request::STATUS_MODIFIED,
         PolicyRequestStatus::Expired => policy_control::request::STATUS_EXPIRED,
+        PolicyRequestStatus::ReplayRejected => policy_control::request::STATUS_REPLAY_REJECTED,
     }
 }
 

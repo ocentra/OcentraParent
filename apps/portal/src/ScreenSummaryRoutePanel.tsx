@@ -1,13 +1,15 @@
 import type { ReactElement } from 'react';
 import {
-  isPortalScreenSummaryRoute,
-  PortalDetails,
   PortalDom,
   PortalText,
   PortalTextToken,
   type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import {
+  isPortalScreenSummaryRoute,
+  type PortalRoute as PortalRouteValue,
+} from '@ocentra-parent/portal-domain/routes';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
   createScreenSummaryPanelIntent,
   type ScreenSummaryPanelDetail,

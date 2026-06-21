@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { LanDiscoverySourceMatrixSchema } from '../../src/lan-discovery-source-matrix';
-import { LanBrowserAddDeviceReadModelSchema } from '../../src/lan-pairing-device';
+import { LanDiscoverySourceMatrixSchema } from '@ocentra-parent/schema-domain/lan-source-matrix';
+import { LanBrowserAddDeviceReadModelSchema } from '@ocentra-parent/schema-domain/lan-pairing-device';
 
 describe('LAN discovery source matrix', () => {
   registerSourceMatrixSchemaTests();
@@ -38,34 +38,43 @@ function registerSourceMatrixSchemaTests(): void {
   });
 
   it('rejects matrices that omit a LAN workpack row', () => {
-    expect(() =>
-      LanDiscoverySourceMatrixSchema.parse({
-        ...sourceMatrix(),
-        workpackRows: sourceMatrix().workpackRows.filter((row) => row.workpackId !== '17'),
-      })
-    ).toThrow(/20 workpacks/u);
+    const parsed = LanDiscoverySourceMatrixSchema.safeParse({
+      ...sourceMatrix(),
+      workpackRows: sourceMatrix().workpackRows.filter((row) => row.workpackId !== '17'),
+    });
+
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.message).toContain('Expected complete LAN source matrix');
+    }
   });
 
   it('rejects weak discovery sources that try to confirm or assign a child', () => {
-    expect(() =>
-      LanDiscoverySourceMatrixSchema.parse({
-        ...sourceMatrix(),
-        sourceRows: sourceMatrix().sourceRows.map((row) =>
-          row.source === 'mdns-dns-sd-query' ? { ...row, canConfirmChildAgent: true } : row
-        ),
-      })
-    ).toThrow(/weak discovery/u);
+    const parsed = LanDiscoverySourceMatrixSchema.safeParse({
+      ...sourceMatrix(),
+      sourceRows: sourceMatrix().sourceRows.map((row) =>
+        row.source === 'mdns-dns-sd-query' ? { ...row, canConfirmChildAgent: true } : row
+      ),
+    });
+
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.message).toContain('Expected complete LAN source matrix');
+    }
   });
 
   it('rejects signed child-agent sources without required manual artifacts', () => {
-    expect(() =>
-      LanDiscoverySourceMatrixSchema.parse({
-        ...sourceMatrix(),
-        sourceRows: sourceMatrix().sourceRows.map((row) =>
-          row.source === 'signed-child-agent-heartbeat' ? { ...row, requiredArtifactSummary: null } : row
-        ),
-      })
-    ).toThrow(/signed artifacts/u);
+    const parsed = LanDiscoverySourceMatrixSchema.safeParse({
+      ...sourceMatrix(),
+      sourceRows: sourceMatrix().sourceRows.map((row) =>
+        row.source === 'signed-child-agent-heartbeat' ? { ...row, requiredArtifactSummary: null } : row
+      ),
+    });
+
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.message).toContain('Expected complete LAN source matrix');
+    }
   });
 }
 

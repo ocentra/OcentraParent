@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createSocialParentNotificationDeliveryPanelIntent } from '../../src/contracts';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 describe('social parent notification delivery panel intent', () => {
   it('renders service readiness rows without making delivery claims', () => {
@@ -24,7 +25,7 @@ describe('social parent notification delivery panel intent', () => {
 
 function snapshot() {
   return {
-    schemaVersion: 'social-parent-notification-delivery-read-model',
+    schemaVersion: ParentContractSchemaVersion.V0_6,
     readinessId: 'social-parent-notification-delivery-readiness-service',
     generatedAt: '2026-06-08T11:45:00Z',
     sourceReportWriterProofRef: 'social-report-writer-delivery-proof-service',
@@ -50,6 +51,7 @@ function snapshot() {
     parentReportStatusReadyCount: 1,
     manualRequiredCount: 1,
     unavailableCount: 0,
+    parentLocalDeliveryResultCount: 1,
     parentNotificationUiDeliveryClaimed: false,
     externalRuntimeReportDeliveryClaimed: false,
     finalPolicyExecutionClaimed: false,
@@ -64,11 +66,16 @@ function row(
   manualProofRequirements: readonly string[]
 ) {
   return {
+    schemaVersion: ParentContractSchemaVersion.V0_6,
     notificationDeliveryReadinessRowId: id,
     sourceReportWriterDeliveryRowRef: 'social-report-writer-delivery-row-service',
     sourceIntentRef: 'social-alert-report-high-risk-service',
     parentVisibleReportStatusRef: 'social-parent-visible-report-status-high-risk-service',
     parentNotificationUiRef: null,
+    parentLocalDeliveryResultRef:
+      notificationDeliveryReadinessState === 'parent-report-status-ready'
+        ? 'social-parent-local-delivery-result-high-risk-service'
+        : null,
     parentReportRef:
       notificationDeliveryReadinessState === 'parent-report-status-ready'
         ? 'social-parent-report-high-risk-service'
@@ -87,6 +94,7 @@ function row(
     manualProofRequirements,
     notificationDeliveryReadinessState,
     reportDeliveryExecutionState,
+    parentLocalDeliveryResultRecorded: notificationDeliveryReadinessState === 'parent-report-status-ready',
     parentOwnedReportArtifactWritten: notificationDeliveryReadinessState === 'parent-report-status-ready',
     parentOwnedReportReceiptRecorded: notificationDeliveryReadinessState === 'parent-report-status-ready',
     parentNotificationUiDelivered: false,

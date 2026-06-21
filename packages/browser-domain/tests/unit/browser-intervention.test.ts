@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  BrowserBoundaryState,
   BrowserCustodyLabel,
+  BrowserQueryVisibilityLabel,
+} from '@ocentra-parent/schema-domain/browser-values';
+import {
+  BrowserBoundaryState,
   BrowserExactUrlClaimState,
   BrowserInterventionAction,
   BrowserInterventionCapabilityState,
@@ -12,11 +15,10 @@ import {
   BrowserInterventionReadModelSchema,
   BrowserInterventionSchemaVersion,
   BrowserInterventionTargetType,
-  BrowserQueryVisibilityLabel,
   BrowserUnmanagedDetectionState,
   BrowserUnmanagedEnforcementState,
   BrowserUnmanagedFallbackActionState,
-} from '../../src/browser';
+} from '@ocentra-parent/schema-domain/browser-intervention-schemas';
 
 describe('browser intervention contract', () => {
   registerManagedInterventionCases();

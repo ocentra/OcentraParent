@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   ScreenLiveViewParentUiPersistenceProofSchema,
   ScreenLiveViewParentUiPersistenceSchemaVersion,
-} from '../../src/screen-live-view-parent-ui-persistence';
-import { ScreenLiveViewServiceSessionSchemaVersion } from '../../src/screen-live-view-service-session';
-import { ScreenOptionalVisibilityModeSchemaVersion } from '../../src/screen-optional-visibility-mode-values';
+} from '@ocentra-parent/schema-domain/screen-live-view-parent-ui-persistence';
+import { ScreenLiveViewServiceSessionSchemaVersion } from '@ocentra-parent/schema-domain/screen-live-view-service-session';
+import { ScreenOptionalVisibilityModeSchemaVersion } from '@ocentra-parent/schema-domain/screen-optional-visibility-mode-values';
 
 const CheckedAt = '2026-06-07T09:35:00Z';
 

@@ -4,7 +4,7 @@ import {
   V08OsAdapterManualArtifactGateReadModel,
   V08OsAdapterManualArtifactGateReadModelSchema,
   V08OsAdapterManualArtifactGateSurface,
-} from '../../src/v0-8-os-adapter-manual-artifact-gates';
+} from '@ocentra-parent/schema-domain/v0-8-os-adapter-manual-artifact-gates';
 
 describe('V0.8 OS adapter manual artifact gates', () => {
   capturesManualArtifactGatesAcrossPlatforms();

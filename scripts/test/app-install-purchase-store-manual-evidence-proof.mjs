@@ -8,18 +8,18 @@ const execFileAsync = promisify(execFile);
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const proofPath = resolve(repoRoot, 'test-results', 'app-install-purchase-store-manual-evidence-proof', 'proof.json');
 
-await run('npm', ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+await run('npm', ['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 await run('npm', [
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
-  'tests/app-install-purchase-store-manual-evidence-proof.test.ts',
+  'tests/unit/app-install-purchase-store-manual-evidence-proof.test.ts',
 ]);
 
 const moduleUrl = pathToFileURL(
-  resolve(repoRoot, 'packages', 'parent-domain', 'dist', 'app-install-purchase-store-manual-evidence-proof.js')
+  resolve(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-install-purchase-store-manual-evidence-proof.js')
 ).href;
 const { AppInstallPurchaseStoreManualEvidenceProofReadModel, summarizeAppInstallPurchaseStoreManualEvidence } =
   await import(moduleUrl);
@@ -53,8 +53,8 @@ const proof = {
       'docs/product-capability-checklist.md updated for the app-install store manual evidence proof while keeping provider/store execution gaps explicit',
   },
   evidence: {
-    source: 'packages/parent-domain/src/app-install-purchase-store-manual-evidence-proof.ts',
-    tests: 'packages/parent-domain/tests/app-install-purchase-store-manual-evidence-proof.test.ts',
+    source: 'packages/app-game-domain/src/app-install-purchase-store-manual-evidence-proof.ts',
+    tests: 'packages/app-game-domain/tests/unit/app-install-purchase-store-manual-evidence-proof.test.ts',
     output: 'test-results/app-install-purchase-store-manual-evidence-proof/proof.json',
   },
 };

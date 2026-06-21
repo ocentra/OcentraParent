@@ -1,8 +1,8 @@
 import {
   AgentEvent,
-  AgentProtocolDefaults,
   type AgentEventEnvelope,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import type { PortalActivityMemoryGraphReadModel } from './activity-memory-graph';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';

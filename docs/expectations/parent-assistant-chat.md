@@ -79,7 +79,7 @@ code depends on assistant shapes.
 Preferred package boundary:
 
 - Current scaffold: parent assistant contracts live in
-  `@ocentra-parent/parent-domain/parent-assistant` because they are parent,
+  `@ocentra-parent/ai-domain/parent-assistant` because they are parent,
   family, child-scope, evidence, action-intent, and provider-status product
   contracts.
 - Add `@ocentra-parent/assistant-domain` later only if assistant contracts

@@ -7,7 +7,7 @@ import {
   ScreenAiAdapterReadinessReadModelSchema,
   ScreenAiAdapterReadinessRowSchema,
   summarizeScreenAiAdapterReadiness,
-} from '../../src/screen-ai-adapter-readiness-proof';
+} from '@ocentra-parent/schema-domain/screen-ai-adapter-readiness-proof';
 
 describe('screen AI adapter readiness proof', () => {
   it('covers real owned-process actions plus manual unavailable and not-claimed adapter states', () => {

@@ -4,8 +4,8 @@ import { buildAppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoff } from '.
 import { buildAppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModel } from '../../src/app-game-source-gated-policy-preview-timer-audit-rollback-read-model';
 import {
   AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelSchema,
-  AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelState,
-} from '../../src/app-game-source-gated-policy-preview-timer-audit-rollback-read-model';
+} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-audit-rollback-read-model';
+import { AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelState } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-audit-rollback-read-model-rules';
 import { buildAppGameSourceGatedPolicyPreviewTimerHandoff } from '../../src/app-game-source-gated-policy-preview-timer-handoff';
 import { buildAppGameSourceGatedPolicyPreviewTimerRuntimeReadiness } from '../../src/app-game-source-gated-policy-preview-timer-runtime-readiness';
 import { buildAppGameSourceGatedPolicyPreviewTimerSchedulerPersistence } from '../../src/app-game-source-gated-policy-preview-timer-scheduler-persistence';

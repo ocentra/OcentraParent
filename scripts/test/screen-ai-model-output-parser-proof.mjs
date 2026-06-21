@@ -10,20 +10,20 @@ const ValidationLogPath = join(OutputRoot, 'validation-commands.log');
 const TestResultPath = join(TestResultRoot, 'proof.json');
 const generatedAt = new Date().toISOString();
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 runCommand(
   ...npmCommand([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/screen-domain',
     '--',
-    'screen-ai-model-output-parser-proof',
+    'screen-ai-model-output-parser-proof.test.ts',
   ])
 );
 
 const { LocalAiEvaluationInputSchema, LocalAiSafetyResultSchema } =
-  await import('@ocentra-parent/ai-domain/local-ai');
+  await import('@ocentra-parent/schema-domain/local-ai');
 
 const evidenceReference = {
   evidenceReferenceId: 'screen-evidence:winrt-ocr-row',
@@ -182,8 +182,8 @@ writeFileSync(ProofPath, `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(
   ValidationLogPath,
   [
-    'cmd /c npm run build --workspace @ocentra-parent/parent-domain',
-    'cmd /c npm run test --workspace @ocentra-parent/parent-domain -- screen-ai-model-output-parser-proof',
+    'cmd /c npm run build --workspace @ocentra-parent/schema-domain',
+    'cmd /c npm run test --workspace @ocentra-parent/screen-domain -- screen-ai-model-output-parser-proof.test.ts',
   ].join('\n') + '\n'
 );
 writeFileSync(TestResultPath, `${JSON.stringify({ status: 'ok', proof: relativePath(ProofPath) }, null, 2)}\n`);

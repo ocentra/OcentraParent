@@ -10,7 +10,7 @@ import {
   ScreenVlmWorkerTemplateVersion,
   screenVlmWorkerPromptIsOpenEnded,
   screenVlmWorkerResultToAnalysisResult,
-} from '../../src/screen-vlm-worker';
+} from '@ocentra-parent/schema-domain/screen-vlm-worker';
 
 const EvidenceRef = {
   evidenceId: 'screen-vlm-worker-evidence',

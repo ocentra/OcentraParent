@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   HouseholdAiProviderClaimLeaseProof,
   HouseholdAiProviderClaimLeaseProofSchema,
-} from '../../src/household-ai-provider-claim-lease-proof';
+} from '@ocentra-parent/schema-domain/household-ai-provider-claim-lease-proof';
 
 describe('household AI provider claim lease proof', () => {
   it('proves one active lease, duplicate rejection, expiry requeue, and dead-letter handling', () => {

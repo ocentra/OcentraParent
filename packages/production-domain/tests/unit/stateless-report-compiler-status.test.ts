@@ -8,7 +8,7 @@ import {
   StatelessReportCompilerStatusRowSchema,
   summarizeStatelessReportCompilerRequestedDataClasses,
   summarizeStatelessReportCompilerStatuses,
-} from '../../src/stateless-report-compiler-status';
+} from '@ocentra-parent/schema-domain/stateless-report-compiler-status';
 
 describe('stateless report compiler status contracts', () => {
   acceptsTheContractOnlyCompilerStatusProof();

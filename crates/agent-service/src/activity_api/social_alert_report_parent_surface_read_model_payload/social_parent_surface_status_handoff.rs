@@ -1,12 +1,16 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::EventBus, envelope::DomainEvent,
-    envelope::EventContract, envelope::EventMetadata, envelope::EventSource, error::EventingError,
-    ids::AggregateKey, ids::CorrelationId, ids::EventType, ids::IdempotencyKey, ids::RecordedAt,
-    ids::RequestId, ids::RuntimeInstanceId, ids::SchemaVersion, ids::SourceComponent,
-    ids::SourceService, ids::SubscriberId, ids::TargetHandler, request::EventResponseContract,
-    request::RequestEvent, request::RequestOptions,
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventType,
+    ids::RecordedAt, ids::RequestId, ids::RuntimeInstanceId, ids::SourceComponent,
+    ids::SourceService, ids::SubscriberId, ids::TargetHandler, request::RequestOptions,
+};
+use ocentra_parent_agent_protocol::browser::social_parent_surface_status_handoff::{
+    SocialPreferenceStatusHandoffReadModel, SocialPreferenceStatusHandoffRequest,
+    SocialPreferenceStatusHandoffResponse, SocialPreferenceStatusHandoffRow,
+    SocialProviderStatusHandoffReadModel, SocialProviderStatusHandoffRequest,
+    SocialProviderStatusHandoffResponse, SocialProviderStatusHandoffRow,
 };
 use ocentra_parent_agent_protocol::{
     constants, SOCIAL_ALERT_REPORT_PARENT_SURFACE_AUDIT_HIGH_RISK_REF,
@@ -33,128 +37,8 @@ use ocentra_parent_agent_protocol::{
     SOCIAL_ALERT_REPORT_PARENT_SURFACE_SOURCE_INTENT_MANUAL_REF,
     SOCIAL_ALERT_REPORT_PARENT_SURFACE_SOURCE_INTENT_UNAVAILABLE_REF,
 };
-use serde::{Deserialize, Serialize};
 
 use crate::time::timestamp_now;
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SocialProviderStatusHandoffReadModel {
-    pub handoff_id: String,
-    pub rows: Vec<SocialProviderStatusHandoffRow>,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SocialProviderStatusHandoffRow {
-    pub handoff_row_id: String,
-    pub source_intent_ref: String,
-    pub notification_status_ref: String,
-    pub audit_ref: String,
-    pub manual_proof_requirement: String,
-    pub unavailable: bool,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SocialPreferenceStatusHandoffReadModel {
-    pub handoff_id: String,
-    pub rows: Vec<SocialPreferenceStatusHandoffRow>,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SocialPreferenceStatusHandoffRow {
-    pub handoff_row_id: String,
-    pub source_preference_status_ref: String,
-    pub audit_ref: String,
-    pub manual_proof_requirement: String,
-    pub preference_disabled: bool,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-struct SocialProviderStatusHandoffRequest {
-    request_id: RequestId,
-    requested_at: String,
-}
-
-impl DomainEvent for SocialProviderStatusHandoffRequest {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        Ok(EventContract::new(
-            EventType::parse(
-                constants::browser::EVENT_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_REQUESTED,
-            )?,
-            SchemaVersion::new(constants::browser::EVENT_SCHEMA_VERSION)?,
-        ))
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(constants::browser::AGGREGATE_BROWSER_RUNTIME_PREFIX)
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        let mut value = String::from(
-            constants::browser::IDEMPOTENCY_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_PREFIX,
-        );
-        value.push_str(self.request_id.as_str());
-        IdempotencyKey::parse(value)
-    }
-}
-
-impl RequestEvent for SocialProviderStatusHandoffRequest {
-    type Response = SocialProviderStatusHandoffResponse;
-
-    fn request_id(&self) -> Result<RequestId, EventingError> {
-        Ok(self.request_id.clone())
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-struct SocialProviderStatusHandoffResponse {
-    read_model: SocialProviderStatusHandoffReadModel,
-}
-
-impl EventResponseContract for SocialProviderStatusHandoffResponse {}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-struct SocialPreferenceStatusHandoffRequest {
-    request_id: RequestId,
-    requested_at: String,
-}
-
-impl DomainEvent for SocialPreferenceStatusHandoffRequest {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        Ok(EventContract::new(
-            EventType::parse(
-                constants::browser::EVENT_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_REQUESTED,
-            )?,
-            SchemaVersion::new(constants::browser::EVENT_SCHEMA_VERSION)?,
-        ))
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(constants::browser::AGGREGATE_BROWSER_RUNTIME_PREFIX)
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        let mut value = String::from(
-            constants::browser::IDEMPOTENCY_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_PREFIX,
-        );
-        value.push_str(self.request_id.as_str());
-        IdempotencyKey::parse(value)
-    }
-}
-
-impl RequestEvent for SocialPreferenceStatusHandoffRequest {
-    type Response = SocialPreferenceStatusHandoffResponse;
-
-    fn request_id(&self) -> Result<RequestId, EventingError> {
-        Ok(self.request_id.clone())
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-struct SocialPreferenceStatusHandoffResponse {
-    read_model: SocialPreferenceStatusHandoffReadModel,
-}
-
-impl EventResponseContract for SocialPreferenceStatusHandoffResponse {}
 
 pub async fn request_social_provider_status_handoff_from_service(
 ) -> Result<SocialProviderStatusHandoffReadModel, EventingError> {

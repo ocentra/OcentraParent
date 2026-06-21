@@ -1,4 +1,4 @@
-import { browserControlFullCatalogSettings } from './browser-control-full-catalog';
+import { browserControlFullCatalogSettings } from '@ocentra-parent/schema-domain/browser-control-full-catalog';
 import {
   BrowserPolicyQuestionIds,
   type BrowserPolicyAnswerMap,
@@ -8,29 +8,11 @@ import {
   type BrowserPolicyQuestionId,
   type BrowserPolicyQuestionState,
   type BrowserPolicySurface,
-} from './browser-policy-questionnaire-forest-contract';
+} from '@ocentra-parent/schema-domain/browser-policy-questionnaire-forest-contract';
 import {
   BrowserPolicyQuestionnaireCompactOrder,
   BrowserPolicyQuestions,
-} from './browser-policy-questionnaire-forest-data';
-
-export {
-  BrowserPolicyDefaultAnswers,
-  BrowserPolicyQuestionIds,
-  type BrowserPolicyAnswerMap,
-  type BrowserPolicyComputedFlagId,
-  type BrowserPolicyCondition,
-  type BrowserPolicyOption,
-  type BrowserPolicyQuestion,
-  type BrowserPolicyQuestionId,
-  type BrowserPolicyQuestionState,
-  type BrowserPolicySelectionMode,
-  type BrowserPolicySurface,
-} from './browser-policy-questionnaire-forest-contract';
-export {
-  BrowserPolicyQuestionnaireCompactOrder,
-  BrowserPolicyQuestions,
-} from './browser-policy-questionnaire-forest-data';
+} from '@ocentra-parent/schema-domain/browser-policy-questionnaire-forest-data';
 
 export const BrowserPolicyQuestionnaireForest = {
   questions: BrowserPolicyQuestions,

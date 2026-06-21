@@ -5,7 +5,7 @@ import {
   type V08NotificationProviderStatusBoundaryReadModel,
   V08SupportedAdapterRuntimeProofReadModelSchema,
   type V08SupportedAdapterRuntimeProofReadModel,
-} from '@ocentra-parent/enforcement-domain/v0-8-supported-adapter-runtime-proof';
+} from '@ocentra-parent/schema-domain/v0-8-supported-adapter-runtime-proof';
 import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from './contracts';
 
 export type EnforcementSupportedAdapterRuntimeProofParseResult =

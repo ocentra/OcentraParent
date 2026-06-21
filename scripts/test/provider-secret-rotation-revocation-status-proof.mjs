@@ -18,6 +18,7 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
   await runCommand(
     ...npmCommand([
@@ -26,7 +27,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/provider-secret-rotation-revocation-status.test.ts',
+      'tests/unit/provider-secret-rotation-revocation-status.test.ts',
     ])
   );
 
@@ -43,24 +44,24 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/provider-secret-rotation-revocation-status.ts',
-      readModel: 'packages/logging-domain/src/provider-secret-rotation-revocation-status-read-model.ts',
-      contractTest: 'packages/logging-domain/tests/provider-secret-rotation-revocation-status.test.ts',
+      contract: 'packages/schema-domain/src/provider-secret-rotation-revocation-status.ts',
+      readModel: 'packages/schema-domain/src/provider-secret-rotation-revocation-status-read-model.ts',
+      contractTest: 'packages/logging-domain/tests/unit/provider-secret-rotation-revocation-status.test.ts',
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
       featureDoc: 'docs/features/production-distribution-support.md',
       checklist: 'docs/product-capability-checklist.md',
       expectations: ['docs/expectations/data-custody.md', 'docs/expectations/static-analysis-security.md'],
       packageExports: [
-        '@ocentra-parent/logging-domain/provider-secret-rotation-revocation-status',
-        '@ocentra-parent/logging-domain/provider-secret-rotation-revocation-status-read-model',
+        '@ocentra-parent/schema-domain/provider-secret-rotation-revocation-status',
+        '@ocentra-parent/schema-domain/provider-secret-rotation-revocation-status-read-model',
       ],
     },
     claimsProved: [
       'Provider-secret rotation/revocation status rows cover rotation requested, rotation preflight-ready, rotation manual-required, revocation requested, revocation preflight-ready, revocation manual-required, and audit-export-ready states.',
       'Rows link to provider-secret custody status, provider-secret execution readiness, backend secret-store preflight, operator approval, manual proof, and audit refs while disclosing only support-safe status metadata.',
       'Backend secret-store, rotation, revocation, and provider-secret delivery remain not implemented or manual-required until real provider custody and execution proof exists.',
-      'Package exports expose the provider-secret rotation/revocation status contract and read model through @ocentra-parent/logging-domain.',
+      'Package exports expose the provider-secret rotation/revocation status contract and read model through @ocentra-parent/schema-domain.',
       'Rows reject provider secrets, payment provider tokens, raw child activity, raw support bundle payloads, account lookup results, billing provider contact records, remote support transcripts, backend secret-store execution, rotation execution, revocation execution, provider-secret delivery, support backend upload execution, account lookup execution, billing provider contact execution, remote support sessions, production SLA, and default Ocentra-hosted family data.',
     ],
     claimsNotProved: [
@@ -142,9 +143,9 @@ function assertReadModel(readModel) {
 }
 
 async function assertPackageExports() {
-  const contract = await import('@ocentra-parent/logging-domain/provider-secret-rotation-revocation-status');
+  const contract = await import('@ocentra-parent/schema-domain/provider-secret-rotation-revocation-status');
   const readModel =
-    await import('@ocentra-parent/logging-domain/provider-secret-rotation-revocation-status-read-model');
+    await import('@ocentra-parent/schema-domain/provider-secret-rotation-revocation-status-read-model');
   assert.equal(typeof contract.ProviderSecretRotationRevocationStatusReadModelSchema.parse, 'function');
   assert.equal(readModel.ProviderSecretRotationRevocationStatusReadModel.entries.length, 7);
 }
@@ -169,10 +170,10 @@ async function runCommand(commandName, args) {
 async function proofInputDigest(readModel) {
   const hash = createHash('sha256');
   for (const path of [
-    'packages/logging-domain/src/provider-secret-rotation-revocation-status.ts',
-    'packages/logging-domain/src/provider-secret-rotation-revocation-status-guards.ts',
-    'packages/logging-domain/src/provider-secret-rotation-revocation-status-read-model.ts',
-    'packages/logging-domain/tests/provider-secret-rotation-revocation-status.test.ts',
+    'packages/schema-domain/src/provider-secret-rotation-revocation-status.ts',
+    'packages/schema-domain/src/provider-secret-rotation-revocation-status-guards.ts',
+    'packages/schema-domain/src/provider-secret-rotation-revocation-status-read-model.ts',
+    'packages/logging-domain/tests/unit/provider-secret-rotation-revocation-status.test.ts',
     'packages/logging-domain/package.json',
     'scripts/test/provider-secret-rotation-revocation-status-proof.mjs',
     'docs/features/production-distribution-support.md',

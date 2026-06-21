@@ -3,8 +3,8 @@ import {
   ProductionSupportPublicationExecutionStatusProofSchema,
   ProductionSupportPublicationExecutionStatusRowSchema,
   summarizeProductionSupportPublicationExecutionStatusRows,
-} from '../../src/production-support-publication-execution-status-proof';
-import { ProductionSupportPublicationExecutionStatusReadModel } from '../../src/production-support-publication-execution-status-read-model';
+} from '@ocentra-parent/schema-domain/production-support-publication-execution-status-proof';
+import { ProductionSupportPublicationExecutionStatusReadModel } from '@ocentra-parent/schema-domain/production-support-publication-execution-status-read-model';
 
 describe('production support publication execution status proof', () => {
   acceptsPublicationExecutionStatusRows();

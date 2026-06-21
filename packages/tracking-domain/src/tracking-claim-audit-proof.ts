@@ -6,7 +6,7 @@ import {
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from './tracking-location-policy-primitives';
+import { TrackingPolicyAuditRefSchema, TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 
 export const TrackingClaimAuditAreaSchema = Schema.Literal(
   'android-physical-background-and-geofence',

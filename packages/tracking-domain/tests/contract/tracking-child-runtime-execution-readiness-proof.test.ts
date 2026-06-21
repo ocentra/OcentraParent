@@ -4,7 +4,7 @@ import {
   TrackingChildRuntimeExecutionReadinessRowSchema,
   buildTrackingChildRuntimeExecutionReadinessReadModel,
 } from '../../src/tracking-child-runtime-execution-readiness-proof';
-import { TrackingPolicySchemaVersion } from '../../src/tracking-location-policy';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 describe('tracking child runtime execution readiness proof', () => {
   it('derives execution-readiness rows from child runtime delivery boundary rows', () => {

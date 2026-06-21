@@ -7,9 +7,9 @@ const outputDirectory = join(root, 'output', 'browser-plan-proof', 'social-polic
 const resultDirectory = join(root, 'test-results', 'social-policy-schedule-time-budget-proof');
 
 const requiredFiles = [
-  'packages/parent-domain/src/social-policy-compiler-values.ts',
-  'packages/parent-domain/src/social-policy-compiler.ts',
-  'packages/parent-domain/tests/social-policy-compiler.test.ts',
+  'packages/schema-domain/src/social-policy-compiler-values.ts',
+  'packages/schema-domain/src/social-policy-compiler.ts',
+  'packages/browser-domain/tests/unit/social-policy-compiler.test.ts',
 ];
 
 await main();
@@ -18,9 +18,9 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  const values = await readText('packages/parent-domain/src/social-policy-compiler-values.ts');
-  const compiler = await readText('packages/parent-domain/src/social-policy-compiler.ts');
-  const test = await readText('packages/parent-domain/tests/social-policy-compiler.test.ts');
+  const values = await readText('packages/schema-domain/src/social-policy-compiler-values.ts');
+  const compiler = await readText('packages/schema-domain/src/social-policy-compiler.ts');
+  const test = await readText('packages/browser-domain/tests/unit/social-policy-compiler.test.ts');
   const featureDoc = await readText('docs/features/social-video-control.md');
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/readme.md');
 

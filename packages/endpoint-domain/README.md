@@ -1,32 +1,31 @@
 # @ocentra-parent/endpoint-domain
 
-Shared endpoint, path, header, query, version, and route-boundary constants.
+Historical endpoint-domain package identity after endpoint contract ownership moved to `@ocentra-parent/schema-domain`.
 
-## Owns
+## Current Role
 
-- HTTP path constants.
-- Header/query/version constants.
-- Endpoint brands and decoders.
-- LAN pairing endpoint constants that cross runtime boundaries.
-- Parent-owned sync/export and remote connector status route contracts.
-- Billing/account and account distribution route contracts.
+- Package identity metadata via `./package-info`.
+- Packet-local proof/tests that verify the canonical central endpoint contracts.
+
+## Canonical Contract Owners
+
+- `@ocentra-parent/schema-domain/endpoint-brands`
+- `@ocentra-parent/schema-domain/endpoint-constants`
+- `@ocentra-parent/schema-domain/endpoint-lan-pairing`
+- `@ocentra-parent/schema-domain/endpoint-billing-account`
+- `@ocentra-parent/schema-domain/endpoint-sync-export`
 
 ## Must Not Own
 
+- Local endpoint brands, decoders, route ids, API paths, headers, query params, or contract-version labels.
 - WebSocket command payloads. Use `agent-protocol-domain`.
 - Portal route/nav semantics. Use `portal-domain`.
 - Product policy decisions. Use `parent-domain`.
 
-## Flow
+## Packet-local proofs
 
-```mermaid
-flowchart LR
-  Domain["endpoint-domain"]
-  Portal["portal/runtime caller"]
-  Service["agent-service"]
-  Domain --> Portal
-  Domain --> Service
-```
+- `billing-account-endpoint-contract-proof`
+- `sync-export-endpoint-contract-proof`
 
 ## Connected Docs
 
@@ -38,10 +37,10 @@ flowchart LR
 
 ## Gaps To Fill
 
-- Keep endpoint constants aligned with Rust service paths and tests.
-- Keep `sync-export-endpoint-contract-proof` as route contract proof only until
+- Keep central endpoint contracts aligned with Rust service paths and tests.
+- Keep `sync-export-endpoint-contract-proof` as central route contract proof only until
   parent-owned storage connectors and transfer runtime are implemented.
-- Keep `billing-account-endpoint-contract-proof` as route contract proof only
+- Keep `billing-account-endpoint-contract-proof` as central route contract proof only
   until billing provider, account backend, entitlement runtime, and
   updater/download handlers are explicitly assigned.
-- Add endpoint docs when remote relay/account APIs become real.
+- Remove this package completely once the remaining packet-local proof placement is no longer needed.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TrackingAiProviderRouteSchema } from '../../src/tracking-location-policy';
+import { TrackingAiProviderRouteSchema } from '@ocentra-parent/schema-domain/tracking-location-policy';
 import {
   TrackingAiProviderRoutingProofRowSchema,
   buildTrackingAiProviderRoutingProofRows,

@@ -4,7 +4,7 @@ import {
   ProductionReleasePublicStatusProofSchema,
   ProductionReleasePublicSurfaceStatusSchema,
   summarizeProductionReleasePublicStatusSurfaces,
-} from '../../src/production-release-public-status-proof';
+} from '@ocentra-parent/schema-domain/production-release-public-status-proof';
 
 describe('production release public status proof', () => {
   acceptsPublicReleaseStatusReadinessRows();

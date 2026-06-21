@@ -15,9 +15,11 @@ import {
   TrackingPolicyRuleSchema,
   TrackingPolicySchemaVersion,
   TrackingTemporaryLiveTrackingGrantSchema,
+} from '@ocentra-parent/schema-domain/tracking-location-policy';
+import {
   evaluateTrackingAcknowledgementImpact,
   resolveTrackingChildCheckIn,
-} from '../../src/tracking-location-policy';
+} from '../../src/tracking-location-policy-runtime';
 
 const EvidenceTrace = {
   evidenceReferenceId: 'location-evidence-1',

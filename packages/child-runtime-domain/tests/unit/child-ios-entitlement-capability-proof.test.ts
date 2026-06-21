@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type ChildIosEntitlementCapabilityReadModel,
   ChildIosEntitlementCapabilityReadModelSchema,
-} from '../../src/child-ios-entitlement-capability-proof';
+} from '@ocentra-parent/schema-domain/child-ios-entitlement-capability-proof';
 
 describe('child iOS entitlement capability proof contracts', () => {
   acceptsHonestSimulatorAndManualEntitlementStates();

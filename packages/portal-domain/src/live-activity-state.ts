@@ -1,24 +1,29 @@
 import {
   BrowserActiveProofSource,
+  BrowserQueryVisibilityLabel,
   BrowserCustodyLabel,
+} from '@ocentra-parent/schema-domain/browser-values';
+import {
   BrowserEvidenceReadModelSchema,
   BrowserEvidenceSchemaVersion,
-  BrowserInventoryReadModelSchema,
   BrowserManagedSessionStatusSchema,
-  BrowserQueryVisibilityLabel,
   type BrowserEvidenceReadModel,
-  type BrowserInterventionReadModel,
-  type BrowserInventoryReadModel,
   type BrowserManagedSessionStatus,
-} from '@ocentra-parent/browser-domain/browser';
+} from '@ocentra-parent/schema-domain/browser-schemas';
+import {
+  BrowserInventoryReadModelSchema,
+  type BrowserInventoryReadModel,
+} from '@ocentra-parent/schema-domain/browser-inventory-schemas';
+import type { BrowserInterventionReadModel } from '@ocentra-parent/schema-domain/browser-intervention-schemas';
 import {
   ActivityIngestStatusSchema,
   ActivityQuerySchemaVersion,
   ActivityRecentSummarySchema,
   type ActivityIngestStatus,
   type ActivityRecentSummary,
-} from '@ocentra-parent/activity-domain/query';
-import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/network-domain/network-flow';
+} from '@ocentra-parent/schema-domain/activity-query';
+import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/schema-domain/agent-policy-preview-read-model';
+import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/schema-domain/network-flow';
 import type {
   ActivityAppUseReadModel,
   ActivityBrowserReadModel,
@@ -27,7 +32,15 @@ import type {
   ActivityNetworkReadModel,
   ActivityReportDocument,
   ActivityScreenReadModel,
-} from '@ocentra-parent/activity-domain/activity-surface';
+} from '@ocentra-parent/schema-domain/activity-surface';
+import {
+  AgentEvent,
+  type AgentEventEnvelope,
+  type AgentEventName,
+  type AgentProtocolLogFields,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentLanBrowserAddDeviceReadModelSchema } from '@ocentra-parent/schema-domain/agent-lan-add-device';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   ActivitySurfaceReadModelKindName,
   parseActivityServiceUiSpineEvents,
@@ -39,16 +52,10 @@ import {
   type ActivitySurfaceReadModelKind,
 } from '@ocentra-parent/agent-protocol-domain/activity-surface-adapter';
 import {
-  AgentEvent,
-  AgentLanBrowserAddDeviceReadModelSchema,
-  AgentProtocolDefaults,
   parseAgentBrowserRuntimeEventChainStreamFields,
   type AgentBrowserRuntimeEventChainEntry,
   type AgentBrowserRuntimeEventChainStream,
-  type AgentEventEnvelope,
-  type AgentEventName,
-  type AgentProtocolLogFields,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/agent-protocol-domain/browser-runtime-events';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { getStackTrace, type StackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
 import {
@@ -85,10 +92,7 @@ import {
 } from '@ocentra-parent/agent-protocol-domain/network-runtime-events';
 import { parseBrowserInterventionReadModel } from '@ocentra-parent/agent-protocol-domain/browser-intervention-read-model';
 import { parseNetworkFlowReadModel } from '@ocentra-parent/agent-protocol-domain/network-flow-read-model';
-import {
-  parsePolicyPreviewReadModel,
-  type PortalPolicyPreviewReadModel,
-} from '@ocentra-parent/agent-protocol-domain/policy-preview-read-model';
+import { parsePolicyPreviewReadModel } from '@ocentra-parent/agent-protocol-domain/policy-preview-read-model';
 import { parseAgentAppGameNotificationReadinessEvent } from '@ocentra-parent/agent-protocol-domain/app-game-notification-readiness';
 import {
   parseAgentAppGameAdapterExecutionReadinessEvent,
@@ -101,7 +105,7 @@ import {
 import {
   parseAgentAppGameChildRuntimeTransportReceiptEvent,
   type AgentAppGameChildRuntimeTransportReceiptResult,
-} from '@ocentra-parent/agent-protocol-domain/app-game-child-runtime-transport-receipt';
+} from '@ocentra-parent/agent-protocol-domain/app-game-child-runtime-transport-receipt-event-parser';
 import {
   parseAgentAppGameAdapterDispatchPreflightEvent,
   type AgentAppGameAdapterDispatchPreflightResult,

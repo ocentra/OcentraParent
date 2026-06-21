@@ -2,7 +2,7 @@ import {
   AgentEvent,
   type AgentEventEnvelope,
   type AgentEventName,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 
 export const PortalCommandResultEvents = [
   AgentEvent.HealthReported,

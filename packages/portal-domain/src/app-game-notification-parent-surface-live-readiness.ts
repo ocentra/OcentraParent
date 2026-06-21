@@ -3,12 +3,12 @@ import {
   AgentAppGameNotificationReadinessState,
   type AgentAppGameNotificationReadinessReadModel,
   type AgentAppGameNotificationReadinessRow,
-} from '@ocentra-parent/agent-protocol-domain/app-game-notification-readiness';
+} from '@ocentra-parent/schema-domain/app-game-notification-readiness';
 import {
   AppGameNotificationParentSurfaceIntentReadModelSchema,
   RequiredAppGameNotificationParentSurfaceIntentNonClaims,
   type AppGameNotificationParentSurfaceIntentReadModel,
-} from '@ocentra-parent/app-game-domain/app-game-notification-parent-surface-intent';
+} from '@ocentra-parent/schema-domain/app-game-notification-parent-surface-intent';
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const AppGameNotificationParentSurfaceLiveReadiness = {

@@ -409,7 +409,8 @@ fn parent_action_reference() -> ParentActionReference {
         actor: ParentActorReference {
             actor_id: policy::TEST_PARENT_ACTOR_ID.to_string(),
             role: ParentActorRole::Parent,
-        },
+        }
+        .into(),
         policy_version: policy::TEST_POLICY_VERSION.to_string(),
         created_at: policy::TEST_EVALUATED_AT.to_string(),
     }

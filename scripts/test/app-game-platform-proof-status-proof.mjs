@@ -57,7 +57,7 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-platform-proof-status',
       'app-game-android-physical-device-proof',
@@ -76,23 +76,25 @@ async function main() {
   );
   await runCommand(
     ...npmCommand([
+      'exec',
+      '--workspace',
+      '@ocentra-parent/portal-domain',
+      '--',
+      'vitest',
+      'run',
+      'tests/unit/contracts.test.ts',
+      '-t',
+      'PortalCommandButtons|PortalOverviewCommands',
+    ])
+  );
+  await runCommand(
+    ...npmCommand([
       'run',
       'test',
       '--workspace',
       '@ocentra-parent/portal-domain',
       '--',
-      'app-game-platform-proof-status-panel',
-    ])
-  );
-  await runCommand(
-    ...npmCommand([
-      'exec',
-      '--workspace',
-      '@ocentra-parent/portal',
-      '--',
-      'vitest',
-      'run',
-      'tests/app-game-platform-proof-status-route-panel.test.ts',
+      'tests/unit/app-game-platform-proof-status-panel.test.ts',
     ])
   );
   await runCommand('node', ['scripts/test/app-game-android-physical-device-proof.mjs']);
@@ -107,7 +109,7 @@ async function main() {
   await runCommand('node', ['scripts/test/app-game-windows-local-policy-evidence-proof.mjs']);
   await runCommand('node', ['scripts/test/app-game-apple-ci-platform-proof-preflight-proof.mjs']);
   await runCommand('node', ['scripts/test/app-game-linux-docker-host-preflight-proof.mjs']);
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
   const androidProof = await readJson(
     join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json')
@@ -126,33 +128,33 @@ async function main() {
     join(repoRoot, 'test-results', 'app-game-windows-local-policy-evidence-proof', 'proof.json')
   );
   const androidAuthorityModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-authority-preflight.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-authority-preflight.js')).href
   );
   const androidAccessibilityModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-accessibility-overlay-preflight.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-accessibility-overlay-preflight.js')
     ).href
   );
   const replayModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
   );
   const linuxForegroundModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-foreground-capture-readiness.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-linux-foreground-capture-readiness.js'))
       .href
   );
   const linuxDockerModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-linux-docker-host-preflight.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-linux-docker-host-preflight.js')).href
   );
   const module = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-platform-proof-status.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-platform-proof-status.js')).href
   );
   const appleCiModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-apple-ci-platform-proof-preflight.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-apple-ci-platform-proof-preflight.js'))
       .href
   );
   const windowsModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-windows-broad-blocking-authority-preflight.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-windows-broad-blocking-authority-preflight.js')
     ).href
   );
   const androidAuthorityPreflight = androidAuthorityModule.createAppGameAndroidAuthorityPreflightReadModel({
@@ -267,44 +269,45 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-platform-proof-status.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-platform-proof-status.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-platform-proof-status.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-platform-proof-status.test.ts',
       windowsBroadBlockingAuthorityPreflight:
-        'packages/parent-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
+        'packages/app-game-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
       windowsBroadBlockingAuthorityPreflightTest:
-        'packages/parent-domain/tests/app-game-windows-broad-blocking-authority-preflight.test.ts',
-      windowsLocalPolicyEvidence: 'packages/parent-domain/src/app-game-windows-local-policy-evidence-proof.ts',
+        'packages/app-game-domain/tests/unit/app-game-windows-broad-blocking-authority-preflight.test.ts',
+      windowsLocalPolicyEvidence: 'packages/app-game-domain/src/app-game-windows-local-policy-evidence-proof.ts',
       windowsLocalPolicyEvidenceTest:
-        'packages/parent-domain/tests/app-game-windows-local-policy-evidence-proof.test.ts',
-      androidAuthorityPreflight: 'packages/parent-domain/src/app-game-android-authority-preflight.ts',
-      androidAuthorityPreflightTest: 'packages/parent-domain/tests/app-game-android-authority-preflight.test.ts',
+        'packages/app-game-domain/tests/unit/app-game-windows-local-policy-evidence-proof.test.ts',
+      androidAuthorityPreflight: 'packages/app-game-domain/src/app-game-android-authority-preflight.ts',
+      androidAuthorityPreflightTest: 'packages/app-game-domain/tests/unit/app-game-android-authority-preflight.test.ts',
       androidAccessibilityOverlayPreflight:
-        'packages/parent-domain/src/app-game-android-accessibility-overlay-preflight.ts',
+        'packages/app-game-domain/src/app-game-android-accessibility-overlay-preflight.ts',
       androidAccessibilityOverlayPreflightTest:
-        'packages/parent-domain/tests/app-game-android-accessibility-overlay-preflight.test.ts',
-      androidAccessibilityRuntimeProof: 'packages/parent-domain/src/app-game-android-accessibility-runtime-proof.ts',
+        'packages/app-game-domain/tests/unit/app-game-android-accessibility-overlay-preflight.test.ts',
+      androidAccessibilityRuntimeProof: 'packages/app-game-domain/src/app-game-android-accessibility-runtime-proof.ts',
       androidAccessibilityRuntimeProofTest:
-        'packages/parent-domain/tests/app-game-android-accessibility-runtime-proof.test.ts',
-      appleCiPlatformProofPreflight: 'packages/parent-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
+        'packages/app-game-domain/tests/unit/app-game-android-accessibility-runtime-proof.test.ts',
+      appleCiPlatformProofPreflight: 'packages/app-game-domain/src/app-game-apple-ci-platform-proof-preflight.ts',
       appleCiPlatformProofPreflightTest:
-        'packages/parent-domain/tests/app-game-apple-ci-platform-proof-preflight.test.ts',
-      portalIntent: 'packages/portal-domain/src/app-game-platform-proof-status-panel.ts',
-      portalTest: 'packages/portal-domain/tests/app-game-platform-proof-status-panel.test.ts',
+        'packages/app-game-domain/tests/unit/app-game-apple-ci-platform-proof-preflight.test.ts',
+      portalCommands: 'packages/portal-domain/src/commands.ts',
+      portalCommandsTest: 'packages/portal-domain/tests/unit/contracts.test.ts',
+      portalPanel: 'packages/portal-domain/src/app-game-platform-proof-status-panel.ts',
+      portalPanelTest: 'packages/portal-domain/tests/unit/app-game-platform-proof-status-panel.test.ts',
+      portalLiveState: 'packages/portal-domain/src/live-activity-state.ts',
       protocolContract: 'packages/agent-protocol-domain/src/app-game-platform-proof-status.ts',
-      protocolTest: 'packages/agent-protocol-domain/tests/app-game-platform-proof-status.test.ts',
-      androidUsageEventsReplay: 'packages/parent-domain/src/app-game-android-usage-events-replay.ts',
-      androidUsageEventsReplayTest: 'packages/parent-domain/tests/app-game-android-usage-events-replay.test.ts',
-      linuxForegroundCaptureReadiness: 'packages/parent-domain/src/app-game-linux-foreground-capture-readiness.ts',
+      protocolTest: 'packages/agent-protocol-domain/tests/unit/app-game-platform-proof-status.test.ts',
+      androidUsageEventsReplay: 'packages/app-game-domain/src/app-game-android-usage-events-replay.ts',
+      androidUsageEventsReplayTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-replay.test.ts',
+      linuxForegroundCaptureReadiness: 'packages/app-game-domain/src/app-game-linux-foreground-capture-readiness.ts',
       linuxForegroundCaptureReadinessTest:
-        'packages/parent-domain/tests/app-game-linux-foreground-capture-readiness.test.ts',
-      linuxActiveWindowToolProof: 'packages/parent-domain/src/app-game-linux-active-window-tool-proof.ts',
-      linuxActiveWindowToolProofTest: 'packages/parent-domain/tests/app-game-linux-active-window-tool-proof.test.ts',
-      linuxDockerHostPreflight: 'packages/parent-domain/src/app-game-linux-docker-host-preflight.ts',
-      linuxDockerHostPreflightTest: 'packages/parent-domain/tests/app-game-linux-docker-host-preflight.test.ts',
+        'packages/app-game-domain/tests/unit/app-game-linux-foreground-capture-readiness.test.ts',
+      linuxActiveWindowToolProof: 'packages/app-game-domain/src/app-game-linux-active-window-tool-proof.ts',
+      linuxActiveWindowToolProofTest: 'packages/app-game-domain/tests/unit/app-game-linux-active-window-tool-proof.test.ts',
+      linuxDockerHostPreflight: 'packages/app-game-domain/src/app-game-linux-docker-host-preflight.ts',
+      linuxDockerHostPreflightTest: 'packages/app-game-domain/tests/unit/app-game-linux-docker-host-preflight.test.ts',
       rustProtocol: 'crates/agent-protocol/src/app_game_platform_proof_status.rs',
       rustService: 'crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs',
-      portalRoute: 'apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx',
-      portalRouteTest: 'apps/portal/tests/app-game-platform-proof-status-route-panel.test.ts',
       androidProof: 'test-results/app-game-android-physical-device-proof/proof.json',
       androidReplayProof: 'test-results/app-game-android-usage-events-replay-proof/proof.json',
       linuxProof: 'test-results/app-game-linux-wsl-runtime-proof/proof.json',
@@ -334,7 +337,7 @@ async function main() {
       'Android authority preflight blockers are visible without claiming Device Owner or Profile Owner authority',
       'Android Accessibility overlay preflight blockers are visible with enabled-service names redacted',
       'Android Accessibility runtime declaration proof is visible without claiming overlay execution',
-      'Android UsageEvents replay readiness is visible in the parent-domain platform status surface',
+      'Android UsageEvents replay readiness is visible in the app-game-domain platform status surface',
       'Windows broad-blocking authority preflight blockers are visible without claiming AppLocker, App Control, rollback, audit, or adapter dispatch readiness',
       'Windows local AppLocker/App Control policy evidence is visible without storing raw policy XML or claiming broad blocking',
       'macOS and iOS CI-required proof blockers are visible without claiming Windows-local Apple proof, adapter dispatch, or platform enforcement',
@@ -345,10 +348,11 @@ async function main() {
       'Linux active-window tool availability is visible without raw title custody or foreground capture claims',
       'Linux Docker host preflight is visible without storing raw context, image, or container identifiers',
       'The status surface keeps native platform enforcement and child delivery unclaimed',
-      'The portal intent renders platform proof rows as review-only visibility status',
+      'The portal-domain command catalog includes the platform proof status read-model request and result event',
+      'The portal-domain live-activity state parses the service-reported platform proof status event',
+      'The portal-domain panel intent renders platform proof rows as review-only visibility status',
       'The Rust agent protocol exposes a stable platform proof status command and event',
       'The Rust service routes the command to a live host-capability-backed read model',
-      'The app portal route parses the reported read model and renders it on App/Game Sessions',
     ],
     claimsNotProved: [
       'Android Device Owner or Profile Owner authority',
@@ -374,8 +378,10 @@ async function main() {
       '',
       '- Branch: codex/app-game-control-product-completion',
       '- Commit: uncommitted full-goal batch, validated by harness before final checkpoint commit',
-      '- Parent read model: packages/parent-domain/src/app-game-platform-proof-status.ts',
-      '- Portal intent: packages/portal-domain/src/app-game-platform-proof-status-panel.ts',
+      '- App-game read model: packages/app-game-domain/src/app-game-platform-proof-status.ts',
+      '- Portal commands: packages/portal-domain/src/commands.ts',
+      '- Portal panel: packages/portal-domain/src/app-game-platform-proof-status-panel.ts',
+      '- Portal live state: packages/portal-domain/src/live-activity-state.ts',
       '',
       'Evidence:',
       '- Android physical-device proof is surfaced as visibility-only platform evidence.',
@@ -395,7 +401,8 @@ async function main() {
       '- TypeScript protocol: packages/agent-protocol-domain/src/app-game-platform-proof-status.ts',
       '- Rust protocol: crates/agent-protocol/src/app_game_platform_proof_status.rs',
       '- Rust service: crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs',
-      '- Portal route: apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx',
+      '- Portal commands: packages/portal-domain/src/commands.ts',
+      '- Portal live state: packages/portal-domain/src/live-activity-state.ts',
       '',
       'Evidence:',
       '- The service command returns Windows, Android, Linux, macOS, and iOS platform proof status rows.',
@@ -412,10 +419,10 @@ async function main() {
       '',
       '- Branch: codex/app-game-control-product-completion',
       '- Commit: uncommitted full-goal batch, validated by harness before final checkpoint commit',
-      '- Parent read model: packages/parent-domain/src/app-game-platform-proof-status.ts',
-      '- Windows authority preflight: packages/parent-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
-      '- Android authority preflight: packages/parent-domain/src/app-game-android-authority-preflight.ts',
-      '- Android Accessibility overlay preflight: packages/parent-domain/src/app-game-android-accessibility-overlay-preflight.ts',
+      '- App-game read model: packages/app-game-domain/src/app-game-platform-proof-status.ts',
+      '- Windows authority preflight: packages/app-game-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
+      '- Android authority preflight: packages/app-game-domain/src/app-game-android-authority-preflight.ts',
+      '- Android Accessibility overlay preflight: packages/app-game-domain/src/app-game-android-accessibility-overlay-preflight.ts',
       '',
       'Evidence:',
       '- Windows, Android, and Linux rows share one platform proof status read model.',

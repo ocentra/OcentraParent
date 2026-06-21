@@ -8,7 +8,7 @@ import {
   AppGameChildUxPrimaryAction,
   AppGameChildUxSurfaceState,
   AppGameChildUxTargetKind,
-} from '../../src/app-game-child-facing-ux-rules';
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-rules';
 import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-03T09:24:00Z';

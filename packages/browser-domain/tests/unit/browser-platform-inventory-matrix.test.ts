@@ -3,7 +3,7 @@ import {
   BrowserInventoryPlatformMatrix,
   BrowserInventoryPlatformMatrixEntrySchema,
   BrowserInventoryPlatformMatrixSchema,
-} from '../../src/browser';
+} from '@ocentra-parent/schema-domain/browser-platform-inventory-matrix';
 
 describe('browser platform inventory matrix', () => {
   it('captures desktop and mobile platform states without upgrading claims', () => {

@@ -1,167 +1,20 @@
+import { Schema } from '@ocentra-parent/schema-domain/effect';
 import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
-import {
-  ParentContractSchemaVersion,
-  ParentContractSchemaVersionSchema,
-  ParentPlatformSchema,
-  ParentTimestampSchema,
-} from '@ocentra-parent/schema-domain/family-reference-primitives';
+  AppGameAdapterExecutionReadinessReadModelSchema,
+  AppGameAdapterExecutionReadinessReferenceSchema,
+  AppGameAdapterExecutionReadinessRowSchema,
+  type AppGameAdapterExecutionReadinessReadModel as AppGameAdapterExecutionReadinessReadModelShape,
+  type AppGameAdapterExecutionReadinessReference,
+  type AppGameAdapterExecutionReadinessRow,
+  type AppGameAdapterExecutionState,
+  type AppGameAdapterHostCapabilityState,
+} from '@ocentra-parent/schema-domain/app-game-adapter-execution-readiness';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   V08SupportedAdapterRuntimeProofReadModel,
   type V08SupportedAdapterRuntimeProofEntry,
   type V08SupportedAdapterRuntimeProofReadModel as V08SupportedAdapterRuntimeProofReadModelType,
-} from '@ocentra-parent/enforcement-domain/v0-8-supported-adapter-runtime-proof';
-
-export const AppGameAdapterExecutionReadinessReadModelIdSchema = brandedNonEmptyStringSchema('AppGameAdapterExecutionReadinessReadModelId');
-export const AppGameAdapterExecutionReadinessRowIdSchema = brandedNonEmptyStringSchema('AppGameAdapterExecutionReadinessRowId');
-export const AppGameAdapterExecutionReadinessReferenceSchema = brandedNonEmptyStringSchema('AppGameAdapterExecutionReadinessReference');
-export const AppGameAdapterExecutionReadinessBoundarySchema = brandedNonEmptyStringSchema('AppGameAdapterExecutionReadinessBoundary');
-
-export const AppGameAdapterProductMeaningSchema = withParser(Schema.Literal('native-app', 'native-game'));
-
-export const AppGameAdapterExecutionStateSchema = withParser(
-  Schema.Literal('proved-scoped-execution', 'manual-required', 'unavailable', 'unsupported', 'degraded', 'not-claimed')
-);
-
-export const AppGameAdapterExecutionDecisionSchema = withParser(
-  Schema.Literal('execution-allowed', 'blocked-before-execution')
-);
-
-export const AppGameAdapterHostCapabilityStateSchema = withParser(
-  Schema.Literal('available', 'not-detected', 'not-applicable')
-);
-
-const AppGameAdapterExecutionReadinessRowBaseSchema = Schema.Struct({
-  schemaVersion: ParentContractSchemaVersionSchema,
-  rowId: AppGameAdapterExecutionReadinessRowIdSchema,
-  sourceProofEntryId: AppGameAdapterExecutionReadinessReferenceSchema,
-  platform: ParentPlatformSchema,
-  productMeanings: Schema.Array(AppGameAdapterProductMeaningSchema),
-  adapterCapability: AppGameAdapterExecutionReadinessReferenceSchema,
-  adapterExecutionState: AppGameAdapterExecutionStateSchema,
-  executionDecision: AppGameAdapterExecutionDecisionSchema,
-  runtimeBoundary: AppGameAdapterExecutionReadinessReferenceSchema,
-  targetIdentityState: AppGameAdapterExecutionReadinessReferenceSchema,
-  rollbackReferenceState: AppGameAdapterExecutionReadinessReferenceSchema,
-  auditReferenceState: AppGameAdapterExecutionReadinessReferenceSchema,
-  evidenceRefs: Schema.Array(AppGameAdapterExecutionReadinessReferenceSchema),
-  hostCapabilityState: AppGameAdapterHostCapabilityStateSchema,
-  hostCapabilityEvidenceRefs: Schema.Array(AppGameAdapterExecutionReadinessReferenceSchema),
-  hostCapabilityProbeRefs: Schema.Array(AppGameAdapterExecutionReadinessReferenceSchema),
-  linkedProofArtifacts: Schema.Array(AppGameAdapterExecutionReadinessReferenceSchema),
-  manualProofRequirements: Schema.Array(AppGameAdapterExecutionReadinessReferenceSchema),
-  claimBoundary: AppGameAdapterExecutionReadinessBoundarySchema,
-  fallbackBehavior: AppGameAdapterExecutionReadinessBoundarySchema,
-  adapterExecutionClaimed: Schema.Boolean,
-  broadInstalledAppBlockingClaimed: Schema.Boolean,
-  childDeviceDeliveryClaimed: Schema.Boolean,
-  platformEnforcementClaimed: Schema.Boolean,
-  providerDeliveryClaimed: Schema.Boolean,
-  privateDiagnosticsClaimed: Schema.Boolean,
-  lastCheckedAt: ParentTimestampSchema,
-});
-
-type AppGameAdapterExecutionReadinessRowCandidate = Infer<typeof AppGameAdapterExecutionReadinessRowBaseSchema>;
-
-export const AppGameAdapterExecutionReadinessRowSchema = withParser(
-  AppGameAdapterExecutionReadinessRowBaseSchema.pipe(
-    Schema.filter(
-      (row) =>
-        appGameAdapterExecutionReadinessRowIsHonest(row) ||
-        'Expected app/game adapter execution readiness rows to allow execution only for the scoped Windows owned-process time-limit boundary and keep broad blocking, delivery, platform enforcement, and private diagnostics unclaimed'
-    )
-  )
-);
-
-export const AppGameAdapterExecutionReadinessReadModelSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    readModelId: AppGameAdapterExecutionReadinessReadModelIdSchema,
-    generatedAt: ParentTimestampSchema,
-    sourceReadModelIds: Schema.Array(AppGameAdapterExecutionReadinessReferenceSchema),
-    rows: Schema.Array(AppGameAdapterExecutionReadinessRowSchema),
-  }).pipe(
-    Schema.filter(
-      (readModel) =>
-        new Set(readModel.rows.map((row) => row.rowId)).size === readModel.rows.length ||
-        'Expected app/game adapter execution readiness rows to have unique ids'
-    )
-  )
-);
-
-function appGameAdapterExecutionReadinessRowIsHonest(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
-  if (appGameAdapterExecutionReadinessRowHasClaimUpgrade(row)) return false;
-
-  if (row.adapterExecutionState === 'proved-scoped-execution') {
-    return (
-      row.platform === 'windows' &&
-      row.executionDecision === 'execution-allowed' &&
-      row.runtimeBoundary === 'windows-app-game-owned-process-time-limit' &&
-      row.targetIdentityState === 'process-session-evidence-backed' &&
-      row.rollbackReferenceState === 'timer-recovery-backed' &&
-      row.auditReferenceState === 'audit-reference-backed' &&
-      row.adapterExecutionClaimed &&
-      row.evidenceRefs.length > 0 &&
-      row.hostCapabilityState === 'available' &&
-      row.hostCapabilityEvidenceRefs.length > 0 &&
-      row.hostCapabilityProbeRefs.length > 0 &&
-      row.linkedProofArtifacts.length > 0 &&
-      row.manualProofRequirements.length === 0
-    );
-  }
-
-  return (
-    row.executionDecision === 'blocked-before-execution' &&
-    !row.adapterExecutionClaimed &&
-    appGameHostCapabilityStateMatchesEvidence(row) &&
-    appGameHostCapabilityProbeRefsAreParentSafe(row) &&
-    row.manualProofRequirements.length > 0
-  );
-}
-
-function appGameHostCapabilityStateMatchesEvidence(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
-  if (row.hostCapabilityState === 'available') {
-    return row.hostCapabilityEvidenceRefs.length > 0;
-  }
-  if (row.hostCapabilityState === 'not-applicable') {
-    return row.hostCapabilityEvidenceRefs.length === 0;
-  }
-  return true;
-}
-
-function appGameHostCapabilityProbeRefsAreParentSafe(row: AppGameAdapterExecutionReadinessRowCandidate): boolean {
-  if (row.hostCapabilityState === 'not-applicable') {
-    return row.hostCapabilityProbeRefs.length === 0;
-  }
-  return row.hostCapabilityProbeRefs.every((ref) => String(ref).endsWith('-probe-ref'));
-}
-
-function appGameAdapterExecutionReadinessRowHasClaimUpgrade(
-  row: AppGameAdapterExecutionReadinessRowCandidate
-): boolean {
-  return [
-    row.broadInstalledAppBlockingClaimed,
-    row.childDeviceDeliveryClaimed,
-    row.platformEnforcementClaimed,
-    row.providerDeliveryClaimed,
-    row.privateDiagnosticsClaimed,
-  ].some(Boolean);
-}
-
-export type AppGameAdapterExecutionReadinessReadModelId = typeof AppGameAdapterExecutionReadinessReadModelIdSchema.Type;
-export type AppGameAdapterExecutionReadinessRowId = typeof AppGameAdapterExecutionReadinessRowIdSchema.Type;
-export type AppGameAdapterExecutionReadinessReference = typeof AppGameAdapterExecutionReadinessReferenceSchema.Type;
-export type AppGameAdapterExecutionReadinessBoundary = typeof AppGameAdapterExecutionReadinessBoundarySchema.Type;
-export type AppGameAdapterProductMeaning = Infer<typeof AppGameAdapterProductMeaningSchema>;
-export type AppGameAdapterExecutionState = Infer<typeof AppGameAdapterExecutionStateSchema>;
-export type AppGameAdapterExecutionDecision = Infer<typeof AppGameAdapterExecutionDecisionSchema>;
-export type AppGameAdapterHostCapabilityState = Infer<typeof AppGameAdapterHostCapabilityStateSchema>;
-export type AppGameAdapterExecutionReadinessRow = Infer<typeof AppGameAdapterExecutionReadinessRowSchema>;
-export type AppGameAdapterExecutionReadinessReadModel = Infer<typeof AppGameAdapterExecutionReadinessReadModelSchema>;
+} from '@ocentra-parent/schema-domain/v0-8-supported-adapter-runtime-proof';
 
 const generatedAt = '2026-06-08T09:17:00.000Z';
 
@@ -185,14 +38,16 @@ export const AppGameAdapterExecutionReadinessReadModel = buildAppGameAdapterExec
 
 export function buildAppGameAdapterExecutionReadinessReadModel(
   sourceReadModel: V08SupportedAdapterRuntimeProofReadModelType
-): AppGameAdapterExecutionReadinessReadModel {
+): AppGameAdapterExecutionReadinessReadModelShape {
   return AppGameAdapterExecutionReadinessReadModelSchema.parse({
     schemaVersion: ParentContractSchemaVersion.V0_6,
     readModelId: 'app-game-adapter-execution-readiness',
     generatedAt,
     sourceReadModelIds: [String(sourceReadModel.readModelId)],
     rows: sourceReadModel.entries
-      .filter((entry) => AppGameAdapterRuntimeProofEntryIds.has(String(entry.proofEntryId)))
+      .filter((entry: V08SupportedAdapterRuntimeProofEntry) =>
+        AppGameAdapterRuntimeProofEntryIds.has(String(entry.proofEntryId))
+      )
       .map(appGameAdapterExecutionReadinessRowFromEntry),
   });
 }
@@ -296,7 +151,7 @@ function appGameReadinessReferences(values: readonly string[]): readonly AppGame
 }
 
 export function summarizeAppGameAdapterExecutionReadiness(
-  readModel: AppGameAdapterExecutionReadinessReadModel
+  readModel: AppGameAdapterExecutionReadinessReadModelShape
 ): Record<string, number> {
   return {
     rows: readModel.rows.length,
@@ -317,4 +172,3 @@ export const decodeAppGameAdapterExecutionReadinessRow = Schema.decodeUnknownSyn
 export const decodeAppGameAdapterExecutionReadinessReadModel = Schema.decodeUnknownSync(
   AppGameAdapterExecutionReadinessReadModelSchema
 );
-

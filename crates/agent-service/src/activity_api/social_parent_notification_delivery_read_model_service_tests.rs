@@ -1,9 +1,10 @@
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
     AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    SocialParentNotificationDeliveryReadinessSnapshot, AGENT_PROTOCOL_SCHEMA_VERSION,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
     SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY,
 };
+use ocentra_parent_agent_protocol::social_parent_notification_delivery_read_model::SocialParentNotificationDeliveryReadinessSnapshot;
 
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
 

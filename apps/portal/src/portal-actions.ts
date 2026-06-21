@@ -1,8 +1,8 @@
-import type {
+import {
   AgentCommandName,
   AgentEventName,
   AgentProtocolLogFields,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 
 export interface PortalRenderActions {
   reconnect(): void;

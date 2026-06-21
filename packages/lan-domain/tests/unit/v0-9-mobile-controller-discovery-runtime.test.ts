@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { V09MobileControllerDiscoveryRuntimeReadModelSchema } from '../../src/v0-9-mobile-controller-discovery-runtime';
+import { V09MobileControllerDiscoveryRuntimeReadModelSchema } from '@ocentra-parent/schema-domain/v0-9-mobile-controller-discovery-runtime';
 
 const RuntimeReadModel = {
   schemaVersion: 'v0.9-mobile-controller-discovery-runtime',

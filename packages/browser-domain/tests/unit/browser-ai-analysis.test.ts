@@ -3,7 +3,7 @@ import {
   BrowserAiAnalysisSchemaVersion,
   BrowserUrlAiAnalysisInputSchema,
   BrowserUrlAiAnalysisResultSchema,
-} from '../../src/browser-ai-analysis-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-analysis-schemas';
 
 describe('browser URL AI analysis input contract', () => {
   it('accepts structured AI input with evidence, URL shape, metadata, memory, graph, and parent rule refs', () => {

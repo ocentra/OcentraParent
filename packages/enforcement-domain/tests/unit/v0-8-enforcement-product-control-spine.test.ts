@@ -4,7 +4,7 @@ import {
   V08EnforcementProductControlSpineReadModel,
   V08EnforcementProductControlSpineReadModelSchema,
   V08EnforcementProductControlSurface,
-} from '../../src/v0-8-enforcement-product-control-spine';
+} from '@ocentra-parent/schema-domain/v0-8-enforcement-product-control-spine';
 
 it('captures product-control actions without broad claim upgrades', () => {
   const readModel = V08EnforcementProductControlSpineReadModelSchema.parse(V08EnforcementProductControlSpineReadModel);

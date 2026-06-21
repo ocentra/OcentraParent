@@ -13,15 +13,15 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-report-status-read-model-handoff-proof.test.ts',
+      'tests/unit/app-install-purchase-report-status-read-model-handoff-proof.test.ts',
     ])
   );
 
@@ -68,24 +68,24 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-report-status-read-model-handoff-proof',
     commands,
-    packageExportState: 'pending-current-package-json-lock-codex-b',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     docsState: 'feature-expectation-docs-updated-checklist-readme-sequenced-behind-current-locks',
     evidence: {
       reportStatusReadModelHandoffContract:
-        'packages/parent-domain/src/app-install-purchase-report-status-read-model-handoff-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-report-status-read-model-handoff-proof.ts',
       sourceRuntimeReportWriterDeliveryContract:
-        'packages/parent-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-runtime-report-writer-delivery-proof.ts',
       sourceApprovalReportDomainContract:
-        'packages/parent-domain/src/app-install-purchase-approval-report-domain-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-report-status-read-model-handoff-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-approval-report-domain-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-report-status-read-model-handoff-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md updated for report status read-model handoff proof.',
       expectationDoc:
         'docs/expectations/app-install-purchase-approval.md updated for report status read-model handoff proof.',
       checklistRowDeferred:
         'docs/product-capability-checklist.md Install/purchase approval row update sequenced behind current E-C checklist lock.',
       packageExportDeferred:
-        'packages/parent-domain/package.json export deferred behind current codex-b package export lock.',
-      readmeDeferred: 'packages/parent-domain/README.md update sequenced behind current codex-c README lock.',
+        'packages/app-game-domain/package.json does not currently publish this proof as a public subpath export.',
+      readmeDeferred: 'packages/app-game-domain/package.json is the current package surface for this proof.',
       output: relative(repoRoot, proofPath),
     },
     reportStatusReadModelSummary: summary,
@@ -123,7 +123,7 @@ async function loadReportStatusReadModelHandoffModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-report-status-read-model-handoff-proof.js'
   );

@@ -10,19 +10,19 @@ const ValidationLogPath = join(OutputRoot, 'validation-commands.log');
 const TestResultPath = join(TestResultRoot, 'proof.json');
 const generatedAt = new Date().toISOString();
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 runCommand(
   ...npmCommand([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/screen-domain',
     '--',
-    'screen-ai-invalid-output-degrade-proof',
+    'screen-ai-invalid-output-degrade-proof.test.ts',
   ])
 );
 
-const { LocalAiSafetyResultSchema } = await import('@ocentra-parent/ai-domain/local-ai');
+const { LocalAiSafetyResultSchema } = await import('@ocentra-parent/schema-domain/local-ai');
 
 const evidenceReference = {
   evidenceReferenceId: 'screen-evidence:invalid-output-degrade',
@@ -157,8 +157,8 @@ writeFileSync(ProofPath, `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(
   ValidationLogPath,
   [
-    'cmd /c npm run build --workspace @ocentra-parent/parent-domain',
-    'cmd /c npm run test --workspace @ocentra-parent/parent-domain -- screen-ai-invalid-output-degrade-proof',
+    'cmd /c npm run build --workspace @ocentra-parent/schema-domain',
+    'cmd /c npm run test --workspace @ocentra-parent/screen-domain -- screen-ai-invalid-output-degrade-proof.test.ts',
   ].join('\n') + '\n'
 );
 writeFileSync(TestResultPath, `${JSON.stringify({ status: 'ok', proof: relativePath(ProofPath) }, null, 2)}\n`);

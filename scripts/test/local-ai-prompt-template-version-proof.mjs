@@ -1,7 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const outputDir = join(repoRoot, 'output', 'ai-plan-proof', 'local-ai-prompt-template-version-proof');
@@ -50,15 +49,13 @@ async function main() {
   mkdirSync(testResultsDir, { recursive: true });
 
   const commands = [
-    'cmd /c npm run build --workspace @ocentra-parent/parent-domain',
-    'cmd /c npm run test --workspace @ocentra-parent/parent-domain -- local-ai-prompt-template-version-proof',
+    'cmd /c npm run build:contracts',
+    'cmd /c npm run test --workspace @ocentra-parent/ai-domain -- local-ai-prompt-template-version-proof',
   ];
   runCommand(commands[0]);
   runCommand(commands[1]);
 
-  const contract = await import(
-    pathToFileURL(join(repoRoot, 'packages/parent-domain/dist/local-ai-prompt-template-version-proof.js')).href
-  );
+  const contract = await import('@ocentra-parent/schema-domain/local-ai-prompt-template-version-proof');
   const proof = contract.buildLocalAiPromptTemplateVersionProof(buildProofInput());
   const proofSummary = {
     status: 'ok',
@@ -72,10 +69,11 @@ async function main() {
     summary: proof.summary,
     claimBoundaries: proof.claimBoundaries,
     sourceArtifacts: [
-      'packages/parent-domain/src/local-ai-primitives.ts',
-      'packages/parent-domain/src/local-ai.ts',
-      'packages/parent-domain/src/local-ai-context.ts',
-      'packages/parent-domain/src/local-ai-prompt-template-version-proof.ts',
+      'packages/schema-domain/src/ai-primitives.ts',
+      'packages/schema-domain/src/local-ai.ts',
+      'packages/schema-domain/src/local-ai-context-builder.ts',
+      'packages/schema-domain/src/local-ai-context-result.ts',
+      'packages/schema-domain/src/local-ai-prompt-template-version-proof.ts',
     ],
     claimsProved: [
       'The prompt/template version is schema-bound and reconciled across context-builder request, local AI evaluation input, and safety result.',

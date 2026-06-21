@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import { PortalDom, PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/portal-domain/routes';
 import {
   createSetupFirstRunPanelIntent,
   type SetupFirstRunPanelCard,

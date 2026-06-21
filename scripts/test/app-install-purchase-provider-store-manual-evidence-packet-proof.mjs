@@ -13,15 +13,15 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-provider-store-manual-evidence-packet-proof.test.ts',
+      'tests/unit/app-install-purchase-provider-store-manual-evidence-packet-proof.test.ts',
     ])
   );
 
@@ -58,16 +58,15 @@ async function main() {
     proofMode: 'app-install-purchase-provider-store-manual-evidence-packet-proof',
     commands,
     packageExportState: 'not-claimed-new-public-export-deferred',
-    readmeState: 'blocked-by-current-codex-c-packages-parent-domain-readme-lock',
     evidence: {
       manualEvidencePacketContract:
-        'packages/parent-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts',
       sourcePlatformProofReadinessContract:
-        'packages/parent-domain/src/app-install-purchase-platform-proof-readiness.ts',
+        'packages/app-game-domain/src/app-install-purchase-platform-proof-readiness.ts',
       sourceProviderStorePreflightContract:
-        'packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
       contractTest:
-        'packages/parent-domain/tests/app-install-purchase-provider-store-manual-evidence-packet-proof.test.ts',
+        'packages/app-game-domain/tests/unit/app-install-purchase-provider-store-manual-evidence-packet-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDoc: 'docs/product-capability-checklist.md',
@@ -87,7 +86,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-provider-store-manual-evidence-packet-proof.js'
   );

@@ -1,19 +1,19 @@
-import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
-import { describe, expect, it } from 'vitest';
-import {
-  AgentAppGameAdapterExecutionDecision,
-  AgentAppGameAdapterHostCapabilityState,
-  AgentAppGameAdapterExecutionState,
-} from '../../src/app-game-adapter-execution-readiness';
-import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
-import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
+import { AppGameSchemaVersion } from '@ocentra-parent/schema-domain/app-game-primitives';
 import {
   AgentAppGameAdapterDispatchDecision,
   AgentAppGameAdapterDispatchOutcomeState,
   AgentAppGameAdapterDispatchPreflightPayloadField,
   AgentAppGameAdapterDispatchPreflightState,
-  parseAgentAppGameAdapterDispatchPreflightEvent,
-} from '../../src/app-game-adapter-dispatch-preflight';
+} from '@ocentra-parent/schema-domain/app-game-adapter-dispatch-preflight';
+import {
+  AgentAppGameAdapterExecutionDecision,
+  AgentAppGameAdapterExecutionState,
+  AgentAppGameAdapterHostCapabilityState,
+} from '@ocentra-parent/schema-domain/app-game-adapter-execution-readiness';
+import { describe, expect, it } from 'vitest';
+import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
+import { parseAgentAppGameAdapterDispatchPreflightEvent } from '../../src/app-game-adapter-dispatch-preflight';
 
 const Source = {
   peerId: 'agent-service',

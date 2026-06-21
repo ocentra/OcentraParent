@@ -17,19 +17,20 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-timer-service-handoff',
   'app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model',
 ]);
 
-const contract = await importDist('app-game-timer-service-handoff.js');
-const refs = await importDist('reference-primitives.js');
+const contract = await importAppGameDist('app-game-timer-service-handoff.js');
+const refs = await importSchemaDist('reference-primitives.js');
 const sourceReadModel = await readJson(
   join(repoRoot, 'test-results', 'app-game-timer-parent-read-model-proof', 'handoff.json')
 );
@@ -49,7 +50,7 @@ const proof = {
     wp101Branch:
       'codex/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-contract',
     reason:
-      'WP102 consumes WP101 parent-safe parent-surface read-model rows and creates a parent-domain service handoff while service event/read-model emission, read APIs, protocol implementation, runtime persistence, portal rendering, adapter dispatch, child delivery, platform enforcement, package exports, and raw source rows remain sequenced separately.',
+      'Schema-domain owns the timer-service handoff contract surface; app-game-domain consumes WP101 parent-safe parent-surface read-model rows while service event/read-model emission, read APIs, protocol implementation, runtime persistence, portal rendering, adapter dispatch, child delivery, platform enforcement, package exports, and raw source rows remain sequenced separately.',
   },
   summary: summarize(serviceHandoff),
   nonClaims: {
@@ -82,10 +83,12 @@ const proof = {
     rawPrivateSourceRowsIncluded: serviceHandoff.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-timer-service-handoff.ts',
-    rules: 'packages/parent-domain/src/app-game-timer-service-handoff-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-timer-service-handoff.test.ts',
-    harness: 'scripts/test/app-game-timer-service-handoff-proof.mjs',
+    schemaSource: 'packages/schema-domain/src/app-game-timer-service-handoff.ts',
+    schemaRules: 'packages/schema-domain/src/app-game-timer-service-handoff-rules.ts',
+    consumerSource: 'packages/app-game-domain/src/app-game-timer-service-handoff.ts',
+    consumerTest: 'packages/app-game-domain/tests/unit/app-game-timer-service-handoff.test.ts',
+    harness:
+      'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff-proof.mjs',
     evidence: 'test-results/app-game-timer-service-handoff-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
     appProofPack: `output/app-plan-proof/${proofSlug}`,
@@ -102,8 +105,12 @@ await writeProofPack(appProofDir, proof, 'app WP102');
 console.log('app-game-timer-service-handoff-proof-ok');
 console.log(`evidence=${join('test-results', 'app-game-timer-service-handoff-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function serviceHandoffOptions(refs) {

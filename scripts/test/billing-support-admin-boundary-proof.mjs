@@ -14,7 +14,7 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
@@ -40,9 +40,9 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/billing-support-admin-boundary.ts',
-      values: 'packages/parent-domain/src/billing-support-admin-boundary-values.ts',
-      proofModel: 'packages/parent-domain/src/billing-support-admin-boundary-proof.ts',
+      contract: 'packages/schema-domain/src/billing-support-admin-boundary.ts',
+      values: 'packages/schema-domain/src/billing-support-admin-boundary-values.ts',
+      proofModel: 'packages/schema-domain/src/billing-support-admin-boundary-proof.ts',
       contractTest: 'packages/parent-domain/tests/billing-support-admin-boundary.test.ts',
       packageExport,
       documentation,
@@ -77,17 +77,19 @@ async function main() {
 
 async function assertBuiltContract() {
   const proofModulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'billing-support-admin-boundary-proof.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'billing-support-admin-boundary-proof.js')
   );
   const boundaryModulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'billing-support-admin-boundary.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'billing-support-admin-boundary.js')
   );
   const proofModule = await import(proofModulePath.href);
   const boundaryModule = await import(boundaryModulePath.href);
   const proof = proofModule.BillingSupportAdminBoundaryProofReadModel;
 
   assert.equal(proof.schemaVersion, proofMode);
-  assert.deepEqual(boundaryModule.summarizeBillingSupportAdminActions(proof.rows), {
+  assert.equal(typeof boundaryModule.decodeBillingSupportAdminBoundaryProof, 'function');
+  assert.ok(boundaryModule.BillingSupportAdminBoundaryProofSchema);
+  assert.deepEqual(summarizeValues(proof.rows.map((row) => row.action)), {
     'support-case-triage': 1,
     'account-status-review': 1,
     'billing-escalation-request': 1,
@@ -95,14 +97,14 @@ async function assertBuiltContract() {
     'entitlement-admin-override-manual-required': 1,
     'refund-credit-manual-required': 1,
   });
-  assert.deepEqual(boundaryModule.summarizeBillingSupportAdminRuntimeStates(proof.rows), {
+  assert.deepEqual(summarizeValues(proof.rows.map((row) => row.runtimeState)), {
     'read-only-local-proof': 2,
     'manual-required': 2,
     'not-implemented': 2,
   });
   assert.equal(proof.providerContactClaim, 'not-executed');
   assert.equal(proof.backendUploadClaim, 'not-executed');
-  assert.equal(proof.childActivityCustodyClaim, 'not-supported');
+  assert.equal(proof.childActivityCustodyClaim, 'not-included');
 
   return {
     actions: proof.rows.map((row) => row.action),
@@ -111,10 +113,10 @@ async function assertBuiltContract() {
 }
 
 async function assertPublicPackageExport() {
-  const module = await import('@ocentra-parent/parent-domain/billing-support-admin-boundary');
+  const module = await import('@ocentra-parent/schema-domain/billing-support-admin-boundary');
   assert.equal(typeof module.decodeBillingSupportAdminBoundaryProof, 'function');
   assert.ok(module.BillingSupportAdminBoundaryProofSchema);
-  return '@ocentra-parent/parent-domain/billing-support-admin-boundary';
+  return '@ocentra-parent/schema-domain/billing-support-admin-boundary';
 }
 
 async function assertDocumentationProof() {
@@ -164,6 +166,10 @@ function assertIncludes(value, expected, label) {
 
 function relativePath(path) {
   return relative(repoRoot, path).replaceAll('\\', '/');
+}
+
+function summarizeValues(values) {
+  return Object.fromEntries(values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map()));
 }
 
 function npmCommand(args) {

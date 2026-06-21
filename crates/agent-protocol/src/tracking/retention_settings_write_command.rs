@@ -2,9 +2,9 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::{
-    TrackingAcceptedAt, TrackingConfigEffectiveState, TrackingConfigUpdateResponseState,
-    TrackingDurableSettingsStoreRef, TrackingLocalServiceStateSnapshotRef,
+use super::config_update_event::{TrackingConfigEffectiveState, TrackingConfigUpdateResponseState};
+use super::identifiers::{
+    TrackingAcceptedAt, TrackingDurableSettingsStoreRef, TrackingLocalServiceStateSnapshotRef,
     TrackingMutationProofRef, TrackingReadModelProofRef, TrackingRetentionCommandId,
     TrackingRetentionSettingsKind, TrackingRetentionWriteState, TrackingWriterIntentRef,
 };

@@ -3,8 +3,8 @@ import {
   ScreenAiEnforcementHandoffGuardInputSchema,
   ScreenAiEnforcementHandoffGuardPayloadSchema,
   ScreenAiEnforcementHandoffAcceptedEventType,
-  buildScreenAiEnforcementHandoffGuardPayload,
-} from '../../src/screen-ai-enforcement-handoff-guard-proof';
+} from '@ocentra-parent/schema-domain/screen-ai-enforcement-handoff-guard-proof';
+import { buildScreenAiEnforcementHandoffGuardPayload } from '../../src/screen-ai-enforcement-handoff-guard-proof';
 
 const GeneratedAt = '2026-06-06T22:02:00.000Z';
 const SummaryReference = {

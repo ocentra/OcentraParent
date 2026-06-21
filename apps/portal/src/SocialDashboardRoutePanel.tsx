@@ -1,17 +1,23 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
-import { parseAgentSocialDashboardReadModelEvent } from '@ocentra-parent/agent-protocol-domain/social-dashboard-read-model';
 import {
-  PortalDetails,
-  PortalDom,
+  AgentCommand,
+  AgentEvent,
+  type AgentEventEnvelope,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import {
   createSocialDashboardPanelIntent,
-  isPortalBrowserParentSurfaceRoute,
   type SocialDashboardPanelDetail,
   type SocialDashboardPanelIntent,
   type SocialDashboardPanelRow,
+} from '@ocentra-parent/portal-domain/social-dashboard-panel';
+import {
+  isPortalBrowserParentSurfaceRoute,
   type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
+import { parseAgentSocialDashboardReadModelEvent } from './social-read-model-events';
 
 export function shouldRenderSocialDashboardRoute(route: PortalRouteValue): boolean {
   return isPortalBrowserParentSurfaceRoute(route);

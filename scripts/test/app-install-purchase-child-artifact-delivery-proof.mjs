@@ -13,28 +13,22 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-child-artifact-delivery-proof.test.ts',
+      'tests/unit/app-install-purchase-child-artifact-delivery-proof.test.ts',
     ])
   );
 
   const proofModule = await loadChildArtifactProofModule();
-  const packageModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-child-artifact-delivery-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseChildArtifactDeliveryProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseChildArtifactDeliveryProof(parsedReadModel);
 
-  assert.equal(
-    packageModule.AppInstallPurchaseChildArtifactDeliveryProofReadModel.schemaVersion,
-    parsedReadModel.schemaVersion
-  );
   assert.deepEqual(summary, {
     childArtifactRows: 5,
     childDeliveryRows: 5,
@@ -75,14 +69,14 @@ async function main() {
     proofMode: 'app-install-purchase-child-artifact-delivery-proof',
     commands,
     evidence: {
-      childArtifactDeliveryContract: 'packages/parent-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
-      sourcePlatformArtifactContract: 'packages/parent-domain/src/app-install-purchase-platform-artifact-proof.ts',
-      sourceRuntimeContract: 'packages/parent-domain/src/app-install-purchase-runtime-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-child-artifact-delivery-proof.test.ts',
+      childArtifactDeliveryContract: 'packages/app-game-domain/src/app-install-purchase-child-artifact-delivery-proof.ts',
+      sourcePlatformArtifactContract: 'packages/app-game-domain/src/app-install-purchase-platform-artifact-proof.ts',
+      sourceRuntimeContract: 'packages/app-game-domain/src/app-install-purchase-runtime-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-child-artifact-delivery-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDelta: 'DOC_DELTA: docs/product-capability-checklist.md row Install/purchase approval',
-      parentDomainReadmeDelta: 'DOC_DELTA: packages/parent-domain/README.md app install/purchase bullet and gap',
+      parentDomainReadmeDelta: 'DOC_DELTA: packages/app-game-domain/package.json app install/purchase bullet and gap',
       output: relative(repoRoot, proofPath),
     },
     childArtifactSummary: summary,
@@ -135,7 +129,7 @@ async function loadChildArtifactProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-child-artifact-delivery-proof.js'
   );

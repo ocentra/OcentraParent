@@ -1,4 +1,4 @@
-import type { LogLevel as LogLevelValue } from '../contracts';
+import type { LogLevel as LogLevelValue } from '@ocentra-parent/schema-domain/logging-contracts';
 import {
   createParentLogConfig,
   isDevOrTestEnvironment,

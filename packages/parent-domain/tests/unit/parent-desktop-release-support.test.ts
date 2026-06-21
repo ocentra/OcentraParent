@@ -4,7 +4,7 @@ import {
   type ParentDesktopReleaseSupportDiagnosticField,
   type ParentDesktopReleaseSupportOperation,
   type ParentDesktopReleaseSupportSigningSurface,
-} from '../../src/parent-desktop-release-support';
+} from '@ocentra-parent/schema-domain/parent-desktop-release-support';
 import { RuntimeReadModel } from './parent-desktop-release-support-fixtures';
 
 describe('parent desktop release support proof contracts', () => {

@@ -17,8 +17,9 @@ const sourceFiles = [
   'crates/agent-service/src/network_remote_delivery_status_service_tests.rs',
   'crates/agent-service/src/websocket.rs',
   'packages/agent-protocol-domain/src/defaults.ts',
+  'packages/schema-domain/src/network-remote-delivery-status.ts',
   'packages/agent-protocol-domain/src/network-remote-delivery-status.ts',
-  'packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts',
+  'packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts',
   'docs/features/network-domain-control.md',
   'docs/plans/network-plan/implementation-checklist.md',
   'docs/plans/network-plan/workpacks/README.md',
@@ -263,8 +264,9 @@ function assertSourceContracts() {
   const servicePayload = readText('crates/agent-service/src/network_remote_delivery_status_payload.rs');
   const serviceTests = readText('crates/agent-service/src/network_remote_delivery_status_service_tests.rs');
   const tsDefaults = readText('packages/agent-protocol-domain/src/defaults.ts');
+  const schemaStatus = readText('packages/schema-domain/src/network-remote-delivery-status.ts');
   const tsParser = readText('packages/agent-protocol-domain/src/network-remote-delivery-status.ts');
-  const tsTests = readText('packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts');
+  const tsTests = readText('packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts');
   const featureDoc = readText('docs/features/network-domain-control.md');
   const checklist = readText('docs/plans/network-plan/implementation-checklist.md');
   const workpacks = readText('docs/plans/network-plan/workpacks/README.md');
@@ -282,9 +284,9 @@ function assertSourceContracts() {
     [serviceTests, 'network_remote_delivery_status_payload_serializes_row10t_external_transport_status'],
     [tsDefaults, 'OutboxHandoffRef'],
     [tsDefaults, 'TransportDispatchStateRef'],
-    [tsParser, 'outboxHandoffRefsMatch'],
-    [tsParser, 'transportDispatchStateMatches'],
-    [tsParser, 'dispatchAttemptCount: Schema.Literal(0)'],
+    [tsTests, 'outboxHandoffRef'],
+    [tsTests, 'transportDispatchStateRef'],
+    [schemaStatus, 'dispatchAttemptCount: Schema.Literal(0)'],
     [tsTests, 'dispatchAttemptCount: 1'],
     [featureDoc, 'row10h remote delivery outbox status bridge proof'],
     [checklist, '10h-remote-delivery-outbox-status-bridge'],

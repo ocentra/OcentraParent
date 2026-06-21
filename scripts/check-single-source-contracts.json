@@ -19,7 +19,7 @@
     },
     {
       "name": "tracking-runtime-event-names",
-      "ownerPath": "packages/tracking-domain/src/tracking-event-contracts.ts",
+      "ownerPath": "packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts",
       "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
       "mirrors": [
         {
@@ -83,7 +83,7 @@
     },
     {
       "name": "tracking-config-update-event-types",
-      "ownerPath": "packages/agent-protocol-domain/src/tracking-retention-settings-write-command.ts",
+      "ownerPath": "packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts",
       "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
       "mirrors": [
         {
@@ -108,91 +108,8 @@
       ]
     },
     {
-      "name": "tracking-config-update-literals",
-      "ownerPath": "packages/agent-protocol-domain/src/tracking-retention-settings-write-command.ts",
-      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
-      "mirrors": [
-        {
-          "path": "crates/agent-protocol/src/constants/tracking_config_update.rs",
-          "values": [
-            { "name": "targetScopeFamily", "rustConst": "TARGET_SCOPE_FAMILY" },
-            { "name": "targetScopeChildProfile", "rustConst": "TARGET_SCOPE_CHILD_PROFILE" },
-            { "name": "targetScopeChildDevice", "rustConst": "TARGET_SCOPE_CHILD_DEVICE" },
-            { "name": "targetScopeDeviceGroup", "rustConst": "TARGET_SCOPE_DEVICE_GROUP" },
-            { "name": "responseStateApplied", "rustConst": "RESPONSE_STATE_APPLIED" },
-            { "name": "responseStateRejected", "rustConst": "RESPONSE_STATE_REJECTED" },
-            { "name": "effectiveStateEnabled", "rustConst": "EFFECTIVE_STATE_ENABLED" },
-            { "name": "effectiveStateDisabled", "rustConst": "EFFECTIVE_STATE_DISABLED" },
-            { "name": "effectiveStateDegraded", "rustConst": "EFFECTIVE_STATE_DEGRADED" },
-            { "name": "policyDecisionApproved", "rustConst": "POLICY_DECISION_APPROVED" },
-            { "name": "policyDecisionRejected", "rustConst": "POLICY_DECISION_REJECTED" },
-            { "name": "auditOutcomeCommitted", "rustConst": "AUDIT_OUTCOME_COMMITTED" },
-            { "name": "auditOutcomeFailed", "rustConst": "AUDIT_OUTCOME_FAILED" },
-            {
-              "name": "portalUpdateTrackingConfigState",
-              "rustConst": "READ_MODEL_UPDATE_KIND_TRACKING_CONFIG_STATE"
-            },
-            {
-              "name": "portalUpdateManualRequiredState",
-              "rustConst": "READ_MODEL_UPDATE_KIND_MANUAL_REQUIRED_STATE"
-            }
-          ]
-        }
-      ],
-      "values": [
-        { "name": "targetScopeFamily", "sourceObjectPath": "AgentTrackingConfigUpdateTargetScopeLiteral.Family" },
-        {
-          "name": "targetScopeChildProfile",
-          "sourceObjectPath": "AgentTrackingConfigUpdateTargetScopeLiteral.ChildProfile"
-        },
-        {
-          "name": "targetScopeChildDevice",
-          "sourceObjectPath": "AgentTrackingConfigUpdateTargetScopeLiteral.ChildDevice"
-        },
-        {
-          "name": "targetScopeDeviceGroup",
-          "sourceObjectPath": "AgentTrackingConfigUpdateTargetScopeLiteral.DeviceGroup"
-        },
-        {
-          "name": "responseStateApplied",
-          "sourceObjectPath": "AgentTrackingConfigUpdateResponseStateLiteral.Applied"
-        },
-        {
-          "name": "responseStateRejected",
-          "sourceObjectPath": "AgentTrackingConfigUpdateResponseStateLiteral.Rejected"
-        },
-        { "name": "effectiveStateEnabled", "sourceObjectPath": "AgentTrackingEffectiveStateLiteral.Enabled" },
-        {
-          "name": "effectiveStateDisabled",
-          "sourceObjectPath": "AgentTrackingEffectiveStateLiteral.Disabled"
-        },
-        {
-          "name": "effectiveStateDegraded",
-          "sourceObjectPath": "AgentTrackingEffectiveStateLiteral.Degraded"
-        },
-        {
-          "name": "policyDecisionApproved",
-          "sourceObjectPath": "AgentTrackingConfigPolicyDecisionStateLiteral.Approved"
-        },
-        {
-          "name": "policyDecisionRejected",
-          "sourceObjectPath": "AgentTrackingConfigPolicyDecisionStateLiteral.Rejected"
-        },
-        { "name": "auditOutcomeCommitted", "sourceObjectPath": "AgentTrackingConfigAuditOutcomeLiteral.Committed" },
-        { "name": "auditOutcomeFailed", "sourceObjectPath": "AgentTrackingConfigAuditOutcomeLiteral.Failed" },
-        {
-          "name": "portalUpdateTrackingConfigState",
-          "sourceObjectPath": "AgentTrackingConfigPortalUpdateKindLiteral.TrackingConfigState"
-        },
-        {
-          "name": "portalUpdateManualRequiredState",
-          "sourceObjectPath": "AgentTrackingConfigPortalUpdateKindLiteral.ManualRequiredState"
-        }
-      ]
-    },
-    {
       "name": "child-domain-runtime-event-types",
-      "ownerPath": "packages/child-runtime-domain/src/child-domain-runtime-events.ts",
+      "ownerPath": "packages/schema-domain/src/child-domain-runtime-events.ts",
       "scanRoots": ["apps", "packages", "crates"],
       "allowedPaths": ["crates/agent-protocol/src/constants/screen_flow.rs"],
       "mirrors": [
@@ -396,7 +313,7 @@
     },
     {
       "name": "screen-ai-enforcement-handoff-event-names",
-      "ownerPath": "packages/screen-domain/src/screen-ai-enforcement-handoff-guard-proof.ts",
+      "ownerPath": "packages/schema-domain/src/screen-ai-enforcement-handoff-guard-proof.ts",
       "scanRoots": ["apps", "packages", "scripts", "crates"],
       "values": [
         {

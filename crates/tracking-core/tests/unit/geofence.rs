@@ -2,13 +2,13 @@ use ocentra_parent_agent_protocol::{
     constants, tracking_evidence_ref_from_observation_id, TrackingCapabilityStatus,
     TrackingObservationId,
 };
-use ocentra_tracking_core::{TrackingGeofenceEvaluation, TrackingGeofenceInsideState};
+use ocentra_tracking_core::geofence::{TrackingGeofenceEvaluation, TrackingGeofenceInsideState};
 
 #[test]
 fn geofence_transition_marks_low_accuracy_boundaries_as_ambiguous() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
 
-    let transition = ocentra_tracking_core::detect_geofence_transition(
+    let transition = ocentra_tracking_core::geofence::detect_geofence_transition(
         &observed,
         TrackingGeofenceEvaluation {
             previous_inside_state: Some(TrackingGeofenceInsideState::Outside),
@@ -36,9 +36,9 @@ fn geofence_transition_marks_low_accuracy_boundaries_as_ambiguous() {
 
 #[test]
 fn geofence_transition_rejects_stale_location_as_stale_at_place() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
 
-    let transition = ocentra_tracking_core::detect_geofence_transition(
+    let transition = ocentra_tracking_core::geofence::detect_geofence_transition(
         &observed,
         TrackingGeofenceEvaluation {
             previous_inside_state: Some(TrackingGeofenceInsideState::Inside),
@@ -66,12 +66,12 @@ fn geofence_transition_rejects_stale_location_as_stale_at_place() {
 
 #[test]
 fn geofence_transition_grace_period_suppresses_exit_and_preserves_citations() {
-    let mut observed = ocentra_tracking_core::default_location_observed_event();
+    let mut observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
     observed.observation_id = TrackingObservationId::parse("tracking-observation-grace-period")
         .expect("tracking grace observation id parses");
     let evidence_ref = tracking_evidence_ref_from_observation_id(&observed.observation_id);
 
-    let transition = ocentra_tracking_core::detect_geofence_transition(
+    let transition = ocentra_tracking_core::geofence::detect_geofence_transition(
         &observed,
         TrackingGeofenceEvaluation {
             previous_inside_state: Some(TrackingGeofenceInsideState::Inside),

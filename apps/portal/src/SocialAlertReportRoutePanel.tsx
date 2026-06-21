@@ -1,31 +1,38 @@
 import {
   AgentCommand,
   AgentEvent,
-  parseAgentSocialAlertReportParentSurfaceReadModelEvent,
-  parseAgentSocialParentNotificationDeliveryReadModelEvent,
   type AgentEventEnvelope,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
-import { parseAgentSocialAlertReportReadModelEvent } from '@ocentra-parent/agent-protocol-domain/social-alert-report-read-model';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
   createSocialAlertReportPanelIntent,
-  createSocialAlertReportParentSurfacePanelIntent,
-  createSocialParentNotificationDeliveryPanelIntent,
-  PortalDetails,
-  PortalDom,
-  isPortalBrowserParentSurfaceRoute,
-  type PortalRoute as PortalRouteValue,
-  type BrowserSocialProviderReceiptIngestionReadinessStatusDetail,
-  type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
-  type BrowserSocialProviderReceiptStreamStatusDetail,
-  type BrowserSocialProviderReceiptStreamStatusIntent,
   type SocialAlertReportPanelDetail,
   type SocialAlertReportPanelIntent,
   type SocialAlertReportPanelRow,
-  type SocialParentNotificationDeliveryPanelDetail,
-  type SocialParentNotificationDeliveryPanelIntent,
+} from '@ocentra-parent/portal-domain/social-alert-report-panel';
+import {
+  createSocialAlertReportParentSurfacePanelIntent,
   type SocialAlertReportParentSurfacePanelDetail,
   type SocialAlertReportParentSurfacePanelIntent,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/social-alert-report-parent-surface-panel';
+import {
+  createSocialParentNotificationDeliveryPanelIntent,
+  type SocialParentNotificationDeliveryPanelDetail,
+  type SocialParentNotificationDeliveryPanelIntent,
+} from '@ocentra-parent/portal-domain/social-parent-notification-delivery-panel';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import {
+  isPortalBrowserParentSurfaceRoute,
+  type PortalRoute as PortalRouteValue,
+} from '@ocentra-parent/portal-domain/routes';
+import {
+  type BrowserSocialProviderReceiptIngestionReadinessStatusDetail,
+  type BrowserSocialProviderReceiptIngestionReadinessStatusIntent,
+} from '@ocentra-parent/portal-domain/browser-social-provider-receipt-ingestion-readiness-status';
+import {
+  type BrowserSocialProviderReceiptStreamStatusDetail,
+  type BrowserSocialProviderReceiptStreamStatusIntent,
+} from '@ocentra-parent/portal-domain/browser-social-provider-receipt-stream-status';
 import { type ReactElement } from 'react';
 import type { PortalLiveActivityState } from './live-activity-state';
 import type { PortalRenderActions } from './portal-actions';
@@ -34,6 +41,11 @@ import {
   type BrowserActionIntentStreamStatusDetail,
   type BrowserActionIntentStreamStatusIntent,
 } from '@ocentra-parent/portal-domain/browser-action-intent-stream-status';
+import {
+  parseAgentSocialAlertReportParentSurfaceReadModelEvent,
+  parseAgentSocialParentNotificationDeliveryReadModelEvent,
+  parseAgentSocialAlertReportReadModelEvent,
+} from './social-read-model-events';
 
 export function shouldRenderSocialAlertReportRoute(route: PortalRouteValue): boolean {
   return isPortalBrowserParentSurfaceRoute(route);

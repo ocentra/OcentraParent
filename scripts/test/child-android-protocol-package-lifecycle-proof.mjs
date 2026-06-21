@@ -44,7 +44,7 @@ async function main() {
     evidence: {
       sourceProof,
       packageArtifacts,
-      contract: 'packages/child-runtime-domain/src/child-android-lifecycle-proof.ts',
+      contract: 'packages/schema-domain/src/child-android-lifecycle-proof.ts',
       contractTest: 'packages/child-runtime-domain/tests/unit/child-android-lifecycle-proof.test.ts',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/child-android-protocol-package-lifecycle-proof-2026-05-31.md',
@@ -224,9 +224,9 @@ function buildRuntimeReadModel(packageArtifacts) {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await importTsModule('packages/child-runtime-domain/src/child-android-lifecycle-proof.ts');
+  const module = await importTsModule('packages/schema-domain/src/child-android-lifecycle-proof.ts');
   const parsed = module.ChildAndroidLifecycleReadModelSchema.parse(readModel);
-  proofLabels.push('child-runtime-domain.child-android-lifecycle-proof-parse');
+  proofLabels.push('schema-domain.child-android-lifecycle-proof-parse');
   return parsed;
 }
 
@@ -264,19 +264,19 @@ async function assertProofMatrix() {
 
 async function assertScriptWiring() {
   const packageJson = JSON.parse(await readRepoFile('package.json'));
-  const childRuntimeDomainPackage = JSON.parse(await readRepoFile('packages/child-runtime-domain/package.json'));
+  const schemaDomainPackage = JSON.parse(await readRepoFile('packages/schema-domain/package.json'));
   const script = packageJson.scripts['test:child-android-protocol-package-lifecycle-proof'];
   if (script !== 'node scripts/test/child-android-protocol-package-lifecycle-proof.mjs') {
     throw new Error('Missing root test:child-android-protocol-package-lifecycle-proof script.');
   }
-  if (!childRuntimeDomainPackage.exports['./*']) {
-    throw new Error('Missing child-runtime-domain wildcard export.');
+  if (!schemaDomainPackage.exports['./child-android-lifecycle-proof']) {
+    throw new Error('Missing schema-domain export for ./child-android-lifecycle-proof.');
   }
   proofLabels.push('package-scripts.child-android-lifecycle-proof');
   return {
     rootScript: 'test:child-android-protocol-package-lifecycle-proof',
-    childRuntimeDomainExport: './*',
-    sourceContract: 'packages/child-runtime-domain/src/child-android-lifecycle-proof.ts',
+    schemaDomainExport: './child-android-lifecycle-proof',
+    sourceContract: 'packages/schema-domain/src/child-android-lifecycle-proof.ts',
   };
 }
 

@@ -3,8 +3,8 @@ import {
   ActivityFamilyAggregationModelSchema,
   activityFamilyAggregationModelFromHistory,
   activityFamilyAggregationModelFromReport,
-} from '../../src/activity-family-aggregation';
-import { ActivitySurfaceSchemaVersion } from '../../src/activity-surface';
+} from '@ocentra-parent/schema-domain/activity-family-aggregation';
+import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/schema-domain/activity-surface';
 
 type ActivityFamilyAggregationModel = ReturnType<typeof activityFamilyAggregationModelFromReport>;
 

@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   ScreenLiveViewOptInSettingSchema,
   ScreenRawScreenshotRetentionOptInSettingSchema,
-} from '../../src/screen-evidence';
-import { ScreenOptionalVisibilityModeSchemaVersion } from '../../src/screen-optional-visibility-mode-values';
+} from '@ocentra-parent/schema-domain/screen-optional-visibility-mode';
+import { ScreenOptionalVisibilityModeSchemaVersion } from '@ocentra-parent/schema-domain/screen-optional-visibility-mode-values';
 
 const ChangedAt = '2026-06-05T03:44:00Z';
 

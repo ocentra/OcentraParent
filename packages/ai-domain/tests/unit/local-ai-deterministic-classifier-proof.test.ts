@@ -3,7 +3,7 @@ import {
   LocalAiDeterministicClassifierInputSchema,
   LocalAiDeterministicClassifierResultSchema,
   runLocalAiDeterministicClassifier,
-} from '../../src/local-ai-deterministic-classifier-proof';
+} from '@ocentra-parent/schema-domain/local-ai-deterministic-classifier-proof';
 
 describe('local AI deterministic classifier proof', () => {
   it('classifies video evidence into a local-only warning result without model execution', provesVideoWarning);

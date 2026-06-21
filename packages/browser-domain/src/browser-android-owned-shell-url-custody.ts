@@ -5,8 +5,8 @@ import {
   brandedNonEmptyStringSchema,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { BrowserEvidenceSchemaVersion } from './browser-schemas';
-import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
+import { BrowserEvidenceSchemaVersion } from '@ocentra-parent/schema-domain/browser-schemas';
+import { ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
 
 export const BrowserAndroidOwnedShellUrlCustodyStateSchema = withParser(
   Schema.Literal('physical-owned-shell-request-url-ref', 'manual-required')

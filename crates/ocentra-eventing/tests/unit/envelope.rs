@@ -5,8 +5,10 @@ use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 use ocentra_eventing::ids::{
     AggregateKey, CorrelationId, EventCustody, EventId, EventType, IdempotencyKey, RecordedAt,
-    RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService, TargetHandler,
+    RequestId, RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService,
+    TargetHandler,
 };
+use ocentra_eventing::request::{RequestCompletionOutcome, RequestCompletionReport};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -49,8 +51,8 @@ impl DomainEvent for EnvelopeBoundaryEvent {
 #[test]
 fn event_contract_serde_rejects_zero_schema_version() {
     let result = serde_json::from_value::<EventContract>(json!({
-        "event_type": TEST_EVENT_TYPE,
-        "schema_version": 0
+        "eventType": TEST_EVENT_TYPE,
+        "schemaVersion": 0
     }));
 
     let error = match result {
@@ -60,6 +62,48 @@ fn event_contract_serde_rejects_zero_schema_version() {
     assert!(error
         .to_string()
         .contains("event schema version must be nonzero"));
+}
+
+#[test]
+fn stored_envelope_serde_uses_canonical_eventing_keys() {
+    let live = EventEnvelope::from_event(
+        EnvelopeBoundaryEvent {
+            label: String::from("typed-boundary"),
+        },
+        metadata(),
+    )
+    .expect_value("live envelope builds");
+    let stored_json = serde_json::to_value(live.store().expect_value("stored envelope builds"))
+        .expect_value("stored envelope serializes");
+
+    assert_eq!(stored_json["contract"]["eventType"], json!(TEST_EVENT_TYPE));
+    assert_eq!(stored_json["contract"]["schemaVersion"], json!(1));
+    assert_eq!(
+        stored_json["source"]["instanceId"],
+        json!(TEST_RUNTIME_INSTANCE)
+    );
+    assert_eq!(stored_json["eventId"], json!(TEST_EVENT_ID));
+    assert_eq!(stored_json["correlationId"], json!(TEST_CORRELATION_ID));
+    assert_eq!(stored_json["aggregateKey"], json!(TEST_AGGREGATE_KEY));
+    assert_eq!(stored_json["idempotencyKey"], json!(TEST_IDEMPOTENCY_KEY));
+    assert_eq!(stored_json["observedAt"], json!(TEST_OBSERVED_AT));
+    assert_eq!(stored_json["targetHandler"], json!(TEST_TARGET));
+    assert!(stored_json.get("event_id").is_none());
+    assert!(stored_json["contract"].get("event_type").is_none());
+    assert!(stored_json["source"].get("instance_id").is_none());
+}
+
+#[test]
+fn request_completion_report_serde_uses_canonical_eventing_keys() {
+    let report = RequestCompletionReport {
+        request_id: RequestId::parse("request-completion-1").expect_value("request id parses"),
+        outcome: RequestCompletionOutcome::Late,
+    };
+    let report_json = serde_json::to_value(report).expect_value("request report serializes");
+
+    assert_eq!(report_json["requestId"], json!("request-completion-1"));
+    assert_eq!(report_json["outcome"], json!("late"));
+    assert!(report_json.get("request_id").is_none());
 }
 
 #[test]

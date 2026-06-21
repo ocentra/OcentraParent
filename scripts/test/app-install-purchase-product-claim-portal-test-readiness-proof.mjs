@@ -13,15 +13,15 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-product-claim-portal-test-readiness-proof.test.ts',
+      'tests/unit/app-install-purchase-product-claim-portal-test-readiness-proof.test.ts',
     ])
   );
 
@@ -48,10 +48,10 @@ async function main() {
     productDocState: 'updated-feature-expectation-checklist',
     evidence: {
       portalTestReadinessContract:
-        'packages/parent-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts',
-      sourceProductClaimGateContract: 'packages/parent-domain/src/app-install-purchase-product-claim-gate-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts',
+      sourceProductClaimGateContract: 'packages/app-game-domain/src/app-install-purchase-product-claim-gate-proof.ts',
       contractTest:
-        'packages/parent-domain/tests/app-install-purchase-product-claim-portal-test-readiness-proof.test.ts',
+        'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-portal-test-readiness-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDoc: 'docs/product-capability-checklist.md',
@@ -71,7 +71,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-product-claim-portal-test-readiness-proof.js'
   );

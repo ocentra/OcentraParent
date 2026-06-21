@@ -76,7 +76,8 @@ function proof() {
     proofLabels,
     evidence: {
       parentContract: 'packages/lan-domain/src/lan-pairing-browser-runtime.ts',
-      agentProtocolContract: 'packages/agent-protocol-domain/src/lan-pairing-browser-runtime.ts',
+      agentProtocolContract: 'packages/schema-domain/src/lan-pairing-browser-runtime.ts',
+      agentProtocolCommandRegistry: 'packages/agent-protocol-domain/src/contracts.ts',
       rustProtocolContract: 'crates/agent-protocol/src/lan_pairing_browser_runtime.rs',
       rustServiceAdapter: 'crates/agent-service/src/lan_pairing_browser_runtime.rs',
       rustServiceTest: 'crates/agent-service/src/lan_pairing_browser_runtime_tests.rs',

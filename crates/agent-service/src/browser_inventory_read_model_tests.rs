@@ -1,9 +1,10 @@
 use std::path::Path;
 
-use ocentra_parent_agent_core::{
-    live_windows_browser_package_entries_from_roots, windows_browser_inventory_observations,
-    windows_browser_package_observations, BrowserUnmanagedProcessObservation, ProcessObservation,
-};
+use ocentra_parent_agent_core::browser_managed_discovery::BrowserUnmanagedProcessObservation;
+use ocentra_parent_agent_core::browser_windows_inventory::windows_browser_inventory_observations;
+use ocentra_parent_agent_core::browser_windows_package_inventory::windows_browser_package_observations;
+use ocentra_parent_agent_core::browser_windows_package_source::live_windows_browser_package_entries_from_roots;
+use ocentra_parent_agent_core::process_capture::ProcessObservation;
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
     AgentPeer, AgentPeerRole, AgentRoute, BrowserCapabilityStatus, BrowserChannel,

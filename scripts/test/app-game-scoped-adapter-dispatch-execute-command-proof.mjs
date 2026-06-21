@@ -38,10 +38,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/portal-domain',
+      '@ocentra-parent/portal',
       '--',
-      'contracts',
-      'app-game-adapter-dispatch-result-panel',
+      'app-game-adapter-dispatch-route-panel',
     ])
   );
   await runCommand('cargo', [
@@ -70,7 +69,7 @@ async function main() {
       rustProtocol: 'crates/agent-protocol/src/app_game_adapter_dispatch_result.rs',
       servicePayload: 'crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs',
       serviceWebsocket: 'crates/agent-service/src/websocket.rs',
-      portalCommands: 'packages/portal-domain/src/commands.ts',
+      portalCommands: 'apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx',
       portalText: 'packages/text-domain/src/portal-dev.ts',
     },
     summary: {

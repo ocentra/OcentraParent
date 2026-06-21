@@ -29,6 +29,7 @@ const serviceSessionProofPath = join(
   'proof-summary.json'
 );
 
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 run('npm', [
   'run',
@@ -39,9 +40,29 @@ run('npm', [
   'screen-live-view-parent-ui-persistence',
 ]);
 
-const activityDomain = await import(
-  pathToFileURL(join(repoRoot, 'packages', 'activity-domain', 'dist', 'screen-evidence.js')).href
+const optionalVisibilityModeModule = await import(
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-optional-visibility-mode.js')).href
 );
+const optionalVisibilityModeValuesModule = await import(
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-optional-visibility-mode-values.js')).href
+);
+const liveViewServiceSessionModule = await import(
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-live-view-service-session.js')).href
+);
+const liveViewParentUiPersistenceModule = await import(
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-live-view-parent-ui-persistence.js')).href
+);
+
+const activityDomain = {
+  ScreenLiveViewOptInSettingSchema: optionalVisibilityModeModule.ScreenLiveViewOptInSettingSchema,
+  ScreenOptionalVisibilityModeSchemaVersion: optionalVisibilityModeValuesModule.ScreenOptionalVisibilityModeSchemaVersion,
+  ScreenLiveViewServiceSessionGateSchema: liveViewServiceSessionModule.ScreenLiveViewServiceSessionGateSchema,
+  ScreenLiveViewServiceSessionSchemaVersion: liveViewServiceSessionModule.ScreenLiveViewServiceSessionSchemaVersion,
+  ScreenLiveViewParentUiPersistenceProofSchema:
+    liveViewParentUiPersistenceModule.ScreenLiveViewParentUiPersistenceProofSchema,
+  ScreenLiveViewParentUiPersistenceSchemaVersion:
+    liveViewParentUiPersistenceModule.ScreenLiveViewParentUiPersistenceSchemaVersion,
+};
 
 const generatedAt = new Date().toISOString();
 const portalProof = readJson(portalProofPath);

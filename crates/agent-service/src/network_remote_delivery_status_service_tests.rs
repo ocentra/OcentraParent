@@ -1,9 +1,13 @@
-use ocentra_parent_agent_core::prove_network_runtime_remote_delivery_transport_dispatch_state;
+use ocentra_parent_agent_core::network_event_runtime::{
+    remote_delivery_outbox_handoff_types::NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
+    remote_delivery_transport_dispatch_state::prove_network_runtime_remote_delivery_transport_dispatch_state,
+    remote_delivery_transport_dispatch_state_types::NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
+};
+use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryExternalCrossProcessTransportState;
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
     NetworkRemoteDeliveryCrossProcessCustodyReadinessState,
-    NetworkRemoteDeliveryExternalCrossProcessTransportState,
     NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
     NetworkRemoteDeliveryStatusState, NetworkRemoteDeliveryTransportDispatchState,
     AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -145,8 +149,8 @@ fn assert_remote_delivery_status(status: &NetworkRemoteDeliveryStatus) {
 }
 
 fn assert_blocked_dispatch_mismatch(
-    report: &ocentra_parent_agent_core::NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
-    outbox_report: &ocentra_parent_agent_core::NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
+    report: &NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
+    outbox_report: &NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
 ) {
     assert!(!blocked_dispatch_records_match_outbox_candidates(
         report,

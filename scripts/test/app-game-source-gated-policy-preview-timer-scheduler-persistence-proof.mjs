@@ -24,25 +24,26 @@ for (const path of [join(appGameProofDir, '06-ui-snapshots'), join(appProofDir, 
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-source-gated-policy-preview-timer-scheduler-persistence',
   'app-game-source-gated-policy-preview-timer-runtime-readiness',
 ]);
 
-const schedulerPersistenceContract = await importDist(
+const schedulerPersistenceContract = await importAppGameDist(
   'app-game-source-gated-policy-preview-timer-scheduler-persistence.js'
 );
 const wp81Proof = await readJson(
   join(repoRoot, 'test-results', 'app-game-source-gated-policy-preview-timer-runtime-readiness-proof', 'proof.json')
 );
 const persistence = schedulerPersistenceContract.buildAppGameSourceGatedPolicyPreviewTimerSchedulerPersistence(
-  schedulerPersistenceOptions(await importDist('reference-primitives.js')),
+  schedulerPersistenceOptions(await importSchemaDist('reference-primitives.js')),
   wp81Proof.readiness
 );
 const proof = {
@@ -55,7 +56,7 @@ const proof = {
   stackedOn: {
     wp81Branch: 'codex/app-game-source-gated-policy-preview-timer-runtime-readiness',
     reason:
-      'WP82 consumes WP81 timer runtime-readiness rows and remains parent-domain only while durable scheduler storage, timer runtime, service scheduling, and package exports are sequenced separately.',
+      'Schema-domain owns the scheduler-persistence contract surface; app-game-domain consumes WP81 timer runtime-readiness rows while durable scheduler storage, timer runtime, service scheduling, and package behavior remain sequenced separately.',
   },
   summary: summarize(persistence),
   nonClaims: {
@@ -74,9 +75,10 @@ const proof = {
     rawPrivateSourceRowsIncluded: persistence.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-scheduler-persistence.ts',
-    rules: 'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-scheduler-persistence-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-scheduler-persistence.test.ts',
+    schemaSource: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-scheduler-persistence.ts',
+    schemaRules: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-scheduler-persistence-rules.ts',
+    consumerSource: 'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-scheduler-persistence.ts',
+    consumerTest: 'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-scheduler-persistence.test.ts',
     harness: 'scripts/test/app-game-source-gated-policy-preview-timer-scheduler-persistence-proof.mjs',
     evidence: 'test-results/app-game-source-gated-policy-preview-timer-scheduler-persistence-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
@@ -100,8 +102,12 @@ console.log(
   )}`
 );
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function schedulerPersistenceOptions(refs) {

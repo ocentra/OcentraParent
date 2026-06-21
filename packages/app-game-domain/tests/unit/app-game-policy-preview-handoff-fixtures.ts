@@ -6,9 +6,9 @@ import {
   AppGamePolicyCompilerRejectionReason,
   AppGamePolicyCompilerRequestedAction,
   AppGamePolicyTargetKind,
-} from '../../src/app-game-policy-target-compiler-rules';
-import { PolicyAction, PolicyDecisionHandoffState } from '@ocentra-parent/policy-domain/policy';
-import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
+} from '@ocentra-parent/schema-domain/app-game-policy-target-compiler-rules';
+import { PolicyAction, PolicyDecisionHandoffState } from '@ocentra-parent/schema-domain/policy-contracts';
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/schema-domain/policy-compiler';
 import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 export const Timestamp = '2026-06-05T14:45:00Z';

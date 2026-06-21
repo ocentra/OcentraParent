@@ -11,7 +11,7 @@ use crate::{
         LanPairingRuntime,
     },
     lan_pairing_audit::controller_lease_audit_fields,
-    lan_pairing_runtime_state::LanAiJobLeaseState,
+    lan_pairing_runtime_state::job_leases::LanAiJobLeaseState,
 };
 
 pub(crate) fn lan_ai_job_completed_event(

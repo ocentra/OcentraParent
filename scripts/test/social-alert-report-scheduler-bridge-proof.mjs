@@ -16,13 +16,13 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/browser-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/browser-domain',
       '--',
       'social-alert-report-scheduler-bridge',
       'social-alert-report-local-outbox-bridge',
@@ -36,8 +36,8 @@ async function main() {
   const readModel = scheduler.buildSocialAlertReportSchedulerBridgeReadModel(schedulerOptions(), sourceReadModel);
   const jsonl = scheduler.serializeSocialAlertReportSchedulerJsonl(readModel);
   const rereadRecords = scheduler.parseSocialAlertReportSchedulerJsonl(jsonl);
-  const source = await readText('packages/parent-domain/src/social-alert-report-scheduler-bridge.ts');
-  const test = await readText('packages/parent-domain/tests/social-alert-report-scheduler-bridge.test.ts');
+  const source = await readText('packages/browser-domain/src/social-alert-report-scheduler-bridge.ts');
+  const test = await readText('packages/browser-domain/tests/unit/social-alert-report-scheduler-bridge.test.ts');
   const socialFeature = await readText('docs/features/social-video-control.md');
   const socialExpectation = await readText('docs/expectations/social-video-control.md');
   const notificationExpectation = await readText('docs/expectations/notifications.md');
@@ -46,8 +46,8 @@ async function main() {
   await writeFile(join(resultDirectory, 'scheduler-records.jsonl'), jsonl, 'utf8');
 
   const checks = [
-    checkFile('packages/parent-domain/src/social-alert-report-scheduler-bridge.ts'),
-    checkFile('packages/parent-domain/tests/social-alert-report-scheduler-bridge.test.ts'),
+    checkFile('packages/browser-domain/src/social-alert-report-scheduler-bridge.ts'),
+    checkFile('packages/browser-domain/tests/unit/social-alert-report-scheduler-bridge.test.ts'),
     checkFile('scripts/test/social-alert-report-scheduler-bridge-proof.mjs'),
     checkIncludes(
       source,
@@ -131,10 +131,10 @@ async function main() {
       'product checklist completion',
     ],
     evidence: {
-      source: 'packages/parent-domain/src/social-alert-report-scheduler-bridge.ts',
-      test: 'packages/parent-domain/tests/social-alert-report-scheduler-bridge.test.ts',
-      existingSchedulerContract: 'packages/parent-domain/src/notification-local-outbox-scheduler-proof.ts',
-      existingLocalOutboxBridge: 'packages/parent-domain/src/social-alert-report-local-outbox-bridge.ts',
+      source: 'packages/browser-domain/src/social-alert-report-scheduler-bridge.ts',
+      test: 'packages/browser-domain/tests/unit/social-alert-report-scheduler-bridge.test.ts',
+      existingSchedulerContract: 'packages/schema-domain/src/notification-local-outbox-scheduler-proof.ts',
+      existingLocalOutboxBridge: 'packages/browser-domain/src/social-alert-report-local-outbox-bridge.ts',
       harness: 'scripts/test/social-alert-report-scheduler-bridge-proof.mjs',
       jsonl: 'test-results/social-alert-report-scheduler-bridge-proof/scheduler-records.jsonl',
       proof: 'test-results/social-alert-report-scheduler-bridge-proof/proof.json',
@@ -163,7 +163,7 @@ async function main() {
   await writeFile(join(outputDirectory, '10-validation-commands.log'), validationLogFor(proof), 'utf8');
   await writeFile(
     join(outputDirectory, 'ui-not-applicable.md'),
-    '# UI Not Applicable\n\nThis proof adds a parent-domain scheduler bridge from social alert/report local outbox rows to the existing local notification scheduler record schema. It does not render portal UI or deliver notifications.\n',
+    '# UI Not Applicable\n\nThis proof uses the browser-domain scheduler bridge from social alert/report local outbox rows to the existing local notification scheduler record schema. It does not render portal UI or deliver notifications.\n',
     'utf8'
   );
 
@@ -322,7 +322,7 @@ async function sourceSnapshot(proof) {
     `- Commit: ${proof.commit}`,
     '- Scope: social alert/report local outbox bridge rows projected into existing local notification scheduler records.',
     '- Source inspected: social alert/report local outbox bridge, notification local outbox scheduler proof, social/video feature doc, social/video expectation doc, notifications expectation doc, and browser-plan social rollout gates.',
-    '- Package exports were intentionally not changed because another lane owns packages/parent-domain/package.json.',
+    '- Canonical source ownership now lives in packages/browser-domain; no parent-domain package export is involved in this proof.',
     '',
   ].join('\n');
 }
@@ -434,7 +434,7 @@ function assertNoForbiddenDetails(serialized) {
 }
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'browser-domain', 'dist', name)).href);
 }
 
 function checkFile(path) {

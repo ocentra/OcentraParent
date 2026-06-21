@@ -1,9 +1,14 @@
 import {
-  type Infer,
   Schema,
-  withParser,
-  brandedNonEmptyStringSchema
+  brandedNonEmptyStringSchema,
 } from '@ocentra-parent/schema-domain/effect';
+import {
+  AppGamePlatformProofStatusGapSchema,
+  AppGamePlatformProofStatusReadModelSchema,
+  AppGamePlatformProofStatusRefSchema,
+  type AppGamePlatformProofStatusReadModel,
+  type AppGamePlatformProofStatusRow,
+} from '@ocentra-parent/schema-domain/app-game-platform-proof-status';
 import { type AppGameAndroidAccessibilityOverlayPreflightReadModel } from './app-game-android-accessibility-overlay-preflight';
 import { type AppGameAndroidAccessibilityRuntimeProof } from './app-game-android-accessibility-runtime-proof';
 import { type AppGameAndroidAuthorityPreflightReadModel } from './app-game-android-authority-preflight';
@@ -16,148 +21,14 @@ import { type AppGameLinuxForegroundCaptureReadiness } from './app-game-linux-fo
 import { type AppGameLinuxWslRuntimeProof } from './app-game-linux-wsl-runtime-proof';
 import { type AppGameWindowsBroadBlockingAuthorityPreflightReadModel } from './app-game-windows-broad-blocking-authority-preflight';
 import { type AppGameWindowsLocalPolicyEvidenceProof } from './app-game-windows-local-policy-evidence-proof';
-import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
-
-export const AppGamePlatformProofStatusSchemaVersionSchema = withParser(
-  Schema.Literal('app-game-platform-proof-status')
-);
-
-export const AppGamePlatformProofStatusPlatformSchema = withParser(
-  Schema.Literal('windows', 'android', 'linux', 'macos', 'ios')
-);
-
-export const AppGamePlatformProofStatusStateSchema = withParser(
-  Schema.Literal(
-    'windows-policy-preflight-observed',
-    'physical-device-observed',
-    'wsl-runtime-observed',
-    'apple-ci-artifacts-required'
-  )
-);
-
-export const AppGamePlatformProofStatusAuthoritySchema = withParser(
-  Schema.Literal('visibility-only', 'enforcement-not-proved')
-);
-
-export const AppGamePlatformProofStatusGapSchema = withParser(
-  Schema.Literal(
-    'android-device-owner-not-proved',
-    'android-profile-owner-not-proved',
-    'android-usage-events-not-proved',
-    'android-durable-usage-events-replay-not-proved',
-    'android-child-runtime-replay-consumer-not-attached',
-    'android-authority-preflight-not-attached',
-    'android-accessibility-overlay-not-proved',
-    'android-hide-suspend-not-proved',
-    'windows-applocker-enforce-not-proved',
-    'windows-app-control-not-proved',
-    'windows-system-app-allowlist-not-proved',
-    'windows-rollback-not-proved',
-    'windows-audit-custody-not-proved',
-    'windows-broad-blocking-not-proved',
-    'macos-ci-runner-not-proved',
-    'macos-permission-profile-not-proved',
-    'macos-mdm-endpoint-not-proved',
-    'macos-rollback-audit-not-proved',
-    'ios-ci-runner-not-proved',
-    'ios-family-controls-not-proved',
-    'ios-device-activity-not-proved',
-    'ios-managed-settings-not-proved',
-    'ios-testflight-device-not-proved',
-    'apple-platform-adapter-dispatch-blocked-before-ci-proof',
-    'linux-foreground-capture-not-proved',
-    'linux-container-policy-not-proved',
-    'linux-native-session-not-proved',
-    'linux-policy-mechanism-not-proved',
-    'linux-rollback-not-proved',
-    'linux-audit-not-proved',
-    'cross-platform-child-delivery-not-proved'
-  )
-);
-
-export const AppGamePlatformProofStatusRefSchema = withParser(
-  Schema.Literal(
-    'android-physical-device-proof-ref',
-    'android-authority-preflight-ref',
-    'android-accessibility-overlay-preflight-ref',
-    'android-accessibility-runtime-proof-ref',
-    'android-usage-events-replay-ref',
-    'windows-broad-blocking-authority-preflight-ref',
-    'windows-local-policy-evidence-proof-ref',
-    'apple-ci-platform-proof-preflight-ref',
-    'linux-foreground-capture-readiness-ref',
-    'linux-active-window-tool-proof-ref',
-    'linux-docker-host-preflight-ref',
-    'linux-wsl-runtime-proof-ref',
-    'app-game-platform-proof-status-ref'
-  )
-);
 
 const PlatformProofStatusLabelSchema = brandedNonEmptyStringSchema('AppGamePlatformProofStatusLabel');
 const decodePlatformProofStatusLabel = Schema.decodeUnknownSync(PlatformProofStatusLabelSchema);
 
-const PlatformProofStatusCountSchema = Schema.Number.pipe(Schema.int(), Schema.greaterThanOrEqualTo(0));
+type AppGamePlatformProofStatusGap = typeof AppGamePlatformProofStatusGapSchema.Type;
+type AppGamePlatformProofStatusRef = typeof AppGamePlatformProofStatusRefSchema.Type;
 
-const AppGamePlatformProofStatusRowBaseSchema = Schema.Struct({
-  platform: AppGamePlatformProofStatusPlatformSchema,
-  proofState: AppGamePlatformProofStatusStateSchema,
-  authorityState: AppGamePlatformProofStatusAuthoritySchema,
-  parentVisibleSummary: PlatformProofStatusLabelSchema,
-  packageVisibilityCount: PlatformProofStatusCountSchema,
-  runtimeVisibilityCount: PlatformProofStatusCountSchema,
-  ownerProofAttached: Schema.Boolean,
-  mechanismProofAttached: Schema.Boolean,
-  rollbackProofAttached: Schema.Boolean,
-  auditProofAttached: Schema.Boolean,
-  adapterDispatchClaimed: Schema.Boolean,
-  broadBlockingClaimed: Schema.Boolean,
-  platformEnforcementClaimed: Schema.Boolean,
-  childDeliveryClaimed: Schema.Boolean,
-  proofRefs: Schema.Array(AppGamePlatformProofStatusRefSchema),
-  openGaps: Schema.Array(AppGamePlatformProofStatusGapSchema),
-});
-
-const AppGamePlatformProofStatusReadModelBaseSchema = Schema.Struct({
-  schemaVersion: AppGamePlatformProofStatusSchemaVersionSchema,
-  readModelId: PlatformProofStatusLabelSchema,
-  generatedAt: ParentTimestampSchema,
-  rows: Schema.Array(AppGamePlatformProofStatusRowBaseSchema),
-  platformProofObservedCount: PlatformProofStatusCountSchema,
-  visibilityOnlyCount: PlatformProofStatusCountSchema,
-  enforcementReadyCount: PlatformProofStatusCountSchema,
-  openGapCount: PlatformProofStatusCountSchema,
-  productClaim: PlatformProofStatusLabelSchema,
-});
-
-type AppGamePlatformProofStatusRowCandidate = Infer<typeof AppGamePlatformProofStatusRowBaseSchema>;
-type AppGamePlatformProofStatusReadModelCandidate = Infer<typeof AppGamePlatformProofStatusReadModelBaseSchema>;
-type AppGamePlatformProofStatusGap = Infer<typeof AppGamePlatformProofStatusGapSchema>;
-type AppGamePlatformProofStatusRef = Infer<typeof AppGamePlatformProofStatusRefSchema>;
-
-export const AppGamePlatformProofStatusRowSchema = withParser(
-  AppGamePlatformProofStatusRowBaseSchema.pipe(
-    Schema.filter(
-      (row) =>
-        appGamePlatformProofStatusRowIsHonest(row) ||
-        'Expected app/game platform proof status rows to expose visibility-only platform proof and keep enforcement, adapter dispatch, broad blocking, and child delivery unclaimed'
-    )
-  )
-);
-
-export const AppGamePlatformProofStatusReadModelSchema = withParser(
-  AppGamePlatformProofStatusReadModelBaseSchema.pipe(
-    Schema.filter(
-      (readModel) =>
-        appGamePlatformProofStatusReadModelCountsMatch(readModel) ||
-        'Expected app/game platform proof status summary counts to match the platform proof rows'
-    )
-  )
-);
-
-export type AppGamePlatformProofStatusRow = Infer<typeof AppGamePlatformProofStatusRowSchema>;
-export type AppGamePlatformProofStatusReadModel = Infer<typeof AppGamePlatformProofStatusReadModelSchema>;
-
-export const decodeAppGamePlatformProofStatusReadModel = Schema.decodeUnknownSync(
+const decodeAppGamePlatformProofStatusReadModel = Schema.decodeUnknownSync(
   AppGamePlatformProofStatusReadModelSchema
 );
 
@@ -227,7 +98,7 @@ function androidProofStatusRow(
   authorityPreflight?: AppGameAndroidAuthorityPreflightReadModel,
   accessibilityOverlayPreflight?: AppGameAndroidAccessibilityOverlayPreflightReadModel,
   accessibilityRuntimeProof?: AppGameAndroidAccessibilityRuntimeProof
-): AppGamePlatformProofStatusRowCandidate {
+): AppGamePlatformProofStatusRow {
   return {
     platform: 'android',
     proofState: 'physical-device-observed',
@@ -257,7 +128,7 @@ function androidProofStatusRow(
 function windowsProofStatusRow(
   proof: AppGameWindowsBroadBlockingAuthorityPreflightReadModel,
   localPolicyEvidence?: AppGameWindowsLocalPolicyEvidenceProof
-): AppGamePlatformProofStatusRowCandidate {
+): AppGamePlatformProofStatusRow {
   return {
     platform: 'windows',
     proofState: 'windows-policy-preflight-observed',
@@ -284,7 +155,7 @@ function windowsProofStatusRow(
 
 function appleCiProofStatusRows(
   proof?: AppGameAppleCiPlatformProofPreflightReadModel
-): readonly AppGamePlatformProofStatusRowCandidate[] {
+): readonly AppGamePlatformProofStatusRow[] {
   if (!proof) {
     return [];
   }
@@ -314,7 +185,7 @@ function linuxProofStatusRow(
   foregroundReadiness?: AppGameLinuxForegroundCaptureReadiness,
   activeWindowToolProof?: AppGameLinuxActiveWindowToolProof,
   dockerHostPreflight?: AppGameLinuxDockerHostPreflightReadModel
-): AppGamePlatformProofStatusRowCandidate {
+): AppGamePlatformProofStatusRow {
   return {
     platform: 'linux',
     proofState: 'wsl-runtime-observed',
@@ -509,35 +380,11 @@ function linuxOpenGaps(
 }
 
 function statusRows(
-  rows: readonly (AppGamePlatformProofStatusRowCandidate | undefined)[]
-): readonly AppGamePlatformProofStatusRowCandidate[] {
-  return rows.filter((row): row is AppGamePlatformProofStatusRowCandidate => row !== undefined);
+  rows: readonly (AppGamePlatformProofStatusRow | undefined)[]
+): readonly AppGamePlatformProofStatusRow[] {
+  return rows.filter((row): row is AppGamePlatformProofStatusRow => row !== undefined);
 }
 
-function platformProofStatusLabel(value: unknown): AppGamePlatformProofStatusRowCandidate['parentVisibleSummary'] {
+function platformProofStatusLabel(value: unknown): AppGamePlatformProofStatusRow['parentVisibleSummary'] {
   return decodePlatformProofStatusLabel(value);
 }
-
-function appGamePlatformProofStatusRowIsHonest(row: AppGamePlatformProofStatusRowCandidate): boolean {
-  return (
-    row.authorityState === 'visibility-only' &&
-    !row.adapterDispatchClaimed &&
-    !row.broadBlockingClaimed &&
-    !row.platformEnforcementClaimed &&
-    !row.childDeliveryClaimed &&
-    row.openGaps.includes('cross-platform-child-delivery-not-proved') &&
-    row.proofRefs.length > 0
-  );
-}
-
-function appGamePlatformProofStatusReadModelCountsMatch(
-  readModel: AppGamePlatformProofStatusReadModelCandidate
-): boolean {
-  return (
-    readModel.platformProofObservedCount === readModel.rows.length &&
-    readModel.visibilityOnlyCount === readModel.rows.filter((row) => row.authorityState === 'visibility-only').length &&
-    readModel.enforcementReadyCount === readModel.rows.filter((row) => row.platformEnforcementClaimed).length &&
-    readModel.openGapCount === readModel.rows.reduce((total, row) => total + row.openGaps.length, 0)
-  );
-}
-

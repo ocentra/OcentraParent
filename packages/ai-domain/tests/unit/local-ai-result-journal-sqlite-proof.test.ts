@@ -4,8 +4,8 @@ import {
   LocalAiResultJournalEntrySchema,
   LocalAiResultReadModelSnapshotSchema,
   LocalAiResultSqliteRowSchema,
-} from '../../src/local-ai-result-journal-sqlite-proof';
-import { runLocalAiTextInferenceDryRun } from '../../src/local-ai-text-inference-dry-run-proof';
+} from '@ocentra-parent/schema-domain/local-ai-result-journal-sqlite-proof';
+import { runLocalAiTextInferenceDryRun } from '@ocentra-parent/schema-domain/local-ai-text-inference-dry-run-proof';
 
 describe('local AI result journal SQLite proof', () => {
   it('journals and ingests ready local AI safety results with typed refs', provesReadyJournalIngest);

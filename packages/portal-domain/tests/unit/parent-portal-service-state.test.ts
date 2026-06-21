@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
   type AgentEventEnvelope,
   type AgentEventName,
   type AgentProtocolLogFields,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   PARENT_PORTAL_CONTENT,
   PARENT_PORTAL_ROUTE_CONTEXT,

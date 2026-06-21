@@ -1,11 +1,11 @@
 import { expect, it } from 'vitest';
 import {
   AppGameAdapterExecutionReadinessReadModel,
-  AppGameAdapterExecutionReadinessRowSchema,
   buildAppGameAdapterExecutionReadinessReadModel,
   summarizeAppGameAdapterExecutionReadiness,
 } from '../../src/app-game-adapter-execution-readiness';
-import { V08SupportedAdapterRuntimeProofReadModel } from '@ocentra-parent/enforcement-domain/v0-8-supported-adapter-runtime-proof';
+import { V08SupportedAdapterRuntimeProofReadModel } from '@ocentra-parent/schema-domain/v0-8-supported-adapter-runtime-proof';
+import { AppGameAdapterExecutionReadinessRowSchema } from '@ocentra-parent/schema-domain/app-game-adapter-execution-readiness';
 
 it('projects app/game adapter execution readiness from the V0.8 supported adapter runtime proof', () => {
   const readModel = buildAppGameAdapterExecutionReadinessReadModel(V08SupportedAdapterRuntimeProofReadModel);

@@ -3,15 +3,15 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Shared enforcement adapter, capability, dispatch, and integrity contracts.",
+  "description": "Enforcement read-model values and package identity surfaces.",
   "exports": {
-    "./*": {
-      "import": "./dist/src/*.js",
-      "types": "./dist/src/*.d.ts"
+    "./tamper-uninstall-artifact-status-read-model": {
+      "import": "./dist/src/tamper-uninstall-artifact-status-read-model.js",
+      "types": "./dist/src/tamper-uninstall-artifact-status-read-model.d.ts"
     },
-    "./v0-8-supported-adapter-runtime-proof": {
-      "import": "./dist/src/v0-8-supported-adapter-runtime-proof.js",
-      "types": "./dist/src/v0-8-supported-adapter-runtime-proof.d.ts"
+    "./v0-8-browser-enforcement-timer-recovery-proof-values": {
+      "import": "./dist/src/v0-8-browser-enforcement-timer-recovery-proof-values.js",
+      "types": "./dist/src/v0-8-browser-enforcement-timer-recovery-proof-values.d.ts"
     },
     "./package-info": {
       "import": "./dist/src/package-info.js",
@@ -26,11 +26,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/browser-domain": "file:../browser-domain",
-    "@ocentra-parent/capability-domain": "file:../capability-domain",
-    "@ocentra-parent/family-domain": "file:../family-domain",
-    "@ocentra-parent/notification-domain": "file:../notification-domain",
-    "@ocentra-parent/policy-domain": "file:../policy-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

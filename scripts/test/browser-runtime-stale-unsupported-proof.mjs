@@ -14,7 +14,7 @@ const runtimeTestSource = readFileSync('crates/agent-service/src/browser_runtime
 const inventoryTestSource = readFileSync('crates/agent-service/src/browser_inventory_read_model_tests.rs', 'utf8');
 const deliveryTestSource = readFileSync('crates/agent-service/src/browser_runtime_delivery_tests.rs', 'utf8');
 const streamTestSource = readFileSync('crates/agent-service/src/browser_runtime_stream_tests.rs', 'utf8');
-const protocolTestSource = readFileSync('packages/agent-protocol-domain/tests/browser-runtime-events.test.ts', 'utf8');
+const protocolTestSource = readFileSync('packages/agent-protocol-domain/tests/unit/browser-runtime-events.test.ts', 'utf8');
 
 const sourceChecks = {
   bridgeDisconnectReportsStale: statusSource.includes('status.capability_status = BrowserCapabilityStatus::Stale'),
@@ -68,7 +68,8 @@ const commands = [
   },
   {
     name: 'agent-protocol-domain-browser-runtime-events-test',
-    command: 'cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- browser-runtime-events.test.ts',
+    command:
+      'cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- tests/unit/browser-runtime-events.test.ts',
   },
 ];
 

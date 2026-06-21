@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
+import { ActivityEvidenceKind } from '@ocentra-parent/schema-domain/evidence-kinds';
 import {
   ActivityAppUseReadModelSchema,
   ActivityBrowserReadModelSchema,
@@ -12,7 +12,7 @@ import {
   ActivityScreenReadModelSchema,
   ActivitySurfaceSchemaVersion,
   ActivitySurfaceScopeSchema,
-} from '../../src/activity-surface';
+} from '@ocentra-parent/schema-domain/activity-surface';
 
 const FamilyScope = {
   scopeKind: 'family',

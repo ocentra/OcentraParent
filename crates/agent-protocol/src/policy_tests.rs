@@ -1,16 +1,19 @@
+use crate::activity::local_ai::{
+    LocalAiGraphReference, LocalAiGraphReferenceKind, LocalAiMemoryReference,
+    LocalAiMemoryReferenceKind, LocalAiSafetyResult, LocalAiUnknownState,
+};
+use crate::activity::policy::{
+    ParentActorReference, ParentActorRole, ParentEvidenceReference, ParentEvidenceReferenceKind,
+    PolicyAction, PolicyDecision, PolicyDecisionHandoffState, PolicyRule, PolicyTarget,
+    PolicyTargetType,
+};
 use crate::constants;
+use crate::policy_constants as policy;
+use crate::POLICY_DRY_RUN_SCHEMA_VERSION;
 use crate::{
     LocalAiAdapterBoundary, LocalAiCapabilityFlag, LocalAiDegradedState, LocalAiExecutionState,
     LocalAiModelLoadState, LocalAiProviderPrivacyMode, LocalAiProviderSource, LocalAiResourceClass,
     LocalModelRuntimeStatus,
-};
-
-use super::{
-    policy_constants as policy, LocalAiGraphReference, LocalAiGraphReferenceKind,
-    LocalAiMemoryReference, LocalAiMemoryReferenceKind, LocalAiSafetyResult, LocalAiUnknownState,
-    ParentActorReference, ParentActorRole, ParentEvidenceReference, ParentEvidenceReferenceKind,
-    PolicyAction, PolicyDecision, PolicyDecisionHandoffState, PolicyRule, PolicyTarget,
-    PolicyTargetType, POLICY_DRY_RUN_SCHEMA_VERSION,
 };
 
 #[test]

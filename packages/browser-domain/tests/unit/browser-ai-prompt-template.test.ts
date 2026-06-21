@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserAiPromptTemplateVersioningSchemaVersion } from '../../src/browser-ai-prompt-template-schemas';
+import { BrowserAiPromptTemplateVersioningSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-prompt-template-schemas';
 import {
   BrowserAiPromptTemplateRegistrySchema,
   BrowserAiPromptTemplateVersionRecordSchema,
   selectBrowserAiPromptTemplate,
-} from '../../src/browser-ai-prompt-template-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-prompt-template-schemas';
 
 describe('browser AI prompt template versioning contract', () => {
   it('accepts active prompt template versions with audit refs and memory invalidation', acceptsActivePromptVersion);

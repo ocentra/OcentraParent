@@ -1,7 +1,10 @@
 use std::{fs, path::Path};
 
 use base64::prelude::{Engine as _, BASE64_URL_SAFE_NO_PAD};
-use ocentra_parent_agent_core::{JournalKey, ScreenEvidenceQueue, JOURNAL_KEY_BYTES};
+use ocentra_parent_agent_core::{
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+    screen_evidence_queue::ScreenEvidenceQueue,
+};
 use ocentra_parent_screen_capture_adapter::CapturedScreenImage;
 use sha2::{Digest, Sha256};
 

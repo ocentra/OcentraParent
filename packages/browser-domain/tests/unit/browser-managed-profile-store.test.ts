@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserChannel, BrowserCustodyLabel, BrowserEvidenceSchemaVersion, BrowserFamily } from '../../src/browser';
+import { BrowserChannel, BrowserCustodyLabel, BrowserFamily } from '@ocentra-parent/schema-domain/browser-values';
+import { BrowserEvidenceSchemaVersion } from '@ocentra-parent/schema-domain/browser-schemas';
 import {
   BrowserManagedProfileLifecycleState,
   BrowserManagedProfileStoreEntrySchema,
-} from '../../src/browser-managed-profile-store';
+} from '@ocentra-parent/schema-domain/browser-managed-profile-store';
 
 describe('browser managed profile store contracts', () => {
   it('accepts redacted managed profile store entries for portal DTOs', () => {

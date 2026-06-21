@@ -1,9 +1,7 @@
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::household_mesh::HouseholdMeshBridgePhase;
 
-use crate::{
-    household_mesh_bridge_runtime_phase::HouseholdMeshBridgePhase,
-    HouseholdMeshBridgeEnvelopeState, HouseholdMeshLocalEventKind,
-};
+use crate::{HouseholdMeshBridgeEnvelopeState, HouseholdMeshLocalEventKind};
 
 pub(crate) fn bridge_aggregate_key(correlation_id: &str) -> String {
     let mut value = String::from(constants::household_mesh::AGGREGATE_HOUSEHOLD_MESH_PREFIX);

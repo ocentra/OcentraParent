@@ -13,6 +13,12 @@ const summaryPath = join(outputDir, 'proof-summary.json');
 const deterministicCheckedAt = 'deterministic-proof-artifact';
 const deterministicCommit = 'branch-head-validated-by-harness';
 const commands = [];
+const requiredPackageExports = [
+  '@ocentra-parent/schema-domain/public-support-contact-status-proof',
+  '@ocentra-parent/schema-domain/public-support-contact-status-read-model',
+  '@ocentra-parent/schema-domain/public-support-contact-status-values',
+];
+const retiredProductionDomainExport = './public-support-contact-status-proof';
 
 await main();
 
@@ -20,18 +26,19 @@ async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/public-support-contact-status-proof.test.ts',
+      'tests/unit/public-support-contact-status-proof.test.ts',
     ])
   );
 
+  const packageExport = await assertPackageExports();
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
   const proof = {
@@ -39,13 +46,14 @@ async function main() {
     checkedAt: deterministicCheckedAt,
     commit: deterministicCommit,
     proofMode,
-    packageExport: 'deferred-packages-parent-domain-package-json-locked-by-e-b',
+    packageExport,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/public-support-contact-status-proof.ts',
-      values: 'packages/parent-domain/src/public-support-contact-status-values.ts',
-      readModel: 'packages/parent-domain/src/public-support-contact-status-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/public-support-contact-status-proof.test.ts',
+      contract: 'packages/schema-domain/src/public-support-contact-status-proof.ts',
+      values: 'packages/schema-domain/src/public-support-contact-status-values.ts',
+      readModel: 'packages/schema-domain/src/public-support-contact-status-read-model.ts',
+      contractTest: 'packages/production-domain/tests/unit/public-support-contact-status-proof.test.ts',
+      proofHarness: 'scripts/test/public-support-contact-status-proof.mjs',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -59,7 +67,7 @@ async function main() {
     checkedAt: proof.checkedAt,
     commit: proof.commit,
     proofMode,
-    packageExport: proof.packageExport,
+    packageExport: proof.packageExport.state,
     rowCount: proof.rows.length,
     rows: proof.rows.map((row) => row.surface),
     output: relativePath(proofPath),
@@ -71,10 +79,26 @@ async function main() {
   console.log(`${proofMode}-ok:${relativePath(proofPath)} ${relativePath(summaryPath)}`);
 }
 
+async function assertPackageExports() {
+  const productionPackageJson = JSON.parse(await readRepoFile('packages/production-domain/package.json'));
+  const [contract, readModel, values] = await Promise.all(requiredPackageExports.map((specifier) => import(specifier)));
+
+  assert.equal(typeof contract.PublicSupportContactStatusProofSchema.parse, 'function');
+  assert.equal(typeof readModel.PublicSupportContactStatusReadModel, 'object');
+  assert(Object.keys(values).length > 0);
+  assert.equal(productionPackageJson.exports[retiredProductionDomainExport], null);
+
+  return {
+    state: 'schema-domain-live-export-with-production-domain-retired',
+    liveExports: requiredPackageExports,
+    retiredExport: retiredProductionDomainExport,
+  };
+}
+
 async function assertBuiltContract() {
-  const contractModule = await importBuiltParentDomainModule('public-support-contact-status-proof');
-  const readModelModule = await importBuiltParentDomainModule('public-support-contact-status-read-model');
-  const valuesModule = await importBuiltParentDomainModule('public-support-contact-status-values');
+  const contractModule = await importBuiltSchemaDomainModule('public-support-contact-status-proof');
+  const readModelModule = await importBuiltSchemaDomainModule('public-support-contact-status-read-model');
+  const valuesModule = await importBuiltSchemaDomainModule('public-support-contact-status-values');
   const proof = contractModule.PublicSupportContactStatusProofSchema.parse(
     readModelModule.PublicSupportContactStatusReadModel
   );
@@ -143,8 +167,8 @@ async function assertBuiltContract() {
   };
 }
 
-async function importBuiltParentDomainModule(moduleName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', `${moduleName}.js`)).href);
+async function importBuiltSchemaDomainModule(moduleName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', `${moduleName}.js`)).href);
 }
 
 function assertContactRowsRemainManual(rows) {
@@ -170,7 +194,6 @@ async function assertDocumentationProof() {
     'docs/features/production-distribution-support.md',
     'docs/expectations/release-installer.md',
     'docs/expectations/documentation.md',
-    'packages/parent-domain/README.md',
   ];
   for (const path of docs) {
     assertIncludes(await readRepoFile(path), proofMode, `${path} proof note`);

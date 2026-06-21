@@ -1,17 +1,24 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
-  createLocalAiRuntimePanelIntent,
-  isPortalAiRuntimeRoute,
-  PortalDetails,
+  AgentCommand,
+  AgentEvent
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import {
   PortalDom,
   PortalText,
   PortalTextToken,
+  type PortalDisplayText,
+} from '@ocentra-parent/portal-domain/contracts';
+import {
+  createLocalAiRuntimePanelIntent,
   type LocalAiRuntimePanelDetail,
   type LocalAiRuntimePanelIntent,
-  type PortalDisplayText,
+} from '@ocentra-parent/portal-domain/local-ai-runtime-panel';
+import {
+  isPortalAiRuntimeRoute,
   type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/routes';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalLiveActivityState } from './live-activity-state';
 

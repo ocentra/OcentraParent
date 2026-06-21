@@ -28,7 +28,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/provider-secret-execution-readiness.test.ts',
+      'tests/unit/provider-secret-execution-readiness.test.ts',
     ])
   );
 
@@ -43,23 +43,23 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/provider-secret-execution-readiness.ts',
-      readModel: 'packages/logging-domain/src/provider-secret-execution-readiness-read-model.ts',
-      contractTest: 'packages/logging-domain/tests/provider-secret-execution-readiness.test.ts',
+      contract: 'packages/schema-domain/src/provider-secret-execution-readiness.ts',
+      readModel: 'packages/schema-domain/src/provider-secret-execution-readiness-read-model.ts',
+      contractTest: 'packages/logging-domain/tests/unit/provider-secret-execution-readiness.test.ts',
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
       featureDoc: 'docs/features/production-distribution-support.md',
       expectations: ['docs/expectations/data-custody.md', 'docs/expectations/static-analysis-security.md'],
       packageExports: [
-        '@ocentra-parent/logging-domain/provider-secret-execution-readiness',
-        '@ocentra-parent/logging-domain/provider-secret-execution-readiness-read-model',
+        '@ocentra-parent/schema-domain/provider-secret-execution-readiness',
+        '@ocentra-parent/schema-domain/provider-secret-execution-readiness-read-model',
       ],
     },
     claimsProved: [
       'Provider-secret execution readiness rows cover execution boundary, backend secret-store preflight, rotation preflight, revocation preflight, operator approval, manual execution, and support-safe audit export states.',
       'Rows link to provider-secret custody status, backend secret-store preflight, rotation, revocation, operator approval, manual proof, and audit refs while disclosing only support-safe status metadata.',
       'Provider-secret backend store, rotation, revocation, and execution remain not implemented or manual-required until real provider-secret execution proof exists.',
-      'Package exports expose the provider-secret execution readiness contract and read model through @ocentra-parent/logging-domain.',
+      'Package exports expose the provider-secret execution readiness contract and read model through @ocentra-parent/schema-domain.',
       'Rows reject provider secrets, payment provider tokens, raw child activity, raw support bundle payloads, account lookup results, billing provider contact records, remote support transcripts, backend secret-store execution, rotation/revocation execution, provider-secret execution delivery, support backend upload execution, account lookup execution, billing provider contact execution, remote support sessions, production SLA, and default Ocentra-hosted family data.',
     ],
     claimsNotProved: [
@@ -138,8 +138,8 @@ function assertReadModel(readModel) {
 }
 
 async function assertPackageExports() {
-  const contract = await import('@ocentra-parent/logging-domain/provider-secret-execution-readiness');
-  const readModel = await import('@ocentra-parent/logging-domain/provider-secret-execution-readiness-read-model');
+  const contract = await import('@ocentra-parent/schema-domain/provider-secret-execution-readiness');
+  const readModel = await import('@ocentra-parent/schema-domain/provider-secret-execution-readiness-read-model');
   assert.equal(typeof contract.ProviderSecretExecutionReadinessReadModelSchema.parse, 'function');
   assert.equal(readModel.ProviderSecretExecutionReadinessReadModel.entries.length, 7);
 }

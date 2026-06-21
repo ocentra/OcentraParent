@@ -5,11 +5,10 @@ import {
   BrowserCapabilityStatus,
   BrowserChannel,
   BrowserCustodyLabel,
-  BrowserEvidenceSchemaVersion,
   BrowserFamily,
   BrowserQueryVisibilityLabel,
-  BrowserTabEvidenceSchema,
-} from '../../src/browser';
+} from '@ocentra-parent/schema-domain/browser-values';
+import { BrowserEvidenceSchemaVersion, BrowserTabEvidenceSchema } from '@ocentra-parent/schema-domain/browser-schemas';
 
 describe('browser tab evidence contract', () => {
   it('accepts tab evidence with normalized URL origin and domain', () => {

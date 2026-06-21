@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { EnforcementCapabilityState } from '../../src/enforcement';
-import { V08HostAdapterProofPreflightMatrix } from '../../src/enforcement-host-adapter-preflight';
+import { EnforcementCapabilityState } from '@ocentra-parent/schema-domain/enforcement';
+import { V08HostAdapterProofPreflightMatrix } from '@ocentra-parent/schema-domain/enforcement-host-adapter-preflight';
 import {
   EnforcementProcessPackageBridgeState,
   EnforcementProcessPackageIdentityBridgeEntrySchema,
   EnforcementProcessPackageIdentityMatrixSchema,
   EnforcementProcessPackageProofPoint,
   V08ProcessPackageIdentityProofBridgeMatrix,
-} from '../../src/enforcement-process-package-identity';
+} from '@ocentra-parent/schema-domain/enforcement-process-package-identity';
 
 describe('process and package identity proof bridge contracts', () => {
   it('captures Windows identity prerequisites without upgrading broad app enforcement', () => {

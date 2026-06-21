@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { AuditRequirementState, HouseholdRole } from '../../src/household-authority';
 import {
-  authorizeSetupInvite,
-  doesSetupInviteMatchTargetRole,
-  evaluateRecoveryOperation,
-  isSetupInviteActive,
-  isSetupInviteSinglePurpose,
+  AuditRequirementState,
+  HouseholdRole,
+} from '@ocentra-parent/schema-domain/family-household-authority';
+import {
   RecoveryChildEvidenceAccessState,
   RecoveryDataCustodyHandoffState,
   RecoveryDecisionState,
@@ -15,12 +13,21 @@ import {
   RecoveryOperationSchema,
   RecoveryState,
   RecoverySupportChannel,
+} from '@ocentra-parent/schema-domain/family-restore-lifecycle';
+import {
   SetupInviteDecisionState,
   SetupInviteFailureReason,
   SetupInvitePurpose,
   SetupInviteReplayState,
   SetupInviteSchema,
   SetupInviteState,
+} from '@ocentra-parent/schema-domain/family-setup-invite';
+import {
+  authorizeSetupInvite,
+  doesSetupInviteMatchTargetRole,
+  evaluateRecoveryOperation,
+  isSetupInviteActive,
+  isSetupInviteSinglePurpose,
   recoveryCanAccessChildEvidence,
   recoveryDataCustodyHandoffState,
   recoveryRequiresAuditedSupport,

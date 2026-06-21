@@ -13,6 +13,7 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
   await runCommand(
     ...npmCommand([
@@ -21,7 +22,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/support-incident-workflow.test.ts',
+      'tests/unit/support-incident-workflow.test.ts',
     ])
   );
 
@@ -37,10 +38,10 @@ async function main() {
     proofMode: 'support-incident-workflow-proof',
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/support-incident-workflow.ts',
-      guards: 'packages/logging-domain/src/support-incident-workflow-guards.ts',
-      readModel: 'packages/logging-domain/src/support-incident-workflow-read-model.ts',
-      contractTest: 'packages/logging-domain/tests/support-incident-workflow.test.ts',
+      contract: 'packages/schema-domain/src/support-incident-workflow.ts',
+      guards: 'packages/schema-domain/src/support-incident-workflow-guards.ts',
+      readModel: 'packages/schema-domain/src/support-incident-workflow-read-model.ts',
+      contractTest: 'packages/logging-domain/tests/unit/support-incident-workflow.test.ts',
       output: relative(repoRoot, proofPath),
       featureDoc: 'docs/features/production-distribution-support.md',
       expectations: ['docs/expectations/static-analysis-security.md', 'docs/expectations/data-custody.md'],
@@ -97,7 +98,7 @@ function assertReadModel(readModel) {
 }
 
 async function assertPackageExport() {
-  const exported = await import('@ocentra-parent/logging-domain/support-incident-workflow');
+  const exported = await import('@ocentra-parent/schema-domain/support-incident-workflow');
   assert.equal(typeof exported.SupportIncidentWorkflowReadModelSchema.parse, 'function');
 }
 

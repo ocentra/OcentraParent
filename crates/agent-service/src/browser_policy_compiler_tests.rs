@@ -4,8 +4,8 @@ use ocentra_parent_agent_protocol::{
     BrowserPolicyActionExecutionState, BrowserPolicyAiAuthority, BrowserPolicyApprovalState,
     BrowserPolicyCapabilityState, BrowserPolicyDefaultPosture, BrowserPolicyEvidenceProofLevel,
     BrowserPolicyExecutionMode, BrowserPolicyManagedBrowserIntegrationMechanism,
-    BrowserPolicyPreviewRequest, BrowserPolicyProofFallback, BrowserPolicyRule,
-    BrowserPolicyRuleAction, BrowserPolicyRuleActionPlan, BrowserPolicyTargetProofRequirement,
+    BrowserPolicyProofFallback, BrowserPolicyRule, BrowserPolicyRuleAction,
+    BrowserPolicyRuleActionPlan, BrowserPolicyTargetProofRequirement,
     BrowserPolicyUnmanagedBrowserClassificationTarget, BrowserPolicyUpdateKind,
     BrowserPolicyUpdateResponse, BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType,
     BrowserPolicyValue, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -345,12 +345,12 @@ async fn send_browser_policy_command(
 fn preview_command(policy_value: BrowserPolicyValue) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyPreview,
-        BrowserPolicyPreviewRequest {
-            schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-            request_id: constants::browser_policy::REQUEST_ID.to_string(),
-            kind: BrowserPolicyUpdateKind::Preview,
-            policy: policy_value,
-        },
+        serde_json::json!({
+            "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
+            "requestId": constants::browser_policy::REQUEST_ID,
+            "kind": BrowserPolicyUpdateKind::Preview,
+            "policy": policy_value,
+        }),
     )
 }
 

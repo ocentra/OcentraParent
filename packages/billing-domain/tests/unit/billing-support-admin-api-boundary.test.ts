@@ -5,7 +5,7 @@ import {
   BillingSupportAdminDisputesResponseSchema,
   BillingSupportAdminInvoicesResponseSchema,
   BillingSupportAdminReferralsResponseSchema,
-} from '../../src/billing-support-admin-api-boundary';
+} from '@ocentra-parent/schema-domain/billing-support-admin-api-boundary';
 
 const validAccountsResponse = {
   status: 'ok',

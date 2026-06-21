@@ -1,17 +1,11 @@
-import { readFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
-import { AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelHandoffSchema } from '../../src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff';
 import {
   AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelSchema,
   buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModel,
 } from '../../src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model';
-import { AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelState } from '../../src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-rules';
+import { AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelState } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-rules';
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
-
-const UpstreamParentSurfaceReadModelHandoffPath = new URL(
-  '../../../test-results/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff-proof/handoff.json',
-  import.meta.url
-);
+import { buildParentSurfaceReadModelHandoffFixture } from './app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-chain.fixtures';
 
 const ParentSurfaceReadModelOptions = {
   schemaVersion: ParentContractSchemaVersion.V0_6,
@@ -104,7 +98,5 @@ function buildParentSurfaceReadModel() {
 }
 
 function readUpstreamHandoff() {
-  return AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelHandoffSchema.parse(
-    JSON.parse(readFileSync(UpstreamParentSurfaceReadModelHandoffPath, 'utf8'))
-  );
+  return buildParentSurfaceReadModelHandoffFixture();
 }

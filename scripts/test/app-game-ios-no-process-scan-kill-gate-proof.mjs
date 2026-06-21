@@ -21,25 +21,25 @@ async function main() {
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/app-game-domain',
     '--',
     'app-game-broad-blocking-proof-gates.test.ts',
   ]);
 
   const broadGateData = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
     'utf8'
   );
   const broadGateRules = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
     'utf8'
   );
   const broadGateTest = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'tests', 'app-game-broad-blocking-proof-gates.test.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'tests', 'unit', 'app-game-broad-blocking-proof-gates.test.ts'),
     'utf8'
   );
   const catalogData = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-control-guide-catalog-data.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-control-guide-catalog-data.ts'),
     'utf8'
   );
 
@@ -104,13 +104,13 @@ async function main() {
     gateState: 'prevented-by-ios-not-claimed-process-gate',
     evidence: {
       iosGate:
-        'packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts defines ios-process-kill-not-claimed as iOS terminate-process, not-claimed, not-dispatched, canCallAdapter=false, and broadBlockingClaimed=false.',
+        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-data.ts defines ios-process-kill-not-claimed as iOS terminate-process, not-claimed, not-dispatched, canCallAdapter=false, and broadBlockingClaimed=false.',
       iosGateRules:
-        'packages/parent-domain/src/app-game-broad-blocking-proof-gate-rules.ts keeps iOS proof kinds explicit before any platform upgrade can be considered.',
+        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-rules.ts keeps iOS proof kinds explicit before any platform upgrade can be considered.',
       iosGateTests:
-        'packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts asserts iOS process killing is not claimed and cannot dispatch adapters.',
+        'packages/app-game-domain/tests/unit/app-game-broad-blocking-proof-gates.test.ts asserts iOS process killing is not claimed and cannot dispatch adapters.',
       catalogBoundary:
-        'packages/parent-domain/src/app-control-guide-catalog-data.ts keeps iOS Screen Time/entitlement behavior manual-required until real device/platform proof exists.',
+        'packages/app-game-domain/src/app-control-guide-catalog-data.ts keeps iOS Screen Time/entitlement behavior manual-required until real device/platform proof exists.',
     },
     productBoundaries: {
       sharedEvidenceSpine: true,

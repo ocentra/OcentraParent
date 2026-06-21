@@ -3,8 +3,8 @@ import {
   ProductionSupportAccountSlaStatusProofSchema,
   ProductionSupportAccountSlaStatusRowSchema,
   summarizeProductionSupportAccountSlaStatusRows,
-} from '../../src/production-support-account-sla-status-proof';
-import { ProductionSupportAccountSlaStatusReadModel } from '../../src/production-support-account-sla-status-read-model';
+} from '@ocentra-parent/schema-domain/production-support-account-sla-status-proof';
+import { ProductionSupportAccountSlaStatusReadModel } from '@ocentra-parent/schema-domain/production-support-account-sla-status-read-model';
 
 describe('production support account SLA status proof', () => {
   acceptsAccountSlaStatusRows();

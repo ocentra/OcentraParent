@@ -20,15 +20,15 @@ async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-release-public-status-proof.test.ts',
+      'tests/unit/production-release-public-status-proof.test.ts',
     ])
   );
 
@@ -39,11 +39,11 @@ async function main() {
     checkedAt: deterministicCheckedAt,
     commit: deterministicCommit,
     proofMode,
-    packageExport: 'deferred-packages-parent-domain-package-json-locked-by-e-b',
+    packageExport: 'schema-domain-canonical-owner-production-domain-local-export-retired',
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-release-public-status-proof.ts',
-      contractTest: 'packages/parent-domain/tests/production-release-public-status-proof.test.ts',
+      contract: 'packages/schema-domain/src/production-release-public-status-proof.ts',
+      contractTest: 'packages/production-domain/tests/unit/production-release-public-status-proof.test.ts',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -83,7 +83,7 @@ async function main() {
 
 async function assertBuiltContract() {
   const proofModulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'production-release-public-status-proof.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'production-release-public-status-proof.js')
   );
   const proofModule = await import(proofModulePath.href);
   const readModel = proofModule.ProductionReleasePublicStatusProofReadModel;

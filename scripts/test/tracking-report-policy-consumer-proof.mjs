@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const proofDir = join(repoRoot, 'output', 'tracking-plan-proof', '32-journal-sqlite-and-read-model-proof');
@@ -17,18 +18,21 @@ await mkdir(resultDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 await mkdir(companionDir, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
   'tracking-report-policy-consumer-proof',
   'tracking-location-policy',
 ]);
 
-const consumerProof = await importDist('tracking-report-policy-consumer-proof.js');
+const consumerProof = await tsImport(
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-report-policy-consumer-proof.ts')).href,
+  import.meta.url
+);
 const proofModel = consumerProof.buildTrackingReportPolicyConsumerProof(timestamp);
 const proof = {
   proofMode: 'tracking-report-policy-consumer-proof',
@@ -40,8 +44,8 @@ const proof = {
   summary: summarize(proofModel.rows),
   productClaims: proofModel.productClaims,
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-report-policy-consumer-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-report-policy-consumer-proof.test.ts',
+    source: 'packages/schema-domain/src/tracking-report-policy-consumer-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-report-policy-consumer-proof.test.ts',
     harness: 'scripts/test/tracking-report-policy-consumer-proof.mjs',
     evidence: 'test-results/tracking-report-policy-consumer-proof/proof.json',
     trackingProofPack:
@@ -59,10 +63,6 @@ await writeCompanionPack(companionDir, proof);
 
 console.log('tracking-report-policy-consumer-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-report-policy-consumer-proof', 'proof.json')}`);
-
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
-}
 
 function summarize(rows) {
   return {
@@ -132,8 +132,8 @@ async function writeCompanionPack(path, proof) {
       proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
       '```',
       '',
-      '- Scope: parent-domain report and policy consumer readiness rows for the existing tracking service read model.',
-      '- Source inspected: feature list, location/geofence feature doc, location/geofence expectations, platform expectations, parent-domain README, and WP32 checklist rows.',
+      '- Scope: tracking-domain report and policy consumer readiness rows for the existing tracking service read model.',
+      '- Source inspected: feature list, location/geofence feature doc, location/geofence expectations, platform expectations, and WP32 checklist rows.',
       '',
     ].join('\n'),
     'utf8'
@@ -143,9 +143,9 @@ async function writeCompanionPack(path, proof) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-report-policy-consumer-proof tracking-location-policy: PASS',
-      '- Report, policy drill-in, and retention export consumer rows parse through parent-domain schemas.',
+      '- cmd /c npm run build --workspace @ocentra-parent/tracking-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tracking-report-policy-consumer-proof tracking-location-policy: PASS',
+      '- Report, policy drill-in, and retention export consumer rows parse through tracking-domain schemas.',
       '- Every consumer row carries stored journal refs and stored read-model row refs before report/policy use.',
       '',
     ].join('\n'),

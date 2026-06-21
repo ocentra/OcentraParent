@@ -8,7 +8,7 @@ import {
   AgentAppGameChildRuntimeTransportReceiptTransportContractRef,
 } from '@ocentra-parent/schema-domain/app-game-child-runtime-transport-receipt';
 import { AgentEvent, type AgentEventEnvelope } from '../../src/contracts';
-import { parseAgentAppGameChildRuntimeTransportReceiptEvent } from '../../src/app-game-child-runtime-transport-receipt';
+import { parseAgentAppGameChildRuntimeTransportReceiptEvent } from '../../src/app-game-child-runtime-transport-receipt-event-parser';
 
 const Source = {
   peerId: 'agent-service',

@@ -1,6 +1,5 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
 import { join, relative, resolve } from 'node:path';
 
 const RepoRoot = process.cwd();
@@ -11,22 +10,19 @@ const ValidationLogPath = join(OutputRoot, 'validation-commands.log');
 const TestResultPath = join(TestResultRoot, 'proof.json');
 const generatedAt = new Date().toISOString();
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build:contracts']));
 runCommand(
   ...npmCommand([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/ai-domain',
     '--',
     'local-ai-text-llm-adapter-boundary-proof',
   ])
 );
 
-const adapterModule = await import(
-  pathToFileURL(resolve(RepoRoot, 'packages', 'parent-domain', 'dist', 'local-ai-text-llm-adapter-boundary-proof.js'))
-    .href
-);
+const adapterModule = await import('@ocentra-parent/schema-domain/local-ai-text-llm-adapter-boundary-proof');
 
 const readyInput = localAiTextLlmAdapterBoundaryInput();
 const readyProof = adapterModule.proveLocalAiTextLlmAdapterBoundary(readyInput);
@@ -122,8 +118,8 @@ writeFileSync(ProofPath, `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(
   ValidationLogPath,
   [
-    'cmd /c npm run build --workspace @ocentra-parent/parent-domain',
-    'cmd /c npm run test --workspace @ocentra-parent/parent-domain -- local-ai-text-llm-adapter-boundary-proof',
+    'cmd /c npm run build:contracts',
+    'cmd /c npm run test --workspace @ocentra-parent/ai-domain -- local-ai-text-llm-adapter-boundary-proof',
   ].join('\n') + '\n'
 );
 writeFileSync(TestResultPath, `${JSON.stringify({ status: 'ok', proof: relativePath(ProofPath) }, null, 2)}\n`);

@@ -14,32 +14,26 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/billing-domain',
       '--',
-      'tests/billing-entitlement.test.ts',
-    ]),
-    {
-      OCENTRA_PARENT_DOMAIN_TEST_SKIP_PROOF_CHAIN: '1',
-    }
+      'tests/unit/billing-entitlement.test.ts',
+    ])
   );
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/schema-domain',
       '--',
-      'tests/unit/billing-entitlement-proof.test.ts',
-    ]),
-    {
-      OCENTRA_PARENT_DOMAIN_TEST_SKIP_PROOF_CHAIN: '1',
-    }
+      'tests/unit/billing-parent-visible-summary.test.ts',
+    ])
   );
 
   const contract = await assertBuiltContract();
@@ -53,11 +47,11 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/billing-entitlement.ts',
-      proofModel: 'packages/parent-domain/src/billing-entitlement-proof.ts',
-      contractTest: 'packages/parent-domain/tests/billing-entitlement.test.ts',
-      targetedParentProofTest:
-        'packages/parent-domain/tests/unit/billing-entitlement-proof.test.ts',
+      contract: 'packages/schema-domain/src/billing-entitlement.ts',
+      proofModel: 'packages/schema-domain/src/billing-entitlement-proof.ts',
+      contractTest: 'packages/billing-domain/tests/unit/billing-entitlement.test.ts',
+      parentVisibleSummaryTest:
+        'packages/schema-domain/tests/unit/billing-parent-visible-summary.test.ts',
       packageExport,
       documentation,
       output: relativePath(proofPath),
@@ -89,7 +83,7 @@ async function main() {
 }
 
 async function assertBuiltContract() {
-  const modulePath = pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'billing-entitlement-proof.js'));
+  const modulePath = pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'billing-entitlement-proof.js'));
   const module = await import(modulePath.href);
   const proof = module.BillingEntitlementContractProofReadModel;
 
@@ -107,7 +101,7 @@ async function assertBuiltContract() {
     ],
     'expected billing entitlement non-claims to remain explicit'
   );
-  assert.deepEqual(module.summarizeBillingFailureStates(proof.failureStates), {
+  assert.deepEqual(summarizeValues(proof.failureStates.map((entry) => entry.failureKind)), {
     'provider-unavailable': 1,
     'network-unavailable': 1,
     'stale-snapshot': 1,
@@ -126,10 +120,10 @@ async function assertBuiltContract() {
 }
 
 async function assertPublicPackageExport() {
-  const module = await import('@ocentra-parent/parent-domain/billing-entitlement');
+  const module = await import('@ocentra-parent/schema-domain/billing-entitlement');
   assert.equal(typeof module.decodeBillingEntitlementContractProof, 'function');
   assert.ok(module.BillingEntitlementContractProofSchema);
-  return '@ocentra-parent/parent-domain/billing-entitlement';
+  return '@ocentra-parent/schema-domain/billing-entitlement';
 }
 
 async function assertDocumentationProof() {
@@ -179,6 +173,10 @@ function assertIncludes(value, expected, label) {
 
 function relativePath(path) {
   return relative(repoRoot, path).replaceAll('\\', '/');
+}
+
+function summarizeValues(values) {
+  return Object.fromEntries(values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map()));
 }
 
 function npmCommand(args) {

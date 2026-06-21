@@ -1,12 +1,14 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::EventBus, envelope::DomainEvent,
-    envelope::EventContract, envelope::EventMetadata, envelope::EventSource, error::EventingError,
-    ids::AggregateKey, ids::CorrelationId, ids::EventType, ids::IdempotencyKey, ids::RecordedAt,
-    ids::RequestId, ids::RuntimeInstanceId, ids::SchemaVersion, ids::SourceComponent,
-    ids::SourceService, ids::SubscriberId, ids::TargetHandler, request::EventResponseContract,
-    request::RequestEvent, request::RequestOptions,
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventType,
+    ids::RecordedAt, ids::RequestId, ids::RuntimeInstanceId, ids::SourceComponent,
+    ids::SourceService, ids::SubscriberId, ids::TargetHandler, request::RequestOptions,
+};
+use ocentra_parent_agent_protocol::browser::social_report_writer_delivery_handoff::{
+    SocialReportWriterDeliveryReadModel, SocialReportWriterDeliveryReadModelRequest,
+    SocialReportWriterDeliveryReadModelResponse, SocialReportWriterDeliveryReadModelRow,
 };
 use ocentra_parent_agent_protocol::{
     constants, SOCIAL_PARENT_NOTIFICATION_DELIVERY_AUDIT_REF,
@@ -30,44 +32,8 @@ use ocentra_parent_agent_protocol::{
     SOCIAL_REPORT_WRITER_DELIVERY_STATE_REPORT_READY,
     SOCIAL_REPORT_WRITER_DELIVERY_STATE_UNAVAILABLE,
 };
-use serde::{Deserialize, Serialize};
 
 use crate::time::timestamp_now;
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SocialReportWriterDeliveryReadModel {
-    pub generated_at: String,
-    pub proof_ref: String,
-    pub rows: Vec<SocialReportWriterDeliveryReadModelRow>,
-    pub non_claims: Vec<String>,
-    pub external_runtime_report_delivery_claimed: bool,
-    pub final_policy_execution_claimed: bool,
-    pub enforcement_claimed: bool,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SocialReportWriterDeliveryReadModelRow {
-    pub row_id: String,
-    pub source_intent_ref: String,
-    pub parent_visible_report_status_ref: Option<String>,
-    pub parent_report_ref: Option<String>,
-    pub report_artifact_ref: Option<String>,
-    pub report_receipt_ref: Option<String>,
-    pub source_evidence_refs: Vec<String>,
-    pub source_policy_refs: Vec<String>,
-    pub source_audit_refs: Vec<String>,
-    pub manual_proof_requirements: Vec<String>,
-    pub delivery_state: String,
-    pub receipt_state: String,
-    pub parent_owned_report_artifact_written: bool,
-    pub parent_owned_report_receipt_recorded: bool,
-    pub external_runtime_report_delivery_claimed: bool,
-    pub provider_delivery_attempted: bool,
-    pub provider_receipt_ingested: bool,
-    pub final_policy_decision_claimed: bool,
-    pub enforcement_claimed: bool,
-    pub created_at: String,
-}
 
 pub fn social_report_writer_delivery_read_model_from_service() -> SocialReportWriterDeliveryReadModel
 {
@@ -131,50 +97,6 @@ pub async fn request_social_report_writer_delivery_read_model_from_service(
 
     Ok(report.response.read_model)
 }
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-struct SocialReportWriterDeliveryReadModelRequest {
-    request_id: RequestId,
-    requested_at: String,
-}
-
-impl DomainEvent for SocialReportWriterDeliveryReadModelRequest {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        Ok(EventContract::new(
-            EventType::parse(
-                constants::browser::EVENT_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_REQUESTED,
-            )?,
-            SchemaVersion::new(constants::browser::EVENT_SCHEMA_VERSION)?,
-        ))
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(constants::browser::AGGREGATE_BROWSER_RUNTIME_PREFIX)
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        let mut value = String::from(
-            constants::browser::IDEMPOTENCY_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_PREFIX,
-        );
-        value.push_str(self.request_id.as_str());
-        IdempotencyKey::parse(value)
-    }
-}
-
-impl RequestEvent for SocialReportWriterDeliveryReadModelRequest {
-    type Response = SocialReportWriterDeliveryReadModelResponse;
-
-    fn request_id(&self) -> Result<RequestId, EventingError> {
-        Ok(self.request_id.clone())
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-struct SocialReportWriterDeliveryReadModelResponse {
-    read_model: SocialReportWriterDeliveryReadModel,
-}
-
-impl EventResponseContract for SocialReportWriterDeliveryReadModelResponse {}
 
 fn social_report_writer_delivery_metadata(
     request: &SocialReportWriterDeliveryReadModelRequest,

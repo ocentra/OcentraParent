@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type ChildAndroidPermissionCapabilityReadModel,
   ChildAndroidPermissionCapabilityReadModelSchema,
-} from '../../src/child-android-permission-capability-proof';
+} from '@ocentra-parent/schema-domain/child-android-permission-capability-proof';
 
 describe('child android permission capability proof contracts', () => {
   acceptsHonestPackageAndPermissionStates();

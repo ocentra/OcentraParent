@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { AgentLogSnapshotSchema, DevLogEntrySchema, DevLogMessage, LogSource } from '../../src/contracts';
+import { AgentLogSnapshotSchema, DevLogEntrySchema, DevLogMessage, LogSource } from '@ocentra-parent/schema-domain/contracts';
 import { LoggingDomainPackage } from '../../src/package-info';
 
 it('LoggingDomainPackage: identifies the operational logging boundary', () => {
@@ -17,6 +17,7 @@ it('AgentLogSnapshotSchema: accepts the Rust localhost log snapshot contract', (
     },
     entries: [
       {
+        schemaVersion: 1,
         id: 'dev-startup',
         timestamp: '2026-05-19T00:00:00Z',
         level: 'info',
@@ -46,6 +47,7 @@ it('AgentLogSnapshotSchema: rejects unknown log levels', () => {
     },
     entries: [
       {
+        schemaVersion: 1,
         id: 'bad-level',
         timestamp: '2026-05-19T00:00:00Z',
         level: 'notice',

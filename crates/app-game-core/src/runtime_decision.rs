@@ -211,3 +211,127 @@ pub fn app_game_runtime_decision_recorded_event(
         decision: evaluate_app_game_runtime(input),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        app_game_runtime_decision_recorded_event, app_game_runtime_observed_event,
+        evaluate_app_game_runtime, AppGameAggregateId, AppGameAiHandoffState,
+        AppGameCapabilityState, AppGameClassificationState, AppGameForegroundState,
+        AppGamePolicyHandoffState, AppGameRuntimeActionState, AppGameRuntimeDecisionId,
+        AppGameRuntimeInput,
+    };
+    use crate::AppGameObservationIntent;
+    use ocentra_eventing::envelope::DomainEvent;
+    use ocentra_parent_agent_protocol::child_domain_runtime::ChildRuntimeDomain;
+
+    #[test]
+    fn foreground_known_game_publishes_policy_without_ai() {
+        let decision = evaluate_app_game_runtime(AppGameRuntimeInput {
+            capability_state: AppGameCapabilityState::Supported,
+            foreground_state: AppGameForegroundState::Foreground,
+            classification_state: AppGameClassificationState::KnownGame,
+        });
+
+        assert_eq!(
+            decision.observation_intent,
+            AppGameObservationIntent::ForegroundUsageRequiresPolicy
+        );
+        assert_eq!(
+            decision.runtime_action_state,
+            AppGameRuntimeActionState::RecordForegroundSession
+        );
+        assert_eq!(
+            decision.ai_handoff_state,
+            AppGameAiHandoffState::NotRequired
+        );
+        assert_eq!(
+            decision.policy_handoff_state,
+            AppGamePolicyHandoffState::Publish
+        );
+    }
+
+    #[test]
+    fn foreground_unknown_game_routes_to_ai_boundary() {
+        let input = AppGameRuntimeInput {
+            capability_state: AppGameCapabilityState::Supported,
+            foreground_state: AppGameForegroundState::Foreground,
+            classification_state: AppGameClassificationState::UnknownGame,
+        };
+        let decision = evaluate_app_game_runtime(input);
+        let observed = app_game_runtime_observed_event(input);
+
+        assert_eq!(
+            decision.observation_intent,
+            AppGameObservationIntent::AmbiguousUsageRequiresAi
+        );
+        assert_eq!(
+            decision.runtime_action_state,
+            AppGameRuntimeActionState::RecordForegroundSession
+        );
+        assert_eq!(decision.ai_handoff_state, AppGameAiHandoffState::Required);
+        assert_eq!(
+            observed.event_type,
+            ChildRuntimeDomain::AppGame.observed_event_type()
+        );
+    }
+
+    #[test]
+    fn missing_capability_forces_manual_review_without_handoffs() {
+        let decision = evaluate_app_game_runtime(AppGameRuntimeInput {
+            capability_state: AppGameCapabilityState::Missing,
+            foreground_state: AppGameForegroundState::Foreground,
+            classification_state: AppGameClassificationState::KnownGame,
+        });
+
+        assert_eq!(
+            decision.observation_intent,
+            AppGameObservationIntent::InventoryObservationOnly
+        );
+        assert_eq!(
+            decision.runtime_action_state,
+            AppGameRuntimeActionState::ManualRequired
+        );
+        assert_eq!(
+            decision.ai_handoff_state,
+            AppGameAiHandoffState::NotRequired
+        );
+        assert_eq!(
+            decision.policy_handoff_state,
+            AppGamePolicyHandoffState::DoNotPublish
+        );
+    }
+
+    #[test]
+    fn background_inventory_state_records_decision_event_with_typed_contract() {
+        let input = AppGameRuntimeInput {
+            capability_state: AppGameCapabilityState::Supported,
+            foreground_state: AppGameForegroundState::Background,
+            classification_state: AppGameClassificationState::InventoryOnly,
+        };
+
+        let recorded = app_game_runtime_decision_recorded_event(
+            AppGameAggregateId::parse("app-game.aggregate.child-device-1").expect("aggregate id"),
+            AppGameRuntimeDecisionId::parse("app-game.runtime-decision-1")
+                .expect("decision id"),
+            input,
+        );
+
+        assert_eq!(
+            recorded.decision.observation_intent,
+            AppGameObservationIntent::InventoryObservationOnly
+        );
+        assert_eq!(
+            recorded.decision.runtime_action_state,
+            AppGameRuntimeActionState::RecordInventory
+        );
+        assert_eq!(
+            recorded
+                .contract()
+                .expect("app-game runtime contract")
+                .event_type
+                .as_str(),
+            "app-game.runtime.decision-recorded"
+        );
+    }
+}

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/activity-surface';
+import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/schema-domain/activity-surface';
 import {
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import type { ActivitySurfaceAdapterResult } from '@ocentra-parent/agent-protocol-domain/activity-surface-adapter';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { canonicalRuntimeLanAddDeviceReadModel } from './activity-ui-lan-pairing-fixtures';

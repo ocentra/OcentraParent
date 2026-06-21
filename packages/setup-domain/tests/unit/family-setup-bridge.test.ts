@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ActorAccountState,
   ChildProfileBindingState,
-  DeviceAuthorityAction,
+  DeviceAuthorityActionLiteral,
   DeviceOwnershipScope,
   DeviceTrustState,
   HouseholdAuthorityInputSchema,
@@ -11,7 +11,7 @@ import {
   ParentStepUpAssertionSchema,
   ParentStepUpMethod,
   SessionFreshnessState,
-} from '@ocentra-parent/family-domain/household-authority';
+} from '@ocentra-parent/schema-domain/family-household-authority';
 import { ParentActorRole, ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   RecoveryBundleFailureReason,
@@ -22,17 +22,21 @@ import {
   RecoveryKind,
   RecoveryOperationSchema,
   RecoverySupportChannel,
+} from '@ocentra-parent/schema-domain/family-restore-lifecycle';
+import {
   SetupInvitePurpose,
   SetupInviteSchema,
   SetupInviteState,
-} from '@ocentra-parent/family-domain/setup-lifecycle';
+} from '@ocentra-parent/schema-domain/family-setup-invite';
 import {
   createSetupReadinessReportFromFamilyContext,
   createSetupRecoveryOperationFromFamilyRecovery,
   deriveSetupPairingProjectionFromFamilyContext,
+} from '../../src/family-setup-bridge';
+import {
   SetupFamilyRecoveryOperationInputSchema,
   SetupFamilyReadinessInputSchema,
-} from '../../src/family-setup-bridge';
+} from '@ocentra-parent/schema-domain/family-setup-bridge';
 import {
   deriveSetupReadinessOverallState,
   SetupAccountReadinessState,
@@ -44,13 +48,13 @@ import {
   SetupReadinessOverallState,
   SetupRecoveryKind,
   SetupRecoveryState,
-} from '../../src/readiness';
+} from '@ocentra-parent/schema-domain/setup-readiness';
 import {
   SetupPairingApprovalChallengeSchema,
   SetupPairingApprovalResponseSchema,
   SetupPairingFailureReason,
   SetupPairingState,
-} from '../../src/pairing-intent';
+} from '@ocentra-parent/schema-domain/setup-pairing-intent';
 
 const BaseInvite = SetupInviteSchema.parse({
   schemaVersion: ParentContractSchemaVersion.V0_6,
@@ -76,7 +80,7 @@ const BaseAuthorityInput = HouseholdAuthorityInputSchema.parse({
   deviceTrustState: DeviceTrustState.Trusted,
   sessionFreshnessState: SessionFreshnessState.Fresh,
   capabilityGranted: true,
-  action: DeviceAuthorityAction.PairChildDevice,
+  action: DeviceAuthorityActionLiteral.PairChildDevice,
 });
 
 type ChecklistEntry = {
@@ -122,7 +126,7 @@ const LocalStepUpAssertion = ParentStepUpAssertionSchema.parse({
   actionDevice: BaseInput.parentDevice,
   approverDevice: BaseInput.parentDevice,
   targetChildProfile: BaseInput.childProfile,
-  action: DeviceAuthorityAction.PairChildDevice,
+  action: DeviceAuthorityActionLiteral.PairChildDevice,
   method: ParentStepUpMethod.Passkey,
   nonce: 'step-up-nonce-1',
   issuedAt: '2026-06-13T19:58:00.000Z',
@@ -143,7 +147,7 @@ const QrApprovalChallenge = SetupPairingApprovalChallengeSchema.parse({
   actionDevice: DesktopParentDevice,
   desktopSessionId: 'desktop-session-1',
   childProfile: BaseInput.childProfile,
-  action: DeviceAuthorityAction.PairChildDevice,
+  action: DeviceAuthorityActionLiteral.PairChildDevice,
   challengeNonce: 'pairing-approval-nonce-1',
   createdAt: '2026-06-13T19:58:00.000Z',
   expiresAt: '2026-06-13T20:05:00.000Z',

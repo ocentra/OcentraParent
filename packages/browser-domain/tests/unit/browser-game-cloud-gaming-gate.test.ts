@@ -3,7 +3,7 @@ import {
   BrowserGameCloudGateDecisionSchema,
   BrowserGameCloudGateRequestSchema,
   type BrowserGameCloudGateRequest,
-} from '../../src/browser-game-cloud-gaming-gate';
+} from '@ocentra-parent/schema-domain/browser-game-cloud-gaming-gate';
 
 describe('browser-game cloud-gaming gate contracts', () => {
   it(

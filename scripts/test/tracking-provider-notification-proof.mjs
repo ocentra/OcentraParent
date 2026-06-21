@@ -26,11 +26,11 @@ runNpmCommand(run, [
 ]);
 
 const tracking = await tsImport(
-  pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-location-policy.ts')).href,
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-location-policy.ts')).href,
   import.meta.url
 );
 const proofModule = await tsImport(
-  pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-provider-notification-proof.ts')).href,
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-provider-notification-proof.ts')).href,
   import.meta.url
 );
 const sourceReadModel = tracking.TrackingLocationPolicyReadModelSchema.parse(sourceTrackingReadModel(tracking));
@@ -61,7 +61,7 @@ const proof = {
   summary: summarize(readModel),
   nonClaims: nonClaims(readModel),
   proofPaths: {
-    source: 'packages/tracking-domain/src/tracking-provider-notification-proof.ts',
+    source: 'packages/schema-domain/src/tracking-provider-notification-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-provider-notification-proof.test.ts',
     harness: 'scripts/test/tracking-provider-notification-proof.mjs',
     evidence: 'test-results/tracking-provider-notification-proof/proof.json',

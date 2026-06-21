@@ -9,7 +9,7 @@ import {
   TrackingChildCheckInTimeoutReadModelSchema,
   type TrackingChildCheckInTimeoutRow,
 } from './tracking-child-check-in-timeout-escalation-proof';
-import { TrackingPolicySchemaVersion } from './tracking-location-policy';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 export const RequiredTrackingChildRuntimeDeliveryBoundaryNonClaims = [
   'no-child-device-delivery-runtime',

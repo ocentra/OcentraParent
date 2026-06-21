@@ -4,7 +4,7 @@ import {
   BrowserGameCloudPatternLibrarySchema,
   type BrowserGameCloudPatternEntry,
   type BrowserGameCloudPatternLibrary,
-} from '../../src/browser-game-cloud-pattern-library';
+} from '@ocentra-parent/schema-domain/browser-game-cloud-pattern-library';
 
 describe('browser-game cloud pattern library contracts', () => {
   it('accepts reviewed cloud-gaming platform patterns as refs and fingerprints', acceptsReviewedPatterns);

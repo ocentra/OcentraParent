@@ -1,12 +1,12 @@
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
-  PortalDom,
   PortalFrameTuner,
   portalFrameCssNumber,
   portalFrameCssOpacity,
   portalFrameCssPercent,
   portalFrameCssPixel,
   type PortalFrameCssStyle,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/frame-tuner';
 import {
   getPictureViewerFrameSpaceForOrientation,
   type PictureViewerFrameSurfaceControls,

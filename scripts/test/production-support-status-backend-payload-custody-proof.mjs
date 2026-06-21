@@ -28,7 +28,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/status-backend-payload-custody.test.ts',
+      'tests/unit/status-backend-payload-custody.test.ts',
     ])
   );
 
@@ -43,10 +43,10 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/status-backend-payload-custody.ts',
-      guards: 'packages/logging-domain/src/status-backend-payload-custody-guards.ts',
-      readModel: 'packages/logging-domain/src/status-backend-payload-custody-read-model.ts',
-      contractTest: 'packages/logging-domain/tests/status-backend-payload-custody.test.ts',
+      contract: 'packages/schema-domain/src/status-backend-payload-custody.ts',
+      guards: 'packages/schema-domain/src/status-backend-payload-custody-guards.ts',
+      readModel: 'packages/schema-domain/src/status-backend-payload-custody-read-model.ts',
+      contractTest: 'packages/logging-domain/tests/unit/status-backend-payload-custody.test.ts',
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
       featureDoc: 'docs/features/production-distribution-support.md',
@@ -57,7 +57,7 @@ async function main() {
       'Rows link to status backend target, execution queue, queue audit, custody, retention, delete, redaction, and manual proof references while keeping payloads to support-safe status refs only.',
       'Retention and deletion remain manual-required until published retention, deletion, and support-safe audit export proof exists.',
       'Backend-unavailable rows prove the fallback status remains not-retained and manual-required rather than claiming durable status backend payload custody.',
-      'Package exports expose the status backend payload custody contract and read model through @ocentra-parent/logging-domain.',
+      'Package exports expose the status backend payload custody contract and read model through @ocentra-parent/schema-domain.',
       'Rows reject tokens, raw child activity, raw support bundles, provider secrets, account lookup results, billing contact records, backend upload payloads, status backend payloads, public runtime payloads, remote support transcripts, status backend execution, durable payload storage, payload deletion execution, retry worker execution, audit persistence, public runtime execution, support upload execution, provider execution, account lookup execution, billing provider contact, remote support sessions, production SLA, and default Ocentra-hosted family data.',
     ],
     claimsNotProved: [
@@ -131,8 +131,8 @@ function assertReadModel(readModel) {
 }
 
 async function assertPackageExports() {
-  const contract = await import('@ocentra-parent/logging-domain/status-backend-payload-custody');
-  const readModel = await import('@ocentra-parent/logging-domain/status-backend-payload-custody-read-model');
+  const contract = await import('@ocentra-parent/schema-domain/status-backend-payload-custody');
+  const readModel = await import('@ocentra-parent/schema-domain/status-backend-payload-custody-read-model');
   assert.equal(typeof contract.StatusBackendPayloadCustodyReadModelSchema.parse, 'function');
   assert.equal(readModel.StatusBackendPayloadCustodyReadModel.entries.length, 6);
 }

@@ -5,11 +5,13 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { parseBrowserUrlShape } from '../../packages/browser-domain/dist/browser-url-intelligence.js';
-import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '../../packages/browser-domain/dist/browser-social-account-flow-schemas.js';
-import { planBrowserSocialAccountCreationGate } from '../../packages/browser-domain/dist/browser-social-account-creation-gate.js';
-import { BrowserSocialAccountCreationGatePlanSchema } from '../../packages/browser-domain/dist/browser-social-account-creation-gate.js';
-import { detectBrowserSocialFormShape } from '../../packages/browser-domain/dist/browser-social-form-shape-detector.js';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../packages/browser-domain/dist/browser-social-url-patterns.js';
+import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '../../packages/schema-domain/dist/browser-social-account-flow-schemas.js';
+import {
+  planBrowserSocialAccountCreationGate,
+  BrowserSocialAccountCreationGatePlanSchema,
+} from '@ocentra-parent/schema-domain/browser-social-account-creation-gate';
+import { detectBrowserSocialFormShape } from '@ocentra-parent/schema-domain/browser-social-form-shape-detector';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -21,17 +23,17 @@ const observedAt = new Date().toISOString();
 
 const sourceFiles = [
   'packages/browser-domain/src/browser-url-intelligence.ts',
-  'packages/browser-domain/src/browser-social-url-patterns.ts',
-  'packages/browser-domain/src/browser-social-account-flow-schemas.ts',
-  'packages/browser-domain/src/browser-social-form-shape-detector.ts',
-  'packages/browser-domain/src/browser-social-account-creation-gate.ts',
+  'packages/schema-domain/src/browser-social-url-patterns.ts',
+  'packages/schema-domain/src/browser-social-account-flow-schemas.ts',
+  'packages/schema-domain/src/browser-social-form-shape-detector.ts',
+  'packages/schema-domain/src/browser-social-account-creation-gate.ts',
 ];
 const builtFiles = [
   'packages/browser-domain/dist/browser-url-intelligence.js',
-  'packages/browser-domain/dist/browser-social-url-patterns.js',
-  'packages/browser-domain/dist/browser-social-account-flow-schemas.js',
-  'packages/browser-domain/dist/browser-social-form-shape-detector.js',
-  'packages/browser-domain/dist/browser-social-account-creation-gate.js',
+  'packages/schema-domain/dist/browser-social-url-patterns.js',
+  'packages/schema-domain/dist/browser-social-account-flow-schemas.js',
+  'packages/schema-domain/dist/browser-social-form-shape-detector.js',
+  'packages/schema-domain/dist/browser-social-account-creation-gate.js',
 ];
 
 const liveTargets = [

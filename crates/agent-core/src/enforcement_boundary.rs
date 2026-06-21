@@ -11,9 +11,14 @@ mod enforcement_authorization;
 mod enforcement_timer_event;
 mod enforcement_unavailable_status;
 
-pub use enforcement_authorization::{
-    authorize_enforcement_boundary, EnforcementAuthorizationOutcome,
-};
+pub type EnforcementAuthorizationOutcome =
+    enforcement_authorization::EnforcementAuthorizationOutcome;
+
+pub fn authorize_enforcement_boundary(
+    input: EnforcementBoundaryInput,
+) -> Result<EnforcementAuthorizationOutcome, EnforcementBoundaryRejection> {
+    enforcement_authorization::authorize_enforcement_boundary(input)
+}
 
 use enforcement_timer_event::timer_event;
 use enforcement_unavailable_status::{

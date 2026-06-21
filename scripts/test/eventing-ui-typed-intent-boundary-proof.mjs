@@ -10,7 +10,7 @@ const planProofPath = join(planOutputDir, 'proof-summary.json');
 const commands = [];
 const proofLabels = [];
 
-const sourceRoots = ['apps/portal/src', 'packages/portal-domain/src'];
+const sourceRoots = ['apps/portal/src'];
 const sourceExtensions = new Set(['.ts', '.tsx']);
 const forbiddenPublisherPatterns = [
   {
@@ -66,7 +66,6 @@ async function main() {
       'src/portal-command-controls.ts',
       'src/TrackingStatusRoutePanel.tsx',
       '../../packages/agent-protocol-domain/src/agent-message-codec.ts',
-      '../../packages/portal-domain/src/commands.ts',
     ])
   );
   await runCommand('node', ['scripts/check-source-shape.mjs', 'crates/ocentra-eventing']);
@@ -86,7 +85,7 @@ async function main() {
       portalTransport: 'apps/portal/src/transport.ts',
       portalActions: 'apps/portal/src/portal-actions.ts',
       portalCommandControls: 'apps/portal/src/portal-command-controls.ts',
-      portalCommandInventory: 'packages/portal-domain/src/commands.ts',
+      portalCommandInventory: 'apps/portal/src/portal-command-controls.ts',
       portalTransportTests: 'apps/portal/tests/transport-lan-target.test.ts',
       proofHarness: 'scripts/test/eventing-ui-typed-intent-boundary-proof.mjs',
       scannedSourceRoots: sourceRoots,
@@ -123,7 +122,6 @@ async function assertPortalTypedIntentBoundary() {
   const portalActions = await readText('apps/portal/src/portal-actions.ts');
   const commandControls = await readText('apps/portal/src/portal-command-controls.ts');
   const trackingPanel = await readText('apps/portal/src/TrackingStatusRoutePanel.tsx');
-  const portalCommands = await readText('packages/portal-domain/src/commands.ts');
 
   assertIncludes(
     agentClient,
@@ -195,9 +193,18 @@ async function assertPortalTypedIntentBoundary() {
   );
   proofLabels.push('portal.actions.typed-command-intents');
 
-  assertDoesNotInclude(portalCommands, 'command: AgentEvent.', 'command inventory cannot use events as commands');
-  assertIncludes(portalCommands, 'resultEvent: AgentEvent.', 'command inventory keeps events as result metadata');
-  proofLabels.push('portal.command-inventory.events-are-result-metadata');
+  assertIncludes(commandControls, 'PortalCommandButtons', 'command controls consume shared command inventory');
+  assertIncludes(
+    commandControls,
+    'actions.selectCommandResult(command.resultEvent)',
+    'command controls keep events as result metadata'
+  );
+  assertIncludes(
+    commandControls,
+    'actions.sendCommand(command.command, command.payload)',
+    'command controls send typed command intents'
+  );
+  proofLabels.push('portal.command-controls.events-are-result-metadata');
 
   const scannedFiles = await sourceFiles(sourceRoots);
   for (const file of scannedFiles) {

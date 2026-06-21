@@ -6,7 +6,7 @@ import {
   PolicyCompilerNoClaimLabel,
   PolicyCompilerRuleStatus,
   parsePolicyCompiledArtifact,
-} from '../../src/policy-compiler';
+} from '@ocentra-parent/schema-domain/policy-compiler';
 
 function sampleArtifact() {
   return {

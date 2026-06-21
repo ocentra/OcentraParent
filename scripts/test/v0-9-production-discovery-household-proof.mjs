@@ -5,7 +5,8 @@ import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
 const lanDomainRoot = join(repoRoot, 'packages', 'lan-domain');
-const productionDiscoveryModulePath = join(lanDomainRoot, 'dist', 'v0-9-production-discovery-household-proof.js');
+const schemaDomainRoot = join(repoRoot, 'packages', 'schema-domain');
+const productionDiscoveryModulePath = join(schemaDomainRoot, 'dist', 'v0-9-production-discovery-household-proof.js');
 const outputDir = join(repoRoot, 'output', 'lan-plan-proof', '01-lan-b1-proof-regeneration');
 const sourceMatrixProofPath = join(outputDir, '01-lan-source-matrix-plan-completion-proof.json');
 const signedRelayProofPath = join(outputDir, '02-lan-signed-discovery-relay-spine-proof.json');
@@ -17,7 +18,7 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await ensureLanDomainBuild();
+  await ensureSchemaDomainBuild();
   await runCommand('cmd', ['/c', 'npx', 'vitest', 'run', 'tests/unit/v0-9-production-discovery-household-proof.test.ts'], lanDomainRoot);
 
   const productionDiscoveryContract = await import(moduleUrl(productionDiscoveryModulePath));
@@ -36,10 +37,12 @@ async function main() {
     checkedAt: new Date().toISOString(),
     commit: await gitHead(),
     proofMode: 'v0-9-production-discovery-household-proof',
-    ownerBoundary: 'packages/lan-domain',
+    ownerBoundary: 'packages/schema-domain',
     commands,
     artifactPath: relativePath(proofPath),
     evidence: {
+      contract: relativePath(productionDiscoveryModulePath),
+      contractTest: 'packages/lan-domain/tests/unit/v0-9-production-discovery-household-proof.test.ts',
       sourceMatrix: relativePath(sourceMatrixProofPath),
       signedDiscoveryRelay: relativePath(signedRelayProofPath),
     },
@@ -52,7 +55,7 @@ async function main() {
     claimsProved: [
       'Production discovery states remain explicit for local mechanical proof without upgrading physical household readiness.',
       'Route checks, restart recovery, wrong-origin, wrong-device, stale, offline, revoked, and unavailable states remain typed.',
-      'Manual household proof checklist and cloud-relay non-claim remain explicit in the lan-domain read model.',
+      'Manual household proof checklist and cloud-relay non-claim remain explicit in the schema-domain read model.',
     ],
     claimsNotProved: [
       'Physical household LAN product readiness across two real devices.',
@@ -68,11 +71,11 @@ async function main() {
   console.log(`evidence=${proofPath}`);
 }
 
-async function ensureLanDomainBuild() {
+async function ensureSchemaDomainBuild() {
   if (existsSync(productionDiscoveryModulePath)) {
     return;
   }
-  await runCommand('cmd', ['/c', 'npm', 'run', 'build'], lanDomainRoot);
+  await runCommand('cmd', ['/c', 'npm', 'run', 'build'], schemaDomainRoot);
 }
 
 function readModelFixture() {

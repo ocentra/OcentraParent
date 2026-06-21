@@ -1,6 +1,6 @@
-mod types;
+pub mod types;
 
-pub use types::{
+use types::{
     EthernetFrameMetadata, IpProtocol, Ipv4PacketMetadata, PacketParseError, ParsedNetworkPacket,
     TransportPacketMetadata, UdpPayloadView,
 };

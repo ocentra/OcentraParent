@@ -6,7 +6,7 @@ import { dirname, join, relative } from 'node:path';
 import {
   BrowserGameJournalSqliteReadModelRowSchema,
   BrowserGameJournalSqliteReadModelSnapshotSchema,
-} from '../../packages/parent-domain/dist/browser-game-journal-sqlite-read-model.js';
+} from '@ocentra-parent/schema-domain/browser-game-journal-sqlite-read-model';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-journal-sqlite-read-model-live-evidence-proof';

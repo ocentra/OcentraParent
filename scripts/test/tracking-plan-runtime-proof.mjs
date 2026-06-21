@@ -38,10 +38,27 @@ async function main() {
     '-p',
     'ocentra-parent-agent-core',
     'activity_store_ingests_tracking_mvp_events_into_sqlite',
+    '--lib',
   ]);
 
-  const tracking = await importTsModule('packages/tracking-domain/src/tracking.ts');
-  const policy = await importTsModule('packages/tracking-domain/src/tracking-location-policy.ts');
+  const trackingGeofence = await importTsModule('packages/schema-domain/src/tracking-geofence.ts');
+  const trackingEvidence = await importTsModule('packages/schema-domain/src/tracking-evidence.ts');
+  const trackingReadModel = await importTsModule('packages/schema-domain/src/tracking-read-model.ts');
+  const trackingRuntime = await importTsModule('packages/tracking-domain/src/tracking-runtime.ts');
+  const trackingRetentionRuntime = await importTsModule('packages/tracking-domain/src/tracking-retention-runtime.ts');
+  const policySchemas = await importTsModule('packages/schema-domain/src/tracking-location-policy.ts');
+  const policyRuntime = await importTsModule('packages/tracking-domain/src/tracking-location-policy-runtime.ts');
+  const tracking = {
+    ...trackingGeofence,
+    ...trackingEvidence,
+    ...trackingReadModel,
+    ...trackingRuntime,
+    ...trackingRetentionRuntime,
+  };
+  const policy = {
+    ...policySchemas,
+    ...policyRuntime,
+  };
   await runTrackingSourceSurfaceProof(tracking, policy);
   const fixtures = buildFixtures();
   const parentFixtures = buildParentFixtures();
@@ -114,7 +131,7 @@ async function runTrackingSourceSurfaceProof(tracking, policy) {
 
   commands.push({
     command:
-      'source-surface-check packages/tracking-domain/src/tracking.ts packages/tracking-domain/src/tracking-location-policy.ts',
+      'source-surface-check packages/schema-domain/src/tracking-geofence.ts packages/schema-domain/src/tracking-evidence.ts packages/schema-domain/src/tracking-read-model.ts packages/schema-domain/src/tracking-location-policy.ts packages/tracking-domain/src/tracking-runtime.ts packages/tracking-domain/src/tracking-retention-runtime.ts packages/tracking-domain/src/tracking-location-policy-runtime.ts',
     exitCode: 0,
   });
 }
@@ -177,7 +194,7 @@ async function writeProofArtifacts({
       'simulated',
       {
         route: '/#/policy-tracking',
-        surface: 'apps/portal/src/tracking-status-panel.ts',
+        surface: 'apps/portal/src/TrackingStatusRoutePanel.tsx',
         test: 'apps/portal/tests/tracking-status-panel.test.ts',
         states: [
           'Tracking off',

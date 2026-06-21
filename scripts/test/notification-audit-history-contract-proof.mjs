@@ -13,13 +13,14 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
   await runCommand(
     ...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/logging-domain', '--', 'notification-audit-history'])
   );
 
   const { NotificationAuditHistoryReadModel } =
-    await import('../../packages/logging-domain/dist/notification-audit-history.js');
+    await import('@ocentra-parent/schema-domain/notification-audit-history');
   const summary = summarizeReadModel(NotificationAuditHistoryReadModel);
   assertReadModel(NotificationAuditHistoryReadModel, summary);
 
@@ -31,8 +32,8 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/logging-domain/src/notification-audit-history.ts',
-      tsContractTest: 'packages/logging-domain/tests/notification-audit-history.test.ts',
+      tsContract: 'packages/schema-domain/src/notification-audit-history.ts',
+      tsContractTest: 'packages/logging-domain/tests/unit/notification-audit-history.test.ts',
       packageExport: 'packages/logging-domain/package.json#exports.notification-audit-history',
       featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDoc: 'docs/expectations/notifications.md',

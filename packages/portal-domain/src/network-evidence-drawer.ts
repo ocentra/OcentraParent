@@ -2,11 +2,11 @@ import type {
   ActivityNetworkEndpoint,
   ActivityNetworkFlowObservation,
   ActivityNetworkFlowReadModel,
-} from '@ocentra-parent/network-domain/network-flow';
-import { AgentProtocolDefaults, type AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
-import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/agent-protocol-domain/policy-preview-read-model';
+} from '@ocentra-parent/schema-domain/network-flow';
+import type { AgentProtocolLogFields } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/schema-domain/agent-policy-preview-read-model';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import type { AgentNetworkRuntimeEventResult } from '@ocentra-parent/agent-protocol-domain/network-runtime-events';
-import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
 import { PortalFormatting } from './formatting';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
@@ -57,6 +57,8 @@ interface NetworkEvidenceDrawerSummaryContext {
 interface NetworkEvidenceDrawerRuntimeEventChainStream {
   readonly events: readonly AgentNetworkRuntimeEventResult[];
 }
+
+type PortalDetailScalar = string | number | boolean | null | undefined;
 
 export function networkEvidenceDrawerSummary(
   readModel: ActivityNetworkFlowReadModel | null,
@@ -135,7 +137,7 @@ function firstNetworkFlowRow(readModel: ActivityNetworkFlowReadModel | null): Ac
 
 function detailFromRowValue(
   row: ActivityNetworkFlowObservation | null,
-  getValue: (row: ActivityNetworkFlowObservation) => LogFieldValue | undefined
+  getValue: (row: ActivityNetworkFlowObservation) => unknown
 ): PortalDetailValue {
   if (row === null) {
     return notReported();
@@ -228,7 +230,7 @@ function evidenceReferenceDetail(row: ActivityNetworkFlowObservation | null): Po
 function networkFlowPayloadFieldValue(
   payload: AgentProtocolLogFields | null | undefined,
   fieldName: string
-): LogFieldValue | undefined {
+): unknown {
   if (payload === null || payload === undefined) {
     return undefined;
   }
@@ -242,7 +244,7 @@ function networkFlowPayloadFieldValue(
 function latestRuntimeEventFieldValue(
   stream: NetworkEvidenceDrawerRuntimeEventChainStream | null | undefined,
   fieldName: 'aiAnalysisRef' | 'policyDecisionRef' | 'enforcementResultRef'
-): LogFieldValue | undefined {
+): string | undefined {
   if (stream === null || stream === undefined) {
     return undefined;
   }
@@ -287,19 +289,33 @@ function endpointDetail(endpoint: ActivityNetworkEndpoint | null | undefined): P
   return joinedDetail([endpoint.ip, endpoint.port]);
 }
 
-function joinedDetail(values: readonly (LogFieldValue | undefined)[]): PortalDetailValue {
-  const normalized = values.filter((value) => value !== undefined && value !== null).map((value) => String(value));
+function joinedDetail(values: readonly unknown[]): PortalDetailValue {
+  const normalized = values
+    .map(portalDetailScalar)
+    .filter((value): value is string | number | boolean => value !== undefined && value !== null)
+    .map((value) => String(value));
   if (normalized.length === 0) {
     return notReported();
   }
   return decodePortalDetailValue(normalized.join(PortalFormatting.EventDetailSeparator));
 }
 
-function detailFromValue(value: LogFieldValue | undefined): PortalDetailValue {
-  if (value === undefined || value === null) {
+function detailFromValue(value: unknown): PortalDetailValue {
+  const normalized = portalDetailScalar(value);
+  if (normalized === undefined || normalized === null) {
     return notReported();
   }
-  return decodePortalDetailValue(String(value));
+  return decodePortalDetailValue(String(normalized));
+}
+
+function portalDetailScalar(value: unknown): PortalDetailScalar {
+  if (value === undefined || value === null) {
+    return value;
+  }
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return value;
+  }
+  return undefined;
 }
 
 function notReported(): PortalDetailValue {

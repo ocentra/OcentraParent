@@ -6,7 +6,7 @@ use ocentra_parent_agent_protocol::{
 };
 
 use super::{
-    app_game_journal_sqlite_ingest::app_game_journal_sqlite_read_model,
+    app_game_journal_sqlite_ingest::read_model::app_game_journal_sqlite_read_model,
     app_game_windows_inventory::windows_installed_inventory_rows_from_records,
     app_game_windows_registry_source::{
         live_windows_registry_inventory_journal_events_from_roots,

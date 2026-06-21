@@ -3,7 +3,7 @@ import {
   BrowserGameUgcRiskAssessmentSchema,
   type BrowserGameUgcRiskAssessment,
   BrowserGameUgcRiskRowSchema,
-} from '../../src/browser-game-ugc-multiplayer-chat-risk';
+} from '@ocentra-parent/schema-domain/browser-game-ugc-multiplayer-chat-risk';
 
 describe('browser-game UGC multiplayer chat risk contracts', () => {
   it('accepts UGC multiplayer risk candidates without claiming enforcement', acceptsUgcRiskCandidate);

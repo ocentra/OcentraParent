@@ -45,7 +45,7 @@ async function main() {
     evidence: {
       sourceProof,
       packageArtifacts,
-      contract: 'packages/child-runtime-domain/src/child-android-storage-protocol-proof.ts',
+      contract: 'packages/schema-domain/src/child-android-storage-protocol-proof.ts',
       contractTest: 'packages/child-runtime-domain/tests/unit/child-android-storage-protocol-proof.test.ts',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/child-android-storage-protocol-capability-proof-2026-05-31.md',
@@ -174,9 +174,9 @@ function buildRuntimeReadModel(packageArtifacts) {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await importTsModule('packages/child-runtime-domain/src/child-android-storage-protocol-proof.ts');
+  const module = await importTsModule('packages/schema-domain/src/child-android-storage-protocol-proof.ts');
   const parsed = module.ChildAndroidStorageProtocolReadModelSchema.parse(readModel);
-  proofLabels.push('child-runtime-domain.child-android-storage-protocol-proof-parse');
+  proofLabels.push('schema-domain.child-android-storage-protocol-proof-parse');
   return parsed;
 }
 
@@ -200,19 +200,19 @@ async function assertProofMatrix() {
 
 async function assertScriptWiring() {
   const packageJson = JSON.parse(await readRepoFile('package.json'));
-  const childRuntimeDomainPackage = JSON.parse(await readRepoFile('packages/child-runtime-domain/package.json'));
+  const schemaDomainPackage = JSON.parse(await readRepoFile('packages/schema-domain/package.json'));
   const script = packageJson.scripts['test:child-android-storage-protocol-capability-proof'];
   if (script !== `node scripts/test/${proofMode}.mjs`) {
     throw new Error('Missing root test:child-android-storage-protocol-capability-proof script.');
   }
-  if (!childRuntimeDomainPackage.exports['./*']) {
-    throw new Error('Missing child-runtime-domain wildcard export.');
+  if (!schemaDomainPackage.exports['./child-android-storage-protocol-proof']) {
+    throw new Error('Missing schema-domain export for ./child-android-storage-protocol-proof.');
   }
   proofLabels.push('package-scripts.child-android-storage-protocol-proof');
   return {
     rootScript: 'test:child-android-storage-protocol-capability-proof',
-    childRuntimeDomainExport: './*',
-    sourceContract: 'packages/child-runtime-domain/src/child-android-storage-protocol-proof.ts',
+    schemaDomainExport: './child-android-storage-protocol-proof',
+    sourceContract: 'packages/schema-domain/src/child-android-storage-protocol-proof.ts',
   };
 }
 

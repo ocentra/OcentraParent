@@ -3,23 +3,11 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Shared evidence, subject, observer, and activity envelope contracts used by feature domains.",
+  "description": "Evidence-domain helpers that consume canonical schema-domain evidence contracts.",
   "exports": {
-    "./contracts": {
-      "import": "./dist/contracts.js",
-      "types": "./dist/contracts.d.ts"
-    },
     "./custody": {
       "import": "./dist/custody.js",
       "types": "./dist/custody.d.ts"
-    },
-    "./kinds": {
-      "import": "./dist/kinds.js",
-      "types": "./dist/kinds.d.ts"
-    },
-    "./primitives": {
-      "import": "./dist/primitives.js",
-      "types": "./dist/primitives.d.ts"
     },
     "./package-info": {
       "import": "./dist/package-info.js",

@@ -1,14 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
-import { ScreenEvidenceSchemaVersion } from '../../src/screen-evidence-primitives';
+import { ActivityEvidenceKind } from '@ocentra-parent/schema-domain/evidence-kinds';
+import { ScreenEvidenceSchemaVersion } from '@ocentra-parent/schema-domain/screen-evidence-primitives';
+import {
+  ScreenAnalysisParentSettingSchema,
+  ScreenCapabilitySnapshotSchema,
+} from '@ocentra-parent/schema-domain/screen-evidence-settings';
 import {
   ScreenAnalysisResultSchema,
   ScreenLocalModelOutputSchema,
-} from '../../src/screen-evidence-result';
-import { ScreenEvidenceRecentSummarySchema } from '../../src/screen-evidence-read-model';
-import { ScreenAnalysisQueueJobSchema } from '../../src/screen-evidence-queue';
-import { ScreenAnalysisParentSettingSchema, ScreenCapabilitySnapshotSchema } from '../../src/screen-evidence-settings';
-import { ScreenPolicyEvidenceChainWithDefaultsSchema } from '../../src/screen-policy-evidence-chain';
+} from '@ocentra-parent/schema-domain/screen-evidence-result';
+import { ScreenEvidenceRecentSummarySchema } from '@ocentra-parent/schema-domain/screen-evidence-read-model';
+import { ScreenAnalysisQueueJobSchema } from '@ocentra-parent/schema-domain/screen-evidence-queue';
+import { ScreenPolicyEvidenceChainWithDefaultsSchema } from '@ocentra-parent/schema-domain/screen-policy-evidence-chain';
 
 const JournalEvidence = {
   evidenceId: 'journal-entry-screen-1',

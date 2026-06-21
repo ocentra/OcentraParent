@@ -13,16 +13,25 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build:contracts']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/enforcement-domain',
       '--',
       'v0-8-broad-os-adapter-runtime-proof',
       'v0-8-broad-os-adapter-proof',
+    ])
+  );
+  await runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/browser-domain',
+      '--',
       'v0-8-browser-domain-adapter-proof',
     ])
   );
@@ -40,7 +49,7 @@ async function main() {
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'enforcement_broad_adapter_proof']);
 
   const { V08BroadOsAdapterRuntimeProofReadModel } =
-    await import('../../packages/parent-domain/dist/v0-8-broad-os-adapter-runtime-proof.js');
+    await import('@ocentra-parent/schema-domain/v0-8-broad-os-adapter-runtime-proof');
   const summary = summarizeReadModel(V08BroadOsAdapterRuntimeProofReadModel);
 
   assertReadModel(V08BroadOsAdapterRuntimeProofReadModel, summary);
@@ -53,10 +62,10 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsRuntimeContract: 'packages/parent-domain/src/v0-8-broad-os-adapter-runtime-proof.ts',
-      tsRuntimeContractTest: 'packages/parent-domain/tests/v0-8-broad-os-adapter-runtime-proof.test.ts',
+      tsRuntimeContract: 'packages/schema-domain/src/v0-8-broad-os-adapter-runtime-proof.ts',
+      tsRuntimeContractTest: 'packages/enforcement-domain/tests/unit/v0-8-broad-os-adapter-runtime-proof.test.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-broad-adapter-proof-adapter.ts',
-      tsProtocolAdapterTest: 'packages/agent-protocol-domain/tests/enforcement-broad-adapter-proof-adapter.test.ts',
+      tsProtocolAdapterTest: 'packages/agent-protocol-domain/tests/unit/enforcement-broad-adapter-proof-adapter.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_broad_adapter_proof.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_broad_adapter_proof_tests.rs',
       rustServiceReadModel: 'crates/agent-service/src/enforcement_api/enforcement_broad_adapter_proof_read_model.rs',

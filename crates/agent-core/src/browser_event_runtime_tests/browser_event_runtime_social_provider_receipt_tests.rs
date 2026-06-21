@@ -1,11 +1,10 @@
-use crate::browser_event_runtime::{
-    prove_browser_runtime_social_provider_receipt_durable,
-    BrowserRuntimeSocialProviderReceiptDurableReadModelState,
-};
-use crate::{
+use crate::browser_event_runtime::social_provider_receipt::{
     browser_runtime_social_provider_receipt_status_topology_manifest,
-    request_browser_runtime_social_provider_receipt_status_for_input, BrowserRuntimeInput,
+    request_browser_runtime_social_provider_receipt_status_for_input,
 };
+use crate::browser_event_runtime::social_provider_receipt_durable::prove_browser_runtime_social_provider_receipt_durable;
+use crate::browser_event_runtime::social_provider_receipt_durable_types::BrowserRuntimeSocialProviderReceiptDurableReadModelState;
+use crate::browser_event_runtime::BrowserRuntimeInput;
 use ocentra_eventing::topology::EventTopologyStatus;
 use ocentra_parent_agent_protocol::constants;
 

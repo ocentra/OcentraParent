@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 
-import { BrowserGameMemoryCacheSnapshotSchema } from '../../packages/parent-domain/dist/browser-game-memory-cache.js';
+import { BrowserGameMemoryCacheSnapshotSchema } from '@ocentra-parent/schema-domain/browser-game-memory-cache';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-memory-cache-live-evidence-proof';

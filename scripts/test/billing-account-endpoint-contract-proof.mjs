@@ -14,6 +14,7 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/endpoint-domain']));
   await runCommand(
     ...npmCommand([
@@ -22,7 +23,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/endpoint-domain',
       '--',
-      'tests/billing-account.test.ts',
+      'tests/unit/billing-account.test.ts',
     ])
   );
 
@@ -37,8 +38,9 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/endpoint-domain/src/constants/billing-account.ts',
-      contractTest: 'packages/endpoint-domain/tests/billing-account.test.ts',
+      contract: 'packages/schema-domain/src/endpoint-billing-account.ts',
+      contractTest: 'packages/endpoint-domain/tests/unit/billing-account.test.ts',
+      builtModule: 'packages/schema-domain/dist/endpoint-billing-account.js',
       packageExport,
       documentation,
       output: relativePath(proofPath),
@@ -66,17 +68,14 @@ async function main() {
 }
 
 async function assertPackageExport() {
-  const packageJson = JSON.parse(await readRepoFile('packages/endpoint-domain/package.json'));
-  assert.deepEqual(packageJson.exports['./constants/billing-account'], {
-    import: './dist/constants/billing-account.js',
-    types: './dist/constants/billing-account.d.ts',
-  });
-  return 'packages/endpoint-domain/package.json#exports[./constants/billing-account]';
+  const exportedModule = await import('@ocentra-parent/schema-domain/endpoint-billing-account');
+  assert.equal(exportedModule.BillingAccountBoundaryState.RouteContract, 'defined');
+  return '@ocentra-parent/schema-domain/endpoint-billing-account';
 }
 
 async function assertBuiltContract() {
   const modulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'endpoint-domain', 'dist', 'constants', 'billing-account.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'endpoint-billing-account.js')
   );
   const module = await import(modulePath.href);
 

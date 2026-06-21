@@ -1,8 +1,6 @@
 import { useMemo, type ReactElement } from 'react';
-import {
-  PortalDom,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { type PortalRoute as PortalRouteValue } from '@ocentra-parent/portal-domain/routes';
 import {
   PARENT_PORTAL_SHELL_STATUS_COPY,
   PARENT_PORTAL_SHELL_STATUS_DOM,

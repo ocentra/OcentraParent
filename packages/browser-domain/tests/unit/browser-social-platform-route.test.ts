@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BrowserSocialRouteEvidenceSchema,
   BrowserSocialRouteSchemaVersion,
-} from '../../src/browser-social-platform-route-schemas';
+} from '@ocentra-parent/schema-domain/browser-social-platform-route-schemas';
 
 describe('browser social platform route contract', () => {
   it('accepts managed browser social route evidence from URL-shape proof', expectManagedBrowserSocialRoute);

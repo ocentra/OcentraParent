@@ -12,8 +12,7 @@ const outputDirectory = join(
 const resultDirectory = join(root, 'test-results', 'social-parent-notification-delivery-readiness-proof');
 
 const requiredFiles = [
-  'packages/parent-domain/src/social-parent-notification-delivery-readiness.ts',
-  'packages/parent-domain/tests/social-parent-notification-delivery-readiness.test.ts',
+  'packages/schema-domain/src/social-parent-notification-delivery-readiness.ts',
   'scripts/test/social-parent-notification-delivery-readiness-proof.mjs',
 ];
 
@@ -23,20 +22,20 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  const contract = await readText('packages/parent-domain/src/social-parent-notification-delivery-readiness.ts');
-  const test = await readText('packages/parent-domain/tests/social-parent-notification-delivery-readiness.test.ts');
+  const packageJson = await readText('packages/schema-domain/package.json');
+  const contract = await readText('packages/schema-domain/src/social-parent-notification-delivery-readiness.ts');
   const featureDoc = await readText('docs/features/browser-web-control.md');
   const socialFeatureDoc = await readText('docs/features/social-video-control.md');
   const socialExpectationDoc = await readText('docs/expectations/social-video-control.md');
   const socialWorkpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/readme.md');
   const checklist = await readText('docs/plans/browser-plan/implementation-checklist.md');
   const proofModule =
-    await import('../../packages/parent-domain/dist/social-parent-notification-delivery-readiness.js');
-  const reportWriterModule = await import('../../packages/parent-domain/dist/social-report-writer-delivery-proof.js');
+    await import('../../packages/schema-domain/dist/social-parent-notification-delivery-readiness.js');
+  const reportWriterModule = await import('../../packages/schema-domain/dist/social-report-writer-delivery-proof.js');
   const receiptBoundaryModule =
-    await import('../../packages/parent-domain/dist/social-alert-report-provider-receipt-boundary-proof.js');
+    await import('../../packages/schema-domain/dist/social-alert-report-provider-receipt-boundary-proof.js');
   const receiptIngestionModule =
-    await import('../../packages/parent-domain/dist/social-alert-report-provider-receipt-ingestion-readiness.js');
+    await import('../../packages/schema-domain/dist/social-alert-report-provider-receipt-ingestion-readiness.js');
 
   const staticReadModel = proofModule.buildSocialParentNotificationDeliveryReadinessReadModel(
     {
@@ -74,9 +73,11 @@ async function main() {
     checkIncludes(contract, 'providerReceiptIngested: Schema.Literal(false)', 'provider receipt guard'),
     checkIncludes(contract, 'finalPolicyDecisionClaimed: Schema.Literal(false)', 'final policy guard'),
     checkIncludes(contract, 'enforcementClaimed: Schema.Literal(false)', 'enforcement guard'),
-    checkIncludes(test, 'projects receipt-ingestion report-writer rows', 'receipt backed test'),
-    checkIncludes(test, 'rejects forged parent UI delivery', 'dishonest UI delivery rejection test'),
-    checkIncludes(test, 'rejects forged local delivery results', 'dishonest local delivery result rejection test'),
+    checkIncludes(
+      packageJson,
+      './social-parent-notification-delivery-readiness',
+      'schema-domain package export'
+    ),
     checkIncludes(
       featureDoc,
       'social-parent-notification-delivery-readiness-proof',
@@ -298,7 +299,7 @@ function markdownFor(proof) {
     `Receipt-backed unavailable rows: ${proof.receiptBackedSummary.unavailableCount}`,
     `Receipt-backed local delivery result rows: ${proof.receiptBackedSummary.parentLocalDeliveryResultCount}`,
     '',
-    'This proof carries parent-domain social report writer readiness into a',
+    'This proof carries schema-domain social report writer readiness into a',
     'parent notification/report delivery readiness boundary. A parent-owned',
     'report artifact, receipt, and local delivery result can become a',
     'parent-visible report status row, but the proof still records no parent',

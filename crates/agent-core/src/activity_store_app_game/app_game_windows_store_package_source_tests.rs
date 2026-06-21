@@ -19,7 +19,7 @@ use crate::{
 };
 
 use super::{
-    app_game_journal_sqlite_ingest::app_game_journal_sqlite_read_model,
+    app_game_journal_sqlite_ingest::read_model::app_game_journal_sqlite_read_model,
     app_game_windows_store_inventory::windows_store_inventory_rows_from_records,
     app_game_windows_store_package_manifest::record_from_manifest_xml,
     app_game_windows_store_package_source::{

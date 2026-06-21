@@ -1,19 +1,22 @@
 use std::fs::remove_file;
 
-use ocentra_parent_agent_core::{
-    browser_tab_observation_event, request_browser_runtime_action_intent_handoff_for_input,
-    request_browser_runtime_action_intent_status_for_input, ActivityStore,
-    BrowserBridgeTargetObservation, BrowserRuntimeInput, BrowserRuntimePhase,
+use ocentra_parent_agent_core::activity_store::ActivityStore;
+use ocentra_parent_agent_core::browser_bridge_event::{
+    browser_tab_observation_event, BrowserBridgeTargetObservation,
+};
+use ocentra_parent_agent_core::browser_event_runtime::{
+    request_browser_runtime_action_intent_handoff_for_input,
+    request_browser_runtime_action_intent_status_for_input, BrowserRuntimeInput,
 };
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, ActivityEvent, AgentCommandEnvelope, AgentCommandName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, BrowserActiveProofSource,
     BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserEvidenceReadModel, BrowserFamily, BrowserQueryVisibilityLabel, BrowserTabEvidence,
-    LogFieldValue, LogFields, ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction,
-    PolicyDecision, PolicyDecisionHandoffState, PolicyPreviewReadModel, PolicyPreviewReadModelRow,
-    PolicyTarget, PolicyTargetType, AGENT_PROTOCOL_SCHEMA_VERSION, BROWSER_EVIDENCE_SCHEMA_VERSION,
-    POLICY_DRY_RUN_SCHEMA_VERSION,
+    BrowserEvidenceReadModel, BrowserFamily, BrowserQueryVisibilityLabel, BrowserRuntimePhase,
+    BrowserTabEvidence, LogFieldValue, LogFields, ParentEvidenceReference,
+    ParentEvidenceReferenceKind, PolicyAction, PolicyDecision, PolicyDecisionHandoffState,
+    PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyTarget, PolicyTargetType,
+    AGENT_PROTOCOL_SCHEMA_VERSION, BROWSER_EVIDENCE_SCHEMA_VERSION, POLICY_DRY_RUN_SCHEMA_VERSION,
 };
 use serde_json::Value;
 

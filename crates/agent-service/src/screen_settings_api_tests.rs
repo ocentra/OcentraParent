@@ -7,8 +7,8 @@ use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
     ScreenAnalysisParentSetting, ScreenSettingsGetRequest, ScreenSettingsRejectionReason,
-    ScreenSettingsReplaceRequest, ScreenSettingsUpdateKind, ScreenSettingsUpdateResponse,
-    ScreenSettingsUpdateStatus, AGENT_PROTOCOL_SCHEMA_VERSION, SCREEN_EVIDENCE_SCHEMA_VERSION,
+    ScreenSettingsUpdateKind, ScreenSettingsUpdateResponse, ScreenSettingsUpdateStatus,
+    AGENT_PROTOCOL_SCHEMA_VERSION, SCREEN_EVIDENCE_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -122,13 +122,13 @@ fn replace_command(
 ) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentScreenSettingsReplace,
-        ScreenSettingsReplaceRequest {
-            schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
-            request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
-            kind: ScreenSettingsUpdateKind::Replace,
-            base_setting_version,
-            setting,
-        },
+        serde_json::json!({
+            "schemaVersion": SCREEN_EVIDENCE_SCHEMA_VERSION,
+            "requestId": constants::screen_settings::REQUEST_ID_REPLACE,
+            "kind": ScreenSettingsUpdateKind::Replace,
+            "baseSettingVersion": base_setting_version,
+            "setting": setting,
+        }),
     )
 }
 

@@ -1,8 +1,5 @@
-import {
-  ScreenAnalysisParentSettingSchema,
-  type ScreenAnalysisParentSetting,
-} from '@ocentra-parent/screen-domain/screen-evidence-settings';
-import { type Infer, NonEmptyStringSchema, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { type ScreenAnalysisParentSetting } from '@ocentra-parent/schema-domain/screen-evidence-settings';
+import * as SharedScreenSettings from '@ocentra-parent/schema-domain/agent-screen-settings';
 import {
   AgentCommand,
   AgentCommandEnvelopeSchema,
@@ -15,70 +12,23 @@ import {
 } from './contracts';
 import { AgentProtocolSchemaVersion, type AgentPeerRole, type AgentRoute } from '@ocentra-parent/schema-domain/event-primitives';
 
-export const ScreenSettingsUpdateKindSchema = withParser(Schema.Literal('get', 'replace'));
-export const ScreenSettingsUpdateStatusSchema = withParser(Schema.Literal('accepted', 'rejected'));
-export const ScreenSettingsRejectionReasonSchema = withParser(
-  Schema.Literal(
-    'storage-unavailable',
-    'invalid-setting',
-    'stale-revision',
-    'raw-retention-forbidden',
-    'disabled-setting-inconsistent',
-    'policy-mode-inconsistent',
-    'strict-mode-inconsistent',
-    'trigger-mode-inconsistent',
-    'ocr-mode-inconsistent'
-  )
-);
+export const ScreenSettingsUpdateKindSchema = SharedScreenSettings.ScreenSettingsUpdateKindSchema;
+export const ScreenSettingsUpdateStatusSchema = SharedScreenSettings.ScreenSettingsUpdateStatusSchema;
+export const ScreenSettingsRejectionReasonSchema = SharedScreenSettings.ScreenSettingsRejectionReasonSchema;
+export const ScreenSettingsGetRequestSchema = SharedScreenSettings.ScreenSettingsGetRequestSchema;
+export const ScreenSettingsReplaceRequestSchema = SharedScreenSettings.ScreenSettingsReplaceRequestSchema;
+export const ScreenSettingsUpdateRequestSchema = SharedScreenSettings.ScreenSettingsUpdateRequestSchema;
+export const ScreenSettingsUpdateResponseSchema = SharedScreenSettings.ScreenSettingsUpdateResponseSchema;
 
-export const ScreenSettingsGetRequestSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(1),
-    requestId: NonEmptyStringSchema,
-    kind: Schema.Literal('get'),
-  })
-);
+export type ScreenSettingsUpdateKind = SharedScreenSettings.ScreenSettingsUpdateKind;
+export type ScreenSettingsUpdateStatus = SharedScreenSettings.ScreenSettingsUpdateStatus;
+export type ScreenSettingsGetRequest = SharedScreenSettings.ScreenSettingsGetRequest;
+export type ScreenSettingsReplaceRequest = SharedScreenSettings.ScreenSettingsReplaceRequest;
+export type ScreenSettingsUpdateRequest = SharedScreenSettings.ScreenSettingsUpdateRequest;
+export type ScreenSettingsUpdateResponse = SharedScreenSettings.ScreenSettingsUpdateResponse;
 
-export const ScreenSettingsReplaceRequestSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(1),
-    requestId: NonEmptyStringSchema,
-    kind: Schema.Literal('replace'),
-    baseSettingVersion: Schema.Union(Schema.Number, Schema.Null),
-    setting: ScreenAnalysisParentSettingSchema,
-  })
-);
-
-export const ScreenSettingsUpdateRequestSchema = withParser(
-  Schema.Union(ScreenSettingsGetRequestSchema, ScreenSettingsReplaceRequestSchema)
-);
-
-export const ScreenSettingsUpdateResponseSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(1),
-    requestId: NonEmptyStringSchema,
-    kind: ScreenSettingsUpdateKindSchema,
-    status: ScreenSettingsUpdateStatusSchema,
-    setting: Schema.Union(ScreenAnalysisParentSettingSchema, Schema.Null),
-    auditEventId: Schema.Union(NonEmptyStringSchema, Schema.Null),
-    rejectionReason: Schema.Union(ScreenSettingsRejectionReasonSchema, Schema.Null),
-    message: Schema.Union(NonEmptyStringSchema, Schema.Null),
-  })
-);
-
-export type ScreenSettingsUpdateKind = Infer<typeof ScreenSettingsUpdateKindSchema>;
-export const ScreenSettingsUpdateKindValue = {
-  Get: ScreenSettingsUpdateKindSchema.parse('get'),
-  Replace: ScreenSettingsUpdateKindSchema.parse('replace'),
-} as const;
-export const ScreenSettingsUpdateStatus = {
-  Accepted: ScreenSettingsUpdateStatusSchema.parse('accepted'),
-  Rejected: ScreenSettingsUpdateStatusSchema.parse('rejected'),
-} as const;
-export type ScreenSettingsGetRequest = Infer<typeof ScreenSettingsGetRequestSchema>;
-export type ScreenSettingsReplaceRequest = Infer<typeof ScreenSettingsReplaceRequestSchema>;
-export type ScreenSettingsUpdateRequest = Infer<typeof ScreenSettingsUpdateRequestSchema>;
-export type ScreenSettingsUpdateResponse = Infer<typeof ScreenSettingsUpdateResponseSchema>;
+export const ScreenSettingsUpdateKindValue = SharedScreenSettings.ScreenSettingsUpdateKindValue;
+export const ScreenSettingsUpdateStatus = SharedScreenSettings.ScreenSettingsUpdateStatus;
 
 export type ScreenSettingsAdapterFailureReason =
   | 'wrong-event'
@@ -147,7 +97,7 @@ export function createScreenSettingsCommandPayload(request: ScreenSettingsUpdate
 
 export function createScreenSettingsGetRequest(requestId: string): ScreenSettingsGetRequest {
   return ScreenSettingsGetRequestSchema.parse({
-    schemaVersion: 1,
+    schemaVersion: SharedScreenSettings.ScreenSettingsSchemaVersion,
     requestId,
     kind: 'get',
   });
@@ -163,7 +113,7 @@ export function createScreenSettingsReplaceRequest(input: {
   readonly setting: ScreenAnalysisParentSetting;
 }): ScreenSettingsReplaceRequest {
   return ScreenSettingsReplaceRequestSchema.parse({
-    schemaVersion: 1,
+    schemaVersion: SharedScreenSettings.ScreenSettingsSchemaVersion,
     requestId: input.requestId,
     kind: 'replace',
     baseSettingVersion: input.baseSettingVersion,

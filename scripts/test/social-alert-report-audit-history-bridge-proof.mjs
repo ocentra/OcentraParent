@@ -21,14 +21,14 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/browser-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/browser-domain',
       '--',
       'social-alert-report-local-outbox-bridge',
       'social-alert-report-intent',
@@ -46,7 +46,7 @@ async function main() {
     ])
   );
 
-  const localOutboxBridge = await importDist('parent-domain', 'social-alert-report-local-outbox-bridge.js');
+  const localOutboxBridge = await importDist('browser-domain', 'social-alert-report-local-outbox-bridge.js');
   const auditHandoff = await importDist('logging-domain', 'notification-audit-history-handoff.js');
   const localOutboxReadModel = localOutboxBridge.buildSocialAlertReportLocalOutboxBridgeReadModel(
     bridgeOptions(),
@@ -69,15 +69,15 @@ async function main() {
     sourceRows
   );
 
-  const source = await readText('packages/logging-domain/src/notification-audit-history-handoff.ts');
+  const source = await readText('packages/schema-domain/src/notification-audit-history-handoff.ts');
   const socialFeature = await readText('docs/features/social-video-control.md');
   const socialExpectation = await readText('docs/expectations/social-video-control.md');
   const notificationExpectation = await readText('docs/expectations/notifications.md');
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/readme.md');
   const checks = [
     checkFile('scripts/test/social-alert-report-audit-history-bridge-proof.mjs'),
-    checkFile('packages/logging-domain/src/notification-audit-history-handoff.ts'),
-    checkFile('packages/logging-domain/tests/notification-audit-history-handoff.test.ts'),
+    checkFile('packages/schema-domain/src/notification-audit-history-handoff.ts'),
+    checkFile('packages/logging-domain/tests/unit/notification-audit-history-handoff.test.ts'),
     checkIncludes(source, 'providerDeliveryRuntimeClaimed: Schema.Literal(false)', 'provider delivery non-claim guard'),
     checkIncludes(source, 'parentNotificationUiClaimed: Schema.Literal(false)', 'parent UI non-claim guard'),
     checkIncludes(source, 'childDeliveryClaimed: Schema.Literal(false)', 'child delivery non-claim guard'),
@@ -124,10 +124,10 @@ async function main() {
       'product checklist completion',
     ],
     evidence: {
-      existingAuditHandoffSource: 'packages/logging-domain/src/notification-audit-history-handoff.ts',
-      existingAuditHandoffTest: 'packages/logging-domain/tests/notification-audit-history-handoff.test.ts',
-      existingAuditHistoryContract: 'packages/logging-domain/src/notification-audit-history.ts',
-      socialLocalOutboxBridge: 'packages/parent-domain/src/social-alert-report-local-outbox-bridge.ts',
+      existingAuditHandoffSource: 'packages/schema-domain/src/notification-audit-history-handoff.ts',
+      existingAuditHandoffTest: 'packages/logging-domain/tests/unit/notification-audit-history-handoff.test.ts',
+      existingAuditHistoryContract: 'packages/schema-domain/src/notification-audit-history.ts',
+      socialLocalOutboxBridge: 'packages/browser-domain/src/social-alert-report-local-outbox-bridge.ts',
       harness: 'scripts/test/social-alert-report-audit-history-bridge-proof.mjs',
       handoffArtifact: 'test-results/social-alert-report-audit-history-bridge-proof/audit-history-handoff.json',
       proof: 'test-results/social-alert-report-audit-history-bridge-proof/proof.json',

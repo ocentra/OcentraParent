@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { NotificationAuditHistoryEntrySchema } from '../../src/notification-audit-history';
+import { NotificationAuditHistoryEntrySchema } from '@ocentra-parent/schema-domain/notification-audit-history';
 import {
   NotificationAuditHistoryHandoffReadModelSchema,
   NotificationAuditHistoryHandoffSourceRowSchema,
   NotificationAuditHistoryHandoffSourceStatus,
   buildNotificationAuditHistoryHandoffReadModel,
-} from '../../src/notification-audit-history-handoff';
+} from '@ocentra-parent/schema-domain/notification-audit-history-handoff';
 
 const Timestamp = '2026-06-05T02:17:00Z';
 const Options = {

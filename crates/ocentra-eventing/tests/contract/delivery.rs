@@ -11,7 +11,12 @@ use ocentra_eventing::ids::{
 const NETWORK_NAMESPACE: &str = "network";
 const NETWORK_FLOW_EVENT: &str = "network.flow.observed";
 const NETWORK_ALERT_EVENT: &str = "network.alert.observed";
-const OTHER_EVENT: &str = "screen.evidence.observed";
+const TRACKING_NAMESPACE: &str = "tracking";
+const TRACKING_LOCATION_SUFFIX: &str = "location.observed";
+const SCREEN_NAMESPACE: &str = "screen";
+const SCREEN_EVIDENCE_SUFFIX: &str = "evidence.observed";
+const BROWSER_NAMESPACE: &str = "browser";
+const BROWSER_NAVIGATION_SUFFIX: &str = "navigation.observed";
 
 #[test]
 fn local_event_delivery_requires_namespace_filtered_subscriber_and_backpressure() {
@@ -40,8 +45,10 @@ fn delivery_rejects_empty_or_out_of_namespace_subscriber_filters() {
     );
 
     let mut outside_namespace = local_input();
-    outside_namespace.subscriber_filter.accepted_event_types =
-        vec![EventType::parse("browser.navigation.observed").expect_value("event type parses")];
+    outside_namespace.subscriber_filter.accepted_event_types = vec![event_type_with_suffix(
+        BROWSER_NAMESPACE,
+        BROWSER_NAVIGATION_SUFFIX,
+    )];
     assert_eq!(
         decide_event_delivery_route(outside_namespace),
         Err(EventDeliveryDecisionError::SubscriberFilterOutsideNamespace)
@@ -233,7 +240,10 @@ fn delivery_decision_rejects_live_claims_and_invalid_route_metadata() {
     assert_eq!(
         decide_event_delivery_route(EventDeliveryDecisionInput {
             subscriber_filter: EventDeliverySubscriberFilter {
-                accepted_event_types: vec![network_event_type(OTHER_EVENT)],
+                accepted_event_types: vec![event_type_with_suffix(
+                    SCREEN_NAMESPACE,
+                    SCREEN_EVIDENCE_SUFFIX,
+                )],
                 ..network_subscriber_filter()
             },
             ..network_local_input(EventDeliveryRouteKind::LocalService)
@@ -243,7 +253,7 @@ fn delivery_decision_rejects_live_claims_and_invalid_route_metadata() {
 }
 
 fn local_input() -> EventDeliveryDecisionInput {
-    let namespace = EventNamespace::parse("tracking").expect_value("namespace parses");
+    let namespace = EventNamespace::parse(TRACKING_NAMESPACE).expect_value("namespace parses");
 
     EventDeliveryDecisionInput {
         route_kind: EventDeliveryRouteKind::LocalInProcess,
@@ -256,9 +266,10 @@ fn local_input() -> EventDeliveryDecisionInput {
             target_handler: TargetHandler::parse("child-runtime.tracking")
                 .expect_value("target handler parses"),
             event_namespace: namespace,
-            accepted_event_types: vec![
-                EventType::parse("tracking.location.observed").expect_value("event type parses")
-            ],
+            accepted_event_types: vec![event_type_with_suffix(
+                TRACKING_NAMESPACE,
+                TRACKING_LOCATION_SUFFIX,
+            )],
         },
         backpressure_policy: EventDeliveryBackpressurePolicy {
             bounded_queue_capacity: 128,
@@ -373,6 +384,10 @@ fn network_event_namespace() -> EventNamespace {
 
 fn network_event_type(value: &str) -> EventType {
     EventType::parse(value).expect_value("event type parses")
+}
+
+fn event_type_with_suffix(namespace: &str, suffix: &str) -> EventType {
+    network_event_type(&format!("{namespace}.{suffix}"))
 }
 
 fn network_source_component(value: &str) -> SourceComponent {

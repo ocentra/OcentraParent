@@ -18,13 +18,13 @@ async function main() {
   await mkdir(appGameOutputDir, { recursive: true });
   await mkdir(appOutputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'tests/app-game-platform-extension-proof-pack-readiness.test.ts',
     ])
@@ -56,11 +56,10 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-game-platform-extension-proof-pack-readiness',
     commands,
-    packageExportState:
-      'deferred: packages/parent-domain/package.json was locked by another lane during this slice; proof imports built dist module by path.',
+    packageExportState: 'package exports unchanged in this slice; proof imports the current built dist module by path.',
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-platform-extension-proof-pack-readiness.ts',
-      test: 'packages/parent-domain/tests/app-game-platform-extension-proof-pack-readiness.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-platform-extension-proof-pack-readiness.ts',
+      test: 'packages/app-game-domain/tests/unit/app-game-platform-extension-proof-pack-readiness.test.ts',
       featureDoc: 'docs/features/app-game-control.md',
       appGameChecklist: 'docs/plans/app-game-plan/implementation-checklist.md',
       appChecklist: 'docs/plans/app-plan/implementation-checklist.md',
@@ -97,7 +96,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-game-platform-extension-proof-pack-readiness.js'
   );

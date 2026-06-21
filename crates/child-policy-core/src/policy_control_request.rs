@@ -37,14 +37,14 @@ pub fn build_policy_control_request_from_child_violation(
     input: ChildPolicyControlRequestInput,
 ) -> Result<ChildPolicyRequest, EventingError> {
     validate_child_policy_violation(violation)?;
-    let (assistant_confirmation_state, status, origin_name) = request_origin_metadata(input.origin);
+    let (assistant_confirmation_state, status) = request_origin_metadata(input.origin);
 
     let request = ChildPolicyRequest {
         schema_version: policy_request_schema_version()?,
         request_id: policy_request_id(violation)?,
         submission_key: submission_key(
             violation,
-            origin_name,
+            input.origin.as_protocol_str(),
             input.assistant_preview_id.as_ref(),
         )?,
         household_id: input.household_id,
@@ -126,21 +126,15 @@ fn submission_key(
 
 fn request_origin_metadata(
     origin: PolicyRequestOrigin,
-) -> (
-    PolicyAssistantConfirmationState,
-    PolicyRequestStatus,
-    &'static str,
-) {
+) -> (PolicyAssistantConfirmationState, PolicyRequestStatus) {
     match origin {
         PolicyRequestOrigin::Child => (
             PolicyAssistantConfirmationState::NotRequired,
             PolicyRequestStatus::PendingParentReview,
-            "child",
         ),
         PolicyRequestOrigin::AssistantDraft => (
             PolicyAssistantConfirmationState::ParentConfirmationRequired,
             PolicyRequestStatus::PreviewOnly,
-            "assistant-draft",
         ),
     }
 }

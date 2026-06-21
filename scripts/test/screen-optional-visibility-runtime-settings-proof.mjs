@@ -9,7 +9,7 @@ const proofDir = join(repoRoot, 'output', 'screen-plan-proof', 'optional-visibil
 const proofPath = join(proofDir, 'proof-summary.json');
 const generatedAt = '2026-06-07T20:10:00Z';
 
-run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 run('npm', [
   'run',
   'test',
@@ -17,12 +17,35 @@ run('npm', [
   '@ocentra-parent/screen-domain',
   '--',
   '--run',
-  'tests/screen-optional-visibility-runtime-settings.test.ts',
+  'tests/unit/screen-optional-visibility-runtime-settings.test.ts',
 ]);
 
-const screenEvidence = await import(
-  pathToFileURL(join(repoRoot, 'packages', 'activity-domain', 'dist', 'screen-evidence.js')).href
+const optionalVisibilityModeModule = await import(
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-optional-visibility-mode.js')).href
 );
+const optionalVisibilityModeValuesModule = await import(
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-optional-visibility-mode-values.js')).href
+);
+const optionalVisibilityRuntimeSettingsModule = await import(
+  pathToFileURL(
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-optional-visibility-runtime-settings.js')
+  ).href
+);
+
+const screenEvidence = {
+  createDisabledScreenOptionalVisibilityRuntimeSettingsState:
+    optionalVisibilityRuntimeSettingsModule.createDisabledScreenOptionalVisibilityRuntimeSettingsState,
+  applyScreenOptionalVisibilityRuntimeSettingsRequest:
+    optionalVisibilityRuntimeSettingsModule.applyScreenOptionalVisibilityRuntimeSettingsRequest,
+  ScreenOptionalVisibilityRuntimeUpdateRequestSchema:
+    optionalVisibilityRuntimeSettingsModule.ScreenOptionalVisibilityRuntimeUpdateRequestSchema,
+  ScreenOptionalVisibilityRuntimeSettingsSchemaVersion:
+    optionalVisibilityRuntimeSettingsModule.ScreenOptionalVisibilityRuntimeSettingsSchemaVersion,
+  ScreenOptionalVisibilityModeSchemaVersion: optionalVisibilityModeValuesModule.ScreenOptionalVisibilityModeSchemaVersion,
+  ScreenRawScreenshotRetentionOptInSettingSchema:
+    optionalVisibilityModeModule.ScreenRawScreenshotRetentionOptInSettingSchema,
+  ScreenLiveViewOptInSettingSchema: optionalVisibilityModeModule.ScreenLiveViewOptInSettingSchema,
+};
 
 const state = screenEvidence.createDisabledScreenOptionalVisibilityRuntimeSettingsState({
   updatedAt: generatedAt,
@@ -101,7 +124,7 @@ writeFileSync(
       claim:
         'Optional raw-retention and live-view settings have a separate runtime settings contract that accepts parent-approved live view as view-only state, rejects stale writes, rejects mixed raw-retention/live-view custody, and keeps product live view false.',
       artifactInputs: {
-        contract: 'packages/screen-domain/src/screen-optional-visibility-runtime-settings.ts',
+        contract: 'packages/schema-domain/src/screen-optional-visibility-runtime-settings.ts',
         tests: 'packages/screen-domain/tests/unit/screen-optional-visibility-runtime-settings.test.ts',
       },
       acceptedRows: {

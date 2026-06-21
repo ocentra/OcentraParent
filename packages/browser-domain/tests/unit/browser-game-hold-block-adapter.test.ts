@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BrowserGameHoldBlockAdapterPlanSchema,
   BrowserGameHoldBlockAdapterSnapshotSchema,
-} from '../../src/browser-game-hold-block-adapter';
+} from '@ocentra-parent/schema-domain/browser-game-hold-block-adapter';
 import { adapterPlan, adapterSnapshot } from './browser-game-hold-block-adapter-fixtures';
 
 describe('browser game managed hold block adapter contracts', () => {

@@ -4,12 +4,12 @@ use super::{
     BrowserPolicyActionExecutionState, BrowserPolicyAiAuthority, BrowserPolicyBudgets,
     BrowserPolicyDefaultPosture, BrowserPolicyDiscovery, BrowserPolicyEffectivePolicy,
     BrowserPolicyEffectiveRule, BrowserPolicyEvidenceProofLevel, BrowserPolicyEvidenceRequirement,
-    BrowserPolicyExecutionMode, BrowserPolicyPatch, BrowserPolicyPatchRequest,
-    BrowserPolicyProofFallback, BrowserPolicyRejectionReason, BrowserPolicyRuleAction,
-    BrowserPolicyTargetProofRequirement, BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse,
-    BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType, LogFieldValue, LogFields, LogLevel,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
+    BrowserPolicyExecutionMode, BrowserPolicyPatch, BrowserPolicyProofFallback,
+    BrowserPolicyRejectionReason, BrowserPolicyRuleAction, BrowserPolicyTargetProofRequirement,
+    BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse, BrowserPolicyUpdateStatus,
+    BrowserPolicyUrlTargetType, LogFieldValue, LogFields, LogLevel, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
+use crate::browser_policy::BrowserPolicyPatchRequest;
 
 #[test]
 fn browser_policy_patch_command_serializes_to_typescript_contract_shape() {

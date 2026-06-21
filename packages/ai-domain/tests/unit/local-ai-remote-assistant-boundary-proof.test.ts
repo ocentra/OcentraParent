@@ -4,7 +4,7 @@ import {
   LocalAiRemoteAssistantBoundaryProofSchema,
   RemoteAssistantRequestSchema,
   RemoteAssistantResultSchema,
-} from '../../src/local-ai-remote-assistant-boundary-proof';
+} from '@ocentra-parent/schema-domain/local-ai-remote-assistant-boundary-proof';
 
 describe('local AI remote assistant boundary proof', () => {
   it('keeps parent-authorized remote assistance outside the child safety decision path', provesReadyBoundary);

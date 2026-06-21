@@ -21,7 +21,7 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-broad-blocking-proof-gates',
       'app-game-control-platform-authority',
@@ -30,7 +30,7 @@ async function main() {
   );
 
   const { AppGameBroadBlockingGateMatrix } =
-    await import('../../packages/parent-domain/dist/app-game-broad-blocking-proof-gate-data.js');
+    await import('../../packages/app-game-domain/dist/app-game-broad-blocking-proof-gate-data.js');
   const summary = summarizeMatrix(AppGameBroadBlockingGateMatrix);
   assertMatrix(AppGameBroadBlockingGateMatrix, summary);
 
@@ -42,10 +42,10 @@ async function main() {
     commands,
     counts: summary,
     evidence: {
-      tsContract: 'packages/parent-domain/src/app-game-broad-blocking-proof-gates.ts',
-      tsContractData: 'packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts',
-      tsContractRules: 'packages/parent-domain/src/app-game-broad-blocking-proof-gate-rules.ts',
-      tsContractTest: 'packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts',
+      tsContract: 'packages/app-game-domain/src/app-game-broad-blocking-proof-gates.ts',
+      tsContractData: 'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-data.ts',
+      tsContractRules: 'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-rules.ts',
+      tsContractTest: 'packages/app-game-domain/tests/unit/app-game-broad-blocking-proof-gates.test.ts',
       proofHarness: 'scripts/test/app-game-broad-blocking-proof-gates.mjs',
       appGameProofPack: 'output/app-game-plan-proof/23-broad-blocking-proof-gates',
       appProofPack: 'output/app-plan-proof/22-broad-blocking-proof-gates',

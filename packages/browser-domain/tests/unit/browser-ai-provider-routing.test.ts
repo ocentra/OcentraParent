@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserAiAnalysisSchemaVersion } from '../../src/browser-ai-analysis-schemas';
+import { BrowserAiAnalysisSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-analysis-schemas';
 import {
   BrowserAiProviderCapabilitySchema,
   BrowserAiProviderRouteSchema,
   BrowserAiProviderRouteSchemaVersion,
   planBrowserAiLocalProviderRoute,
-} from '../../src/browser-ai-provider-routing-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-provider-routing-schemas';
 
 describe('browser AI local provider capability contract', () => {
   it('accepts a no-retention child-device local provider capability', () => {

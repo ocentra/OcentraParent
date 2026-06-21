@@ -1,10 +1,12 @@
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget,
     AgentPeer, AgentPeerRole, AgentRoute, AppGameAdapterExecutionReadinessReadModel, LogFieldValue,
-    LogFields, AGENT_PROTOCOL_SCHEMA_VERSION, APP_GAME_TEST_TIMESTAMP,
+    LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{lan_pairing::LanPairingRuntime, websocket::handle_command_text_for_test};
+
+const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
 
 #[tokio::test]
 async fn app_game_adapter_execution_readiness_command_reports_service_backed_read_model() {

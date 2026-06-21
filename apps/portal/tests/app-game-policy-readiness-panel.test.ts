@@ -2,15 +2,18 @@ import { describe, expect, it } from 'vitest';
 import {
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
-  AgentProtocolSchemaVersion,
   type AgentEventEnvelope,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import {
   AgentAppGamePolicyReadinessKind,
   AgentAppGamePolicyReadinessState,
-} from '@ocentra-parent/agent-protocol-domain/app-game-policy-readiness';
-import { createAppGamePolicyReadinessPanelIntent, PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/schema-domain/app-game-policy-readiness';
+import {
+  createAppGamePolicyReadinessPanelIntent,
+} from '@ocentra-parent/portal-domain/app-game-policy-readiness-panel';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import { shouldRenderAppGamePolicyReadinessRoute } from '../src/AppGamePolicyReadinessRoutePanel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 

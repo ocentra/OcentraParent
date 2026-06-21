@@ -13,26 +13,19 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-product-claim-provider-store-proof.test.ts',
+      'tests/unit/app-install-purchase-product-claim-provider-store-proof.test.ts',
     ])
   );
 
   const proofModule = await loadProofModule();
-  const packageProofModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-product-claim-provider-store-proof');
-  assert.equal(
-    packageProofModule.AppInstallPurchaseProductClaimProviderStoreProofReadModel.schemaVersion,
-    proofModule.AppInstallPurchaseProductClaimProviderStoreProofReadModel.schemaVersion
-  );
-
   const parsedReadModel = proofModule.AppInstallPurchaseProductClaimProviderStoreProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseProductClaimProviderStoreProof(parsedReadModel);
 
@@ -64,15 +57,16 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-product-claim-provider-store-proof',
     commands,
-    packageExportState: 'validated-via-public-parent-domain-subpath-export',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     checklistState: 'updated-docs-product-capability-checklist-app-install-row',
     evidence: {
       providerStoreProductClaimContract:
-        'packages/parent-domain/src/app-install-purchase-product-claim-provider-store-proof.ts',
-      sourceProductClaimGateContract: 'packages/parent-domain/src/app-install-purchase-product-claim-gate-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-product-claim-provider-store-proof.ts',
+      sourceProductClaimGateContract: 'packages/app-game-domain/src/app-install-purchase-product-claim-gate-proof.ts',
       sourceProviderStorePreflightContract:
-        'packages/parent-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-product-claim-provider-store-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-provider-store-execution-preflight-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-provider-store-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDoc: 'docs/product-capability-checklist.md',
@@ -93,7 +87,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-product-claim-provider-store-proof.js'
   );

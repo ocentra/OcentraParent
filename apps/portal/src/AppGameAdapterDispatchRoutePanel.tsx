@@ -1,28 +1,37 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { AgentAppGameAdapterDispatchPreflightResult } from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-preflight';
 import type {
   AgentAppGameAdapterDispatchExecute,
   AgentAppGameAdapterDispatchResult,
 } from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-result';
 import {
-  PortalDetails,
+  AgentCommand,
+  AgentEvent
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import {
   PortalDom,
   PortalText,
   PortalTextToken,
+  type PortalDisplayText,
+} from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import {
   createAppGameAdapterDispatchPreflightPanelIntent,
-  createAppGameAdapterDispatchResultPanelIntent,
-  isPortalAppGameParentSurfaceRoute,
   type AppGameAdapterDispatchPreflightPanelDetail,
   type AppGameAdapterDispatchPreflightPanelIntent,
   type AppGameAdapterDispatchPreflightPanelRow,
+} from '@ocentra-parent/portal-domain/app-game-adapter-dispatch-preflight-panel';
+import {
+  createAppGameAdapterDispatchResultPanelIntent,
   type AppGameAdapterDispatchResultPanelDetail,
   type AppGameAdapterDispatchResultPanelExecuteAction,
   type AppGameAdapterDispatchResultPanelIntent,
   type AppGameAdapterDispatchResultPanelRow,
-  type PortalDisplayText,
+} from '@ocentra-parent/portal-domain/app-game-adapter-dispatch-result-panel';
+import {
+  isPortalAppGameParentSurfaceRoute,
   type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 
 export function shouldRenderAppGameAdapterDispatchRoute(route: PortalRouteValue): boolean {

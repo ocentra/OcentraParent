@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LocalAiModelCacheStatusSchema } from '../../src/local-ai-model-artifacts';
+import { LocalAiModelCacheStatusSchema } from '@ocentra-parent/schema-domain/ai-model-artifacts';
 
 const checkedAt = '2026-05-21T21:35:00.000Z';
 

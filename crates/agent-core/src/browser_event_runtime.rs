@@ -1,70 +1,97 @@
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::EventBus, envelope::DomainEvent,
-    envelope::EventContract, envelope::EventMetadata, envelope::EventSource, error::EventingError,
-    ids::AggregateKey, ids::CorrelationId, ids::EventCustody, ids::EventId, ids::EventType,
-    ids::IdempotencyKey, ids::RecordedAt, ids::RuntimeInstanceId, ids::SchemaVersion,
-    ids::SourceComponent, ids::SourceService, ids::SubscriberId, ids::TargetHandler,
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
+    ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
+    ids::SourceService, ids::SubscriberId, ids::TargetHandler, topology::EventTopologyManifest,
 };
-use ocentra_parent_agent_protocol::constants;
-use serde::{Deserialize, Serialize};
+use ocentra_parent_agent_protocol::{browser::BrowserRuntimePhase, constants};
 
-mod action_handoff;
+pub(crate) mod action_handoff;
 #[cfg(test)]
-mod action_handoff_child_status;
+pub(crate) mod action_handoff_child_status;
 #[cfg(test)]
-mod action_handoff_child_status_types;
+pub(crate) mod action_handoff_child_status_types;
 #[cfg(test)]
-mod action_handoff_durable;
+pub(crate) mod action_handoff_durable;
 #[cfg(test)]
-mod action_handoff_durable_types;
-mod action_status;
-mod delivery;
-mod social_provider_receipt;
+pub(crate) mod action_handoff_durable_types;
+pub(crate) mod action_status;
+pub(crate) mod delivery;
+pub(crate) mod social_provider_receipt;
 #[cfg(test)]
-mod social_provider_receipt_durable;
+pub(crate) mod social_provider_receipt_durable;
 #[cfg(test)]
-mod social_provider_receipt_durable_types;
-mod topology;
+pub(crate) mod social_provider_receipt_durable_types;
+pub(crate) mod topology;
 
-use crate::{browser_event_runtime_refs::previous_phase_ref, BrowserRuntimePhase};
+use crate::browser_event_runtime_refs::previous_phase_ref;
 
-pub use action_handoff::{
-    browser_runtime_action_intent_handoff_topology_manifest,
-    request_browser_runtime_action_intent_handoff_for_input,
-    BrowserRuntimeActionIntentHandoffReport, BrowserRuntimeActionIntentHandoffResponse,
-};
+pub type BrowserRuntimeActionIntentHandoffReport =
+    action_handoff::BrowserRuntimeActionIntentHandoffReport;
+pub type BrowserRuntimeActionIntentHandoffResponse =
+    action_handoff::BrowserRuntimeActionIntentHandoffResponse;
+pub type BrowserRuntimeActionIntentStatusReport =
+    action_status::BrowserRuntimeActionIntentStatusReport;
+pub type BrowserRuntimeActionIntentStatusResponse =
+    action_status::BrowserRuntimeActionIntentStatusResponse;
+pub type BrowserRuntimeDeliveryDecisionError = delivery::BrowserRuntimeDeliveryDecisionError;
+pub type BrowserRuntimeDeliveryDecisionReport = delivery::BrowserRuntimeDeliveryDecisionReport;
+pub type BrowserRuntimeSocialProviderReceiptStatusReport =
+    social_provider_receipt::BrowserRuntimeSocialProviderReceiptStatusReport;
+pub type BrowserRuntimeSocialProviderReceiptStatusResponse =
+    social_provider_receipt::BrowserRuntimeSocialProviderReceiptStatusResponse;
+
+pub async fn request_browser_runtime_action_intent_handoff_for_input(
+    input: BrowserRuntimeInput,
+) -> Result<BrowserRuntimeActionIntentHandoffReport, EventingError> {
+    action_handoff::request_browser_runtime_action_intent_handoff_for_input(input).await
+}
+
+pub fn browser_runtime_action_intent_handoff_topology_manifest(
+) -> Result<EventTopologyManifest, EventingError> {
+    action_handoff::browser_runtime_action_intent_handoff_topology_manifest()
+}
+
+pub async fn request_browser_runtime_action_intent_status_for_input(
+    input: BrowserRuntimeInput,
+) -> Result<BrowserRuntimeActionIntentStatusReport, EventingError> {
+    action_status::request_browser_runtime_action_intent_status_for_input(input).await
+}
+
+pub fn browser_runtime_action_intent_status_topology_manifest(
+) -> Result<EventTopologyManifest, EventingError> {
+    action_status::browser_runtime_action_intent_status_topology_manifest()
+}
+
+pub fn prove_browser_runtime_delivery_decision(
+) -> Result<BrowserRuntimeDeliveryDecisionReport, BrowserRuntimeDeliveryDecisionError> {
+    delivery::prove_browser_runtime_delivery_decision()
+}
+
+pub async fn request_browser_runtime_social_provider_receipt_status_for_input(
+    input: BrowserRuntimeInput,
+) -> Result<BrowserRuntimeSocialProviderReceiptStatusReport, EventingError> {
+    social_provider_receipt::request_browser_runtime_social_provider_receipt_status_for_input(input)
+        .await
+}
+
+pub fn browser_runtime_social_provider_receipt_status_topology_manifest(
+) -> Result<EventTopologyManifest, EventingError> {
+    social_provider_receipt::browser_runtime_social_provider_receipt_status_topology_manifest()
+}
+
+pub fn browser_runtime_chain_topology_manifest() -> Result<EventTopologyManifest, EventingError> {
+    topology::browser_runtime_chain_topology_manifest()
+}
+
 #[cfg(test)]
-pub(crate) use action_handoff_child_status::prove_browser_runtime_action_intent_child_status;
-#[cfg(test)]
-pub(crate) use action_handoff_child_status_types::BrowserRuntimeActionIntentChildStatusReadModelState;
-#[cfg(test)]
-pub(crate) use action_handoff_durable::prove_browser_runtime_action_intent_durable_handoff;
-#[cfg(test)]
-pub(crate) use action_handoff_durable_types::BrowserRuntimeActionIntentDurableHandoffReadModelState;
-pub use action_status::{
-    browser_runtime_action_intent_status_topology_manifest,
-    request_browser_runtime_action_intent_status_for_input, BrowserRuntimeActionIntentStatusReport,
-    BrowserRuntimeActionIntentStatusResponse,
-};
-pub use delivery::{
-    prove_browser_runtime_delivery_decision, BrowserRuntimeDeliveryDecisionError,
-    BrowserRuntimeDeliveryDecisionReport,
-};
-pub use social_provider_receipt::{
-    browser_runtime_social_provider_receipt_status_topology_manifest,
-    request_browser_runtime_social_provider_receipt_status_for_input,
-    BrowserRuntimeSocialProviderReceiptStatusReport,
-    BrowserRuntimeSocialProviderReceiptStatusResponse,
-};
-#[cfg(test)]
-pub(crate) use social_provider_receipt_durable::prove_browser_runtime_social_provider_receipt_durable;
-#[cfg(test)]
-pub(crate) use social_provider_receipt_durable_types::BrowserRuntimeSocialProviderReceiptDurableReadModelState;
-pub use topology::browser_runtime_chain_topology_manifest;
-#[cfg(test)]
-pub(crate) use topology::browser_runtime_parent_surface_status_topology_manifest;
-#[cfg(test)]
-pub(crate) use topology::browser_runtime_stream_report_topology_manifest;
+pub(crate) fn browser_runtime_stream_report_topology_manifest(
+) -> Result<EventTopologyManifest, EventingError> {
+    topology::browser_runtime_stream_report_topology_manifest()
+}
+
+pub(crate) type BrowserRuntimeEventPayload =
+    ocentra_parent_agent_protocol::BrowserRuntimeEventPayload;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BrowserRuntimeInput {
@@ -170,92 +197,6 @@ impl BrowserRuntimeInput {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct BrowserRuntimeEventPayload {
-    pub phase: BrowserRuntimePhase,
-    pub source_ref: String,
-    pub evidence_ref: String,
-    pub capability_status: String,
-    pub custody_label: String,
-    pub query_visibility: String,
-    pub degraded_reason: Option<String>,
-    pub journal_ref: Option<String>,
-    pub ai_request_ref: Option<String>,
-    pub ai_analysis_ref: Option<String>,
-    pub policy_evaluation_ref: Option<String>,
-    pub policy_decision_ref: Option<String>,
-    pub policy_preview_id: Option<String>,
-    pub action_intent_id: Option<String>,
-    pub intervention_command_ref: Option<String>,
-    pub intervention_result_ref: Option<String>,
-    pub audit_entry_ref: Option<String>,
-    pub read_model_ref: Option<String>,
-    pub previous_phase_ref: Option<String>,
-    pub exact_url_claimed: bool,
-    pub ai_authority: bool,
-    pub policy_authority: bool,
-    pub dry_run: bool,
-    pub adapter_dispatch_claimed: bool,
-    pub intervention_command_allowed: bool,
-    pub observed_at: String,
-}
-
-impl BrowserRuntimeEventPayload {
-    fn from_input(phase: BrowserRuntimePhase, input: &BrowserRuntimeInput) -> Self {
-        Self {
-            phase,
-            source_ref: input.source_ref.clone(),
-            evidence_ref: input.evidence_ref.clone(),
-            capability_status: input.capability_status.clone(),
-            custody_label: input.custody_label.clone(),
-            query_visibility: input.query_visibility.clone(),
-            degraded_reason: input.degraded_reason.clone(),
-            journal_ref: input.journal_ref.clone(),
-            ai_request_ref: input.ai_request_ref.clone(),
-            ai_analysis_ref: input.ai_analysis_ref.clone(),
-            policy_evaluation_ref: input.policy_evaluation_ref.clone(),
-            policy_decision_ref: input.policy_decision_ref.clone(),
-            policy_preview_id: input.policy_preview_id.clone(),
-            action_intent_id: input.action_intent_id.clone(),
-            intervention_command_ref: input.intervention_command_ref.clone(),
-            intervention_result_ref: input.intervention_result_ref.clone(),
-            audit_entry_ref: input.audit_entry_ref.clone(),
-            read_model_ref: input.read_model_ref.clone(),
-            previous_phase_ref: previous_phase_ref(phase, input),
-            exact_url_claimed: input.exact_url_claimed,
-            ai_authority: input.ai_authority,
-            policy_authority: input.policy_authority,
-            dry_run: input.dry_run,
-            adapter_dispatch_claimed: input.adapter_dispatch_claimed,
-            intervention_command_allowed: input.intervention_command_allowed,
-            observed_at: input.observed_at.clone(),
-        }
-    }
-}
-
-impl DomainEvent for BrowserRuntimeEventPayload {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        Ok(EventContract::new(
-            EventType::parse(self.phase.event_type())?,
-            SchemaVersion::new(constants::browser::EVENT_SCHEMA_VERSION)?,
-        ))
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(browser_aggregate_key(&self.source_ref))
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        let mut value = String::from(constants::browser::IDEMPOTENCY_BROWSER_RUNTIME_PREFIX);
-        value.push_str(self.phase.event_type());
-        value.push(constants::delimiter::HYPHEN);
-        value.push_str(&self.evidence_ref);
-        value.push(constants::delimiter::HYPHEN);
-        value.push_str(&self.observed_at);
-        IdempotencyKey::parse(value)
-    }
-}
-
 #[derive(Clone, Debug)]
 pub struct BrowserRuntimeReport {
     pub publish_reports: Vec<ocentra_eventing::bus::reports::PublishReport>,
@@ -320,7 +261,7 @@ impl BrowserRuntimeSpine {
             .copied()
             .filter(|phase| should_publish_phase(*phase, &input))
         {
-            let payload = BrowserRuntimeEventPayload::from_input(phase, &input);
+            let payload = browser_runtime_event_payload_from_input(phase, &input);
             let metadata = browser_event_metadata(phase, &input, phase.target_handler())?;
             reports.push(self.bus.publish(payload, metadata).await?);
         }
@@ -350,6 +291,40 @@ pub(crate) fn should_publish_phase(
         BrowserRuntimePhase::AuditEntryCommitted => input.audit_entry_ref.is_some(),
         BrowserRuntimePhase::ReadModelProjected => input.read_model_ref.is_some(),
         BrowserRuntimePhase::EvidenceObserved | BrowserRuntimePhase::EvidenceJournaled => true,
+    }
+}
+
+fn browser_runtime_event_payload_from_input(
+    phase: BrowserRuntimePhase,
+    input: &BrowserRuntimeInput,
+) -> BrowserRuntimeEventPayload {
+    BrowserRuntimeEventPayload {
+        phase,
+        source_ref: input.source_ref.clone(),
+        evidence_ref: input.evidence_ref.clone(),
+        capability_status: input.capability_status.clone(),
+        custody_label: input.custody_label.clone(),
+        query_visibility: input.query_visibility.clone(),
+        degraded_reason: input.degraded_reason.clone(),
+        journal_ref: input.journal_ref.clone(),
+        ai_request_ref: input.ai_request_ref.clone(),
+        ai_analysis_ref: input.ai_analysis_ref.clone(),
+        policy_evaluation_ref: input.policy_evaluation_ref.clone(),
+        policy_decision_ref: input.policy_decision_ref.clone(),
+        policy_preview_id: input.policy_preview_id.clone(),
+        action_intent_id: input.action_intent_id.clone(),
+        intervention_command_ref: input.intervention_command_ref.clone(),
+        intervention_result_ref: input.intervention_result_ref.clone(),
+        audit_entry_ref: input.audit_entry_ref.clone(),
+        read_model_ref: input.read_model_ref.clone(),
+        previous_phase_ref: previous_phase_ref(phase, input),
+        exact_url_claimed: input.exact_url_claimed,
+        ai_authority: input.ai_authority,
+        policy_authority: input.policy_authority,
+        dry_run: input.dry_run,
+        adapter_dispatch_claimed: input.adapter_dispatch_claimed,
+        intervention_command_allowed: input.intervention_command_allowed,
+        observed_at: input.observed_at.clone(),
     }
 }
 

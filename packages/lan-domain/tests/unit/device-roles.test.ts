@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DeviceRoleRuntimeReadModelSchema } from '../../src/device-roles';
+import { DeviceRoleRuntimeReadModelSchema } from '@ocentra-parent/schema-domain/device-roles';
 
 const updatedAt = '2026-05-27T06:20:00.000Z';
 

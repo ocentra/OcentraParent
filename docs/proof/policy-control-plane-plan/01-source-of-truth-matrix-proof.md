@@ -11,8 +11,8 @@
 
 ## Owner surfaces
 
-- `packages/policy-domain/src/policy.ts`
-- `packages/policy-domain/src/policy-compiler.ts`
+- `packages/schema-domain/src/policy.ts`
+- `packages/schema-domain/src/policy-compiler.ts`
 - `crates/policy-control-core/src/policy_source.rs`
 - `crates/policy-control-core/src/policy_compiler.rs`
 - `crates/policy-control-core/src/policy_delivery.rs`
@@ -46,4 +46,3 @@
 - Portal authoring UX completion.
 - Export/delete runtime execution.
 - Device delivery, enforcement, or assistant approval UX.
-

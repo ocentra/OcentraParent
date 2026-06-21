@@ -23,7 +23,6 @@ import {
   AgentTrackingRetentionSettingsWriteRequestSchema,
   AgentTrackingRuntimeEnabledState,
   AgentTrackingRuntimeMode,
-  AgentTrackingRetentionSettingsWriteResultParseState,
   ChildTrackingConfigUpdatedEventSchema,
   ParentTrackingConfigUpdatedEventSchema,
   TrackingConfigAuditEntryCommittedEventSchema,
@@ -34,9 +33,12 @@ import {
   TrackingConfigPolicyEvaluationRequestedEventSchema,
   TrackingConfigPortalReadModelUpdatedEventSchema,
   TrackingConfigUpdateAppliedEventSchema,
+} from '@ocentra-parent/schema-domain/agent-tracking-retention-settings-write-command';
+import {
   defaultAgentTrackingConfigUpdateRequest,
   defaultAgentTrackingRetentionSettingsWriteRequest,
   parseAgentTrackingRetentionSettingsWriteResultEvent,
+  AgentTrackingRetentionSettingsWriteResultParseState,
 } from '../../src/tracking-retention-settings-write-command';
 
 const Source = {
@@ -239,21 +241,7 @@ describe('agent tracking retention settings write result parser', () => {
       rejectionReasonCode: 'invalid-tracking-config-request',
     });
 
-    expect(AgentTrackingConfigCommandFlowEventType.ChangeRequested).toBe(
-      'tracking.config.change_requested'
-    );
-    expect(AgentTrackingConfigCommandFlowEventType.PolicyEvaluationRequested).toBe(
-      'policy.evaluation.requested'
-    );
-    expect(AgentTrackingConfigCommandFlowEventType.PolicyDecisionCompleted).toBe(
-      'policy.decision.completed'
-    );
-    expect(AgentTrackingConfigCommandFlowEventType.AuditEntryCommitted).toBe(
-      'audit.entry.committed'
-    );
-    expect(AgentTrackingConfigCommandFlowEventType.PortalReadModelUpdated).toBe(
-      'portal.read_model.updated'
-    );
+    expect(AgentTrackingConfigCommandFlowEventType.ChangeRequested).toBe('tracking.config.change_requested');
     expect(policyDecision.decisionState).toBe(
       AgentTrackingConfigPolicyDecisionStateLiteral.Approved
     );

@@ -7,9 +7,9 @@ import {
   AgentCommand,
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentLanBrowserAddDeviceReadModelSchema,
-  AgentProtocolDefaults,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentLanBrowserAddDeviceReadModelSchema } from '@ocentra-parent/schema-domain/agent-lan-add-device';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 
 import {
   ParentDevEnv,

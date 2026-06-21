@@ -1,4 +1,4 @@
 export const AgentProtocolDomainPackage = {
   Name: '@ocentra-parent/agent-protocol-domain',
-  Boundary: 'agent-command-event-contracts',
+  Boundary: 'schema-domain-protocol-adapters',
 } as const;

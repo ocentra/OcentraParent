@@ -13,27 +13,21 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-product-claim-store-handoff-proof.test.ts',
+      'tests/unit/app-install-purchase-product-claim-store-handoff-proof.test.ts',
     ])
   );
 
   const proofModule = await loadProofModule();
-  const packageModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-product-claim-store-handoff-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseProductClaimStoreHandoffProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseProductClaimStoreHandoffProof(parsedReadModel);
-  assert.equal(
-    packageModule.AppInstallPurchaseProductClaimStoreHandoffProofReadModel.schemaVersion,
-    parsedReadModel.schemaVersion
-  );
 
   assert.deepEqual(summary, {
     productClaimStoreHandoffRows: 5,
@@ -63,16 +57,17 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-product-claim-store-handoff-proof',
     commands,
-    packageExportState: 'validated-public-package-export',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     productDocState: 'updated-feature-expectation-checklist-for-store-handoff-proof',
     evidence: {
       productClaimStoreHandoffContract:
-        'packages/parent-domain/src/app-install-purchase-product-claim-store-handoff-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-product-claim-store-handoff-proof.ts',
       sourceSafeParentWorkflowContract:
-        'packages/parent-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-product-claim-safe-parent-workflow-proof.ts',
       sourceManualEvidencePacketContract:
-        'packages/parent-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-product-claim-store-handoff-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-provider-store-manual-evidence-packet-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-store-handoff-proof.test.ts',
       packageExport: '@ocentra-parent/app-game-domain/app-install-purchase-product-claim-store-handoff-proof',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
@@ -93,7 +88,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-product-claim-store-handoff-proof.js'
   );

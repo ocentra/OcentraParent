@@ -1,4 +1,7 @@
-use ocentra_parent_agent_core::{network_observation_event, ActivityStore, NetworkObservation};
+use ocentra_parent_agent_core::{
+    activity_store::ActivityStore, network_capture::NetworkObservation,
+    network_capture_event::network_observation_event,
+};
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEvidenceKind,
     ActivityNetworkProtocol, ActivityNetworkTcpState, LogFieldValue,

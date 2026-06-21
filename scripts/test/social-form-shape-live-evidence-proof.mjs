@@ -2,12 +2,12 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '../../packages/browser-domain/dist/browser-social-account-flow-schemas.js';
+import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '../../packages/schema-domain/dist/browser-social-account-flow-schemas.js';
 import {
   BrowserSocialFormShapeEvidenceSchema,
   detectBrowserSocialFormShape,
-} from '../../packages/browser-domain/dist/browser-social-form-shape-detector.js';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../packages/browser-domain/dist/browser-social-url-patterns.js';
+} from '@ocentra-parent/schema-domain/browser-social-form-shape-detector';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 import { parseBrowserUrlShape } from '../../packages/browser-domain/dist/browser-url-intelligence.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));

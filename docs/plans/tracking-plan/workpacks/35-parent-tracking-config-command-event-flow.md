@@ -23,17 +23,22 @@ models from service/event state.
 
 ## Required Source Behavior
 
+Canonical tracking config event owners for this flow live in
+`packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts`
+under `AgentTrackingConfigCommandFlowEventType` and
+`AgentTrackingConfigUpdateEventType`.
+
 ```text
 portal parent changes tracking config
   -> local API validates request
   -> parent_controller.parent_action.received
-  -> tracking.config.change_requested
+  -> AgentTrackingConfigCommandFlowEventType.ChangeRequested
   -> policy.evaluation.requested
   -> policy.decision.completed
-  -> tracking.config.change_approved or tracking.config.change_rejected
+  -> AgentTrackingConfigCommandFlowEventType.ChangeApproved or AgentTrackingConfigCommandFlowEventType.ChangeRejected
   -> child_agent.command.forward_requested
   -> child_agent.command.received
-  -> tracking.config.applied
+  -> AgentTrackingConfigUpdateEventType.Applied
   -> audit.entry.committed
   -> portal.read_model.updated
 ```

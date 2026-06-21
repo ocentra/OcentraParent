@@ -19,12 +19,12 @@ await mkdir(wp07ProofDir, { recursive: true });
 await mkdir(wp32ProofDir, { recursive: true });
 await mkdir(companionDir, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
   'tracking-retention-settings-read-model-proof',
   'tracking-location-policy',
@@ -42,8 +42,8 @@ const proof = {
   summary: summarize(proofModel.rows),
   productClaims: proofModel.productClaims,
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-retention-settings-read-model-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-retention-settings-read-model-proof.test.ts',
+    source: 'packages/schema-domain/src/tracking-retention-settings-read-model-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-retention-settings-read-model-proof.test.ts',
     harness: 'scripts/test/tracking-retention-settings-read-model-proof.mjs',
     evidence: 'test-results/tracking-retention-settings-read-model-proof/proof.json',
     retentionProofPack:
@@ -66,7 +66,7 @@ console.log('tracking-retention-settings-read-model-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-retention-settings-read-model-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function summarize(rows) {
@@ -150,8 +150,8 @@ async function writeCompanionPack(path, proof) {
       proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
       '```',
       '',
-      '- Scope: parent-domain retention settings read-model rows for existing WP07 retention/delete/export and WP32 service read-model proof refs.',
-      '- Source inspected: feature list, location/geofence feature doc, location/geofence expectations, platform expectations, parent-domain README, WP07, and WP32.',
+      '- Scope: schema-domain retention settings read-model rows for existing WP07 retention/delete/export and WP32 service read-model proof refs.',
+      '- Source inspected: feature list, location/geofence feature doc, location/geofence expectations, platform expectations, WP07, and WP32.',
       '',
     ].join('\n'),
     'utf8'
@@ -161,9 +161,9 @@ async function writeCompanionPack(path, proof) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-retention-settings-read-model-proof tracking-location-policy: PASS',
-      '- Retention window, delete-after-alert, parent export, remote sync disabled, and remote AI disabled rows parse through parent-domain schemas.',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tracking-retention-settings-read-model-proof tracking-location-policy: PASS',
+      '- Retention window, delete-after-alert, parent export, remote sync disabled, and remote AI disabled rows parse through schema-domain schemas.',
       '',
     ].join('\n'),
     'utf8'

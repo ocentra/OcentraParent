@@ -1,5 +1,5 @@
-import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
-import type { TrackingLocationEvidence } from './tracking-evidence';
+import { ActivityEvidenceKind } from '@ocentra-parent/schema-domain/evidence-kinds';
+import type { TrackingLocationEvidence } from '@ocentra-parent/schema-domain/tracking-evidence';
 import {
   type TrackingExpectedPlaceExceptionState,
   TrackingExpectedPlaceDecisionSchema,
@@ -8,8 +8,12 @@ import {
   type TrackingExpectedPlaceSchedule,
   type TrackingGeofenceRule,
   type TrackingGeofenceTransition,
-} from './tracking-geofence';
-import { TrackingReasonCodeSchema } from './tracking-primitives';
+} from '@ocentra-parent/schema-domain/tracking-geofence';
+import { TrackingReasonCodeSchema } from '@ocentra-parent/schema-domain/tracking-primitives';
+import type {
+  TrackingExpectedPlaceEvaluationInput,
+  TrackingGeofenceEvaluationInput,
+} from '@ocentra-parent/schema-domain/tracking-runtime';
 
 const EarthRadiusMeters = 6_371_008.8;
 const HalfCircleDegrees = 180;
@@ -28,22 +32,6 @@ const ManualReviewCapabilityStatuses: ReadonlySet<TrackingLocationEvidence['capa
   'adapter-error',
   'disabled-by-parent',
 ] as const);
-
-export interface TrackingGeofenceEvaluationInput {
-  readonly transitionId: TrackingGeofenceTransition['transitionId'];
-  readonly observedAt: TrackingGeofenceTransition['observedAt'];
-  readonly rule: TrackingGeofenceRule;
-  readonly location: TrackingLocationEvidence;
-  readonly wasInside: boolean;
-}
-
-export interface TrackingExpectedPlaceEvaluationInput {
-  readonly decisionId: TrackingExpectedPlaceDecision['decisionId'];
-  readonly observedAt: TrackingExpectedPlaceDecision['observedAt'];
-  readonly schedule: TrackingExpectedPlaceSchedule;
-  readonly location: TrackingLocationEvidence;
-  readonly transition: TrackingGeofenceTransition;
-}
 
 export function evaluateTrackingGeofenceTransition(input: TrackingGeofenceEvaluationInput): TrackingGeofenceTransition {
   const distanceMeters = distanceFromRule(input.rule, input.location);

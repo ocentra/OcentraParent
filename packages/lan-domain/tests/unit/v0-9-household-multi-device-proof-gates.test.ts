@@ -3,7 +3,7 @@ import {
   V09HouseholdMultiDeviceProofGateReadModelSchema,
   V09HouseholdMultiDeviceProofGateSourceSchema,
   V09HouseholdMultiDeviceRouteCustodyGateSchema,
-} from '../../src/v0-9-household-multi-device-proof-gates';
+} from '@ocentra-parent/schema-domain/v0-9-household-multi-device-proof-gates';
 
 const checkedAt = '2026-06-01T12:20:00.000Z';
 const routeId = 'route-v0-9-household-multi-device-gates';

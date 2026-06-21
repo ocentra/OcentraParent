@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
+  planScreenFamilyAiHubRoute,
+} from '../../src/screen-evidence-family-hub-routing';
+import {
   ScreenFamilyAiHubCapabilitySchema,
   ScreenFamilyAiHubRouteSchema,
+} from '@ocentra-parent/schema-domain/screen-evidence-family-hub-routing';
+import {
   ScreenFamilyAiHubRouteSchemaVersion,
-  planScreenFamilyAiHubRoute,
-} from '../../src/screen-evidence';
+} from '@ocentra-parent/schema-domain/screen-evidence-family-hub-routing-values';
 
 const AvailableHubCapability = {
   schemaVersion: ScreenFamilyAiHubRouteSchemaVersion,

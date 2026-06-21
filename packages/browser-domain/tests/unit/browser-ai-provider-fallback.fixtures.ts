@@ -1,17 +1,17 @@
-import { BrowserAiAnalysisSchemaVersion } from '../../src/browser-ai-analysis-schemas';
+import { BrowserAiAnalysisSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-analysis-schemas';
 import {
   BrowserAiFamilyHubRouteSchemaVersion,
   planBrowserAiFamilyHubRoute,
-} from '../../src/browser-ai-family-hub-routing-schemas';
-import { BrowserAiProviderFallbackDecisionSchemaVersion } from '../../src/browser-ai-provider-fallback-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-family-hub-routing-schemas';
+import { BrowserAiProviderFallbackDecisionSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-provider-fallback-schemas';
 import {
   BrowserAiProviderRouteSchemaVersion,
   planBrowserAiLocalProviderRoute,
-} from '../../src/browser-ai-provider-routing-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-provider-routing-schemas';
 import {
   BrowserAiRemoteBoundarySchemaVersion,
   planBrowserAiRemoteRoute,
-} from '../../src/browser-ai-remote-boundary-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-remote-boundary-schemas';
 
 export function providerFallbackDecision(overrides = {}) {
   return {

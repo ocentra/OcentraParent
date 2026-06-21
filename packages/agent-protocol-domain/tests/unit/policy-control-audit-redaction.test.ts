@@ -6,7 +6,7 @@ import {
   PolicyControlRedactedAuditPayloadSchema,
   PolicyControlRedactedAuditPayloadSchemaVersion,
   redactPolicyControlAuditPayload,
-} from '../../src/policy-control-audit-redaction';
+} from '@ocentra-parent/schema-domain/agent-policy-control-audit-redaction';
 
 describe('policy control audit redaction', () => {
   it('redacts sensitive audit payload fields while preserving portal-safe state', () => {

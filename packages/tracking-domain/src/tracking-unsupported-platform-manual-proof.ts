@@ -10,7 +10,7 @@ import {
   TrackingPolicyAuditRefSchema,
   TrackingPolicyReasonCodeSchema,
   TrackingPolicySchemaVersion,
-} from './tracking-location-policy-primitives';
+} from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 
 export const TrackingUnsupportedPlatformManualProofRowIdSchema = brandedNonEmptyStringSchema('TrackingUnsupportedPlatformManualProofRowId');
 

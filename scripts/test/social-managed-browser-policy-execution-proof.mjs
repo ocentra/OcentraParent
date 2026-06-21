@@ -22,10 +22,11 @@ async function main() {
   assertManagedEvidence(managedEvidence);
 
   const { buildSocialManagedBrowserPolicyExecution, summarizeSocialManagedBrowserPolicyExecution } = await importDist(
+    'browser-domain',
     'social-managed-browser-policy-execution.js'
   );
-  const { SocialParentPolicyCompilerInputSchema, compileSocialParentPolicyCandidate } =
-    await importDist('social-policy-compiler.js');
+  const { SocialParentPolicyCompilerInputSchema } = await importDist('schema-domain', 'social-policy-compiler.js');
+  const { compileSocialParentPolicyCandidate } = await importDist('browser-domain', 'social-policy-compiler.js');
 
   const decisionCandidate = compileSocialParentPolicyCandidate({
     input: SocialParentPolicyCompilerInputSchema.parse(policyInput()),
@@ -217,7 +218,7 @@ function markdownFor(proof) {
     `- Native app control claimed: ${proof.noClaimBoundaries.nativeAppControlClaimed}`,
     `- Apple platform claimed: ${proof.noClaimBoundaries.applePlatformClaimed}`,
     '',
-    'This proof chains a parent-domain social policy decision candidate to a real',
+    'This proof chains a schema-domain social policy decision candidate to a real',
     'managed-browser composited block run. The managed-browser harness loads a',
     'real YouTube watch page, captures it through CDP, renders the shared child',
     'intervention page through the Rust child-agent endpoint, and observes the',
@@ -227,8 +228,8 @@ function markdownFor(proof) {
   ].join('\n');
 }
 
-function importDist(fileName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
+function importDist(packageName, fileName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', packageName, 'dist', fileName)).href);
 }
 
 function evidenceRef(prefix, value) {

@@ -7,7 +7,7 @@ const testOutputDir = join(repoRoot, 'test-results', 'network-portal-source-gate
 const planOutputDir = join(repoRoot, 'output', 'network-plan-proof', '36-portal-source-gate');
 const proofPath = join(testOutputDir, 'proof.json');
 const planProofPath = join(planOutputDir, 'proof-summary.json');
-const sourceRoots = ['apps/portal/src', 'packages/portal-domain/src'];
+const sourceRoots = ['apps/portal/src'];
 const sourceExtensions = new Set(['.ts', '.tsx']);
 const commands = [];
 const proofLabels = [];
@@ -68,12 +68,14 @@ async function main() {
       '@ocentra-parent/portal',
       '--',
       'eslint',
-      '../../packages/portal-domain/src/live-activity-state.ts',
-      '../../packages/portal-domain/src/network-evidence-drawer.ts',
       '../../packages/agent-protocol-domain/src/network-flow-read-model.ts',
+      'src/live-activity-state.ts',
       'src/NetworkEvidenceDrawerRoutePanel.tsx',
+      'src/use-portal-network-activity-refresh.ts',
+      'src/portal-route-refresh.ts',
+      'src/PolicyPreviewRoutePanel.tsx',
+      'src/PortalApp.tsx',
       'tests/live-activity-network-flow.test.ts',
-      '../../packages/portal-domain/src/commands.ts',
     ])
   );
   await runCommand('node', ['scripts/check-source-shape.mjs']);
@@ -87,10 +89,12 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      portalCommandInventory: 'packages/portal-domain/src/commands.ts',
-      liveActivityState: 'packages/portal-domain/src/live-activity-state.ts',
+      portalNetworkRefreshHook: 'apps/portal/src/use-portal-network-activity-refresh.ts',
+      portalRouteRefresh: 'apps/portal/src/portal-route-refresh.ts',
+      portalPolicyPreviewRoutePanel: 'apps/portal/src/PolicyPreviewRoutePanel.tsx',
+      portalApp: 'apps/portal/src/PortalApp.tsx',
+      liveActivityState: 'apps/portal/src/live-activity-state.ts',
       networkFlowReadModelParser: 'packages/agent-protocol-domain/src/network-flow-read-model.ts',
-      networkEvidenceDrawer: 'packages/portal-domain/src/network-evidence-drawer.ts',
       networkEvidenceDrawerRoutePanel: 'apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx',
       portalNetworkFlowTest: 'apps/portal/tests/live-activity-network-flow.test.ts',
       proofHarness: 'scripts/test/network-portal-source-gate-proof.mjs',
@@ -98,14 +102,14 @@ async function main() {
       scannedFiles,
     },
     claimsProved: [
-      'portal network commands request service-backed read models, status, and stream views only',
-      'portal command inventory uses AgentEvent values only as result-event metadata, not outbound commands',
-      'portal parses agent.network.flow.read-model.reported through ActivityNetworkFlowReadModelSchema before rendering',
-      'network evidence drawer renders service-provided endpoint, domain, process, custody, and evidence refs',
-      'network evidence drawer leaves exact URL, AI audit, policy decision, risk budget, intervention, and evidence grade facets as Not reported when service refs are absent',
-      'network evidence drawer renders service-backed retention state when the read model provides it',
+      'portal network refresh surfaces request service-backed read models only',
+      'portal policy-preview route selects the reported result event locally and sends the read-model command only',
+      'portal app live-activity state delegates network read-model parsing to the shared portal-domain parser before rendering',
+      'network read-model parser validates the service payload and embedded activity digest before app rendering',
+      'network evidence drawer route renders service-provided endpoint, domain, process, custody, and evidence refs',
+      'network evidence drawer keeps exact URL, policy decision, and intervention facets Not reported when service refs are absent',
       'portal source contains no event bus import, event publish call, event subscription ownership, adapter execution, enforcement dispatch, or local network policy/evidence-grade computation',
-      'network evidence drawer is mounted on the Activity product route only',
+      'network evidence drawer is mounted on canonical network product routes only',
     ],
     claimsNotProved: [
       'live packet capture, raw PCAP custody, quota rotation, deletion, or export',
@@ -126,48 +130,53 @@ async function main() {
 }
 
 async function assertNetworkPortalSourceGate() {
-  const portalCommands = await readText('packages/portal-domain/src/commands.ts');
-  const liveActivityState = await readText('packages/portal-domain/src/live-activity-state.ts');
+  const networkRefreshHook = await readText('apps/portal/src/use-portal-network-activity-refresh.ts');
+  const routeRefresh = await readText('apps/portal/src/portal-route-refresh.ts');
+  const policyPreviewRoutePanel = await readText('apps/portal/src/PolicyPreviewRoutePanel.tsx');
+  const portalApp = await readText('apps/portal/src/PortalApp.tsx');
+  const liveActivityState = await readText('apps/portal/src/live-activity-state.ts');
   const networkFlowParser = await readText('packages/agent-protocol-domain/src/network-flow-read-model.ts');
-  const evidenceDrawer = await readText('packages/portal-domain/src/network-evidence-drawer.ts');
   const drawerRoutePanel = await readText('apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx');
   const networkFlowTest = await readText('apps/portal/tests/live-activity-network-flow.test.ts');
 
-  assertIncludes(portalCommands, 'command: AgentCommand.NetworkFlowReadModelGet', 'network flow query command exists');
   assertIncludes(
-    portalCommands,
-    'resultEvent: AgentEvent.NetworkFlowReadModelReported',
-    'network flow result event is result metadata'
+    networkRefreshHook,
+    'actions.sendCommand(AgentCommand.NetworkFlowReadModelGet, {});',
+    'network flow route requests the read-model command only'
   );
   assertIncludes(
-    portalCommands,
-    'command: AgentCommand.PolicyPreviewReadModelGet',
-    'policy preview query remains a read-model command'
+    policyPreviewRoutePanel,
+    'actions.selectCommandResult(AgentEvent.PolicyPreviewReadModelReported);',
+    'policy preview route selects the reported result event locally'
   );
-  assertDoesNotInclude(portalCommands, 'command: AgentEvent.', 'portal cannot send events as commands');
-  assertPatternAbsent(
-    portalCommands,
-    /command:\s*AgentCommand\.Network\w*(?:Execute|Apply|Block|Enforce|Authorize|Dispatch|Mutate|Delete|Write|Set)\w*/u,
-    'portal command inventory has no network mutation or enforcement command'
+  assertIncludes(
+    policyPreviewRoutePanel,
+    'actions.sendCommand(AgentCommand.PolicyPreviewReadModelGet, {});',
+    'policy preview route sends the read-model command only'
   );
-  proofLabels.push('portal.commands.network-query-only');
+  assertIncludes(
+    routeRefresh,
+    '!hasNetworkFlowReadModelEvent',
+    'network refresh waits for a missing service-backed read-model event'
+  );
+  assertIncludes(
+    portalApp,
+    'latestPortalEvent(props.state.events, AgentEvent.NetworkFlowReadModelReported) !== null',
+    'portal app tracks the latest reported network read-model event'
+  );
+  proofLabels.push('portal.routes.network-query-only');
 
   assertIncludes(
     liveActivityState,
-    'const latestNetworkFlow = latestParsedNetworkFlowEvent(events, false)',
-    'live activity selects latest parsed service network read-model event'
+    'resolveLiveActivityState as resolvePortalDomainLiveActivityState',
+    'live activity delegates to the shared portal-domain parser'
   );
   assertIncludes(
     liveActivityState,
-    'const readModel = parseNetworkFlowReadModel(event.payload)',
-    'live activity parses network event payload before rendering'
+    'return resolvePortalDomainLiveActivityState(events);',
+    'live activity returns the shared portal-domain parsing result'
   );
-  assertIncludes(
-    liveActivityState,
-    'networkFlowReadModel: networkFlowState.readModel',
-    'live activity exposes parsed network read model to rendering'
-  );
-  proofLabels.push('portal.state.service-event-to-schema-parser');
+  proofLabels.push('portal.state.delegates-to-shared-parser');
 
   assertIncludes(
     networkFlowParser,
@@ -186,37 +195,32 @@ async function assertNetworkPortalSourceGate() {
   );
   proofLabels.push('portal.network-flow.schema-validated');
 
-  for (const expectedUnsupportedFacet of [
-    'browserRef: notReported()',
-    'analyzerAlertRef: notReported()',
-    'detectionResultRef: notReported()',
-    'aiAuditRef: notReported()',
-    'riskBudgetRef: notReported()',
-    'policyDecisionRef: notReported()',
-    'interventionResultRef: notReported()',
-    'evidenceGrade: notReported()',
-    'confidence: notReported()',
-    'exactUrlClaim: notReported()',
-  ]) {
-    assertIncludes(
-      evidenceDrawer,
-      expectedUnsupportedFacet,
-      `unsupported facet stays not reported: ${expectedUnsupportedFacet}`
-    );
-  }
-  assertIncludes(evidenceDrawer, 'retentionState: retentionState(readModel)', 'drawer renders service retention state');
-  assertIncludes(evidenceDrawer, 'evidenceReferenceDetail(row)', 'drawer renders service evidence refs');
   assertIncludes(
     drawerRoutePanel,
-    'networkEvidenceDrawerSummary(liveActivity.networkFlowReadModel)',
-    'network route uses drawer summary'
+    'networkEvidenceDrawerSummary(liveActivity.networkFlowReadModel, {',
+    'network route uses the current app-owned drawer surface'
   );
-  proofLabels.push('portal.drawer.unsupported-claims-not-reported');
+  assertIncludes(
+    drawerRoutePanel,
+    'PortalDetails.EvidenceReferences',
+    'network drawer route renders service evidence refs'
+  );
+  assertIncludes(
+    drawerRoutePanel,
+    'PortalDetails.Custody',
+    'network drawer route renders service custody details'
+  );
+  proofLabels.push('portal.route.renders-network-surface-details');
 
   assertIncludes(
     drawerRoutePanel,
     'return isPortalNetworkEvidenceDrawerRoute(route);',
     'network drawer route uses portal-domain route predicate'
+  );
+  assertIncludes(
+    networkFlowTest,
+    "expect(summary.exactUrlClaim).toBe('Not reported')",
+    'network drawer test proves exact URL stays unsupported without service ref'
   );
   assertIncludes(
     networkFlowTest,

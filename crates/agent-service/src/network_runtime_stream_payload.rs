@@ -1,4 +1,4 @@
-use ocentra_parent_agent_core::{
+use ocentra_parent_agent_core::network_event_runtime::{
     publish_network_runtime_chain_for_observation, NetworkRuntimeReport,
 };
 use ocentra_parent_agent_protocol::{

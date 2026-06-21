@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserAiAnalysisSchemaVersion } from '../../src/browser-ai-analysis-schemas';
+import { BrowserAiAnalysisSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-analysis-schemas';
 import {
   BrowserAnalysisJobSchema,
   BrowserAnalysisTimeoutPolicySchema,
   browserAnalysisTimeoutPolicyFor,
   createBrowserAnalysisQueuedJob,
-} from '../../src/browser-ai-analysis-queue-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-analysis-queue-schemas';
 
 describe('browser URL video analysis queue contract', () => {
   it('creates parent-timeout-owned p0 queued jobs', createsP0QueuedJob);

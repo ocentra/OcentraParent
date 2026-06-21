@@ -14,7 +14,7 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
@@ -40,9 +40,9 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/billing-account-runtime-boundary.ts',
-      values: 'packages/parent-domain/src/billing-account-runtime-boundary-values.ts',
-      proofModel: 'packages/parent-domain/src/billing-account-runtime-boundary-proof.ts',
+      contract: 'packages/schema-domain/src/billing-account-runtime-boundary.ts',
+      values: 'packages/schema-domain/src/billing-account-runtime-boundary-values.ts',
+      proofModel: 'packages/schema-domain/src/billing-account-runtime-boundary-proof.ts',
       contractTest: 'packages/parent-domain/tests/billing-account-runtime-boundary.test.ts',
       packageExport,
       documentation,
@@ -58,7 +58,6 @@ async function main() {
       'account backend',
       'entitlement signing runtime',
       'portal UI',
-      'child-device consumption',
       'child activity custody',
     ],
     knownGaps: [
@@ -67,7 +66,7 @@ async function main() {
       'provider secret custody',
       'entitlement signing delivery runtime',
       'portal billing UI',
-      'child-device entitlement consumption',
+      'child-device entitlement consumption beyond signed local snapshots',
     ],
   };
 
@@ -77,25 +76,37 @@ async function main() {
 
 async function assertBuiltContract() {
   const proofModulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'billing-account-runtime-boundary-proof.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'billing-account-runtime-boundary-proof.js')
   );
   const boundaryModulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'billing-account-runtime-boundary.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'billing-account-runtime-boundary.js')
   );
   const proofModule = await import(proofModulePath.href);
   const boundaryModule = await import(boundaryModulePath.href);
   const proof = proofModule.BillingAccountRuntimeBoundaryProofReadModel;
 
   assert.equal(proof.schemaVersion, proofMode);
-  assert.deepEqual(boundaryModule.summarizeBillingAccountRuntimeStatuses(proof.accountStatusRows), {
+  assert.equal(typeof boundaryModule.decodeBillingAccountRuntimeBoundaryProof, 'function');
+  assert.ok(boundaryModule.BillingAccountRuntimeBoundaryProofSchema);
+  assert.deepEqual(
+    summarizeValues(proof.accountStatusRows.map((row) => row.accountStatus), [
+      'trialing',
+      'active',
+      'past-due',
+      'backend-unavailable',
+      'provider-unavailable',
+      'manual-review',
+    ]),
+    {
     trialing: 0,
     active: 1,
     'past-due': 1,
     'backend-unavailable': 1,
     'provider-unavailable': 1,
     'manual-review': 1,
-  });
-  assert.deepEqual(boundaryModule.summarizeBillingAccountRuntimeOperations(proof.runtimeOperations), {
+    }
+  );
+  assert.deepEqual(summarizeValues(proof.runtimeOperations.map((row) => row.operation)), {
     'account-status-read': 1,
     'subscription-status-read': 1,
     'entitlement-snapshot-read': 1,
@@ -113,11 +124,11 @@ async function assertBuiltContract() {
       'no-account-backend',
       'no-entitlement-signing-runtime',
       'no-portal-ui',
-      'no-child-device-consumption',
       'no-child-activity-custody',
     ],
     'expected runtime boundary non-claims to remain explicit'
   );
+  assert.equal(proof.childDeviceConsumptionClaim, 'signed-snapshot-consumption-contract');
 
   return {
     accountStatuses: proof.accountStatusRows.map((row) => row.accountStatus),
@@ -127,10 +138,10 @@ async function assertBuiltContract() {
 }
 
 async function assertPublicPackageExport() {
-  const module = await import('@ocentra-parent/parent-domain/billing-account-runtime-boundary');
+  const module = await import('@ocentra-parent/schema-domain/billing-account-runtime-boundary');
   assert.equal(typeof module.decodeBillingAccountRuntimeBoundaryProof, 'function');
   assert.ok(module.BillingAccountRuntimeBoundaryProofSchema);
-  return '@ocentra-parent/parent-domain/billing-account-runtime-boundary';
+  return '@ocentra-parent/schema-domain/billing-account-runtime-boundary';
 }
 
 async function assertDocumentationProof() {
@@ -180,6 +191,14 @@ function assertIncludes(value, expected, label) {
 
 function relativePath(path) {
   return relative(repoRoot, path).replaceAll('\\', '/');
+}
+
+function summarizeValues(values, expectedValues = []) {
+  const counts = new Map(expectedValues.map((value) => [value, 0]));
+  for (const value of values) {
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  return Object.fromEntries(counts);
 }
 
 function npmCommand(args) {

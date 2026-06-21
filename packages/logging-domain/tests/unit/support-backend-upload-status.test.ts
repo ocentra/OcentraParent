@@ -4,8 +4,8 @@ import {
   SupportBackendUploadRequiredDataClasses,
   SupportBackendUploadStatusEntrySchema,
   SupportBackendUploadStatusReadModelSchema,
-} from '../../src/support-backend-upload-status';
-import { SupportBackendUploadStatusReadModel } from '../../src/support-backend-upload-status-read-model';
+} from '@ocentra-parent/schema-domain/support-backend-upload-status';
+import { SupportBackendUploadStatusReadModel } from '@ocentra-parent/schema-domain/support-backend-upload-status-read-model';
 
 describe('support backend upload status logging contract', () => {
   it(

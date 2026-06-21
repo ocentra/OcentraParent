@@ -1,7 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const RepoRoot = process.cwd();
 const OutputRoot = resolve(RepoRoot, 'output', 'ai-plan-proof', 'local-ai-contract-completeness-proof');
@@ -11,21 +10,19 @@ const ValidationLogPath = join(OutputRoot, 'validation-commands.log');
 const TestResultPath = join(TestResultRoot, 'proof.json');
 const generatedAt = new Date().toISOString();
 
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build:contracts']));
 runCommand(
   ...npmCommand([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/ai-domain',
     '--',
     'local-ai-contract-completeness-proof',
   ])
 );
 
-const proofModule = await import(
-  pathToFileURL(resolve(RepoRoot, 'packages', 'parent-domain', 'dist', 'local-ai-contract-completeness-proof.js'))
-);
+const proofModule = await import('@ocentra-parent/schema-domain/local-ai-contract-completeness-proof');
 
 const proof = proofModule.LocalAiContractCompletenessProofSchema.parse({
   ...proofModule.LocalAiContractCompletenessProof,
@@ -38,10 +35,11 @@ const proofSummary = {
   generatedAt,
   proof: relativePath(ProofPath),
   sourceContracts: [
-    'packages/parent-domain/src/local-ai.ts',
-    'packages/parent-domain/src/local-ai-runtime.ts',
-    'packages/parent-domain/src/local-ai-provider-scheduler.ts',
-    'packages/parent-domain/src/local-ai-references.ts',
+    'packages/schema-domain/src/local-ai-contract-completeness-proof.ts',
+    'packages/schema-domain/src/local-ai.ts',
+    'packages/schema-domain/src/ai-runtime.ts',
+    'packages/schema-domain/src/local-ai-provider-scheduler.ts',
+    'packages/schema-domain/src/ai-references.ts',
   ],
   provedContractKinds: proof.provedContractKinds,
   validationSummary: proof.validationSummary,
@@ -110,8 +108,8 @@ writeFileSync(ProofPath, `${JSON.stringify(proofSummary, null, 2)}\n`);
 writeFileSync(
   ValidationLogPath,
   [
-    'cmd /c npm run build --workspace @ocentra-parent/parent-domain',
-    'cmd /c npm run test --workspace @ocentra-parent/parent-domain -- local-ai-contract-completeness-proof',
+    'cmd /c npm run build:contracts',
+    'cmd /c npm run test --workspace @ocentra-parent/ai-domain -- local-ai-contract-completeness-proof',
   ].join('\n') + '\n'
 );
 writeFileSync(TestResultPath, `${JSON.stringify({ status: 'ok', proof: relativePath(ProofPath) }, null, 2)}\n`);

@@ -1,154 +1,21 @@
 import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
-import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
-import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
-import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
-import {
-  AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessIdSchema,
-  AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRowIdSchema,
   AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessSchema,
   type AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRow,
-} from './app-game-source-gated-policy-preview-timer-runtime-readiness';
+} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-runtime-readiness';
+import {
+  AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceOptionsSchema,
+  AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowSchema,
+  AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceSchema,
+  type AppGameSourceGatedPolicyPreviewTimerSchedulerPersistence,
+  type AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceOptions,
+  type AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRow,
+} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-scheduler-persistence';
 import {
   AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceNoClaimFlags,
   AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState,
   RequiredAppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceNonClaims,
-  appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceCountsMatch,
-  appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceHasNoRuntimeClaims,
   appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceMatchesRuntimeReadiness,
-} from './app-game-source-gated-policy-preview-timer-scheduler-persistence-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
-
-export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceId');
-export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowIdSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowId');
-export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceContractRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceContractRef');
-
-export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateSchema = withParser(
-  Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState))
-);
-export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceNonClaimSchema = withParser(
-  Schema.Literal(...RequiredAppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceNonClaims)
-);
-
-export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceOptionsSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    persistenceId: AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceIdSchema,
-    generatedAt: ParentTimestampSchema,
-    sourceContractRefs: Schema.Array(AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceContractRefSchema),
-    serviceTimerRuntimeProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-    schedulerPersistenceProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-    schedulerStateStoreProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-    auditProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-    rollbackProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-  }).pipe(
-    Schema.filter(
-      (options) =>
-        options.sourceContractRefs.length > 0 ||
-        'Expected source-gated policy preview timer scheduler persistence options to cite source contracts'
-    )
-  )
-);
-
-const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowBaseSchema = Schema.Struct({
-  schemaVersion: ParentContractSchemaVersionSchema,
-  rowId: AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowIdSchema,
-  sourceRuntimeReadinessRowId: AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRowIdSchema,
-  targetDomain: AppGamePolicyPreviewTargetDomainSchema,
-  schedulerPersistenceState: AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateSchema,
-  serviceTimerRuntimeProofRequired: Schema.Boolean,
-  schedulerPersistenceProofRequired: Schema.Boolean,
-  schedulerStateStoreProofRequired: Schema.Boolean,
-  auditProofRequired: Schema.Boolean,
-  rollbackProofRequired: Schema.Boolean,
-  requiredProofRefs: Schema.Array(AppGameSourceGatedPolicyPreviewTimerProofRefSchema),
-  sourceEvidenceRefs: Schema.Array(AppGameSourceFreshnessEvidenceRefSchema),
-  serviceRuntimeEventClaimed: Schema.Literal(false),
-  portalUiRendered: Schema.Literal(false),
-  policyEvaluatorRuntimeClaimed: Schema.Literal(false),
-  timerRuntimeClaimed: Schema.Literal(false),
-  timerScheduled: Schema.Literal(false),
-  schedulerPersistenceRuntimeClaimed: Schema.Literal(false),
-  durableSchedulerStorageClaimed: Schema.Literal(false),
-  auditRuntimeClaimed: Schema.Literal(false),
-  rollbackRuntimeClaimed: Schema.Literal(false),
-  adapterDispatchClaimed: Schema.Literal(false),
-  childDeliveryClaimed: Schema.Literal(false),
-  platformEnforcementClaimed: Schema.Literal(false),
-  rawPrivateSourceRowsIncluded: Schema.Literal(false),
-  generatedAt: ParentTimestampSchema,
-});
-
-export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowSchema = withParser(
-  AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowBaseSchema.pipe(
-    Schema.filter(
-      (row) =>
-        row.requiredProofRefs.length > 0 ||
-        'Expected source-gated policy preview timer scheduler persistence rows to name required proof refs'
-    )
-  )
-);
-
-const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceBaseSchema = Schema.Struct({
-  schemaVersion: ParentContractSchemaVersionSchema,
-  persistenceId: AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceIdSchema,
-  sourceRuntimeReadinessId: AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessIdSchema,
-  generatedAt: ParentTimestampSchema,
-  sourceContractRefs: Schema.Array(AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceContractRefSchema),
-  rows: Schema.Array(AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowSchema),
-  nativeAppRowCount: Schema.Number,
-  nativeGameRowCount: Schema.Number,
-  schedulerPersistenceProofRequiredCount: Schema.Number,
-  blockedBySourceFreshnessCount: Schema.Number,
-  blockedByCompilerDecisionCount: Schema.Number,
-  schedulerPersistenceNonClaims: Schema.Array(AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceNonClaimSchema),
-  serviceRuntimeEventClaimed: Schema.Literal(false),
-  portalUiRendered: Schema.Literal(false),
-  policyEvaluatorRuntimeClaimed: Schema.Literal(false),
-  timerRuntimeClaimed: Schema.Literal(false),
-  timerScheduled: Schema.Literal(false),
-  schedulerPersistenceRuntimeClaimed: Schema.Literal(false),
-  durableSchedulerStorageClaimed: Schema.Literal(false),
-  auditRuntimeClaimed: Schema.Literal(false),
-  rollbackRuntimeClaimed: Schema.Literal(false),
-  adapterDispatchClaimed: Schema.Literal(false),
-  childDeliveryClaimed: Schema.Literal(false),
-  platformEnforcementClaimed: Schema.Literal(false),
-  rawPrivateSourceRowsIncluded: Schema.Literal(false),
-});
-
-export const AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceSchema = withParser(
-  AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceBaseSchema.pipe(
-    Schema.filter(
-      (persistence) =>
-        appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceCountsMatch(persistence) ||
-        'Expected source-gated policy preview timer scheduler persistence counts to match row states'
-    )
-  ).pipe(
-    Schema.filter(
-      (persistence) =>
-        appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceHasNoRuntimeClaims(persistence) ||
-        'Expected source-gated policy preview timer scheduler persistence to avoid runtime, UI, timer, scheduler, adapter, and raw-source claims'
-    )
-  )
-);
-
-export type AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceOptions = Infer<
-  typeof AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceOptionsSchema
->;
-export type AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRow = Infer<
-  typeof AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowSchema
->;
-export type AppGameSourceGatedPolicyPreviewTimerSchedulerPersistence = Infer<
-  typeof AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceSchema
->;
+} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-scheduler-persistence-rules';
 
 export function buildAppGameSourceGatedPolicyPreviewTimerSchedulerPersistence(
   optionsInput: unknown,
@@ -253,10 +120,4 @@ function requiredProofRefsForSchedulerPersistence(
   }
   return runtimeReadinessRow.requiredProofRefs;
 }
-
-export const decodeAppGameSourceGatedPolicyPreviewTimerSchedulerPersistence = Schema.decodeUnknownSync(
-  AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceSchema
-);
-
-export { AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceState };
 

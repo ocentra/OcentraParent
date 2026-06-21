@@ -3,8 +3,8 @@ import {
   ProductionSupportStatusBackendDeadLetterProofSchema,
   ProductionSupportStatusBackendDeadLetterRowSchema,
   summarizeProductionSupportStatusBackendDeadLetterRows,
-} from '../../src/production-support-status-backend-dead-letter-proof';
-import { ProductionSupportStatusBackendDeadLetterReadModel } from '../../src/production-support-status-backend-dead-letter-read-model';
+} from '@ocentra-parent/schema-domain/production-support-status-backend-dead-letter-proof';
+import { ProductionSupportStatusBackendDeadLetterReadModel } from '@ocentra-parent/schema-domain/production-support-status-backend-dead-letter-read-model';
 
 describe('production support status backend dead-letter proof', () => {
   acceptsDeadLetterRows();

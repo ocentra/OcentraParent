@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ParentMobileRuntimeReadModelSchema } from '../../src/parent-mobile-runtime';
+import { ParentMobileRuntimeReadModelSchema } from '@ocentra-parent/schema-domain/parent-mobile-runtime';
 import {
   AndroidObserverReadModel,
   AndroidParentMobileCapabilities,

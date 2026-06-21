@@ -13,7 +13,7 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
@@ -48,7 +48,7 @@ async function main() {
   ]);
 
   const { V08SupportedAdapterRuntimeProofReadModel } =
-    await import('@ocentra-parent/enforcement-domain/v0-8-supported-adapter-runtime-proof');
+    await import('@ocentra-parent/schema-domain/v0-8-supported-adapter-runtime-proof');
   const summary = summarizeReadModel(V08SupportedAdapterRuntimeProofReadModel);
 
   assertReadModel(V08SupportedAdapterRuntimeProofReadModel, summary);
@@ -61,7 +61,7 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsRuntimeContract: 'packages/enforcement-domain/src/v0-8-supported-adapter-runtime-proof.ts',
+      tsRuntimeContract: 'packages/schema-domain/src/v0-8-supported-adapter-runtime-proof.ts',
       tsRuntimeContractTest: 'packages/enforcement-domain/tests/unit/v0-8-supported-adapter-runtime-proof.test.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-supported-adapter-runtime-proof-adapter.ts',
       tsProtocolAdapterTest:

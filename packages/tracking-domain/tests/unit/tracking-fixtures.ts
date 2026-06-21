@@ -1,4 +1,4 @@
-import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
+import { ActivityEvidenceKind } from '@ocentra-parent/schema-domain/evidence-kinds';
 
 export const EvidenceRef = {
   evidenceId: 'tracking-journal-row-1',

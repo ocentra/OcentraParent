@@ -4,8 +4,8 @@ import { buildAppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoff } from '.
 import { buildAppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntent } from '../../src/app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent';
 import {
   AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentSchema,
-  AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentState,
-} from '../../src/app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent';
+} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent';
+import { AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentState } from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent-rules';
 import { buildAppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModel } from '../../src/app-game-source-gated-policy-preview-timer-audit-rollback-read-model';
 import { buildAppGameSourceGatedPolicyPreviewTimerHandoff } from '../../src/app-game-source-gated-policy-preview-timer-handoff';
 import { buildAppGameSourceGatedPolicyPreviewTimerRuntimeReadiness } from '../../src/app-game-source-gated-policy-preview-timer-runtime-readiness';

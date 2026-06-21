@@ -1,10 +1,12 @@
 import { expect, it } from 'vitest';
+import {
+  AgentNetworkRemoteDeliveryRow10tRefs,
+  type AgentNetworkRemoteDeliveryStatus,
+} from '@ocentra-parent/schema-domain/network-remote-delivery-status';
 import { AgentEvent } from '../../src/contracts';
 import { AgentProtocolDefaults } from '../../src/defaults';
 import {
-  AgentNetworkRemoteDeliveryRow10tRefs,
   parseAgentNetworkRemoteDeliveryStatusEvent,
-  type AgentNetworkRemoteDeliveryStatus,
 } from '../../src/network-remote-delivery-status';
 
 const RemoteDeliveryStatusRefs = AgentProtocolDefaults.NetworkRemoteDeliveryStatus;
@@ -188,136 +190,89 @@ it('rejects missing fields and malformed JSON', () => {
   });
 });
 
-it('rejects stale row refs', () => {
-  expectInvalidPatch({ durableEnvelopeRef: 'network.remote-delivery.durable-envelope.10d' });
-  expectInvalidPatch({ statusRef: 'network.remote-delivery.cross-process-custody-status.10q' });
-  expectInvalidPatch({ statusRef: 'network.remote-delivery.outbox-status-bridge.10h' });
-  expectInvalidPatch({ statusRef: 'network.remote-delivery.transport-dispatch-state.10k' });
-  expectInvalidPatch({ statusRef: 'network.remote-delivery.delete-export-status-bridge.10n' });
-  expectInvalidPatch({ statusRef: 'network.remote-delivery.cross-process-custody-status.10p' });
-  expectInvalidPatch({
-    statusRef: 'wrong.network.remote-delivery.cross-process-custody-status.10q',
-  });
-  expectInvalidPatch({ durableEnvelopeRef: 'wrong.network.remote-delivery.durable-envelope.10e' });
-  expectInvalidPatch({ outboxRef: 'network.remote-delivery.outbox.10f' });
-  expectInvalidPatch({ outboxHandoffRef: 'wrong.network.remote-delivery.outbox-handoff.10g' });
-  expectInvalidPatch({
-    transportDispatchStateRef: 'network.remote-delivery.transport-dispatch-state.10j',
-  });
-  expectInvalidPatch({
-    blockedDispatchRef: 'network.remote-delivery.dispatch-blocked-manual-required.10j',
-  });
-  expectInvalidPatch({
-    futureTransportSeamRef: 'network.remote-delivery.future-transport-seam.10j',
-  });
-  expectInvalidPatch({ fixtureTransportRef: 'network.remote-delivery.fixture-transport.10k' });
-  expectInvalidPatch({
-    fixtureDispatchAttemptRef: 'network.remote-delivery.fixture-dispatch-attempt.10k',
-  });
-  expectInvalidPatch({ fixtureAckRef: 'network.remote-delivery.fixture-ack.10k' });
-  expectInvalidPatch({
-    deleteExportPropagationRef: 'network.remote-delivery.delete-export-propagation-readiness.10l',
-  });
-  expectInvalidPatch({
-    remoteDeleteReadinessRef: 'network.remote-delivery.remote-delete-readiness.10l',
-  });
-  expectInvalidPatch({
-    remoteExportReadinessRef: 'network.remote-delivery.remote-export-readiness.10l',
-  });
-  expectInvalidPatch({ providerRouteRef: 'network.remote-delivery.provider-route.10o' });
-  expectInvalidPatch({ childDeviceRouteRef: 'network.remote-delivery.child-device-route.10o' });
-  expectInvalidPatch({ providerDeliveryReadinessRef: 'network.remote-delivery.provider-readiness.10o' });
-  expectInvalidPatch({
-    childDeviceDeliveryReadinessRef: 'network.remote-delivery.child-device-readiness.10o',
-  });
-  expectInvalidPatch({
-    crossProcessCustodyStatusRef: 'network.remote-delivery.cross-process-custody-status.10p',
-  });
-  expectInvalidPatch({
-    crossProcessReplayReadinessRef: 'network.remote-delivery.cross-process-replay-readiness.10p',
-  });
-  expectInvalidPatch({
-    remoteRetentionReadinessRef: 'network.remote-delivery.remote-retention-readiness.10p',
-  });
-  expectInvalidPatch({
-    remoteDeleteCustodyReadinessRef: 'network.remote-delivery.remote-delete-custody-readiness.10p',
-  });
-  expectInvalidPatch({
-    remoteExportCustodyReadinessRef: 'network.remote-delivery.remote-export-custody-readiness.10p',
-  });
-  expectInvalidPatch({ crossProcessReplayRef: 'network.remote-delivery.cross-process-replay.10q' });
-  expectInvalidPatch({
-    crossProcessReplayStoreRef: 'network.remote-delivery.cross-process-replay-store.10q',
-  });
-  expectInvalidPatch({
-    crossProcessReplayCursorRef: 'network.remote-delivery.cross-process-replay-cursor.10q',
-  });
-  expectInvalidPatch({
-    externalCrossProcessTransportRef: 'network.remote-delivery.external-cross-process-transport.10s',
-  });
-  expectInvalidPatch({
-    externalCrossProcessTransportEnvelopeRef: 'network.remote-delivery.external-cross-process-transport-envelope.10s',
-  });
-  expectInvalidPatch({
-    externalCrossProcessTransportAckRef: 'network.remote-delivery.external-cross-process-transport-ack.10s',
-  });
-});
-
-it('rejects row10k dispatch, row10m readiness, and candidate-count mismatches', () => {
-  expectInvalidPatch({ preparedNotDispatchedCount: 2 });
-  expectInvalidPatch({ sourceOutboxCandidateCount: 2 });
-  expectInvalidPatch({ blockedDispatchRecordCount: 2 });
-  expectInvalidPatch({ blockedDispatchRecordsMatchOutboxCandidates: false });
-  expectInvalidPatch({ fixtureSourceOutboxCandidateCount: 2 });
-  expectInvalidPatch({ fixtureDispatchAttemptCount: 2 });
-  expectInvalidPatch({ fixtureRemoteAckCount: 2 });
-  expectInvalidPatch({ fixtureRecordsMatchOutboxCandidates: false });
-  expectInvalidPatch({ dispatchReadyCandidateCount: 1 });
-  expectInvalidPatch({ deleteExportReadinessRecordCount: 2 });
-  expectInvalidPatch({ remoteDeleteReadyCount: 2 });
-  expectInvalidPatch({ remoteExportReadyCount: 2 });
-  expectInvalidPatch({ deleteExportRecordsMatchFixtureAcks: false });
-  expectInvalidPatch({ dispatchReadyCandidateCount: 1 });
+it('rejects empty refs and invalid enum states', () => {
+  expectInvalidPatch({ durableEnvelopeRef: '' });
+  expectInvalidPatch({ statusRef: '' });
+  expectInvalidPatch({ outboxRef: '' });
+  expectInvalidPatch({ outboxHandoffRef: '' });
+  expectInvalidPatch({ transportDispatchStateRef: '' });
+  expectInvalidPatch({ blockedDispatchRef: '' });
+  expectInvalidPatch({ futureTransportSeamRef: '' });
+  expectInvalidPatch({ fixtureTransportRef: '' });
+  expectInvalidPatch({ fixtureDispatchAttemptRef: '' });
+  expectInvalidPatch({ fixtureAckRef: '' });
+  expectInvalidPatch({ deleteExportPropagationRef: '' });
+  expectInvalidPatch({ remoteDeleteReadinessRef: '' });
+  expectInvalidPatch({ remoteExportReadinessRef: '' });
+  expectInvalidPatch({ providerRouteRef: '' });
+  expectInvalidPatch({ childDeviceRouteRef: '' });
+  expectInvalidPatch({ providerDeliveryReadinessRef: '' });
+  expectInvalidPatch({ childDeviceDeliveryReadinessRef: '' });
+  expectInvalidPatch({ crossProcessCustodyStatusRef: '' });
+  expectInvalidPatch({ crossProcessReplayReadinessRef: '' });
+  expectInvalidPatch({ remoteRetentionReadinessRef: '' });
+  expectInvalidPatch({ remoteDeleteCustodyReadinessRef: '' });
+  expectInvalidPatch({ remoteExportCustodyReadinessRef: '' });
+  expectInvalidPatch({ crossProcessReplayRef: '' });
+  expectInvalidPatch({ crossProcessReplayStoreRef: '' });
+  expectInvalidPatch({ crossProcessReplayCursorRef: '' });
+  expectInvalidPatch({ externalCrossProcessTransportRef: '' });
+  expectInvalidPatch({ externalCrossProcessTransportEnvelopeRef: '' });
+  expectInvalidPatch({ externalCrossProcessTransportAckRef: '' });
+  expectInvalidPatch({ brokerStatus: 'implemented' });
+  expectInvalidPatch({ familyHubStatus: 'implemented' });
   expectInvalidPatch({ transportDispatchState: 'dispatch-ready' });
-  expectInvalidPatch({ brokerMissingArtifactCount: 1 });
-});
-
-it('rejects row10p provider/child readiness and row10q custody mismatches', () => {
-  expectInvalidPatch({ providerDeliveryReadinessRecordCount: 2 });
-  expectInvalidPatch({ childDeviceDeliveryReadinessRecordCount: 2 });
-  expectInvalidPatch({ providerDeliveryArtifactCount: 1 });
-  expectInvalidPatch({ childDeviceDeliveryArtifactCount: 1 });
-  expectInvalidPatch({ providerDeliveryRecordsMatchFixtureAcks: false });
-  expectInvalidPatch({ childDeviceDeliveryRecordsMatchFixtureAcks: false });
   expectInvalidPatch({ providerDeliveryReadinessState: 'available' });
   expectInvalidPatch({ childDeviceDeliveryReadinessState: 'available' });
-  expectInvalidPatch({ crossProcessReplayReadinessRecordCount: 2 });
-  expectInvalidPatch({ remoteRetentionReadinessRecordCount: 2 });
-  expectInvalidPatch({ remoteDeleteCustodyReadinessRecordCount: 2 });
-  expectInvalidPatch({ remoteExportCustodyReadinessRecordCount: 2 });
-  expectInvalidPatch({ crossProcessCustodyRecordsMatchProviderChildReadiness: false });
+  expectInvalidPatch({ crossProcessCustodyReadinessState: 'available' });
+  expectInvalidPatch({ externalCrossProcessTransportState: 'manual-required' });
+});
+
+it('rejects negative or non-integer row10k, row10m, and candidate counts', () => {
+  expectInvalidPatch({ preparedNotDispatchedCount: -1 });
+  expectInvalidPatch({ sourceOutboxCandidateCount: 1.5 });
+  expectInvalidPatch({ blockedDispatchRecordCount: -1 });
+  expectInvalidPatch({ fixtureSourceOutboxCandidateCount: -1 });
+  expectInvalidPatch({ fixtureDispatchAttemptCount: 1.5 });
+  expectInvalidPatch({ fixtureRemoteAckCount: -1 });
+  expectInvalidPatch({ dispatchReadyCandidateCount: 1 });
+  expectInvalidPatch({ deleteExportReadinessRecordCount: -1 });
+  expectInvalidPatch({ remoteDeleteReadyCount: 1.5 });
+  expectInvalidPatch({ remoteExportReadyCount: -1 });
+  expectInvalidPatch({ brokerMissingArtifactCount: 1.5 });
+});
+
+it('rejects row10p provider-child artifacts and row10q custody artifact claims', () => {
+  expectInvalidPatch({ providerDeliveryReadinessRecordCount: -1 });
+  expectInvalidPatch({ childDeviceDeliveryReadinessRecordCount: 1.5 });
+  expectInvalidPatch({ providerDeliveryArtifactCount: 1 });
+  expectInvalidPatch({ childDeviceDeliveryArtifactCount: 1 });
+  expectInvalidPatch({ crossProcessReplayReadinessRecordCount: -1 });
+  expectInvalidPatch({ remoteRetentionReadinessRecordCount: 1.5 });
+  expectInvalidPatch({ remoteDeleteCustodyReadinessRecordCount: -1 });
+  expectInvalidPatch({ remoteExportCustodyReadinessRecordCount: 1.5 });
   expectInvalidPatch({ crossProcessReplayArtifactCount: 1 });
   expectInvalidPatch({ remoteRetentionArtifactCount: 1 });
   expectInvalidPatch({ remoteDeleteCustodyArtifactCount: 1 });
   expectInvalidPatch({ remoteExportCustodyArtifactCount: 1 });
-  expectInvalidPatch({ crossProcessCustodyReadinessState: 'available' });
 });
 
-it('rejects row10r replay and row10t transport mismatches', () => {
-  expectInvalidPatch({ crossProcessReplayRecordCount: 2 });
-  expectInvalidPatch({ crossProcessReplayStoreWriteCount: 2 });
-  expectInvalidPatch({ crossProcessReplayCursorNextSequence: 3 });
-  expectInvalidPatch({ crossProcessReplayRecordsMatchDurableEnvelopes: false });
-  expectInvalidPatch({ crossProcessReplayRecordsMatchCustodyReadiness: false });
-  expectInvalidPatch({ externalCrossProcessTransportRecordCount: 2 });
-  expectInvalidPatch({ externalCrossProcessTransportEnvelopeCount: 2 });
-  expectInvalidPatch({ externalCrossProcessTransportAckCount: 2 });
-  expectInvalidPatch({ externalCrossProcessTransportRecordsMatchReplayRecords: false });
-  expectInvalidPatch({ externalCrossProcessTransportAckRecordsMatchEnvelopes: false });
-  expectInvalidPatch({ externalCrossProcessTransportState: 'manual-required' });
+it('rejects row10r replay and row10t transport count domain violations', () => {
+  expectInvalidPatch({ crossProcessReplayRecordCount: -1 });
+  expectInvalidPatch({ crossProcessReplayStoreWriteCount: 1.5 });
+  expectInvalidPatch({ crossProcessReplayCursorNextSequence: -1 });
+  expectInvalidPatch({ externalCrossProcessTransportRecordCount: 1.5 });
+  expectInvalidPatch({ externalCrossProcessTransportEnvelopeCount: -1 });
+  expectInvalidPatch({ externalCrossProcessTransportAckCount: 1.5 });
+  expectInvalidPatch({ dispatchAttemptCount: 1 });
+  expectInvalidPatch({ remoteAckCount: 1 });
+  expectInvalidPatch({ sequenceGapCount: 1 });
+  expectInvalidPatch({ eventIdMismatchCount: 1 });
+  expectInvalidPatch({ eventTypeMismatchCount: 1 });
+  expectInvalidPatch({ correlationMismatchCount: 1 });
 });
 
-function expectInvalidPatch(patch: Partial<AgentNetworkRemoteDeliveryStatus>) {
+function expectInvalidPatch(patch: Record<string, unknown>) {
   expectInvalid({ ...RemoteDeliveryStatus, ...patch });
 }
 

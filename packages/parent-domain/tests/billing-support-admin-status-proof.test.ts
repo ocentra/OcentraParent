@@ -3,11 +3,9 @@ import {
   BillingSupportAdminStatusProofReadModel,
   BillingSupportAdminStatusProofRowSchema,
   BillingSupportAdminStatusProofSchema,
-  summarizeBillingSupportAdminStatusRows,
-  summarizeBillingSupportAdminStatusRuntimeStates,
-} from '../src/billing-support-admin-status-proof';
+} from '@ocentra-parent/schema-domain/billing-support-admin-status-proof';
 
-describe('billing support admin status proof', () => {
+describe('billing support admin status canonical proof', () => {
   acceptsBillingSupportAdminStatusProof();
   rejectsProviderOrBackendExecution();
   rejectsManualRowsWithoutManualProofRefs();
@@ -19,7 +17,20 @@ function acceptsBillingSupportAdminStatusProof(): void {
   it('accepts support billing admin status rows without provider account lookup upload or child custody claims', () => {
     const proof = BillingSupportAdminStatusProofSchema.parse(BillingSupportAdminStatusProofReadModel);
 
-    expect(summarizeBillingSupportAdminStatusRows(proof.rows)).toEqual({
+    expect(
+      summarizeValues(
+        proof.rows.map((entry) => entry.statusRow),
+        [
+          'case-triage-visible',
+          'account-review-visible',
+          'billing-escalation-visible',
+          'provider-contact-manual-required',
+          'entitlement-override-manual-required',
+          'refund-credit-manual-required',
+          'resolution-update-ready',
+        ]
+      )
+    ).toEqual({
       'case-triage-visible': 1,
       'account-review-visible': 1,
       'billing-escalation-visible': 1,
@@ -28,7 +39,12 @@ function acceptsBillingSupportAdminStatusProof(): void {
       'refund-credit-manual-required': 1,
       'resolution-update-ready': 1,
     });
-    expect(summarizeBillingSupportAdminStatusRuntimeStates(proof.rows)).toEqual({
+    expect(
+      summarizeValues(
+        proof.rows.map((entry) => entry.runtimeState),
+        ['source-contract-ready', 'manual-required', 'not-implemented']
+      )
+    ).toEqual({
       'source-contract-ready': 3,
       'manual-required': 2,
       'not-implemented': 2,
@@ -132,4 +148,15 @@ function requiredRow(statusRow: 'provider-contact-manual-required' | 'resolution
     throw new Error(`missing billing support admin status row: ${statusRow}`);
   }
   return row;
+}
+
+function summarizeValues<T extends string>(
+  values: ReadonlyArray<T>,
+  expectedValues: ReadonlyArray<T>
+): Record<T, number> {
+  const counts = new Map<T, number>(expectedValues.map((value) => [value, 0]));
+  for (const value of values) {
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  return Object.fromEntries(counts) as Record<T, number>;
 }

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { LanNetworkMonitorsIcon, PortalGatewayIcon } from '../../../Common/NavSvgIcons';
+import { LanNetworkMonitorsIcon, PortalGatewayIcon } from '../../../Common/NavSvgIcons/ParentNavSvgIcons';
 import type { DeviceChoiceGridConfig } from './DeviceChoiceGridConfig';
 import {
   DEVICE_CHOICE_DEFAULT_SCOPE_VALUES,

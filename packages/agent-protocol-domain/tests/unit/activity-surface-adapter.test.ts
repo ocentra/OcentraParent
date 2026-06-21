@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/activity-surface';
+import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/schema-domain/activity-surface';
 import {
   ActivitySurfaceAdapterCommandBuilder,
   ActivitySurfaceAdapterEventParser,
   ActivitySurfaceAdapterOperationId,
   ActivitySurfaceAdapterOperationManifest,
-} from '../../src/activity-surface-adapter-manifest';
+} from '@ocentra-parent/schema-domain/agent-activity-surface-adapter-manifest';
 import {
   createActivityDeviceRequest,
   createActivityFamilyRequest,

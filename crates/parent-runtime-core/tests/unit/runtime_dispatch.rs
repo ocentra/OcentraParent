@@ -3,12 +3,13 @@ use ocentra_eventing::{
     bus::EventBus, envelope::DomainEvent, error::EventingError, request::RequestCompletionOutcome,
 };
 use ocentra_parent_agent_protocol::{
-    constants, default_tracking_config_update_request, AgentRoute,
+    constants, default_tracking_config_update_request,
+    parent_tracking_config_updated_event_from_command, AgentCommandEnvelope, AgentCommandName,
+    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields,
     ParentTrackingConfigUpdatedEvent, TrackingChildCheckInDeliveryState,
     TrackingChildCheckInRequestState, TrackingChildCheckInRequestedEvent,
-    TrackingConfigUpdateTarget, TrackingConfigUpdateTargetScope, TrackingEvidenceRef,
-    TrackingPolicyViolationId, TrackingSourceMessageId, TrackingSourcePeerId,
-    TrackingTargetDeviceId, TrackingTargetPlatform, TrackingTimestamp,
+    TrackingConfigUpdateTargetScope, TrackingEvidenceRef, TrackingPolicyViolationId,
+    TrackingTimestamp, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use ocentra_parent_runtime_core::tracking_dispatch::{
     parent_runtime_target_from_tracking_scope, parent_runtime_tracking_dispatch_evaluated_event,
@@ -346,27 +347,30 @@ fn parent_tracking_config_event(
     scope: TrackingConfigUpdateTargetScope,
 ) -> ParentTrackingConfigUpdatedEvent {
     let request = default_tracking_config_update_request();
-    ParentTrackingConfigUpdatedEvent {
-        source_command_id: request.command_id.clone(),
-        source_message_id: TrackingSourceMessageId::parse(
-            constants::tracking_retention_settings_write::COMMAND_ID,
-        )
-        .expect(constants::tracking_retention_settings_write::COMMAND_ID),
-        source_peer_id: TrackingSourcePeerId::parse(constants::peer::PORTAL_DEV)
-            .expect(constants::peer::PORTAL_DEV),
-        target: TrackingConfigUpdateTarget {
-            scope,
-            device_id: TrackingTargetDeviceId::parse(constants::peer::LOCAL_DEV_AGENT)
-                .expect(constants::peer::LOCAL_DEV_AGENT),
-            platform: TrackingTargetPlatform::parse(
-                ocentra_parent_agent_protocol::policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS,
-            )
-            .expect(
-                ocentra_parent_agent_protocol::policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS,
-            ),
+    let mut event =
+        parent_tracking_config_updated_event_from_command(&tracking_config_command(), request);
+    event.target.scope = scope;
+    event
+}
+
+fn tracking_config_command() -> AgentCommandEnvelope {
+    AgentCommandEnvelope {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        message_id: constants::tracking_retention_settings_write::COMMAND_ID.to_string(),
+        sent_at: constants::tracking_retention_settings_write::ACCEPTED_AT.to_string(),
+        source: AgentPeer {
+            peer_id: constants::peer::PORTAL_DEV.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        target: AgentMessageTarget {
+            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            platform:
+                ocentra_parent_agent_protocol::policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS
+                    .to_string(),
             route: AgentRoute::Localhost,
         },
-        config: request,
+        command: AgentCommandName::AgentActivityTrackingRetentionSettingsWrite,
+        payload: LogFields::new(),
     }
 }
 

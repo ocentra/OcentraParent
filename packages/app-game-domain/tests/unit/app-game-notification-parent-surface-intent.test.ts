@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { AppGameNotificationPreferencePreflightStatus } from '../../src/app-game-notification-preference-preflight';
+import {
+  buildAppGameNotificationParentSurfaceIntentReadModel,
+} from '../../src/app-game-notification-parent-surface-intent';
+import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   AppGameNotificationParentSurfaceIntentReadModelSchema,
   AppGameNotificationParentSurfaceIntentRowSchema,
-  buildAppGameNotificationParentSurfaceIntentReadModel,
-} from '../../src/app-game-notification-parent-surface-intent';
-import { AppGameNotificationPreferenceStatusHandoffReadModelSchema } from '../../src/app-game-notification-preference-status-handoff';
-import { AppGameNotificationProviderPreflightStatus } from '../../src/app-game-notification-provider-preflight';
-import { AppGameNotificationProviderStatusHandoffReadModelSchema } from '../../src/app-game-notification-provider-status-handoff';
-import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
+} from '@ocentra-parent/schema-domain/app-game-notification-parent-surface-intent';
+import { AppGameNotificationPreferencePreflightStatus } from '@ocentra-parent/schema-domain/app-game-notification-preference-preflight';
+import { AppGameNotificationPreferenceStatusHandoffReadModelSchema } from '@ocentra-parent/schema-domain/app-game-notification-preference-status-handoff';
+import { AppGameNotificationProviderPreflightStatus } from '@ocentra-parent/schema-domain/app-game-notification-provider-preflight';
+import { AppGameNotificationProviderStatusHandoffReadModelSchema } from '@ocentra-parent/schema-domain/app-game-notification-provider-status-handoff';
 
 const Timestamp = '2026-06-05T09:12:00Z';
 const SurfaceOptions = {

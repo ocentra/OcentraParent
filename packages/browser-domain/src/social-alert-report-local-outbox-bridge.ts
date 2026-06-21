@@ -7,20 +7,20 @@ import {
 import {
   NotificationLocalOutboxRecordSchema,
   type NotificationLocalOutboxRecord,
-} from '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof';
+} from '@ocentra-parent/schema-domain/notification-local-outbox';
 import {
   SocialAlertReportDeliveryClaimState,
   SocialAlertReportIntentSchema,
   SocialAlertReportIntentStatus,
   type SocialAlertReportIntent,
-} from './social-alert-report-intent';
-import { FamilyReferenceSchema, type FamilyReference, type ParentActionReference } from '@ocentra-parent/family-domain/references';
+} from '@ocentra-parent/schema-domain/social-alert-report-intent';
+import { FamilyReferenceSchema, type FamilyReference, type ParentActionReference } from '@ocentra-parent/schema-domain/family-references';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { V3NotificationRuleReasonCodeSchema } from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
+import { V3NotificationRuleReasonCodeSchema } from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
 
 export const SocialAlertReportLocalOutboxBridgeStatus = {
   Linked: 'linked-local-outbox-record',

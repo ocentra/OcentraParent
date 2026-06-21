@@ -1,217 +1,37 @@
 # @ocentra-parent/activity-domain
 
-Shared activity and evidence contracts for child-device observations.
+Thin package boundary for activity-domain metadata and focused proof coverage.
 
-## Owns
+## Public Surface
 
-- Capture source and status contracts.
-- Browser URL/tab evidence shapes.
-- Social/video source privacy evidence summaries that cite typed managed-browser,
-  parent-provided, connector-authorization, screen-summary, and manual-required
-  source refs without raw content custody.
-- Social/video AI signal aggregate summaries that link source/privacy refs to
-  candidate AI analysis, risk/benefit signal, and route gate/action refs without
-  raw content, final policy, UI, alert delivery, or enforcement claims.
-- App/game identity, inventory, and session contracts.
-- App/game activity-surface source status row contracts that expose backend
-  source-kind counts, latest observed timestamps, capability state, and
-  evidence refs without UI or policy claims.
-- Network flow summary contracts.
-- Screen evidence summary contracts.
-- Screen evidence remote/retention/live-view boundary contracts that keep raw
-  screenshot retention, live view, and raw remote upload outside the default
-  local summary path.
-- Screen detector prompt pack and output contracts that keep local screen
-  analysis detector-specific, schema-bound, and privacy-negative without
-  claiming model quality or enforcement authority.
-- Optional screen raw-retention and live-view preflight contracts that require
-  explicit parent approval, audit refs, custody labels, TTL/delete or
-  no-retention behavior, platform-proof refs for live view, and no remote input
-  control before those non-default modes can be represented.
-- Screen live-view platform-permission gate contracts that keep ordinary
-  screen-capture permission proof from satisfying live view readiness unless
-  live-view permission evidence, viewer audit, live transport proof,
-  no-frame-retention custody, and no-remote-input boundaries are present.
-- Screen live-view service-session contracts that accept a deleted real-frame
-  loopback transport proof as non-product-ready readiness evidence while
-  rejecting product readiness until service runtime, platform live-view prompt
-  proof, parent UI persistence, no frame cache, no recording, and no remote
-  input are all present.
-- Screen optional visibility capability status contracts that expose disabled,
-  manual-required, blocked, and ready rows for optional raw screenshot retention
-  and live view while rejecting readiness without runtime/deletion proof or
-  live-view permission/transport proof.
-- Screen evidence settings UI proof contracts that build disabled, observe-only,
-  and strict dry-run parent intent drafts from the real settings schemas without
-  claiming child-agent persistence.
-- Screen child disclosure contracts that define disabled, paused, active
-  capture, protected-surface, and deleted-summary states with calm tokenized
-  child-visible status copy while rejecting hidden capture, raw screenshot
-  display, remote viewer, and policy-authority claims.
-- Screen local AI resource scheduler proof contracts that type OCR/VLM jobs,
-  prioritize policy-blocking work, enforce one heavy local screen AI lane per
-  child device, and keep pixel/snippet caps plus no-remote-AI/no-raw-retention
-  custody explicit.
-- Screen evidence legacy household-provider routing contracts that require
-  child-local analysis first, keep selected hard-visual routing inside local
-  household LAN custody, and reject raw retention, remote/API fallback, and
-  Ocentra-hosted processing claims. Full household mesh execution requires the
-  AI plan claim/lease/result-validation and child-agent authority proofs.
-- Screen intelligence router and managed-browser structured extraction
-  contracts that check typed evidence before screenshot capture, skip screenshots
-  when structured evidence is enough, and fail closed for protected or
-  credential-risk surfaces.
-- Screen managed-browser CDP screenshot capture contracts that keep page,
-  viewport, and crop screenshots tied to a managed browser target, URL/title
-  evidence refs, encrypted temp queue custody, deletion proof, and no desktop,
-  live-screencast, remote-upload, or raw-retention defaults.
-- Screen WinRT OCR worker contracts that require source-cited encrypted temp
-  queue jobs, bounded retained OCR snippets, conversion to screen-analysis
-  evidence, child-device query-store custody, policy eligibility only after raw
-  image deletion, and no raw retention or remote AI.
-- Screen OCR sensitive text redaction contracts that require parent-controlled
-  OCR text retention, bounded snippets, disabled OCR text state,
-  credential-like suppression, PII-like redaction, no raw text retention, no raw
-  image retention, and no remote AI.
-- Screen guided VLM worker contracts that require source-cited encrypted temp
-  queue jobs, bounded local image inputs, schema-bound model output,
-  conversion to screen-analysis evidence, child-device query-store custody,
-  policy eligibility only after raw image deletion, and no raw retention or
-  remote AI.
-- Screen VLM execution readiness contracts that turn guided local VLM jobs into
-  accepted queue handoffs plus queued/completed/manual-required status rows
-  while preserving local model/runtime/template refs, encrypted temp custody,
-  deleted query-store custody after completion, and explicit non-claims for
-  live model execution, production quality, portal UI, policy authority, and
-  enforcement.
-- Screen VLM journal/read-model projection contracts that require completed
-  deleted-query-store VLM status rows before writing encrypted journal lines and
-  Activity Screen read-model rows with model/runtime/template, policy,
-  parent-rule, explanation, deletion, and no-raw-retention refs.
-- Screen-AI browser trigger proof rows that compose typed browser AI
-  input/result contracts with screen-analysis result contracts for managed URL,
-  browser-video, social-feed, and cloud-game trigger states without claiming UI,
-  enforcement, remote AI, authenticated social, cloud-frame, or mobile parity.
-- Tracking location, device-status, geofence, nearby-place, and read-model
-  evidence contracts plus P1 deterministic geofence, expected-place, retention
-  delete, parent-owned export, local parent-defined place store, and tracking
-  event ingest helpers.
-- Journal/query/read-model primitives.
-- Activity surface and family aggregation contracts.
+- `./package-info` via [src/package-info.ts](C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-a\OcentraParent\packages\activity-domain\src\package-info.ts)
 
-## Must Not Own
+## What Stays Here
 
-- Parent policy authoring or enforcement decisions. Use `parent-domain`.
-- WebSocket transport envelopes. Use `agent-protocol-domain`.
-- Portal routes or UI layout.
-- Claims that a platform can capture or enforce behavior before proof exists.
+- package identity and boundary metadata
+- focused unit/contract proofs that exercise canonical activity-related schemas
 
-## Flow
+## What Does Not Stay Here
 
-```mermaid
-flowchart LR
-  Capture["platform capture"]
-  Activity["activity-domain evidence"]
-  Journal["local journal/query store"]
-  Policy["parent-domain policy"]
-  Portal["portal activity surface"]
-  Capture --> Activity --> Journal
-  Journal --> Policy
-  Journal --> Portal
-```
+- shared activity capture, journal, query, activity-surface, family-aggregation, or screen VLM schema ownership
+- cross-package schema/value/id/read-model contract definitions that already live in `@ocentra-parent/schema-domain/*`
+- runtime orchestration, policy authority, transport, portal UI, or enforcement logic
 
-## Connected Docs
+## Current Contract Shape
 
-- [Capture expectations](../../docs/expectations/capture.md)
-- [Browser evidence expectations](../../docs/expectations/browser-evidence.md)
-- [App/game evidence expectations](../../docs/expectations/app-game-evidence.md)
-- [Network flow expectations](../../docs/expectations/network-flow-evidence.md)
-- [Screen evidence expectations](../../docs/expectations/screen-evidence.md)
-- [Location/geofence expectations](../../docs/expectations/location-geofence.md)
-- [Product capability checklist](../../docs/product-capability-checklist.md)
+The live tests in this package import canonical schemas directly from `@ocentra-parent/schema-domain/*`. This package no longer publishes local schema wrapper leaves for:
 
-## Gaps To Fill
+- activity capture
+- activity query
+- activity journal
+- activity surface
+- activity family aggregation
+- screen VLM journal/read-model projection
 
-- Social/video source privacy summaries now have
-  `social-video-source-privacy-proof`; first-class UI, notification, connector,
-  native adapter, final policy, and enforcement proof remain open.
-- Social/video AI signal aggregate summaries now have
-  `social-video-ai-signal-aggregate-proof`; runtime AI execution, rendered UI,
-  alert delivery, connector/native adapters, final policy, and enforcement proof
-  remain open.
-- Screen-AI browser trigger proof now has
-  `screen-ai-browser-trigger-proof`; live trigger producers, authenticated
-  social surfaces, cloud-streamed frame analysis, mobile browser parity, UI,
-  final policy, and enforcement proof remain open.
-- Screen local AI resource scheduler proof now has
-  `screen-local-ai-resource-scheduler-proof`; production OCR/VLM quality,
-  broad trigger producers, and full capture-to-policy pipeline completion
-  remain separate proof gates.
-- Screen detector prompts now have `screen-detector-prompt-pack-proof`;
-  production model quality, live inference, policy action, and enforcement proof
-  remain open.
-- Legacy household-provider routing now has
-  `screen-family-ai-hub-routing-proof`; household mesh claim/lease/result
-  validation, physical LAN runtime/discovery, production model quality, UI,
-  policy, and enforcement proof remain open.
-- Screen intelligence routing now has
-  `screen-router-structured-extraction-proof`; real managed-browser
-  DOM/accessibility producer integration, portal rendering, final policy, and
-  enforcement proof remain open.
-- Optional raw-retention/live-view preflight proof now has
-  `screen-optional-retention-live-preflight-proof`; runtime retention
-  enablement, live transport/relay/cache, platform permission prompts, parent
-  UI persistence, privacy/legal approval, and production adapters remain open.
-- Screen live-view platform permission now has
-  `screen-live-view-platform-permission-proof`; it proves capture-only platform
-  consent cannot be reused as live-view readiness. Real live transport,
-  service live-view session runtime, platform prompt screenshots, parent UI
-  persistence, relay/cache execution, privacy/legal approval, and production
-  adapters remain open.
-- Screen live-view service session now has
-  `screen-live-view-service-session-proof`; it consumes the real loopback
-  transport/deletion artifact as a non-product-ready session row and keeps
-  service runtime, platform prompt screenshots, parent UI persistence,
-  relay/cache execution, privacy/legal approval, and production adapters open.
-- Screen optional visibility capability status now has
-  `screen-optional-visibility-capability-status-proof`; runtime raw retention
-  enablement, live transport/relay/cache, parent UI persistence, platform prompt
-  screenshots, and privacy/legal approval remain open.
-- Screen child disclosure now has `screen-child-disclosure-proof`; rendered
-  child-agent delivery, platform-specific screenshots, and product-complete
-  child UX remain separate proof gates.
-- Screen managed-browser CDP screenshot capture now has
-  `screen-managed-browser-cdp-capture-proof`; production URL-trigger ownership,
-  OCR/VLM quality, policy action, enforcement, live view, and raw retention
-  remain separate proof gates.
-- Screen WinRT OCR worker now has `screen-winrt-ocr-worker-proof`, and service
-  timed-cadence OCR now has `screen-ai-service-winrt-ocr-proof`; the
-  cross-package `screen-ai-service-winrt-ocr-policy-proof` consumes that row
-  through parent-domain dry-run policy refs without making activity-domain own
-  policy authority. Production OCR quality, unavailable/permission-required
-  state proof, broader trigger OCR, cross-platform OCR parity, and enforcement
-  remain separate proof gates.
-- Screen OCR sensitive text redaction now has `screen-ocr-redaction-proof`;
-  service persistence and portal screenshot rendering remain separate proof
-  gates.
-- Screen guided VLM worker now has `screen-ai-vlm-worker-contract-proof`;
-  production VLM inference quality, live model execution, portal rendering,
-  final policy authority, and enforcement remain separate proof gates.
-- Screen VLM execution readiness now has
-  `screen-ai-vlm-execution-readiness-proof`; service queue integration, live
-  model execution, production VLM quality, portal rendering, final policy
-  authority, and enforcement remain separate proof gates.
-- Screen VLM journal/read-model projection now has
-  `screen-ai-vlm-journal-read-model-proof`; production portal rendering, live
-  VLM execution, production model quality, final policy authority, and
-  enforcement remain separate proof gates.
-- Tracking evidence now has focused contract proof plus P1 deterministic
-  runtime, local parent-defined place store proof, and Rust ActivityStore ingest
-  proof; platform adapters, provider runtime, and live service-backed UI proof
-  remain open.
-- Activity reports need complete parent-facing history, trend, and assistant
-  query flows.
-- Evidence contracts must keep unknown/degraded/unavailable states explicit.
-- App/game source status rows are backend evidence summaries only; portal
-  rendering, policy consumption, and adapter execution remain separate proof
-  gates.
+## Validation Intent
+
+Keep validation focused on:
+
+- building this package
+- proving the local tests still parse the canonical central schemas
+- architecture lint for this package boundary

@@ -1,15 +1,24 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { AgentAppGamePlatformProofStatusResult } from '@ocentra-parent/agent-protocol-domain/app-game-platform-proof-status';
 import {
-  PortalDetails,
+  AgentCommand,
+  AgentEvent
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import type {
+  AppGamePlatformProofStatusReadModel,
+  AppGamePlatformProofStatusRow,
+} from '@ocentra-parent/schema-domain/app-game-platform-proof-status';
+import {
   PortalDom,
   PortalText,
   PortalTextToken,
-  isPortalAppGameParentSurfaceRoute,
   type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import {
+  isPortalAppGameParentSurfaceRoute,
+  type PortalRoute as PortalRouteValue,
+} from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 import {
   createAppGamePlatformProofStatusPanelIntent,
@@ -17,6 +26,11 @@ import {
   type AppGamePlatformProofStatusPanelIntent,
   type AppGamePlatformProofStatusPanelRow,
 } from '@ocentra-parent/portal-domain/app-game-platform-proof-status-panel';
+
+type PlatformProofStatusPanelReadModel = Exclude<
+  Parameters<typeof createAppGamePlatformProofStatusPanelIntent>[0],
+  null
+>;
 
 export function shouldRenderAppGamePlatformProofStatusRoute(route: PortalRouteValue): boolean {
   return isPortalAppGameParentSurfaceRoute(route);
@@ -31,7 +45,10 @@ export function AppGamePlatformProofStatusRoutePanel({
   readonly commandEnabled: boolean;
   readonly readModelResult: AgentAppGamePlatformProofStatusResult | null;
 }): ReactElement {
-  const readModel = readModelResult?.ok === true ? readModelResult.value : null;
+  const readModel =
+    readModelResult !== null && readModelResult.ok
+      ? normalizeAppGamePlatformProofStatusReadModel(readModelResult.value)
+      : null;
   const intent = createAppGamePlatformProofStatusPanelIntent(readModel);
   return (
     <section
@@ -161,4 +178,54 @@ function AppGamePlatformProofStatusDetail({
       <dd>{value}</dd>
     </div>
   );
+}
+
+export function normalizeAppGamePlatformProofStatusReadModel(
+  readModel: AppGamePlatformProofStatusReadModel
+): PlatformProofStatusPanelReadModel {
+  const rows = readModel.rows.map(normalizeAppGamePlatformProofStatusRow);
+  return {
+    generatedAt: readModel.generatedAt,
+    returned: readModel.platformProofObservedCount,
+    hostVisibleCount: rows.filter((row) => row.hostCapabilityState === 'available').length,
+    hostNotDetectedCount: rows.filter((row) => row.hostCapabilityState === 'not-detected').length,
+    localRuntimeNotApplicableCount: rows.filter((row) => row.hostCapabilityState === 'not-applicable').length,
+    enforcementReadyCount: readModel.enforcementReadyCount,
+    openGapCount: readModel.openGapCount,
+    rows,
+  };
+}
+
+function normalizeAppGamePlatformProofStatusRow(
+  row: AppGamePlatformProofStatusRow
+): PlatformProofStatusPanelReadModel['rows'][number] {
+  return {
+    platform: row.platform,
+    proofState: row.proofState,
+    authorityState: row.authorityState,
+    hostCapabilityState: deriveHostCapabilityState(row),
+    hostCapabilityEvidenceRefs:
+      row.packageVisibilityCount > 0 || row.runtimeVisibilityCount > 0 ? row.proofRefs : [],
+    hostCapabilityProbeRefs: [],
+    adapterDispatchClaimed: row.adapterDispatchClaimed,
+    broadInstalledAppBlockingClaimed: row.broadBlockingClaimed,
+    platformEnforcementClaimed: row.platformEnforcementClaimed,
+    providerDeliveryClaimed: false,
+    childDeliveryClaimed: row.childDeliveryClaimed,
+    privateDiagnosticsClaimed: row.auditProofAttached,
+    proofRefs: row.proofRefs,
+    openGaps: row.openGaps,
+  };
+}
+
+function deriveHostCapabilityState(
+  row: AppGamePlatformProofStatusRow
+): 'available' | 'not-detected' | 'not-applicable' {
+  if (row.proofState === 'apple-ci-artifacts-required') {
+    return 'not-applicable';
+  }
+  if (row.packageVisibilityCount > 0 || row.runtimeVisibilityCount > 0) {
+    return 'available';
+  }
+  return 'not-detected';
 }

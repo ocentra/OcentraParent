@@ -10,7 +10,7 @@ import {
   buildTrackingPoiProviderParityRows,
   googlePlacesFieldMaskIsProductionSafe,
 } from '../../src/tracking-poi-provider-adapter';
-import { TrackingPolicySchemaVersion } from '../../src/tracking-location-policy';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 const Timestamp = '2026-06-05T14:45:00.000Z';
 const SearchInput = {

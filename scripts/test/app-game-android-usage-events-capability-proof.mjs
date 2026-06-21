@@ -14,6 +14,7 @@ const appGameProofDir = join(
 );
 const proofPath = join(outputDir, 'proof.json');
 const commands = [];
+const appGameUsageContractsPath = 'packages/app-game-domain/src/app-game-android-usage-events-contracts.ts';
 
 await main();
 
@@ -26,18 +27,18 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-android-usage-events-capability-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
 
   const sourceProof = await assertAndroidSourceProof();
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-capability-proof.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-capability-proof.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidUsageEventsCapabilityReadModel({
@@ -66,12 +67,12 @@ async function main() {
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
       androidManifest: 'platforms/android/agent/app/src/main/AndroidManifest.xml',
-      contract: 'packages/parent-domain/src/app-game-android-usage-events-capability-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-android-usage-events-capability-proof.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-android-usage-events-capability-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-capability-proof.test.ts',
     },
     claimsProved: [
       'Android package-local app/game UsageEvents capability bridge compiles into the debug package',
-      'Parent-domain contract keeps UsageStats settings grant, runtime collection, adapter dispatch, platform enforcement, and child delivery unclaimed',
+      'App-game-domain contract keeps UsageStats settings grant, runtime collection, adapter dispatch, platform enforcement, and child delivery unclaimed',
       'Android MainActivity exposes the package-local bridge state without storing raw UsageEvents rows or package names',
     ],
     claimsNotProved: [
@@ -100,11 +101,12 @@ async function assertAndroidSourceProof() {
   const bridge = await readRepoFile(bridgePath);
   const activity = await readRepoFile(activityPath);
   const manifest = await readRepoFile(manifestPath);
+  const appGameUsageContracts = readAppGameUsageContracts(await readRepoFile(appGameUsageContractsPath));
 
-  assertIncludes(bridge, 'app-game.android.usage-events.capability.get', 'capability command');
-  assertIncludes(bridge, 'app-game.android.usage-events.replay-boundary.get', 'replay boundary command');
-  assertIncludes(bridge, 'app-game.android.usage-events.capability.reported', 'capability event');
-  assertIncludes(bridge, 'app-game.android.usage-events.replay-boundary.reported', 'replay boundary event');
+  assertIncludes(bridge, appGameUsageContracts.CapabilityGet, 'capability command');
+  assertIncludes(bridge, appGameUsageContracts.ReplayBoundaryGet, 'replay boundary command');
+  assertIncludes(bridge, appGameUsageContracts.CapabilityReported, 'capability event');
+  assertIncludes(bridge, appGameUsageContracts.ReplayBoundaryReported, 'replay boundary event');
   assertIncludes(bridge, 'android-usage-events-capability-bridge-ref', 'bridge proof ref');
   assertIncludes(bridge, 'android-package-local-usage-events-proof-ref', 'package-local proof ref');
   assertIncludes(bridge, 'android-usage-stats-settings-grant-not-proved', 'settings grant gap');
@@ -181,6 +183,23 @@ function sourceSnapshot(sourceProof) {
 
 function relativePath(path) {
   return relative(repoRoot, path).replaceAll('\\', '/');
+}
+
+function readAppGameUsageContracts(source) {
+  return {
+    CapabilityGet: readLiteralObjectEntry(source, 'CapabilityGet'),
+    ReplayBoundaryGet: readLiteralObjectEntry(source, 'ReplayBoundaryGet'),
+    CapabilityReported: readLiteralObjectEntry(source, 'CapabilityReported'),
+    ReplayBoundaryReported: readLiteralObjectEntry(source, 'ReplayBoundaryReported'),
+  };
+}
+
+function readLiteralObjectEntry(source, propertyName) {
+  const match = source.match(new RegExp(`${propertyName}:\\s*'([^']+)'`, 'u'));
+  if (match === null) {
+    throw new Error(`missing ${propertyName} contract literal in ${appGameUsageContractsPath}`);
+  }
+  return match[1];
 }
 
 function assertIncludes(value, expected, label) {

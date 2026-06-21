@@ -8,11 +8,22 @@ const repoRoot = join(__dirname, '..', '..');
 const proofDir = join(repoRoot, 'output', 'screen-plan-proof', '27-28-optional-retention-live-preflight');
 const proofPath = join(proofDir, 'proof-summary.json');
 
+run('npm', ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 run('npm', ['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 
-const screenEvidence = await import(
-  pathToFileURL(join(repoRoot, 'packages', 'activity-domain', 'dist', 'screen-evidence.js')).href
+const optionalVisibilityModeModule = await import(
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-optional-visibility-mode.js')).href
 );
+const optionalVisibilityModeValuesModule = await import(
+  pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'screen-optional-visibility-mode-values.js')).href
+);
+
+const screenEvidence = {
+  ScreenOptionalVisibilityModeSchemaVersion: optionalVisibilityModeValuesModule.ScreenOptionalVisibilityModeSchemaVersion,
+  ScreenRawScreenshotRetentionOptInSettingSchema:
+    optionalVisibilityModeModule.ScreenRawScreenshotRetentionOptInSettingSchema,
+  ScreenLiveViewOptInSettingSchema: optionalVisibilityModeModule.ScreenLiveViewOptInSettingSchema,
+};
 
 const generatedAt = new Date().toISOString();
 const disabledRetention = retentionSetting('disabled', {});

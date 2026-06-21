@@ -4,8 +4,8 @@ import {
   ProviderSecretCustodyRequiredDataClasses,
   ProviderSecretCustodyStatusEntrySchema,
   ProviderSecretCustodyStatusReadModelSchema,
-} from '../../src/provider-secret-custody-status';
-import { ProviderSecretCustodyStatusReadModel } from '../../src/provider-secret-custody-status-read-model';
+} from '@ocentra-parent/schema-domain/provider-secret-custody-status';
+import { ProviderSecretCustodyStatusReadModel } from '@ocentra-parent/schema-domain/provider-secret-custody-status-read-model';
 
 describe('provider secret custody status logging contract', () => {
   it('covers provider secret custody absence backend store rotation revocation and audit states', assertCoverage);

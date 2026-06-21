@@ -8,18 +8,18 @@ const execFileAsync = promisify(execFile);
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const proofPath = resolve(repoRoot, 'test-results', 'app-install-purchase-limitation-summary-proof', 'proof.json');
 
-await run('npm', ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+await run('npm', ['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 await run('npm', [
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
-  'tests/app-install-purchase-limitation-summary-proof.test.ts',
+  'tests/unit/app-install-purchase-limitation-summary-proof.test.ts',
 ]);
 
 const moduleUrl = pathToFileURL(
-  resolve(repoRoot, 'packages', 'parent-domain', 'dist', 'app-install-purchase-limitation-summary-proof.js')
+  resolve(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-install-purchase-limitation-summary-proof.js')
 ).href;
 const { AppInstallPurchaseLimitationSummaryProofReadModel, summarizeAppInstallPurchaseLimitationSummaryProof } =
   await import(moduleUrl);
@@ -54,8 +54,8 @@ const proof = {
       'docs/product-capability-checklist.md update deferred to primary/shared checklist sequencing for product status row changes',
   },
   evidence: {
-    source: 'packages/parent-domain/src/app-install-purchase-limitation-summary-proof.ts',
-    tests: 'packages/parent-domain/tests/app-install-purchase-limitation-summary-proof.test.ts',
+    source: 'packages/app-game-domain/src/app-install-purchase-limitation-summary-proof.ts',
+    tests: 'packages/app-game-domain/tests/unit/app-install-purchase-limitation-summary-proof.test.ts',
     output: 'test-results/app-install-purchase-limitation-summary-proof/proof.json',
   },
 };

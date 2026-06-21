@@ -21,11 +21,13 @@ await main();
 
 async function main() {
   await runCommand('cmd', ['/c', 'npm run build:contracts']);
-  const {
-    BrowserChildInterventionPageDefaults,
-    createSocialChildInterventionPageModels,
-    renderBrowserChildInterventionPage,
-  } = await import('@ocentra-parent/portal-domain/contracts');
+  const [
+    { BrowserChildInterventionPageDefaults, renderBrowserChildInterventionPage },
+    { createSocialChildInterventionPageModels },
+  ] = await Promise.all([
+    import('@ocentra-parent/portal-domain/browser-child-intervention-page'),
+    import('@ocentra-parent/portal-domain/social-child-intervention-page-model'),
+  ]);
   await runCommand('cmd', [
     '/c',
     'npm run test --workspace @ocentra-parent/portal-domain -- social-child-intervention-page-model.test.ts',

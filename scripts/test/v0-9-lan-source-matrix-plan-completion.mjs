@@ -5,8 +5,6 @@ import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
 const lanDomainRoot = join(repoRoot, 'packages', 'lan-domain');
-const sourceMatrixModulePath = join(lanDomainRoot, 'dist', 'lan-discovery-source-matrix.js');
-const pairingDeviceModulePath = join(lanDomainRoot, 'dist', 'lan-pairing-device.js');
 const outputDir = join(repoRoot, 'output', 'lan-plan-proof', '01-lan-b1-proof-regeneration');
 const proofPath = join(outputDir, '01-lan-source-matrix-plan-completion-proof.json');
 const commands = [];
@@ -22,8 +20,8 @@ async function main() {
     lanDomainRoot
   );
 
-  const sourceMatrixContract = await import(moduleUrl(sourceMatrixModulePath));
-  const pairingDeviceContract = await import(moduleUrl(pairingDeviceModulePath));
+  const sourceMatrixContract = await import('@ocentra-parent/schema-domain/lan-source-matrix');
+  const pairingDeviceContract = await import('@ocentra-parent/schema-domain/lan-pairing-device');
   const matrix = sourceMatrixContract.LanDiscoverySourceMatrixSchema.parse(sourceMatrixFixture());
   const readModel = pairingDeviceContract.LanBrowserAddDeviceReadModelSchema.parse({
     ...addDeviceReadModelFixture(),

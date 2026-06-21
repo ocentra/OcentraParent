@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { EventingEventPriority } from '@ocentra-parent/schema-domain/eventing';
-import { type PolicyAuditReferenceId } from '../../src/authority';
+import { type PolicyAuditReferenceId } from '@ocentra-parent/schema-domain/authority';
 import {
   PolicyEventDeadLetterReason,
   PolicyEventFamilyNamespace,
@@ -18,8 +18,8 @@ import {
   policyEventRedactedSummary,
   policyEventSchemaVersion,
   type PolicyEvent,
-} from '../../src/policy-event';
-import { type PolicyReasonCode } from '../../src/policy';
+} from '@ocentra-parent/schema-domain/policy-event';
+import { type PolicyReasonCode } from '@ocentra-parent/schema-domain/policy';
 
 function sampleEvent(overrides: Partial<PolicyEvent> = {}): PolicyEvent {
   return parsePolicyEvent({

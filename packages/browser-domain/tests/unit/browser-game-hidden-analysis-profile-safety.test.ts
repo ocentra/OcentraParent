@@ -3,8 +3,8 @@ import {
   BrowserGameHiddenAnalysisLoaderRequestSchema,
   BrowserGameHiddenAnalysisLoaderResultSchema,
   BrowserGameHiddenAnalysisProfileDesignSchema,
-  planBrowserGameHiddenAnalysisProfileSafety,
-} from '../../src/browser-game-hidden-analysis-profile-safety';
+} from '@ocentra-parent/schema-domain/browser-game-hidden-analysis-profile-safety';
+import { planBrowserGameHiddenAnalysisProfileSafety } from '../../src/browser-game-hidden-analysis-profile-safety';
 import {
   loaderRequest,
   loaderResultFromInvalidClaim,

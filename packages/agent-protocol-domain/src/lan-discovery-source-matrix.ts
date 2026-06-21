@@ -17,15 +17,15 @@ import {
   type LanDiscoverySourceUiSurface,
   type LanPlanWorkpackId,
   type LanPlanWorkpackStatusRow,
-} from '@ocentra-parent/lan-domain/lan-discovery-source-matrix';
+} from '@ocentra-parent/schema-domain/lan-source-matrix';
 import {
   LanHouseholdProductProofStateSchema,
   type LanHouseholdProductProofState,
-} from '@ocentra-parent/lan-domain/lan-pairing-product-proof';
+} from '@ocentra-parent/schema-domain/lan-pairing-product-proof';
 import {
   LanProductionHouseholdProofRuntimeOwnerSchema,
   type LanProductionHouseholdProofRuntimeOwner,
-} from '@ocentra-parent/lan-domain/lan-production-household-proof';
+} from '@ocentra-parent/schema-domain/lan-production-household-proof';
 
 export const AgentLanPlanWorkpackIdSchema = LanPlanWorkpackIdSchema;
 export const AgentLanDiscoverySourceKindSchema = LanDiscoverySourceKindSchema;

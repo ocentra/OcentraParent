@@ -37,7 +37,7 @@ async function main() {
 
   const providerRuntimeModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-provider-runtime-readiness-blocker-proof.ts')
+      join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-provider-runtime-readiness-blocker-proof.ts')
     ).href,
     import.meta.url
   );

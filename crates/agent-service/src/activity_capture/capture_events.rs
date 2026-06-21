@@ -2,7 +2,8 @@
 use std::path::{Path, PathBuf};
 
 use ocentra_parent_agent_core::{
-    foreground_window_event, network_snapshot_events, process_snapshot_events,
+    network_capture_event::network_snapshot_events, process_capture::process_snapshot_events,
+    window_capture_event::foreground_window_event,
 };
 #[cfg(test)]
 use ocentra_parent_agent_protocol::ActivityIngestStatus;

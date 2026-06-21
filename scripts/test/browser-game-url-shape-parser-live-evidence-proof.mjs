@@ -5,8 +5,8 @@ import { dirname, join, relative } from 'node:path';
 
 import {
   BrowserGameUrlShapeParseResultSchema,
-  parseBrowserGameUrlShape,
-} from '../../packages/parent-domain/dist/browser-game-url-shape-parser.js';
+} from '@ocentra-parent/schema-domain/browser-game-url-shape-parser';
+import { parseBrowserGameUrlShape } from '@ocentra-parent/browser-domain/browser-game-url-shape-parser';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-url-shape-parser-live-evidence-proof';

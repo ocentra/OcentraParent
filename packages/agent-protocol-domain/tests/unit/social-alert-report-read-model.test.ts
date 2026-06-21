@@ -3,9 +3,9 @@ import {
   AgentEvent,
   AgentProtocolDefaults,
   type AgentEventEnvelope,
-  parseAgentSocialAlertReportReadModelEvent,
-  SocialAlertReportReadModelSnapshotSchema,
 } from '../../src/contracts';
+import { parseAgentSocialAlertReportReadModelEvent } from '../../src/social-alert-report-read-model';
+import { SocialAlertReportReadModelSnapshotSchema } from '@ocentra-parent/schema-domain/agent-social-alert-report-read-model';
 import {
   SocialAlertReportAdapterDispatchState,
   SocialAlertReportDeliveryClaimState,
@@ -14,7 +14,7 @@ import {
   SocialAlertReportParentCopyToken,
   SocialAlertReportPayloadField,
   SocialAlertReportReasonCode,
-} from '@ocentra-parent/browser-domain/social-alert-report-intent';
+} from '@ocentra-parent/schema-domain/social-alert-report-intent';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

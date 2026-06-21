@@ -1,11 +1,13 @@
 import {
+  type AgentAppGameAdapterDispatchPreflightResult,
+} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-preflight';
+import {
   AgentAppGameAdapterDispatchDecision,
   AgentAppGameAdapterDispatchOutcomeState,
   AgentAppGameAdapterDispatchPreflightState,
   type AgentAppGameAdapterDispatchPreflightReadModel,
-  type AgentAppGameAdapterDispatchPreflightResult,
   type AgentAppGameAdapterDispatchPreflightRow,
-} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-dispatch-preflight';
+} from '@ocentra-parent/schema-domain/app-game-adapter-dispatch-preflight';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDetails, PortalReadableValues } from './details';
 

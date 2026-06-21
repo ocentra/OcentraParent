@@ -9,7 +9,7 @@ import {
   TrackingChildRuntimeDeliveryBoundaryReadModelSchema,
   type TrackingChildRuntimeDeliveryBoundaryRow,
 } from './tracking-child-runtime-delivery-boundary-proof';
-import { TrackingPolicySchemaVersion } from './tracking-location-policy';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 export const RequiredTrackingChildRuntimeExecutionReadinessNonClaims = [
   'no-child-device-delivery-runtime',

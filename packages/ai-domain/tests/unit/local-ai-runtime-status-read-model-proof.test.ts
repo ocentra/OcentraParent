@@ -3,7 +3,7 @@ import {
   LocalAiRuntimeStatusSurfaceReadModel,
   LocalAiRuntimeStatusSurfaceReadModelSchema,
   LocalAiRuntimeStatusSurfaceRowSchema,
-} from '../../src/local-ai-runtime-status-read-model-proof';
+} from '@ocentra-parent/schema-domain/local-ai-runtime-status-read-model-proof';
 
 describe('local AI runtime status read-model proof', () => {
   it('projects provider proof entries into parent-visible runtime status rows', () => {

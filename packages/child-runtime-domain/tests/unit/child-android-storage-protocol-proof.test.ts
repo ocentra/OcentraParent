@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type ChildAndroidStorageProtocolReadModel,
   ChildAndroidStorageProtocolReadModelSchema,
-} from '../../src/child-android-storage-protocol-proof';
+} from '@ocentra-parent/schema-domain/child-android-storage-protocol-proof';
 
 describe('child android storage protocol proof contracts', () => {
   acceptsPackageLocalStorageProtocolProof();

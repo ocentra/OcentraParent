@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AgentLanPairingRejectionReasonSchema,
+  AgentLanSelectedRouteTrustStateSchema,
+  AgentPairingStateSchema,
+} from '@ocentra-parent/schema-domain/agent-lan';
+import {
   AgentCommand,
   AgentCommandEnvelopeSchema,
   AgentLanChildAgentResponseSchema,
@@ -11,13 +16,8 @@ import {
   AgentLanPairingSupportedWebSocketCommand,
   AgentProtocolDefaults,
 } from '../../src/contracts';
-import { AgentLanPairingChallengeRequestSchema } from '../../src/lan-pairing-challenge';
-import { AgentLanBrowserRuntimeCommandNameLiteral } from '../../src/lan-pairing-browser-runtime';
-import {
-  AgentLanPairingRejectionReasonSchema,
-  AgentLanSelectedRouteTrustStateSchema,
-  AgentPairingStateSchema,
-} from '../../src/security';
+import { AgentLanPairingChallengeRequestSchema } from '@ocentra-parent/schema-domain/agent-lan-pairing-challenge';
+import { AgentLanBrowserRuntimeCommandNameLiteral } from '@ocentra-parent/schema-domain/lan-pairing-browser-runtime';
 
 describe('LAN pairing multi-device protocol contracts', () => {
   it(

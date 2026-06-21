@@ -3,7 +3,6 @@ use std::collections::BTreeSet;
 use ocentra_eventing::replay::ReplayRecord;
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_status;
 use super::remote_delivery_event_chain_store::{
     exported_event_type_count, publish_network_runtime_remote_event_chain_store, source_component,
     unsupported_claim_counts,
@@ -12,6 +11,7 @@ use super::remote_delivery_receipt_ledger_types::{
     NetworkRuntimeRemoteDeliveryReceiptLedgerError,
     NetworkRuntimeRemoteDeliveryReceiptLedgerReport, NetworkRuntimeRemoteDeliveryReceiptRecord,
 };
+use super::remote_delivery_status::prove_network_runtime_remote_delivery_status;
 
 pub async fn prove_network_runtime_remote_delivery_receipt_ledger() -> Result<
     NetworkRuntimeRemoteDeliveryReceiptLedgerReport,

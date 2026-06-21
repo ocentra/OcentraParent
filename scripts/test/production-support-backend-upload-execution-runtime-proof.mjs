@@ -16,6 +16,7 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
   await runCommand(
     ...npmCommand([
@@ -24,7 +25,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/support-backend-upload-execution-runtime.test.ts',
+      'tests/unit/support-backend-upload-execution-runtime.test.ts',
     ])
   );
 
@@ -40,10 +41,10 @@ async function main() {
     proofMode: 'production-support-backend-upload-execution-runtime-proof',
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/support-backend-upload-execution-runtime.ts',
-      guards: 'packages/logging-domain/src/support-backend-upload-execution-runtime-guards.ts',
-      readModel: 'packages/logging-domain/src/support-backend-upload-execution-runtime-read-model.ts',
-      contractTest: 'packages/logging-domain/tests/support-backend-upload-execution-runtime.test.ts',
+      contract: 'packages/schema-domain/src/support-backend-upload-execution-runtime.ts',
+      guards: 'packages/schema-domain/src/support-backend-upload-execution-runtime-guards.ts',
+      readModel: 'packages/schema-domain/src/support-backend-upload-execution-runtime-read-model.ts',
+      contractTest: 'packages/logging-domain/tests/unit/support-backend-upload-execution-runtime.test.ts',
       proofOutput: relative(repoRoot, proofPath),
       summaryOutput: relative(repoRoot, summaryPath),
       featureDoc: 'docs/features/production-distribution-support.md',
@@ -58,7 +59,7 @@ async function main() {
       'Execution runtime rows link to the prior support backend upload status proof through status refs while keeping payloads to redacted runtime refs, audit refs, redaction preflight refs, support-bundle manifest refs, retry refs, abandon refs, and manual proof refs.',
       'Manual dispatch rows require support backend upload adapter implementation plus operator runbook and retention/delete proof before execution can be claimed.',
       'Backend/provider unavailable rows prove retry-scheduled behavior, and operator-abandoned rows prove retry-exhausted and parent/operator abandon refs.',
-      'Package exports expose the execution runtime contract and read-model to consumers through @ocentra-parent/logging-domain.',
+      'Package exports expose the execution runtime contract and read-model to consumers through @ocentra-parent/schema-domain.',
       'Rows reject tokens, raw child activity, raw URLs, screenshots, journals, SQLite snapshots, private paths, command lines, keystrokes, clipboard data, message contents, provider secrets, remote support transcripts, real backend execution, account lookup, billing provider contact, remote support sessions, production SLA, and default Ocentra-hosted family data.',
     ],
     claimsNotProved: [
@@ -137,8 +138,8 @@ function assertReadModel(readModel) {
 }
 
 async function assertPackageExports() {
-  const contract = await import('@ocentra-parent/logging-domain/support-backend-upload-execution-runtime');
-  const readModel = await import('@ocentra-parent/logging-domain/support-backend-upload-execution-runtime-read-model');
+  const contract = await import('@ocentra-parent/schema-domain/support-backend-upload-execution-runtime');
+  const readModel = await import('@ocentra-parent/schema-domain/support-backend-upload-execution-runtime-read-model');
   assert.equal(typeof contract.SupportBackendUploadExecutionRuntimeReadModelSchema.parse, 'function');
   assert.equal(readModel.SupportBackendUploadExecutionRuntimeReadModel.entries.length, 7);
 }

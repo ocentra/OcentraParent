@@ -16,49 +16,75 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(appGameProofDir, { recursive: true });
 
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'app-game-child-facing-ux-child-device-delivery-readiness',
-      'app-game-child-facing-ux-local-outbox-provider-status-handoff',
+      '--run',
+      'tests/unit/app-game-child-facing-ux-child-device-delivery-readiness.test.ts',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
-  const module = await import(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-child-device-delivery-readiness.js')
-    ).href
+  const schemaReadinessModule = await import(
+    '@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-delivery-readiness'
   );
+  commands.push('node import @ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-delivery-readiness');
+  const schemaProviderStatusModule = await import(
+    '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-provider-status-handoff'
+  );
+  commands.push(
+    'node import @ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-provider-status-handoff'
+  );
+  if (!('AppGameChildDeviceDeliveryReadinessReadModelSchema' in schemaReadinessModule)) {
+    throw new Error('Missing AppGameChildDeviceDeliveryReadinessReadModelSchema export from schema-domain');
+  }
+  if (!('AppGameChildUxLocalOutboxProviderStatusHandoffReadModelSchema' in schemaProviderStatusModule)) {
+    throw new Error('Missing AppGameChildUxLocalOutboxProviderStatusHandoffReadModelSchema export from schema-domain');
+  }
+
+  const module = schemaReadinessModule;
   const childUxModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-child-facing-ux.js')).href
   );
   const childUxRulesModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-rules.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-child-facing-ux-rules.js')).href
   );
   const childUxHandoffModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-handoff.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-child-facing-ux-handoff.js')).href
   );
   const childUxLocalHandoffModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-local-handoff.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-child-facing-ux-local-handoff.js')).href
   );
   const childUxOutboxModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-local-outbox-bridge.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-child-facing-ux-local-outbox-bridge.js')
     ).href
   );
   const childUxSchedulerModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-local-outbox-scheduler-bridge.js')
+      join(
+        repoRoot,
+        'packages',
+        'app-game-domain',
+        'dist',
+        'app-game-child-facing-ux-local-outbox-scheduler-bridge.js'
+      )
     ).href
   );
   const childUxProviderPreflightModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-local-outbox-provider-preflight.js')
+      join(
+        repoRoot,
+        'packages',
+        'app-game-domain',
+        'dist',
+        'app-game-child-facing-ux-local-outbox-provider-preflight.js'
+      )
     ).href
   );
   const providerStatusModule = await import(
@@ -66,7 +92,7 @@ async function main() {
       join(
         repoRoot,
         'packages',
-        'parent-domain',
+        'app-game-domain',
         'dist',
         'app-game-child-facing-ux-local-outbox-provider-status-handoff.js'
       )
@@ -113,14 +139,15 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-child-facing-ux-child-device-delivery-readiness.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-child-facing-ux-child-device-delivery-readiness.test.ts',
+      readinessOwner: 'packages/schema-domain/src/app-game-child-facing-ux-child-device-delivery-readiness.ts',
       providerStatusContract:
-        'packages/parent-domain/src/app-game-child-facing-ux-local-outbox-provider-status-handoff.ts',
-      providerStatusTest:
-        'packages/parent-domain/tests/app-game-child-facing-ux-local-outbox-provider-status-handoff.test.ts',
+        'packages/schema-domain/src/app-game-child-facing-ux-local-outbox-provider-status-handoff.ts',
+      providerStatusConsumer:
+        'packages/app-game-domain/src/app-game-child-facing-ux-local-outbox-provider-status-handoff.ts',
+      consumerTest: 'packages/app-game-domain/tests/unit/app-game-child-facing-ux-child-device-delivery-readiness.test.ts',
     },
     claimsProved: [
+      'schema-domain owns the child-device delivery readiness and provider-status handoff contract surfaces',
       'Scheduled app/game child UX provider-status rows are promoted only to child-transport-required readiness rows',
       'Manual-required and unavailable source rows stay out of transport-required readiness',
       'The read model carries parent-safe transport references without raw child payload rows',
@@ -144,10 +171,12 @@ async function main() {
       '',
       '- Branch: codex/app-game-control-product-completion',
       '- Commit: uncommitted full-goal batch, validated by harness before final checkpoint commit',
-      '- Parent read model: packages/parent-domain/src/app-game-child-facing-ux-child-device-delivery-readiness.ts',
-      '- Source read model: packages/parent-domain/src/app-game-child-facing-ux-local-outbox-provider-status-handoff.ts',
+      '- Readiness owner: packages/schema-domain/src/app-game-child-facing-ux-child-device-delivery-readiness.ts',
+      '- Provider-status contract: packages/schema-domain/src/app-game-child-facing-ux-local-outbox-provider-status-handoff.ts',
+      '- App-game provider-status consumer: packages/app-game-domain/src/app-game-child-facing-ux-local-outbox-provider-status-handoff.ts',
       '',
       'Evidence:',
+      '- schema-domain exports the child-device delivery readiness owner and provider-status handoff contract.',
       '- Scheduled provider-status rows become child-transport-required readiness rows.',
       '- Manual-required and unavailable source rows remain blocked or unavailable.',
       '- Runtime child transport, receipts, provider delivery execution, adapter dispatch, and platform enforcement stay unclaimed.',

@@ -14,24 +14,25 @@ const commands = [];
 await main();
 
 async function main() {
-  await runNpm(['--workspace', '@ocentra-parent/parent-domain', 'run', 'build']);
+  await runNpm(['--workspace', '@ocentra-parent/schema-domain', 'run', 'build']);
+  await runNpm(['--workspace', '@ocentra-parent/tracking-domain', 'run', 'build']);
   await runNpm([
     'exec',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
     'vitest',
     'run',
-    'tests/tracking-parent-acknowledgement-action-readiness-proof.test.ts',
-    'tests/tracking-location-policy.test.ts',
+    'tests/contract/tracking-parent-acknowledgement-action-readiness-proof.test.ts',
+    'tests/contract/tracking-location-policy.test.ts',
   ]);
 
   const policy = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-location-policy.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', 'tracking-location-policy.js'))
   );
   const actionProof = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-parent-acknowledgement-action-readiness-proof.js')
+      join(repoRoot, 'packages', 'schema-domain', 'dist', 'tracking-parent-acknowledgement-action-readiness-proof.js')
     )
   );
   const checkedAt = new Date().toISOString();
@@ -41,7 +42,8 @@ async function main() {
       generatedAt: '2026-06-06T17:45:00.000Z',
       readinessId: 'tracking-parent-acknowledgement-action-readiness-proof',
       sourceContractRefs: [
-        'packages/parent-domain/src/tracking-location-policy.ts',
+        'packages/schema-domain/src/tracking-parent-acknowledgement-action-readiness-proof.ts',
+        'packages/schema-domain/src/tracking-location-policy.ts',
         'docs/plans/tracking-plan/workpacks/17-parent-acknowledgement-and-exception-model.md',
         'docs/expectations/notifications.md',
         'docs/expectations/policy.md',
@@ -144,10 +146,10 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- requiredProofTier: P1_FIXTURE_SIMULATION',
     '- currentProofTier: P1_FIXTURE_SIMULATION',
     '- status: proved',
-    '- proof module: packages/parent-domain/src/tracking-parent-acknowledgement-action-readiness-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-parent-acknowledgement-action-readiness-proof.test.ts',
+    '- proof module: packages/schema-domain/src/tracking-parent-acknowledgement-action-readiness-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-parent-acknowledgement-action-readiness-proof.test.ts',
     '- proof harness: scripts/test/tracking-parent-acknowledgement-action-readiness-proof.mjs',
-    '- source contracts: packages/parent-domain/src/tracking-location-policy.ts',
+    '- source contracts: packages/schema-domain/src/tracking-location-policy.ts',
     '',
   ].join('\n');
 }

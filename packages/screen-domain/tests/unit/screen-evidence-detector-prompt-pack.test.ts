@@ -3,9 +3,11 @@ import {
   ScreenDetectorPromptDefinitionSchema,
   ScreenDetectorPromptOutputSchema,
   ScreenDetectorPromptPackSchema,
+} from '@ocentra-parent/schema-domain/screen-evidence-detector-prompt-pack';
+import {
   ScreenDetectorPromptPackSchemaVersion,
   ScreenDetectorRequiredIds,
-} from '../../src/screen-evidence';
+} from '@ocentra-parent/schema-domain/screen-evidence-detector-prompt-pack-values';
 
 describe('screen detector prompt pack contracts', () => {
   it('accepts an active detector pack with one privacy-safe prompt per required detector', () => {

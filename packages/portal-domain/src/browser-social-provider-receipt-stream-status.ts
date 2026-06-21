@@ -2,7 +2,7 @@ import {
   deriveAgentBrowserRuntimeSocialProviderReceiptStatus,
   type AgentBrowserRuntimeEventChainStream,
   type AgentBrowserRuntimeSocialProviderReceiptStatus,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/agent-protocol-domain/browser-runtime-events';
 import { type DisplayText, decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';
 import { PortalDetails } from './details';

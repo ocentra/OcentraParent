@@ -3,7 +3,7 @@ import {
   V3NotificationRuleProviderRetryContractEntrySchema,
   V3NotificationRuleProviderRetryContractReadModel,
   V3NotificationRuleProviderRetryContractReadModelSchema,
-} from '../../src/v3-notification-rule-provider-retry-contract';
+} from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
 
 describe('V3 notification rule provider retry contract', () => {
   registerContractCoverageTest();

@@ -4,6 +4,7 @@ import {
   AgentLanDiscoverySourceMatrixSchema,
   AgentProtocolDefaults,
 } from '../../src/contracts';
+import { LanPairingSchemaVersion } from '@ocentra-parent/schema-domain/lan-pairing-values';
 
 const generatedAt = '2026-06-02T15:55:00.000Z';
 
@@ -34,7 +35,7 @@ describe('agent protocol LAN discovery source matrix', () => {
 
 function sourceMatrix() {
   return {
-    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    schemaVersion: LanPairingSchemaVersion.V0_9,
     generatedAt,
     workpackRows: Array.from({ length: 20 }, (_, index) => workpack(index + 1)),
     sourceRows: [
@@ -60,7 +61,7 @@ function workpack(index: number) {
   const id = index.toString().padStart(2, '0');
   const manual = id === '17' || id === '18';
   return {
-    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    schemaVersion: LanPairingSchemaVersion.V0_9,
     workpackId: id,
     title: `LAN workpack ${id}`,
     discoveryState: manual ? 'manual-required' : 'pending',
@@ -82,7 +83,7 @@ function source(
   requiredArtifactSummary: string | null
 ) {
   return {
-    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    schemaVersion: LanPairingSchemaVersion.V0_9,
     source: sourceKind,
     workpackId,
     status,

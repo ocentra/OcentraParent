@@ -4,8 +4,8 @@ import {
   SupportBackendUploadExecutionRuntimeEntrySchema,
   SupportBackendUploadExecutionRuntimeReadModelSchema,
   SupportBackendUploadExecutionRuntimeRequiredDataClasses,
-} from '../../src/support-backend-upload-execution-runtime';
-import { SupportBackendUploadExecutionRuntimeReadModel } from '../../src/support-backend-upload-execution-runtime-read-model';
+} from '@ocentra-parent/schema-domain/support-backend-upload-execution-runtime';
+import { SupportBackendUploadExecutionRuntimeReadModel } from '@ocentra-parent/schema-domain/support-backend-upload-execution-runtime-read-model';
 
 describe('support backend upload execution runtime logging contract', () => {
   it('covers request preflight manual unavailable retry and abandon runtime states', assertCoverage);

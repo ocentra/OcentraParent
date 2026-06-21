@@ -5,7 +5,7 @@ import {
   type BrowserUrlShapePlatform,
   type BrowserUrlShapeReasonCode,
   type BrowserUrlShapeTargetKind,
-} from './browser-url-intelligence-schemas';
+} from '@ocentra-parent/schema-domain/browser-url-intelligence-schemas';
 
 type BrowserUrlShapeSourceKind = BrowserUrlShapeClassificationResult['sourceKind'];
 

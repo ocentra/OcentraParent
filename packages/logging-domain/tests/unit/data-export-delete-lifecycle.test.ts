@@ -4,8 +4,8 @@ import {
   DataExportDeleteLifecycleEntrySchema,
   DataExportDeleteLifecycleReadModelSchema,
   DataExportDeleteLifecycleRequiredDataClasses,
-} from '../../src/data-export-delete-lifecycle';
-import { DataExportDeleteLifecycleReadModel } from '../../src/data-export-delete-lifecycle-read-model';
+} from '@ocentra-parent/schema-domain/data-export-delete-lifecycle';
+import { DataExportDeleteLifecycleReadModel } from '@ocentra-parent/schema-domain/data-export-delete-lifecycle-read-model';
 
 describe('data export delete lifecycle logging contract', () => {
   it('covers requested authorized queued running succeeded failed and manual-required states', () => {

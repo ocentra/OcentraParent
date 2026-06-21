@@ -10,8 +10,8 @@ import {
   TrackingEvidenceTraceSchema,
   TrackingLocationAiAnalysisInputSchema,
   TrackingPolicySchemaVersion,
-} from './tracking-location-policy';
-import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from './tracking-location-policy-primitives';
+} from '@ocentra-parent/schema-domain/tracking-location-policy';
+import { TrackingPolicyAuditRefSchema, TrackingPolicyReasonCodeSchema } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 
 export const TrackingAiStoredRefConsumerRowIdSchema = brandedNonEmptyStringSchema('TrackingAiStoredRefConsumerRowId');
 

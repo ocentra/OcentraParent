@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
 import { listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
 import { pruneTestLogRuns } from '../../src/test-log/testLogRetention';
-import { RunType, TestLogScope, TestLogSchemaVersion } from '../../src/test-log/types';
+import { RunType, TestLogScope, TestLogSchemaVersion } from '@ocentra-parent/schema-domain/test-log/types';
 import { createAppLogStorage } from '../../src/app-log/createAppLogStorage';
 import { listAppLogSessionFiles } from '../../src/app-log/appNdjsonWriter';
 

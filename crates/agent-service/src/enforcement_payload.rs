@@ -1,4 +1,4 @@
-use ocentra_parent_agent_core::EnforcementBoundaryInput;
+use ocentra_parent_agent_core::enforcement_boundary::EnforcementBoundaryInput;
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, EnforcementIntent, EnforcementIntentSource,
     LogFieldValue, LogFields, ParentDeviceReference, ParentEvidenceReference,

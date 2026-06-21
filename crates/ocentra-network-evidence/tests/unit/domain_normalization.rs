@@ -1,5 +1,5 @@
 use ocentra_network_evidence::{
-    dns::NetworkEvidenceGrade,
+    dns::types::NetworkEvidenceGrade,
     domain::{normalize_domain_with_public_suffix, DomainNormalizationError, PublicSuffixModel},
 };
 

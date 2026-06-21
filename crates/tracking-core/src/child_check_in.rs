@@ -1,6 +1,10 @@
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
+    TrackingChildCheckInRecordedEvent, TrackingLocationObservedEvent,
+};
 use ocentra_parent_agent_protocol::{
-    constants, tracking_check_in_id_from_observation_id, tracking_evidence_ref_from_observation_id,
-    TrackingCheckInState, TrackingChildCheckInRecordedEvent, TrackingLocationObservedEvent,
+    tracking_check_in_id_from_observation_id, tracking_evidence_ref_from_observation_id,
+    TrackingCheckInState,
 };
 
 pub fn record_child_check_in(

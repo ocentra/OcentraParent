@@ -4,7 +4,7 @@ use std::{
     time::Duration,
 };
 
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tokio::sync::oneshot;
 
 use crate::{
@@ -47,14 +47,16 @@ impl RequestOptions {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum RequestCompletionOutcome {
     Completed,
     Duplicate,
     Late,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RequestCompletionReport {
     pub request_id: RequestId,
     pub outcome: RequestCompletionOutcome,

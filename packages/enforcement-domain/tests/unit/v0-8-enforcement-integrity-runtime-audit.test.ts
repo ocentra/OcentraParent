@@ -3,7 +3,9 @@ import {
   V08EnforcementIntegrityRuntimeAuditEntrySchema,
   V08EnforcementIntegrityRuntimeAuditReadModel,
   V08EnforcementIntegrityRuntimeAuditReadModelSchema,
-} from '../../src/v0-8-enforcement-integrity-runtime-audit';
+  type V08EnforcementIntegrityRuntimeAuditEntry,
+} from '@ocentra-parent/schema-domain/v0-8-enforcement-integrity-runtime-audit';
+import type { V08NotificationProviderStatusBoundaryEntry } from '@ocentra-parent/schema-domain/v0-8-notification-provider-status-boundary';
 
 describe('V0.8 enforcement integrity runtime audit', () => {
   registerReadModelSummaryTest();
@@ -18,14 +20,17 @@ function registerReadModelSummaryTest() {
     const readModel = V08EnforcementIntegrityRuntimeAuditReadModelSchema.parse(
       V08EnforcementIntegrityRuntimeAuditReadModel
     );
+    const entries: readonly V08EnforcementIntegrityRuntimeAuditEntry[] = readModel.entries;
+    const notificationProviderEntries: readonly V08NotificationProviderStatusBoundaryEntry[] =
+      readModel.notificationProviderStatusBoundary.entries;
 
     expect(readModel.readModelId).toBe('v0-8-enforcement-integrity-runtime-audit');
-    expect(readModel.entries).toHaveLength(14);
+    expect(entries).toHaveLength(14);
     expect(readModel.integrityAlertStatusBridge.readModelId).toBe('v0-8-integrity-alert-status-bridge');
     expect(readModel.integrityAlertStatusBridge.entries).toHaveLength(4);
     expect(readModel.notificationProviderStatusBoundary.readModelId).toBe('v0-8-notification-provider-status-boundary');
-    expect(readModel.notificationProviderStatusBoundary.entries).toHaveLength(5);
-    expect(countBy(readModel.entries.map((entry) => entry.result))).toEqual({
+    expect(notificationProviderEntries).toHaveLength(5);
+    expect(countBy(entries.map((entry) => entry.result))).toEqual({
       succeeded: 1,
       expired: 1,
       'rolled-back': 1,
@@ -37,7 +42,7 @@ function registerReadModelSummaryTest() {
       unavailable: 3,
       unsupported: 1,
     });
-    expect(countBy(readModel.entries.map((entry) => entry.execution))).toEqual({
+    expect(countBy(entries.map((entry) => entry.execution))).toEqual({
       'executed-supported-boundary': 4,
       'dry-run-no-adapter-execution': 1,
       'rejected-before-adapter': 2,
@@ -47,7 +52,7 @@ function registerReadModelSummaryTest() {
       'recovery-needed-no-execution': 1,
       'unsupported-no-execution': 1,
     });
-    expect(countBy(readModel.entries.map((entry) => entry.integrityState))).toEqual({
+    expect(countBy(entries.map((entry) => entry.integrityState))).toEqual({
       running: 8,
       'not-applicable': 2,
       'permission-missing': 1,
@@ -55,19 +60,19 @@ function registerReadModelSummaryTest() {
       'stale-heartbeat': 1,
       'tamper-signal-manual-required': 1,
     });
-    expect(readModel.entries.every((entry) => !entry.broadInstalledAppBlockingClaimed)).toBe(true);
-    expect(readModel.entries.every((entry) => !entry.hostNetworkDomainBlockingClaimed)).toBe(true);
-    expect(readModel.entries.every((entry) => !entry.exactActiveTabEnforcementClaimed)).toBe(true);
-    expect(readModel.entries.every((entry) => !entry.notificationDeliveryClaimed)).toBe(true);
-    expect(readModel.entries.every((entry) => !entry.tamperHardeningClaimed)).toBe(true);
-    expect(readModel.entries.every((entry) => !entry.mobilePrivilegeClaimed)).toBe(true);
-    expect(readModel.entries.every((entry) => !entry.stealthPersistenceClaimed)).toBe(true);
-    expect(readModel.entries.every((entry) => !entry.privilegeEscalationClaimed)).toBe(true);
-    expect(readModel.notificationProviderStatusBoundary.entries.every((entry) => !entry.providerDeliveryObserved)).toBe(
+    expect(entries.every((entry) => !entry.broadInstalledAppBlockingClaimed)).toBe(true);
+    expect(entries.every((entry) => !entry.hostNetworkDomainBlockingClaimed)).toBe(true);
+    expect(entries.every((entry) => !entry.exactActiveTabEnforcementClaimed)).toBe(true);
+    expect(entries.every((entry) => !entry.notificationDeliveryClaimed)).toBe(true);
+    expect(entries.every((entry) => !entry.tamperHardeningClaimed)).toBe(true);
+    expect(entries.every((entry) => !entry.mobilePrivilegeClaimed)).toBe(true);
+    expect(entries.every((entry) => !entry.stealthPersistenceClaimed)).toBe(true);
+    expect(entries.every((entry) => !entry.privilegeEscalationClaimed)).toBe(true);
+    expect(notificationProviderEntries.every((entry) => !entry.providerDeliveryObserved)).toBe(
       true
     );
     expect(
-      readModel.notificationProviderStatusBoundary.entries.every((entry) => !entry.deliveredNotificationClaimed)
+      notificationProviderEntries.every((entry) => !entry.deliveredNotificationClaimed)
     ).toBe(true);
   });
 }
@@ -226,8 +231,10 @@ function registerRejectionTest() {
   });
 }
 
-function entryFor(auditEntryId: string) {
-  const entry = V08EnforcementIntegrityRuntimeAuditReadModel.entries.find(
+function entryFor(auditEntryId: string): V08EnforcementIntegrityRuntimeAuditEntry {
+  const entries: readonly V08EnforcementIntegrityRuntimeAuditEntry[] =
+    V08EnforcementIntegrityRuntimeAuditReadModel.entries;
+  const entry = entries.find(
     (candidate) => candidate.auditEntryId === auditEntryId
   );
   if (entry === undefined) {

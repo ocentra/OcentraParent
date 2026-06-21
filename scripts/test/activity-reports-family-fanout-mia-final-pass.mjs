@@ -44,10 +44,10 @@ async function main() {
       'activity-reports-family-fanout.c-owned-paths-not-touched',
     ],
     evidence: {
-      activityFamilyAggregationContract: 'packages/activity-domain/src/activity-family-aggregation.ts',
-      activityFamilyAggregationTest: 'packages/activity-domain/tests/activity-family-aggregation.test.ts',
+      activityFamilyAggregationContract: 'packages/schema-domain/src/activity-family-aggregation.ts',
+      activityFamilyAggregationTest: 'packages/activity-domain/tests/unit/activity-family-aggregation.test.ts',
       upstreamReportHistoryProof: relative(repoRoot, upstreamProofPath),
-      activitySurfaceContract: 'packages/activity-domain/src/activity-surface.ts',
+      activitySurfaceContract: 'packages/schema-domain/src/activity-surface.ts',
       adapterBoundary: 'packages/agent-protocol-domain/src/activity-surface-adapter.ts',
       rustReportStore: 'crates/agent-service/src/activity_surface_report_store.rs',
       rustFamilySources: 'crates/agent-service/src/activity_family_sources.rs',

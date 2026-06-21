@@ -15,34 +15,36 @@ async function main() {
   await mkdir(workpack33, { recursive: true });
   await mkdir(proofResultDir, { recursive: true });
   await runNpm(['--workspace', '@ocentra-parent/tracking-domain', 'run', 'build']);
-  await runNpm(['--workspace', '@ocentra-parent/parent-domain', 'run', 'build']);
+  await runNpm(['--workspace', '@ocentra-parent/schema-domain', 'run', 'build']);
   await runNpm(['--workspace', '@ocentra-parent/portal-domain', 'run', 'build']);
   await runNpm([
+    'exec',
     '--workspace',
-    '@ocentra-parent/tracking-domain',
-    'run',
-    'test',
+    '@ocentra-parent/portal',
     '--',
-    'tracking-evidence-quality-gate',
+    'vitest',
+    'run',
+    'tests/tracking-status-panel.test.ts',
   ]);
-  await runNpm(['--workspace', '@ocentra-parent/parent-domain', 'run', 'test', '--', 'tracking-location-policy']);
-  await runNpm(['--workspace', '@ocentra-parent/portal', 'run', 'test', '--', 'tracking-status-panel']);
 
-  const activity = await import('@ocentra-parent/tracking-domain/tracking');
-  const policy = await import('@ocentra-parent/tracking-domain/tracking-location-policy');
+  const readModelContracts = await import('@ocentra-parent/schema-domain/tracking-read-model');
+  const trackingEvidence = await import('@ocentra-parent/schema-domain/tracking-evidence');
+  const retentionRuntime = await import('@ocentra-parent/tracking-domain/tracking-retention-runtime');
+  const evidenceQualityGate = await import('@ocentra-parent/schema-domain/tracking-evidence-quality-gate');
+  const policy = await import('@ocentra-parent/schema-domain/tracking-location-policy');
   const checkedAt = new Date().toISOString();
-  const readModel = activity.TrackingReadModelSchema.parse(trackingReadModelSample());
-  const retentionDeleteProof = activity.applyTrackingRetentionDelete({
+  const readModel = readModelContracts.TrackingReadModelSchema.parse(trackingReadModelSample());
+  const retentionDeleteProof = retentionRuntime.applyTrackingRetentionDelete({
     readModel,
     generatedAt: '2026-06-05T04:45:00.000Z',
     deletedEvidenceIds: ['location-evidence-quality-1'],
   });
-  const retentionExportProof = activity.applyTrackingRetentionExport({
+  const retentionExportProof = retentionRuntime.applyTrackingRetentionExport({
     readModel,
     generatedAt: '2026-06-05T04:46:00.000Z',
-    policy: activity.TrackingRetentionPolicySchema.parse(RetentionPolicy),
+    policy: trackingEvidence.TrackingRetentionPolicySchema.parse(RetentionPolicy),
   });
-  const activityGate = activity.evaluateTrackingEvidenceQualityGate({
+  const activityGate = evidenceQualityGate.evaluateTrackingEvidenceQualityGate({
     readModel,
     retentionDeleteProof,
     retentionExportProof,
@@ -67,7 +69,8 @@ async function main() {
       locationDerivedUiEvidenceRefs: {
         status: 'passed',
         evidenceReferenceCount: activityGate.locationEvidenceReferenceCount,
-        portalValidation: 'npm --workspace @ocentra-parent/portal run test -- tracking-status-panel',
+        portalValidation:
+          'npm exec --workspace @ocentra-parent/portal -- vitest run tests/tracking-status-panel.test.ts',
       },
       geofenceTransitionRuleAndSourceRefs: {
         status: 'passed',

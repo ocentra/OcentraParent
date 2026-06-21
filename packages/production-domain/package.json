@@ -3,12 +3,8 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Production release, support, public status, incident, and publication contracts.",
+  "description": "Legacy workspace anchor for production-domain package identity only.",
   "exports": {
-    "./*": {
-      "import": "./dist/src/*.js",
-      "types": "./dist/src/*.d.ts"
-    },
     "./package-info": {
       "import": "./dist/src/package-info.js",
       "types": "./dist/src/package-info.d.ts"
@@ -22,7 +18,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolSchemaVersion,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
 import { PortalCommandResultEvents, isCommandResultEvent, latestCommandResult } from '../../src/command-results';
 
 describe('portal command result contract', () => {

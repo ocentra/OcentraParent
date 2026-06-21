@@ -8,23 +8,25 @@ import {
   AppGameChildUxPrimaryAction,
   AppGameChildUxSurfaceState,
   AppGameChildUxTargetKind,
-} from '../../src/app-game-child-facing-ux-rules';
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-rules';
 import { buildAppGameChildUxHandoffReadModel } from '../../src/app-game-child-facing-ux-handoff';
 import { buildAppGameChildUxLocalHandoffArtifactReadModel } from '../../src/app-game-child-facing-ux-local-handoff';
-import { buildAppGameChildUxLocalOutboxBridgeReadModel } from '../../src/app-game-child-facing-ux-local-outbox-bridge';
-import {
-  buildAppGameChildUxLocalOutboxSchedulerBridgeReadModel,
-  type AppGameChildUxLocalOutboxSchedulerBridgeReadModel,
-} from '../../src/app-game-child-facing-ux-local-outbox-scheduler-bridge';
 import { buildAppGameChildUxLocalOutboxProviderPreflightReadModel } from '../../src/app-game-child-facing-ux-local-outbox-provider-preflight';
 import { buildAppGameChildUxLocalOutboxProviderStatusHandoffReadModel } from '../../src/app-game-child-facing-ux-local-outbox-provider-status-handoff';
 import { buildAppGameChildUxLocalOutboxPreferencePreflightReadModel } from '../../src/app-game-child-facing-ux-local-outbox-preference-preflight';
 import { buildAppGameChildUxLocalOutboxPreferenceStatusHandoffReadModel } from '../../src/app-game-child-facing-ux-local-outbox-preference-status-handoff';
 import {
-  AppGameChildUxLocalOutboxParentSurfaceIntentReadModelSchema,
-  AppGameChildUxLocalOutboxParentSurfaceIntentRowSchema,
   buildAppGameChildUxLocalOutboxParentSurfaceIntentReadModel,
 } from '../../src/app-game-child-facing-ux-local-outbox-parent-surface-intent';
+import { buildAppGameChildUxLocalOutboxBridgeReadModel } from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-bridge';
+import {
+  buildAppGameChildUxLocalOutboxSchedulerBridgeReadModel,
+  type AppGameChildUxLocalOutboxSchedulerBridgeReadModel,
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-scheduler-bridge';
+import {
+  AppGameChildUxLocalOutboxParentSurfaceIntentReadModelSchema,
+  AppGameChildUxLocalOutboxParentSurfaceIntentRowSchema,
+} from '@ocentra-parent/schema-domain/app-game-child-facing-ux-local-outbox-parent-surface-intent';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

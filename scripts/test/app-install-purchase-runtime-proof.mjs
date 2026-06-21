@@ -13,15 +13,15 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-runtime-proof.test.ts',
+      'tests/unit/app-install-purchase-runtime-proof.test.ts',
     ])
   );
 
@@ -83,11 +83,11 @@ async function main() {
     proofMode: 'app-install-purchase-runtime-proof',
     commands,
     evidence: {
-      runtimeProofContract: 'packages/parent-domain/src/app-install-purchase-runtime-proof.ts',
-      runtimeProofRules: 'packages/parent-domain/src/app-install-purchase-runtime-proof-rules.ts',
-      sourceContract: 'packages/parent-domain/src/app-install-purchase-approval.ts',
-      sourceProofReadModel: 'packages/parent-domain/src/app-install-purchase-approval-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-runtime-proof.test.ts',
+      runtimeProofContract: 'packages/app-game-domain/src/app-install-purchase-runtime-proof.ts',
+      runtimeProofRules: 'packages/app-game-domain/src/app-install-purchase-runtime-proof-rules.ts',
+      sourceContract: 'packages/app-game-domain/src/app-install-purchase-approval.ts',
+      sourceProofReadModel: 'packages/app-game-domain/src/app-install-purchase-approval-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-runtime-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       output: relative(repoRoot, proofPath),
@@ -153,7 +153,7 @@ async function main() {
 }
 
 async function loadRuntimeProofModule() {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-install-purchase-runtime-proof.js');
+  const modulePath = join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-install-purchase-runtime-proof.js');
   return import(pathToFileURL(modulePath).href);
 }
 

@@ -1,275 +1,59 @@
-use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::EventBus, envelope::DomainEvent,
-    envelope::EventContract, envelope::EventMetadata, envelope::EventSource, error::EventingError,
-    ids::AggregateKey, ids::CorrelationId, ids::EventCustody, ids::EventId, ids::EventType,
-    ids::IdempotencyKey, ids::RecordedAt, ids::RuntimeInstanceId, ids::SchemaVersion,
-    ids::SourceComponent, ids::SourceService, ids::SubscriberId, ids::TargetHandler,
-};
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus,
-    ActivityNetworkProtocol, ActivityNetworkTcpState, ActivityProcessAttributionStatus,
-};
-use serde::{Deserialize, Serialize};
-
 use crate::{
-    network_event_runtime_phase::NetworkRuntimePhase,
     network_event_runtime_state::{
         ai_audit_state, evidence_grade, evidence_scope, intervention_state, risk_budget_state,
-        NetworkAiAuditState, NetworkEvidenceGrade, NetworkEvidenceScope, NetworkInterventionState,
-        NetworkRiskBudgetState, NetworkRuntimeClaimBoundary,
+        NetworkInterventionState, NetworkRuntimeClaimBoundary,
     },
     NetworkObservation,
 };
+use ocentra_eventing::{
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
+    ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
+    ids::SourceService, ids::SubscriberId, ids::TargetHandler,
+};
+use ocentra_parent_agent_protocol::{
+    constants, ActivityCaptureCapabilityStatus, NetworkRuntimePhase,
+};
 
-mod broker_delivery;
-mod queue;
+pub(crate) mod broker_delivery;
+pub(crate) mod queue;
 mod refs;
-mod remote_delivery_cross_process_custody_readiness;
-mod remote_delivery_cross_process_custody_readiness_types;
-mod remote_delivery_cross_process_replay;
-mod remote_delivery_cross_process_replay_types;
-mod remote_delivery_delete_export_propagation;
-mod remote_delivery_delete_export_propagation_types;
-mod remote_delivery_dispatch_readiness;
-mod remote_delivery_dispatch_readiness_types;
-mod remote_delivery_durable_envelope;
-mod remote_delivery_durable_envelope_types;
+pub mod remote_delivery_cross_process_custody_readiness;
+pub mod remote_delivery_cross_process_custody_readiness_types;
+pub mod remote_delivery_cross_process_replay;
+pub mod remote_delivery_cross_process_replay_types;
+pub mod remote_delivery_delete_export_propagation;
+pub mod remote_delivery_delete_export_propagation_types;
+pub mod remote_delivery_dispatch_readiness;
+pub mod remote_delivery_dispatch_readiness_types;
+pub mod remote_delivery_durable_envelope;
+pub mod remote_delivery_durable_envelope_types;
 #[cfg(test)]
-mod remote_delivery_event_chain_journal;
-mod remote_delivery_event_chain_journal_types;
+pub(crate) mod remote_delivery_event_chain_journal;
+pub mod remote_delivery_event_chain_journal_types;
 mod remote_delivery_event_chain_store;
-mod remote_delivery_external_cross_process_transport;
-mod remote_delivery_external_cross_process_transport_types;
-mod remote_delivery_fixture_transport;
-mod remote_delivery_fixture_transport_types;
-mod remote_delivery_no_enforcement_invariant;
-mod remote_delivery_no_enforcement_invariant_types;
-mod remote_delivery_outbox_handoff;
-mod remote_delivery_outbox_handoff_types;
-mod remote_delivery_provider_child_readiness;
-mod remote_delivery_provider_child_readiness_types;
-mod remote_delivery_receipt_ledger;
-mod remote_delivery_receipt_ledger_types;
-mod remote_delivery_status;
-mod remote_delivery_transport_dispatch_state;
-mod remote_delivery_transport_dispatch_state_types;
+pub mod remote_delivery_external_cross_process_transport;
+pub mod remote_delivery_external_cross_process_transport_types;
+pub mod remote_delivery_fixture_transport;
+pub mod remote_delivery_fixture_transport_types;
+pub mod remote_delivery_no_enforcement_invariant;
+pub mod remote_delivery_no_enforcement_invariant_types;
+pub mod remote_delivery_outbox_handoff;
+pub mod remote_delivery_outbox_handoff_types;
+pub mod remote_delivery_provider_child_readiness;
+pub mod remote_delivery_provider_child_readiness_types;
+pub mod remote_delivery_receipt_ledger;
+pub mod remote_delivery_receipt_ledger_types;
+pub mod remote_delivery_status;
+pub mod remote_delivery_transport_dispatch_state;
+pub mod remote_delivery_transport_dispatch_state_types;
 #[cfg(test)]
-mod review;
+pub(crate) mod review;
 
-pub use broker_delivery::{
-    prove_network_runtime_broker_delivery_semantics, NetworkRuntimeBrokerDeliveryProofError,
-    NetworkRuntimeBrokerDeliverySemantics, NetworkRuntimeBrokerDeliverySemanticsReport,
-};
-#[cfg(test)]
-pub(crate) use queue::{
-    queue_network_runtime_flow_expires_before_drain, queue_network_runtime_flow_until_subscriber,
-    NetworkRuntimeQueueDrainReport, NetworkRuntimeQueueIdempotencyReport,
-    NetworkRuntimeQueueOverflowReport, NetworkRuntimeQueueTtlReport,
-};
-pub(crate) use queue::{
-    queue_network_runtime_flow_overflow_dead_letters,
-    queue_network_runtime_flow_rejects_duplicate_idempotency,
-};
 use refs::NetworkRuntimeChainRefs;
-pub use remote_delivery_cross_process_custody_readiness::prove_network_runtime_remote_delivery_cross_process_custody_readiness;
-pub use remote_delivery_cross_process_custody_readiness_types::{
-    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError,
-    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord,
-    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
-    NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState,
-};
-pub use remote_delivery_cross_process_replay::prove_network_runtime_remote_delivery_cross_process_replay;
-#[cfg(test)]
-pub(crate) use remote_delivery_cross_process_replay::prove_network_runtime_remote_delivery_cross_process_replay_from_custody_readiness;
-pub use remote_delivery_cross_process_replay_types::{
-    NetworkRuntimeRemoteDeliveryCrossProcessReplayError,
-    NetworkRuntimeRemoteDeliveryCrossProcessReplayRecord,
-    NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
-    NetworkRuntimeRemoteDeliveryCrossProcessReplayState,
-};
-pub use remote_delivery_delete_export_propagation::prove_network_runtime_remote_delivery_delete_export_propagation;
-#[cfg(test)]
-pub(crate) use remote_delivery_delete_export_propagation::prove_network_runtime_remote_delivery_delete_export_propagation_from_fixture_transport;
-pub use remote_delivery_delete_export_propagation_types::{
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord,
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
-    NetworkRuntimeRemoteDeliveryDeleteExportPropagationState,
-};
-pub use remote_delivery_dispatch_readiness::prove_network_runtime_remote_delivery_dispatch_readiness;
-pub use remote_delivery_dispatch_readiness_types::{
-    NetworkRuntimeRemoteDeliveryDispatchReadinessError,
-    NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
-    NetworkRuntimeRemoteDeliveryDispatchReadinessState,
-};
-pub use remote_delivery_durable_envelope::prove_network_runtime_remote_delivery_durable_envelope;
-pub use remote_delivery_durable_envelope_types::{
-    NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
-    NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
-};
-#[cfg(test)]
-pub(crate) use remote_delivery_event_chain_journal::prove_network_runtime_remote_event_chain_journal;
-pub use remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalError;
-#[cfg(test)]
-pub(crate) use remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalReport;
-pub use remote_delivery_external_cross_process_transport::prove_network_runtime_remote_delivery_external_cross_process_transport;
-#[cfg(test)]
-pub(crate) use remote_delivery_external_cross_process_transport::prove_network_runtime_remote_delivery_external_cross_process_transport_from_replay;
-pub use remote_delivery_external_cross_process_transport_types::{
-    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError,
-    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportRecord,
-    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
-    NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportState,
-};
-pub use remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport;
-#[cfg(test)]
-pub(crate) use remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport_from_outbox;
-pub use remote_delivery_fixture_transport_types::{
-    NetworkRuntimeRemoteDeliveryFixtureTransportError,
-    NetworkRuntimeRemoteDeliveryFixtureTransportRecord,
-    NetworkRuntimeRemoteDeliveryFixtureTransportReport,
-    NetworkRuntimeRemoteDeliveryFixtureTransportState,
-};
-pub use remote_delivery_no_enforcement_invariant::prove_network_runtime_remote_delivery_no_enforcement_invariant;
-#[cfg(test)]
-pub(crate) use remote_delivery_no_enforcement_invariant::prove_network_runtime_remote_delivery_no_enforcement_invariant_from_dispatch_readiness;
-pub use remote_delivery_no_enforcement_invariant_types::{
-    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError,
-    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,
-    NetworkRuntimeRemoteDeliveryNoEnforcementInvariantState,
-    NetworkRuntimeRemoteDeliveryNoEnforcementStage,
-};
-pub use remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff;
-pub use remote_delivery_outbox_handoff_types::{
-    NetworkRuntimeRemoteDeliveryOutboxHandoffError,
-    NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryOutboxState,
-};
-pub use remote_delivery_provider_child_readiness::prove_network_runtime_remote_delivery_provider_child_readiness;
-pub use remote_delivery_provider_child_readiness_types::{
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessError,
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessRecord,
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
-    NetworkRuntimeRemoteDeliveryProviderChildReadinessState,
-};
-pub use remote_delivery_receipt_ledger::prove_network_runtime_remote_delivery_receipt_ledger;
-pub use remote_delivery_receipt_ledger_types::{
-    NetworkRuntimeRemoteDeliveryReceiptLedgerError, NetworkRuntimeRemoteDeliveryReceiptLedgerReport,
-};
-pub use remote_delivery_status::{
-    prove_network_runtime_remote_delivery_status, NetworkRuntimeRemoteDeliveryState,
-    NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
-};
-pub use remote_delivery_transport_dispatch_state::prove_network_runtime_remote_delivery_transport_dispatch_state;
-pub use remote_delivery_transport_dispatch_state_types::{
-    NetworkRuntimeRemoteDeliveryBlockedDispatchRecord,
-    NetworkRuntimeRemoteDeliveryTransportDispatchState,
-    NetworkRuntimeRemoteDeliveryTransportDispatchStateError,
-    NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
-};
-#[cfg(test)]
-pub use review::{
-    request_network_runtime_review_for_observation, NetworkRuntimeReviewReport,
-    NetworkRuntimeReviewResponse,
-};
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct NetworkRuntimeEventPayload {
-    pub phase: NetworkRuntimePhase,
-    pub capability_status: ActivityCaptureCapabilityStatus,
-    pub domain_attribution_status: ActivityDomainAttributionStatus,
-    pub process_attribution_status: ActivityProcessAttributionStatus,
-    pub protocol: Option<ActivityNetworkProtocol>,
-    pub tcp_state: Option<ActivityNetworkTcpState>,
-    pub local_ip: Option<String>,
-    pub local_port: Option<u16>,
-    pub destination_ip: Option<String>,
-    pub destination_port: Option<u16>,
-    pub destination_domain: Option<String>,
-    pub process_id: Option<u32>,
-    pub process_name: Option<String>,
-    pub evidence_scope: NetworkEvidenceScope,
-    pub evidence_grade: NetworkEvidenceGrade,
-    pub ai_audit_state: NetworkAiAuditState,
-    pub risk_budget_state: NetworkRiskBudgetState,
-    pub intervention_state: NetworkInterventionState,
-    pub claim_boundary: NetworkRuntimeClaimBoundary,
-    pub previous_phase_ref: Option<String>,
-    pub evidence_ref: String,
-    pub ai_request_ref: Option<String>,
-    pub ai_analysis_ref: Option<String>,
-    pub policy_evaluation_ref: Option<String>,
-    pub policy_decision_ref: Option<String>,
-    pub adapter_capability_ref: Option<String>,
-    pub enforcement_command_ref: Option<String>,
-    pub enforcement_result_ref: Option<String>,
-    pub audit_entry_ref: Option<String>,
-    pub observed_at: String,
-}
-
-impl NetworkRuntimeEventPayload {
-    fn from_observation(
-        phase: NetworkRuntimePhase,
-        observation: &NetworkObservation,
-        observed_at: &str,
-    ) -> Self {
-        let chain_refs = NetworkRuntimeChainRefs::for_phase(phase, observation, observed_at);
-        Self {
-            phase,
-            capability_status: observation.status.clone(),
-            domain_attribution_status: observation.domain_attribution_status(),
-            process_attribution_status: observation.process_attribution_status(),
-            protocol: observation.protocol.clone(),
-            tcp_state: observation.tcp_state.clone(),
-            local_ip: observation.local_ip.clone(),
-            local_port: observation.local_port,
-            destination_ip: observation.destination_ip.clone(),
-            destination_port: observation.destination_port,
-            destination_domain: observation.destination_domain.clone(),
-            process_id: observation.pid,
-            process_name: observation.process_name.clone(),
-            evidence_scope: evidence_scope(observation),
-            evidence_grade: evidence_grade(observation),
-            ai_audit_state: ai_audit_state(phase),
-            risk_budget_state: risk_budget_state(observation),
-            intervention_state: intervention_state(observation),
-            claim_boundary: NetworkRuntimeClaimBoundary::metadata_only(),
-            previous_phase_ref: chain_refs.previous_phase_ref,
-            evidence_ref: chain_refs.evidence_ref,
-            ai_request_ref: chain_refs.ai_request_ref,
-            ai_analysis_ref: chain_refs.ai_analysis_ref,
-            policy_evaluation_ref: chain_refs.policy_evaluation_ref,
-            policy_decision_ref: chain_refs.policy_decision_ref,
-            adapter_capability_ref: chain_refs.adapter_capability_ref,
-            enforcement_command_ref: chain_refs.enforcement_command_ref,
-            enforcement_result_ref: chain_refs.enforcement_result_ref,
-            audit_entry_ref: chain_refs.audit_entry_ref,
-            observed_at: observed_at.to_string(),
-        }
-    }
-}
-
-impl DomainEvent for NetworkRuntimeEventPayload {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        Ok(EventContract::new(
-            EventType::parse(self.phase.event_type())?,
-            SchemaVersion::new(constants::network_flow::EVENT_SCHEMA_VERSION)?,
-        ))
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(network_aggregate_key(self))
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        let mut value = String::from(constants::network_flow::IDEMPOTENCY_NETWORK_RUNTIME_PREFIX);
-        value.push_str(self.phase.event_type());
-        value.push(constants::delimiter::HYPHEN);
-        value.push_str(&network_aggregate_key(self));
-        value.push(constants::delimiter::HYPHEN);
-        value.push_str(&self.observed_at);
-        IdempotencyKey::parse(value)
-    }
-}
+pub(crate) type NetworkRuntimeEventPayload =
+    ocentra_parent_agent_protocol::NetworkRuntimeEventPayload;
 
 #[derive(Clone, Debug)]
 pub struct NetworkRuntimeReport {
@@ -288,6 +72,46 @@ impl NetworkRuntimeReport {
                 })
                 .unwrap_or(false)
         })
+    }
+}
+
+fn network_runtime_event_payload_from_observation(
+    phase: NetworkRuntimePhase,
+    observation: &NetworkObservation,
+    observed_at: &str,
+) -> NetworkRuntimeEventPayload {
+    let chain_refs = NetworkRuntimeChainRefs::for_phase(phase, observation, observed_at);
+    NetworkRuntimeEventPayload {
+        phase,
+        capability_status: observation.status.clone(),
+        domain_attribution_status: observation.domain_attribution_status(),
+        process_attribution_status: observation.process_attribution_status(),
+        protocol: observation.protocol.clone(),
+        tcp_state: observation.tcp_state.clone(),
+        local_ip: observation.local_ip.clone(),
+        local_port: observation.local_port,
+        destination_ip: observation.destination_ip.clone(),
+        destination_port: observation.destination_port,
+        destination_domain: observation.destination_domain.clone(),
+        process_id: observation.pid,
+        process_name: observation.process_name.clone(),
+        evidence_scope: evidence_scope(observation),
+        evidence_grade: evidence_grade(observation),
+        ai_audit_state: ai_audit_state(phase),
+        risk_budget_state: risk_budget_state(observation),
+        intervention_state: intervention_state(observation),
+        claim_boundary: NetworkRuntimeClaimBoundary::metadata_only(),
+        previous_phase_ref: chain_refs.previous_phase_ref,
+        evidence_ref: chain_refs.evidence_ref,
+        ai_request_ref: chain_refs.ai_request_ref,
+        ai_analysis_ref: chain_refs.ai_analysis_ref,
+        policy_evaluation_ref: chain_refs.policy_evaluation_ref,
+        policy_decision_ref: chain_refs.policy_decision_ref,
+        adapter_capability_ref: chain_refs.adapter_capability_ref,
+        enforcement_command_ref: chain_refs.enforcement_command_ref,
+        enforcement_result_ref: chain_refs.enforcement_result_ref,
+        audit_entry_ref: chain_refs.audit_entry_ref,
+        observed_at: observed_at.to_string(),
     }
 }
 
@@ -334,7 +158,7 @@ impl NetworkRuntimeSpine {
             .filter(|phase| should_publish_phase(*phase, &observation))
         {
             let payload =
-                NetworkRuntimeEventPayload::from_observation(phase, &observation, observed_at);
+                network_runtime_event_payload_from_observation(phase, &observation, observed_at);
             let metadata =
                 network_event_metadata(phase, &observation, observed_at, phase.target_handler())?;
             reports.push(self.bus.publish(payload, metadata).await?);

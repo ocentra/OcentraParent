@@ -4,7 +4,7 @@ import {
   GameControlCatalogSettingSeeds,
   GameControlCatalogSourceDocuments,
   GameControlUpdateCommandSeeds,
-} from './game-control-catalog-data';
+} from '@ocentra-parent/schema-domain/game-control-catalog-data';
 import {
   GameControlAuthoringManifestSchema,
   GameControlCapabilityIdSchema,
@@ -44,7 +44,7 @@ import {
   type GameControlSetting,
   type GameControlTargetScope,
   type GameControlUiCardType,
-} from './game-control-catalog-schema';
+} from '@ocentra-parent/schema-domain/game-control-catalog-schema';
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 type GameControlGroupDraft = Omit<GameControlGroup, 'settings'> & {

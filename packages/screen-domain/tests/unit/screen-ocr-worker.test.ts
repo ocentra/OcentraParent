@@ -8,7 +8,7 @@ import {
   ScreenOcrWorkerSchemaVersion,
   ScreenOcrWorkerTemplateVersion,
   screenOcrWorkerResultToAnalysisResult,
-} from '../../src/screen-ocr-worker';
+} from '@ocentra-parent/schema-domain/screen-ocr-worker';
 
 const EvidenceRef = {
   evidenceId: 'screen-ocr-worker-evidence',

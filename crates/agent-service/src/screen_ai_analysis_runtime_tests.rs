@@ -4,7 +4,7 @@ use std::{
     sync::atomic::{AtomicU64, Ordering},
 };
 
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE,
     SCREEN_PROVIDER_SERVICE_METADATA, SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS,
@@ -20,8 +20,10 @@ use ocentra_parent_screen_capture_adapter::{
 
 use super::{
     screen_ai_analysis_runtime::{
+        config::{
+            ScreenAiAnalysisCycleClock, ScreenAiAnalysisCycleOutcome, ScreenAiAnalysisRuntimeConfig,
+        },
         record_screen_ai_analysis_cycle, record_screen_ai_analysis_cycle_with_events,
-        ScreenAiAnalysisCycleClock, ScreenAiAnalysisCycleOutcome, ScreenAiAnalysisRuntimeConfig,
     },
     screen_ai_cadence_runtime_event::{
         record_captured_screen_image_to_paths, ScreenAiServiceCaptureClock,

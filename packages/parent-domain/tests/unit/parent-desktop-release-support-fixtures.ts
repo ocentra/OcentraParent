@@ -1,7 +1,7 @@
 import type {
   ParentDesktopReleaseSupportOperation,
   ParentDesktopReleaseSupportTarget,
-} from '../../src/parent-desktop-release-support';
+} from '@ocentra-parent/schema-domain/parent-desktop-release-support';
 import { SupportIncidentHandoff } from './parent-desktop-release-support-incident-fixtures';
 
 export const RuntimeReadModel = {

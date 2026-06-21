@@ -1,7 +1,11 @@
 use ocentra_parent_agent_core::{
-    ActivityStoreError, AppGameLiveForegroundWindowError, AppGameLiveInventorySourceError,
-    AppGameLiveProcessSnapshotError, AppGameLiveRegistryInventorySourceError,
-    AppGameLiveStorePackageSourceError, JournalError,
+    activity_store_app_game::{
+        AppGameLiveForegroundWindowError, AppGameLiveInventorySourceError,
+        AppGameLiveProcessSnapshotError, AppGameLiveRegistryInventorySourceError,
+        AppGameLiveStorePackageSourceError,
+    },
+    activity_store_error::ActivityStoreError,
+    journal_error::JournalError,
 };
 use ocentra_parent_agent_protocol::constants;
 

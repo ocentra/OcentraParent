@@ -9,7 +9,7 @@ pub fn classify_tracking_nearby_place(
 ) -> Result<TrackingNearbyPlaceClassifiedEvent, EventingError> {
     validate_tracking_nearby_place_classification_request(event)?;
 
-    Ok(ocentra_tracking_core::classify_tracking_nearby_place_request(event))
+    Ok(ocentra_tracking_core::nearby_place::classify_tracking_nearby_place_request(event))
 }
 
 fn validate_tracking_nearby_place_classification_request(

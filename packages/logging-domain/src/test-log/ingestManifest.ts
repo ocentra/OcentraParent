@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { TestLogScope } from './types';
+import type { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 import { ensureDirectory, getManifestDir, listNdjsonFiles } from './ndjsonPaths';
 
 export interface ManifestEntry {

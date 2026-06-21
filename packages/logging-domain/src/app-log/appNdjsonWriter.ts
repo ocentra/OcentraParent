@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { AppLogEntrySchema, type AppLogEntry } from '@ocentra-parent/schema-domain/app-log/types';
+import type { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 import { getAppLogScopeDir, getAppSessionFilePath } from '../test-log/ndjsonPaths';
-import { AppLogEntrySchema, type AppLogEntry } from './types';
-import type { TestLogScope } from '../test-log/types';
 
 export function appendAppLogEntries(
   scope: TestLogScope,

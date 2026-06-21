@@ -15,16 +15,17 @@ await rm(testOutputDir, { recursive: true, force: true });
 await mkdir(testOutputDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 run('cmd', [
   '/c',
   'npm',
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
-  'tracking-desktop-presence-hint-proof',
+  'tracking-desktop-presence-hint-proof.test.ts',
 ]);
 
 const presence = await importDist('tracking-desktop-presence-hint-proof.js');
@@ -49,8 +50,8 @@ const proof = {
     productionBehaviorClaimed: false,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-desktop-presence-hint-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-desktop-presence-hint-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-desktop-presence-hint-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-desktop-presence-hint-proof.test.ts',
     harness: 'scripts/test/tracking-desktop-presence-hint-proof.mjs',
     evidence: 'test-results/tracking-desktop-presence-hint-proof/proof.json',
     trackingProofPack: 'output/tracking-plan-proof/13-desktop-location-and-presence-hint-model',
@@ -67,7 +68,7 @@ console.log('tracking-desktop-presence-hint-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-desktop-presence-hint-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
 }
 
 function assertProof(proof) {
@@ -100,7 +101,7 @@ async function writeProofPack(path, proof) {
       proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
       '```',
       '',
-      '- Scope: parent-domain desktop presence hint rows for OS-location manual-required, LAN/Wi-Fi/IP hint-only, manual check-in, stale, offline, and missing-device states.',
+      '- Scope: tracking-domain desktop presence hint rows for OS-location manual-required, LAN/Wi-Fi/IP hint-only, manual check-in, stale, offline, and missing-device states.',
       '- No desktop OS location runtime, precise GPS, physical presence, physical-device proof, or production behavior is claimed.',
       '',
     ].join('\n'),
@@ -111,8 +112,9 @@ async function writeProofPack(path, proof) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-desktop-presence-hint-proof: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/tracking-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tracking-desktop-presence-hint-proof.test.ts: PASS',
       '- LAN, Wi-Fi, and IP rows are hint-only and cannot claim precise location or physical presence.',
       '- Manual check-in rows are separate from automatic physical presence.',
       '- Windows/macOS precise desktop location remains manual-required until OS location proof exists.',

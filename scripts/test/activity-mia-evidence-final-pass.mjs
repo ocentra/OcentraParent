@@ -38,10 +38,10 @@ async function main() {
     ],
     evidence: {
       upstreamProof: relative(repoRoot, adapterProofPath),
-      activityDomain: 'packages/activity-domain/src/activity-surface.ts',
+      activityDomain: 'packages/schema-domain/src/activity-surface.ts',
       adapterBoundary: 'packages/agent-protocol-domain/src/activity-surface-adapter.ts',
-      adapterOperationManifest: 'packages/agent-protocol-domain/src/activity-surface-adapter-manifest.ts',
-      adapterBoundaryTest: 'packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts',
+      adapterOperationManifest: 'packages/schema-domain/src/agent-activity-surface-adapter-manifest.ts',
+      adapterBoundaryTest: 'packages/agent-protocol-domain/tests/unit/activity-surface-adapter.test.ts',
       rustReportStore: 'crates/agent-service/src/activity_surface_report_store.rs',
       rustFamilySources: 'crates/agent-service/src/activity_family_sources_tests.rs',
       rustParentAssistantContext: 'crates/agent-service/src/parent_assistant_evidence_context.rs',

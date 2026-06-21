@@ -9,7 +9,7 @@ import {
   screenVlmManualRequiredStatus,
   screenVlmQueueHandoffFromJob,
   screenVlmQueuedStatusFromHandoff,
-} from '../../src/screen-vlm-execution-readiness';
+} from '@ocentra-parent/schema-domain/screen-vlm-execution-readiness';
 import {
   ScreenVlmWorkerJobSchema,
   ScreenVlmWorkerMaxImagePixels,
@@ -18,7 +18,7 @@ import {
   ScreenVlmWorkerRuntimeRef,
   ScreenVlmWorkerSchemaVersion,
   ScreenVlmWorkerTemplateVersion,
-} from '../../src/screen-vlm-worker';
+} from '@ocentra-parent/schema-domain/screen-vlm-worker';
 
 const EvidenceRef = {
   evidenceId: 'screen-vlm-execution-readiness-evidence',

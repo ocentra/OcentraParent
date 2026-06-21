@@ -5,8 +5,8 @@ use serde::{
 };
 use serde_json::{Map, Value};
 
-use ocentra_parent_agent_core::{BrowserRuntimeEventPayload, BrowserRuntimeReport};
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_core::browser_event_runtime::BrowserRuntimeReport;
+use ocentra_parent_agent_protocol::{constants, BrowserRuntimeEventPayload};
 
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) struct BrowserRuntimeServiceStreamEntry {

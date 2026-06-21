@@ -22,8 +22,9 @@ const sourceFiles = [
   'crates/agent-service/src/network_remote_delivery_status_payload.rs',
   'crates/agent-service/src/network_remote_delivery_status_service_tests.rs',
   'packages/agent-protocol-domain/src/defaults.ts',
+  'packages/schema-domain/src/network-remote-delivery-status.ts',
   'packages/agent-protocol-domain/src/network-remote-delivery-status.ts',
-  'packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts',
+  'packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts',
   'crates/agent-core/README.md',
   'crates/agent-protocol/README.md',
   'crates/agent-service/README.md',
@@ -204,6 +205,7 @@ const proof = {
     'network-plan supplemental row 10l remote delivery fixture transport receipt proof',
   ],
   provenBoundaries: [
+    'schema-domain owns the row10q remote-delivery status payload fields and zero-claim counters',
     'Rust core turns row10p provider/child readiness records into row10q cross-process custody/replay readiness records without live remote transport artifacts',
     'Rust protocol serializes row10q cross-process custody refs, manual-required-unavailable state, and zero custody/replay artifact counts in the existing remote delivery status shape',
     'agent-service reports row10q cross-process custody readiness through agent.network.remote-delivery.status.reported',
@@ -235,8 +237,9 @@ function assertSourceContracts() {
   const servicePayload = readText('crates/agent-service/src/network_remote_delivery_status_payload.rs');
   const serviceTests = readText('crates/agent-service/src/network_remote_delivery_status_service_tests.rs');
   const tsDefaults = readText('packages/agent-protocol-domain/src/defaults.ts');
+  const schemaStatus = readText('packages/schema-domain/src/network-remote-delivery-status.ts');
   const tsParser = readText('packages/agent-protocol-domain/src/network-remote-delivery-status.ts');
-  const tsTests = readText('packages/agent-protocol-domain/tests/network-remote-delivery-status.test.ts');
+  const tsTests = readText('packages/agent-protocol-domain/tests/unit/network-remote-delivery-status.test.ts');
   const coreReadme = readText('crates/agent-core/README.md');
   const protocolReadme = readText('crates/agent-protocol/README.md');
   const serviceReadme = readText('crates/agent-service/README.md');
@@ -261,6 +264,9 @@ function assertSourceContracts() {
     [servicePayload, 'host_filtering_claimed = false'],
     [serviceTests, 'assert_remote_delivery_cross_process_custody_readiness_status'],
     [serviceTests, 'host_filtering_claimed'],
+    [schemaStatus, 'crossProcessCustodyReadinessState: AgentNetworkRemoteDeliveryCrossProcessCustodyReadinessStateSchema'],
+    [schemaStatus, 'crossProcessReplayArtifactCount: Schema.Literal(0)'],
+    [schemaStatus, 'hostFilteringClaimed: Schema.Literal(false)'],
     [tsDefaults, 'CrossProcessCustodyStatusRef'],
     [tsParser, 'crossProcessCustodyReadinessMatches'],
     [tsParser, 'hostFilteringClaimed: Schema.Literal(false)'],

@@ -1,5 +1,9 @@
 import React, { type ReactElement } from 'react';
-import { AgentCommand, AgentEvent, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  AgentCommand,
+  AgentEvent,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { defaultAgentTrackingRetentionSettingsWriteRequest } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import {
   trackingChildCheckInProof,
@@ -31,32 +35,42 @@ import {
   type TrackingReportPolicyConsumerHostedUiProof,
 } from '@ocentra-parent/portal-domain/tracking-report-policy-consumer-hosted-ui-proof';
 import {
-  PortalDetails,
   PortalDom,
   PortalText,
   PortalTextToken,
+  type PortalDisplayText,
+} from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import {
   TrackingEvidenceDrawerHostedUiProofDetails,
   trackingEvidenceDrawerHostedUiProof,
+  type TrackingEvidenceDrawerHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-evidence-drawer-hosted-ui-proof';
+import {
   trackingFamilyDashboardHostedRollupProof,
-  trackingRetentionSettingsHostedUiProof,
   trackingStatusLiveSummary,
-  isPortalTrackingStatusRoute,
   trackingStatusProofRows,
   trackingStatusServiceDataCoverage,
   trackingUnsupportedManualPlatformProof,
-  type PortalDetailValue,
-  type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
-  type TrackingEvidenceDrawerHostedUiProof,
   type TrackingFamilyDashboardHostedRollupProof,
-  type TrackingRetentionSettingsHostedUiProof,
   type TrackingStatusLiveCitation,
   type TrackingStatusLiveSummary,
-  type TrackingStatusProofArtifact,
   type TrackingStatusServiceDataCoverage,
   type TrackingStatusProofRow,
   type TrackingUnsupportedManualPlatformProof,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/tracking-status-panel';
+import {
+  trackingRetentionSettingsHostedUiProof,
+  type TrackingRetentionSettingsHostedUiProof,
+} from '@ocentra-parent/portal-domain/tracking-retention-settings-hosted-ui-proof';
+import {
+  isPortalTrackingStatusRoute,
+  type PortalRoute as PortalRouteValue,
+} from '@ocentra-parent/portal-domain/routes';
+import { type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
+import {
+  type TrackingStatusProofArtifact,
+} from '@ocentra-parent/portal-domain/tracking-status-proof-artifacts';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalLiveActivityState } from './live-activity-state';
 

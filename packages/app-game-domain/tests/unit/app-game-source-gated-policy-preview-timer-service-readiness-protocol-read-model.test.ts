@@ -9,7 +9,7 @@ import {
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const UpstreamProtocolHandoffPath = new URL(
-  '../../../test-results/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-proof/timer-service-readiness-protocol-handoff.json',
+  '../../../../test-results/app-game-source-gated-policy-preview-timer-service-readiness-protocol-handoff-proof/timer-service-readiness-protocol-handoff.json',
   import.meta.url
 );
 

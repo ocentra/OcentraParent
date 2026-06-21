@@ -40,12 +40,12 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-android-child-runtime-local-notification-proof',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(...npmCommand(['run', 'release:package:android']));
   assertFileExists(apkPath, 'Android debug APK');
 
@@ -84,7 +84,7 @@ async function main() {
 
   const contractModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-child-runtime-local-notification-proof.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-child-runtime-local-notification-proof.js')
     ).href
   );
   const readModel = contractModule.createAppGameAndroidChildRuntimeLocalNotificationProof({
@@ -104,8 +104,8 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-android-child-runtime-local-notification-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-android-child-runtime-local-notification-proof.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-android-child-runtime-local-notification-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-android-child-runtime-local-notification-proof.test.ts',
       androidRuntime:
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java',
       androidActivity: 'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
@@ -119,7 +119,7 @@ async function main() {
       'Android child package creates a dedicated app/game local notification channel',
       'Android child package posts a package-local app/game notification after proof trigger',
       'Android child package writes a package-local marker that can be read back through debug run-as',
-      'Parent-domain records only channel/post/marker proof refs and keeps provider delivery, external platform delivery, adapter dispatch, platform enforcement, and raw private source rows unclaimed',
+      'App-game-domain records only channel/post/marker proof refs and keeps provider delivery, external platform delivery, adapter dispatch, platform enforcement, and raw private source rows unclaimed',
     ],
     claimsNotProved: [
       'Provider notification delivery',

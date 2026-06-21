@@ -13,6 +13,7 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']));
   await runCommand(
     ...npmCommand([
@@ -38,7 +39,7 @@ async function main() {
   ]);
 
   const { V08CrossPlatformEnforcementCapabilityProofReadModel } =
-    await import('@ocentra-parent/enforcement-domain/v0-8-cross-platform-enforcement-capability-proof');
+    await import('@ocentra-parent/schema-domain/v0-8-cross-platform-enforcement-capability-proof');
   const proofMatrix = JSON.parse(await readFile(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json')));
   const summary = summarizeReadModel(V08CrossPlatformEnforcementCapabilityProofReadModel);
 
@@ -53,7 +54,7 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      tsContract: 'packages/enforcement-domain/src/v0-8-cross-platform-enforcement-capability-proof.ts',
+      tsContract: 'packages/schema-domain/src/v0-8-cross-platform-enforcement-capability-proof.ts',
       tsContractTest: 'packages/enforcement-domain/tests/unit/v0-8-cross-platform-enforcement-capability-proof.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_cross_platform_capability_proof.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_cross_platform_capability_proof_tests.rs',

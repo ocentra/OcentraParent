@@ -3,16 +3,8 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Shared capability names, statuses, and capability catalog contracts.",
+  "description": "Legacy workspace anchor for capability-domain package identity only.",
   "exports": {
-    "./capabilities": {
-      "import": "./dist/src/capabilities.js",
-      "types": "./dist/src/capabilities.d.ts"
-    },
-    "./capability-data": {
-      "import": "./dist/src/capability-data.js",
-      "types": "./dist/src/capability-data.d.ts"
-    },
     "./package-info": {
       "import": "./dist/src/package-info.js",
       "types": "./dist/src/package-info.d.ts"

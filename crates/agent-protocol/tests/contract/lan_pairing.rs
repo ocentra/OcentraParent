@@ -1,17 +1,22 @@
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, LanAiProviderRoutingState, LanChildAgentResponse,
-    LanPairingAuditEvent, LanPairingAuditEventType, LanPairingAuthenticationState,
-    LanPairingChallenge, LanPairingChallengeRequest, LanPairingDeviceReachability,
-    LanPairingDeviceRef, LanPairingDiscoveryDevice, LanPairingDiscoveryRuntimeStatus,
-    LanPairingHttpEndpointSupport, LanPairingIntentKind, LanPairingManualProofGap,
-    LanPairingNetworkMode, LanPairingParentAuthority, LanPairingPersistenceMode,
-    LanPairingProductionDiscoveryState, LanPairingProof, LanPairingProofMode,
+use ocentra_parent_agent_protocol::lan_pairing::{
+    LanAiProviderRoutingState, LanChildAgentResponse, LanPairingAuditEvent,
+    LanPairingAuditEventType, LanPairingAuthenticationState, LanPairingChallenge,
+    LanPairingChallengeRequest, LanPairingDeviceReachability, LanPairingDeviceRef,
+    LanPairingDiscoveryDevice, LanPairingDiscoveryRuntimeStatus, LanPairingIntentKind,
+    LanPairingNetworkMode, LanPairingProductionDiscoveryState, LanPairingProof,
     LanPairingProofPreview, LanPairingRejectionReason, LanPairingResponseState,
-    LanPairingRestartBehavior, LanPairingRouteRequirement, LanPairingRouteSelectionRequest,
-    LanPairingRoutingDecision, LanPairingRuntimeSupportSurface, LanPairingTransport,
-    LanPairingTrustState, LanPairingUnsupportedHttpEndpoint, LanParentIntentEnvelope,
-    LanSelectedRouteTarget, LanTrustedDeviceRegistryEntry, LanTrustedDeviceRegistrySnapshot,
-    ParentEvidenceReference, ParentEvidenceReferenceKind,
+    LanPairingRouteSelectionRequest, LanPairingRoutingDecision, LanPairingTrustState,
+    LanParentIntentEnvelope, LanSelectedRouteTarget, LanTrustedDeviceRegistryEntry,
+    LanTrustedDeviceRegistrySnapshot,
+};
+use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
+use ocentra_parent_agent_protocol::lan_pairing_support::{
+    LanPairingHttpEndpointSupport, LanPairingManualProofGap, LanPairingPersistenceMode,
+    LanPairingProofMode, LanPairingRestartBehavior, LanPairingRouteRequirement,
+    LanPairingRuntimeSupportSurface, LanPairingTransport, LanPairingUnsupportedHttpEndpoint,
+};
+use ocentra_parent_agent_protocol::{
+    constants, policy_constants, ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
 #[test]

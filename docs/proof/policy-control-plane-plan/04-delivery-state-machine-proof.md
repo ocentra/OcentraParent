@@ -9,7 +9,7 @@ Correlation: `policy-control-plane-plan / WP04 / policy-wp04-delivery-ack-audit 
 - `npm run test --workspace @ocentra-parent/policy-domain -- tests/unit/policy-compiler.test.ts tests/unit/policy-event.test.ts`
 - `cargo test -p ocentra-policy-control-core policy_delivery`
 - `cargo test -p ocentra-policy-control-core policy_source`
-- `npm run lint:architecture -- --files packages/policy-domain/src/policy.ts packages/policy-domain/src/policy-compiler.ts packages/policy-domain/src/policy-event.ts packages/policy-domain/tests/unit/policy-compiler.test.ts packages/policy-domain/tests/unit/policy-event.test.ts`
+- `npm run lint:architecture -- --files packages/schema-domain/src/policy.ts packages/schema-domain/src/policy-compiler.ts packages/schema-domain/src/policy-event.ts packages/policy-domain/tests/unit/policy-compiler.test.ts packages/policy-domain/tests/unit/policy-event.test.ts`
 - `cargo lint-architecture crates/policy-control-core/src/policy_delivery.rs crates/policy-control-core/src/policy_source.rs crates/policy-control-core/tests/unit/policy_delivery.rs crates/policy-control-core/tests/version-skew/policy_source.rs`
 
 All commands passed on 2026-06-17.
@@ -18,8 +18,8 @@ All commands passed on 2026-06-17.
 
 - `crates/policy-control-core/src/policy_delivery.rs` defines the delivery state enum, transition gate, parent-visible state mapping, active-state gate, reason-code requirements, supersede constraints, rollback reference constraints, and replay handling.
 - `crates/policy-control-core/src/policy_source.rs` keeps source-truth lifecycle separate from delivery state and requires acknowledged delivery evidence for active source states.
-- `packages/policy-domain/src/policy-compiler.ts` keeps delivery targets and audit references explicit on compiled artifacts.
-- `packages/policy-domain/src/policy-event.ts` defines explicit delivery, retry, rollback, audit, and manual-required event kinds.
+- `packages/schema-domain/src/policy-compiler.ts` keeps delivery targets and audit references explicit on compiled artifacts.
+- `packages/schema-domain/src/policy-event.ts` defines explicit delivery, retry, rollback, audit, and manual-required event kinds.
 
 ## Required lifecycle coverage
 

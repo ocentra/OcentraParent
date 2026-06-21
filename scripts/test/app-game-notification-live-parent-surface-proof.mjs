@@ -20,22 +20,10 @@ async function main() {
   await mkdir(appGameProofDir, { recursive: true });
   await mkdir(appProofDir, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/text-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/agent-protocol-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/portal-domain',
-      '--',
-      '--run',
-      'tests/app-game-notification-parent-surface-panel.test.ts',
-    ])
-  );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/portal']));
   await runCommand(
     ...npmCommand([
       'exec',
@@ -59,11 +47,13 @@ async function main() {
     commands,
     liveAssertions,
     evidence: {
+      readinessSchema: 'packages/schema-domain/src/app-game-notification-readiness.ts',
+      parentSurfaceSchema: 'packages/schema-domain/src/app-game-notification-parent-surface-intent.ts',
       liveProjection: 'packages/portal-domain/src/app-game-notification-parent-surface-live-readiness.ts',
       overviewCommands: 'packages/portal-domain/src/commands.ts',
       liveActivityState: 'packages/portal-domain/src/live-activity-state.ts',
       commandResultEvents: 'packages/portal-domain/src/command-results.ts',
-      portalDomainTest: 'packages/portal-domain/tests/app-game-notification-parent-surface-panel.test.ts',
+      portalDomainTest: 'packages/portal-domain/tests/unit/app-game-notification-parent-surface-panel.test.ts',
       portalRouteTest: 'apps/portal/tests/app-game-notification-parent-surface-panel.test.ts',
       proofHarness: 'scripts/test/app-game-notification-live-parent-surface-proof.mjs',
       appGameProofPack: 'output/app-game-plan-proof/68-notification-live-parent-surface-read-model',
@@ -114,7 +104,7 @@ async function collectLiveAssertions() {
     'utf8'
   );
   const portalDomainTestSource = await readFile(
-    join(repoRoot, 'packages', 'portal-domain', 'tests', 'app-game-notification-parent-surface-panel.test.ts'),
+    join(repoRoot, 'packages', 'portal-domain', 'tests', 'unit', 'app-game-notification-parent-surface-panel.test.ts'),
     'utf8'
   );
   const portalTestSource = await readFile(

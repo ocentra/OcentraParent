@@ -1,6 +1,9 @@
 use std::fs::{read, remove_file};
 
-use ocentra_parent_agent_core::ActivityJournal;
+use ocentra_parent_agent_core::{
+    journal::ActivityJournal,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+};
 use ocentra_parent_agent_protocol::constants;
 
 use crate::activity_capture::freshness::{
@@ -37,13 +40,10 @@ fn recurring_capture_refreshes_app_game_runtime_and_optional_foreground_rows_wit
     })
     .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
     let key_bytes = read(&key_path).expect(constants::error::JOURNAL_READS);
-    let mut key = [0; ocentra_parent_agent_core::JOURNAL_KEY_BYTES];
+    let mut key = [0; JOURNAL_KEY_BYTES];
     key.copy_from_slice(&key_bytes);
-    let journal = ActivityJournal::open(
-        journal_path.clone(),
-        ocentra_parent_agent_core::JournalKey::from_bytes(key),
-    )
-    .expect(constants::error::JOURNAL_OPENS);
+    let journal = ActivityJournal::open(journal_path.clone(), JournalKey::from_bytes(key))
+        .expect(constants::error::JOURNAL_OPENS);
     let lines = journal.lines().expect(constants::error::JOURNAL_READS);
 
     cleanup_paths(&journal_path, &key_path, &store_path);

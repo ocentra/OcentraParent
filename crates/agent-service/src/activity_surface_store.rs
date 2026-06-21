@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityNetworkFlowReadModel, AppGameServiceReadModel, BrowserEvidenceReadModel,
     ScreenEvidenceRecentSummary,

@@ -2228,7 +2228,6 @@ name = "ocentra-app-game-core"
 version = "0.1.1"
 dependencies = [
  "ocentra-eventing",
- "ocentra-evidence",
  "ocentra-parent-agent-protocol",
  "serde",
 ]
@@ -2343,6 +2342,7 @@ name = "ocentra-evidence"
 version = "0.1.1"
 dependencies = [
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -2523,7 +2523,6 @@ version = "0.1.1"
 dependencies = [
  "ocentra-eventing",
  "ocentra-evidence",
- "ocentra-policy-control-core",
  "serde",
 ]
 

@@ -1,5 +1,10 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
-import { AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  expect,
+  test,
+  type Locator,
+  type Page } from '@playwright/test';
+import { AgentEvent
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { PortalTheme } from '@ocentra-parent/portal-domain/contracts';
 import { collectBrowserFailures } from './browser-failures';
 import { assertRouteScaffolds } from './portal-route-scaffold-assertions';

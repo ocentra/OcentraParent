@@ -85,15 +85,6 @@ pub struct NetworkRuntimeDecision {
     pub policy_handoff_state: NetworkPolicyHandoffState,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct NetworkRuntimeEventChain {
-    pub decision: NetworkRuntimeDecision,
-    pub observed_event: ChildDomainObservedEvent,
-    pub evidence_recorded_event: ChildDomainEvidenceRecordedEvent,
-    pub ai_analysis_requested_event: Option<ChildDomainAiAnalysisRequestedEvent>,
-    pub policy_evaluation_requested_event: Option<ChildDomainPolicyEvaluationRequestedEvent>,
-}
-
 pub fn default_network_observed_event() -> ChildDomainObservedEvent {
     network_observed_event(NetworkObservationIntent::FlowRequiresPolicy)
 }
@@ -172,45 +163,6 @@ pub fn evaluate_network_runtime(input: NetworkRuntimeInput) -> NetworkRuntimeDec
             NetworkPolicyHandoffState::DoNotPublish
         },
     }
-}
-
-pub fn network_runtime_event_chain(input: NetworkRuntimeInput) -> NetworkRuntimeEventChain {
-    let decision = evaluate_network_runtime(input);
-    let observed_event = network_observed_event(decision.observation_intent);
-    let evidence_recorded_event = network_evidence_recorded_event(&observed_event);
-    let ai_analysis_requested_event = network_ai_analysis_requested_event(&evidence_recorded_event);
-    let policy_evaluation_requested_event =
-        network_policy_evaluation_requested_event(&evidence_recorded_event);
-
-    NetworkRuntimeEventChain {
-        decision,
-        observed_event,
-        evidence_recorded_event,
-        ai_analysis_requested_event,
-        policy_evaluation_requested_event,
-    }
-}
-
-pub fn network_runtime_observed_event(input: NetworkRuntimeInput) -> ChildDomainObservedEvent {
-    network_runtime_event_chain(input).observed_event
-}
-
-pub fn network_runtime_evidence_recorded_event(
-    input: NetworkRuntimeInput,
-) -> ChildDomainEvidenceRecordedEvent {
-    network_runtime_event_chain(input).evidence_recorded_event
-}
-
-pub fn network_runtime_ai_analysis_requested_event(
-    input: NetworkRuntimeInput,
-) -> Option<ChildDomainAiAnalysisRequestedEvent> {
-    network_runtime_event_chain(input).ai_analysis_requested_event
-}
-
-pub fn network_runtime_policy_evaluation_requested_event(
-    input: NetworkRuntimeInput,
-) -> Option<ChildDomainPolicyEvaluationRequestedEvent> {
-    network_runtime_event_chain(input).policy_evaluation_requested_event
 }
 
 fn can_capture(input: NetworkRuntimeInput) -> bool {

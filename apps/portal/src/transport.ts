@@ -1,14 +1,14 @@
 import {
   AgentCommand,
   AgentLanPairingSupportedWebSocketCommand,
-  AgentProtocolDefaults,
   decodeAgentDeviceId,
   isAgentProtocolLogText,
   type AgentCommandName,
-  type AgentMessageTarget,
   type AgentProtocolLogFields,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
-import { DevLogField, DevLogMessage } from '@ocentra-parent/logging-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { type AgentMessageTarget } from '@ocentra-parent/schema-domain/event-primitives';
+import { DevLogField, DevLogMessage } from '@ocentra-parent/schema-domain/logging-contracts';
 import {
   createAgentCommand,
   parseAgentEventMessage,

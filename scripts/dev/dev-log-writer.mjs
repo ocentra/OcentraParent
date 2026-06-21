@@ -11,7 +11,7 @@ import {
   DevLogIdPrefix,
   LogLevel,
   LogSource,
-} from '@ocentra-parent/logging-domain/contracts';
+} from '@ocentra-parent/schema-domain/logging-contracts';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const requestBodyLimitBytes = 1024 * 256;

@@ -5,7 +5,7 @@ import {
   V09HouseholdLanPairingProofReadModelSchema,
   V09HouseholdLanPairingProofSourceSchema,
   V09HouseholdLanPairingRuntimeEventSchema,
-} from '../../src/v0-9-household-lan-pairing-proof';
+} from '@ocentra-parent/schema-domain/v0-9-household-lan-pairing-proof';
 
 const checkedAt = '2026-06-01T19:45:00.000Z';
 const routeId = 'route-v0-9-household-lan-pairing-proof';

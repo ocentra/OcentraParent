@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ParentDesktopReleaseSupportReadModelSchema } from '../../src/parent-desktop-release-support';
+import { ParentDesktopReleaseSupportReadModelSchema } from '@ocentra-parent/schema-domain/parent-desktop-release-support';
 import { RuntimeReadModel } from './parent-desktop-release-support-fixtures';
 
 describe('parent desktop release support incident handoff contracts', () => {

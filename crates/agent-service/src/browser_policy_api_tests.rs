@@ -10,12 +10,10 @@ use ocentra_parent_agent_protocol::{
     BrowserPolicyAuditState, BrowserPolicyBrowserGames, BrowserPolicyBudgets,
     BrowserPolicyDefaultPosture, BrowserPolicyDiscovery, BrowserPolicyDownloadState,
     BrowserPolicyDownloads, BrowserPolicyEvidenceProofLevel, BrowserPolicyEvidenceRequirement,
-    BrowserPolicyExecutionMode, BrowserPolicyGetRequest, BrowserPolicyManagedBrowser,
-    BrowserPolicyManagedBrowserMode, BrowserPolicyManagementMode, BrowserPolicyPatch,
-    BrowserPolicyPatchRequest, BrowserPolicyPreviewRequest, BrowserPolicyProofFallback,
-    BrowserPolicyRejectionReason, BrowserPolicyReplaceRequest, BrowserPolicyReportState,
-    BrowserPolicyReports, BrowserPolicyRetention, BrowserPolicyRetentionState,
-    BrowserPolicyRollbackRequest, BrowserPolicyRule, BrowserPolicyRules,
+    BrowserPolicyExecutionMode, BrowserPolicyManagedBrowser, BrowserPolicyManagedBrowserMode,
+    BrowserPolicyManagementMode, BrowserPolicyPatch, BrowserPolicyProofFallback,
+    BrowserPolicyRejectionReason, BrowserPolicyReportState, BrowserPolicyReports,
+    BrowserPolicyRetention, BrowserPolicyRetentionState, BrowserPolicyRule, BrowserPolicyRules,
     BrowserPolicyUnmanagedBrowser, BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUpdateKind,
     BrowserPolicyUpdateResponse, BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType,
     BrowserPolicyValue, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -245,24 +243,24 @@ fn response_from_event(event: &AgentEventEnvelope) -> BrowserPolicyUpdateRespons
 fn get_command() -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyGet,
-        BrowserPolicyGetRequest {
-            schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-            request_id: constants::browser_policy::REQUEST_ID.to_string(),
-            kind: BrowserPolicyUpdateKind::Get,
-            policy_id: constants::browser_policy::POLICY_ID.to_string(),
-        },
+        serde_json::json!({
+            "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
+            "requestId": constants::browser_policy::REQUEST_ID,
+            "kind": BrowserPolicyUpdateKind::Get,
+            "policyId": constants::browser_policy::POLICY_ID,
+        }),
     )
 }
 
 fn preview_command(policy_value: BrowserPolicyValue) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyPreview,
-        BrowserPolicyPreviewRequest {
-            schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-            request_id: constants::browser_policy::REQUEST_ID.to_string(),
-            kind: BrowserPolicyUpdateKind::Preview,
-            policy: policy_value,
-        },
+        serde_json::json!({
+            "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
+            "requestId": constants::browser_policy::REQUEST_ID,
+            "kind": BrowserPolicyUpdateKind::Preview,
+            "policy": policy_value,
+        }),
     )
 }
 
@@ -272,13 +270,13 @@ fn replace_command(
 ) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyReplace,
-        BrowserPolicyReplaceRequest {
-            schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-            request_id: constants::browser_policy::REQUEST_ID.to_string(),
-            kind: BrowserPolicyUpdateKind::Replace,
-            base_revision_id,
-            policy: policy_value,
-        },
+        serde_json::json!({
+            "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
+            "requestId": constants::browser_policy::REQUEST_ID,
+            "kind": BrowserPolicyUpdateKind::Replace,
+            "baseRevisionId": base_revision_id,
+            "policy": policy_value,
+        }),
     )
 }
 
@@ -288,27 +286,27 @@ fn patch_command(
 ) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyPatch,
-        BrowserPolicyPatchRequest {
-            schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-            request_id: constants::browser_policy::REQUEST_ID.to_string(),
-            kind: BrowserPolicyUpdateKind::Patch,
-            policy_id: constants::browser_policy::POLICY_ID.to_string(),
-            base_revision_id,
-            patches,
-        },
+        serde_json::json!({
+            "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
+            "requestId": constants::browser_policy::REQUEST_ID,
+            "kind": BrowserPolicyUpdateKind::Patch,
+            "policyId": constants::browser_policy::POLICY_ID,
+            "baseRevisionId": base_revision_id,
+            "patches": patches,
+        }),
     )
 }
 
 fn rollback_command() -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyRollback,
-        BrowserPolicyRollbackRequest {
-            schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-            request_id: constants::browser_policy::REQUEST_ID.to_string(),
-            kind: BrowserPolicyUpdateKind::Rollback,
-            policy_id: constants::browser_policy::POLICY_ID.to_string(),
-            target_revision_id: constants::browser_policy::REVISION_ID.to_string(),
-        },
+        serde_json::json!({
+            "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
+            "requestId": constants::browser_policy::REQUEST_ID,
+            "kind": BrowserPolicyUpdateKind::Rollback,
+            "policyId": constants::browser_policy::POLICY_ID,
+            "targetRevisionId": constants::browser_policy::REVISION_ID,
+        }),
     )
 }
 

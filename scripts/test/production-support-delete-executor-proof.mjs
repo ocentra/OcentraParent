@@ -27,7 +27,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/delete-executor-proof.test.ts',
+      'tests/unit/delete-executor-proof.test.ts',
     ])
   );
 
@@ -46,12 +46,12 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      loggingContract: 'packages/logging-domain/src/delete-executor-proof.ts',
-      loggingReadModel: 'packages/logging-domain/src/delete-executor-read-model.ts',
-      loggingTest: 'packages/logging-domain/tests/delete-executor-proof.test.ts',
+      loggingContract: 'packages/schema-domain/src/delete-executor-proof.ts',
+      loggingReadModel: 'packages/schema-domain/src/delete-executor-read-model.ts',
+      loggingTest: 'packages/logging-domain/tests/unit/delete-executor-proof.test.ts',
       packageExports: [
-        '@ocentra-parent/logging-domain/delete-executor-proof',
-        '@ocentra-parent/logging-domain/delete-executor-read-model',
+        '@ocentra-parent/schema-domain/delete-executor-proof',
+        '@ocentra-parent/schema-domain/delete-executor-read-model',
       ],
       documentation,
       proofOutput: relativePath(proofPath),
@@ -80,8 +80,8 @@ async function main() {
 }
 
 async function assertPackageExports() {
-  const contractModule = await import('@ocentra-parent/logging-domain/delete-executor-proof');
-  const readModelModule = await import('@ocentra-parent/logging-domain/delete-executor-read-model');
+  const contractModule = await import('@ocentra-parent/schema-domain/delete-executor-proof');
+  const readModelModule = await import('@ocentra-parent/schema-domain/delete-executor-read-model');
   const readModel = contractModule.DeleteExecutorReadModelSchema.parse(readModelModule.DeleteExecutorReadModel);
   const targetSummary = contractModule.summarizeDeleteExecutorTargets(readModel.rows);
   const statusSummary = contractModule.summarizeDeleteExecutorStatuses(readModel.rows);

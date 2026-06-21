@@ -2,12 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   BillingSupportAdminBoundaryProofSchema,
   BillingSupportAdminBoundaryRowSchema,
-  summarizeBillingSupportAdminActions,
-  summarizeBillingSupportAdminRuntimeStates,
-} from '../src/billing-support-admin-boundary';
-import { BillingSupportAdminBoundaryProofReadModel } from '../src/billing-support-admin-boundary-proof';
+} from '@ocentra-parent/schema-domain/billing-support-admin-boundary';
+import { BillingSupportAdminBoundaryProofReadModel } from '@ocentra-parent/schema-domain/billing-support-admin-boundary-proof';
 
-describe('billing support admin boundary', () => {
+describe('billing support admin boundary canonical contracts', () => {
   acceptsBillingSupportAdminBoundaryProof();
   rejectsProviderContactExecution();
   rejectsManualActionsWithoutManualRequiredState();
@@ -19,7 +17,19 @@ function acceptsBillingSupportAdminBoundaryProof(): void {
   it('accepts billing support admin proof without provider contact portal UI or child activity custody', () => {
     const proof = BillingSupportAdminBoundaryProofSchema.parse(BillingSupportAdminBoundaryProofReadModel);
 
-    expect(summarizeBillingSupportAdminActions(proof.rows)).toEqual({
+    expect(
+      summarizeValues(
+        proof.rows.map((entry) => entry.action),
+        [
+          'support-case-triage',
+          'account-status-review',
+          'billing-escalation-request',
+          'provider-contact-manual-required',
+          'entitlement-admin-override-manual-required',
+          'refund-credit-manual-required',
+        ]
+      )
+    ).toEqual({
       'support-case-triage': 1,
       'account-status-review': 1,
       'billing-escalation-request': 1,
@@ -27,7 +37,12 @@ function acceptsBillingSupportAdminBoundaryProof(): void {
       'entitlement-admin-override-manual-required': 1,
       'refund-credit-manual-required': 1,
     });
-    expect(summarizeBillingSupportAdminRuntimeStates(proof.rows)).toEqual({
+    expect(
+      summarizeValues(
+        proof.rows.map((entry) => entry.runtimeState),
+        ['read-only-local-proof', 'manual-required', 'not-implemented']
+      )
+    ).toEqual({
       'read-only-local-proof': 2,
       'manual-required': 2,
       'not-implemented': 2,
@@ -120,4 +135,15 @@ function requiredRow(action: 'support-case-triage' | 'provider-contact-manual-re
     throw new Error(`missing billing support admin row: ${action}`);
   }
   return row;
+}
+
+function summarizeValues<T extends string>(
+  values: ReadonlyArray<T>,
+  expectedValues: ReadonlyArray<T>
+): Record<T, number> {
+  const counts = new Map<T, number>(expectedValues.map((value) => [value, 0]));
+  for (const value of values) {
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  return Object.fromEntries(counts) as Record<T, number>;
 }

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::packet::PacketParseError;
+use crate::packet::types::PacketParseError;
 use crate::pcap::PcapReplayError;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

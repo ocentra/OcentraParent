@@ -6,9 +6,9 @@ const outputDirectory = join(root, 'output', 'browser-plan-proof', 'social-paren
 const resultDirectory = join(root, 'test-results', 'social-parent-sensitivity-settings-proof');
 
 const requiredFiles = [
-  'packages/parent-domain/src/social-parent-sensitivity-settings-values.ts',
-  'packages/parent-domain/src/social-parent-sensitivity-settings.ts',
-  'packages/parent-domain/tests/social-parent-sensitivity-settings.test.ts',
+  'packages/schema-domain/src/social-parent-sensitivity-settings.ts',
+  'packages/schema-domain/src/social-parent-sensitivity-settings-values.ts',
+  'packages/schema-domain/tests/unit/social-parent-sensitivity-settings.test.ts',
   'docs/features/social-video-control.md',
   'docs/plans/browser-plan/social-platform-account-feed/readme.md',
   'docs/plans/browser-plan/v0-5-social-platform-account-feed-gating-plan.md',
@@ -22,7 +22,7 @@ async function main() {
 
   const files = Object.fromEntries(await Promise.all(requiredFiles.map(async (path) => [path, await readText(path)])));
   const checks = [
-    checkIncludes(files, 'packages/parent-domain/src/social-parent-sensitivity-settings.ts', [
+    checkIncludes(files, 'packages/schema-domain/src/social-parent-sensitivity-settings.ts', [
       'SocialParentSensitivitySettingSchema',
       'PolicyCandidateInput',
       'ConnectorAuthorizationRefOnly',
@@ -30,7 +30,7 @@ async function main() {
       'finalPolicyDecisionClaimed',
       'enforcementClaimed',
     ]),
-    checkIncludes(files, 'packages/parent-domain/tests/social-parent-sensitivity-settings.test.ts', [
+    checkIncludes(files, 'packages/schema-domain/tests/unit/social-parent-sensitivity-settings.test.ts', [
       'accepts a redacted local sensitivity setting as policy candidate input',
       'rejects raw content connector token API UI final-policy and enforcement claims',
       'rejects manual-required and unavailable rows that pretend to be policy candidate input',
@@ -101,7 +101,7 @@ function markdownFor(proof) {
     '',
     `Generated: ${proof.generatedAt}`,
     '',
-    'This proof verifies the parent-domain social sensitivity settings contract.',
+    'This proof verifies the centralized schema-domain social sensitivity settings contract.',
     '',
     'Claims:',
     '',

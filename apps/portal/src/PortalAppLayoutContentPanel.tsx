@@ -1,7 +1,7 @@
 import { useMemo, useState, type ChangeEvent, type ReactElement } from 'react';
+import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
 import {
-  PortalDom,
-  PortalFrameTuner,
   createPortalAppLayoutButtonDraft,
   createPortalAppLayoutFoldoutDraft,
   type PortalAppLayoutButtonDraft,
@@ -9,8 +9,7 @@ import {
   type PortalAppLayoutFoldoutDraft,
   type PortalAppLayoutSurfaceContentDraft,
   type PortalAppLayoutTone,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/app-layout';
 import { TunerActionButton, TunerTabButton } from './PortalFrameTunerControls';
 
 type PortalAppLayoutContentPanelProps = {

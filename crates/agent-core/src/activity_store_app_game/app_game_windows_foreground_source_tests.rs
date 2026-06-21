@@ -1,14 +1,8 @@
+use ocentra_parent_agent_protocol::app_game::*;
 use std::fs::remove_file;
 
+use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
-use ocentra_parent_agent_protocol::{
-    constants, APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
-    APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED, APP_GAME_FOREGROUND_FOREGROUND,
-    APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW, APP_GAME_RUNTIME_RUNNING,
-    APP_GAME_TEST_FOREGROUND_CLOSED_EVIDENCE_ID, APP_GAME_TEST_FOREGROUND_PERMISSION_EVIDENCE_ID,
-    APP_GAME_TITLE_CAPTURE_TITLE_OMITTED, APP_GAME_TITLE_CAPTURE_TITLE_REF,
-    APP_GAME_WINDOW_REF_PREFIX, APP_GAME_WINDOW_TITLE_REF_PREFIX,
-};
 
 use crate::{
     activity_store::ActivityStore,
@@ -17,7 +11,7 @@ use crate::{
 };
 
 use super::{
-    app_game_journal_sqlite_ingest::app_game_journal_sqlite_read_model,
+    app_game_journal_sqlite_ingest::read_model::app_game_journal_sqlite_read_model,
     app_game_windows_foreground::windows_foreground_rows_from_records,
     app_game_windows_foreground_source::{
         live_windows_foreground_window_journal_event,

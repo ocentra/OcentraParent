@@ -3,7 +3,7 @@ import {
   LocalAiTextInferenceDryRunInputSchema,
   LocalAiTextInferenceDryRunResultSchema,
   runLocalAiTextInferenceDryRun,
-} from '../../src/local-ai-text-inference-dry-run-proof';
+} from '@ocentra-parent/schema-domain/local-ai-text-inference-dry-run-proof';
 
 describe('local AI text inference dry-run proof', () => {
   it('emits a local-only schema-valid dry-run safety result without executing a model', provesReadyDryRun);

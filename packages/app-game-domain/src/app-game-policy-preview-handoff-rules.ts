@@ -1,5 +1,8 @@
-import { AppGamePolicyCompilerOutcomeState, AppGamePolicyTargetKind } from './app-game-policy-target-compiler-rules';
-import { PolicyDecisionHandoffState } from '@ocentra-parent/policy-domain/policy';
+import {
+  AppGamePolicyCompilerOutcomeState,
+  AppGamePolicyTargetKind,
+} from '@ocentra-parent/schema-domain/app-game-policy-target-compiler-rules';
+import { PolicyDecisionHandoffState } from '@ocentra-parent/schema-domain/policy-contracts';
 
 export const AppGamePolicyPreviewTargetDomain = {
   NativeApp: 'native-app',

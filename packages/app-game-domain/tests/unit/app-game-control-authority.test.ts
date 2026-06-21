@@ -12,8 +12,8 @@ import {
   EnforcementMode,
   EnforcementResultStatus,
   EnforcementRollbackState,
-} from '@ocentra-parent/enforcement-domain/enforcement';
-import { PolicyAction } from '@ocentra-parent/policy-domain/policy';
+} from '@ocentra-parent/schema-domain/enforcement';
+import { PolicyAction } from '@ocentra-parent/schema-domain/policy-contracts';
 import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const Timestamp = '2026-06-02T23:35:00Z';

@@ -21,23 +21,23 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-android-physical-device-proof',
       'app-game-android-usage-events-replay',
       'app-game-platform-proof-status',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
   const androidProof = await readJson(
     join(repoRoot, 'test-results', 'app-game-android-physical-device-proof', 'proof.json')
   );
   const replayModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-android-usage-events-replay.js')).href
   );
   const statusModule = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-platform-proof-status.js')).href
+    pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-platform-proof-status.js')).href
   );
   const linuxProof = await readJson(join(repoRoot, 'test-results', 'app-game-linux-wsl-runtime-proof', 'proof.json'));
   const androidUsageEventsReplay = replayModule.createAppGameAndroidUsageEventsReplayReadModel({
@@ -68,10 +68,10 @@ async function main() {
     replaySummary,
     platformStatus,
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-android-usage-events-replay.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-android-usage-events-replay.test.ts',
-      platformStatus: 'packages/parent-domain/src/app-game-platform-proof-status.ts',
-      platformStatusTest: 'packages/parent-domain/tests/app-game-platform-proof-status.test.ts',
+      contract: 'packages/app-game-domain/src/app-game-android-usage-events-replay.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-android-usage-events-replay.test.ts',
+      platformStatus: 'packages/app-game-domain/src/app-game-platform-proof-status.ts',
+      platformStatusTest: 'packages/app-game-domain/tests/unit/app-game-platform-proof-status.test.ts',
       androidPhysicalProof: 'test-results/app-game-android-physical-device-proof/proof.json',
     },
     claimsProved: [

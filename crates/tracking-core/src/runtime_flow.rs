@@ -1,8 +1,9 @@
-use super::geofence::geofence_transition_from_parts;
-use super::{
+use super::expected_place::{
     default_expected_place_evaluation, evaluate_expected_place_state,
-    TrackingExpectedPlaceEvaluation, TrackingGeofenceEvaluation, TrackingGeofenceInsideState,
+    TrackingExpectedPlaceEvaluation,
 };
+use super::geofence::geofence_transition_from_parts;
+use super::geofence::{TrackingGeofenceEvaluation, TrackingGeofenceInsideState};
 use ocentra_evidence::PrivatePayloadState;
 use ocentra_parent_agent_protocol::{
     constants, tracking_acknowledgement_id_from_violation_id,

@@ -7,6 +7,8 @@ import {
 import {
   type SocialParentPolicyDecisionCandidate,
   SocialParentPolicyCompilerInputSchema,
+} from '@ocentra-parent/schema-domain/social-policy-compiler';
+import {
   compileSocialParentPolicyCandidate,
 } from '../../src/social-policy-compiler';
 

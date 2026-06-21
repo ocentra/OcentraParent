@@ -2,9 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   AgentNetworkRuntimeEventSchemaVersion,
   AgentNetworkRuntimeEventType,
-  parseAgentNetworkRuntimeEvent,
-  type AgentNetworkRuntimeEventResult,
-} from '../../src/network-runtime-events';
+} from '@ocentra-parent/schema-domain/network-runtime-events';
+import { parseAgentNetworkRuntimeEvent, type AgentNetworkRuntimeEventResult } from '../../src/network-runtime-events';
 
 const NoClaimBoundary = {
   exactUrlAvailable: false,

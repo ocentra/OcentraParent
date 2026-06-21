@@ -29,9 +29,9 @@ These tests prove the domain contract does not silently coerce unsupported/manua
 
 ## Source-backed constraints
 
-- `packages/policy-domain/src/policy-compiler.ts` maps `manual-required` and `unsupported` capability states to matching rule statuses and rejects missing reason codes.
+- `packages/schema-domain/src/policy-compiler.ts` maps `manual-required` and `unsupported` capability states to matching rule statuses and rejects missing reason codes.
 - `crates/policy-control-core/src/policy_compiler.rs` validates support-matrix/domain alignment before emitting compiler rules.
-- `packages/policy-domain/src/policy-event.ts` and `crates/policy-control-core/src/policy_event.rs` keep manual-required and unsupported/dead-letter states explicit on the event boundary.
+- `packages/schema-domain/src/policy-event.ts` and `crates/policy-control-core/src/policy_event.rs` keep manual-required and unsupported/dead-letter states explicit on the event boundary.
 
 ## Honest conclusion
 

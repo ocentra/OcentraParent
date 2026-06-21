@@ -5,7 +5,7 @@ use crate::cascade::{
     NetworkCascadeSource, NetworkCascadeSourceKind, NetworkEvidenceCascadeError,
     NetworkEvidenceCascadeInput,
 };
-use crate::dns::NetworkEvidenceGrade;
+use crate::dns::types::NetworkEvidenceGrade;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NetworkCrossSliceEvidenceSource {

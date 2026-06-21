@@ -1,7 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {
+  StoredTestLogLineSchema,
+  type StoredTestLogLine,
+} from '@ocentra-parent/schema-domain/test-log/types';
 import { ensureDirectory, getRunNdjsonFilePath } from './ndjsonPaths';
-import { StoredTestLogLineSchema, type StoredTestLogLine } from './types';
 
 export function appendTestLogEntries(
   entries: readonly StoredTestLogLine[],

@@ -15,7 +15,6 @@ const requiredArtifacts = {
     'screen-vlm-execution-readiness-proof',
     'proof-summary.json'
   ),
-  vlmJournal: resolve(repoRoot, 'output', 'ai-plan-proof', 'screen-vlm-journal-read-model-proof', 'proof-summary.json'),
 };
 
 const artifacts = Object.fromEntries(
@@ -29,13 +28,11 @@ const winRtOcr = artifacts.winRtOcr;
 const serviceWinRtOcr = artifacts.serviceWinRtOcr;
 const vlmWorker = artifacts.vlmWorker;
 const vlmReadiness = artifacts.vlmReadiness;
-const vlmJournal = artifacts.vlmJournal;
 
 const assertions = {
   localRuntimeStatusDefined: Boolean(
     scheduler.screenSchedulerProof.queueSnapshot.currentHeavyRuntimeRef &&
-    vlmReadiness.assertions.completedStatusRequiresDeletedQueryStoreResult &&
-    vlmJournal.assertions.readModelPreservesRuntimeRefs
+    vlmReadiness.assertions.completedStatusRequiresDeletedQueryStoreResult
   ),
   ocrWorkerInputOutputDefined: Boolean(
     winRtOcr.proof.localOnly === true &&

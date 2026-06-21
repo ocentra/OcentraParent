@@ -4,8 +4,8 @@ import {
   ProviderSecretRotationRevocationRequiredDataClasses,
   ProviderSecretRotationRevocationStatusEntrySchema,
   ProviderSecretRotationRevocationStatusReadModelSchema,
-} from '../../src/provider-secret-rotation-revocation-status';
-import { ProviderSecretRotationRevocationStatusReadModel } from '../../src/provider-secret-rotation-revocation-status-read-model';
+} from '@ocentra-parent/schema-domain/provider-secret-rotation-revocation-status';
+import { ProviderSecretRotationRevocationStatusReadModel } from '@ocentra-parent/schema-domain/provider-secret-rotation-revocation-status-read-model';
 
 describe('provider secret rotation revocation status logging contract', () => {
   it('covers rotation revocation preflight manual and audit states', assertCoverage);

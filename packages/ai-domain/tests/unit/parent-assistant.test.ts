@@ -10,8 +10,8 @@ import {
   ParentAssistantProviderStatusSchema,
   ParentAssistantRunCancelResultSchema,
   ParentAssistantThreadResponseSchema,
-} from '../../src/parent-assistant';
-import { ParentAssistantRunStateSchema } from '../../src/parent-assistant-run-state';
+} from '@ocentra-parent/schema-domain/parent-assistant';
+import { ParentAssistantRunStateSchema } from '@ocentra-parent/schema-domain/parent-assistant-run-state';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

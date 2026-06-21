@@ -8,8 +8,8 @@ import { parseBrowserUrlShape } from '../../packages/browser-domain/dist/browser
 import {
   BrowserSocialFeedRouteClassificationSchema,
   classifyBrowserSocialFeedRoute,
-} from '../../packages/browser-domain/dist/browser-social-feed-route-classification.js';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../packages/browser-domain/dist/browser-social-url-patterns.js';
+} from '../../packages/schema-domain/dist/browser-social-feed-route-classification.js';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -21,13 +21,13 @@ const observedAt = new Date().toISOString();
 
 const sourceFiles = [
   'packages/browser-domain/src/browser-url-intelligence.ts',
-  'packages/browser-domain/src/browser-social-url-patterns.ts',
-  'packages/browser-domain/src/browser-social-feed-route-classification.ts',
+  'packages/schema-domain/src/browser-social-url-patterns.ts',
+  'packages/schema-domain/src/browser-social-feed-route-classification.ts',
 ];
 const builtFiles = [
   'packages/browser-domain/dist/browser-url-intelligence.js',
-  'packages/browser-domain/dist/browser-social-url-patterns.js',
-  'packages/browser-domain/dist/browser-social-feed-route-classification.js',
+  'packages/schema-domain/dist/browser-social-url-patterns.js',
+  'packages/schema-domain/dist/browser-social-feed-route-classification.js',
 ];
 
 const liveTargets = [

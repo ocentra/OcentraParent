@@ -6,7 +6,7 @@ import { dirname, join, relative } from 'node:path';
 import {
   BrowserGameEducationalClassifierResultSchema,
   BrowserGameEducationalEvidenceRowSchema,
-} from '../../packages/parent-domain/dist/browser-game-educational-classifier.js';
+} from '@ocentra-parent/schema-domain/browser-game-educational-classifier';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-educational-classifier-live-evidence-proof';

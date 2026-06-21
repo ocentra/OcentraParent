@@ -3,7 +3,7 @@ import { parseBrowserUrlShape } from '../../src/browser-url-intelligence';
 import {
   buildBrowserSocialRouteEvidenceFromUrlPattern,
   matchBrowserSocialUrlPattern,
-} from '../../src/browser-social-url-patterns';
+} from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 
 describe('browser social URL pattern library', () => {
   it('builds managed browser signup route evidence from exact social URL shape', buildsSignupRouteEvidence);

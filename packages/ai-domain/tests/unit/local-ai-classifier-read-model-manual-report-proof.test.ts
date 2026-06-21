@@ -3,8 +3,8 @@ import {
   buildLocalAiClassifierReportSnapshot,
   LocalAiClassifierReportRowSchema,
   LocalAiClassifierReportSnapshotSchema,
-} from '../../src/local-ai-classifier-read-model-manual-report-proof';
-import { runLocalAiDeterministicClassifier } from '../../src/local-ai-deterministic-classifier-proof';
+} from '@ocentra-parent/schema-domain/local-ai-classifier-read-model-manual-report-proof';
+import { runLocalAiDeterministicClassifier } from '@ocentra-parent/schema-domain/local-ai-deterministic-classifier-proof';
 
 describe('local AI classifier read-model manual report proof', () => {
   it(

@@ -1,9 +1,11 @@
 use super::{
     crate_name, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    AgentIdentity, AgentLogEntry, AgentLogSnapshot, AgentMessageTarget, AgentPairingProof,
-    AgentPeer, AgentPeerRole, AgentRoute, DevLogEntry, LogFieldValue, LogFields, LogLevel,
-    LogSource, AGENT_PROTOCOL_SCHEMA_VERSION, LOG_SCHEMA_VERSION,
+    AgentIdentity, AgentLogEntry, AgentLogSnapshot, AgentMessageTarget, AgentPeer, AgentPeerRole,
+    AgentRoute, LogFieldValue, LogFields, LogLevel, LogSource, AGENT_PROTOCOL_SCHEMA_VERSION,
+    LOG_SCHEMA_VERSION,
 };
+use crate::logging::DevLogEntry;
+use crate::transport::AgentPairingProof;
 
 #[test]
 fn crate_name_identifies_agent_protocol_boundary() {

@@ -1,6 +1,9 @@
 use ocentra_parent_agent_core::{
-    app_block_control_capability, app_time_limit_capability, managed_browser_control_capability,
-    network_control_capability, process_control_capability, timer_control_capability,
+    enforcement_adapter::{
+        app_block_control_capability, managed_browser_control_capability,
+        network_control_capability, process_control_capability, timer_control_capability,
+    },
+    enforcement_app_time_limit::app_time_limit_capability,
 };
 use ocentra_parent_agent_protocol::{EnforcementCapabilityStatus, PolicyAction, PolicyTargetType};
 

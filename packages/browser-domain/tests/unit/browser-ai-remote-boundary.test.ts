@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserAiAnalysisSchemaVersion } from '../../src/browser-ai-analysis-schemas';
+import { BrowserAiAnalysisSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-analysis-schemas';
 import {
   BrowserAiRemoteApprovalSchema,
   BrowserAiRemoteBoundarySchemaVersion,
   BrowserAiRemoteCapabilitySchema,
   BrowserAiRemoteRouteSchema,
   planBrowserAiRemoteRoute,
-} from '../../src/browser-ai-remote-boundary-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-remote-boundary-schemas';
 
 describe('browser AI parent-approved remote approval contract', () => {
   it('accepts parent-owned no-retention structured-scope approval', () => {

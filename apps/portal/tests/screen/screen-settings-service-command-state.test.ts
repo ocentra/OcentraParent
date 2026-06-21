@@ -2,13 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
   screenEvidenceSettingsWritableUiProof,
   type ScreenEvidenceSettingsUiProof,
-} from '@ocentra-parent/screen-domain/screen-evidence';
+} from '@ocentra-parent/schema-domain/screen-evidence-settings-ui-proof';
 import {
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
   type AgentEventEnvelope,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import {
   createScreenSettingsGetCommandDraft,
   createScreenSettingsReplaceCommandDraft,

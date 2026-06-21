@@ -6,15 +6,15 @@ import {
 } from '@ocentra-parent/schema-domain/effect';
 import {
   NotificationLocalOutboxSchedulerRecordSchema,
+  RequiredNotificationLocalOutboxSchedulerNonClaims,
   type NotificationLocalOutboxSchedulerRecord,
-} from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof';
-import { RequiredNotificationLocalOutboxSchedulerNonClaims } from '@ocentra-parent/notification-domain/notification-local-outbox-scheduler-proof-values';
+} from '@ocentra-parent/schema-domain/notification-local-outbox';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
+import { FamilyReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
 import {
   SocialAlertReportLocalOutboxBridgeReadModelSchema,
   SocialAlertReportLocalOutboxBridgeStatus,

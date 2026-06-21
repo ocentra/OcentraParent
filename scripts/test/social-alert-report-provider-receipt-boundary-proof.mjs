@@ -17,20 +17,18 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
   runNpm([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/browser-domain',
     '--',
-    'social-alert-report-provider-receipt-boundary-proof.test.ts',
+    'social-alert-report-provider-dispatch-execution.test.ts',
   ]);
 
-  const source = await readText('packages/parent-domain/src/social-alert-report-provider-receipt-boundary-proof.ts');
-  const test = await readText(
-    'packages/parent-domain/tests/social-alert-report-provider-receipt-boundary-proof.test.ts'
-  );
+  const source = await readText('packages/schema-domain/src/social-alert-report-provider-receipt-boundary-proof.ts');
+  const test = await readText('packages/browser-domain/tests/unit/social-alert-report-provider-dispatch-execution.test.ts');
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/README.md');
   const checklist = await readText('docs/plans/browser-plan/implementation-checklist.md');
   const preflightModule = await importDist('social-alert-report-provider-preflight-proof.js');
@@ -73,14 +71,15 @@ async function main() {
   );
   const summary = receiptModule.summarizeSocialAlertReportProviderReceiptBoundary(readModel);
   const checks = [
-    checkFile('packages/parent-domain/src/social-alert-report-provider-receipt-boundary-proof.ts'),
-    checkFile('packages/parent-domain/tests/social-alert-report-provider-receipt-boundary-proof.test.ts'),
+    checkFile('packages/schema-domain/src/social-alert-report-provider-receipt-boundary-proof.ts'),
+    checkFile('packages/browser-domain/tests/unit/social-alert-report-provider-dispatch-execution.test.ts'),
     checkFile('scripts/test/social-alert-report-provider-receipt-boundary-proof.mjs'),
     checkIncludes(source, 'providerReceiptIngestionRuntimeClaimed: Schema.Literal(false)', 'receipt runtime non-claim'),
     checkIncludes(source, 'providerWebhookRuntimeClaimed: Schema.Literal(false)', 'webhook runtime non-claim'),
     checkIncludes(source, 'finalPolicyExecutionClaimed: Schema.Literal(false)', 'final policy non-claim'),
     checkIncludes(source, 'enforcementClaimed: Schema.Literal(false)', 'enforcement non-claim'),
-    checkIncludes(test, "providerReceiptRefs: ['provider-receipt-observed']", 'receipt overclaim rejection test'),
+    checkIncludes(test, 'buildSocialAlertReportProviderReceiptBoundaryReadModel(', 'receipt boundary consumer test'),
+    checkIncludes(test, 'providerReceiptIngested).toBe(false)', 'receipt ingestion remains unclaimed test'),
     checkIncludes(
       workpackReadme,
       'social-alert-report-provider-receipt-boundary-proof',
@@ -126,8 +125,8 @@ async function main() {
       receiptProofRequirements: row.receiptProofRequirements,
     })),
     proofPaths: {
-      source: 'packages/parent-domain/src/social-alert-report-provider-receipt-boundary-proof.ts',
-      test: 'packages/parent-domain/tests/social-alert-report-provider-receipt-boundary-proof.test.ts',
+      source: 'packages/schema-domain/src/social-alert-report-provider-receipt-boundary-proof.ts',
+      test: 'packages/browser-domain/tests/unit/social-alert-report-provider-dispatch-execution.test.ts',
       harness: 'scripts/test/social-alert-report-provider-receipt-boundary-proof.mjs',
       evidence: 'test-results/social-alert-report-provider-receipt-boundary-proof/proof.json',
       readModel:
@@ -156,7 +155,7 @@ async function main() {
 }
 
 function importDist(name) {
-  return import(pathToFileURL(join(root, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(root, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function proofIntents(intent, refs) {
@@ -299,7 +298,7 @@ function markdownFor(proof) {
     '- Final policy execution: false',
     '- Connector/native runtime: false',
     '- Enforcement: false',
-    '- Package subpath export: deferred because `packages/parent-domain/package.json` is currently owned by another lane.',
+    '- Canonical source ownership now lives in packages/schema-domain; no browser-domain-local owner remains in this proof.',
   ].join('\n');
 }
 

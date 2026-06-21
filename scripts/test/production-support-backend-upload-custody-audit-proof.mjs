@@ -16,6 +16,7 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
   await runCommand(
     ...npmCommand([
@@ -24,7 +25,7 @@ async function main() {
       '--workspace',
       '@ocentra-parent/logging-domain',
       '--',
-      'tests/support-backend-upload-custody-audit.test.ts',
+      'tests/unit/support-backend-upload-custody-audit.test.ts',
     ])
   );
 
@@ -40,10 +41,10 @@ async function main() {
     proofMode: 'production-support-backend-upload-custody-audit-proof',
     commands,
     evidence: {
-      contract: 'packages/logging-domain/src/support-backend-upload-custody-audit.ts',
-      guards: 'packages/logging-domain/src/support-backend-upload-custody-audit-guards.ts',
-      readModel: 'packages/logging-domain/src/support-backend-upload-custody-audit-read-model.ts',
-      contractTest: 'packages/logging-domain/tests/support-backend-upload-custody-audit.test.ts',
+      contract: 'packages/schema-domain/src/support-backend-upload-custody-audit.ts',
+      guards: 'packages/schema-domain/src/support-backend-upload-custody-audit-guards.ts',
+      readModel: 'packages/schema-domain/src/support-backend-upload-custody-audit-read-model.ts',
+      contractTest: 'packages/logging-domain/tests/unit/support-backend-upload-custody-audit.test.ts',
       proofOutput: relative(repoRoot, proofPath),
       summaryOutput: relative(repoRoot, summaryPath),
       featureDoc: 'docs/features/production-distribution-support.md',
@@ -54,7 +55,7 @@ async function main() {
       'Rows link to the prior support backend upload status proof and execution/runtime proof while keeping payloads to redacted audit refs, custody refs, retention refs, delete refs, and manual proof refs.',
       'Retention and deletion remain manual-required until published retention, deletion, and support-safe audit export proof exists.',
       'Support-safe custody audit export rows are source-contract proof only and do not claim backend payload retention or deletion execution.',
-      'Package exports expose the custody audit contract and read model through @ocentra-parent/logging-domain.',
+      'Package exports expose the custody audit contract and read model through @ocentra-parent/schema-domain.',
       'Rows reject tokens, raw child activity, raw URLs, screenshots, journals, SQLite snapshots, private paths, command lines, keystrokes, clipboard data, message contents, provider secrets, remote support transcripts, real backend execution, backend payload retention, backend payload deletion, account lookup, billing provider contact, remote support sessions, production SLA, and default Ocentra-hosted family data.',
     ],
     claimsNotProved: [
@@ -126,8 +127,8 @@ function assertReadModel(readModel) {
 }
 
 async function assertPackageExports() {
-  const contract = await import('@ocentra-parent/logging-domain/support-backend-upload-custody-audit');
-  const readModel = await import('@ocentra-parent/logging-domain/support-backend-upload-custody-audit-read-model');
+  const contract = await import('@ocentra-parent/schema-domain/support-backend-upload-custody-audit');
+  const readModel = await import('@ocentra-parent/schema-domain/support-backend-upload-custody-audit-read-model');
   assert.equal(typeof contract.SupportBackendUploadCustodyAuditReadModelSchema.parse, 'function');
   assert.equal(readModel.SupportBackendUploadCustodyAuditReadModel.entries.length, 5);
 }

@@ -4,7 +4,7 @@ import {
   ScreenLiveViewPlatformPermissionGateSchema,
   ScreenLiveViewProductionReadinessEvidenceSchema,
   ScreenLiveViewProductionReadinessEvidenceSchemaVersion,
-} from '../../src/screen-live-view-platform-permission';
+} from '@ocentra-parent/schema-domain/screen-live-view-platform-permission';
 
 const CheckedAt = '2026-06-07T04:03:00Z';
 

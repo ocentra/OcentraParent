@@ -37,9 +37,9 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/portal-domain',
+      '@ocentra-parent/portal',
       '--',
-      'app-game-adapter-dispatch-result-panel',
+      'app-game-adapter-dispatch-route-panel',
     ])
   );
   await runCommand(
@@ -58,10 +58,10 @@ async function main() {
     readbackCommand: 'agent.activity.app-game.adapter-dispatch-result.read-model.get',
     payloadField: 'appGameAdapterDispatchExecuteResult',
     evidence: {
-      portalLiveState: 'packages/portal-domain/src/live-activity-state.ts',
+      portalLiveState: 'apps/portal/src/live-activity-state.ts',
       portalLiveStateTest: 'apps/portal/tests/live-activity-state.test.ts',
-      portalPanel: 'packages/portal-domain/src/app-game-adapter-dispatch-result-panel.ts',
-      portalPanelTest: 'packages/portal-domain/tests/app-game-adapter-dispatch-result-panel.test.ts',
+      portalPanel: 'apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx',
+      portalPanelTest: 'apps/portal/tests/app-game-adapter-dispatch-route-panel.test.tsx',
     },
     summary: {
       latestExecutedEventRetained: true,
@@ -76,7 +76,7 @@ async function main() {
     },
     claimsProved: [
       'portal live activity state parses the latest app/game adapter dispatch executed event',
-      'portal-domain renders parent-safe execute command/result/status/audit/readback details',
+      'portal route surface renders parent-safe execute command/result/status/audit/readback details',
       'executed result stays separate from the side-effect-free dispatch result read model',
       'parent surface keeps platform and child delivery claims false',
     ],

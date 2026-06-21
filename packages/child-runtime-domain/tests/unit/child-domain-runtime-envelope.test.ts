@@ -9,7 +9,7 @@ import {
   ChildDomainRuntimeEventEnvelopeSchema,
   ChildDomainRuntimeEventType,
   ChildRuntimeDomainLiteral,
-} from '../../src/child-domain-runtime-events';
+} from '@ocentra-parent/schema-domain/child-domain-runtime-events';
 
 describe('child domain runtime envelope contracts', () => {
   it('composes child runtime event names with the shared event-domain envelope', () => {

@@ -11,10 +11,10 @@ const outputDir = join(repoRoot, 'output', proofMode);
 const proofPath = join(resultDir, 'proof.json');
 const summaryPath = join(outputDir, 'proof-summary.json');
 const commands = [];
-const expectedPackageExports = [
-  './production-support-status-backend-runtime-closure',
-  './production-support-status-backend-runtime-closure-read-model',
-  './production-support-status-backend-runtime-closure-values',
+const requiredPackageExports = [
+  '@ocentra-parent/schema-domain/production-support-status-backend-runtime-closure-proof',
+  '@ocentra-parent/schema-domain/production-support-status-backend-runtime-closure-read-model',
+  '@ocentra-parent/schema-domain/production-support-status-backend-runtime-closure-values',
 ];
 
 await main();
@@ -23,18 +23,7 @@ async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/logging-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/parent-domain',
-      '--',
-      'tests/production-support-status-backend-runtime-closure-proof.test.ts',
-    ])
-  );
 
   const contract = await assertBuiltContract();
   const linkedProofs = await assertLinkedProofs();
@@ -48,10 +37,10 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-support-status-backend-runtime-closure-proof.ts',
-      values: 'packages/parent-domain/src/production-support-status-backend-runtime-closure-values.ts',
-      readModel: 'packages/parent-domain/src/production-support-status-backend-runtime-closure-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/production-support-status-backend-runtime-closure-proof.test.ts',
+      contract: 'packages/schema-domain/src/production-support-status-backend-runtime-closure-proof.ts',
+      values: 'packages/schema-domain/src/production-support-status-backend-runtime-closure-values.ts',
+      readModel: 'packages/schema-domain/src/production-support-status-backend-runtime-closure-read-model.ts',
+      proofHarness: 'scripts/test/production-support-status-backend-runtime-closure-proof.mjs',
       linkedProofs,
       documentation,
       proofOutput: relativePath(proofPath),
@@ -85,15 +74,15 @@ async function main() {
 
 async function assertBuiltContract() {
   const contractModule = await importBuiltModule(
-    'parent-domain',
+    'schema-domain',
     'production-support-status-backend-runtime-closure-proof.js'
   );
   const readModelModule = await importBuiltModule(
-    'parent-domain',
+    'schema-domain',
     'production-support-status-backend-runtime-closure-read-model.js'
   );
   const valuesModule = await importBuiltModule(
-    'parent-domain',
+    'schema-domain',
     'production-support-status-backend-runtime-closure-values.js'
   );
   const proof = contractModule.ProductionSupportStatusBackendRuntimeClosureProofSchema.parse(
@@ -164,7 +153,7 @@ async function assertBuiltContract() {
 
 async function assertLinkedProofs() {
   const runtimeReadModelModule = await importBuiltModule(
-    'parent-domain',
+    'schema-domain',
     'production-support-status-backend-runtime-execution-read-model.js'
   );
   const payloadReadModelModule = await importBuiltModule(
@@ -228,12 +217,13 @@ async function assertDocumentationProof() {
 }
 
 async function assertPackageExports() {
-  const packageJson = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
-  const missingExports = expectedPackageExports.filter((exportPath) => !packageJson.exports[exportPath]);
+  const [contract, readModel, values] = await Promise.all(requiredPackageExports.map((specifier) => import(specifier)));
+  assert.equal(typeof contract.ProductionSupportStatusBackendRuntimeClosureProofSchema.parse, 'function');
+  assert.equal(typeof readModel.ProductionSupportStatusBackendRuntimeClosureReadModel, 'object');
+  assert(Array.isArray(values.RequiredRuntimeClosureTargets));
   return {
-    state: missingExports.length === 0 ? 'added-package-json-exports' : 'package-export-deferred-by-shared-lock',
-    exports: expectedPackageExports,
-    missingExports,
+    state: 'schema-domain-live-exports',
+    exports: requiredPackageExports,
   };
 }
 

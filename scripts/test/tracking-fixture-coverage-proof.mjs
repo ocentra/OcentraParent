@@ -14,8 +14,8 @@ await rm(resultDir, { recursive: true, force: true });
 await mkdir(resultDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-runNpm(['run', 'test', '--workspace', '@ocentra-parent/parent-domain', '--', 'tracking-fixture-coverage-proof']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
+runNpm(['run', 'test', '--workspace', '@ocentra-parent/tracking-domain', '--', 'tracking-fixture-coverage-proof']);
 
 const fixture = await importDist('tracking-fixture-coverage-proof.js');
 const readModel = fixture.buildTrackingFixtureCoverageReadModel(timestamp);
@@ -30,8 +30,8 @@ const proof = {
   summary: readModel.summary,
   productClaims: productClaims(),
   proofPaths: {
-    source: 'packages/parent-domain/src/tracking-fixture-coverage-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-fixture-coverage-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-fixture-coverage-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-fixture-coverage-proof.test.ts',
     harness: 'scripts/test/tracking-fixture-coverage-proof.mjs',
     evidence: 'test-results/tracking-fixture-coverage-proof/proof.json',
     trackingProofPack: 'output/tracking-plan-proof/fixture-coverage-proof',
@@ -48,7 +48,7 @@ console.log('tracking-fixture-coverage-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-fixture-coverage-proof', 'proof.json')}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
 }
 
 function assertProof(proof) {
@@ -86,7 +86,7 @@ async function writeProofPack(path, proof) {
       '```',
       '',
       '- Scope: CI-checkable matrix for required tracking fixture states.',
-      '- Source inspected: location/geofence feature doc, location/geofence expectations, platform expectations, tracking checklist, and parent-domain README.',
+      '- Source inspected: location/geofence feature doc, location/geofence expectations, platform expectations, tracking checklist, and tracking-domain README.',
       '',
     ].join('\n'),
     'utf8'
@@ -96,8 +96,8 @@ async function writeProofPack(path, proof) {
     [
       'Fixture coverage contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-fixture-coverage-proof: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/tracking-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tracking-fixture-coverage-proof: PASS',
       '- Required states are fresh, stale, offline, permission-denied, low-accuracy, ambiguous-nearby-place, exception-active, parent-acknowledged, child-check-in-requested, temporary-live-expired, missing-device, retention-deleted, remote-sync-disabled, and remote-ai-disabled.',
       '',
     ].join('\n'),

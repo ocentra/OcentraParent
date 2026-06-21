@@ -16,21 +16,13 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-runNpm([
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/parent-domain',
-  '--',
-  'app-game-notification-provider-status-handoff',
-  'app-game-notification-provider-preflight',
-  'v0-8-notification-provider-status-boundary',
-]);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/notification-domain']);
+runNpm(['run', 'test', '--workspace', '@ocentra-parent/notification-domain', '--', 'v0-8-notification-provider-status-boundary']);
 
-const providerPreflight = await importDist('app-game-notification-provider-preflight.js');
-const providerStatusHandoff = await importDist('app-game-notification-provider-status-handoff.js');
-const refs = await importDist('reference-primitives.js');
+const providerPreflight = await importSchemaDist('app-game-notification-provider-preflight.js');
+const providerStatusHandoff = await importSchemaDist('app-game-notification-provider-status-handoff.js');
+const refs = await importSchemaDist('family-reference-primitives.js');
 
 const sourcePreflight = providerPreflight.AppGameNotificationProviderPreflightReadModelSchema.parse(
   sourcePreflightReadModel(providerPreflight, refs)
@@ -68,8 +60,10 @@ const proof = {
     adapterDispatchClaimed: readModel.adapterDispatchClaimed,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-notification-provider-status-handoff.ts',
-    test: 'packages/parent-domain/tests/app-game-notification-provider-status-handoff.test.ts',
+    source: 'packages/schema-domain/src/app-game-notification-provider-status-handoff.ts',
+    sourcePreflight: 'packages/schema-domain/src/app-game-notification-provider-preflight.ts',
+    providerBoundary: 'packages/schema-domain/src/v0-8-notification-provider-status-boundary.ts',
+    providerBoundaryTest: 'packages/notification-domain/tests/unit/v0-8-notification-provider-status-boundary.test.ts',
     harness: 'scripts/test/app-game-notification-provider-status-handoff-proof.mjs',
     evidence: 'test-results/app-game-notification-provider-status-handoff-proof/proof.json',
     appGameProofPack: 'output/app-game-plan-proof/64-notification-provider-status-handoff',
@@ -87,8 +81,8 @@ await writeProofPack(appProofDir, proof, 'app WP64');
 console.log('app-game-notification-provider-status-handoff-proof-ok');
 console.log(`evidence=${join('test-results', 'app-game-notification-provider-status-handoff-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+async function importSchemaDist(moduleName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', moduleName)).href);
 }
 
 function sourcePreflightReadModel(providerPreflight, refs) {
@@ -227,8 +221,8 @@ async function writeProofPack(proofDir, proof, label) {
       proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
       '```',
       '',
-      '- Scope: app/game provider-preflight rows to V0.8 provider-status boundary rows.',
-      '- Source inspected: app/game notification provider preflight, V0.8 notification provider status boundary, notification expectations, app/game feature doc, reports/notifications feature doc, and implementation checklists.',
+      '- Scope: central app/game provider-preflight rows to V0.8 provider-status boundary rows.',
+      '- Source inspected: schema-domain provider preflight and provider status handoff; notification-domain V0.8 boundary test coverage for downstream validation.',
       '',
     ].join('\n'),
     'utf8'
@@ -238,8 +232,10 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-provider-status-handoff app-game-notification-provider-preflight v0-8-notification-provider-status-boundary: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/notification-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/notification-domain -- v0-8-notification-provider-status-boundary: PASS',
+      '- node scripts/test/app-game-notification-provider-status-handoff-proof.mjs: PASS',
       '- Provider-preflight rows become manual-required or unavailable provider-status boundary rows.',
       '- The existing V0.8 boundary coverage is referenced, but no provider adapter delivery is claimed.',
       '',
@@ -248,7 +244,7 @@ async function writeProofPack(proofDir, proof, label) {
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust protocol proof not applicable: this workpack adds a TypeScript parent-domain handoff boundary and does not add a Rust-crossing shape.\n',
+    'Rust protocol proof not applicable: this workpack validates the central schema-domain provider-status handoff only.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof.summary);
@@ -271,10 +267,14 @@ async function writeProofPack(proofDir, proof, label) {
     ].join('\n'),
     'utf8'
   );
-  await writeFile(join(proofDir, '10-validation-commands.log'), `${commands.join('\n')}\n`, 'utf8');
+  await writeFile(
+    join(proofDir, '10-validation-commands.log'),
+    [...commands, 'node scripts/test/app-game-notification-provider-status-handoff-proof.mjs'].join('\n') + '\n',
+    'utf8'
+  );
   await writeFile(
     join(proofDir, 'README.md'),
-    `# ${label} Provider Status Handoff Proof\n\nThis proof pack records app/game provider-preflight rows mapped into V0.8 provider-status boundary states without provider delivery, receipt ingestion, credentials, UI, child delivery, production runtime, or adapter-dispatch claims.\n`,
+    `# ${label} Provider Status Handoff Proof\n\nThis proof pack records central app/game provider-preflight rows mapped into V0.8 provider-status boundary states without provider delivery, receipt ingestion, credentials, runtime, child delivery, or adapter-dispatch claims.\n`,
     'utf8'
   );
   await writeJson(join(proofDir, 'proof.json'), proof);

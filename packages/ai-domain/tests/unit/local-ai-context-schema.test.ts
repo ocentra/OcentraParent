@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { LocalAiEvidenceContextSourceRefSchema, LocalAiParentRuleContextRefSchema } from '../../src/local-ai-context';
-import { LocalAiGraphReferenceSchema, LocalAiMemoryReferenceSchema } from '../../src/local-ai-references';
+import {
+  LocalAiEvidenceContextSourceRefSchema,
+  LocalAiParentRuleContextRefSchema,
+} from '@ocentra-parent/schema-domain/ai-context';
+import { LocalAiGraphReferenceSchema, LocalAiMemoryReferenceSchema } from '@ocentra-parent/schema-domain/ai-references';
 
 const childProfile = { childProfileId: 'child-1', displayName: 'Sam' };
 const device = { deviceId: 'device-1', childProfileId: 'child-1', label: 'Sam Windows PC', platform: 'windows' };

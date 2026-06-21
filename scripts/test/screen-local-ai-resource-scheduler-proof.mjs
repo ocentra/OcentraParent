@@ -15,7 +15,7 @@ await runPackageCommand([
   '--',
   'screen-evidence-resource-scheduler.test.ts',
 ]);
-await runPackageCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
+await runPackageCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 await runCommand('node', ['scripts/test/local-ai-provider-scheduler-proof.mjs']);
 await writeScreenSchedulerProof();
 
@@ -23,7 +23,7 @@ console.log(`screen-local-ai-resource-scheduler-proof-ok: ${proofOutputPath}`);
 
 async function writeScreenSchedulerProof() {
   const { screenLocalAiResourceSchedulerProof, screenLocalAiResourceSchedulerProofSummary } =
-    await import('@ocentra-parent/screen-domain/screen-evidence');
+    await import('@ocentra-parent/schema-domain/screen-evidence-resource-scheduler-proof');
   const summary = screenLocalAiResourceSchedulerProofSummary(screenLocalAiResourceSchedulerProof.decisions);
 
   await mkdir(proofOutputDir, { recursive: true });

@@ -11,7 +11,7 @@ import {
   AppGameTimeBudgetSessionKind,
   AppGameTimeBudgetTargetKind,
   AppGameTimeBudgetTimerState,
-} from '../../src/app-game-time-budget-policy-rules';
+} from '@ocentra-parent/schema-domain/app-game-time-budget-policy-rules';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

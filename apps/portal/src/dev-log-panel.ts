@@ -1,13 +1,9 @@
-import type { AgentLogEntry, AgentLogSnapshot } from '@ocentra-parent/logging-domain/contracts';
-import {
-  PortalDetails,
-  PortalDiagnostics,
-  PortalDom,
-  PortalFormatting,
-  PortalText,
-  PortalTextToken,
-  decodePortalDetailValue,
-} from '@ocentra-parent/portal-domain/contracts';
+import type { AgentLogEntry, AgentLogSnapshot } from '@ocentra-parent/schema-domain/logging-contracts';
+import { PortalDom, PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { PortalDiagnostics } from '@ocentra-parent/portal-domain/diagnostics';
+import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
+import { decodePortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 import { appendDetail } from './detail-list';
 
 export function renderDevLogPanel(container: HTMLElement, snapshot: AgentLogSnapshot | null): void {

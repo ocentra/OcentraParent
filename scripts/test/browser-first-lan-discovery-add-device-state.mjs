@@ -8,19 +8,6 @@ const outputDir = join(repoRoot, 'test-results', proofId);
 const proofPath = join(outputDir, 'proof.json');
 const checks = [
   {
-    label: 'parent-domain browser add-device contract',
-    command: 'npm',
-    args: [
-      '--workspace',
-      '@ocentra-parent/parent-domain',
-      'run',
-      'test',
-      '--',
-      '--run',
-      'tests/lan-pairing-browser-add-device-state.test.ts',
-    ],
-  },
-  {
     label: 'agent-protocol-domain browser add-device contract',
     command: 'npm',
     args: [
@@ -30,7 +17,7 @@ const checks = [
       'test',
       '--',
       '--run',
-      'tests/lan-pairing-browser-add-device-state.test.ts',
+      'tests/unit/lan-pairing-browser-add-device-state.test.ts',
     ],
   },
   {
@@ -75,10 +62,9 @@ function proof() {
     commands,
     proofLabels,
     evidence: {
-      parentContract: 'packages/lan-domain/src/lan-pairing-device.ts',
-      parentContractTest: 'packages/parent-domain/tests/lan-pairing-browser-add-device-state.test.ts',
-      agentProtocolContract: 'packages/agent-protocol-domain/src/lan-pairing-browser-add-device-state.ts',
-      agentProtocolTest: 'packages/agent-protocol-domain/tests/lan-pairing-browser-add-device-state.test.ts',
+      canonicalContract: 'packages/schema-domain/src/agent-lan-add-device.ts',
+      agentProtocolContract: 'packages/agent-protocol-domain/src/contracts.ts',
+      agentProtocolTest: 'packages/agent-protocol-domain/tests/unit/lan-pairing-browser-add-device-state.test.ts',
       rustProtocolContract: 'crates/agent-protocol/src/lan_pairing_browser_add_device_state.rs',
       rustServiceAdapter: 'crates/agent-service/src/lan_pairing_browser_add_device_state.rs',
       rustServiceTest: 'crates/agent-service/src/lan_pairing_browser_add_device_state_tests.rs',
@@ -94,7 +80,7 @@ function proof() {
       routeAuditChecks: ['allowed-origin', 'target-device-match', 'replayed', 'revoked', 'stale', 'offline'],
     },
     claimsProved: [
-      'browser-first add-device state has typed local-service discovery and pairing request contracts',
+      'browser-first add-device state has centralized schema-domain contracts consumed by the agent protocol boundary',
       'service-backed LAN status reports local-service, physical manual-required, and cloud unavailable states',
       'trusted-device registry entries are emitted in the read model, not only id summaries',
       'selected-device readiness exposes trust, reachability, stale/offline, and ready-for-control fields',

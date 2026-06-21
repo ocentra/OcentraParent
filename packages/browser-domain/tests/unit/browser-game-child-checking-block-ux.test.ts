@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type BrowserGameChildCheckingBlockUxSnapshot,
   BrowserGameChildCheckingBlockUxSnapshotSchema,
-} from '../../src/browser-game-child-checking-block-ux';
+} from '@ocentra-parent/schema-domain/browser-game-child-checking-block-ux';
 
 describe('browser-game child checking and block UX contracts', () => {
   it('accepts a contract-only child game checking and block snapshot', acceptsHonestSnapshot);

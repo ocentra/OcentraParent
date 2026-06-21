@@ -7,8 +7,11 @@ use ocentra_network_evidence::{
         prove_network_live_capture_execution, NetworkLiveCaptureExecutionProof,
     },
     raw_capture_storage::{
-        plan_network_raw_capture_storage, NetworkRawCaptureStorageInput,
-        NetworkRawCaptureStorageProof, NetworkRawCaptureStorageState,
+        plan_network_raw_capture_storage,
+        types::{
+            NetworkRawCaptureStorageInput, NetworkRawCaptureStorageProof,
+            NetworkRawCaptureStorageState,
+        },
     },
 };
 use ocentra_parent_agent_protocol::{

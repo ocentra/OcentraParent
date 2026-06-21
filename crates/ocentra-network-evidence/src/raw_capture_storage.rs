@@ -1,8 +1,8 @@
 use crate::live_capture::{NetworkLiveCaptureProof, NetworkLiveCaptureProofState};
 
-mod types;
+pub mod types;
 
-pub use types::{
+use self::types::{
     NetworkRawCaptureStorageError, NetworkRawCaptureStorageInput, NetworkRawCaptureStorageProof,
     NetworkRawCaptureStorageRequiredArtifact, NetworkRawCaptureStorageState,
 };

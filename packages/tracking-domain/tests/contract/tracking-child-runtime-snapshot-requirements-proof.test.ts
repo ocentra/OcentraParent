@@ -5,7 +5,7 @@ import {
   buildTrackingChildRuntimeSnapshotRequirementsReadModel,
 } from '../../src/tracking-child-runtime-snapshot-requirements-proof';
 import { buildTrackingChildRuntimeExecutionReadinessReadModel } from '../../src/tracking-child-runtime-execution-readiness-proof';
-import { TrackingPolicySchemaVersion } from '../../src/tracking-location-policy';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 describe('tracking child runtime snapshot requirements proof', () => {
   it('derives snapshot requirement rows from execution readiness rows', () => {

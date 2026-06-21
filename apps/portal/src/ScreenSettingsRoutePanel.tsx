@@ -1,17 +1,16 @@
 import type { ReactElement } from 'react';
-import type { AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AgentEventEnvelope } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import {
   screenControlSettingsPortalProof,
   type ScreenControlSettingsPortalGate,
   type ScreenControlSettingsPortalMetric,
-} from '@ocentra-parent/screen-domain/screen-control-settings-portal-proof';
+} from '@ocentra-parent/schema-domain/screen-control-settings-portal-proof';
+import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
-  PortalDetails,
-  PortalDom,
   isPortalScreenSettingsRoute,
-  type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/routes';
 import type { PortalRenderActions } from './portal-actions';
 import { ScreenOptionalVisibilityCapabilityStatusCard } from './ScreenOptionalVisibilityCapabilityStatusCard';
 import { ScreenSettingsWritableControls } from './ScreenSettingsWritableControls';

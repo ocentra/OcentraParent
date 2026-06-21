@@ -1,7 +1,7 @@
 use ocentra_eventing::envelope::DomainEvent;
 use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
-    FamilyActorRole, HouseholdMembership, SessionFreshnessState,
+    HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
 };
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, HouseholdAuthorityInput, ParentControllerLeaseState,
@@ -14,7 +14,8 @@ use ocentra_family_identity_core::setup_lifecycle::{
     RecoveryIdentityProofState, RecoveryKind as FamilyRecoveryKind,
     RecoveryOperation as FamilyRecoveryOperation, RecoveryState as FamilyRecoveryState,
     RecoverySupportChannel, SetupInviteInput, SetupInvitePurpose, SetupInviteReplayState,
-    SetupInviteState, SetupInviteTargetRole,
+    SetupInviteState, SetupInviteTargetRole, SetupRecoveryAbuseState,
+    SetupRecoveryResponseTimingState,
 };
 use ocentra_provisioning_core::provisioning_install::{
     derive_provisioning_readiness_input_from_family_context, evaluate_provisioning_readiness,
@@ -38,7 +39,7 @@ const PROVISIONING_ACTION_EVENT_TYPE: &str = "provisioning.action.planned";
 
 fn ready_input() -> ProvisioningReadinessInput {
     ProvisioningReadinessInput {
-        household_membership: HouseholdMembership::Member,
+        membership_state: HouseholdMembershipState::Active,
         account_readiness_state: AccountReadinessState::Ready,
         parent_app_readiness_state: ParentAppReadinessState::Ready,
         parent_device_registration_state: ParentDeviceRegistrationState::Registered,
@@ -60,13 +61,15 @@ fn ready_family_context() -> ProvisioningFamilyContextInput {
     ProvisioningFamilyContextInput {
         account_matches_invite_target: true,
         setup_invite_input: SetupInviteInput {
-            inviter_role: FamilyActorRole::Parent,
-            household_membership: HouseholdMembership::Member,
+            inviter_role: HouseholdRole::ParentOwner,
+            same_family: true,
             purpose: SetupInvitePurpose::ChildDevicePairing,
             target_role: SetupInviteTargetRole::ChildDeviceAgent,
             invite_state: SetupInviteState::Accepted,
             single_use: true,
             replay_state: SetupInviteReplayState::Fresh,
+            abuse_state: SetupRecoveryAbuseState::WithinLimit,
+            response_timing_state: SetupRecoveryResponseTimingState::Uniform,
         },
         pairing_session_input: SessionTokenInput {
             credential_kind: SessionCredentialKind::PairingToken,
@@ -77,9 +80,10 @@ fn ready_family_context() -> ProvisioningFamilyContextInput {
             session_freshness_state: SessionFreshnessState::Fresh,
         },
         household_authority_input: HouseholdAuthorityInput {
-            actor_role: FamilyActorRole::Parent,
+            actor_role: HouseholdRole::ParentOwner,
+            same_family: true,
             actor_account_state: ActorAccountState::Active,
-            household_membership: HouseholdMembership::Member,
+            membership_state: HouseholdMembershipState::Active,
             child_profile_binding_state: ChildProfileBindingState::Bound,
             device_ownership_scope: DeviceOwnershipScope::ChildProfileDevice,
             device_trust_state: DeviceTrustState::Trusted,
@@ -452,7 +456,7 @@ fn family_context_accepted_pairing_waits_for_parent_trust_confirmation() {
 fn family_context_wrong_household_surfaces_pairing_blocker() {
     let (projected_input, readiness, _) = evaluate_family_context(ProvisioningFamilyContextInput {
         setup_invite_input: SetupInviteInput {
-            household_membership: HouseholdMembership::External,
+            same_family: false,
             invite_state: SetupInviteState::Pending,
             ..ready_family_context().setup_invite_input
         },
@@ -524,7 +528,7 @@ fn family_context_parent_role_required_surfaces_explicit_pairing_blocker() {
     let (projected_input, readiness, actions) =
         evaluate_family_context(ProvisioningFamilyContextInput {
             household_authority_input: HouseholdAuthorityInput {
-                actor_role: FamilyActorRole::Observer,
+                actor_role: HouseholdRole::Observer,
                 ..ready_family_context().household_authority_input
             },
             ..ready_family_context()
@@ -575,18 +579,20 @@ fn family_context_stale_signed_hello_reissues_pairing_code() {
 }
 
 #[test]
-fn family_context_support_recovery_handoff_blocks_custody_sync_first() {
+fn family_context_support_recovery_handoff_projects_reset_required_device_trust() {
     let (projected_input, readiness, actions) =
         evaluate_family_context(ProvisioningFamilyContextInput {
             recovery_operation: Some(FamilyRecoveryOperation {
-                requester_role: FamilyActorRole::Parent,
-                household_membership: HouseholdMembership::Member,
+                requester_role: HouseholdRole::ParentOwner,
+                same_family: true,
                 kind: FamilyRecoveryKind::CompromisedAccount,
                 state: FamilyRecoveryState::Approved,
                 owner_approval_required: false,
                 identity_proof_state: RecoveryIdentityProofState::Verified,
                 support_channel: RecoverySupportChannel::SupportAssisted,
                 delete_export_handoff_required: true,
+                abuse_state: SetupRecoveryAbuseState::WithinLimit,
+                response_timing_state: SetupRecoveryResponseTimingState::Uniform,
             }),
             ..ready_family_context()
         });
@@ -600,11 +606,15 @@ fn family_context_support_recovery_handoff_blocks_custody_sync_first() {
         RecoveryState::PermissionLoss
     );
     assert_eq!(
+        projected_input.device_trust_state,
+        DeviceTrustState::ResetRequired
+    );
+    assert_eq!(
         readiness.blocker_reason,
-        Some(ProvisioningBlockerReason::DataCustodySyncBlocked)
+        Some(ProvisioningBlockerReason::ChildDeviceTrustRequired)
     );
     assert_eq!(
         actions.recovery_action,
-        ProvisioningRecoveryAction::RepairCustodySync
+        ProvisioningRecoveryAction::TrustChildDevice
     );
 }

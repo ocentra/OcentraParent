@@ -3,8 +3,8 @@ import {
   ProductionSupportPublicationWorkflowProofSchema,
   ProductionSupportPublicationWorkflowRowSchema,
   summarizeProductionSupportPublicationWorkflowRows,
-} from '../../src/production-support-publication-workflow';
-import { ProductionSupportPublicationWorkflowReadModel } from '../../src/production-support-publication-workflow-read-model';
+} from '@ocentra-parent/schema-domain/production-support-publication-workflow';
+import { ProductionSupportPublicationWorkflowReadModel } from '@ocentra-parent/schema-domain/production-support-publication-workflow-read-model';
 
 describe('production support publication workflow', () => {
   acceptsPublicationWorkflowRows();

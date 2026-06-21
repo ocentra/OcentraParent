@@ -1,6 +1,6 @@
 use std::fs::remove_file;
 
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
     ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, AgentCommandEnvelope,
@@ -15,15 +15,22 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_JOURNAL_FIELD_ROW_KIND, APP_GAME_JOURNAL_REPLAY_STATE_STORED,
     APP_GAME_JOURNAL_ROW_KIND_RUNTIME, APP_GAME_JOURNAL_SOURCE_ID,
     APP_GAME_OBSERVATION_MODE_PROCESS_START, APP_GAME_RUNTIME_RUNNING, APP_GAME_SCHEMA_VERSION,
-    APP_GAME_TEST_CATALOG_REF, APP_GAME_TEST_EVIDENCE_REF_ID, APP_GAME_TEST_EXECUTABLE_PATH_REF,
-    APP_GAME_TEST_PARENT_PROCESS_ID, APP_GAME_TEST_PROCESS_ID, APP_GAME_TEST_PROCESS_IDENTITY,
-    APP_GAME_TEST_PROCESS_NAME, APP_GAME_TEST_RUNTIME_EVIDENCE_ID, APP_GAME_TEST_TIMESTAMP,
 };
 
 use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK, lan_pairing::LanPairingRuntime,
     websocket::handle_command_text_for_test,
 };
+
+const APP_GAME_TEST_CATALOG_REF: &str = "catalog-ref-ocentra-game";
+const APP_GAME_TEST_EXECUTABLE_PATH_REF: &str = "path-ref-ocentra-fixture";
+const APP_GAME_TEST_PARENT_PROCESS_ID: u64 = 1000;
+const APP_GAME_TEST_PROCESS_ID: u64 = 4242;
+const APP_GAME_TEST_PROCESS_IDENTITY: &str = "process-4242";
+const APP_GAME_TEST_PROCESS_NAME: &str = "ocentra-fixture.exe";
+const APP_GAME_TEST_RUNTIME_EVIDENCE_ID: &str = "runtime-evidence-process-4242";
+const APP_GAME_TEST_EVIDENCE_REF_ID: &str = "evidence-app-game-session-1";
+const APP_GAME_TEST_TIMESTAMP: &str = "2026-06-03T22:15:00Z";
 
 #[tokio::test]
 async fn child_runtime_transport_receipt_command_reports_live_read_model() {

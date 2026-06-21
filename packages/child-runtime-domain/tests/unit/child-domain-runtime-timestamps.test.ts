@@ -7,10 +7,12 @@ import {
   ChildDomainPolicyViolationDetectedEventSchema,
   ChildDomainRuntimeEventType,
   ChildRuntimeDomainLiteral,
-} from '../../src/child-domain-runtime-events';
+} from '@ocentra-parent/schema-domain/child-domain-runtime-events';
 
 describe('child domain runtime timestamp boundary contracts', () => {
   it('parses timestamp-bearing evidence-policy-notification boundary payloads', () => {
+    const policyViolationId = `${ChildDomainRuntimeEventType.PolicyViolationDetected}:browser:policy-request:1`;
+
     const evidenceRecorded = ChildDomainEvidenceRecordedEventSchema.parse({
       eventType: ChildDomainRuntimeEventType.BrowserEvidenceRecorded,
       domain: ChildRuntimeDomainLiteral.Browser,
@@ -38,7 +40,7 @@ describe('child domain runtime timestamp boundary contracts', () => {
       domain: ChildRuntimeDomainLiteral.Browser,
       childDeviceId: 'child-device-1',
       childProfileId: 'child-profile-1',
-      violationId: 'child-domain.policy.violation.detected:browser:policy-request:1',
+      violationId: policyViolationId,
       policyRuleRef: 'default',
       severity: 'review',
       detectedAt: policyRequested.sourceObservedAt,
@@ -49,7 +51,7 @@ describe('child domain runtime timestamp boundary contracts', () => {
       domain: ChildRuntimeDomainLiteral.Browser,
       childDeviceId: 'child-device-1',
       childProfileId: 'child-profile-1',
-      notificationId: 'child-domain.notification.requested:child-domain.policy.violation.detected:browser:policy-request:1',
+      notificationId: `${ChildDomainRuntimeEventType.NotificationRequested}:${policyViolationId}`,
       sourcePolicyViolationId: policyViolation.violationId,
       channel: 'parent-portal',
       requestedAt: policyViolation.detectedAt,
@@ -67,8 +69,8 @@ describe('child domain runtime timestamp boundary contracts', () => {
       domain: ChildRuntimeDomainLiteral.Browser,
       childDeviceId: 'child-device-1',
       childProfileId: 'child-profile-1',
-      notificationId: 'child-domain.notification.requested:1',
-      sourcePolicyViolationId: 'child-domain.policy.violation.detected:1',
+      notificationId: `${ChildDomainRuntimeEventType.NotificationRequested}:1`,
+      sourcePolicyViolationId: `${ChildDomainRuntimeEventType.PolicyViolationDetected}:1`,
       channel: 'parent-portal',
       evidenceRefs: ['browser:evidence:1'],
     });

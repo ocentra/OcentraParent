@@ -4,7 +4,7 @@ import {
   TrackingEscalationReadinessRowSchema,
   buildTrackingEscalationReadinessReadModel,
 } from '../../src/tracking-escalation-readiness-proof';
-import { TrackingPolicySchemaVersion } from '../../src/tracking-location-policy';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy';
 
 const EvidenceTrace = {
   evidenceReferenceId: 'tracking-escalation-location-evidence-1',

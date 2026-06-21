@@ -3,12 +3,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
-  ChildProfileSchema,
   doesChildProfileMatchDeviceReference,
   toChildProfileReference,
 } from '../../src/child-profile';
-import { ParentMemberSchema } from '../../src/household-authority';
-import { ParentDeviceReferenceSchema } from '../../src/references';
+import { ChildProfileSchema } from '@ocentra-parent/schema-domain/family-child-profile';
+import { ParentMemberSchema } from '@ocentra-parent/schema-domain/family-household-authority';
+import { ParentDeviceReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
 
 describe('child profile contracts', () => {
   const childProfileInput = {
@@ -56,17 +56,14 @@ describe('child profile contracts', () => {
     const repoRoot = path.resolve(testDirectory, '..', '..', '..', '..');
     const setupDomainSourceDirectory = path.join(repoRoot, 'packages', 'setup-domain', 'src');
     const setupDomainChildProfileModulePath = path.join(setupDomainSourceDirectory, 'child-profile.ts');
-    const childProfileConsumerFiles = ['family-setup-bridge.ts', 'pairing-intent.ts', 'readiness.ts'];
+    const childProfileConsumerFiles = ['family-setup-bridge.ts'];
 
     expect(existsSync(setupDomainChildProfileModulePath)).toBe(false);
-    expect(childProfileConsumerFiles).toEqual(
-      expect.arrayContaining(['family-setup-bridge.ts', 'pairing-intent.ts', 'readiness.ts'])
-    );
 
     for (const fileName of childProfileConsumerFiles) {
       const fileContents = readFileSync(path.join(setupDomainSourceDirectory, fileName), 'utf8');
 
-      expect(fileContents.includes('ChildProfileReferenceSchema')).toBe(true);
+      expect(fileContents.includes("@ocentra-parent/schema-domain/family-references")).toBe(true);
       expect(fileContents.includes('ChildProfileSchema')).toBe(false);
     }
   });

@@ -21,21 +21,22 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff',
   'app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff',
 ]);
 
-const responseContract = await importDist(
+const responseContract = await importAppGameDist(
   'app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff.js'
 );
-const refs = await importDist('reference-primitives.js');
+const refs = await importSchemaDist('reference-primitives.js');
 const readApiHandoff = await readJson(
   join(
     repoRoot,
@@ -59,7 +60,7 @@ const proof = {
   stackedOn: {
     wp92Branch: 'codex/app-game-source-gated-policy-preview-timer-service-readiness-read-api-handoff',
     reason:
-      'WP93 consumes WP92 read API handoff rows and creates a parent-domain read API response handoff while actual service command registration, service handler implementation, service event emission, service read API implementation, response implementation, portal rendering, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports are sequenced separately.',
+      'Schema-domain owns the read-api-response handoff contract surface; app-game-domain consumes WP92 read API handoff rows while actual service command registration, service handler implementation, service event emission, service read API implementation, response implementation, portal rendering, timer runtime, durable scheduler/audit storage, rollback execution, adapter dispatch, child delivery, platform enforcement, and package exports remain sequenced separately.',
   },
   summary: summarize(readApiResponseHandoff),
   nonClaims: {
@@ -86,11 +87,14 @@ const proof = {
     rawPrivateSourceRowsIncluded: readApiResponseHandoff.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff.ts',
-    rules:
-      'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff.test.ts',
+    schemaSource:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff.ts',
+    schemaRules:
+      'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff-rules.ts',
+    consumerSource:
+      'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff.ts',
+    consumerTest:
+      'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff.test.ts',
     harness:
       'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff-proof.mjs',
     evidence:
@@ -116,8 +120,12 @@ console.log(
   )}`
 );
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function readApiResponseHandoffOptions(refs) {

@@ -1,167 +1,25 @@
 import { type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+  PortalConnectionState as SharedPortalConnectionState,
+  PortalConnectionStateSchema as SharedPortalConnectionStateSchema,
+  PortalDevToolUrlSchema as SharedPortalDevToolUrlSchema,
+  PortalRoute as SharedPortalRoute,
+  PortalRouteHashPrefix,
+  PortalRouteHashQuerySeparator,
+  PortalRouteLiteral as SharedPortalRouteLiteral,
+  PortalRouteSchema as SharedPortalRouteSchema,
+  type PortalConnectionState as SharedPortalConnectionStateValue,
+  type PortalDevToolUrl as SharedPortalDevToolUrlValue,
+  type PortalRoute as SharedPortalRouteValue,
+} from '@ocentra-parent/schema-domain/portal-contracts';
 
-export const PortalRouteLiteral = {
-  Overview: 'overview',
-  Assistant: 'assistant',
-  Start: 'start',
-  Activity: 'activity',
-  Browser: 'browser',
-  BrowserSettings: 'browser-settings',
-  Policy: 'policy',
-  PolicyApps: 'policy-apps',
-  PolicyGames: 'policy-games',
-  PolicyScreen: 'policy-screen',
-  PolicyNetwork: 'policy-network',
-  PolicyTracking: 'policy-tracking',
-  PolicyRemoteScreen: 'policy-remote-screen',
-  RuleManagement: 'rule-management',
-  Schedules: 'schedules',
-  Approvals: 'approvals',
-  Enforcement: 'enforcement',
-  PrivacyDesign: 'privacy-design',
-  Memory: 'memory',
-  MemorySettings: 'memory-settings',
-  AiGuide: 'ai-guide',
-  AiRuntime: 'ai-runtime',
-  ApiProviders: 'api-providers',
-  ReportsGuide: 'reports-guide',
-  ScreenAnalysis: 'screen-analysis',
-  AppGameSessions: 'app-game-sessions',
-  NetworkActivity: 'network-activity',
-  Devices: 'devices',
-  LanPairing: 'lan-pairing',
-  CapabilityStatus: 'capability-status',
-  Notifications: 'notifications',
-  NotificationChannels: 'notification-channels',
-  DriveConnections: 'drive-connections',
-  ExportRetention: 'export-retention',
-  RemoteAccess: 'remote-access',
-  ReportCompiler: 'report-compiler',
-  AuditHistory: 'audit-history',
-  Subscription: 'subscription',
-  Entitlements: 'entitlements',
-  PlatformsInstall: 'platforms-install',
-  InstallUpdates: 'install-updates',
-  Diagnostics: 'diagnostics',
-  SettingsRules: 'settings-rules',
-  FrameTuner: 'app-layout',
-  Commands: 'commands',
-  Events: 'events',
-  Logs: 'logs',
-} as const;
+export const PortalRouteLiteral = SharedPortalRouteLiteral;
+export const PortalRouteSchema = SharedPortalRouteSchema;
+export type PortalRoute = SharedPortalRouteValue;
+export const PortalRoute = SharedPortalRoute;
+export { PortalRouteHashPrefix, PortalRouteHashQuerySeparator };
 
-export const PortalRouteSchema = withParser(
-  Schema.Literal(
-    PortalRouteLiteral.Overview,
-    PortalRouteLiteral.Assistant,
-    PortalRouteLiteral.Start,
-    PortalRouteLiteral.Activity,
-    PortalRouteLiteral.Browser,
-    PortalRouteLiteral.BrowserSettings,
-    PortalRouteLiteral.Policy,
-    PortalRouteLiteral.PolicyApps,
-    PortalRouteLiteral.PolicyGames,
-    PortalRouteLiteral.PolicyScreen,
-    PortalRouteLiteral.PolicyNetwork,
-    PortalRouteLiteral.PolicyTracking,
-    PortalRouteLiteral.PolicyRemoteScreen,
-    PortalRouteLiteral.RuleManagement,
-    PortalRouteLiteral.Schedules,
-    PortalRouteLiteral.Approvals,
-    PortalRouteLiteral.Enforcement,
-    PortalRouteLiteral.PrivacyDesign,
-    PortalRouteLiteral.Memory,
-    PortalRouteLiteral.MemorySettings,
-    PortalRouteLiteral.AiGuide,
-    PortalRouteLiteral.AiRuntime,
-    PortalRouteLiteral.ApiProviders,
-    PortalRouteLiteral.ReportsGuide,
-    PortalRouteLiteral.ScreenAnalysis,
-    PortalRouteLiteral.AppGameSessions,
-    PortalRouteLiteral.NetworkActivity,
-    PortalRouteLiteral.Devices,
-    PortalRouteLiteral.LanPairing,
-    PortalRouteLiteral.CapabilityStatus,
-    PortalRouteLiteral.Notifications,
-    PortalRouteLiteral.NotificationChannels,
-    PortalRouteLiteral.DriveConnections,
-    PortalRouteLiteral.ExportRetention,
-    PortalRouteLiteral.RemoteAccess,
-    PortalRouteLiteral.ReportCompiler,
-    PortalRouteLiteral.AuditHistory,
-    PortalRouteLiteral.Subscription,
-    PortalRouteLiteral.Entitlements,
-    PortalRouteLiteral.PlatformsInstall,
-    PortalRouteLiteral.InstallUpdates,
-    PortalRouteLiteral.Diagnostics,
-    PortalRouteLiteral.SettingsRules,
-    PortalRouteLiteral.FrameTuner,
-    PortalRouteLiteral.Commands,
-    PortalRouteLiteral.Events,
-    PortalRouteLiteral.Logs
-  )
-);
-export type PortalRoute = Infer<typeof PortalRouteSchema>;
-
-export const PortalRoute = {
-  Overview: PortalRouteSchema.parse(PortalRouteLiteral.Overview),
-  Assistant: PortalRouteSchema.parse(PortalRouteLiteral.Assistant),
-  Start: PortalRouteSchema.parse(PortalRouteLiteral.Start),
-  Activity: PortalRouteSchema.parse(PortalRouteLiteral.Activity),
-  Browser: PortalRouteSchema.parse(PortalRouteLiteral.Browser),
-  BrowserSettings: PortalRouteSchema.parse(PortalRouteLiteral.BrowserSettings),
-  Policy: PortalRouteSchema.parse(PortalRouteLiteral.Policy),
-  PolicyApps: PortalRouteSchema.parse(PortalRouteLiteral.PolicyApps),
-  PolicyGames: PortalRouteSchema.parse(PortalRouteLiteral.PolicyGames),
-  PolicyScreen: PortalRouteSchema.parse(PortalRouteLiteral.PolicyScreen),
-  PolicyNetwork: PortalRouteSchema.parse(PortalRouteLiteral.PolicyNetwork),
-  PolicyTracking: PortalRouteSchema.parse(PortalRouteLiteral.PolicyTracking),
-  PolicyRemoteScreen: PortalRouteSchema.parse(PortalRouteLiteral.PolicyRemoteScreen),
-  RuleManagement: PortalRouteSchema.parse(PortalRouteLiteral.RuleManagement),
-  Schedules: PortalRouteSchema.parse(PortalRouteLiteral.Schedules),
-  Approvals: PortalRouteSchema.parse(PortalRouteLiteral.Approvals),
-  Enforcement: PortalRouteSchema.parse(PortalRouteLiteral.Enforcement),
-  PrivacyDesign: PortalRouteSchema.parse(PortalRouteLiteral.PrivacyDesign),
-  Memory: PortalRouteSchema.parse(PortalRouteLiteral.Memory),
-  MemorySettings: PortalRouteSchema.parse(PortalRouteLiteral.MemorySettings),
-  AiGuide: PortalRouteSchema.parse(PortalRouteLiteral.AiGuide),
-  AiRuntime: PortalRouteSchema.parse(PortalRouteLiteral.AiRuntime),
-  ApiProviders: PortalRouteSchema.parse(PortalRouteLiteral.ApiProviders),
-  ReportsGuide: PortalRouteSchema.parse(PortalRouteLiteral.ReportsGuide),
-  ScreenAnalysis: PortalRouteSchema.parse(PortalRouteLiteral.ScreenAnalysis),
-  AppGameSessions: PortalRouteSchema.parse(PortalRouteLiteral.AppGameSessions),
-  NetworkActivity: PortalRouteSchema.parse(PortalRouteLiteral.NetworkActivity),
-  Devices: PortalRouteSchema.parse(PortalRouteLiteral.Devices),
-  LanPairing: PortalRouteSchema.parse(PortalRouteLiteral.LanPairing),
-  CapabilityStatus: PortalRouteSchema.parse(PortalRouteLiteral.CapabilityStatus),
-  Notifications: PortalRouteSchema.parse(PortalRouteLiteral.Notifications),
-  NotificationChannels: PortalRouteSchema.parse(PortalRouteLiteral.NotificationChannels),
-  DriveConnections: PortalRouteSchema.parse(PortalRouteLiteral.DriveConnections),
-  ExportRetention: PortalRouteSchema.parse(PortalRouteLiteral.ExportRetention),
-  RemoteAccess: PortalRouteSchema.parse(PortalRouteLiteral.RemoteAccess),
-  ReportCompiler: PortalRouteSchema.parse(PortalRouteLiteral.ReportCompiler),
-  AuditHistory: PortalRouteSchema.parse(PortalRouteLiteral.AuditHistory),
-  Subscription: PortalRouteSchema.parse(PortalRouteLiteral.Subscription),
-  Entitlements: PortalRouteSchema.parse(PortalRouteLiteral.Entitlements),
-  PlatformsInstall: PortalRouteSchema.parse(PortalRouteLiteral.PlatformsInstall),
-  InstallUpdates: PortalRouteSchema.parse(PortalRouteLiteral.InstallUpdates),
-  Diagnostics: PortalRouteSchema.parse(PortalRouteLiteral.Diagnostics),
-  SettingsRules: PortalRouteSchema.parse(PortalRouteLiteral.SettingsRules),
-  FrameTuner: PortalRouteSchema.parse(PortalRouteLiteral.FrameTuner),
-  Commands: PortalRouteSchema.parse(PortalRouteLiteral.Commands),
-  Events: PortalRouteSchema.parse(PortalRouteLiteral.Events),
-  Logs: PortalRouteSchema.parse(PortalRouteLiteral.Logs),
-} as const;
-
-export const PortalRouteHashPrefix = '#/' as const;
-export const PortalRouteHashQuerySeparator = '?' as const;
 export type PortalRouteHashPath = `${typeof PortalRouteHashPrefix}${PortalRoute}`;
 export type PortalRouteHashQueryPath =
   `${typeof PortalRouteHashPrefix}${PortalRoute}${typeof PortalRouteHashQuerySeparator}${string}`;
@@ -284,10 +142,12 @@ export const PortalDevToolWindow = {
   TauriInternalKey: '__TAURI_INTERNALS__',
 } as const;
 
-export const PortalDevToolUrlSchema = withParser(
-  brandedNonEmptyStringSchema('PortalDevToolUrl')
-);
-export type PortalDevToolUrl = Infer<typeof PortalDevToolUrlSchema>;
+export const PortalConnectionStateSchema = SharedPortalConnectionStateSchema;
+export type PortalConnectionState = SharedPortalConnectionStateValue;
+export const PortalConnectionState = SharedPortalConnectionState;
+
+export const PortalDevToolUrlSchema = SharedPortalDevToolUrlSchema;
+export type PortalDevToolUrl = SharedPortalDevToolUrlValue;
 
 export function portalDevToolUrl(origin: string, pathname: string, route: PortalRoute): PortalDevToolUrl {
   return PortalDevToolUrlSchema.parse(`${origin}${pathname}${portalRouteHashPath(route)}`);

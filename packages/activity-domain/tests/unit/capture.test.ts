@@ -12,7 +12,7 @@ import {
   ActivityObservationModeSchema,
   ActivityProcessAttributionStatus,
   ActivityProcessAttributionStatusSchema,
-} from '../../src/capture';
+} from '@ocentra-parent/schema-domain/activity-capture';
 
 describe('activity capture contracts', () => {
   it('parses observation modes and capability statuses', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildScreenAiMemoryGraphSourceGuardProof } from '../../src/screen-ai-memory-graph-source-guard-proof';
+import { buildScreenAiMemoryGraphSourceGuardProof } from '@ocentra-parent/schema-domain/screen-ai-memory-graph-source-guard-proof';
 
 const observedAt = '2026-06-05T17:15:00.000Z';
 const childProfile = { childProfileId: 'child-screen-ai-memory', displayName: 'Sam' };

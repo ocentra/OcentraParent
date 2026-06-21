@@ -2,7 +2,7 @@ import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/ef
 import {
   NotificationLocalOutboxRecordSchema,
   type NotificationLocalOutboxRecord,
-} from '@ocentra-parent/notification-domain/notification-local-outbox-adapter-proof';
+} from '@ocentra-parent/schema-domain/notification-local-outbox';
 import {
   ParentContractSchemaVersion,
   ParentContractSchemaVersionSchema,
@@ -13,9 +13,9 @@ import {
   SocialAlertReportProviderReceiptBoundaryReadModelSchema,
   type SocialAlertReportProviderReceiptBoundaryReadModel,
   type SocialAlertReportProviderReceiptBoundaryRow,
-} from './social-alert-report-provider-receipt-boundary-proof';
-import { SocialAlertReportReferenceSchema } from './social-alert-report-intent-values';
-import { V3NotificationProviderChannelSchema } from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
+} from '@ocentra-parent/schema-domain/social-alert-report-provider-receipt-boundary-proof';
+import { SocialAlertReportReferenceSchema } from '@ocentra-parent/schema-domain/social-alert-report-intent-values';
+import { V3NotificationProviderChannelSchema } from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
 
 export const RequiredSocialAlertReportProviderDispatchExecutionNonClaims = [
   'no-provider-delivery-observed',
@@ -282,7 +282,9 @@ function dispatchPacketFor(
     deviceScopeRef: `social-provider-dispatch-device-${record.envelope.device.deviceId}`,
     parentActionLinkRef: record.envelope.parentAction?.actionReferenceId ?? null,
     payloadTemplateRef: record.envelope.payloadTemplateRef,
-    evidenceRefs: record.envelope.evidenceRefs.map((evidence) => evidence.evidenceReferenceId),
+    evidenceRefs: record.envelope.evidenceRefs.map(
+      (evidence: NotificationLocalOutboxRecord['envelope']['evidenceRefs'][number]) => evidence.evidenceReferenceId
+    ),
     policyRefs: record.envelope.policyRefs,
     auditRefs: record.envelope.auditRefs,
     sensitiveDetailMinimized: true,

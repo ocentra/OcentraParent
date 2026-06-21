@@ -1,14 +1,16 @@
 import type { ReactElement } from 'react';
-import { AgentCommand, AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
-  PortalDetails,
+  AgentCommand,
+  AgentEvent,
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import {
   PortalDom,
-  PortalRoute,
   PortalText,
   PortalTextToken,
   type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { PortalRoute, type PortalRoute as PortalRouteValue } from '@ocentra-parent/portal-domain/routes';
 import type { PortalShellParentAccessState } from '@ocentra-parent/portal-domain/parent-portal-shell-status';
 import {
   createPolicyPreviewPanelIntent,

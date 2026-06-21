@@ -14,15 +14,15 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-runtime-delivery-receipt-boundary-proof.test.ts',
+      'tests/unit/app-install-purchase-runtime-delivery-receipt-boundary-proof.test.ts',
     ])
   );
 
@@ -63,19 +63,20 @@ async function main() {
     commitMetadataState: 'omitted-for-deterministic-proof-artifact',
     proofMode: 'app-install-purchase-runtime-delivery-receipt-boundary-proof',
     commands,
-    packageExportState: 'not-added-shared-package-json-left-unlocked-for-e-c',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     checklistState: 'not-touched-shared-checklist-left-unlocked-for-e-c',
     evidence: {
       runtimeDeliveryReceiptBoundaryContract:
-        'packages/parent-domain/src/app-install-purchase-runtime-delivery-receipt-boundary-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-runtime-delivery-receipt-boundary-proof.ts',
       sourceDispatchPreflightContract:
-        'packages/parent-domain/src/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-runtime-delivery-receipt-boundary-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-external-runtime-transport-dispatch-preflight-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-runtime-delivery-receipt-boundary-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       platformExpectationDoc: 'docs/expectations/platforms.md',
       packageExport: 'not-added',
-      packageReadme: 'not-touched',
+      packageReadme: 'packages/app-game-domain/package.json',
       checklistRow: 'not-touched',
       output: relative(repoRoot, proofPath),
     },
@@ -118,7 +119,7 @@ async function loadRuntimeDeliveryReceiptBoundaryProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-runtime-delivery-receipt-boundary-proof.js'
   );

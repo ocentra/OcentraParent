@@ -1,6 +1,6 @@
 use ocentra_eventing::envelope::DomainEvent;
 use ocentra_family_identity_core::family_identity::{
-    DeviceOwnershipScope, DeviceTrustState, HouseholdMembership,
+    DeviceOwnershipScope, DeviceTrustState, HouseholdMembershipState,
 };
 use ocentra_provisioning_core::provisioning_install::{
     evaluate_provisioning_readiness, plan_provisioning_actions, provisioning_action_planned_event,
@@ -16,7 +16,7 @@ use ocentra_provisioning_core::provisioning_install::{
 
 fn ready_input() -> ProvisioningReadinessInput {
     ProvisioningReadinessInput {
-        household_membership: HouseholdMembership::Member,
+        membership_state: HouseholdMembershipState::Active,
         account_readiness_state: AccountReadinessState::Ready,
         parent_app_readiness_state: ParentAppReadinessState::Ready,
         parent_device_registration_state: ParentDeviceRegistrationState::Registered,

@@ -1,6 +1,10 @@
 use std::{fs, path::Path, time::Duration};
 
-use ocentra_parent_agent_core::{ActivityJournal, ActivityStore, JournalKey, JOURNAL_KEY_BYTES};
+use ocentra_parent_agent_core::{
+    activity_store::ActivityStore,
+    journal::ActivityJournal,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+};
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityIngestStatus, LogFieldValue,
 };

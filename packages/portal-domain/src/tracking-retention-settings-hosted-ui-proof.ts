@@ -5,8 +5,8 @@ import {
   AgentTrackingParentExportState,
   AgentTrackingRemoteAiState,
   AgentTrackingRemoteSyncState,
-  type AgentTrackingRetentionSettingsWriteResultParseResult,
-} from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
+} from '@ocentra-parent/schema-domain/agent-tracking-retention-settings-write-command';
+import type { AgentTrackingRetentionSettingsWriteResultParseResult } from '@ocentra-parent/agent-protocol-domain/tracking-retention-settings-write-command';
 import type { DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { decodePortalDetailValue, type PortalDetailValue } from './detail-values';

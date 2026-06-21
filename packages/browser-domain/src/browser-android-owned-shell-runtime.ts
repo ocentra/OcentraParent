@@ -5,8 +5,8 @@ import {
   brandedNonEmptyStringSchema,
   NonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { ActivityTimestampSchema } from '@ocentra-parent/evidence-domain/primitives';
-import { BrowserEvidenceSchemaVersion } from './browser-schemas';
+import { ActivityTimestampSchema } from '@ocentra-parent/schema-domain/evidence-primitives';
+import { BrowserEvidenceSchemaVersion } from '@ocentra-parent/schema-domain/browser-schemas';
 
 export const BrowserAndroidOwnedShellRuntimeStateSchema = withParser(
   Schema.Literal('physical-visible-owned-shell', 'emulator-browser-role-routing', 'manual-required')

@@ -21,23 +21,24 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(appGameProofDir, { recursive: true });
 
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-game-windows-broad-blocking-authority-preflight',
       'app-game-broad-blocking-proof-gates',
       'v0-8-os-adapter-manual-artifact-gates',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
   const preflightModule = await import(
     pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-windows-broad-blocking-authority-preflight.js')
+      join(repoRoot, 'packages', 'app-game-domain', 'dist', 'app-game-windows-broad-blocking-authority-preflight.js')
     ).href
   );
   const preflight = preflightModule.createAppGameWindowsBroadBlockingAuthorityPreflightReadModel({
@@ -66,13 +67,13 @@ async function main() {
     preflight,
     summary,
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-windows-broad-blocking-authority-preflight.test.ts',
-      broadBlockingGateData: 'packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts',
-      manualArtifactGates: 'packages/parent-domain/src/v0-8-os-adapter-manual-artifact-gates.ts',
+      contract: 'packages/app-game-domain/src/app-game-windows-broad-blocking-authority-preflight.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-game-windows-broad-blocking-authority-preflight.test.ts',
+      broadBlockingGateData: 'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-data.ts',
+      manualArtifactGates: 'packages/schema-domain/src/v0-8-os-adapter-manual-artifact-gates.ts',
     },
     claimsProved: [
-      'Windows broad launch blocking now has a parent-domain authority preflight over the existing AppLocker/App Control broad-blocking gates',
+      'Windows broad launch blocking now has an app-game-domain authority preflight over the existing AppLocker/App Control broad-blocking gates',
       'The current Windows host can attach only the parent-safe host probe ref',
       'AppLocker/App Control enforce proof, system-app allowlist proof, rollback proof, and audit custody proof remain required before adapter dispatch',
     ],

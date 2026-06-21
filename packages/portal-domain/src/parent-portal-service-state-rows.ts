@@ -1,13 +1,13 @@
 import {
   AgentEvent,
-  AgentProtocolDefaults,
   type AgentEventEnvelope,
   type AgentEventName,
   type AgentProtocolLogFields,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
 import { PARENT_PORTAL_ROUTE, type ParentPortalRow, type ParentPortalTone } from './parent-portal-data';
+import PARENT_PORTAL_SERVICE_STATE from './parent-portal-service-state-constants';
 import type { ParentPortalServiceConnectionState, ParentPortalServiceStateInput } from './parent-portal-service-state';
-import { PARENT_PORTAL_SERVICE_STATE } from './parent-portal-service-state';
 import { parentPortalProductShellRows } from './parent-portal-product-shell-rows';
 
 export function parentPortalServiceRows(input: ParentPortalServiceStateInput): ParentPortalRow[] {

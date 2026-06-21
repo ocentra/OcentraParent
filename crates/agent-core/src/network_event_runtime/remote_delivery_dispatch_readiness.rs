@@ -1,13 +1,13 @@
 use ocentra_eventing::delivery::EventDeliveryDecisionProof;
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_outbox_handoff;
 use super::remote_delivery_dispatch_readiness_types::{
     NetworkRuntimeRemoteDeliveryDispatchGate, NetworkRuntimeRemoteDeliveryDispatchReadinessError,
     NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
     NetworkRuntimeRemoteDeliveryDispatchReadinessState,
 };
 use super::remote_delivery_event_chain_store::source_component;
+use super::remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff;
 use super::remote_delivery_outbox_handoff_types::NetworkRuntimeRemoteDeliveryOutboxHandoffReport;
 
 pub async fn prove_network_runtime_remote_delivery_dispatch_readiness() -> Result<

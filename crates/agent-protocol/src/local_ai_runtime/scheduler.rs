@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::constants;
 
-use super::{LocalAiDegradedState, LocalAiResourceClass};
+use super::lifecycle::{LocalAiDegradedState, LocalAiResourceClass};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LocalAiProviderSingletonScope {

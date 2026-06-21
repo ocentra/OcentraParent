@@ -13,7 +13,7 @@ import {
   RemoteConnectorStatusEndpointSupport,
   RemoteConnectorStatusHeader,
   RemoteConnectorStatusQueryParam,
-} from '../../src/constants/sync-export';
+} from '@ocentra-parent/schema-domain/endpoint-sync-export';
 
 const expectedSyncExportEndpointIds = {
   ExportManifest: 'sync-export.parent-owned.export-manifest',

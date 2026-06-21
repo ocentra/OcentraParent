@@ -14,18 +14,19 @@ await main();
 async function main() {
   await mkdir(outputDir, { recursive: true });
 
-  await runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  await runNpm(['run', 'build', '--workspace', '@ocentra-parent/enforcement-domain']);
   await runNpm([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/enforcement-domain',
     '--',
-    'tamper-uninstall-artifact-status',
+    'tests/unit/tamper-uninstall-artifact-status.test.ts',
   ]);
 
-  const packageJson = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
-  const contractModule = await import('@ocentra-parent/enforcement-domain/tamper-uninstall-artifact-status');
+  const schemaPackageJson = JSON.parse(await readRepoFile('packages/schema-domain/package.json'));
+  const enforcementPackageJson = JSON.parse(await readRepoFile('packages/enforcement-domain/package.json'));
+  const contractModule = await import('@ocentra-parent/schema-domain/tamper-uninstall-artifact-status');
   const readModelModule = await import('@ocentra-parent/enforcement-domain/tamper-uninstall-artifact-status-read-model');
   const readModel = contractModule.TamperUninstallArtifactStatusReadModelSchema.parse(
     readModelModule.TamperUninstallArtifactStatusReadModel
@@ -34,7 +35,7 @@ async function main() {
   const nonClaims = readModel.entries.every((entry) => noClaimFieldsAreFalse(entry));
   const adminRemoval = readModel.entries.find((entry) => entry.surface === 'admin-removal-flow');
 
-  assertPackageExport(packageJson);
+  assertPackageExport(schemaPackageJson, enforcementPackageJson);
   assertExactCoverage(surfaces);
   assertManualStates(readModel);
   assertAdminRemovalFlow(adminRemoval);
@@ -58,9 +59,13 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
-      contract: 'packages/parent-domain/src/tamper-uninstall-artifact-status.ts',
-      contractTest: 'packages/parent-domain/tests/tamper-uninstall-artifact-status.test.ts',
-      packageExports: ['./tamper-uninstall-artifact-status', './tamper-uninstall-artifact-status-read-model'],
+      contract: 'packages/schema-domain/src/tamper-uninstall-artifact-status.ts',
+      contractTest: 'packages/enforcement-domain/tests/unit/tamper-uninstall-artifact-status.test.ts',
+      packageExports: {
+        schemaDomain: ['./tamper-uninstall-artifact-status'],
+        enforcementDomain: ['./tamper-uninstall-artifact-status-read-model'],
+        removedLocalExports: ['./tamper-uninstall-artifact-status'],
+      },
       output: relativePath(proofPath),
     },
     summary: {
@@ -87,20 +92,22 @@ async function main() {
   console.log(`evidence=${relativePath(proofPath)}`);
 }
 
-function assertPackageExport(packageJson) {
-  const exportEntry = packageJson.exports?.['./tamper-uninstall-artifact-status'];
-  const readModelExportEntry = packageJson.exports?.['./tamper-uninstall-artifact-status-read-model'];
+function assertPackageExport(schemaPackageJson, enforcementPackageJson) {
+  const exportEntry = schemaPackageJson.exports?.['./tamper-uninstall-artifact-status'];
+  const retiredEnforcementEntry = enforcementPackageJson.exports?.['./tamper-uninstall-artifact-status'];
+  const readModelEntry = enforcementPackageJson.exports?.['./tamper-uninstall-artifact-status-read-model'];
   if (
     exportEntry?.import !== './dist/tamper-uninstall-artifact-status.js' ||
     exportEntry?.types !== './dist/tamper-uninstall-artifact-status.d.ts'
   ) {
-    throw new Error('Missing parent-domain tamper uninstall artifact status export.');
+    throw new Error('Missing schema-domain tamper uninstall artifact status export.');
   }
   if (
-    readModelExportEntry?.import !== './dist/tamper-uninstall-artifact-status-read-model.js' ||
-    readModelExportEntry?.types !== './dist/tamper-uninstall-artifact-status-read-model.d.ts'
+    retiredEnforcementEntry !== undefined ||
+    readModelEntry?.import !== './dist/src/tamper-uninstall-artifact-status-read-model.js' ||
+    readModelEntry?.types !== './dist/src/tamper-uninstall-artifact-status-read-model.d.ts'
   ) {
-    throw new Error('Missing parent-domain tamper uninstall artifact status read model export.');
+    throw new Error('Enforcement-domain export surface does not reflect the trimmed local read-model ownership.');
   }
 }
 

@@ -1,71 +1,17 @@
 use ocentra_parent_agent_protocol::{
     ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus,
-    ActivityProcessAttributionStatus,
+    ActivityProcessAttributionStatus, NetworkRuntimePhase,
 };
-use serde::{Deserialize, Serialize};
 
-use crate::{network_event_runtime_phase::NetworkRuntimePhase, NetworkObservation};
+use crate::network_capture::NetworkObservation;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum NetworkEvidenceScope {
-    MetadataOnly,
-    AdapterUnavailable,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum NetworkEvidenceGrade {
-    DomainAndProcessMetadata,
-    IpOrProcessPartialMetadata,
-    AdapterUnavailable,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum NetworkAiAuditState {
-    NotRequested,
-    Requested,
-    Completed,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum NetworkRiskBudgetState {
-    ObserveOnly,
-    ManualReviewRequired,
-    Unavailable,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum NetworkInterventionState {
-    DryRunOnly,
-    ManualRequired,
-    Unavailable,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct NetworkRuntimeClaimBoundary {
-    pub raw_pcap_available: bool,
-    pub decrypted_https_payload_available: bool,
-    pub exact_url_available: bool,
-    pub page_content_available: bool,
-    pub video_content_available: bool,
-    pub private_message_content_available: bool,
-    pub search_query_available: bool,
-    pub adapter_action_executed: bool,
-}
-
-impl NetworkRuntimeClaimBoundary {
-    pub(crate) fn metadata_only() -> Self {
-        Self {
-            raw_pcap_available: false,
-            decrypted_https_payload_available: false,
-            exact_url_available: false,
-            page_content_available: false,
-            video_content_available: false,
-            private_message_content_available: false,
-            search_query_available: false,
-            adapter_action_executed: false,
-        }
-    }
-}
+pub(crate) type NetworkEvidenceScope = ocentra_parent_agent_protocol::NetworkEvidenceScope;
+pub(crate) type NetworkEvidenceGrade = ocentra_parent_agent_protocol::NetworkRuntimeEvidenceGrade;
+pub(crate) type NetworkAiAuditState = ocentra_parent_agent_protocol::NetworkAiAuditState;
+pub(crate) type NetworkRiskBudgetState = ocentra_parent_agent_protocol::NetworkRiskBudgetState;
+pub(crate) type NetworkInterventionState = ocentra_parent_agent_protocol::NetworkInterventionState;
+pub(crate) type NetworkRuntimeClaimBoundary =
+    ocentra_parent_agent_protocol::NetworkRuntimeClaimBoundary;
 
 pub(crate) fn evidence_scope(observation: &NetworkObservation) -> NetworkEvidenceScope {
     if observation.status == ActivityCaptureCapabilityStatus::Available {

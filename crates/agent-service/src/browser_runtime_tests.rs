@@ -1,7 +1,8 @@
 use std::path::PathBuf;
 
-use ocentra_parent_agent_core::{
-    BrowserManagedLaunch, BrowserManagedLaunchPlan, BrowserUnmanagedProcessObservation,
+use ocentra_parent_agent_core::browser_managed_discovery::BrowserUnmanagedProcessObservation;
+use ocentra_parent_agent_core::browser_managed_session::{
+    BrowserManagedLaunch, BrowserManagedLaunchPlan,
 };
 use ocentra_parent_agent_protocol::{
     constants, BrowserCapabilityStatus, BrowserChannel, BrowserFamily,

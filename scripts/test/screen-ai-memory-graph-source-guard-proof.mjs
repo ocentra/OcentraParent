@@ -17,12 +17,15 @@ async function main() {
   rmSync(testResultsDir, { recursive: true, force: true });
   mkdirSync(outputDir, { recursive: true });
   mkdirSync(testResultsDir, { recursive: true });
-  execFileSync(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']), {
+  execFileSync(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']), {
+    stdio: 'inherit',
+  });
+  execFileSync(...npmCommand(['run', 'test', '--workspace', '@ocentra-parent/screen-domain', '--', 'screen-ai-memory-graph-source-guard-proof.test.ts']), {
     stdio: 'inherit',
   });
 
   const contract = await import(
-    pathToFileURL(join(repoRoot, 'packages/parent-domain/dist/screen-ai-memory-graph-source-guard-proof.js')).href
+    pathToFileURL(join(repoRoot, 'packages/schema-domain/dist/screen-ai-memory-graph-source-guard-proof.js')).href
   );
   const proof = contract.buildScreenAiMemoryGraphSourceGuardProof(buildProofInput());
   const proofSummary = {
@@ -35,9 +38,9 @@ async function main() {
     sourceGuardSummary: proof.sourceGuardSummary,
     claimBoundaries: proof.claimBoundaries,
     sourceArtifacts: [
-      'packages/parent-domain/src/local-ai-context-builder.ts',
-      'packages/parent-domain/src/local-ai-context-selection.ts',
-      'packages/parent-domain/src/local-ai-references.ts',
+      'packages/schema-domain/src/local-ai-context-builder.ts',
+      'packages/schema-domain/src/local-ai-context-selection.ts',
+      'packages/schema-domain/src/ai-context.ts',
     ],
     claimsProved: [
       'Screen AI recent memory and graph references must cite selected stored screen evidence before model input.',

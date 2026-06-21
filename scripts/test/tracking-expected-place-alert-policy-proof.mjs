@@ -20,20 +20,21 @@ await mkdir(wp16Dir, { recursive: true });
 await mkdir(wp33Dir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpmCommand(run, ['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
 run('cmd', [
   '/c',
   'npm',
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/tracking-domain',
   '--',
-  'tracking-expected-place-alert-policy-proof',
+  'tracking-expected-place-alert-policy-proof.test.ts',
 ]);
 
-const tracking = await importDist('tracking-location-policy.js');
-const proofModule = await importDist('tracking-expected-place-alert-policy-proof.js');
+const tracking = await importSchemaDist('tracking-location-policy.js');
+const proofModule = await importTrackingDist('tracking-expected-place-alert-policy-proof.js');
 const readModel = tracking.TrackingLocationPolicyReadModelSchema.parse(sourceReadModel(tracking));
 const expectedPlaceProof = proofModule.buildTrackingExpectedPlaceAlertPolicyProof({
   generatedAt: timestamp,
@@ -67,8 +68,12 @@ await writeJson(join(wp33Dir, '29-expected-place-alert-policy-proof.json'), proo
 console.log('tracking-expected-place-alert-policy-proof-ok');
 console.log(`evidence=${join('test-results', 'tracking-expected-place-alert-policy-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
+}
+
+function importTrackingDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', name)).href);
 }
 
 function sourceReadModel(tracking) {
@@ -184,8 +189,8 @@ function nonClaims(expectedPlaceProof) {
 
 function proofPaths() {
   return {
-    source: 'packages/parent-domain/src/tracking-expected-place-alert-policy-proof.ts',
-    test: 'packages/parent-domain/tests/tracking-expected-place-alert-policy-proof.test.ts',
+    source: 'packages/tracking-domain/src/tracking-expected-place-alert-policy-proof.ts',
+    test: 'packages/tracking-domain/tests/contract/tracking-expected-place-alert-policy-proof.test.ts',
     harness: 'scripts/test/tracking-expected-place-alert-policy-proof.mjs',
     evidence: 'test-results/tracking-expected-place-alert-policy-proof/proof.json',
     focusedProofRoot: 'output/tracking-plan-proof/tracking-expected-place-alert-policy-proof',
@@ -234,8 +239,9 @@ async function writeProofPack(path, proof) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-expected-place-alert-policy-proof: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/tracking-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/tracking-domain -- tracking-expected-place-alert-policy-proof.test.ts: PASS',
       '- Expected-place policy decisions preserve schedule rule refs, alert refs, evidence refs, reason refs, audit refs, and UI-readiness refs.',
       '',
     ].join('\n'),

@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -9,12 +9,14 @@ const outputDir = join(repoRoot, 'test-results', 'screen-ai-enforcement-handoff-
 const outputPath = join(outputDir, 'proof.json');
 const planOutputDir = join(repoRoot, 'output', 'screen-plan-proof', 'screen-ai-enforcement-handoff-guard');
 const planOutputPath = join(planOutputDir, 'proof-summary.json');
+const screenAiGuardOwnerPath = 'packages/screen-domain/src/screen-ai-enforcement-handoff-guard-proof.ts';
 
-run('npx', ['vitest', 'run', 'packages/parent-domain/tests/screen-ai-enforcement-handoff-guard-proof.test.ts']);
-run('npm', ['run', 'build', '--workspace=@ocentra-parent/parent-domain']);
+run('npm', ['run', 'build', '--workspace=@ocentra-parent/schema-domain']);
+run('npm', ['run', 'build', '--workspace=@ocentra-parent/screen-domain']);
+run('npm', ['run', 'test', '--workspace=@ocentra-parent/screen-domain', '--', 'screen-ai-enforcement-handoff-guard-proof.test.ts']);
 
-const guard = await import('../../packages/parent-domain/dist/screen-ai-enforcement-handoff-guard-proof.js');
-const payload = guard.buildScreenAiEnforcementHandoffGuardPayload(validInput());
+const guard = await import('../../packages/screen-domain/dist/screen-ai-enforcement-handoff-guard-proof.js');
+const payload = guard.buildScreenAiEnforcementHandoffGuardPayload(validInput(readScreenAiHandoffAcceptedEventType()));
 
 assert.equal(payload.requestedAction, 'time-limit');
 assert.equal(payload.handoffMode, 'dry-run');
@@ -31,7 +33,7 @@ assert.equal(payload.localAiAuthorityClaimed, false);
 const proof = {
   proofId: 'screen-ai-enforcement-handoff-guard-proof',
   generatedAt: '2026-06-06T22:02:00Z',
-  source: '@ocentra-parent/parent-domain screen AI enforcement handoff guard contracts',
+  source: '@ocentra-parent/screen-domain screen AI enforcement handoff guard builder with schema-domain contracts',
   assertions: [
     'screen enforcement handoff payloads require a dry-run policy decision that has not been handed off',
     'payloads carry parent policy rule, summary reference, local AI result reference, confidence state, and audit event',
@@ -55,7 +57,7 @@ writeFileSync(outputPath, `${JSON.stringify(proof, null, 2)}\n`);
 writeFileSync(planOutputPath, `${JSON.stringify(proof, null, 2)}\n`);
 console.log(`screen-ai-enforcement-handoff-guard-proof-ok: ${outputPath}`);
 
-function validInput() {
+function validInput(acceptedEventType) {
   const generatedAt = '2026-06-06T22:02:00.000Z';
   const summaryReference = {
     evidenceReferenceId: 'screen-summary-parent-readable-school-research',
@@ -122,12 +124,21 @@ function validInput() {
     },
     auditEvent: {
       auditEventId: 'screen-ai-enforcement-handoff-school-research-audit',
-      eventType: 'screen.enforcement.handoff.guard.accepted',
+      eventType: acceptedEventType,
       emittedAt: generatedAt,
       evidenceReference: auditReference,
     },
     claimBoundary: 'Screen AI handoff guard carries refs only; adapter execution remains a separate proof gate.',
   };
+}
+
+function readScreenAiHandoffAcceptedEventType() {
+  const ownerSource = readFileSync(join(repoRoot, screenAiGuardOwnerPath), 'utf8');
+  const match = ownerSource.match(/Accepted:\s*'([^']+)'/u);
+  if (match === null) {
+    throw new Error(`missing Accepted contract literal in ${screenAiGuardOwnerPath}`);
+  }
+  return match[1];
 }
 
 function run(command, args) {

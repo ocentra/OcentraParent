@@ -5,13 +5,13 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { parseBrowserUrlShape } from '../../packages/browser-domain/dist/browser-url-intelligence.js';
-import { classifyBrowserSocialFeedRoute } from '../../packages/browser-domain/dist/browser-social-feed-route-classification.js';
+import { classifyBrowserSocialFeedRoute } from '../../packages/schema-domain/dist/browser-social-feed-route-classification.js';
 import {
   BrowserSocialFeedVideoRouteGatePlanSchema,
   planBrowserSocialFeedVideoRouteGate,
-} from '../../packages/browser-domain/dist/browser-social-feed-video-route-gate.js';
-import { extractBrowserSocialVideoMetadata } from '../../packages/browser-domain/dist/browser-social-video-metadata.js';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../packages/browser-domain/dist/browser-social-url-patterns.js';
+} from '@ocentra-parent/schema-domain/browser-social-feed-video-route-gate';
+import { extractBrowserSocialVideoMetadata } from '../../packages/schema-domain/dist/browser-social-video-metadata.js';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -23,22 +23,22 @@ const observedAt = new Date().toISOString();
 
 const sourceFiles = [
   'packages/browser-domain/src/browser-url-intelligence.ts',
-  'packages/browser-domain/src/browser-social-url-patterns.ts',
-  'packages/browser-domain/src/browser-social-feed-route-classification.ts',
-  'packages/browser-domain/src/browser-social-video-metadata.ts',
-  'packages/browser-domain/src/browser-social-feed-video-route-gate-values.ts',
-  'packages/browser-domain/src/browser-social-feed-video-route-gate-guards.ts',
-  'packages/browser-domain/src/browser-social-feed-video-route-gate.ts',
+  'packages/schema-domain/src/browser-social-url-patterns.ts',
+  'packages/schema-domain/src/browser-social-feed-route-classification.ts',
+  'packages/schema-domain/src/browser-social-video-metadata.ts',
+  'packages/schema-domain/src/browser-social-feed-video-route-gate-values.ts',
+  'packages/schema-domain/src/browser-social-feed-video-route-gate-guards.ts',
+  'packages/schema-domain/src/browser-social-feed-video-route-gate.ts',
 ];
 
 const builtFiles = [
   'packages/browser-domain/dist/browser-url-intelligence.js',
-  'packages/browser-domain/dist/browser-social-url-patterns.js',
-  'packages/browser-domain/dist/browser-social-feed-route-classification.js',
-  'packages/browser-domain/dist/browser-social-video-metadata.js',
-  'packages/browser-domain/dist/browser-social-feed-video-route-gate-values.js',
-  'packages/browser-domain/dist/browser-social-feed-video-route-gate-guards.js',
-  'packages/browser-domain/dist/browser-social-feed-video-route-gate.js',
+  'packages/schema-domain/dist/browser-social-url-patterns.js',
+  'packages/schema-domain/dist/browser-social-feed-route-classification.js',
+  'packages/schema-domain/dist/browser-social-video-metadata.js',
+  'packages/schema-domain/dist/browser-social-feed-video-route-gate-values.js',
+  'packages/schema-domain/dist/browser-social-feed-video-route-gate-guards.js',
+  'packages/schema-domain/dist/browser-social-feed-video-route-gate.js',
 ];
 
 const liveTargets = [

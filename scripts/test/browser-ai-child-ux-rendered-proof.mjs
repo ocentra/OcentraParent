@@ -8,13 +8,13 @@ import { setTimeout as delay } from 'node:timers/promises';
 import {
   BrowserAiChildUxSchemaVersion,
   BrowserAiChildUxSnapshotSchema,
-} from '@ocentra-parent/browser-domain/browser-ai-child-ux-schemas';
-import { BrowserAiPolicyEvaluatorSchemaVersion } from '@ocentra-parent/browser-domain/browser-ai-policy-evaluator-schemas';
-import { BrowserAiPostAnalysisActionSchemaVersion } from '@ocentra-parent/browser-domain/browser-ai-post-analysis-action-schemas';
+} from '@ocentra-parent/schema-domain/browser-ai-child-ux-schemas';
+import { BrowserAiPolicyEvaluatorSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-policy-evaluator-schemas';
+import { BrowserAiPostAnalysisActionSchemaVersion } from '@ocentra-parent/schema-domain/browser-ai-post-analysis-action-schemas';
 import {
   BrowserChildInterventionPageDefaults,
   renderBrowserChildInterventionPage,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/browser-child-intervention-page';
 import { resolveBrowserChildUxText } from '@ocentra-parent/text-domain/browser-child-ux';
 
 import { resolveDebugAgentServicePath, stopProcessTreeAndWait } from './agent-service-process.mjs';

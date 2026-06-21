@@ -4,7 +4,7 @@ import {
   V08BroadOsAdapterProofReadModel,
   V08BroadOsAdapterProofReadModelSchema,
   V08BroadOsAdapterProofSurface,
-} from '../../src/v0-8-broad-os-adapter-proof';
+} from '@ocentra-parent/schema-domain/v0-8-broad-os-adapter-proof';
 
 it('captures the current broad OS adapter proof boundary without claim upgrades', () => {
   const readModel = V08BroadOsAdapterProofReadModelSchema.parse(V08BroadOsAdapterProofReadModel);

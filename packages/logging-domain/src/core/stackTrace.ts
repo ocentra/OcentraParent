@@ -1,9 +1,9 @@
-import { Schema } from '@ocentra-parent/schema-domain/effect';
+import {
+  decodeStackTrace,
+  type StackTrace as SharedStackTrace,
+} from '@ocentra-parent/schema-domain/logging-contracts';
 
-export const StackTraceSchema = Schema.String.pipe(Schema.brand('StackTrace'));
-export type StackTrace = typeof StackTraceSchema.Type;
-
-export const decodeStackTrace = Schema.decodeUnknownSync(StackTraceSchema);
+export type StackTrace = SharedStackTrace;
 
 export function getStackTrace(): StackTrace {
   return decodeStackTrace(new Error().stack ?? '');

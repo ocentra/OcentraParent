@@ -2,8 +2,8 @@ use std::{fs, path::PathBuf};
 
 use ocentra_parent_agent_protocol::{
     constants, ScreenAnalysisParentSetting, ScreenSettingsGetRequest,
-    ScreenSettingsRejectionReason, ScreenSettingsReplaceRequest, ScreenSettingsUpdateKind,
-    ScreenSettingsUpdateRequest, ScreenSettingsUpdateStatus, SCREEN_EVIDENCE_SCHEMA_VERSION,
+    ScreenSettingsRejectionReason, ScreenSettingsUpdateKind, ScreenSettingsUpdateRequest,
+    ScreenSettingsUpdateStatus, SCREEN_EVIDENCE_SCHEMA_VERSION,
 };
 
 use crate::screen_settings_runtime::{default_disabled_setting, ScreenSettingsRuntime};
@@ -40,15 +40,7 @@ async fn screen_settings_runtime_persists_parent_opt_in_across_reload() {
     let strict = strict_dry_run_setting(2);
 
     let accepted = runtime
-        .handle_request(ScreenSettingsUpdateRequest::Replace(Box::new(
-            ScreenSettingsReplaceRequest {
-                schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
-                request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
-                kind: ScreenSettingsUpdateKind::Replace,
-                base_setting_version: None,
-                setting: strict.clone(),
-            },
-        )))
+        .handle_request(replace_request(None, strict.clone()))
         .await;
 
     assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
@@ -84,15 +76,7 @@ async fn screen_settings_runtime_accepts_parent_approved_short_ttl_raw_retention
     setting.reason = Some(constants::screen_settings::RAW_RETENTION_LOCAL_TTL_REASON.to_string());
 
     let accepted = runtime
-        .handle_request(ScreenSettingsUpdateRequest::Replace(Box::new(
-            ScreenSettingsReplaceRequest {
-                schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
-                request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
-                kind: ScreenSettingsUpdateKind::Replace,
-                base_setting_version: None,
-                setting: setting.clone(),
-            },
-        )))
+        .handle_request(replace_request(None, setting.clone()))
         .await;
 
     assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
@@ -106,17 +90,7 @@ async fn screen_settings_runtime_rejects_unsafe_raw_image_retention() {
     setting.retain_raw_image = true;
     setting.temporary_image_ttl_seconds = constants::screen_settings::DEFAULT_TTL_SECONDS;
 
-    let rejected = runtime
-        .handle_request(ScreenSettingsUpdateRequest::Replace(Box::new(
-            ScreenSettingsReplaceRequest {
-                schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
-                request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
-                kind: ScreenSettingsUpdateKind::Replace,
-                base_setting_version: None,
-                setting,
-            },
-        )))
-        .await;
+    let rejected = runtime.handle_request(replace_request(None, setting)).await;
 
     assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);
     assert_eq!(
@@ -132,17 +106,7 @@ async fn screen_settings_runtime_rejects_observe_only_policy_use() {
     let mut setting = strict_dry_run_setting(2);
     setting.analysis_mode = constants::screen_settings::ANALYSIS_MODE_OBSERVE_ONLY.to_string();
 
-    let rejected = runtime
-        .handle_request(ScreenSettingsUpdateRequest::Replace(Box::new(
-            ScreenSettingsReplaceRequest {
-                schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
-                request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
-                kind: ScreenSettingsUpdateKind::Replace,
-                base_setting_version: None,
-                setting,
-            },
-        )))
-        .await;
+    let rejected = runtime.handle_request(replace_request(None, setting)).await;
 
     assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);
     assert_eq!(
@@ -155,28 +119,12 @@ async fn screen_settings_runtime_rejects_observe_only_policy_use() {
 async fn screen_settings_runtime_rejects_stale_base_setting_version() {
     let runtime = ScreenSettingsRuntime::in_memory();
     let accepted = runtime
-        .handle_request(ScreenSettingsUpdateRequest::Replace(Box::new(
-            ScreenSettingsReplaceRequest {
-                schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
-                request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
-                kind: ScreenSettingsUpdateKind::Replace,
-                base_setting_version: None,
-                setting: strict_dry_run_setting(2),
-            },
-        )))
+        .handle_request(replace_request(None, strict_dry_run_setting(2)))
         .await;
     assert_eq!(accepted.status, ScreenSettingsUpdateStatus::Accepted);
 
     let rejected = runtime
-        .handle_request(ScreenSettingsUpdateRequest::Replace(Box::new(
-            ScreenSettingsReplaceRequest {
-                schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
-                request_id: constants::screen_settings::REQUEST_ID_REPLACE.to_string(),
-                kind: ScreenSettingsUpdateKind::Replace,
-                base_setting_version: Some(1),
-                setting: strict_dry_run_setting(3),
-            },
-        )))
+        .handle_request(replace_request(Some(1), strict_dry_run_setting(3)))
         .await;
 
     assert_eq!(rejected.status, ScreenSettingsUpdateStatus::Rejected);
@@ -221,6 +169,20 @@ impl ScreenSettingTestValues for ScreenAnalysisParentSetting {
         self.reason = Some(constants::screen_settings::STRICT_REASON.to_string());
         self
     }
+}
+
+fn replace_request(
+    base_setting_version: Option<u64>,
+    setting: ScreenAnalysisParentSetting,
+) -> ScreenSettingsUpdateRequest {
+    serde_json::from_value(serde_json::json!({
+        "schemaVersion": SCREEN_EVIDENCE_SCHEMA_VERSION,
+        "requestId": constants::screen_settings::REQUEST_ID_REPLACE,
+        "kind": ScreenSettingsUpdateKind::Replace,
+        "baseSettingVersion": base_setting_version,
+        "setting": setting,
+    }))
+    .expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn test_store_path(name: &str) -> PathBuf {

@@ -3,12 +3,8 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Child Android, child iOS, and mobile child-agent runtime proof contracts.",
+  "description": "Child runtime package boundary metadata; shared child runtime contracts now live in schema-domain.",
   "exports": {
-    "./*": {
-      "import": "./dist/*.js",
-      "types": "./dist/*.d.ts"
-    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
@@ -22,10 +18,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/capability-domain": "file:../capability-domain",
-    "@ocentra-parent/event-domain": "file:../event-domain",
-    "@ocentra-parent/family-domain": "file:../family-domain",
-    "@ocentra-parent/setup-domain": "file:../setup-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

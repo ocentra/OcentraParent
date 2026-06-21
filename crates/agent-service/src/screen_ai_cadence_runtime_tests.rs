@@ -4,14 +4,13 @@ use std::{
     sync::atomic::{AtomicU64, Ordering},
 };
 
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, SCREEN_CATEGORY_UNKNOWN,
     SCREEN_PROVIDER_SERVICE_METADATA, SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED_ENV,
     SCREEN_SERVICE_EVENT_ID_PREFIX, SCREEN_SERVICE_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_MODEL_ID,
     SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX, SCREEN_SERVICE_RESULT_ID_PREFIX, SCREEN_SERVICE_SOURCE_ID,
     SCREEN_SERVICE_SUMMARY_CAPTURED, SCREEN_SERVICE_TEMPLATE_VERSION,
-    SCREEN_SERVICE_TEST_QUEUE_RECORD_LINE,
 };
 use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureMetadata, ScreenCaptureScope,
@@ -29,6 +28,7 @@ use super::{
 };
 
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
+const SCREEN_SERVICE_TEST_QUEUE_RECORD_LINE: &str = "{}\n";
 
 #[test]
 fn screen_cadence_runtime_is_disabled_without_explicit_parent_setting() {

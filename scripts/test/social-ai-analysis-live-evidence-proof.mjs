@@ -6,7 +6,7 @@ import {
   BrowserSocialAiAnalysisInputSchema,
   BrowserSocialAiAnalysisResultSchema,
 } from '../../packages/browser-domain/dist/browser-social-ai-analysis-schemas.js';
-import { buildBrowserSocialAiAnalysisResult } from '../../packages/browser-domain/dist/browser-social-ai-analysis-result-builder.js';
+import { buildBrowserSocialAiAnalysisResult } from '@ocentra-parent/schema-domain/browser-social-ai-analysis-result-builder';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -20,12 +20,12 @@ const expiresAt = new Date(Date.parse(observedAt) + 60 * 60 * 1000).toISOString(
 const sourceFiles = [
   'packages/browser-domain/src/browser-social-ai-analysis-values.ts',
   'packages/browser-domain/src/browser-social-ai-analysis-schemas.ts',
-  'packages/browser-domain/src/browser-social-ai-analysis-result-builder.ts',
+  'packages/schema-domain/src/browser-social-ai-analysis-result-builder.ts',
 ];
 const builtFiles = [
   'packages/browser-domain/dist/browser-social-ai-analysis-values.js',
   'packages/browser-domain/dist/browser-social-ai-analysis-schemas.js',
-  'packages/browser-domain/dist/browser-social-ai-analysis-result-builder.js',
+  'packages/schema-domain/dist/browser-social-ai-analysis-result-builder.js',
 ];
 
 assertBuiltContractsAreFresh();

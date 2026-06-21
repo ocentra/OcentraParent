@@ -11,15 +11,17 @@ use ocentra_parent_agent_protocol::{
 
 #[test]
 fn tracking_evidence_can_branch_to_geofence_and_expected_place_events() {
-    let mut observed = ocentra_tracking_core::default_location_observed_event();
+    let mut observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
     observed.observation_id = TrackingObservationId::parse("tracking-observation-side-branch")
         .expect("tracking side-branch observation id parses");
     observed.expected_place_ref = TrackingExpectedPlaceRef::parse("expected-place-side-branch")
         .expect("tracking side-branch expected place ref parses");
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
-    let geofence = ocentra_tracking_core::tracking_geofence_transition_from_evidence(&evidence);
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
+    let geofence =
+        ocentra_tracking_core::runtime_flow::tracking_geofence_transition_from_evidence(&evidence);
     let expected_place =
-        ocentra_tracking_core::tracking_expected_place_state_from_evidence(&evidence);
+        ocentra_tracking_core::runtime_flow::tracking_expected_place_state_from_evidence(&evidence);
 
     assert_eq!(evidence.expected_place_ref, observed.expected_place_ref);
     assert_eq!(geofence.child_device_id, evidence.child_device_id);
@@ -54,11 +56,14 @@ fn tracking_evidence_can_branch_to_geofence_and_expected_place_events() {
 
 #[test]
 fn tracking_evidence_can_resolve_precise_expected_place_without_ai_request() {
-    let observed = ocentra_tracking_core::default_at_expected_place_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
-    let geofence = ocentra_tracking_core::tracking_geofence_transition_from_evidence(&evidence);
+    let observed =
+        ocentra_tracking_core::runtime_flow::default_at_expected_place_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
+    let geofence =
+        ocentra_tracking_core::runtime_flow::tracking_geofence_transition_from_evidence(&evidence);
     let expected_place =
-        ocentra_tracking_core::tracking_expected_place_state_from_evidence(&evidence);
+        ocentra_tracking_core::runtime_flow::tracking_expected_place_state_from_evidence(&evidence);
 
     assert_eq!(
         evidence.location_relation,
@@ -86,13 +91,15 @@ fn tracking_evidence_can_resolve_precise_expected_place_without_ai_request() {
 fn tracking_evidence_can_resolve_away_from_expected_place_and_keep_observe_only_non_authoritative()
 {
     let mut observed =
-        ocentra_tracking_core::default_away_from_expected_place_location_observed_event();
-    observed.config = ocentra_tracking_core::default_child_tracking_runtime_config();
+        ocentra_tracking_core::runtime_flow::default_away_from_expected_place_location_observed_event();
+    observed.config = ocentra_tracking_core::runtime_flow::default_child_tracking_runtime_config();
 
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
-    let geofence = ocentra_tracking_core::tracking_geofence_transition_from_evidence(&evidence);
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
+    let geofence =
+        ocentra_tracking_core::runtime_flow::tracking_geofence_transition_from_evidence(&evidence);
     let expected_place =
-        ocentra_tracking_core::tracking_expected_place_state_from_evidence(&evidence);
+        ocentra_tracking_core::runtime_flow::tracking_expected_place_state_from_evidence(&evidence);
 
     assert_eq!(
         evidence.location_relation,
@@ -122,8 +129,9 @@ fn tracking_evidence_can_resolve_away_from_expected_place_and_keep_observe_only_
 
 #[test]
 fn parent_notification_can_be_acknowledged_without_reopening_policy_authority() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
     let policy_rule_ref =
         TrackingPolicyRuleRef::parse(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE)
             .expect(constants::tracking_runtime::POLICY_RULE_EXPECTED_PLACE);
@@ -144,7 +152,9 @@ fn parent_notification_can_be_acknowledged_without_reopening_policy_authority() 
         evidence_refs: vec![evidence.evidence_ref],
     };
     let acknowledgement =
-        ocentra_tracking_core::tracking_parent_acknowledgement_from_notification(&notification);
+        ocentra_tracking_core::runtime_flow::tracking_parent_acknowledgement_from_notification(
+            &notification,
+        );
 
     assert_eq!(
         acknowledgement.source_policy_violation_id,
@@ -167,9 +177,10 @@ fn parent_notification_can_be_acknowledged_without_reopening_policy_authority() 
 
 #[test]
 fn child_check_in_cites_source_observation_and_evidence() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
-    let check_in = ocentra_tracking_core::tracking_child_check_in_from_location(
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
+    let check_in = ocentra_tracking_core::runtime_flow::tracking_child_check_in_from_location(
         &observed,
         vec![evidence.evidence_ref],
     );

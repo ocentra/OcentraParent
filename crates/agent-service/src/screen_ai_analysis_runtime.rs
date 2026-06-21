@@ -4,13 +4,15 @@ mod adapter_process;
 mod adapter_redaction;
 #[cfg(test)]
 mod adapter_tests;
-mod config;
+pub(crate) mod config;
 mod event_record;
 mod queue;
 
 use std::time::Duration;
 
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::{
+    activity_store::ActivityStore, screen_evidence_queue::ScreenEvidenceQueue,
+};
 use ocentra_parent_agent_protocol::{
     constants, ActivityScreenReadModelRow, LocalAiProviderSchedulerJobClass,
     SCREEN_PROVIDER_SERVICE_METADATA,
@@ -23,7 +25,7 @@ use crate::{
     screen_ai_service_event_subscription::ScreenAiServiceEventRuntime,
 };
 
-pub(crate) use config::{
+use config::{
     ScreenAiAnalysisCycleClock, ScreenAiAnalysisCycleOutcome, ScreenAiAnalysisRuntimeConfig,
 };
 use event_record::{analysis_event_record, outcome_for_generation, screen_analysis_event};
@@ -82,7 +84,7 @@ pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
     let Some(key) = load_existing_screen_key(&config.journal_key_path)? else {
         return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
     };
-    let queue = ocentra_parent_agent_core::ScreenEvidenceQueue::open(&config.queue_dir, key)?;
+    let queue = ScreenEvidenceQueue::open(&config.queue_dir, key)?;
     let Some(image) = first_queued_screen_image(&queue, config.max_queue_scan)? else {
         return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
     };

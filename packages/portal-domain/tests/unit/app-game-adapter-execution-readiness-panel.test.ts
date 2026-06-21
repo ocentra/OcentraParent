@@ -1,32 +1,17 @@
-import { AppGameSchemaVersion } from '@ocentra-parent/app-game-domain/app-game';
+import { AppGameSchemaVersion } from '@ocentra-parent/schema-domain/app-game-primitives';
 import {
   AgentAppGameAdapterExecutionDecision,
   AgentAppGameAdapterExecutionState,
-  type AgentAppGameAdapterExecutionReadinessReadModel,
-} from '@ocentra-parent/agent-protocol-domain/app-game-adapter-execution-readiness';
+  type AppGameAdapterExecutionReadinessReadModel,
+} from '@ocentra-parent/schema-domain/app-game-adapter-execution-readiness';
 import { describe, expect, it } from 'vitest';
 import { createAppGameAdapterExecutionReadinessPanelIntent } from '../../src/app-game-adapter-execution-readiness-panel';
 
-const ReadModel: AgentAppGameAdapterExecutionReadinessReadModel = {
+const ReadModel: AppGameAdapterExecutionReadinessReadModel = {
   schemaVersion: AppGameSchemaVersion,
   readModelId: 'app-game-adapter-execution-readiness',
   generatedAt: '2026-06-08T09:17:00.000Z',
   sourceReadModelIds: ['v0-8-supported-adapter-runtime-proof'],
-  custodyLabel: 'supported-adapter-runtime-proof',
-  capabilityStatus: 'app-game-adapter-execution-partial',
-  returned: 2,
-  executionAllowedCount: 1,
-  blockedBeforeExecutionCount: 1,
-  adapterExecutionClaimedCount: 1,
-  hostCapabilityAvailableCount: 1,
-  hostCapabilityNotDetectedCount: 1,
-  hostCapabilityNotApplicableCount: 0,
-  hostCapabilityProbeRefCount: 2,
-  broadInstalledAppBlockingClaimed: false,
-  childDeviceDeliveryClaimed: false,
-  platformEnforcementClaimed: false,
-  providerDeliveryClaimed: false,
-  privateDiagnosticsClaimed: false,
   rows: [
     {
       schemaVersion: AppGameSchemaVersion,

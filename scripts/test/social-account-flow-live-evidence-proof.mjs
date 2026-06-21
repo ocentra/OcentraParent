@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url';
 import {
   buildBrowserSocialAccountFlowEvidenceFromRoute,
   BrowserSocialAccountFlowEvidenceSchema,
-} from '../../packages/browser-domain/dist/browser-social-account-flow-schemas.js';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../packages/browser-domain/dist/browser-social-url-patterns.js';
+} from '../../packages/schema-domain/dist/browser-social-account-flow-schemas.js';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 import { parseBrowserUrlShape } from '../../packages/browser-domain/dist/browser-url-intelligence.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));

@@ -1,28 +1,32 @@
 import { describe, expect, it } from 'vitest';
-import { PolicyCompilerCapabilityState } from '@ocentra-parent/policy-domain/policy-compiler';
+import { PolicyCompilerCapabilityState } from '@ocentra-parent/schema-domain/policy-compiler';
 import {
   BrowserGamePolicyCompilerModeSchema,
   BrowserGamePolicyReasonCodeSchema,
   BrowserGamePolicyTargetKindSchema,
-} from '@ocentra-parent/parent-domain/browser-game-policy-compiler-values';
+} from '@ocentra-parent/schema-domain/browser-game-policy-compiler-values';
+import {
+  compileBrowserGamePolicyCandidate,
+} from '@ocentra-parent/browser-domain/browser-game-policy-compiler';
 import {
   BrowserGamePolicyCompilerInputSchema,
   BrowserGamePolicyDecisionCandidateSchema,
-  compileBrowserGamePolicyCandidate,
-} from '@ocentra-parent/parent-domain/browser-game-policy-compiler';
+} from '@ocentra-parent/schema-domain/browser-game-policy-compiler';
 import {
   SocialParentPolicyCompilerModeSchema,
   SocialParentPolicyReasonCodeSchema,
   SocialParentPolicyTargetKindSchema,
-} from '@ocentra-parent/parent-domain/social-policy-compiler-values';
+} from '@ocentra-parent/schema-domain/social-policy-compiler-values';
+import {
+  compileSocialParentPolicyCandidate,
+} from '@ocentra-parent/browser-domain/social-policy-compiler';
 import {
   SocialParentPolicyCompilerInputSchema,
   SocialParentPolicyDecisionCandidateSchema,
-  compileSocialParentPolicyCandidate,
-} from '@ocentra-parent/parent-domain/social-policy-compiler';
+} from '@ocentra-parent/schema-domain/social-policy-compiler';
 
-describe('parent-domain browser policy compiler wrappers', () => {
-  it('re-exports the browser-game compiler candidate with shared capability state', () => {
+describe('parent-domain browser policy compiler consumers', () => {
+  it('uses the browser-game compiler candidate with shared capability state from browser-domain', () => {
     const input = BrowserGamePolicyCompilerInputSchema.parse(browserGamePolicyInput());
     const decision = compileBrowserGamePolicyCandidate({
       input,
@@ -40,7 +44,7 @@ describe('parent-domain browser policy compiler wrappers', () => {
     expect(BrowserGamePolicyDecisionCandidateSchema.safeParse(decision).success).toBe(true);
   });
 
-  it('re-exports the social compiler candidate with shared capability state', () => {
+  it('uses the social compiler candidate with shared capability state from browser-domain', () => {
     const input = SocialParentPolicyCompilerInputSchema.parse(socialPolicyInput());
     const decision = compileSocialParentPolicyCandidate({
       input,
@@ -58,7 +62,7 @@ describe('parent-domain browser policy compiler wrappers', () => {
     expect(SocialParentPolicyDecisionCandidateSchema.safeParse(decision).success).toBe(true);
   });
 
-  it('re-exports the browser-game and social compiler value schemas', () => {
+  it('uses the browser-game and social compiler value schemas from canonical owners', () => {
     expect(BrowserGamePolicyCompilerModeSchema.parse('contract-only')).toBe('contract-only');
     expect(BrowserGamePolicyTargetKindSchema.parse('cloud-gaming-session')).toBe('cloud-gaming-session');
     expect(BrowserGamePolicyReasonCodeSchema.parse('parent-rule-match')).toBe('parent-rule-match');

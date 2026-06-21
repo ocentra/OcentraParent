@@ -6,7 +6,7 @@ import { dirname, join, relative } from 'node:path';
 import {
   BrowserGameChildCheckingBlockSurfaceSchema,
   BrowserGameChildCheckingBlockUxSnapshotSchema,
-} from '../../packages/parent-domain/dist/browser-game-child-checking-block-ux.js';
+} from '@ocentra-parent/schema-domain/browser-game-child-checking-block-ux';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-child-checking-block-ux-live-evidence-proof';

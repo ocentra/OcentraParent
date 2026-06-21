@@ -4,11 +4,13 @@ import {
   AppGameSourceFreshnessPolicyConsumptionRequests,
 } from '../../src/app-game-source-freshness-policy-consumption-data';
 import {
+  evaluateAppGameSourceFreshnessPolicyReadiness,
+} from '../../src/app-game-source-freshness-policy-consumption';
+import {
   AppGameSourceFreshnessPolicyReadinessSchema,
   AppGameSourceFreshnessPolicyRequestSchema,
   AppGameSourceFreshnessStatusRowSchema,
-  evaluateAppGameSourceFreshnessPolicyReadiness,
-} from '../../src/app-game-source-freshness-policy-consumption';
+} from '@ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption';
 import {
   AppGameSourceFreshnessCapabilityStatus,
   AppGameSourceFreshnessPolicyReadinessState,
@@ -17,7 +19,7 @@ import {
   AppGameSourceFreshnessRequirementKind,
   AppGameSourceFreshnessRequirementState,
   AppGameSourceFreshnessSourceKind,
-} from '../../src/app-game-source-freshness-policy-consumption-values';
+} from '@ocentra-parent/schema-domain/app-game-source-freshness-policy-consumption-values';
 
 const [readyAppRequest, readyGameRequest, manualGameRequest] = AppGameSourceFreshnessPolicyConsumptionRequests;
 

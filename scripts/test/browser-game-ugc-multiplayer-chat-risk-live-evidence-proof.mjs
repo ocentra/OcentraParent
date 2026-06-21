@@ -6,7 +6,7 @@ import { dirname, join, relative } from 'node:path';
 import {
   BrowserGameUgcRiskAssessmentSchema,
   BrowserGameUgcRiskRowSchema,
-} from '../../packages/parent-domain/dist/browser-game-ugc-multiplayer-chat-risk.js';
+} from '@ocentra-parent/schema-domain/browser-game-ugc-multiplayer-chat-risk';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-ugc-multiplayer-chat-risk-live-evidence-proof';

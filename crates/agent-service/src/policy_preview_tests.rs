@@ -3,10 +3,9 @@ use ocentra_parent_agent_protocol::{
     FamilyReference, LocalAiParentRuleContextRef, LogFieldValue, ParentActorReference,
     ParentActorRole, ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind,
     PolicyAction, PolicyAssistantConfirmationState, PolicyDecision, PolicyDecisionHandoffState,
-    PolicyPreviewFindingKind, PolicyPreviewManualReviewState, PolicyPreviewNetworkEvidenceMapping,
-    PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyPreviewSaveState,
-    PolicyPreviewTargetState, PolicyRequestOrigin, PolicyRequestStatus, PolicyRule,
-    PolicySourceStatus, PolicySourceSurface, PolicyTarget, PolicyTargetType,
+    PolicyPreviewFindingKind, PolicyPreviewNetworkEvidenceMapping, PolicyPreviewReadModel,
+    PolicyPreviewReadModelRow, PolicyPreviewTargetState, PolicyRequestOrigin, PolicyRequestStatus,
+    PolicyRule, PolicySourceStatus, PolicySourceSurface, PolicyTarget, PolicyTargetType,
 };
 
 use crate::policy_preview_payload::policy_preview_read_model_payload;
@@ -185,8 +184,14 @@ fn read_model_with_network_mapping() -> PolicyPreviewReadModel {
                 enforcement_handoff_state: PolicyDecisionHandoffState::Disabled,
                 expires_at: None,
             },
-            policy_preview_save_state: Some(PolicyPreviewSaveState::PreviewRequired),
-            policy_preview_manual_review_state: Some(PolicyPreviewManualReviewState::Required),
+            policy_preview_save_state: Some(
+                serde_json::from_value(serde_json::json!("preview-required"))
+                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            ),
+            policy_preview_manual_review_state: Some(
+                serde_json::from_value(serde_json::json!("required"))
+                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            ),
             policy_preview_target_state: Some(PolicyPreviewTargetState::Unsupported),
             policy_preview_target_explanation_code: Some(
                 constants::browser::INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER.to_string(),

@@ -1,14 +1,14 @@
 import {
   AgentEvent,
-  AgentProtocolDefaults,
   type AgentEventEnvelope,
   type AgentEventName,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { PortalDiagnostics } from '@ocentra-parent/portal-domain/diagnostics';
 import {
-  PortalDiagnostics,
   decodePortalClipboardText,
   type PortalClipboardText,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/detail-values';
 import { resolveLiveActivityState } from './live-activity-state';
 import type { PortalRuntimeState } from './portal-state';
 

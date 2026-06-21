@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   AppGameNotificationParentSurfaceIntentReadModelSchema,
   RequiredAppGameNotificationParentSurfaceIntentNonClaims,
-} from '@ocentra-parent/app-game-domain/app-game-notification-parent-surface-intent';
+} from '@ocentra-parent/schema-domain/app-game-notification-parent-surface-intent';
 import {
   createAppGameNotificationParentSurfacePanelIntent,
   createAppGameNotificationParentSurfaceReadModelFromReadiness,
@@ -81,7 +81,10 @@ function rowPairs(row: AppGameNotificationParentSurfacePanelIntent['rows'][numbe
 
 function panelRow(intent: AppGameNotificationParentSurfacePanelIntent, index: number) {
   const row = intent.rows[index];
-  expect(row).toBeDefined();
+  expect(typeof row?.key).toBe('string');
+  expect((row?.key ?? '').length).toBeGreaterThan(0);
+  expect(typeof row?.title).toBe('string');
+  expect((row?.title ?? '').length).toBeGreaterThan(0);
   return row as AppGameNotificationParentSurfacePanelIntent['rows'][number];
 }
 

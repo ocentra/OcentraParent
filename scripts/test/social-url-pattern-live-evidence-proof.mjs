@@ -3,11 +3,11 @@ import { execFileSync } from 'node:child_process';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseBrowserUrlShape } from '../../packages/browser-domain/dist/browser-url-intelligence.js';
-import { BrowserSocialRouteEvidenceSchema } from '../../packages/browser-domain/dist/browser-social-platform-route-schemas.js';
+import { BrowserSocialRouteEvidenceSchema } from '@ocentra-parent/schema-domain/browser-social-platform-route-schemas';
 import {
   buildBrowserSocialRouteEvidenceFromUrlPattern,
   matchBrowserSocialUrlPattern,
-} from '../../packages/browser-domain/dist/browser-social-url-patterns.js';
+} from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');

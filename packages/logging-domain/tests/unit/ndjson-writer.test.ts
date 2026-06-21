@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
-import { RunType, TestLogScope } from '../../src/test-log/types';
+import { RunType, TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 
 describe('ndjson writer', () => {
   const tempDirs: string[] = [];

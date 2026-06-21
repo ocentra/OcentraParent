@@ -10,7 +10,7 @@ import {
   ParentContractSchemaVersionSchema,
   ParentTimestampSchema,
 } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { FamilyReferenceSchema } from '@ocentra-parent/family-domain/references';
+import { FamilyReferenceSchema } from '@ocentra-parent/schema-domain/family-references';
 import {
   SocialAlertReportPreferencePreflightReadModelSchema,
   SocialAlertReportPreferencePreflightStatus,
@@ -27,7 +27,7 @@ import {
   type V3NotificationProviderChannel,
   type V3NotificationQuietHoursDecision,
   type V3NotificationRuleReasonCode,
-} from '@ocentra-parent/notification-domain/v3-notification-rule-provider-retry-contract';
+} from '@ocentra-parent/schema-domain/notification-v3-provider-retry';
 
 export const RequiredSocialAlertReportPreferenceStatusHandoffNonClaims = [
   'no-parent-notification-preference-ui',

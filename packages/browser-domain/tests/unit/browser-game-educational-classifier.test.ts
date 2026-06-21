@@ -3,7 +3,7 @@ import {
   BrowserGameEducationalClassifierResultSchema,
   type BrowserGameEducationalClassifierResult,
   BrowserGameEducationalEvidenceRowSchema,
-} from '../../src/browser-game-educational-classifier';
+} from '@ocentra-parent/schema-domain/browser-game-educational-classifier';
 
 describe('browser-game educational classifier contracts', () => {
   it('accepts verified educational game candidates without claiming policy authority', acceptsVerifiedCandidate);

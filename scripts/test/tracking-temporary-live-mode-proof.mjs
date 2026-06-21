@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tsImport } from 'tsx/esm/api';
 
 const repoRoot = process.cwd();
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof', '28-temporary-live-tracking-mode');
@@ -12,22 +13,23 @@ const commands = [];
 await main();
 
 async function main() {
-  await runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+  await runNpm(['run', 'build', '--workspace', '@ocentra-parent/tracking-domain']);
   await runNpm([
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/tracking-domain',
     '--',
     'tracking-temporary-live-mode-proof',
     'tracking-location-policy',
   ]);
 
-  const policy = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-location-policy.js'))
+  const policy = await tsImport(
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-location-policy.ts')).href,
+    import.meta.url
   );
   const temporaryLive = await import(
-    pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', 'tracking-temporary-live-mode-proof.js'))
+    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'dist', 'tracking-temporary-live-mode-proof.js'))
   );
   const checkedAt = new Date().toISOString();
   const commit = gitOutput(['rev-parse', 'HEAD']);
@@ -36,8 +38,8 @@ async function main() {
       generatedAt: '2026-06-05T16:40:00.000Z',
       proofId: 'tracking-temporary-live-mode-proof',
       sourceContractRefs: [
-        'packages/parent-domain/src/tracking-location-policy.ts',
-        'packages/parent-domain/src/tracking-temporary-live-mode-proof.ts',
+        'packages/schema-domain/src/tracking-location-policy.ts',
+        'packages/tracking-domain/src/tracking-temporary-live-mode-proof.ts',
         'docs/plans/tracking-plan/workpacks/28-temporary-live-tracking-mode.md',
         'docs/expectations/location-geofence.md',
         'docs/expectations/data-custody.md',
@@ -112,7 +114,7 @@ async function writeProofArtifacts({ checkedAt, commit, readModel }) {
       productClaimReady: false,
     },
     missingProofReason:
-      'P1 fixture proof covers parent-domain temporary live tracking session states for authorization, duration/cadence, battery/permission degradation, auto-expiry, audit refs, and retention-delete readiness. Live location runtime, current/background location adapters, provider delivery, remote relay, portal live map runtime, child-device delivery, physical-device proof, and production session workers remain unclaimed.',
+      'P1 fixture proof covers tracking-domain temporary live tracking session states for authorization, duration/cadence, battery/permission degradation, auto-expiry, audit refs, and retention-delete readiness. Live location runtime, current/background location adapters, provider delivery, remote relay, portal live map runtime, child-device delivery, physical-device proof, and production session workers remain unclaimed.',
     commands,
   };
 
@@ -197,10 +199,10 @@ function sourceSnapshot({ checkedAt, commit }) {
     '- requiredProofTier: P3_LOCAL_DEV_MACHINE',
     '- currentProofTier: P1_FIXTURE_SIMULATION',
     '- status: proved',
-    '- proof module: packages/parent-domain/src/tracking-temporary-live-mode-proof.ts',
-    '- proof tests: packages/parent-domain/tests/tracking-temporary-live-mode-proof.test.ts',
+    '- proof module: packages/tracking-domain/src/tracking-temporary-live-mode-proof.ts',
+    '- proof tests: packages/tracking-domain/tests/contract/tracking-temporary-live-mode-proof.test.ts',
     '- proof harness: scripts/test/tracking-temporary-live-mode-proof.mjs',
-    '- source contracts: packages/parent-domain/src/tracking-location-policy.ts',
+    '- source contracts: packages/schema-domain/src/tracking-location-policy.ts',
     '',
   ].join('\n');
 }

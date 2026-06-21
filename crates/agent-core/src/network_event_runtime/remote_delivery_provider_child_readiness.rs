@@ -1,8 +1,8 @@
 use ocentra_eventing::ids::SourceComponent;
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_fixture_transport;
 use super::remote_delivery_event_chain_store::source_component;
+use super::remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport;
 use super::remote_delivery_fixture_transport_types::{
     NetworkRuntimeRemoteDeliveryFixtureTransportRecord,
     NetworkRuntimeRemoteDeliveryFixtureTransportReport,
@@ -228,7 +228,7 @@ mod tests {
     #[tokio::test]
     async fn rejects_live_delivery_claims() {
         let mut fixture_transport =
-            crate::network_event_runtime::prove_network_runtime_remote_delivery_fixture_transport()
+            crate::network_event_runtime::remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport()
                 .await
                 .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_FIXTURE_TRANSPORT);
         fixture_transport.provider_delivery_implemented = true;

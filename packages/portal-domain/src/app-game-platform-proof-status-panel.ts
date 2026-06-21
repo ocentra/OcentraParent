@@ -14,16 +14,16 @@ const PlatformProofClaim = decodeDisplayText(
   'Windows, Android, Linux, macOS, and iOS platform proof rows are parent-visible evidence only. Native enforcement, broad blocking, rollback, audit, Apple CI artifacts, and child delivery remain unclaimed until platform authority proof is attached.'
 );
 const AuthorityState = decodeDisplayText('Authority state');
-const PackageVisibility = decodeDisplayText('Package visibility');
-const RuntimeVisibility = decodeDisplayText('Runtime visibility');
+const HostCapability = decodeDisplayText('Host capability');
+const HostVisibleRows = decodeDisplayText('Host-visible rows');
+const HostNotDetectedRows = decodeDisplayText('Host not-detected rows');
+const NotApplicableRows = decodeDisplayText('Not-applicable rows');
 const OpenGaps = decodeDisplayText('Open gaps');
 const PlatformProofs = decodeDisplayText('Platform proofs');
-const HostVisibleRows = decodeDisplayText('Host-visible rows');
-const HostNotDetectedRows = decodeDisplayText('Host not detected rows');
-const NotApplicableRows = decodeDisplayText('Not-applicable rows');
 const EnforcementReadyRows = decodeDisplayText('Enforcement-ready rows');
-const HostCapability = decodeDisplayText('Host capability');
-const HostProbeRefs = decodeDisplayText('Host probe refs');
+const BroadBlocking = decodeDisplayText('Broad blocking');
+const ProviderDelivery = decodeDisplayText('Provider delivery');
+const PrivateDiagnostics = decodeDisplayText('Private diagnostics');
 
 export type AppGamePlatformProofStatusPanelDetail = {
   readonly label: DisplayText;
@@ -127,7 +127,9 @@ function readModelSummary(
   ];
 }
 
-function platformProofStatusRow(row: AppGamePlatformProofStatusPanelReadModelRow): AppGamePlatformProofStatusPanelRow {
+function platformProofStatusRow(
+  row: AppGamePlatformProofStatusPanelReadModelRow
+): AppGamePlatformProofStatusPanelRow {
   return {
     title: displayText(row.platform),
     details: [
@@ -135,17 +137,17 @@ function platformProofStatusRow(row: AppGamePlatformProofStatusPanelReadModelRow
       detail(PortalDetails.Status, displayText(row.proofState)),
       detail(AuthorityState, displayText(row.authorityState)),
       detail(HostCapability, displayText(row.hostCapabilityState)),
-      detail(PackageVisibility, joinedOrNotReported(row.hostCapabilityEvidenceRefs)),
-      detail(RuntimeVisibility, joinedOrNotReported(row.proofRefs)),
-      detail(HostProbeRefs, joinedOrNotReported(row.hostCapabilityProbeRefs)),
+      detail(PortalDetails.HostCapabilityEvidence, joinedOrNotReported(row.hostCapabilityEvidenceRefs)),
+      detail(PortalDetails.HostCapabilityProbe, joinedOrNotReported(row.hostCapabilityProbeRefs)),
       detail(PortalDetails.EvidenceReferences, joinedOrNotReported(row.proofRefs)),
       detail(OpenGaps, joinedOrNotReported(row.openGaps)),
       detail(PortalDetails.AdapterDispatch, claimedValue(row.adapterDispatchClaimed)),
-      detail(PortalDetails.Enforcement, claimedValue(row.broadInstalledAppBlockingClaimed)),
+      detail(BroadBlocking, claimedValue(row.broadInstalledAppBlockingClaimed)),
+      detail(PortalDetails.Enforcement, claimedValue(row.platformEnforcementClaimed)),
       detail(PortalDetails.PlatformState, claimedValue(row.platformEnforcementClaimed)),
-      detail(PortalDetails.Provider, claimedValue(row.providerDeliveryClaimed)),
+      detail(ProviderDelivery, claimedValue(row.providerDeliveryClaimed)),
       detail(PortalDetails.ChildDelivery, claimedValue(row.childDeliveryClaimed)),
-      detail(PortalDetails.HostCapabilityEvidence, claimedValue(row.privateDiagnosticsClaimed)),
+      detail(PrivateDiagnostics, claimedValue(row.privateDiagnosticsClaimed)),
       detail(PortalDetails.ProductClaim, PlatformProofClaim),
     ],
   };

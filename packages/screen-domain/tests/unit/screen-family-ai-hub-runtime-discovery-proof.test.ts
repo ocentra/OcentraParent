@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ScreenFamilyAiHubRuntimeDiscoveryReadModelSchema } from '../../src/screen-family-ai-hub-runtime-discovery-proof';
+import { ScreenFamilyAiHubRuntimeDiscoveryReadModelSchema } from '@ocentra-parent/schema-domain/screen-family-ai-hub-runtime-discovery-proof';
 
 const ReadModel = {
   schemaVersion: 'screen-family-ai-hub-runtime-discovery-proof',

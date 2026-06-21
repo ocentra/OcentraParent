@@ -91,7 +91,7 @@ use bundle::{
     NetworkCrossSliceEvidenceSource,
 };
 use category::{CategoryFreshnessState, CategoryMatchKind, DomainCategoryLookup, NetworkCategory};
-use dns::NetworkEvidenceGrade;
+use dns::types::NetworkEvidenceGrade;
 use dns_adapter::{
     plan_network_dns_adapter_proof, NetworkDnsAdapterAction, NetworkDnsAdapterCapabilityState,
     NetworkDnsAdapterProof, NetworkDnsAdapterProofError, NetworkDnsAdapterProofInput,
@@ -191,8 +191,12 @@ use self::{
         NetworkClassifierError, ProcessClassifierHint,
     },
     dns::{
-        parse_dns_message, replay_dns_observations, DnsMessage, DnsObservation, DnsQueryType,
-        DnsQuestion, DnsRecordData, DnsResourceRecord, NetworkReplayError, NetworkReplaySummary,
+        message::parse_dns_message,
+        replay_dns_observations,
+        types::{
+            DnsMessage, DnsObservation, DnsQueryType, DnsQuestion, DnsRecordData,
+            DnsResourceRecord, NetworkReplayError, NetworkReplaySummary,
+        },
     },
     dns_adapter::{NetworkDnsAdapterBoundaryReason, NetworkDnsAdapterRequiredArtifact},
     domain::NormalizedDomainEvidence,
@@ -202,9 +206,11 @@ use self::{
     },
     fixtures::{
         dns_query_frame_fixture, dns_query_pcap_fixture, dns_query_replay_expected,
-        dns_response_payload_fixture, http_host_request_fixture, icmp_echo_frame_fixture,
-        quic_initial_payload_fixture, tcp_syn_frame_fixture, tls_client_hello_no_sni_fixture,
-        tls_client_hello_sni_fixture,
+        dns_response_payload_fixture, icmp_echo_frame_fixture, tcp_syn_frame_fixture,
+        visibility::{
+            http_host_request_fixture, quic_initial_payload_fixture,
+            tls_client_hello_no_sni_fixture, tls_client_hello_sni_fixture,
+        },
     },
     flow::{
         aggregate_network_flows, aggregate_pcap_flows, flow_packets_from_pcap, NetworkFlowError,
@@ -218,10 +224,13 @@ use self::{
         NetworkLinuxAdapterGateInput,
     },
     linux_nftables_lab_execution::{
-        prove_network_linux_nftables_lab_execution, NetworkLinuxNftablesLabCommandEvidence,
-        NetworkLinuxNftablesLabCommandKind, NetworkLinuxNftablesLabExecutionError,
-        NetworkLinuxNftablesLabExecutionInput, NetworkLinuxNftablesLabExecutionProof,
-        NetworkLinuxNftablesLabExecutionState, NetworkLinuxNftablesLabUnsupportedClaims,
+        prove_network_linux_nftables_lab_execution,
+        types::{
+            NetworkLinuxNftablesLabCommandEvidence, NetworkLinuxNftablesLabCommandKind,
+            NetworkLinuxNftablesLabExecutionError, NetworkLinuxNftablesLabExecutionInput,
+            NetworkLinuxNftablesLabExecutionProof, NetworkLinuxNftablesLabExecutionState,
+            NetworkLinuxNftablesLabUnsupportedClaims,
+        },
     },
     live_capture::{
         plan_network_live_capture_proof, NetworkLiveCapturePlatform, NetworkLiveCaptureProof,
@@ -255,9 +264,12 @@ use self::{
         NetworkParentNotificationDeliveryState, NetworkParentNotificationSeverity,
     },
     packet::{
-        parse_network_packet, udp_payload_from_ethernet_ipv4, EthernetFrameMetadata, IpProtocol,
-        Ipv4PacketMetadata, PacketParseError, ParsedNetworkPacket, TransportPacketMetadata,
-        UdpPayloadView,
+        parse_network_packet,
+        types::{
+            EthernetFrameMetadata, IpProtocol, Ipv4PacketMetadata, PacketParseError,
+            ParsedNetworkPacket, TransportPacketMetadata, UdpPayloadView,
+        },
+        udp_payload_from_ethernet_ipv4,
     },
     pcap::{parse_pcap_packets, PcapPacket, PcapReplayError},
     performance::{
@@ -284,9 +296,12 @@ use self::{
         NetworkProcessCorrelationState, NetworkProcessCorrelationUncertainty,
     },
     raw_capture_storage::{
-        plan_network_raw_capture_storage, NetworkRawCaptureStorageError,
-        NetworkRawCaptureStorageInput, NetworkRawCaptureStorageProof,
-        NetworkRawCaptureStorageRequiredArtifact, NetworkRawCaptureStorageState,
+        plan_network_raw_capture_storage,
+        types::{
+            NetworkRawCaptureStorageError, NetworkRawCaptureStorageInput,
+            NetworkRawCaptureStorageProof, NetworkRawCaptureStorageRequiredArtifact,
+            NetworkRawCaptureStorageState,
+        },
     },
     readiness::{
         evaluate_network_readiness_proof, NetworkHardeningReadinessProof,
@@ -331,10 +346,13 @@ use self::{
         NetworkWindowsFirewallBoundaryReason, NetworkWindowsFirewallCapabilityState,
     },
     windows_firewall_lab_execution::{
-        prove_network_windows_firewall_lab_execution, NetworkWindowsFirewallLabCommandEvidence,
-        NetworkWindowsFirewallLabCommandKind, NetworkWindowsFirewallLabExecutionError,
-        NetworkWindowsFirewallLabExecutionInput, NetworkWindowsFirewallLabExecutionProof,
-        NetworkWindowsFirewallLabExecutionState, NetworkWindowsFirewallLabUnsupportedClaims,
+        prove_network_windows_firewall_lab_execution,
+        types::{
+            NetworkWindowsFirewallLabCommandEvidence, NetworkWindowsFirewallLabCommandKind,
+            NetworkWindowsFirewallLabExecutionError, NetworkWindowsFirewallLabExecutionInput,
+            NetworkWindowsFirewallLabExecutionProof, NetworkWindowsFirewallLabExecutionState,
+            NetworkWindowsFirewallLabUnsupportedClaims,
+        },
     },
     windows_wfp_gate::{
         plan_network_windows_wfp_gate, NetworkWindowsWfpGateBoundaryReason,

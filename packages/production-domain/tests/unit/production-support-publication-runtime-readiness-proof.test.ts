@@ -3,8 +3,8 @@ import {
   ProductionSupportPublicationRuntimeReadinessProofSchema,
   ProductionSupportPublicationRuntimeReadinessRowSchema,
   summarizeProductionSupportPublicationRuntimeReadinessRows,
-} from '../../src/production-support-publication-runtime-readiness-proof';
-import { ProductionSupportPublicationRuntimeReadinessReadModel } from '../../src/production-support-publication-runtime-readiness-read-model';
+} from '@ocentra-parent/schema-domain/production-support-publication-runtime-readiness-proof';
+import { ProductionSupportPublicationRuntimeReadinessReadModel } from '@ocentra-parent/schema-domain/production-support-publication-runtime-readiness-read-model';
 
 describe('production support publication runtime readiness proof', () => {
   acceptsRuntimeReadinessRows();

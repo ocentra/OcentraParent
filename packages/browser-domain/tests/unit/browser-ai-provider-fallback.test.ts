@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BrowserAiProviderFallbackDecisionSchema } from '../../src/browser-ai-provider-fallback-schemas';
+import { BrowserAiProviderFallbackDecisionSchema } from '@ocentra-parent/schema-domain/browser-ai-provider-fallback-schemas';
 import {
   missingLocalProviderRoute,
   providerFallbackDecision,

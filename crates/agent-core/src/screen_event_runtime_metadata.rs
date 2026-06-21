@@ -3,13 +3,12 @@ use ocentra_eventing::{
     ids::EventCustody, ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
     ids::SourceService, ids::TargetHandler,
 };
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::{constants, ScreenRuntimePhase};
 
 use crate::{
     screen_event_runtime_input::{
         ScreenRuntimeCaptureInput, ScreenRuntimeDeletionInput, ScreenRuntimeInput,
     },
-    screen_event_runtime_phase::ScreenRuntimePhase,
     screen_event_runtime_refs::screen_correlation_id,
     screen_event_runtime_state::custody_state,
 };

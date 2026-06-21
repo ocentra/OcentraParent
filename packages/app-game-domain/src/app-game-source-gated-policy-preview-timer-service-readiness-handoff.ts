@@ -1,166 +1,45 @@
 import {
-  type Infer,
-  Schema,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
-import {
-  AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentIdSchema,
-  AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentRowIdSchema,
   AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentSchema,
   type AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentRow,
-} from './app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent';
-import { AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowIdSchema } from './app-game-source-gated-policy-preview-timer-audit-rollback-handoff';
-import { AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelRowIdSchema } from './app-game-source-gated-policy-preview-timer-audit-rollback-read-model';
-import { AppGameSourceGatedPolicyPreviewTimerProofRefSchema } from './app-game-source-gated-policy-preview-timer-status';
-import { AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowIdSchema } from './app-game-source-gated-policy-preview-timer-scheduler-persistence';
-import { AppGamePolicyPreviewTargetDomainSchema } from './app-game-policy-preview-handoff';
-import { AppGameSourceFreshnessEvidenceRefSchema } from './app-game-source-freshness-policy-consumption';
+} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent';
+import {
+  AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffIdSchema as SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffIdSchema,
+  AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffOptionsSchema as SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffOptionsSchema,
+  AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffReadApiRefSchema as SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffReadApiRefSchema,
+  AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowIdSchema as SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowIdSchema,
+  AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowSchema as SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowSchema,
+  AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffSchema as SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffSchema,
+  type AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoff as SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoff,
+  type AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffOptions as SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffOptions,
+  type AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRow as SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRow,
+} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-service-readiness-handoff';
 import {
   AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffNoClaimFlags,
   AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffState,
   RequiredAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffNonClaims,
   type AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateValue,
-  appGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffCountsMatch,
-  appGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffHasNoRuntimeClaims,
   appGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffMatchesParentSurfaceIntent,
-} from './app-game-source-gated-policy-preview-timer-service-readiness-handoff-rules';
-import { ParentContractSchemaVersionSchema, ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
+} from '@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-timer-service-readiness-handoff-rules';
 
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffId');
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowIdSchema = brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowId');
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffContractRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffContractRef');
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffIdSchema =
+  SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffIdSchema;
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowIdSchema =
+  SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowIdSchema;
 export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffReadApiRefSchema =
-  brandedNonEmptyStringSchema('AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffReadApiRef');
+  SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffReadApiRefSchema;
+const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffOptionsSchema =
+  SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffOptionsSchema;
+const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowSchema =
+  SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowSchema;
+export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffSchema =
+  SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffSchema;
 
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateSchema = withParser(
-  Schema.Literal(...Object.values(AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffState))
-);
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffNonClaimSchema = withParser(
-  Schema.Literal(...RequiredAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffNonClaims)
-);
-
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffOptionsSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    handoffId: AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffIdSchema,
-    generatedAt: ParentTimestampSchema,
-    sourceContractRefs: Schema.Array(AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffContractRefSchema),
-    serviceReadinessProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-    serviceReadApiProofRef: AppGameSourceGatedPolicyPreviewTimerProofRefSchema,
-    serviceReadApiRef: AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffReadApiRefSchema,
-  }).pipe(
-    Schema.filter(
-      (options) =>
-        options.sourceContractRefs.length > 0 ||
-        'Expected source-gated policy preview timer service-readiness handoff options to cite source contracts'
-    )
-  )
-);
-
-const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowBaseSchema = Schema.Struct({
-  schemaVersion: ParentContractSchemaVersionSchema,
-  rowId: AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowIdSchema,
-  sourceParentSurfaceIntentRowId: AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentRowIdSchema,
-  sourceAuditRollbackReadModelRowId: AppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModelRowIdSchema,
-  sourceAuditRollbackHandoffRowId: AppGameSourceGatedPolicyPreviewTimerAuditRollbackHandoffRowIdSchema,
-  sourceSchedulerPersistenceRowId: AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowIdSchema,
-  targetDomain: AppGamePolicyPreviewTargetDomainSchema,
-  serviceReadinessHandoffState: AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateSchema,
-  parentSurfaceProofRequired: Schema.Boolean,
-  serviceReadinessProofRequired: Schema.Boolean,
-  serviceReadApiProofRequired: Schema.Boolean,
-  requiredProofRefs: Schema.Array(AppGameSourceGatedPolicyPreviewTimerProofRefSchema),
-  sourceEvidenceRefs: Schema.Array(AppGameSourceFreshnessEvidenceRefSchema),
-  serviceReadApiRef: AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffReadApiRefSchema,
-  serviceRuntimeEventClaimed: Schema.Literal(false),
-  serviceReadApiImplemented: Schema.Literal(false),
-  portalUiRendered: Schema.Literal(false),
-  policyEvaluatorRuntimeClaimed: Schema.Literal(false),
-  timerRuntimeClaimed: Schema.Literal(false),
-  timerScheduled: Schema.Literal(false),
-  schedulerPersistenceRuntimeClaimed: Schema.Literal(false),
-  durableSchedulerStorageClaimed: Schema.Literal(false),
-  auditRuntimeClaimed: Schema.Literal(false),
-  durableAuditLogClaimed: Schema.Literal(false),
-  rollbackRuntimeClaimed: Schema.Literal(false),
-  rollbackExecutionClaimed: Schema.Literal(false),
-  adapterDispatchClaimed: Schema.Literal(false),
-  childDeliveryClaimed: Schema.Literal(false),
-  platformEnforcementClaimed: Schema.Literal(false),
-  rawPrivateSourceRowsIncluded: Schema.Literal(false),
-  generatedAt: ParentTimestampSchema,
-});
-
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowSchema = withParser(
-  AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowBaseSchema.pipe(
-    Schema.filter(
-      (row) =>
-        row.requiredProofRefs.length > 0 ||
-        'Expected source-gated policy preview timer service-readiness handoff rows to name required proof refs'
-    )
-  )
-);
-
-const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffBaseSchema = Schema.Struct({
-  schemaVersion: ParentContractSchemaVersionSchema,
-  handoffId: AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffIdSchema,
-  sourceParentSurfaceIntentId: AppGameSourceGatedPolicyPreviewTimerAuditRollbackParentSurfaceIntentIdSchema,
-  generatedAt: ParentTimestampSchema,
-  sourceContractRefs: Schema.Array(AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffContractRefSchema),
-  rows: Schema.Array(AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowSchema),
-  nativeAppRowCount: Schema.Number,
-  nativeGameRowCount: Schema.Number,
-  serviceReadApiProofRequiredCount: Schema.Number,
-  blockedBySourceFreshnessCount: Schema.Number,
-  blockedByCompilerDecisionCount: Schema.Number,
-  serviceReadinessHandoffNonClaims: Schema.Array(
-    AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffNonClaimSchema
-  ),
-  serviceRuntimeEventClaimed: Schema.Literal(false),
-  serviceReadApiImplemented: Schema.Literal(false),
-  portalUiRendered: Schema.Literal(false),
-  policyEvaluatorRuntimeClaimed: Schema.Literal(false),
-  timerRuntimeClaimed: Schema.Literal(false),
-  timerScheduled: Schema.Literal(false),
-  schedulerPersistenceRuntimeClaimed: Schema.Literal(false),
-  durableSchedulerStorageClaimed: Schema.Literal(false),
-  auditRuntimeClaimed: Schema.Literal(false),
-  durableAuditLogClaimed: Schema.Literal(false),
-  rollbackRuntimeClaimed: Schema.Literal(false),
-  rollbackExecutionClaimed: Schema.Literal(false),
-  adapterDispatchClaimed: Schema.Literal(false),
-  childDeliveryClaimed: Schema.Literal(false),
-  platformEnforcementClaimed: Schema.Literal(false),
-  rawPrivateSourceRowsIncluded: Schema.Literal(false),
-});
-
-export const AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffSchema = withParser(
-  AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffBaseSchema.pipe(
-    Schema.filter(
-      (handoff) =>
-        appGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffCountsMatch(handoff) ||
-        'Expected source-gated policy preview timer service-readiness handoff counts to match row states'
-    )
-  ).pipe(
-    Schema.filter(
-      (handoff) =>
-        appGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffHasNoRuntimeClaims(handoff) ||
-        'Expected source-gated policy preview timer service-readiness handoff to avoid service, UI, timer, scheduler, audit, rollback, adapter, and raw-source claims'
-    )
-  )
-);
-
-export type AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffOptions = Infer<
-  typeof AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffOptionsSchema
->;
-export type AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRow = Infer<
-  typeof AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRowSchema
->;
-export type AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoff = Infer<
-  typeof AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffSchema
->;
+type AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffOptions =
+  SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffOptions;
+export type AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRow =
+  SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffRow;
+type AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoff =
+  SchemaDomainAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoff;
 
 export function buildAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoff(
   optionsInput: unknown,
@@ -246,10 +125,5 @@ function serviceReadinessStateForParentSurfaceIntent(
   }
   return AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffState.BlockedByCompilerDecision;
 }
-
-export const decodeAppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoff = Schema.decodeUnknownSync(
-  AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffSchema
-);
-
 export { AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffState };
 

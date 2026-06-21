@@ -1,21 +1,24 @@
-use crate::browser_event_runtime::{
-    prove_browser_runtime_action_intent_durable_handoff,
-    BrowserRuntimeActionIntentDurableHandoffReadModelState,
-};
-use crate::{
+use crate::browser_event_runtime::action_handoff::{
     browser_runtime_action_intent_handoff_topology_manifest,
-    browser_runtime_action_intent_status_topology_manifest,
-    browser_runtime_chain_topology_manifest, prove_browser_runtime_delivery_decision,
-    publish_browser_runtime_chain_for_input,
     request_browser_runtime_action_intent_handoff_for_input,
-    request_browser_runtime_action_intent_status_for_input, BrowserRuntimeEventPayload,
-    BrowserRuntimeInput, BrowserRuntimePhase, BrowserRuntimeReport,
+};
+use crate::browser_event_runtime::action_handoff_durable::prove_browser_runtime_action_intent_durable_handoff;
+use crate::browser_event_runtime::action_handoff_durable_types::BrowserRuntimeActionIntentDurableHandoffReadModelState;
+use crate::browser_event_runtime::action_status::{
+    browser_runtime_action_intent_status_topology_manifest,
+    request_browser_runtime_action_intent_status_for_input,
+};
+use crate::browser_event_runtime::delivery::prove_browser_runtime_delivery_decision;
+use crate::browser_event_runtime::topology::browser_runtime_chain_topology_manifest;
+use crate::browser_event_runtime::{
+    publish_browser_runtime_chain_for_input, BrowserRuntimeEventPayload, BrowserRuntimeInput,
+    BrowserRuntimeReport,
 };
 use ocentra_eventing::{
     delivery::EventDeliveryDecisionState, delivery::EventDeliveryRequiredArtifact,
     delivery::EventDeliveryRouteKind, topology::EventTopologyStatus,
 };
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::{browser::BrowserRuntimePhase, constants};
 
 mod browser_event_runtime_child_status_tests;
 mod browser_event_runtime_parent_surface_tests;

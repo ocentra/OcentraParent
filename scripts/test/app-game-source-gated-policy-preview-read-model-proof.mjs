@@ -20,25 +20,30 @@ for (const path of [join(appGameProofDir, '06-ui-snapshots'), join(appProofDir, 
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
-  'app-game-source-gated-policy-preview-read-model',
-  'app-game-source-freshness-preview-gate',
-  'app-game-source-freshness-policy-consumption',
-  'app-game-policy-preview-handoff',
+  '--run',
+  'tests/unit/app-game-source-gated-policy-preview-read-model.test.ts',
 ]);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 
-const readModelContract = await importDist('app-game-source-gated-policy-preview-read-model.js');
-const gate = await importDist('app-game-source-freshness-preview-gate.js');
-const sourceData = await importDist('app-game-source-freshness-policy-consumption-data.js');
-const compilerRules = await importDist('app-game-policy-target-compiler-rules.js');
-const policy = await importDist('policy.js');
-const refs = await importDist('reference-primitives.js');
+const schemaReadModel = await import('@ocentra-parent/schema-domain/app-game-source-gated-policy-preview-read-model');
+commands.push('node import @ocentra-parent/schema-domain/app-game-source-gated-policy-preview-read-model');
+if (!('AppGameSourceGatedPolicyPreviewReadModelSchema' in schemaReadModel)) {
+  throw new Error('Missing AppGameSourceGatedPolicyPreviewReadModelSchema export from schema-domain');
+}
+
+const readModelContract = await importAppGameDist('app-game-source-gated-policy-preview-read-model.js');
+const gate = await importAppGameDist('app-game-source-freshness-preview-gate.js');
+const sourceData = await importAppGameDist('app-game-source-freshness-policy-consumption-data.js');
+const compilerRules = await importSchemaDist('app-game-policy-target-compiler-rules.js');
+const policy = await importSchemaDist('policy.js');
+const refs = await importSchemaDist('family-reference-primitives.js');
 
 const [readyAppSource, readyGameSource, manualGameSource] =
   sourceData.AppGameSourceFreshnessPolicyConsumptionMatrix.readiness;
@@ -115,10 +120,8 @@ const proof = {
   gitStatusShort: initialGitStatusShort,
   commands,
   stackedOn: {
-    wp75Branch: 'codex/app-game-source-freshness-preview-gate',
-    requiredBranch: 'codex/app-game-source-freshness-preview-gate',
     reason:
-      'WP76 consumes WP75 preview-gate contracts that are not on origin/main yet; WP74 source freshness policy consumption has landed on origin/main.',
+      'schema-domain owns the source-gated policy preview read-model contract surface; app-game-domain consumes the source freshness preview gate to project local read-model rows.',
   },
   summary: summarize(readModel),
   nonClaims: {
@@ -132,9 +135,10 @@ const proof = {
     rawPrivateSourceRowsIncluded: readModel.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-source-gated-policy-preview-read-model.ts',
-    rules: 'packages/parent-domain/src/app-game-source-gated-policy-preview-read-model-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-read-model.test.ts',
+    schemaSource: 'packages/schema-domain/src/app-game-source-gated-policy-preview-read-model.ts',
+    schemaRules: 'packages/schema-domain/src/app-game-source-gated-policy-preview-read-model-rules.ts',
+    consumerSource: 'packages/app-game-domain/src/app-game-source-gated-policy-preview-read-model.ts',
+    consumerTest: 'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-read-model.test.ts',
     harness: 'scripts/test/app-game-source-gated-policy-preview-read-model-proof.mjs',
     evidence: 'test-results/app-game-source-gated-policy-preview-read-model-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
@@ -154,8 +158,12 @@ await writeProofPack(appProofDir, proof, 'app WP76');
 console.log('app-game-source-gated-policy-preview-read-model-proof-ok');
 console.log(`evidence=${join('test-results', 'app-game-source-gated-policy-preview-read-model-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function gateOptions(refs) {
@@ -337,7 +345,7 @@ async function writeProofPack(proofDir, proof, label) {
       '```',
       '',
       '- Scope: source-gated policy preview read-model contract derived from WP75 gate rows.',
-      '- Stack note: this branch depends on WP74/WP75 until those stacked PRs land.',
+      '- Stack note: schema-domain owns the read-model contract surface; app-game-domain consumes the gate output.',
       '',
     ].join('\n'),
     'utf8'
@@ -347,8 +355,9 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-gated-policy-preview-read-model app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/app-game-domain -- --run tests/unit/app-game-source-gated-policy-preview-read-model.test.ts: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/app-game-domain: PASS',
       '- Read-model rows derive from the WP75 source freshness preview gate.',
       '- Source-manual rows keep previewDecisionRef null before compiler output.',
       '- Compiler-manual rows remain distinct from source-manual rows.',
@@ -370,7 +379,7 @@ async function writeProofPack(proofDir, proof, label) {
   });
   await writeFile(
     join(proofDir, '06-ui-snapshots', 'README.md'),
-    'No UI screenshots: WP76 is a parent-domain read-model contract/proof only.\n',
+    'No UI screenshots: WP76 is a schema-domain contract plus app-game-domain consumer proof only.\n',
     'utf8'
   );
   await writeFile(

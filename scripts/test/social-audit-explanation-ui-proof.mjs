@@ -61,7 +61,7 @@ try {
   await mkdir(proofResultDir, { recursive: true });
   await runNpm(['run', 'build:contracts']);
   const proofBundle = await buildProofBundle();
-  await runNpmWorkspace('@ocentra-parent/parent-domain', [
+  await runNpmWorkspace('@ocentra-parent/browser-domain', [
     'run',
     'test',
     '--',
@@ -102,7 +102,7 @@ try {
 
 async function buildProofBundle() {
   const { SocialAuditExplanationSnapshotSchema } =
-    await import('@ocentra-parent/browser-domain/social-audit-explanation-read-model');
+    await import('@ocentra-parent/schema-domain/social-audit-explanation-read-model');
   return SocialAuditExplanationSnapshotSchema.parse(validSnapshot());
 }
 
@@ -385,7 +385,7 @@ async function writeProof(proofBundle, playwright) {
       accessibilitySummary: relativePath(accessibilitySummaryPath),
     },
     sourceBoundary: {
-      source: 'schema-decoded SOCIAL-22 parent-domain explanation snapshot passed through dedicated portal proof env',
+      source: 'schema-decoded SOCIAL-22 schema-domain explanation snapshot passed through dedicated portal proof env',
       route: '#/browser',
       rawSocialContentRendered: false,
       serviceBackedReadModelClaimed: false,
@@ -432,7 +432,7 @@ async function writeProof(proofBundle, playwright) {
       `branch=${await gitBranch()}`,
       `commit=${await gitHead()}`,
       '',
-      'SOCIAL-22 renders the existing parent-domain social audit/explanation snapshot contract in the Browser route.',
+      'SOCIAL-22 renders the existing schema-domain social audit/explanation snapshot contract in the Browser route.',
       'The portal receives only a schema-decoded explanation proof bundle through the dedicated proof env var.',
       'No raw account, video, message, connector token, native app, final policy, or enforcement data is rendered.',
       '',

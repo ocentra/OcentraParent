@@ -27,7 +27,8 @@ fn event_type_and_namespace_reject_empty_or_malformed_taxonomy() {
 fn event_namespace_matches_exact_and_child_event_types_only() {
     let namespace = EventNamespace::parse("tracking").expect_value("namespace parses");
     let exact = EventType::parse("tracking").expect_value("event type parses");
-    let child = EventType::parse("tracking.location.observed").expect_value("event type parses");
+    let child = EventType::parse(&format!("{}.{}", namespace.as_str(), "location.observed"))
+        .expect_value("event type parses");
     let sibling = EventType::parse("tracking-location.observed").expect_value("event type parses");
 
     assert!(namespace.matches_event_type(&exact));

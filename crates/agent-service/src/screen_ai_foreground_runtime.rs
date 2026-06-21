@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use ocentra_parent_agent_core::collect_foreground_window_observation;
+use ocentra_parent_agent_core::window_capture::collect_foreground_window_observation;
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, SCREEN_SERVICE_FOREGROUND_EVENT_ID_PREFIX,
     SCREEN_SERVICE_FOREGROUND_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_FOREGROUND_MODEL_ID,

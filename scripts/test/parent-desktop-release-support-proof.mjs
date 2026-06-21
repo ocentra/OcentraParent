@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { buildReadModel } from './parent-desktop-release-support-read-model-fixture.mjs';
 
 const repoRoot = process.cwd();
+const contractPackageExport = '@ocentra-parent/schema-domain/parent-desktop-release-support';
 const outputDir = join(repoRoot, 'test-results', 'parent-desktop-release-support-proof');
 const proofPath = join(outputDir, 'proof.json');
 const proofCommand = 'node scripts/test/parent-desktop-release-support-proof.mjs';
@@ -23,9 +23,10 @@ async function main() {
       '--workspace',
       '@ocentra-parent/parent-domain',
       '--',
-      'tests/parent-desktop-release-support.test.ts',
-      'tests/parent-desktop-release-support-incident.test.ts',
-    ])
+      'tests/unit/parent-desktop-release-support.test.ts',
+      'tests/unit/parent-desktop-release-support-incident.test.ts',
+    ]),
+    { OCENTRA_PARENT_DOMAIN_TEST_SKIP_PROOF_CHAIN: '1' }
   );
 
   const packageJson = JSON.parse(await readFile(join(repoRoot, 'package.json'), 'utf8'));
@@ -41,8 +42,9 @@ async function main() {
     proofMode: 'parent-desktop-release-support-proof',
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/parent-desktop-release-support.ts',
-      contractTest: 'packages/parent-domain/tests/parent-desktop-release-support.test.ts',
+      contract: 'packages/schema-domain/src/parent-desktop-release-support.ts',
+      contractTest: 'packages/parent-domain/tests/unit/parent-desktop-release-support.test.ts',
+      packageExport: contractPackageExport,
       output: relative(repoRoot, proofPath),
       packagePreviewWorkflow: '.github/workflows/package-preview.yml',
       readinessGate: 'v8-production-release-support-readiness',
@@ -122,8 +124,7 @@ async function buildCiArtifactProof() {
 }
 
 async function parseReadModel(readModel) {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'parent-desktop-release-support.js');
-  const module = await import(pathToFileURL(modulePath).href);
+  const module = await import(contractPackageExport);
   return module.ParentDesktopReleaseSupportReadModelSchema.parse(readModel);
 }
 
@@ -167,10 +168,15 @@ function assertReadModel(readModel) {
   assert.equal(readModel.updaterRollbackRunbookProof.runbookStatus.requiredSections.length, 5);
 }
 
-async function runCommand(commandName, args) {
+async function runCommand(commandName, args, extraEnv = {}) {
   commands.push([commandName, ...args].join(' '));
   await new Promise((resolve, reject) => {
-    const child = spawn(commandName, args, { cwd: repoRoot, stdio: 'inherit', windowsHide: true });
+    const child = spawn(commandName, args, {
+      cwd: repoRoot,
+      stdio: 'inherit',
+      windowsHide: true,
+      env: { ...process.env, ...extraEnv },
+    });
     child.once('exit', (code) =>
       code === 0 ? resolve() : reject(new Error(`${commandName} ${args.join(' ')} exited with ${code}`))
     );

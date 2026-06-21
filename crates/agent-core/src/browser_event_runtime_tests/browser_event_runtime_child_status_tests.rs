@@ -1,7 +1,5 @@
-use crate::browser_event_runtime::{
-    prove_browser_runtime_action_intent_child_status,
-    BrowserRuntimeActionIntentChildStatusReadModelState,
-};
+use crate::browser_event_runtime::action_handoff_child_status::prove_browser_runtime_action_intent_child_status;
+use crate::browser_event_runtime::action_handoff_child_status_types::BrowserRuntimeActionIntentChildStatusReadModelState;
 use ocentra_parent_agent_protocol::constants;
 
 #[tokio::test]

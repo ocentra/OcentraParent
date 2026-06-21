@@ -19,31 +19,38 @@ for (const path of [join(appGameProofDir, '06-ui-snapshots'), join(appProofDir, 
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
-  'app-game-policy-preview-handoff',
-  'app-game-policy-target-compiler',
+  '--run',
+  'tests/unit/app-game-policy-preview-handoff.test.ts',
 ]);
 
-const preview = await importDist('app-game-policy-preview-handoff.js');
-const packagePreview = await import('@ocentra-parent/app-game-domain/app-game-policy-preview-handoff');
-const compilerRules = await importDist('app-game-policy-target-compiler-rules.js');
-const policy = await importDist('policy.js');
-const refs = await importDist('reference-primitives.js');
-commands.push('node import @ocentra-parent/app-game-domain/app-game-policy-preview-handoff');
-if (typeof packagePreview.buildAppGamePolicyPreviewHandoffReadModel !== 'function') {
-  throw new Error('Expected package export to expose buildAppGamePolicyPreviewHandoffReadModel');
+const previewBuilder = await importAppGameDist('app-game-policy-preview-handoff.js');
+const schemaPreview = await import('@ocentra-parent/schema-domain/app-game-policy-preview-handoff');
+const compilerRules = await import('@ocentra-parent/schema-domain/app-game-policy-target-compiler-rules');
+const policy = await import('@ocentra-parent/schema-domain/policy');
+const refs = await import('@ocentra-parent/schema-domain/family-reference-primitives');
+commands.push('node import @ocentra-parent/schema-domain/app-game-policy-preview-handoff');
+commands.push('node import packages/app-game-domain/dist/app-game-policy-preview-handoff.js');
+if (typeof previewBuilder.buildAppGamePolicyPreviewHandoffReadModel !== 'function') {
+  throw new Error('Expected app-game-domain consumer export to expose buildAppGamePolicyPreviewHandoffReadModel');
+}
+if (typeof schemaPreview.decodeAppGamePolicyPreviewHandoffReadModel !== 'function') {
+  throw new Error('Expected schema-domain owner export to expose decodeAppGamePolicyPreviewHandoffReadModel');
 }
 
-const readModel = preview.buildAppGamePolicyPreviewHandoffReadModel(previewOptions(refs), [
-  appPreviewDecision(compilerRules, policy, refs),
-  gameManualPreviewDecision(compilerRules, policy, refs),
-]);
+const readModel = schemaPreview.decodeAppGamePolicyPreviewHandoffReadModel(
+  previewBuilder.buildAppGamePolicyPreviewHandoffReadModel(previewOptions(refs), [
+    appPreviewDecision(compilerRules, policy, refs),
+    gameManualPreviewDecision(compilerRules, policy, refs),
+  ])
+);
 const proof = {
   proofMode: 'app-game-policy-preview-handoff',
   generatedAt: timestamp,
@@ -60,12 +67,13 @@ const proof = {
     platformEnforcementClaimed: readModel.platformEnforcementClaimed,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-policy-preview-handoff.ts',
-    rules: 'packages/parent-domain/src/app-game-policy-preview-handoff-rules.ts',
-    packageExport: 'packages/parent-domain/package.json',
-    packageReadme: 'packages/parent-domain/README.md',
-    test: 'packages/parent-domain/tests/app-game-policy-preview-handoff.test.ts',
-    fixture: 'packages/parent-domain/tests/app-game-policy-preview-handoff-fixtures.ts',
+    source: 'packages/schema-domain/src/app-game-policy-preview-handoff.ts',
+    rules: 'packages/schema-domain/src/app-game-policy-preview-handoff-rules.ts',
+    packageExport: 'packages/schema-domain/package.json',
+    packageReadme: 'packages/schema-domain/README.md',
+    consumerBuilder: 'packages/app-game-domain/src/app-game-policy-preview-handoff.ts',
+    consumerTest: 'packages/app-game-domain/tests/unit/app-game-policy-preview-handoff.test.ts',
+    consumerFixture: 'packages/app-game-domain/tests/unit/app-game-policy-preview-handoff-fixtures.ts',
     harness: 'scripts/test/app-game-policy-preview-handoff-proof.mjs',
     evidence: 'test-results/app-game-policy-preview-handoff-proof/proof.json',
     appGameProofPack: 'output/app-game-plan-proof/70-policy-preview-handoff',
@@ -83,8 +91,8 @@ await writeProofPack(appProofDir, proof, 'app WP70');
 console.log('app-game-policy-preview-handoff-proof-ok');
 console.log(`evidence=${join('test-results', 'app-game-policy-preview-handoff-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
 }
 
 function previewOptions(refs) {
@@ -298,7 +306,16 @@ async function writeProofPack(proofDir, proof, label) {
       '```',
       '',
       '- Scope: app/game compiled policy decisions to read-only policy preview handoff rows.',
-      '- Source inspected: parent-domain policy primitives, app/game policy target compiler, policy expectations, enforcement expectations, app/game feature doc, and implementation checklists.',
+      '- Source inspected: schema-domain policy preview contract/rules plus the app-game-domain builder consumer and focused consumer test.',
+      '',
+      'Touched implementation:',
+      '',
+      '- `packages/schema-domain/src/app-game-policy-preview-handoff.ts`',
+      '- `packages/schema-domain/src/app-game-policy-preview-handoff-rules.ts`',
+      '- `packages/app-game-domain/src/app-game-policy-preview-handoff.ts`',
+      '- `packages/app-game-domain/tests/unit/app-game-policy-preview-handoff.test.ts`',
+      '- `packages/app-game-domain/tests/unit/app-game-policy-preview-handoff-fixtures.ts`',
+      '- `scripts/test/app-game-policy-preview-handoff-proof.mjs`',
       '',
     ].join('\n'),
     'utf8'
@@ -308,9 +325,11 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-policy-preview-handoff app-game-policy-target-compiler: PASS',
-      '- node import @ocentra-parent/app-game-domain/app-game-policy-preview-handoff: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/app-game-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/app-game-domain -- --run tests/unit/app-game-policy-preview-handoff.test.ts: PASS',
+      '- node import @ocentra-parent/schema-domain/app-game-policy-preview-handoff: PASS',
+      '- node import packages/app-game-domain/dist/app-game-policy-preview-handoff.js: PASS',
       '- Existing compiled app/game policy decisions become preview-ready or manual-required handoff rows.',
       '- Invalid rows claiming evaluator runtime, timer runtime, adapter dispatch, child delivery, or platform enforcement are rejected.',
       '',
@@ -319,7 +338,7 @@ async function writeProofPack(proofDir, proof, label) {
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust protocol proof not applicable: this workpack adds a TypeScript parent-domain handoff boundary and does not add a Rust-crossing shape.\n',
+    'Rust protocol proof not applicable: this workpack proves a TypeScript schema-domain contract plus an app-game-domain consumer and does not add a Rust-crossing shape.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof.summary);

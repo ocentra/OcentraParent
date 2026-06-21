@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import type {
+  RunType,
+  TestLogScope,
+  TestSuiteType,
+} from '@ocentra-parent/schema-domain/test-log/types';
 import { getDefaultLogRoot, getRunNdjsonFilePath } from './ndjsonPaths';
-import type { RunType, TestLogScope, TestSuiteType } from './types';
 
 const DELIMITER = '\0';
 const TEST_LOG_DIR = 'test-logs';

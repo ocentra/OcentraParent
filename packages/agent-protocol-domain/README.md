@@ -1,69 +1,27 @@
 # @ocentra-parent/agent-protocol-domain
 
-Shared WebSocket command/event contracts for localhost, LAN, and future relay
-transports.
+Protocol adapters, event parsers, and transport helpers built on canonical
+`@ocentra-parent/schema-domain` contracts for localhost, LAN, and related
+service-backed flows.
 
 ## Owns
 
-- Agent command names and payload schemas.
-- Agent event names and payload schemas.
-- Security envelope fields and validation.
-- Protocol defaults that must match Rust.
-- Screen settings get/replace command adapter for persisted parent screen
-  settings, reusing `activity-domain`'s `ScreenAnalysisParentSettingSchema`
-  rather than duplicating the product setting contract.
-- Adapter-specific command/event contracts for activity, browser policy,
-  parent assistant, LAN, enforcement product-control runtime state, and related
-  paths.
-- V0.9 signed LAN discovery/relay spine payloads for add-device read models,
-  including adapter rows, signed proof rows, route safety rows, and relay/cache
-  rows consumed by the Rust service and parent surfaces.
-- V0.9 LAN source-matrix payloads that carry 20 workpack rows and discovery
-  source rows from product contracts into service-backed portal diagnostics.
-- Enforcement policy-dispatch read-model event parsing for the service-backed
-  V0.8 dispatch proof path.
-- Enforcement supported-adapter runtime proof event parsing, including the
-  integrity runtime audit read model carried by
-  `agent.enforcement.supported-adapter-runtime-proof.reported` and its nested
-  V0.8 integrity alert/status bridge and notification provider status boundary.
-- Tracking read-model command/event names and the `trackingReadModel` payload
-  field for the service-backed
-  `agent.activity.tracking.read-model.get` proof path, including active
-  kind/device/capability count summaries and latest active row metadata.
-- App/game boundary read-model command/event names and the
-  `appGameBoundaryReadModel` payload field for the service-backed
-  authority/classifier row-count proof path.
-- App/game notification readiness read-model command/event names, payload
-  field, parser, and no-claim booleans for service-backed local notification
-  intent readiness rows.
-- Activity app-use and games read-model event parsing for backend-owned
-  app/game source freshness rows, while product semantics stay in
-  `activity-domain`.
-- Network runtime event contracts for the local eventing spine, including
-  flow/domain/classification, AI advisory, policy, enforcement dry-run/result,
-  audit, and portal read-model update shapes mirrored from `crates/agent-protocol`.
-- Network remote delivery status event parsing for the row10t external
-  cross-process transport status bridge identity, row10k transport-dispatch
-  service refs, row10l fixture transport refs/counts, row10m delete/export
-  readiness refs, row10p provider/child readiness refs, row10q cross-process
-  custody readiness refs, row10r deterministic replay refs/counts exposed by the
-  row10s cross-process replay status bridge, and row10t transport envelope/ack
-  refs/counts over row10b through row10t refs, including stale-ref rejection,
-  blocked-dispatch/fixture/readiness/replay/transport count validation, and
-  no-claim booleans for live delivery, product readiness, policy authority,
-  adapter execution, and exact content.
-- Network live-capture status event parsing for row13 live-capture proof-gate
-  and row03a raw-capture custody bridge refs, including stale-ref rejection,
-  proof/manual/unavailable/degraded count validation, required artifact refs,
-  and no-claim booleans for driver execution, raw PCAP, content, policy,
-  adapter, enforcement, netstat substitution, and host filtering.
+- Adapter and parser helpers that sit between canonical `schema-domain`
+  contracts and transport/runtime consumers.
+- Package-local command builders, message codecs, read-model parsers, and
+  protocol defaults that do not become shared schema authority.
+- Transport-facing helpers for activity, browser, screen, enforcement, network,
+  LAN, tracking, social, app-game, and parent-assistant flows when those
+  payloads are already canonically defined elsewhere.
 
 ## Must Not Own
 
-- Product policy semantics that belong in `parent-domain`.
-- Evidence schemas that belong in `activity-domain`.
-- Endpoint paths that belong in `endpoint-domain`.
-- Rust implementation details.
+- Canonical command, event, read-model, or branded schema ownership. That
+  belongs in `@ocentra-parent/schema-domain`.
+- Product policy semantics or runtime business logic that belong in owning
+  domain packages.
+- Endpoint paths or portal-only UI projections.
+- Rust implementation details or Rust mirror ownership.
 
 ## Flow
 
@@ -84,83 +42,8 @@ flowchart LR
 
 ## Gaps To Fill
 
-- Every new remote, notification, mobile, social, or location command must be
-  introduced here only after product/domain contracts exist.
-- Rust parity tests must cover exact field and enum values before the service
-  claims support.
-- V0.8 product-control runtime state is parsed from
-  `agent.enforcement.product-control-spine.reported` by the
-  `enforcement-product-control-adapter` export; product semantics stay in
-  `parent-domain`.
-- V0.8 policy-dispatch runtime state is parsed from
-  `agent.enforcement.policy-dispatch.reported` by the
-  `enforcement-policy-dispatch-adapter` export.
-- V0.8 supported-adapter runtime proof is parsed from
-  `agent.enforcement.supported-adapter-runtime-proof.reported` by the
-  `enforcement-supported-adapter-runtime-proof-adapter` export; the event also
-  carries the integrity audit read model for result, timer, rollback,
-  child-status, parent-override, permission-loss, heartbeat, and tamper/manual
-  visibility, plus nested permission-loss, stale-heartbeat, stopped-or-removed,
-  and tamper/manual alert/status bridge rows and queued, delivered, failed,
-  unavailable, and manual-required provider status rows.
-- Integrity audit events are parent-visible proof state only. Broad
-  app/domain/browser blocking, notification delivery, tamper resistance, mobile
-  enforcement, stealth/persistence, and privilege escalation stay unclaimed
-  until separate platform proof exists.
-- V0.9 signed LAN discovery/relay spine contracts still report signed
-  child-agent artifacts, physical household proof, relay, and cache routes as
-  manual or not implemented until real runtime proof exists.
-- Notification provider status parsing remains proof-state parsing only. Real
-  provider delivery, webhook receipts, retry execution, quiet-hours scheduling,
-  escalation delivery, and parent preference controls remain outside this
-  adapter.
-- LAN source-matrix parsing keeps unavailable/manual source rows visible but
-  does not upgrade them into production discovery adapters.
-- Tracking read-model protocol support proves command/event parity, service
-  payload shape, active product-surface summary parsing, and the parser used by
-  the narrow portal summary; product tracking evidence schemas remain in
-  `activity-domain`, and full UI/report/policy consumers remain separate.
-- App/game boundary read-model parsing proves command/event parity and the
-  service payload shape only; product semantics stay in `activity-domain` and
-  `parent-domain`, and portal rows, policy consumption, provider execution, and
-  adapter support remain separate proof-gated work.
-- App/game source freshness row parsing proves service payload shape only; portal
-  rendering, policy decisions, provider execution, and broad OS adapter support
-  remain separate proof-gated work.
-- App/game notification readiness parsing proves service payload shape only;
-  provider delivery, receipt ingestion, local outbox runtime, scheduler runtime,
-  parent notification UI, child delivery, policy evaluator execution, adapter
-  dispatch, broad blocking, and platform support remain separate proof-gated
-  work.
-- App/game timer parent preference setup request parsing now includes
-  service-local action-result persistence, mutation receipt, child-runtime
-  handoff, queue, and dispatch readiness refs/status; actual child receipt,
-  provider delivery, durable outbox runtime, adapter dispatch, and platform
-  enforcement remain separate proof-gated work.
-- Network runtime event parsing proves public TypeScript parity for the Rust
-  protocol event chain only. Broker/family-hub delivery, service WebSocket
-  streaming of the event chain, host filtering, adapter execution, and portal UI
-  rendering remain separate proof-gated work.
-- Network remote delivery status parsing proves the service payload shape only.
-  Row10l fixture transport refs/counts and row10m delete/export readiness refs
-  plus Row10p provider/child readiness refs are accepted only as proof-local or
-  manual-required unavailable status. Row10q cross-process custody refs are also
-  accepted only as proof-local unavailable status, row10r cross-process replay
-  is accepted only as deterministic replay metadata through the row10s
-  cross-process replay status bridge, and row10t external cross-process
-  transport is accepted only as deterministic transport envelope/ack metadata.
-  Broker/family-hub transport, product remote acknowledgement,
-  provider/child-device delivery, actual remote delete/export propagation,
-  product readiness, policy authority, adapter execution, exact content, and
-  host filtering remain separate proof-gated work.
-- Network live-capture status parsing proves the service payload shape only.
-  The parser accepts proof-ready/manual-required/unavailable/degraded row13
-  status and row03a custody readiness refs, but live Npcap/libpcap invocation,
-  packet capture, raw artifact creation, raw PCAP without custody, exact URL,
-  decrypted payload, page/private-message/search content, policy authority,
-  adapter execution, enforcement command publication, netstat substitution, and
-  host filtering remain separate proof-gated work.
-- Screen settings command parsing proves TypeScript transport parity only.
-  Parent portal form submission, product-complete retention UI, raw screenshot
-  retention enablement, live view, and privacy/legal approval remain separate
-  proof-gated work.
+- Add new helpers here only after canonical contracts already exist in
+  `schema-domain`.
+- Keep Rust parity exact before service/runtime claims upgrade.
+- Do not let adapter/parser helpers drift back into local schema ownership or
+  product-authority behavior.

@@ -43,7 +43,17 @@ export const BrowserControlApprovalStateSchema = withParser(Schema.Literal('not-
 export const BrowserControlReportStateSchema = withParser(Schema.Literal('disabled', 'daily', 'weekly', 'on-demand'));
 export const BrowserControlAuditStateSchema = withParser(Schema.Literal('disabled', 'local-only', 'parent-visible', 'retained'));
 export const BrowserControlRetentionStateSchema = withParser(
-  Schema.Literal('none', 'seven-days', 'thirty-days', 'fresh-only', '24-hours', '7-days', 'until-reset', 'delete-expired')
+  Schema.Literal(
+    'none',
+    'seven-days',
+    'thirty-days',
+    'fresh-only',
+    '24-hours',
+    '7-days',
+    '30-days',
+    'until-reset',
+    'delete-expired'
+  )
 );
 export const BrowserControlCapabilityStateSchema = withParser(
   Schema.Literal('supported', 'unsupported', 'degraded', 'unavailable', 'unknown', 'ready', 'manual-required')
@@ -77,3 +87,104 @@ export type BrowserControlRejectionReason = Infer<typeof BrowserControlRejection
 export type BrowserControlPatchOperation = Infer<typeof BrowserControlPatchOperationSchema>;
 export type BrowserControlUpdateKind = Infer<typeof BrowserControlUpdateKindSchema>;
 export type BrowserControlUpdateStatus = Infer<typeof BrowserControlUpdateStatusSchema>;
+
+export const BrowserControlWritesToPath = {
+  Enabled: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/enabled'),
+  ExecutionMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/executionMode'),
+  DefaultPosture: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/defaultPosture'),
+  ManagementMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/managementMode'),
+  DiscoveryScanInstalledBrowsers: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/discovery/scanInstalledBrowsers'
+  ),
+  DiscoveryScanRunningBrowsers: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/discovery/scanRunningBrowsers'
+  ),
+  DiscoveryDetectUnmanagedBrowsers: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/discovery/detectUnmanagedBrowsers'
+  ),
+  ManagedBrowserMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/managedBrowser/mode'),
+  ManagedBrowserAllowedFamilies: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/managedBrowser/allowedFamilies'
+  ),
+  ManagedBrowserLaunchMode: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/managedBrowser/launchMode'
+  ),
+  ManagedBrowserProfileMode: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/managedBrowser/profileMode'
+  ),
+  ManagedBrowserBridgeRequirements: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/managedBrowser/bridgeRequirements'
+  ),
+  ManagedBrowserIntegrationMechanisms: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/managedBrowser/integrationMechanisms'
+  ),
+  ManagedBrowserPolicyWriterControls: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/managedBrowser/policyWriterControls'
+  ),
+  ManagedBrowserPolicyWriterFallback: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/managedBrowser/policyWriterFallback'
+  ),
+  UnmanagedBrowserMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/unmanagedBrowser/mode'),
+  UnmanagedBrowserGraceSeconds: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/unmanagedBrowser/graceSeconds'
+  ),
+  UnmanagedBrowserAllowRecoverLaunchUrl: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/unmanagedBrowser/allowRecoverLaunchUrl'
+  ),
+  UnmanagedBrowserClassificationTargets: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/unmanagedBrowser/classificationTargets'
+  ),
+  EvidenceUrlScope: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/evidence/urlScope'),
+  RequiredProof: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/evidence/requiredProof'),
+  ProofFallback: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/evidence/proofFallback'),
+  WhenProofUnavailable: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/evidence/whenProofUnavailable'
+  ),
+  EvidenceNeverCollect: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/evidence/neverCollect'),
+  AllowedTargetTypes: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/rules/allowedTargetTypes'),
+  AllowedActions: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/rules/allowedActions'),
+  RuleItems: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/rules/items'),
+  UrlAllowList: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/rules/urlAllowList'),
+  UrlBlockList: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/rules/urlBlockList'),
+  BudgetsEnabled: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/budgets/enabled'),
+  DailyBudgetMinutes: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/budgets/defaultDailyMinutes'
+  ),
+  BudgetCountingMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/budgets/countingMode'),
+  BrowserGameEducationalMode: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/educationalGameMode'
+  ),
+  BrowserGameUnknownMode: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/unknownGameMode'
+  ),
+  BrowserGameCloudGamingApproval: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/cloudGamingApproval'
+  ),
+  BrowserGamePurchaseAccountApproval: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/purchaseAccountApproval'
+  ),
+  BrowserGameUnblockedPortalMode: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/unblockedPortalMode'
+  ),
+  BrowserGameWebglCanvasMode: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/webglCanvasMode'
+  ),
+  BrowserGameDailyBudgetMinutes: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/defaultDailyMinutes'
+  ),
+  DownloadMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/downloads/mode'),
+  DownloadBlockedTypes: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/downloads/blockedTypes'),
+  DownloadState: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/downloads/state'),
+  ApprovalRequiredFor: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/approvals/requiredFor'),
+  ApprovalUnansweredDefault: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/approvals/unansweredDefault'
+  ),
+  ApprovalState: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/approvals/state'),
+  ReportVisibleFields: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/reports/visibleFields'),
+  ReportState: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/reports/state'),
+  RetentionExactUrl: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/retention/exactUrl'),
+  RetentionState: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/retention/state'),
+  CustodyAllowedUses: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/custody/allowedUses'),
+  AuditRequiredFields: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/audit/requiredFields'),
+  AuditState: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/audit/state'),
+} as const;

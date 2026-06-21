@@ -6,14 +6,15 @@ use ocentra_parent_agent_protocol::{
     TrackingPolicyViolationDetectedEvent, TrackingPolicyViolationId, TrackingRuntimeMode,
     TrackingTimestamp,
 };
+use ocentra_tracking_core::geofence::TrackingGeofenceInsideState;
 use ocentra_tracking_core::parent_acknowledgement::record_parent_acknowledgement;
-use ocentra_tracking_core::TrackingGeofenceInsideState;
 
 #[test]
 fn tracking_observe_only_evidence_carries_no_parent_action_authority() {
-    let mut observed = ocentra_tracking_core::default_location_observed_event();
+    let mut observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
     observed.config.tracking_mode = TrackingRuntimeMode::ObserveOnly;
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
     let serialized = serde_json::to_value(&evidence).expect("tracking evidence serializes");
 
     assert_eq!(
@@ -29,9 +30,9 @@ fn tracking_observe_only_evidence_carries_no_parent_action_authority() {
 
 #[test]
 fn tracking_geofence_transition_event_uses_protocol_contract() {
-    let event = ocentra_tracking_core::detect_geofence_transition(
-        &ocentra_tracking_core::default_location_observed_event(),
-        ocentra_tracking_core::TrackingGeofenceEvaluation {
+    let event = ocentra_tracking_core::geofence::detect_geofence_transition(
+        &ocentra_tracking_core::runtime_flow::default_location_observed_event(),
+        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
             previous_inside_state: Some(TrackingGeofenceInsideState::Outside),
             current_inside_state: TrackingGeofenceInsideState::Inside,
             capability_status: TrackingCapabilityStatus::parse(
@@ -64,15 +65,15 @@ fn tracking_geofence_transition_event_uses_protocol_contract() {
 
 #[test]
 fn tracking_geofence_transition_event_serializes_rule_and_evidence_citations() {
-    let mut observed = ocentra_tracking_core::default_location_observed_event();
+    let mut observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
     observed.observation_id =
         TrackingObservationId::parse("tracking-observation-contract-geofence-citations")
             .expect("tracking contract geofence observation id parses");
     let evidence_ref = tracking_evidence_ref_from_observation_id(&observed.observation_id);
 
-    let event = ocentra_tracking_core::detect_geofence_transition(
+    let event = ocentra_tracking_core::geofence::detect_geofence_transition(
         &observed,
-        ocentra_tracking_core::TrackingGeofenceEvaluation {
+        ocentra_tracking_core::geofence::TrackingGeofenceEvaluation {
             previous_inside_state: Some(TrackingGeofenceInsideState::Inside),
             current_inside_state: TrackingGeofenceInsideState::Outside,
             capability_status: TrackingCapabilityStatus::parse(
@@ -141,16 +142,17 @@ fn tracking_parent_acknowledgement_event_uses_protocol_contract() {
 
 #[test]
 fn tracking_expected_place_event_carries_schedule_evidence_and_parent_action() {
-    let observed = ocentra_tracking_core::default_location_observed_event();
-    let evidence = ocentra_tracking_core::record_tracking_evidence_from_location(&observed);
-    let expected_place = ocentra_tracking_core::evaluate_expected_place_state(
+    let observed = ocentra_tracking_core::runtime_flow::default_location_observed_event();
+    let evidence =
+        ocentra_tracking_core::runtime_flow::record_tracking_evidence_from_location(&observed);
+    let expected_place = ocentra_tracking_core::expected_place::evaluate_expected_place_state(
         &evidence,
-        ocentra_tracking_core::TrackingExpectedPlaceEvaluation {
+        ocentra_tracking_core::expected_place::TrackingExpectedPlaceEvaluation {
             transition_kind: ocentra_parent_agent_protocol::TrackingTransitionKind::parse(
                 constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL,
             )
             .expect(constants::tracking_runtime::GEOFENCE_TRANSITION_MISSED_ARRIVAL),
-            ..ocentra_tracking_core::default_expected_place_evaluation()
+            ..ocentra_tracking_core::expected_place::default_expected_place_evaluation()
         },
     );
 

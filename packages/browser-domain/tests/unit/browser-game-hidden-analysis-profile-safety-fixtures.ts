@@ -2,7 +2,7 @@ import type {
   BrowserGameHiddenAnalysisLoaderRequest,
   BrowserGameHiddenAnalysisLoaderResult,
   BrowserGameHiddenAnalysisProfileDesign,
-} from '../../src/browser-game-hidden-analysis-profile-safety';
+} from '@ocentra-parent/schema-domain/browser-game-hidden-analysis-profile-safety';
 
 export function profileDesign(overrides = {}): BrowserGameHiddenAnalysisProfileDesign {
   return {

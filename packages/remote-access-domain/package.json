@@ -5,10 +5,6 @@
   "type": "module",
   "description": "Remote access, remote screen, and parent-controlled session contract boundary.",
   "exports": {
-    "./*": {
-      "import": "./dist/*.js",
-      "types": "./dist/*.d.ts"
-    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"

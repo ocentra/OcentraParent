@@ -58,16 +58,16 @@ async function main() {
 
 async function buildProof() {
   const trackingLocationPolicyModule = await tsImport(
-    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-location-policy.ts')).href,
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-location-policy.ts')).href,
     import.meta.url
   );
   const providerModule = await tsImport(
-    pathToFileURL(join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-provider-notification-proof.ts')).href,
+    pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-provider-notification-proof.ts')).href,
     import.meta.url
   );
   const preferenceModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-notification-preference-preflight-proof.ts')
+      join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-notification-preference-preflight-proof.ts')
     ).href,
     import.meta.url
   );
@@ -197,7 +197,7 @@ function nonClaims(readModel) {
 
 function proofPaths() {
   return {
-    source: 'packages/tracking-domain/src/tracking-notification-preference-preflight-proof.ts',
+    source: 'packages/schema-domain/src/tracking-notification-preference-preflight-proof.ts',
     test: 'packages/tracking-domain/tests/contract/tracking-notification-preference-preflight-proof.test.ts',
     harness: 'scripts/test/tracking-notification-preference-preflight-proof.mjs',
     evidence: 'test-results/tracking-notification-preference-preflight-proof/proof.json',

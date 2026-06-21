@@ -4,7 +4,7 @@ import {
   TrackingChildRuntimeProductReadinessBlockerRowSchema,
   buildTrackingChildRuntimeProductReadinessBlockerProof,
 } from '../../src/tracking-child-runtime-product-readiness-blocker-proof';
-import { TrackingPolicySchemaVersion } from '../../src/tracking-location-policy-primitives';
+import { TrackingPolicySchemaVersion } from '@ocentra-parent/schema-domain/tracking-location-policy-primitives';
 
 const GeneratedAt = '2026-06-07T16:05:00.000Z';
 const SourceSnapshotRequirementsProofRef =

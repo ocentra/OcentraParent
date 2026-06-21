@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { parseBrowserUrlShape } from '../../src/browser-url-intelligence';
-import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '../../src/browser-social-account-flow-schemas';
+import { buildBrowserSocialAccountFlowEvidenceFromRoute } from '@ocentra-parent/schema-domain/browser-social-account-flow-schemas';
 import {
   type BrowserSocialFormControlKind,
   detectBrowserSocialFormShape,
-} from '../../src/browser-social-form-shape-detector';
+} from '@ocentra-parent/schema-domain/browser-social-form-shape-detector';
 import {
   BrowserSocialAccountCreationGatePlanSchema,
   planBrowserSocialAccountCreationGate,
-} from '../../src/browser-social-account-creation-gate';
-import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '../../src/browser-social-url-patterns';
+} from '@ocentra-parent/schema-domain/browser-social-account-creation-gate';
+import { buildBrowserSocialRouteEvidenceFromUrlPattern } from '@ocentra-parent/schema-domain/browser-social-url-patterns';
 
 describe('browser social account creation gate contract', () => {
   it('plans a parent-approval hold from matching signup flow and form evidence', plansParentApprovalHold);

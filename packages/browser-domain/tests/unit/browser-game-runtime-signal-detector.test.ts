@@ -4,7 +4,7 @@ import {
   BrowserGameRuntimeSignalRowSchema,
   type BrowserGameRuntimeSignalDetection,
   type BrowserGameRuntimeSignalRow,
-} from '../../src/browser-game-runtime-signal-detector';
+} from '@ocentra-parent/schema-domain/browser-game-runtime-signal-detector';
 
 describe('browser-game runtime signal detector contracts', () => {
   it('accepts shape-only runtime signal rows for canvas, gamepad, fullscreen, and cloud streaming', acceptsSignals);

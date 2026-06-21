@@ -3,10 +3,10 @@ import os from 'node:os';
 import path from 'node:path';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
+import { RunType, TestLogScope, TestLogSchemaVersion } from '@ocentra-parent/schema-domain/test-log/types';
 import { createBridgeServer } from '../../src/transport/bridgeServer';
 import { fetchRunInfoFromBridge, flushBridgeRun, notifyBridgeRunStarted, sendToBridge } from '../../src/transport/bridgeTransport';
 import { getTestLogScopeDir, listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
-import { RunType, TestLogScope, TestLogSchemaVersion } from '../../src/test-log/types';
 import { appendTestLogEntries } from '../../src/test-log/ndjsonWriter';
 
 function makeTempDir(): string {

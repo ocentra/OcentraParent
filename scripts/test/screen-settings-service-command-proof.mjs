@@ -47,9 +47,9 @@ assert(
 );
 
 const sourceFiles = [
-  'packages/screen-domain/src/screen-evidence-settings.ts',
+  'packages/schema-domain/src/screen-evidence-settings.ts',
   'packages/agent-protocol-domain/src/screen-settings-adapter.ts',
-  'packages/agent-protocol-domain/tests/screen-settings-adapter.test.ts',
+  'packages/agent-protocol-domain/tests/unit/screen-settings-adapter.test.ts',
   'crates/agent-protocol/src/screen_settings.rs',
   'crates/agent-protocol/src/transport.rs',
   'crates/agent-protocol/src/constants/field.rs',
@@ -70,12 +70,12 @@ const adapter = readFileSync(
   'utf8'
 );
 assert(
-  adapter.includes('@ocentra-parent/screen-domain/screen-evidence-settings'),
+  adapter.includes('@ocentra-parent/schema-domain/screen-evidence-settings'),
   'screen settings adapter must import the owning settings schema entrypoint'
 );
 assert(
   adapter.includes('ScreenAnalysisParentSettingSchema'),
-  'screen settings adapter must reuse the activity-domain parent setting schema'
+  'screen settings adapter must reuse the shared schema-domain parent setting schema'
 );
 
 const serviceTests = readFileSync(
@@ -104,14 +104,14 @@ const summary = {
     stderrTail: tail(result.stderr),
   })),
   proves: [
-    'The TypeScript protocol layer has explicit screen settings get/replace command names, response event names, payload fields, and an adapter that reuses the activity-domain ScreenAnalysisParentSettingSchema.',
+    'The TypeScript protocol layer has explicit screen settings get/replace command names, response event names, payload fields, and an adapter that reuses the schema-domain ScreenAnalysisParentSettingSchema.',
     'The Rust protocol mirrors screen settings get/replace commands and reported/replace accepted/rejected events.',
     'The Rust service WebSocket command handler routes screen settings get/replace commands to the local JSON-backed ScreenSettingsRuntime.',
     'A replace command persists a parent strict dry-run setting, and a later get command after runtime restart reports the persisted setting.',
     'A replace command that asks to retain raw screenshots is rejected before persistence and leaves no local settings store file.',
   ],
   custody: {
-    parentSettingSchemaOwner: '@ocentra-parent/screen-domain/screen-evidence-settings',
+    parentSettingSchemaOwner: '@ocentra-parent/schema-domain/screen-evidence-settings',
     transportOwner: '@ocentra-parent/agent-protocol-domain and crates/agent-protocol',
     serviceStore: 'local child-device JSON service store',
     rawImageRetainedDefault: false,

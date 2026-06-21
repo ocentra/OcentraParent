@@ -4,8 +4,8 @@ import {
   SupportCaseResolutionRequiredDataClasses,
   SupportCaseResolutionStatusEntrySchema,
   SupportCaseResolutionStatusReadModelSchema,
-} from '../../src/support-case-resolution-status';
-import { SupportCaseResolutionStatusReadModel } from '../../src/support-case-resolution-status-read-model';
+} from '@ocentra-parent/schema-domain/support-case-resolution-status';
+import { SupportCaseResolutionStatusReadModel } from '@ocentra-parent/schema-domain/support-case-resolution-status-read-model';
 
 describe('support case resolution status logging contract', () => {
   it('covers opened triage update escalation response closure and SLA states', assertCoverage);

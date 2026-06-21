@@ -5,8 +5,8 @@ import {
   ProductionReleasePublicRuntimeHandoffRowSchema,
   summarizeProductionReleasePublicRuntimeAdapters,
   summarizeProductionReleasePublicRuntimeHandoffs,
-} from '../../src/production-release-public-runtime-handoff';
-import { ProductionReleasePublicRuntimeHandoffReadModel } from '../../src/production-release-public-runtime-handoff-read-model';
+} from '@ocentra-parent/schema-domain/production-release-public-runtime-handoff';
+import { ProductionReleasePublicRuntimeHandoffReadModel } from '@ocentra-parent/schema-domain/production-release-public-runtime-handoff-read-model';
 
 describe('production release public runtime handoff', () => {
   acceptsPublicRuntimeHandoffReadinessRows();

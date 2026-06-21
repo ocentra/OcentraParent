@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   ActivityScreenReadModelSchema,
   ActivitySurfaceSchemaVersion,
-} from '@ocentra-parent/activity-domain/activity-surface';
-import { ActivityEvidenceKind } from '@ocentra-parent/evidence-domain/kinds';
+} from '@ocentra-parent/schema-domain/activity-surface';
+import { ActivityEvidenceKind } from '@ocentra-parent/schema-domain/evidence-kinds';
 import { createScreenSummaryPanelIntent } from '../../src/screen-summary-panel';
 
 describe('screen summary panel intent', () => {

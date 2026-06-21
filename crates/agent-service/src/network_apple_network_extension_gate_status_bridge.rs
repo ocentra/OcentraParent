@@ -5,7 +5,7 @@ use ocentra_network_evidence::{
         NetworkAppleNetworkExtensionGateProof, NetworkAppleNetworkExtensionGateState,
         NetworkAppleNetworkExtensionPlatform, NetworkAppleNetworkExtensionRequiredArtifact,
     },
-    dns::NetworkEvidenceGrade,
+    dns::types::NetworkEvidenceGrade,
     policy::{
         map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
         NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingInput,

@@ -1,4 +1,4 @@
-import { ChildDomainRuntimeEventTypeLiteral } from './child-runtime-events';
+import { ChildDomainRuntimeEventTypeLiteral } from './child-domain-runtime-events';
 import { EventingEventTypeSchema } from './eventing';
 import { type Infer, NonEmptyStringSchema, Schema, withParser } from './effect';
 

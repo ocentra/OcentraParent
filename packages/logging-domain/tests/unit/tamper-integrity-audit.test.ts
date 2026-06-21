@@ -3,8 +3,8 @@ import {
   TamperIntegrityAuditEntrySchema,
   TamperIntegrityAuditReadModelSchema,
   TamperIntegrityAuditRequiredPayloadFields,
-} from '../../src/tamper-integrity-audit';
-import { TamperIntegrityAuditReadModel } from '../../src/tamper-integrity-audit-read-model';
+} from '@ocentra-parent/schema-domain/tamper-integrity-audit';
+import { TamperIntegrityAuditReadModel } from '@ocentra-parent/schema-domain/tamper-integrity-audit-read-model';
 
 describe('tamper integrity audit logging contract', () => {
   it(

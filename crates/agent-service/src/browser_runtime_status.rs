@@ -6,8 +6,11 @@ use ocentra_parent_agent_protocol::{
 };
 
 #[cfg(test)]
-use ocentra_parent_agent_core::BrowserManagedLaunchPlan;
-use ocentra_parent_agent_core::{BrowserManagedLaunch, BrowserUnmanagedProcessObservation};
+use ocentra_parent_agent_core::browser_managed_session::BrowserManagedLaunchPlan;
+use ocentra_parent_agent_core::{
+    browser_managed_discovery::BrowserUnmanagedProcessObservation,
+    browser_managed_session::BrowserManagedLaunch,
+};
 
 pub fn missing_browser_status(checked_at: String) -> BrowserManagedSessionStatus {
     BrowserManagedSessionStatus {

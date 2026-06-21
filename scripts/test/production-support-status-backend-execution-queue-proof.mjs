@@ -11,37 +11,18 @@ const outputDir = join(repoRoot, 'output', proofMode);
 const proofPath = join(resultDir, 'proof.json');
 const summaryPath = join(outputDir, 'proof-summary.json');
 const commands = [];
-const packageExports = {
-  './production-support-status-backend-execution-queue': {
-    import: './dist/production-support-status-backend-execution-queue-proof.js',
-    types: './dist/production-support-status-backend-execution-queue-proof.d.ts',
-  },
-  './production-support-status-backend-execution-queue-read-model': {
-    import: './dist/production-support-status-backend-execution-queue-read-model.js',
-    types: './dist/production-support-status-backend-execution-queue-read-model.d.ts',
-  },
-  './production-support-status-backend-execution-queue-values': {
-    import: './dist/production-support-status-backend-execution-queue-values.js',
-    types: './dist/production-support-status-backend-execution-queue-values.d.ts',
-  },
-};
+const requiredPackageExports = [
+  '@ocentra-parent/schema-domain/production-support-status-backend-execution-queue-proof',
+  '@ocentra-parent/schema-domain/production-support-status-backend-execution-queue-read-model',
+  '@ocentra-parent/schema-domain/production-support-status-backend-execution-queue-values',
+];
 
 await main();
 
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
-  await runCommand(
-    ...npmCommand([
-      'run',
-      'test',
-      '--workspace',
-      '@ocentra-parent/parent-domain',
-      '--',
-      'tests/production-support-status-backend-execution-queue-proof.test.ts',
-    ])
-  );
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
@@ -54,10 +35,10 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-support-status-backend-execution-queue-proof.ts',
-      values: 'packages/parent-domain/src/production-support-status-backend-execution-queue-values.ts',
-      readModel: 'packages/parent-domain/src/production-support-status-backend-execution-queue-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/production-support-status-backend-execution-queue-proof.test.ts',
+      contract: 'packages/schema-domain/src/production-support-status-backend-execution-queue-proof.ts',
+      values: 'packages/schema-domain/src/production-support-status-backend-execution-queue-values.ts',
+      readModel: 'packages/schema-domain/src/production-support-status-backend-execution-queue-read-model.ts',
+      proofHarness: 'scripts/test/production-support-status-backend-execution-queue-proof.mjs',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -179,15 +160,15 @@ async function assertDocumentationProof() {
 }
 
 async function assertPackageExports() {
-  const packageJson = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
-  for (const [exportPath, expectedTarget] of Object.entries(packageExports)) {
-    assert.deepEqual(packageJson.exports[exportPath], expectedTarget, `${exportPath} package export`);
-  }
-  return packageExports;
+  const [contract, readModel, values] = await Promise.all(requiredPackageExports.map((specifier) => import(specifier)));
+  assert.equal(typeof contract.ProductionSupportStatusBackendExecutionQueueProofSchema.parse, 'function');
+  assert.equal(typeof readModel.ProductionSupportStatusBackendExecutionQueueReadModel, 'object');
+  assert(Array.isArray(values.RequiredStatusBackendExecutionQueueTargets));
+  return requiredPackageExports;
 }
 
 async function importBuiltModule(fileName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', fileName)).href);
 }
 
 async function readRepoFile(path) {

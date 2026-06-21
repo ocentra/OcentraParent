@@ -13,7 +13,7 @@ import {
   EnforcementResultSchema,
   EnforcementResultStatus,
   EnforcementRollbackState,
-} from '../../src/enforcement';
+} from '@ocentra-parent/schema-domain/enforcement';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,

@@ -24,8 +24,9 @@ let AgentEventEnvelopeSchema;
 let AgentProtocolDefaults;
 
 await runPackageCommand(['run', 'build:contracts']);
-({ AgentCommand, AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } =
-  await import('@ocentra-parent/agent-protocol-domain/contracts'));
+({ AgentCommand, AgentEvent, AgentEventEnvelopeSchema } =
+  await import('@ocentra-parent/schema-domain/agent-command-event-contracts'));
+({ AgentProtocolDefaults } = await import('@ocentra-parent/schema-domain/agent-protocol-defaults'));
 await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
 await ensurePortFree(proofPort, isLikelyParentAgentOccupant, console.log);
 

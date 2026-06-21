@@ -2,12 +2,14 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
 
 const repoRoot = process.cwd();
 const proofMode = 'parent-owned-local-export-runtime-proof';
+const contractPackageExport = '@ocentra-parent/schema-domain/parent-owned-local-export-runtime';
+const valuesPackageExport = '@ocentra-parent/schema-domain/parent-owned-local-export-runtime-values';
+const executorPackageExport = '@ocentra-parent/parent-domain/parent-owned-local-export-runtime-executor';
 const outputDir = join(repoRoot, 'output', 'data-custody-storage-plan-proof', '05-export-import-backup-recovery');
 const proofPath = join(outputDir, `${proofMode}.json`);
 const testResultDir = join(repoRoot, 'test-results', proofMode);
@@ -41,8 +43,8 @@ async function main() {
     );
 
     const proofModule = await loadContractProofModule();
+    const valuesModule = await loadValuesModule();
     const executorModule = await loadExecutorModule();
-    await assertPackageExport(proofModule);
     const readModel = proofModule.ParentOwnedLocalExportRuntimeProofReadModel;
     const stateCounts = proofModule.summarizeParentOwnedLocalExportRuntimeStates(readModel.jobs);
     const dataClassCounts = proofModule.summarizeParentOwnedLocalExportRuntimeDataClasses(readModel.jobs);
@@ -114,14 +116,14 @@ async function main() {
       result: 'pass',
       commands,
       evidence: {
-        contract: 'packages/parent-domain/src/parent-owned-local-export-runtime.ts',
+        contract: 'packages/schema-domain/src/parent-owned-local-export-runtime.ts',
         runtimeExecutor: 'packages/parent-domain/src/parent-owned-local-export-runtime-executor.ts',
-        values: 'packages/parent-domain/src/parent-owned-local-export-runtime-values.ts',
+        values: 'packages/schema-domain/src/parent-owned-local-export-runtime-values.ts',
         contractTest: 'packages/parent-domain/tests/unit/parent-owned-local-export-runtime.test.ts',
         runtimeExecutorTest: 'packages/parent-domain/tests/unit/parent-owned-local-export-runtime-executor.test.ts',
-        builtModule: 'packages/parent-domain/dist/parent-owned-local-export-runtime.js',
-        builtExecutorModule: 'packages/parent-domain/dist/parent-owned-local-export-runtime-executor.js',
-        packageExport: '@ocentra-parent/parent-domain/parent-owned-local-export-runtime',
+        runtimeExecutorPackageExport: executorPackageExport,
+        packageExport: contractPackageExport,
+        valuesPackageExport,
         output: relativePath(proofPath),
       },
       stateCounts,
@@ -153,7 +155,7 @@ async function main() {
         auditEntryCount: runtimeAuditEntries.length,
         bundleArtifactContainsPlaintextPayload,
       },
-      knownGaps: proofModule.ParentOwnedLocalExportRuntimeKnownGaps,
+      knownGaps: valuesModule.ParentOwnedLocalExportRuntimeKnownGaps,
     };
 
     await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
@@ -175,16 +177,19 @@ async function main() {
       commands,
       blocker: error instanceof Error ? error.message : String(error),
       evidence: {
-        contract: 'packages/parent-domain/src/parent-owned-local-export-runtime.ts',
+        contract: 'packages/schema-domain/src/parent-owned-local-export-runtime.ts',
+        runtimeExecutor: 'packages/parent-domain/src/parent-owned-local-export-runtime-executor.ts',
         contractTest: 'packages/parent-domain/tests/unit/parent-owned-local-export-runtime.test.ts',
-        builtModule: 'packages/parent-domain/dist/parent-owned-local-export-runtime.js',
-        packageExport: '@ocentra-parent/parent-domain/parent-owned-local-export-runtime',
+        runtimeExecutorTest: 'packages/parent-domain/tests/unit/parent-owned-local-export-runtime-executor.test.ts',
+        runtimeExecutorPackageExport: executorPackageExport,
+        packageExport: contractPackageExport,
+        valuesPackageExport,
         output: relativePath(proofPath),
       },
       noClaimBoundary:
-        'This holdout remains inside parent-domain. The blocked artifact does not prove local export runtime closure or broader parent-domain health.',
+        'Schema ownership is centralized in schema-domain. This blocked artifact does not prove parent-domain executor closure or broader parent-domain health.',
       nextAction:
-        'Unblock parent-domain targeted build/test for parent-owned-local-export-runtime or extract the holdout into a direct owner package.',
+        'Unblock parent-domain targeted build/test for the local export executor or its schema-domain contract consumption path.',
     };
 
     await writeFile(proofPath, `${JSON.stringify(blockedProof, null, 2)}\n`);
@@ -193,21 +198,15 @@ async function main() {
 }
 
 async function loadContractProofModule() {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'parent-owned-local-export-runtime.js');
-  return import(pathToFileURL(modulePath).href);
+  return import(contractPackageExport);
+}
+
+async function loadValuesModule() {
+  return import(valuesPackageExport);
 }
 
 async function loadExecutorModule() {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'parent-owned-local-export-runtime-executor.js');
-  return import(pathToFileURL(modulePath).href);
-}
-
-async function assertPackageExport(proofModule) {
-  const exportedModule = await import('@ocentra-parent/parent-domain/parent-owned-local-export-runtime');
-  assert.equal(
-    exportedModule.ParentOwnedLocalExportRuntimeProofReadModel.schemaVersion,
-    proofModule.ParentOwnedLocalExportRuntimeProofReadModel.schemaVersion
-  );
+  return import(executorPackageExport);
 }
 
 async function gitHead() {

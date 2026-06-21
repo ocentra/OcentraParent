@@ -19,8 +19,8 @@ const sourcePaths = {
   adapterDependencyHandoff: 'output/screen-ai-pipeline-proof/adapter-dependency-handoff/proof-summary.json',
   adapterDependencyHandoffRows:
     'output/screen-ai-pipeline-proof/adapter-dependency-handoff/adapter-dependency-handoff.json',
-  screenAiAdapterReadinessContract: 'packages/parent-domain/dist/screen-ai-adapter-readiness-proof.js',
-  screenAiAdapterReadinessContractSource: 'packages/parent-domain/src/screen-ai-adapter-readiness-proof.ts',
+  screenAiAdapterReadinessContract: 'packages/schema-domain/dist/screen-ai-adapter-readiness-proof.js',
+  screenAiAdapterReadinessContractSource: 'packages/schema-domain/src/screen-ai-adapter-readiness-proof.ts',
   checklist: 'docs/plans/screen-ai-pipeline-plan/implementation-checklist.md',
 };
 
@@ -433,8 +433,9 @@ function snapshot(proof) {
 
 function validationCommands() {
   return [
-    'npm run build --workspace @ocentra-parent/parent-domain',
-    'npm run test --workspace @ocentra-parent/parent-domain -- screen-ai-adapter-readiness-proof.test.ts',
+    'npm run build --workspace @ocentra-parent/schema-domain',
+    'npm run build --workspace @ocentra-parent/enforcement-domain',
+    'npm run test --workspace @ocentra-parent/screen-domain -- screen-ai-adapter-readiness-proof.test.ts',
     'node --check scripts/test/screen-ai-final-adapter-dependency-audit.mjs',
     'node scripts/test/screen-ai-final-adapter-dependency-audit.mjs',
     'git diff --check',

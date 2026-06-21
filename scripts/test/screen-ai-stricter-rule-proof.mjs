@@ -7,10 +7,10 @@ const outputRoot = resolve(repoRoot, 'output', 'screen-ai-pipeline-proof', 'stri
 const artifactSummaryPath = join(outputRoot, 'proof-summary.json');
 
 await mkdir(outputRoot, { recursive: true });
-runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
 
 const { PolicyAction, PolicyDecisionHandoffState, PolicyDecisionSchema, selectStricterPolicyAction } =
-  await import('../../packages/parent-domain/dist/policy.js');
+  await import('@ocentra-parent/schema-domain/policy');
 
 const evidenceReference = {
   evidenceReferenceId: 'screen-ai-stricter-rule-evidence',

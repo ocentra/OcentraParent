@@ -3,7 +3,7 @@ import {
   buildLocalAiParentRuleContextBuilderProof,
   buildLocalAiParentRuleContextBuilderProofRow,
   LocalAiParentRuleContextBuilderProofRowSchema,
-} from '../../src/local-ai-parent-rule-context-builder-proof';
+} from '@ocentra-parent/schema-domain/local-ai-parent-rule-context-builder-proof';
 
 const observedAt = '2026-06-06T09:56:00.000Z';
 const childProfile = { childProfileId: 'child:parent-rule-context', displayName: 'Maya' };

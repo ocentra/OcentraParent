@@ -6,12 +6,12 @@ import { fileURLToPath } from 'node:url';
 import { ActivityEvidenceKind } from '../../packages/activity-domain/dist/kinds.js';
 import {
   ScreenAnalysisParentSettingSchema,
-  ScreenAnalysisQueueJobSchema,
-  ScreenAnalysisResultSchema,
-  ScreenEvidenceRecentSummarySchema,
   ScreenEvidenceRemoteBoundarySettingSchema,
-  ScreenEvidenceSchemaVersion,
-} from '../../packages/screen-domain/dist/screen-evidence.js';
+} from '../../packages/schema-domain/dist/screen-evidence-settings.js';
+import { ScreenAnalysisQueueJobSchema } from '../../packages/screen-domain/dist/screen-evidence-queue.js';
+import { ScreenAnalysisResultSchema } from '../../packages/schema-domain/dist/screen-evidence-result.js';
+import { ScreenEvidenceRecentSummarySchema } from '../../packages/screen-domain/dist/screen-evidence-read-model.js';
+import { ScreenEvidenceSchemaVersion } from '../../packages/schema-domain/dist/screen-evidence-primitives.js';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 const outputDir = join(repoRoot, 'test-results', 'screen-evidence-settings-retention-proof');
@@ -39,6 +39,9 @@ const parentSetting = {
   ocrTextEnabled: true,
   ocrTextSnippetLimit: 4,
   redactionMode: 'localSensitiveText',
+  ocrTextRetentionMode: 'redactedSnippets',
+  credentialSuppressionEnabled: true,
+  piiRedactionEnabled: true,
   temporaryImageTtlSeconds: 300,
   maxRetryCount: 2,
   deleteAfterSuccess: true,

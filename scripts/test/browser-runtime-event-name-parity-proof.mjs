@@ -13,7 +13,7 @@ const rustConstantsSource = readFileSync('crates/agent-protocol/src/constants/br
 const rustPhaseSource = readFileSync('crates/agent-core/src/browser_event_runtime_phase.rs', 'utf8');
 const typescriptParserSource = readFileSync('packages/agent-protocol-domain/src/browser-runtime-events.ts', 'utf8');
 const typescriptTestSource = readFileSync(
-  'packages/agent-protocol-domain/tests/browser-runtime-events.test.ts',
+  'packages/agent-protocol-domain/tests/unit/browser-runtime-events.test.ts',
   'utf8'
 );
 
@@ -52,7 +52,7 @@ const commandResults = [
       '--workspace',
       '@ocentra-parent/agent-protocol-domain',
       '--',
-      'browser-runtime-events.test.ts',
+      'tests/unit/browser-runtime-events.test.ts',
     ]),
   },
   {

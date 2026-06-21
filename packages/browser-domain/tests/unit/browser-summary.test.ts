@@ -3,10 +3,12 @@ import {
   BrowserActiveProofSource,
   BrowserActiveTabState,
   BrowserCustodyLabel,
+  BrowserFamily,
+} from '@ocentra-parent/schema-domain/browser-values';
+import {
   BrowserEvidenceRecentSummarySchema,
   BrowserEvidenceSchemaVersion,
-  BrowserFamily,
-} from '../../src/browser';
+} from '@ocentra-parent/schema-domain/browser-schemas';
 
 describe('browser evidence recent summary contracts', () => {
   it('accepts empty latest-browser summaries without inventing evidence rows', () => {

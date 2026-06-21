@@ -17,15 +17,16 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-support-publication-runtime-readiness-proof.test.ts',
+      'tests/unit/production-support-publication-runtime-readiness-proof.test.ts',
     ])
   );
 
@@ -39,14 +40,14 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-support-publication-runtime-readiness-proof.ts',
-      values: 'packages/parent-domain/src/production-support-publication-runtime-readiness-values.ts',
-      readModel: 'packages/parent-domain/src/production-support-publication-runtime-readiness-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/production-support-publication-runtime-readiness-proof.test.ts',
+      contract: 'packages/schema-domain/src/production-support-publication-runtime-readiness-proof.ts',
+      values: 'packages/schema-domain/src/production-support-publication-runtime-readiness-values.ts',
+      readModel: 'packages/schema-domain/src/production-support-publication-runtime-readiness-read-model.ts',
+      contractTest: 'packages/production-domain/tests/unit/production-support-publication-runtime-readiness-proof.test.ts',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
-      packageExport: 'deferred-shared-parent-domain-package-export-surface',
+      packageExport: 'schema-domain-owner; production-domain-local-export-retired',
     },
     rows: contract.rows,
     nonClaims: contract.nonClaims,
@@ -69,9 +70,9 @@ async function main() {
 }
 
 async function assertBuiltContract() {
-  const contractModule = await importBuiltModule('production-support-publication-runtime-readiness-proof.js');
-  const readModelModule = await importBuiltModule('production-support-publication-runtime-readiness-read-model.js');
-  const valuesModule = await importBuiltModule('production-support-publication-runtime-readiness-values.js');
+  const contractModule = await importBuiltSchemaDomainModule('production-support-publication-runtime-readiness-proof');
+  const readModelModule = await importBuiltSchemaDomainModule('production-support-publication-runtime-readiness-read-model');
+  const valuesModule = await importBuiltSchemaDomainModule('production-support-publication-runtime-readiness-values');
   const proof = contractModule.ProductionSupportPublicationRuntimeReadinessProofSchema.parse(
     readModelModule.ProductionSupportPublicationRuntimeReadinessReadModel
   );
@@ -145,8 +146,8 @@ async function assertDocumentationProof() {
   return docs;
 }
 
-async function importBuiltModule(fileName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', fileName)).href);
+async function importBuiltSchemaDomainModule(moduleName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', `${moduleName}.js`)).href);
 }
 
 async function readRepoFile(path) {

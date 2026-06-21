@@ -5,8 +5,8 @@ import {
   SupportBundleRequiredDataClasses,
   SupportBundleRequiredDiagnosticReferenceKinds,
   SupportBundleRequiredPayloadFields,
-} from '../../src/support-bundle-redaction';
-import { SupportBundleRedactionReadModel } from '../../src/support-bundle-redaction-read-model';
+} from '@ocentra-parent/schema-domain/support-bundle-redaction';
+import { SupportBundleRedactionReadModel } from '@ocentra-parent/schema-domain/support-bundle-redaction-read-model';
 
 describe('support bundle redaction logging contract', () => {
   it(

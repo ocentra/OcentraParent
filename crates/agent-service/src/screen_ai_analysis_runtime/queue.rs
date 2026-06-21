@@ -1,7 +1,9 @@
 use std::{fs, path::Path};
 
 use ocentra_parent_agent_core::{
-    ActivityStore, JournalKey, ScreenEvidenceQueue, JOURNAL_KEY_BYTES,
+    activity_store::ActivityStore,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+    screen_evidence_queue::ScreenEvidenceQueue,
 };
 use ocentra_parent_agent_protocol::{constants, ScreenAnalysisResult};
 

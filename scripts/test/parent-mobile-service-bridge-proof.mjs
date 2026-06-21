@@ -70,7 +70,7 @@ async function main() {
       parentMobileRuntime: relative(repoRoot, parentMobileProofPath),
       productionMobileController: relative(repoRoot, productionMobileProofPath),
       observerRuntime: relative(repoRoot, observerProofPath),
-      contract: 'packages/parent-domain/src/parent-mobile-service-bridge-runtime.ts',
+      contract: 'packages/schema-domain/src/parent-mobile-service-bridge-runtime.ts',
       contractTest: 'packages/parent-domain/tests/parent-mobile-service-bridge-runtime.test.ts',
       checkpoint: relative(repoRoot, checkpointPath),
       output: relative(repoRoot, proofPath),
@@ -360,8 +360,8 @@ function capabilityStates(capabilityStatesByName) {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const module = await import('@ocentra-parent/parent-domain/parent-mobile-service-bridge-runtime');
-  proofLabels.push('parent-domain.parent-mobile-service-bridge-runtime-parse');
+  const module = await import('@ocentra-parent/schema-domain/parent-mobile-service-bridge-runtime');
+  proofLabels.push('schema-domain.parent-mobile-service-bridge-runtime-parse');
   return module.ParentMobileServiceBridgeRuntimeReadModelSchema.parse(readModel);
 }
 
@@ -446,21 +446,21 @@ function assertRuntimeReadModel(readModel) {
 
 async function assertScriptWiring() {
   const packageJson = JSON.parse(await readFile(join(repoRoot, 'package.json'), 'utf8'));
-  const parentDomainPackage = JSON.parse(
-    await readFile(join(repoRoot, 'packages', 'parent-domain', 'package.json'), 'utf8')
+  const schemaDomainPackage = JSON.parse(
+    await readFile(join(repoRoot, 'packages', 'schema-domain', 'package.json'), 'utf8')
   );
   assertEqual(
     packageJson.scripts['test:parent-mobile-service-bridge'],
     proofCommand,
     'root parent mobile service bridge script'
   );
-  if (!parentDomainPackage.exports['./parent-mobile-service-bridge-runtime']) {
-    throw new Error('Missing parent-domain parent-mobile-service-bridge-runtime export.');
+  if (!schemaDomainPackage.exports['./parent-mobile-service-bridge-runtime']) {
+    throw new Error('Missing schema-domain parent-mobile-service-bridge-runtime export.');
   }
   proofLabels.push('package-scripts.parent-mobile-service-bridge');
   return {
     rootScript: 'test:parent-mobile-service-bridge',
-    parentDomainExport: './parent-mobile-service-bridge-runtime',
+    schemaDomainExport: './parent-mobile-service-bridge-runtime',
   };
 }
 

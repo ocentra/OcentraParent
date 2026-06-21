@@ -1,9 +1,8 @@
 use ocentra_network_core::network_runtime::{
-    default_network_observed_event, network_ai_analysis_requested_event,
+    default_network_observed_event, evaluate_network_runtime, network_ai_analysis_requested_event,
     network_evidence_recorded_event, network_observed_event,
-    network_policy_evaluation_requested_event, network_runtime_evidence_recorded_event,
-    NetworkAdapterState, NetworkCapturePermissionState, NetworkObservationIntent,
-    NetworkParserState, NetworkRuntimeInput,
+    network_policy_evaluation_requested_event, NetworkAdapterState, NetworkCapturePermissionState,
+    NetworkObservationIntent, NetworkParserState, NetworkRuntimeInput,
 };
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainAiAnalysisRequirement, ChildDomainObservedSignal,
@@ -98,17 +97,20 @@ fn telemetry_contract_stays_observe_only() {
 }
 
 #[test]
-fn runtime_evidence_wrapper_reuses_protocol_owned_observed_and_evidence_chain() {
+fn runtime_decision_reuses_protocol_owned_observed_and_evidence_chain() {
     let input = NetworkRuntimeInput {
         adapter_state: NetworkAdapterState::Available,
         capture_permission_state: NetworkCapturePermissionState::Granted,
         parser_state: NetworkParserState::Valid,
         observation_intent: NetworkObservationIntent::FlowRequiresPolicy,
     };
+    let decision = evaluate_network_runtime(input);
+    let observed = network_observed_event(decision.observation_intent);
     let expected_observed = network_observed_event(NetworkObservationIntent::FlowRequiresPolicy);
 
+    assert_eq!(observed, expected_observed);
     assert_eq!(
-        network_runtime_evidence_recorded_event(input),
+        network_evidence_recorded_event(&observed),
         network_evidence_recorded_event(&expected_observed)
     );
 }

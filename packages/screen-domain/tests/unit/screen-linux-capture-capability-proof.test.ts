@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   screenLinuxCaptureCapabilityProof,
   ScreenLinuxCaptureCapabilityRowSchema,
-} from '../../src/screen-linux-capture-capability-proof';
+} from '@ocentra-parent/schema-domain/screen-linux-capture-capability-proof';
 
 const CheckedAt = '2026-06-07T16:40:00Z';
 

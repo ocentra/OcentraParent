@@ -13,7 +13,7 @@ const outputDir = path.join(
 );
 
 const files = {
-  liveActivityState: path.join(root, 'packages', 'portal-domain', 'src', 'live-activity-state.ts'),
+  liveActivityState: path.join(root, 'apps', 'portal', 'src', 'live-activity-state.ts'),
   liveActivityTest: path.join(root, 'apps', 'portal', 'tests', 'live-activity-state.test.ts'),
   workpack: path.join(
     root,
@@ -35,13 +35,13 @@ const commands = [
   },
   {
     command: 'cmd',
-    args: ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/portal-domain'],
-    label: 'cmd /c npm run build --workspace @ocentra-parent/portal-domain',
+    args: ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/portal'],
+    label: 'cmd /c npm run build --workspace @ocentra-parent/portal',
   },
   {
     command: 'cmd',
-    args: ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/portal', '--', 'live-activity-state.test.ts'],
-    label: 'cmd /c npm run test --workspace @ocentra-parent/portal -- live-activity-state.test.ts',
+    args: ['/c', 'npm', 'run', 'test', '--workspace', '@ocentra-parent/portal', '--', 'tests/live-activity-state.test.ts'],
+    label: 'cmd /c npm run test --workspace @ocentra-parent/portal -- tests/live-activity-state.test.ts',
   },
   {
     command: 'cmd',
@@ -97,18 +97,18 @@ async function main() {
 }
 
 async function readSourceChecks() {
-  const [liveActivityState, liveActivityTest, workpack, checklist, featureDoc] = await Promise.all(
+  const [liveActivityWrapper, liveActivityTest, workpack, checklist, featureDoc] = await Promise.all(
     Object.values(files).map((file) => readFile(file, 'utf8'))
   );
   return {
-    liveActivityUsesSharedParser: liveActivityState.includes('parseAgentBrowserRuntimeEventChainStreamFields'),
-    liveActivityDerivesReceiptStatus: liveActivityState.includes(
-      'createBrowserSocialProviderReceiptStreamStatusIntent'
+    appWrapperDelegatesToPortalDomainOwner: liveActivityWrapper.includes('resolvePortalDomainLiveActivityState'),
+    appWrapperDelegatesReceiptProjection: liveActivityWrapper.includes(
+      'return resolvePortalDomainLiveActivityState(events);'
     ),
-    liveActivityDerivesReadinessStatus: liveActivityState.includes(
-      'createBrowserSocialProviderReceiptIngestionReadinessStatusIntent'
+    appWrapperExportsPortalDomainState: liveActivityWrapper.includes(
+      'export type PortalLiveActivityState = PortalDomainPortalLiveActivityState;'
     ),
-    liveActivityDoesNotParseReceiptFieldsDirectly: !liveActivityState.includes(
+    appWrapperDoesNotParseReceiptFieldsDirectly: !liveActivityWrapper.includes(
       'BrowserRuntimeSocialProviderReceiptBoundaryRows'
     ),
     testCoversReceiptStreamProjection: liveActivityTest.includes('browserSocialProviderReceiptStreamStatusIntent'),
@@ -151,9 +151,9 @@ function markdownFor(proof) {
     [
       '# Browser Runtime Social Provider Receipt Live Activity State Proof',
       '',
-      'This proof carries parsed browser runtime social provider receipt stream status and receipt ingestion readiness status into the portal live-activity state.',
+      'This proof carries parsed browser runtime social provider receipt stream status and receipt ingestion readiness status into the portal-domain live-activity owner through the app wrapper consumer.',
       '',
-      'The app state derives both intents from the existing shared protocol-domain stream parser and portal-domain projections. It does not parse raw receipt stream fields directly and rejects dishonest receipt rows before either parent-visible status is populated.',
+      'The current app live-activity wrapper delegates to the shared portal-domain resolver. It does not parse raw receipt stream fields directly and rejects dishonest receipt rows before either parent-visible status is populated.',
       '',
       'No-claim boundary: provider delivery, receipt ingestion runtime, webhook runtime, credentials, observed provider receipts, report delivery, final policy execution, browser mutation, child intervention, unmanaged exact URL support, and enforcement remain unclaimed.',
       '',

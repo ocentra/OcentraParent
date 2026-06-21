@@ -15,12 +15,34 @@ const proofGeneratedAt = '2026-06-05T18:06:02.000Z';
 await main();
 
 async function main() {
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']));
-  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  runCommand(
+    ...npmCommand([
+      'run',
+      'test',
+      '--workspace',
+      '@ocentra-parent/screen-domain',
+      '--',
+      'screen-family-ai-hub-runtime-discovery-proof.test.ts',
+    ])
+  );
 
-  const screenEvidence = await import('../../packages/screen-domain/dist/screen-evidence.js');
-  const parentRuntime =
-    await import('../../packages/parent-domain/dist/screen-family-ai-hub-runtime-discovery-proof.js');
+  const familyHubRoutingModule = await import(
+    '../../packages/screen-domain/dist/screen-evidence-family-hub-routing.js'
+  );
+  const familyHubRoutingValuesModule = await import(
+    '../../packages/schema-domain/dist/screen-evidence-family-hub-routing-values.js'
+  );
+  const screenEvidence = {
+    planScreenFamilyAiHubRoute: familyHubRoutingModule.planScreenFamilyAiHubRoute,
+    ScreenFamilyAiHubCapabilitySchema: (
+      await import('../../packages/schema-domain/dist/screen-evidence-family-hub-routing.js')
+    ).ScreenFamilyAiHubCapabilitySchema,
+    ScreenFamilyAiHubRouteSchemaVersion: familyHubRoutingValuesModule.ScreenFamilyAiHubRouteSchemaVersion,
+  };
+  const runtimeDiscoveryContract =
+    await import('../../packages/schema-domain/dist/screen-family-ai-hub-runtime-discovery-proof.js');
 
   const runtime = await startFamilyHubRuntime();
   try {
@@ -29,7 +51,7 @@ async function main() {
     const runtimeExchange = await submitFamilyHubJob(runtime.baseUrl, selectedRoute);
     const discoveryEvidence = discoveryEvidenceRecords(discovered);
 
-    const readModel = parentRuntime.ScreenFamilyAiHubRuntimeDiscoveryReadModelSchema.parse({
+    const readModel = runtimeDiscoveryContract.ScreenFamilyAiHubRuntimeDiscoveryReadModelSchema.parse({
       schemaVersion: 'screen-family-ai-hub-runtime-discovery-proof',
       lanSchemaVersion: 'v0.9',
       discovery: {

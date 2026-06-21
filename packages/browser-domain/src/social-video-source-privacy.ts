@@ -4,19 +4,22 @@ import {
   withParser,
   brandedNonEmptyStringSchema
 } from '@ocentra-parent/schema-domain/effect';
-import { BrowserAiConfidenceSchema, BrowserAiDegradedStateSchema } from '@ocentra-parent/browser-domain/browser-ai-analysis-schemas';
-import { BrowserCustodyLabelSchema } from '@ocentra-parent/browser-domain/browser-schemas';
+import {
+  BrowserAiConfidenceSchema,
+  BrowserAiDegradedStateSchema,
+} from '@ocentra-parent/schema-domain/browser-ai-analysis-values';
+import { BrowserCustodyLabelSchema } from '@ocentra-parent/schema-domain/browser-schemas';
 import {
   BrowserSocialPlatformSchema,
   BrowserSocialRouteEvidenceIdSchema,
-} from '@ocentra-parent/browser-domain/browser-social-platform-route-schemas';
-import { BrowserSocialVideoMetadataEvidenceIdSchema } from '@ocentra-parent/browser-domain/browser-social-video-metadata';
+} from '@ocentra-parent/schema-domain/browser-social-platform-route-schemas';
+import { BrowserSocialVideoMetadataEvidenceIdSchema } from '@ocentra-parent/schema-domain/browser-social-video-metadata';
 import {
   ActivityDeviceIdSchema,
   ActivityEvidenceIdSchema,
   ActivitySubjectIdSchema,
   ActivityTimestampSchema,
-} from '@ocentra-parent/evidence-domain/primitives';
+} from '@ocentra-parent/schema-domain/evidence-primitives';
 const SourcePrivacySourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social/video source privacy source evidence ids')
 );

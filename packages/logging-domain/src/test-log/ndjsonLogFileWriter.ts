@@ -1,8 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import type {
+  FileKey,
+  NdjsonSummaryContent,
+  TestName,
+} from '@ocentra-parent/schema-domain/test-log/ndjsonBrands';
 import { ensureDirectory, sanitizeTestNameForNdjson } from './ndjsonPaths';
 import { getDirPath, refreshLogsTree, type LogsTreeScope } from './logsTree';
-import type { FileKey, NdjsonSummaryContent, TestName } from './ndjsonBrands';
 
 export function writeSummary(
   scope: LogsTreeScope,

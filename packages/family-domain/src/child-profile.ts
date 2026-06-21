@@ -1,29 +1,12 @@
+import { type Infer } from '@ocentra-parent/schema-domain/effect';
 import {
-  ChildProfileDisplayNameSchema,
-  ChildProfileIdSchema,
-  ParentContractSchemaVersionSchema,
-  ParentTimestampSchema,
-} from './reference-primitives';
+  type ChildProfile,
+  ChildProfileSchema,
+} from '@ocentra-parent/schema-domain/family-child-profile';
 import {
   ChildProfileReferenceSchema,
-  FamilyReferenceSchema,
-  ParentActorReferenceSchema,
   ParentDeviceReferenceSchema,
-} from './references';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-
-export const ChildProfileSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    childProfileId: ChildProfileIdSchema,
-    family: FamilyReferenceSchema,
-    displayName: ChildProfileDisplayNameSchema,
-    createdBy: ParentActorReferenceSchema,
-    createdAt: ParentTimestampSchema,
-  })
-);
-
-export type ChildProfile = Infer<typeof ChildProfileSchema>;
+} from '@ocentra-parent/schema-domain/family-references';
 
 export function toChildProfileReference(input: ChildProfile): Infer<typeof ChildProfileReferenceSchema> {
   const childProfile = ChildProfileSchema.parse(input);

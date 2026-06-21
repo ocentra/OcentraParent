@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   ScreenLocalAiResourceDecisionSchema,
   ScreenLocalAiResourceProofSchema,
+} from '@ocentra-parent/schema-domain/screen-evidence-resource-scheduler';
+import {
   screenLocalAiResourceSchedulerDecisions,
   screenLocalAiResourceSchedulerProof,
   screenLocalAiResourceSchedulerProofSummary,
-} from '../../src/screen-evidence';
+} from '@ocentra-parent/schema-domain/screen-evidence-resource-scheduler-proof';
 
 describe('screen evidence local AI resource scheduler contracts', () => {
   it('accepts screen OCR and VLM jobs with one heavy runtime lane per device', acceptsSchedulerProof);

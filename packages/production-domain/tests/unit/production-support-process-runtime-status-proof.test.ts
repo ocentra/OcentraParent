@@ -3,8 +3,8 @@ import {
   ProductionSupportProcessRuntimeStatusProofSchema,
   ProductionSupportProcessRuntimeStatusRowSchema,
   summarizeProductionSupportProcessRuntimeStatusRows,
-} from '../../src/production-support-process-runtime-status-proof';
-import { ProductionSupportProcessRuntimeStatusReadModel } from '../../src/production-support-process-runtime-status-read-model';
+} from '@ocentra-parent/schema-domain/production-support-process-runtime-status-proof';
+import { ProductionSupportProcessRuntimeStatusReadModel } from '@ocentra-parent/schema-domain/production-support-process-runtime-status-read-model';
 
 describe('production support process runtime status proof', () => {
   acceptsSupportProcessRuntimeRows();

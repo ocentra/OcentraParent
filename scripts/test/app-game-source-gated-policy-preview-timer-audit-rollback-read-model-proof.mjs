@@ -24,18 +24,19 @@ for (const path of [join(appGameProofDir, '06-ui-snapshots'), join(appProofDir, 
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-source-gated-policy-preview-timer-audit-rollback-read-model',
   'app-game-source-gated-policy-preview-timer-audit-rollback-handoff',
 ]);
 
-const readModelContract = await importDist('app-game-source-gated-policy-preview-timer-audit-rollback-read-model.js');
+const readModelContract = await importAppGameDist('app-game-source-gated-policy-preview-timer-audit-rollback-read-model.js');
 const wp83Proof = await readJson(
   join(
     repoRoot,
@@ -45,7 +46,7 @@ const wp83Proof = await readJson(
   )
 );
 const readModel = readModelContract.buildAppGameSourceGatedPolicyPreviewTimerAuditRollbackReadModel(
-  readModelOptions(await importDist('reference-primitives.js')),
+  readModelOptions(await importSchemaDist('reference-primitives.js')),
   wp83Proof.handoff
 );
 const proof = {
@@ -58,7 +59,7 @@ const proof = {
   stackedOn: {
     wp83Branch: 'codex/app-game-source-gated-policy-preview-timer-audit-rollback-handoff',
     reason:
-      'WP84 consumes WP83 timer audit/rollback handoff rows and remains parent-domain only while service read APIs, portal UI, durable audit storage, rollback execution, and package exports are sequenced separately.',
+      'Schema-domain owns the audit-rollback read-model contract surface; app-game-domain consumes WP83 timer audit/rollback handoff rows while service read APIs, portal UI, durable audit storage, rollback execution, and package behavior remain sequenced separately.',
   },
   summary: summarize(readModel),
   nonClaims: {
@@ -79,9 +80,10 @@ const proof = {
     rawPrivateSourceRowsIncluded: readModel.rawPrivateSourceRowsIncluded,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-read-model.ts',
-    rules: 'packages/parent-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-read-model-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-audit-rollback-read-model.test.ts',
+    schemaSource: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-read-model.ts',
+    schemaRules: 'packages/schema-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-read-model-rules.ts',
+    consumerSource: 'packages/app-game-domain/src/app-game-source-gated-policy-preview-timer-audit-rollback-read-model.ts',
+    consumerTest: 'packages/app-game-domain/tests/unit/app-game-source-gated-policy-preview-timer-audit-rollback-read-model.test.ts',
     harness: 'scripts/test/app-game-source-gated-policy-preview-timer-audit-rollback-read-model-proof.mjs',
     evidence: 'test-results/app-game-source-gated-policy-preview-timer-audit-rollback-read-model-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
@@ -101,8 +103,12 @@ console.log(
   `evidence=${join('test-results', 'app-game-source-gated-policy-preview-timer-audit-rollback-read-model-proof', 'proof.json')}`
 );
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function readModelOptions(refs) {

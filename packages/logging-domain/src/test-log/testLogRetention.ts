@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
-import type { TestLogScope } from './types';
+import type { TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 
 export function pruneTestLogRuns(
   scope: TestLogScope,

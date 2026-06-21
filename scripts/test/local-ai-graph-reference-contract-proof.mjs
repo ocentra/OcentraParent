@@ -1,7 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const outputDir = join(repoRoot, 'output', 'ai-plan-proof', 'local-ai-graph-reference-contract-proof');
@@ -20,15 +19,13 @@ async function main() {
   mkdirSync(testResultsDir, { recursive: true });
 
   const commands = [
-    'cmd /c npm run build --workspace @ocentra-parent/parent-domain',
-    'cmd /c npm run test --workspace @ocentra-parent/parent-domain -- local-ai-graph-reference-contract-proof',
+    'cmd /c npm run build:contracts',
+    'cmd /c npm run test --workspace @ocentra-parent/ai-domain -- local-ai-graph-reference-contract-proof',
   ];
   runCommand(commands[0]);
   runCommand(commands[1]);
 
-  const contract = await import(
-    pathToFileURL(join(repoRoot, 'packages/parent-domain/dist/local-ai-graph-reference-contract-proof.js')).href
-  );
+  const contract = await import('@ocentra-parent/schema-domain/local-ai-graph-reference-contract-proof');
   const proof = contract.buildLocalAiGraphReferenceContractProof(buildProofInput());
   const proofSummary = {
     status: 'ok',
@@ -46,10 +43,10 @@ async function main() {
     summary: proof.summary,
     claimBoundaries: proof.claimBoundaries,
     sourceArtifacts: [
-      'packages/parent-domain/src/local-ai-references.ts',
-      'packages/parent-domain/src/local-ai-activity-memory-graph.ts',
-      'packages/parent-domain/src/local-ai-activity-memory-graph-read.ts',
-      'packages/parent-domain/src/local-ai-graph-reference-contract-proof.ts',
+      'packages/schema-domain/src/ai-references.ts',
+      'packages/schema-domain/src/local-ai-activity-memory-graph.ts',
+      'packages/schema-domain/src/local-ai-activity-memory-graph-read.ts',
+      'packages/schema-domain/src/local-ai-graph-reference-contract-proof.ts',
     ],
     claimsProved: [
       'Local AI graph references are schema-validated and must cite selected source evidence before use.',

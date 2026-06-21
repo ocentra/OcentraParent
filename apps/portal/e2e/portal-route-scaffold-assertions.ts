@@ -2,10 +2,10 @@ import { expect, type Page } from '@playwright/test';
 import {
   PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
-  PARENT_PORTAL_NAV_LABELS,
-  PortalRouteSchema,
-  parentPortalRouteContext,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/parent-assistant-chat';
+import { PARENT_PORTAL_NAV_LABELS } from '@ocentra-parent/portal-domain/parent-portal-nav';
+import { PortalRouteSchema } from '@ocentra-parent/portal-domain/routes';
+import { parentPortalRouteContext } from '@ocentra-parent/portal-domain/parent-portal-data';
 
 const productRoutes = [
   { path: '/#/start', nav: 'START HERE', title: 'START HERE', kind: 'guideDashboard' },

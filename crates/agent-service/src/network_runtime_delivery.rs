@@ -2,7 +2,8 @@ use serde::de::DeserializeOwned;
 use serde_json::Value;
 
 use ocentra_parent_agent_core::{
-    publish_network_runtime_chain_for_observation, NetworkObservation, NetworkRuntimeReport,
+    network_capture::NetworkObservation,
+    network_event_runtime::{publish_network_runtime_chain_for_observation, NetworkRuntimeReport},
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityNetworkFlowObservation,

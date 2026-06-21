@@ -4,9 +4,9 @@ use ocentra_eventing::{
     ids::SourceService, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::household_mesh::HouseholdMeshBridgePhase;
 
 use crate::{
-    household_mesh_bridge_runtime_phase::HouseholdMeshBridgePhase,
     household_mesh_bridge_runtime_refs::bridge_aggregate_key,
     household_mesh_bridge_runtime_state::bridge_custody_label, HouseholdMeshBridgeInput,
 };

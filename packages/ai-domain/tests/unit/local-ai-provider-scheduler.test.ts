@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   LocalAiProviderSchedulerDecisionSchema,
   LocalAiProviderSchedulerStatusSchema,
-} from '../../src/local-ai-provider-scheduler';
+} from '@ocentra-parent/schema-domain/local-ai-provider-scheduler';
 
 const idleSchedulerStatus = {
   physicalDeviceId: 'device-local-1',

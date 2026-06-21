@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest';
 import {
   applyScreenOptionalVisibilityRuntimeSettingsRequest,
   createDisabledScreenOptionalVisibilityRuntimeSettingsState,
-  ScreenLiveViewOptInSettingSchema,
   ScreenOptionalVisibilityRuntimeSettingsSchemaVersion,
   ScreenOptionalVisibilityRuntimeUpdateRequestSchema,
+} from '@ocentra-parent/schema-domain/screen-optional-visibility-runtime-settings';
+import {
+  ScreenLiveViewOptInSettingSchema,
   ScreenRawScreenshotRetentionOptInSettingSchema,
-} from '../../src/screen-evidence';
-import { ScreenOptionalVisibilityModeSchemaVersion } from '../../src/screen-optional-visibility-mode-values';
+} from '@ocentra-parent/schema-domain/screen-optional-visibility-mode';
+import { ScreenOptionalVisibilityModeSchemaVersion } from '@ocentra-parent/schema-domain/screen-optional-visibility-mode-values';
 
 const ChangedAt = '2026-06-07T20:00:00Z';
 

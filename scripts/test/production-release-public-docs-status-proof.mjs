@@ -20,15 +20,15 @@ async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
   await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-release-public-docs-status.test.ts',
+      'tests/unit/production-release-public-docs-status.test.ts',
     ])
   );
 
@@ -42,10 +42,10 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-release-public-docs-status.ts',
-      values: 'packages/parent-domain/src/production-release-public-docs-status-values.ts',
-      readModel: 'packages/parent-domain/src/production-release-public-docs-status-read-model.ts',
-      contractTest: 'packages/parent-domain/tests/production-release-public-docs-status.test.ts',
+      contract: 'packages/schema-domain/src/production-release-public-docs-status.ts',
+      values: 'packages/schema-domain/src/production-release-public-docs-status-values.ts',
+      readModel: 'packages/schema-domain/src/production-release-public-docs-status-read-model.ts',
+      contractTest: 'packages/production-domain/tests/unit/production-release-public-docs-status.test.ts',
       packageExports,
       documentation,
       proofOutput: relativePath(proofPath),
@@ -74,10 +74,10 @@ async function main() {
 
 async function assertBuiltContract() {
   const contractModulePath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'production-release-public-docs-status.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'production-release-public-docs-status.js')
   );
   const readModelPath = pathToFileURL(
-    join(repoRoot, 'packages', 'parent-domain', 'dist', 'production-release-public-docs-status-read-model.js')
+    join(repoRoot, 'packages', 'schema-domain', 'dist', 'production-release-public-docs-status-read-model.js')
   );
   const contractModule = await import(contractModulePath.href);
   const readModelModule = await import(readModelPath.href);
@@ -117,10 +117,10 @@ async function assertBuiltContract() {
 }
 
 async function assertPublicPackageExports() {
-  const contractModule = await import('@ocentra-parent/production-domain/production-release-public-docs-status');
+  const contractModule = await import('@ocentra-parent/schema-domain/production-release-public-docs-status');
   const readModelModule =
-    await import('@ocentra-parent/production-domain/production-release-public-docs-status-read-model');
-  const valuesModule = await import('@ocentra-parent/production-domain/production-release-public-docs-status-values');
+    await import('@ocentra-parent/schema-domain/production-release-public-docs-status-read-model');
+  const valuesModule = await import('@ocentra-parent/schema-domain/production-release-public-docs-status-values');
 
   assert.equal(typeof contractModule.decodeProductionReleasePublicDocsStatusProof, 'function');
   assert.ok(contractModule.ProductionReleasePublicDocsStatusProofSchema);
@@ -135,9 +135,9 @@ async function assertPublicPackageExports() {
   ]);
 
   return [
-    '@ocentra-parent/production-domain/production-release-public-docs-status',
-    '@ocentra-parent/production-domain/production-release-public-docs-status-read-model',
-    '@ocentra-parent/production-domain/production-release-public-docs-status-values',
+    '@ocentra-parent/schema-domain/production-release-public-docs-status',
+    '@ocentra-parent/schema-domain/production-release-public-docs-status-read-model',
+    '@ocentra-parent/schema-domain/production-release-public-docs-status-values',
   ];
 }
 

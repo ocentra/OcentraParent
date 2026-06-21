@@ -1,7 +1,10 @@
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanPairingDiscoverySource;
+use ocentra_parent_agent_protocol::lan_pairing_browser_runtime::{
+    LanBrowserAddDeviceRequest, LanBrowserDiscoveryScanRequest,
+};
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LanBrowserAddDeviceRequest,
-    LanBrowserDiscoveryScanRequest, LanPairingDiscoverySource, LogFields,
+    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFields,
     AGENT_PROTOCOL_SCHEMA_VERSION, LAN_PAIRING_SCHEMA_VERSION,
 };
 

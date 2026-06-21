@@ -2,15 +2,16 @@ import {
   SocialParentNotificationDeliveryReadinessReadModelSchema,
   type SocialParentNotificationDeliveryReadinessReadModel,
   type SocialParentNotificationDeliveryReadinessRow,
-} from '@ocentra-parent/browser-domain/social-parent-notification-delivery-readiness';
+} from '@ocentra-parent/schema-domain/social-parent-notification-delivery-readiness';
 import { AgentEvent, AgentProtocolDefaults, isAgentProtocolLogText, type AgentEventEnvelope } from './contracts';
 
-export const SocialParentNotificationDeliveryReadModelSnapshotSchema =
-  SocialParentNotificationDeliveryReadinessReadModelSchema;
-
-export type SocialParentNotificationDeliveryReadModelSnapshot =
-  SocialParentNotificationDeliveryReadinessReadModel;
-export type SocialParentNotificationDeliveryReadModelRow = SocialParentNotificationDeliveryReadinessRow;
+export {
+  SocialParentNotificationDeliveryReadinessReadModelSchema as SocialParentNotificationDeliveryReadModelSnapshotSchema,
+};
+export type {
+  SocialParentNotificationDeliveryReadinessReadModel as SocialParentNotificationDeliveryReadModelSnapshot,
+  SocialParentNotificationDeliveryReadinessRow as SocialParentNotificationDeliveryReadModelRow,
+};
 
 export type AgentSocialParentNotificationDeliveryReadModelFailureReason =
   | 'wrong-event'
@@ -21,7 +22,7 @@ export type AgentSocialParentNotificationDeliveryReadModelFailureReason =
 export type AgentSocialParentNotificationDeliveryReadModelResult =
   | {
       readonly ok: true;
-      readonly value: SocialParentNotificationDeliveryReadModelSnapshot;
+      readonly value: SocialParentNotificationDeliveryReadinessReadModel;
     }
   | {
       readonly ok: false;
@@ -47,7 +48,7 @@ export function parseAgentSocialParentNotificationDeliveryReadModelEvent(
     return adapterFailure('invalid-json');
   }
 
-  const parsed = SocialParentNotificationDeliveryReadModelSnapshotSchema.safeParse(decoded);
+  const parsed = SocialParentNotificationDeliveryReadinessReadModelSchema.safeParse(decoded);
   if (!parsed.success || parsed.data === undefined) {
     return adapterFailure('invalid-payload');
   }

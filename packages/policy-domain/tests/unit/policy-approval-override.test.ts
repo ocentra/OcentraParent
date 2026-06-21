@@ -6,14 +6,14 @@ import {
   PolicyOverrideState,
   PolicyOverrideType,
   resolvePolicyApprovalLifecycle,
-} from '../../src/authority';
+} from '@ocentra-parent/schema-domain/authority';
 import {
   PolicyAction,
   PolicyScheduleBoundaryState,
   PolicyScheduleClockSource,
   PolicyScheduleOfflineRecoveryState,
   PolicyTargetType,
-} from '../../src/policy';
+} from '@ocentra-parent/schema-domain/policy';
 
 function createApprovalRequest() {
   return {

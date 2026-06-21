@@ -7,10 +7,9 @@ import {
   LocalApiRouteId,
   LocalApiRouteIdSchema,
   LocalApiRouteSchema,
-  localApiRouteById,
-  localApiRouteForCommand,
-} from '../../src/local-api';
-import { AgentCommandName } from '@ocentra-parent/agent-protocol-domain/contracts';
+} from '@ocentra-parent/schema-domain/local-api-contracts';
+import { AgentCommand } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { localApiRouteById, localApiRouteForCommand } from '../../src/local-api';
 
 describe('local-api contract manifest', () => {
   it('declares the Rust agent-service routes without owning runtime behavior', () => {
@@ -41,7 +40,7 @@ describe('local-api contract manifest', () => {
   });
 
   it('maps WebSocket commands to the canonical agent command route', () => {
-    const route = localApiRouteForCommand(AgentCommandName.ActivityTrackingRetentionSettingsWrite);
+    const route = localApiRouteForCommand(AgentCommand.ActivityTrackingRetentionSettingsWrite);
 
     expect(route.routeId).toBe(LocalApiRouteId.DevWebSocket);
     expect(route.deliveryMode).toBe('request-response');

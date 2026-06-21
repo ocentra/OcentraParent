@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentProtocolDefaults, type AgentEventEnvelope } from '../../src/contracts';
-import {
-  AgentNetworkLinuxNftablesLabStatusSchema,
-  parseAgentNetworkLinuxNftablesLabStatusEvent,
-} from '../../src/network-linux-nftables-lab-status';
+import { AgentNetworkLinuxNftablesLabStatusSchema } from '@ocentra-parent/schema-domain/agent-network-linux-nftables-status';
+import { parseAgentNetworkLinuxNftablesLabStatusEvent } from '../../src/network-linux-nftables-lab-status';
 
 const LabRefs = AgentProtocolDefaults.NetworkLinuxNftablesLabStatus;
 

@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest';
 import {
   ParentOwnedLocalExportRuntimeDeleteReceiptSchema,
   ParentOwnedLocalExportRuntimeJobSchema,
-  ParentOwnedLocalExportRuntimeKnownGaps,
   ParentOwnedLocalExportRuntimeOutputSchema,
   ParentOwnedLocalExportRuntimeProofReadModel,
   ParentOwnedLocalExportRuntimeProofSchema,
   ParentOwnedLocalExportRuntimeScopeSchema,
   summarizeParentOwnedLocalExportRuntimeDataClasses,
   summarizeParentOwnedLocalExportRuntimeStates,
-} from '../../src/parent-owned-local-export-runtime';
+} from '@ocentra-parent/schema-domain/parent-owned-local-export-runtime';
+import { ParentOwnedLocalExportRuntimeKnownGaps } from '@ocentra-parent/schema-domain/parent-owned-local-export-runtime-values';
 
 describe('parent-owned local export delete runtime proof contracts', () => {
   acceptsTheLocalExportDeleteRuntimeProof();

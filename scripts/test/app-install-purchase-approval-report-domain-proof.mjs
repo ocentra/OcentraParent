@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -13,30 +13,22 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-approval-report-domain-proof.test.ts',
+      'tests/unit/app-install-purchase-approval-report-domain-proof.test.ts',
     ])
   );
 
   const proofModule = await loadApprovalReportDomainProofModule();
-  const packageModule = await import('@ocentra-parent/app-game-domain/app-install-purchase-approval-report-domain-proof');
-  const parentDomainPackageJson = await loadParentDomainPackageJson();
   const parsedReadModel = proofModule.AppInstallPurchaseApprovalReportDomainProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseApprovalReportDomainProof(parsedReadModel);
-  const packageExportKey = './app-install-purchase-approval-report-domain-proof';
 
-  assert.equal(packageModule.AppInstallPurchaseApprovalReportDomainProofReadModel, parsedReadModel);
-  assert.deepEqual(parentDomainPackageJson.exports[packageExportKey], {
-    import: './dist/app-install-purchase-approval-report-domain-proof.js',
-    types: './dist/app-install-purchase-approval-report-domain-proof.d.ts',
-  });
   assert.deepEqual(summary, {
     approvalReportDomainRows: 4,
     readyRows: 3,
@@ -59,17 +51,17 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-approval-report-domain-proof',
     commands,
-    packageExportState: 'validated-public-package-export',
+    packageExportState: 'public app-game-domain subpath export retired; proof imports the built dist module directly.',
     checklistState: 'validated-product-capability-checklist-row',
     evidence: {
-      approvalReportDomainContract: 'packages/parent-domain/src/app-install-purchase-approval-report-domain-proof.ts',
-      sourceParentReviewActionContract: 'packages/parent-domain/src/app-install-purchase-parent-review-action-proof.ts',
-      sourceReportRuntimeContract: 'packages/parent-domain/src/app-install-purchase-report-runtime-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-approval-report-domain-proof.test.ts',
+      approvalReportDomainContract: 'packages/app-game-domain/src/app-install-purchase-approval-report-domain-proof.ts',
+      sourceParentReviewActionContract: 'packages/app-game-domain/src/app-install-purchase-parent-review-action-proof.ts',
+      sourceReportRuntimeContract: 'packages/app-game-domain/src/app-install-purchase-report-runtime-proof.ts',
+      contractTest: 'packages/app-game-domain/tests/unit/app-install-purchase-approval-report-domain-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       packageExport:
-        'COMPLETED: packages/parent-domain/package.json exports ./app-install-purchase-approval-report-domain-proof.',
+        'packages/app-game-domain/package.json no longer publishes this proof as a public subpath export; the script imports the built dist module directly.',
       checklistRow:
         'COMPLETED: docs/product-capability-checklist.md Install/purchase approval row includes approval/report domain proof.',
       output: relative(repoRoot, proofPath),
@@ -109,16 +101,11 @@ async function loadApprovalReportDomainProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-approval-report-domain-proof.js'
   );
   return import(pathToFileURL(modulePath).href);
-}
-
-async function loadParentDomainPackageJson() {
-  const packageJsonPath = join(repoRoot, 'packages', 'parent-domain', 'package.json');
-  return JSON.parse(await readFile(packageJsonPath, 'utf8'));
 }
 
 async function gitHead() {

@@ -112,7 +112,7 @@ fn parent_actor() -> ParentActorReference {
 fn parent_action_reference() -> ParentActionReference {
     ParentActionReference {
         action_reference_id: enforcement::TEST_PARENT_ACTION_REFERENCE_ID.to_string(),
-        actor: parent_actor(),
+        actor: parent_actor().into(),
         policy_version: policy::TEST_POLICY_VERSION.to_string(),
         created_at: policy::TEST_EVALUATED_AT.to_string(),
     }

@@ -3,7 +3,7 @@ import {
   createPolicyWorkspacePreviewRows,
   type PolicyWorkspacePreviewRow,
 } from '../../src/policy-preview-workspace';
-import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/agent-protocol-domain/policy-preview-read-model';
+import type { PortalPolicyPreviewReadModel } from '@ocentra-parent/schema-domain/agent-policy-preview-read-model';
 
 describe('policy preview workspace rows', () => {
   it('keeps assistant drafts preview-only with visible confirmation and lifecycle boundaries', () => {

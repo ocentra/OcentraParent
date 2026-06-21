@@ -8,8 +8,8 @@ use ocentra_tracking_core::ai_boundary::validate_tracking_ai_result_as_evidence;
 
 #[test]
 fn ai_result_from_wrong_child_or_device_is_rejected_before_policy() {
-    let report = ocentra_tracking_core::observe_tracking_location(
-        ocentra_tracking_core::default_location_observed_event(),
+    let report = ocentra_tracking_core::runtime_flow::observe_tracking_location(
+        ocentra_tracking_core::runtime_flow::default_location_observed_event(),
     );
     let request = report
         .ai_analysis_requested

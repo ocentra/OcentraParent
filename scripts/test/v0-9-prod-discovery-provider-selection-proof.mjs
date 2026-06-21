@@ -36,7 +36,7 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/lan-domain',
       '--',
       'lan-pairing-provider-selection-proof',
     ])
@@ -67,7 +67,7 @@ async function main() {
     commands,
     evidence: {
       householdProductionDiscovery: relativePath(householdProofPath),
-      providerSelectionContract: 'packages/lan-domain/src/lan-pairing-provider-selection-proof.ts',
+      providerSelectionContract: 'packages/schema-domain/src/lan-pairing-provider-selection-proof.ts',
       providerSelectionRustProtocol: 'crates/agent-protocol/src/lan_pairing_provider_selection.rs',
       providerSelectionRustServiceReadModel: 'crates/agent-service/src/lan_pairing_provider_selection_read_model.rs',
       proofMatrix: relativePath(matrixPath),
@@ -268,9 +268,9 @@ function manualRequirement(requirement, requiredArtifactSummary, state = 'manual
 }
 
 async function validateBuiltContract(readModel) {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'lan-pairing.js');
+  const modulePath = join(repoRoot, 'packages', 'schema-domain', 'dist', 'lan-pairing-provider-selection-proof.js');
   if (!existsSync(modulePath)) {
-    throw new Error(`Built parent-domain LAN pairing module is missing: ${modulePath}`);
+    throw new Error(`Built schema-domain LAN provider-selection module is missing: ${modulePath}`);
   }
   const module = await import(pathToFileURL(modulePath));
   module.LanProviderSelectionReadModelSchema.parse(readModel);

@@ -2,7 +2,7 @@ import {
   type SocialChildApprovalBlockSurface,
   SocialChildApprovalBlockUxSnapshotSchema,
   type SocialChildApprovalBlockUxSnapshot,
-} from '@ocentra-parent/browser-domain/social-child-approval-block-ux';
+} from '@ocentra-parent/schema-domain/social-child-approval-block-ux';
 
 import {
   BrowserChildInterventionPageDefaults,

@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import {
   BrowserSocialUnmanagedBypassEvidenceSchema,
   detectBrowserSocialUnmanagedBypass,
-} from '../../packages/browser-domain/dist/browser-social-unmanaged-bypass-detector.js';
+} from '@ocentra-parent/schema-domain/browser-social-unmanaged-bypass-detector';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, '..', '..');
@@ -17,12 +17,12 @@ const outputProofPath = join(proofRoot, '11-live-process-proof.json');
 const observedAt = new Date().toISOString();
 
 const sourceFiles = [
-  'packages/browser-domain/src/browser-social-unmanaged-bypass-detector-values.ts',
-  'packages/browser-domain/src/browser-social-unmanaged-bypass-detector.ts',
+  'packages/schema-domain/src/browser-social-unmanaged-bypass-detector-values.ts',
+  'packages/schema-domain/src/browser-social-unmanaged-bypass-detector.ts',
 ];
 const builtFiles = [
-  'packages/browser-domain/dist/browser-social-unmanaged-bypass-detector-values.js',
-  'packages/browser-domain/dist/browser-social-unmanaged-bypass-detector.js',
+  'packages/schema-domain/dist/browser-social-unmanaged-bypass-detector-values.js',
+  'packages/schema-domain/dist/browser-social-unmanaged-bypass-detector.js',
 ];
 
 const liveTargets = [

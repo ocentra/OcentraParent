@@ -17,15 +17,16 @@ await main();
 async function main() {
   await mkdir(resultDir, { recursive: true });
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/production-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/production-domain',
       '--',
-      'tests/production-release-public-docs-freshness-proof.test.ts',
+      'tests/unit/production-release-public-docs-freshness-proof.test.ts',
     ])
   );
 
@@ -39,9 +40,9 @@ async function main() {
     proofMode,
     commands,
     evidence: {
-      contract: 'packages/parent-domain/src/production-release-public-docs-freshness-proof.ts',
-      values: 'packages/parent-domain/src/production-release-public-docs-freshness-values.ts',
-      contractTest: 'packages/parent-domain/tests/production-release-public-docs-freshness-proof.test.ts',
+      contract: 'packages/schema-domain/src/production-release-public-docs-freshness-proof.ts',
+      values: 'packages/schema-domain/src/production-release-public-docs-freshness-values.ts',
+      contractTest: 'packages/production-domain/tests/unit/production-release-public-docs-freshness-proof.test.ts',
       documentation,
       proofOutput: relativePath(proofPath),
       summaryOutput: relativePath(summaryPath),
@@ -67,7 +68,7 @@ async function main() {
 }
 
 async function assertBuiltContract() {
-  const contractModule = await importBuiltParentDomainModule('production-release-public-docs-freshness-proof');
+  const contractModule = await importBuiltSchemaDomainModule('production-release-public-docs-freshness-proof');
   const proof = contractModule.ProductionReleasePublicDocsFreshnessProofSchema.parse(
     contractModule.ProductionReleasePublicDocsFreshnessReadModel
   );
@@ -104,8 +105,8 @@ async function assertBuiltContract() {
   };
 }
 
-async function importBuiltParentDomainModule(moduleName) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', `${moduleName}.js`)).href);
+async function importBuiltSchemaDomainModule(moduleName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', `${moduleName}.js`)).href);
 }
 
 async function assertDocumentationProof() {

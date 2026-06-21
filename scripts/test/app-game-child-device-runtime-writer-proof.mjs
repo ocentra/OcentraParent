@@ -1,7 +1,6 @@
 import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const proofMode = 'app-game-child-device-runtime-writer-proof';
@@ -16,28 +15,35 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
   await mkdir(appGameProofDir, { recursive: true });
 
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'app-game-child-facing-ux-child-device-runtime-writer',
+      '--run',
+      'tests/unit/app-game-child-facing-ux-child-device-runtime-writer.test.ts',
     ])
   );
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
 
-  const readinessModule = await import(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-child-device-delivery-readiness.js')
-    ).href
+  const schemaReadinessModule = await import(
+    '@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-delivery-readiness'
   );
-  const writerModule = await import(
-    pathToFileURL(
-      join(repoRoot, 'packages', 'parent-domain', 'dist', 'app-game-child-facing-ux-child-device-runtime-writer.js')
-    ).href
-  );
+  commands.push('node import @ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-delivery-readiness');
+  const schemaWriterModule = await import('@ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-runtime-writer');
+  commands.push('node import @ocentra-parent/schema-domain/app-game-child-facing-ux-child-device-runtime-writer');
+  if (!('AppGameChildDeviceDeliveryReadinessReadModelSchema' in schemaReadinessModule)) {
+    throw new Error('Missing AppGameChildDeviceDeliveryReadinessReadModelSchema export from schema-domain');
+  }
+  if (!('AppGameChildDeviceRuntimeWriterReadModelSchema' in schemaWriterModule)) {
+    throw new Error('Missing AppGameChildDeviceRuntimeWriterReadModelSchema export from schema-domain');
+  }
+
+  const readinessModule = schemaReadinessModule;
+  const writerModule = schemaWriterModule;
   const sourceReadiness =
     readinessModule.AppGameChildDeviceDeliveryReadinessReadModelSchema.parse(deliveryReadinessFixture());
   const readModel = writerModule.buildAppGameChildDeviceRuntimeWriterReadModel(
@@ -65,12 +71,12 @@ async function main() {
     readModel,
     summary,
     evidence: {
-      contract: 'packages/parent-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts',
-      contractTest: 'packages/parent-domain/tests/app-game-child-facing-ux-child-device-runtime-writer.test.ts',
-      sourceReadinessContract: 'packages/parent-domain/src/app-game-child-facing-ux-child-device-delivery-readiness.ts',
-      sourceReadinessProof: 'test-results/app-game-child-device-delivery-readiness-proof/proof.json',
+      readinessOwner: 'packages/schema-domain/src/app-game-child-facing-ux-child-device-delivery-readiness.ts',
+      writerOwner: 'packages/schema-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts',
+      consumerTest: 'packages/app-game-domain/tests/unit/app-game-child-facing-ux-child-device-runtime-writer.test.ts',
     },
     claimsProved: [
+      'schema-domain owns the child-device delivery readiness and child-device runtime writer contract surfaces',
       'Transport-required child-device delivery readiness rows can become runtime writer envelopes',
       'Manual-required and unavailable readiness rows remain blocked or unavailable',
       'Runtime writer rows carry only parent-safe target and audit references',
@@ -95,10 +101,11 @@ async function main() {
       '',
       '- Branch: codex/app-game-control-product-completion',
       '- Commit: uncommitted full-goal batch, validated by harness before final checkpoint commit',
-      '- Parent read model: packages/parent-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts',
-      '- Source readiness model: packages/parent-domain/src/app-game-child-facing-ux-child-device-delivery-readiness.ts',
+      '- Readiness owner: packages/schema-domain/src/app-game-child-facing-ux-child-device-delivery-readiness.ts',
+      '- Writer owner: packages/schema-domain/src/app-game-child-facing-ux-child-device-runtime-writer.ts',
       '',
       'Evidence:',
+      '- schema-domain exports the child-device delivery readiness and child-device runtime writer owners.',
       '- Transport-required readiness rows become writer-envelope-ready rows.',
       '- Manual-required and unavailable rows remain non-executable.',
       '- Runtime execution, child transport, receipts, provider delivery, adapter dispatch, and platform enforcement stay unclaimed.',

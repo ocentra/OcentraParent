@@ -1,11 +1,11 @@
 import {
-  PortalDetails,
   PortalDom,
   PortalText,
   PortalTextToken,
-  decodePortalDetailValue,
   type PortalDisplayText,
 } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { decodePortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 import { appendDetail } from './detail-list';
 
 export function renderPendingPanel(container: HTMLElement, titleText: PortalDisplayText): void {

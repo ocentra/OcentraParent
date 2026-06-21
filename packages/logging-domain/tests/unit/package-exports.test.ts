@@ -8,18 +8,20 @@ const packageManifest = JSON.parse(fs.readFileSync(path.join(packageRoot, 'packa
   readonly exports: Record<string, unknown>;
 };
 
-it('package exports include the logging-domain parity modules', async () => {
-  expect('./test-log/ndjsonBrands' in packageManifest.exports).toBe(true);
+it('package exports keep runtime modules and retire centralized schema mirrors', async () => {
+  expect('./test-log/types' in packageManifest.exports).toBe(false);
+  expect('./test-log/ndjsonBrands' in packageManifest.exports).toBe(false);
+  expect('./core/stackTrace' in packageManifest.exports).toBe(true);
   expect('./test-log/ndjsonLogFileWriter' in packageManifest.exports).toBe(true);
   expect('./app-log/createAppLogStorage' in packageManifest.exports).toBe(true);
   expect('./transport/bridgeTransport' in packageManifest.exports).toBe(true);
 
-  const brands = await import('../../src/test-log/ndjsonBrands');
+  const stackTrace = await import('../../src/core/stackTrace');
   const writer = await import('../../src/test-log/ndjsonLogFileWriter');
   const storage = await import('../../src/app-log/createAppLogStorage');
   const transport = await import('../../src/transport/bridgeTransport');
 
-  expect(typeof brands.asTestName).toBe('function');
+  expect(typeof stackTrace.getStackTrace).toBe('function');
   expect(typeof writer.writeLogEntry).toBe('function');
   expect(typeof storage.createAppLogStorage).toBe('function');
   expect(typeof transport.BridgeTransport).toBe('function');

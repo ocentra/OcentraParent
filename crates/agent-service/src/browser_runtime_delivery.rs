@@ -1,10 +1,10 @@
-use ocentra_parent_agent_core::{
-    publish_browser_runtime_chain_for_input, BrowserRuntimeInput, BrowserRuntimePhase,
-    BrowserRuntimeReport,
+use ocentra_parent_agent_core::browser_event_runtime::{
+    publish_browser_runtime_chain_for_input, BrowserRuntimeInput, BrowserRuntimeReport,
 };
 use ocentra_parent_agent_protocol::{
     constants, BrowserCapabilityStatus, BrowserEvidenceReadModel, BrowserQueryVisibilityLabel,
-    BrowserTabEvidence, PolicyPreviewReadModel, PolicyPreviewReadModelRow,
+    BrowserRuntimeEventPayload, BrowserRuntimePhase, BrowserTabEvidence, PolicyPreviewReadModel,
+    PolicyPreviewReadModelRow,
 };
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -169,7 +169,7 @@ fn count_phase(report: &BrowserRuntimeReport, phase: BrowserRuntimePhase) -> usi
         .iter()
         .filter(|event| {
             event
-                .decode::<ocentra_parent_agent_core::BrowserRuntimeEventPayload>()
+                .decode::<BrowserRuntimeEventPayload>()
                 .map(|envelope| envelope.payload.phase == phase)
                 .unwrap_or(false)
         })

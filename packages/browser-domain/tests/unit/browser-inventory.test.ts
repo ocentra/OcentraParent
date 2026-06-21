@@ -4,19 +4,18 @@ import {
   BrowserCapabilityStatus,
   BrowserChannel,
   BrowserCustodyLabel,
-  BrowserEvidenceSchemaVersion,
   BrowserExactUrlCapability,
   BrowserFamily,
   BrowserInventoryInstallState,
-  BrowserInventoryReadModelSchema,
-  BrowserInventoryRowSchema,
   BrowserInventoryRunningState,
   BrowserManagedProfileState,
   BrowserManagementTier,
   BrowserQueryVisibilityLabel,
   BrowserSupportTier,
   BrowserUnmanagedFallbackCapability,
-} from '../../src/browser';
+} from '@ocentra-parent/schema-domain/browser-values';
+import { BrowserEvidenceSchemaVersion } from '@ocentra-parent/schema-domain/browser-schemas';
+import { BrowserInventoryReadModelSchema, BrowserInventoryRowSchema } from '@ocentra-parent/schema-domain/browser-inventory-schemas';
 
 describe('browser inventory contracts', () => {
   it('accepts managed inventory rows with target-list-only exact evidence boundaries', () => {

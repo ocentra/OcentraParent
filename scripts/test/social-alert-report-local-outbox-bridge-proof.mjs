@@ -16,13 +16,13 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   await mkdir(resultDirectory, { recursive: true });
 
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/browser-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/browser-domain',
       '--',
       'social-alert-report-local-outbox-bridge',
       'social-alert-report-intent',
@@ -34,8 +34,8 @@ async function main() {
   const readModel = bridge.buildSocialAlertReportLocalOutboxBridgeReadModel(bridgeOptions(), proofIntents());
   const jsonl = bridge.serializeSocialAlertReportLocalOutboxJsonl(readModel);
   const rereadRecords = bridge.parseSocialAlertReportLocalOutboxJsonl(jsonl);
-  const source = await readText('packages/parent-domain/src/social-alert-report-local-outbox-bridge.ts');
-  const test = await readText('packages/parent-domain/tests/social-alert-report-local-outbox-bridge.test.ts');
+  const source = await readText('packages/browser-domain/src/social-alert-report-local-outbox-bridge.ts');
+  const test = await readText('packages/browser-domain/tests/unit/social-alert-report-local-outbox-bridge.test.ts');
   const socialFeature = await readText('docs/features/social-video-control.md');
   const socialExpectation = await readText('docs/expectations/social-video-control.md');
   const workpackReadme = await readText('docs/plans/browser-plan/social-platform-account-feed/readme.md');
@@ -43,8 +43,8 @@ async function main() {
   await writeFile(join(resultDirectory, 'local-outbox-records.jsonl'), jsonl, 'utf8');
 
   const checks = [
-    checkFile('packages/parent-domain/src/social-alert-report-local-outbox-bridge.ts'),
-    checkFile('packages/parent-domain/tests/social-alert-report-local-outbox-bridge.test.ts'),
+    checkFile('packages/browser-domain/src/social-alert-report-local-outbox-bridge.ts'),
+    checkFile('packages/browser-domain/tests/unit/social-alert-report-local-outbox-bridge.test.ts'),
     checkFile('scripts/test/social-alert-report-local-outbox-bridge-proof.mjs'),
     checkIncludes(source, 'providerDeliveryRuntimeClaimed: Schema.Literal(false)', 'provider delivery non-claim guard'),
     checkIncludes(source, 'finalPolicyExecutionClaimed: Schema.Literal(false)', 'final policy non-claim guard'),
@@ -80,7 +80,7 @@ async function main() {
       enforcementClaimed: readModel.enforcementClaimed,
     },
     claimsProved: [
-      'Local-outbox-eligible social alert/report intents parse through the parent-domain intent contract before outbox linking',
+      'Local-outbox-eligible social alert/report intents parse through the browser-domain intent contract before outbox linking',
       'Eligible intents become existing NotificationLocalOutboxRecord rows with minimal payload fields and parent-owned local path refs',
       'JSONL output is reread through the existing local outbox record parser',
       'Manual-required and unavailable intents are visible in the bridge read model but do not produce queued JSONL records',
@@ -97,10 +97,10 @@ async function main() {
       'product checklist completion',
     ],
     evidence: {
-      source: 'packages/parent-domain/src/social-alert-report-local-outbox-bridge.ts',
-      test: 'packages/parent-domain/tests/social-alert-report-local-outbox-bridge.test.ts',
-      existingIntentContract: 'packages/parent-domain/src/social-alert-report-intent.ts',
-      existingOutboxContract: 'packages/parent-domain/src/notification-local-outbox-adapter-proof.ts',
+      source: 'packages/browser-domain/src/social-alert-report-local-outbox-bridge.ts',
+      test: 'packages/browser-domain/tests/unit/social-alert-report-local-outbox-bridge.test.ts',
+      existingIntentContract: 'packages/schema-domain/src/social-alert-report-intent.ts',
+      existingOutboxContract: 'packages/schema-domain/src/notification-local-outbox-adapter-proof.ts',
       harness: 'scripts/test/social-alert-report-local-outbox-bridge-proof.mjs',
       jsonl: 'test-results/social-alert-report-local-outbox-bridge-proof/local-outbox-records.jsonl',
       proof: 'test-results/social-alert-report-local-outbox-bridge-proof/proof.json',
@@ -127,7 +127,7 @@ async function main() {
   await writeFile(join(outputDirectory, '10-validation-commands.log'), validationLogFor(proof), 'utf8');
   await writeFile(
     join(outputDirectory, 'ui-not-applicable.md'),
-    '# UI Not Applicable\n\nThis proof adds a parent-domain bridge from social alert/report intents to the existing parent-owned local notification outbox record schema. It does not change rendered portal UI.\n',
+    '# UI Not Applicable\n\nThis proof uses the browser-domain bridge from social alert/report intents to the existing parent-owned local notification outbox record schema. It does not change rendered portal UI.\n',
     'utf8'
   );
 
@@ -276,7 +276,7 @@ async function sourceSnapshot(proof) {
     `- Commit: ${proof.commit}`,
     '- Scope: social alert/report intent bridge to existing parent-owned notification local outbox record schema.',
     '- Source inspected: social alert/report intent contract, notification local outbox adapter proof, social/video feature doc, social/video expectation doc, and browser-plan social rollout gates.',
-    '- Package export was intentionally not changed because another lane currently owns packages/parent-domain/package.json.',
+    '- Canonical source ownership now lives in packages/browser-domain; no parent-domain package export is involved in this proof.',
     '',
   ].join('\n');
 }
@@ -331,7 +331,7 @@ function validationLogFor(proof) {
 }
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'browser-domain', 'dist', name)).href);
 }
 
 function checkFile(path) {

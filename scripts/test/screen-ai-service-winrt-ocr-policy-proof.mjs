@@ -33,12 +33,12 @@ const executedCommands = [];
 
 try {
   runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/activity-domain']));
-  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']));
   runCommand('node', [ServiceOcrProofScript]);
 
-  const { ActivityScreenReadModelSchema } = await import('@ocentra-parent/activity-domain/activity-surface');
+  const { ActivityScreenReadModelSchema } = await import('@ocentra-parent/schema-domain/activity-surface');
   const { PolicyAction, PolicyDecisionHandoffState, PolicyDecisionSchema } =
-    await import('@ocentra-parent/policy-domain/policy');
+    await import('@ocentra-parent/schema-domain/policy-contracts');
 
   const sourceProof = readJson(SourceProofPath);
   const sourceReadModel = ActivityScreenReadModelSchema.parse(readJson(SourceReadModelPath));
@@ -141,7 +141,7 @@ try {
         policyRow.deletionReasons.includes(DeletionReason),
     },
     nonClaims: [
-      'This proof reruns the real Windows service WinRT OCR capture/analysis proof and consumes that Activity Screen row through typed parent-domain policy decision contracts.',
+      'This proof reruns the real Windows service WinRT OCR capture/analysis proof and consumes that Activity Screen row through typed canonical policy decision contracts.',
       'It proves dry-run policy consumption and read-model refs only; it does not claim final enforcement handoff, browser/network/mobile adapters, production OCR quality, or authenticated-account coverage.',
       'The proof intentionally does not retain raw screenshots; it preserves deleted-image/no-raw-retention custody from the service OCR proof.',
     ],

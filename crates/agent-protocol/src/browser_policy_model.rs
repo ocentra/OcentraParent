@@ -1,5 +1,9 @@
 use serde::{Deserialize, Serialize};
 
+use crate::browser_policy_sections::{
+    BrowserPolicyAuditPlan, BrowserPolicyRuleActionPlan, BrowserPolicyRuleTarget,
+    BrowserPolicySchedule,
+};
 use crate::browser_policy_values::{
     BrowserPolicyActionExecutionState, BrowserPolicyAiAuthority, BrowserPolicyApprovalState,
     BrowserPolicyAuditState, BrowserPolicyCapabilityState, BrowserPolicyDefaultPosture,
@@ -10,7 +14,7 @@ use crate::browser_policy_values::{
 };
 use crate::{
     BrowserPolicyApprovalRequiredFor, BrowserPolicyApprovalUnansweredDefault,
-    BrowserPolicyAuditPlan, BrowserPolicyAuditRequiredField, BrowserPolicyBrowserGameApprovalMode,
+    BrowserPolicyAuditRequiredField, BrowserPolicyBrowserGameApprovalMode,
     BrowserPolicyBrowserGamePolicyMode, BrowserPolicyBudgetCountingMode, BrowserPolicyChildFacing,
     BrowserPolicyCustody, BrowserPolicyDownloadBlockedType, BrowserPolicyEvidenceNeverCollect,
     BrowserPolicyEvidenceUrlScope, BrowserPolicyFallbacks,
@@ -19,7 +23,6 @@ use crate::{
     BrowserPolicyManagedBrowserProfileMode, BrowserPolicyManagedPolicyWriterControl,
     BrowserPolicyManagedPolicyWriterFallback, BrowserPolicyPlatforms, BrowserPolicyPortalAi,
     BrowserPolicyReportVisibleField, BrowserPolicyRetentionExactUrl, BrowserPolicyRuleAction,
-    BrowserPolicyRuleActionPlan, BrowserPolicyRuleTarget, BrowserPolicySchedule,
     BrowserPolicyUnmanagedBrowserClassificationTarget,
 };
 

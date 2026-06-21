@@ -6,7 +6,7 @@ import { dirname, join, relative } from 'node:path';
 import {
   BrowserGameCloudGateDecisionSchema,
   BrowserGameCloudGateRequestSchema,
-} from '../../packages/parent-domain/dist/browser-game-cloud-gaming-gate.js';
+} from '@ocentra-parent/schema-domain/browser-game-cloud-gaming-gate';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-cloud-gaming-gate-live-evidence-proof';

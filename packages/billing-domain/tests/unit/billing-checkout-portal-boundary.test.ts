@@ -5,8 +5,7 @@ import {
   BillingHostedReturnRoute,
   BillingPortalSessionRequestSchema,
   BillingPortalSessionResponseSchema,
-  billingHostedReturnRoutePath,
-} from '../../src/billing-checkout-portal-boundary';
+} from '@ocentra-parent/schema-domain/billing-checkout-portal-boundary';
 
 describe('billing checkout and portal boundary', () => {
   it('accepts authenticated checkout session requests with allowlisted success and cancel routes', () => {
@@ -24,8 +23,8 @@ describe('billing checkout and portal boundary', () => {
     });
 
     expect(request.actor.role).toBe('parent');
-    expect(billingHostedReturnRoutePath(request.successRoute.routeId)).toBe('/family/billing/checkout/success');
-    expect(billingHostedReturnRoutePath(request.cancelRoute.routeId)).toBe('/family/billing/checkout/cancel');
+    expect(request.successRoute.relativePath).toBe(BillingHostedReturnRoute.CheckoutSuccess.relativePath);
+    expect(request.cancelRoute.relativePath).toBe(BillingHostedReturnRoute.CheckoutCancel.relativePath);
   });
 
   it('rejects checkout session requests from non-interactive system actors', () => {

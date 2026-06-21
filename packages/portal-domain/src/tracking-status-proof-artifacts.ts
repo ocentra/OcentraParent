@@ -1,15 +1,13 @@
 import {
-  type Infer,
-  withParser,
-  brandedNonEmptyStringSchema
-} from '@ocentra-parent/schema-domain/effect';
+  TrackingStatusProofArtifactSchema as SharedTrackingStatusProofArtifactSchema,
+  decodeTrackingStatusProofArtifact,
+  type TrackingStatusProofArtifact as SharedTrackingStatusProofArtifactValue,
+} from '@ocentra-parent/schema-domain/portal-contracts';
 
-export const TrackingStatusProofArtifactSchema = withParser(
-  brandedNonEmptyStringSchema('TrackingStatusProofArtifact')
-);
-export type TrackingStatusProofArtifact = Infer<typeof TrackingStatusProofArtifactSchema>;
+export const TrackingStatusProofArtifactSchema = SharedTrackingStatusProofArtifactSchema;
+export type TrackingStatusProofArtifact = SharedTrackingStatusProofArtifactValue;
 
-const artifact = TrackingStatusProofArtifactSchema.parse;
+const artifact = decodeTrackingStatusProofArtifact;
 
 export const TrackingStatusProofArtifacts = {
   ContractBoundary: artifact('output/tracking-plan-proof/03-contract-boundary-and-effect-schemas/proof-summary.json'),

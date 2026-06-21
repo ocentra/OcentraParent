@@ -11,15 +11,15 @@
 )]
 #![forbid(unsafe_code)]
 
-mod activity_store;
-mod activity_store_app_game;
+pub mod activity_store;
+pub mod activity_store_app_game;
 mod activity_store_app_game_observation;
 mod activity_store_app_game_rows;
 mod activity_store_browser;
 mod activity_store_browser_intervention;
 mod activity_store_connection;
 mod activity_store_enforcement_audit;
-mod activity_store_error;
+pub mod activity_store_error;
 mod activity_store_memory_graph;
 mod activity_store_memory_graph_builder;
 mod activity_store_memory_graph_index;
@@ -36,124 +36,90 @@ mod activity_store_policy_preview_rows;
 mod activity_store_policy_preview_targets;
 mod activity_store_rows;
 mod activity_store_screen_evidence;
-mod browser_bridge_event;
+pub mod browser_bridge_event;
 mod browser_bridge_fields;
 mod browser_bridge_http;
 mod browser_bridge_ids;
 #[cfg(test)]
 mod browser_bridge_native_host;
-mod browser_bridge_poll;
-mod browser_event_runtime;
-mod browser_event_runtime_phase;
+pub mod browser_bridge_poll;
+pub mod browser_event_runtime;
 mod browser_event_runtime_refs;
 #[cfg(test)]
 mod browser_event_runtime_tests;
-mod browser_intervention_event;
-mod browser_managed_discovery;
-mod browser_managed_session;
-mod browser_windows_inventory;
-mod browser_windows_inventory_paths;
-mod browser_windows_inventory_source;
-mod browser_windows_package_inventory;
-mod browser_windows_package_source;
-mod browser_windows_shortcut_source;
-mod enforcement_adapter;
-mod enforcement_app_time_limit;
-mod enforcement_boundary;
+pub mod browser_intervention_event;
+pub mod browser_managed_discovery;
+pub mod browser_managed_session;
+pub mod browser_windows_inventory;
+pub mod browser_windows_inventory_paths;
+pub mod browser_windows_inventory_source;
+pub mod browser_windows_package_inventory;
+pub mod browser_windows_package_source;
+pub mod browser_windows_shortcut_source;
+pub mod enforcement_adapter;
+pub mod enforcement_app_time_limit;
+pub mod enforcement_boundary;
 pub mod enforcement_policy_dispatch;
 pub mod enforcement_readiness;
 pub mod enforcement_timer_state;
-mod household_ai_provider_route;
+pub mod household_ai_provider_route;
 mod household_ai_provider_route_labels;
-mod household_ai_provider_route_state;
-mod household_mesh_bridge_runtime;
-mod household_mesh_bridge_runtime_phase;
+pub mod household_ai_provider_route_state;
+pub mod household_mesh_bridge_runtime;
 mod household_mesh_bridge_runtime_refs;
 mod household_mesh_bridge_runtime_source;
 mod household_mesh_bridge_runtime_state;
-mod household_mesh_event_bridge;
+pub mod household_mesh_event_bridge;
 #[cfg(test)]
 mod household_mesh_event_bridge_tests;
-mod journal;
-mod journal_crypto;
-mod journal_error;
+pub mod journal;
+pub mod journal_crypto;
+pub mod journal_error;
 mod journal_rotation;
-mod network_capture;
+pub mod network_capture;
 mod network_capture_adapter;
-mod network_capture_event;
+pub mod network_capture_event;
 mod network_capture_event_fields;
 #[cfg(windows)]
 mod network_capture_netstat;
-mod network_event_runtime;
-mod network_event_runtime_phase;
+pub mod network_event_runtime;
 mod network_event_runtime_state;
-mod parent_child_event_runtime;
-mod parent_child_event_runtime_phase;
+pub mod parent_child_event_runtime;
 mod policy_dry_run_evaluator;
-mod process_capture;
-mod screen_event_runtime;
-mod screen_event_runtime_input;
+pub mod process_capture;
+pub mod screen_event_runtime;
+pub mod screen_event_runtime_input;
 mod screen_event_runtime_metadata;
-mod screen_event_runtime_phase;
 mod screen_event_runtime_refs;
 mod screen_event_runtime_state;
-mod screen_evidence_queue;
-mod screen_household_mesh_runtime;
-mod screen_household_mesh_runtime_phase;
+pub mod screen_evidence_queue;
+pub mod screen_household_mesh_runtime;
 mod screen_household_mesh_runtime_refs;
 mod screen_household_mesh_runtime_state;
-mod tracking;
-mod trusted_device_registry;
+pub mod tracking;
+pub mod trusted_device_registry;
 mod trusted_device_registry_selection;
-mod window_capture;
-mod window_capture_event;
+pub mod window_capture;
+pub mod window_capture_event;
 
-pub use activity_store::ActivityStore;
-pub use activity_store_app_game::{
-    live_windows_foreground_window_journal_event, live_windows_inventory_journal_events_from_roots,
-    live_windows_inventory_journal_events_with_limit,
-    live_windows_process_snapshot_journal_events_with_limit,
-    live_windows_registry_inventory_journal_events_from_roots,
-    live_windows_registry_inventory_journal_events_with_limit,
-    live_windows_store_package_journal_events_from_roots,
-    live_windows_store_package_journal_events_with_limit, AppGameLiveForegroundWindowError,
-    AppGameLiveInventorySourceError, AppGameLiveProcessSnapshotError,
-    AppGameLiveRegistryInventorySourceError, AppGameLiveStorePackageSourceError,
-};
-pub use activity_store_error::ActivityStoreError;
-pub use browser_bridge_event::{
+use activity_store::ActivityStore;
+use activity_store_error::ActivityStoreError;
+use browser_bridge_event::{
     browser_tab_observation_event, BrowserBridgeEventError, BrowserBridgeTargetObservation,
 };
-pub use browser_bridge_poll::{
+use browser_bridge_poll::{
     poll_chromium_bridge, BrowserBridgeExpectedCustody, BrowserBridgePollConfig,
     BrowserBridgePollError, BrowserBridgePollSnapshot,
 };
-pub use browser_event_runtime::{
-    browser_runtime_action_intent_handoff_topology_manifest,
-    browser_runtime_action_intent_status_topology_manifest,
-    browser_runtime_chain_topology_manifest,
-    browser_runtime_social_provider_receipt_status_topology_manifest,
-    prove_browser_runtime_delivery_decision, publish_browser_runtime_chain_for_input,
-    request_browser_runtime_action_intent_handoff_for_input,
-    request_browser_runtime_action_intent_status_for_input,
-    request_browser_runtime_social_provider_receipt_status_for_input,
-    BrowserRuntimeActionIntentHandoffReport, BrowserRuntimeActionIntentHandoffResponse,
-    BrowserRuntimeActionIntentStatusReport, BrowserRuntimeActionIntentStatusResponse,
-    BrowserRuntimeDeliveryDecisionError, BrowserRuntimeDeliveryDecisionReport,
-    BrowserRuntimeEventPayload, BrowserRuntimeInput, BrowserRuntimeReport,
-    BrowserRuntimeSocialProviderReceiptStatusReport,
-    BrowserRuntimeSocialProviderReceiptStatusResponse,
-};
-pub use browser_event_runtime_phase::BrowserRuntimePhase;
-pub use browser_intervention_event::{
+use browser_intervention_event::{
     browser_intervention_applied_event, BrowserInterventionObservation,
 };
-pub use browser_managed_discovery::{
+use browser_managed_discovery::{
     installed_managed_browser_candidates, managed_browser_executable_identity,
     unmanaged_browser_processes, BrowserManagedExecutableIdentity, BrowserManagedInstallCandidate,
     BrowserUnmanagedProcessObservation,
 };
-pub use browser_managed_session::{
+use browser_managed_session::{
     create_or_repair_managed_browser_profile_store, delete_managed_browser_profile_store,
     launch_managed_browser, load_managed_browser_profile_store, managed_browser_launch_plan,
     reserve_managed_browser_bridge_port, BrowserManagedBridgePortReservation, BrowserManagedLaunch,
@@ -161,175 +127,152 @@ pub use browser_managed_session::{
     BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreError,
     BrowserManagedProfileStoreRecord,
 };
-pub use browser_windows_inventory::{
+use browser_windows_inventory::{
     windows_browser_executable_identity, windows_browser_inventory_observations,
     BrowserWindowsExecutableIdentity, BrowserWindowsInventoryObservation,
 };
-pub use browser_windows_inventory_paths::windows_browser_inventory_candidate_paths;
-pub use browser_windows_inventory_source::{
+use browser_windows_inventory_paths::windows_browser_inventory_candidate_paths;
+use browser_windows_inventory_source::{
     browser_windows_inventory_candidate_paths_from_live_sources,
     browser_windows_live_registry_entry, live_windows_browser_inventory_candidate_paths_with_limit,
     BrowserWindowsLiveRegistryInstallEntry,
 };
-pub use browser_windows_package_inventory::{
+use browser_windows_package_inventory::{
     windows_browser_package_observations, BrowserWindowsPackageIdentity,
 };
-pub use browser_windows_package_source::{
+use browser_windows_package_source::{
     live_windows_browser_package_entries_from_roots,
     live_windows_browser_package_entries_with_limit, BrowserWindowsLivePackageEntry,
 };
-pub use browser_windows_shortcut_source::{
+use browser_windows_shortcut_source::{
     browser_windows_shortcut_target_from_bytes, live_windows_browser_shortcut_targets_from_roots,
     live_windows_browser_shortcut_targets_with_limit, BrowserWindowsLiveShortcutTarget,
 };
-pub use enforcement_adapter::{
+use enforcement_adapter::{
     app_block_control_capability, managed_browser_control_capability, network_control_capability,
     process_control_capability, terminate_owned_process, timer_control_capability,
     unavailable_adapter_outcome, EnforcementAdapterOutcome, OwnedProcessTerminationTarget,
 };
-pub use enforcement_app_time_limit::{
+use enforcement_app_time_limit::{
     app_time_limit_capability, app_time_limit_target_from_action,
     expire_app_time_limit_for_owned_process, unavailable_app_time_limit_outcome,
     AppTimeLimitAdapterTarget, AppTimeLimitTargetRejection,
 };
-pub use enforcement_boundary::{
+use enforcement_boundary::{
     authorize_enforcement_boundary, evaluate_enforcement_boundary, EnforcementAdapterRequest,
     EnforcementAuthorizationOutcome, EnforcementBoundaryInput, EnforcementBoundaryOutcome,
     EnforcementBoundaryRejection,
 };
-pub use household_ai_provider_route::{
+use household_ai_provider_route::{
     select_household_ai_provider_route, HouseholdAiProviderCandidate,
     HouseholdAiRouteCandidateDecision, HouseholdAiRouteRequest, HouseholdAiRouteSelection,
 };
-pub use household_ai_provider_route_state::{
+use household_ai_provider_route_state::{
     HouseholdAiProviderClass, HouseholdAiProviderResourcePolicy, HouseholdAiProviderResourceState,
     HouseholdAiProviderTrustState, HouseholdAiRouteDecisionState, HouseholdAiRouteRejectionReason,
     HouseholdAiWorkClass,
 };
-pub use household_mesh_bridge_runtime::{
-    publish_household_mesh_bridge_chain_for_input, validate_household_mesh_bridge_export,
-    validate_household_mesh_bridge_import, HouseholdMeshBridgeEventPayload,
-    HouseholdMeshBridgeExportCandidate, HouseholdMeshBridgeInboundEnvelope,
-    HouseholdMeshBridgeInput, HouseholdMeshBridgeReport, HouseholdMeshBridgeValidation,
-};
-pub use household_mesh_bridge_runtime_phase::HouseholdMeshBridgePhase;
-pub use household_mesh_bridge_runtime_state::{
-    HouseholdMeshBridgeCustody, HouseholdMeshBridgeDirection, HouseholdMeshBridgeEnvelopeState,
-    HouseholdMeshBridgeRejectionReason, HouseholdMeshBridgeValidationState,
-};
-pub use household_mesh_event_bridge::{
+use household_mesh_event_bridge::{
     export_selected_local_event, validate_incoming_lan_message, HouseholdMeshAuthenticationState,
     HouseholdMeshBridgeRejection, HouseholdMeshExportDecision, HouseholdMeshImportDecision,
     HouseholdMeshLanMessage, HouseholdMeshLocalEventKind, HouseholdMeshLocalRepublish,
     HouseholdMeshPolicyAuthority,
 };
-pub use journal::ActivityJournal;
-pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
-pub use journal_error::JournalError;
-pub use network_capture::{collect_network_snapshot, NetworkObservation};
-pub use network_capture_event::{network_observation_event, network_snapshot_events};
-pub use network_event_runtime::{
-    prove_network_runtime_remote_delivery_cross_process_custody_readiness,
-    prove_network_runtime_remote_delivery_cross_process_replay,
-    prove_network_runtime_remote_delivery_delete_export_propagation,
-    prove_network_runtime_remote_delivery_dispatch_readiness,
-    prove_network_runtime_remote_delivery_durable_envelope,
-    prove_network_runtime_remote_delivery_external_cross_process_transport,
-    prove_network_runtime_remote_delivery_fixture_transport,
-    prove_network_runtime_remote_delivery_no_enforcement_invariant,
-    prove_network_runtime_remote_delivery_outbox_handoff,
-    prove_network_runtime_remote_delivery_provider_child_readiness,
-    prove_network_runtime_remote_delivery_transport_dispatch_state,
-    publish_network_runtime_chain_for_observation, NetworkRuntimeEventPayload,
-    NetworkRuntimeRemoteDeliveryBlockedDispatchRecord,
+use journal::ActivityJournal;
+use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
+use journal_error::JournalError;
+use network_capture::{collect_network_snapshot, NetworkObservation};
+use network_capture_event::{network_observation_event, network_snapshot_events};
+use network_event_runtime::remote_delivery_cross_process_custody_readiness::prove_network_runtime_remote_delivery_cross_process_custody_readiness;
+use network_event_runtime::remote_delivery_cross_process_custody_readiness_types::{
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessError,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessRecord,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessReport,
     NetworkRuntimeRemoteDeliveryCrossProcessCustodyReadinessState,
+};
+use network_event_runtime::remote_delivery_cross_process_replay::prove_network_runtime_remote_delivery_cross_process_replay;
+use network_event_runtime::remote_delivery_cross_process_replay_types::{
     NetworkRuntimeRemoteDeliveryCrossProcessReplayError,
     NetworkRuntimeRemoteDeliveryCrossProcessReplayRecord,
     NetworkRuntimeRemoteDeliveryCrossProcessReplayReport,
     NetworkRuntimeRemoteDeliveryCrossProcessReplayState,
+};
+use network_event_runtime::remote_delivery_delete_export_propagation::prove_network_runtime_remote_delivery_delete_export_propagation;
+use network_event_runtime::remote_delivery_delete_export_propagation_types::{
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationError,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationRecord,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationReport,
     NetworkRuntimeRemoteDeliveryDeleteExportPropagationState,
+};
+use network_event_runtime::remote_delivery_dispatch_readiness::prove_network_runtime_remote_delivery_dispatch_readiness;
+use network_event_runtime::remote_delivery_dispatch_readiness_types::{
     NetworkRuntimeRemoteDeliveryDispatchReadinessError,
     NetworkRuntimeRemoteDeliveryDispatchReadinessReport,
     NetworkRuntimeRemoteDeliveryDispatchReadinessState,
+};
+use network_event_runtime::remote_delivery_durable_envelope::prove_network_runtime_remote_delivery_durable_envelope;
+use network_event_runtime::remote_delivery_durable_envelope_types::{
     NetworkRuntimeRemoteDeliveryDurableEnvelopeError,
     NetworkRuntimeRemoteDeliveryDurableEnvelopeReport,
+};
+use network_event_runtime::remote_delivery_event_chain_journal_types::NetworkRuntimeRemoteEventChainJournalError;
+use network_event_runtime::remote_delivery_external_cross_process_transport::prove_network_runtime_remote_delivery_external_cross_process_transport;
+use network_event_runtime::remote_delivery_external_cross_process_transport_types::{
     NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportError,
     NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportRecord,
     NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportReport,
     NetworkRuntimeRemoteDeliveryExternalCrossProcessTransportState,
+};
+use network_event_runtime::remote_delivery_fixture_transport::prove_network_runtime_remote_delivery_fixture_transport;
+use network_event_runtime::remote_delivery_fixture_transport_types::{
     NetworkRuntimeRemoteDeliveryFixtureTransportError,
     NetworkRuntimeRemoteDeliveryFixtureTransportRecord,
     NetworkRuntimeRemoteDeliveryFixtureTransportReport,
     NetworkRuntimeRemoteDeliveryFixtureTransportState,
+};
+use network_event_runtime::remote_delivery_no_enforcement_invariant::prove_network_runtime_remote_delivery_no_enforcement_invariant;
+use network_event_runtime::remote_delivery_no_enforcement_invariant_types::{
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantError,
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantReport,
     NetworkRuntimeRemoteDeliveryNoEnforcementInvariantState,
-    NetworkRuntimeRemoteDeliveryNoEnforcementStage, NetworkRuntimeRemoteDeliveryOutboxHandoffError,
+    NetworkRuntimeRemoteDeliveryNoEnforcementStage,
+};
+use network_event_runtime::remote_delivery_outbox_handoff::prove_network_runtime_remote_delivery_outbox_handoff;
+use network_event_runtime::remote_delivery_outbox_handoff_types::{
+    NetworkRuntimeRemoteDeliveryOutboxHandoffError,
     NetworkRuntimeRemoteDeliveryOutboxHandoffReport, NetworkRuntimeRemoteDeliveryOutboxState,
+};
+use network_event_runtime::remote_delivery_provider_child_readiness::prove_network_runtime_remote_delivery_provider_child_readiness;
+use network_event_runtime::remote_delivery_provider_child_readiness_types::{
     NetworkRuntimeRemoteDeliveryProviderChildReadinessError,
     NetworkRuntimeRemoteDeliveryProviderChildReadinessRecord,
     NetworkRuntimeRemoteDeliveryProviderChildReadinessReport,
     NetworkRuntimeRemoteDeliveryProviderChildReadinessState,
-    NetworkRuntimeRemoteDeliveryReceiptLedgerError,
-    NetworkRuntimeRemoteDeliveryReceiptLedgerReport, NetworkRuntimeRemoteDeliveryState,
-    NetworkRuntimeRemoteDeliveryStatusError, NetworkRuntimeRemoteDeliveryStatusReport,
+};
+use network_event_runtime::remote_delivery_receipt_ledger_types::{
+    NetworkRuntimeRemoteDeliveryReceiptLedgerError, NetworkRuntimeRemoteDeliveryReceiptLedgerReport,
+};
+use network_event_runtime::remote_delivery_status::{
+    NetworkRuntimeRemoteDeliveryState, NetworkRuntimeRemoteDeliveryStatusError,
+    NetworkRuntimeRemoteDeliveryStatusReport,
+};
+use network_event_runtime::remote_delivery_transport_dispatch_state::prove_network_runtime_remote_delivery_transport_dispatch_state;
+use network_event_runtime::remote_delivery_transport_dispatch_state_types::{
+    NetworkRuntimeRemoteDeliveryBlockedDispatchRecord,
     NetworkRuntimeRemoteDeliveryTransportDispatchState,
     NetworkRuntimeRemoteDeliveryTransportDispatchStateError,
     NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
-    NetworkRuntimeRemoteEventChainJournalError, NetworkRuntimeReport,
 };
-pub use network_event_runtime_phase::NetworkRuntimePhase;
-pub use network_event_runtime_state::{
-    NetworkAiAuditState, NetworkEvidenceGrade, NetworkEvidenceScope, NetworkInterventionState,
-    NetworkRiskBudgetState, NetworkRuntimeClaimBoundary,
+use network_event_runtime::{
+    publish_network_runtime_chain_for_observation, NetworkRuntimeEventPayload, NetworkRuntimeReport,
 };
-pub use parent_child_event_runtime::{
-    publish_parent_child_runtime_for_validated_intent, ParentChildRuntimeEventPayload,
-    ParentChildRuntimeInput, ParentChildRuntimeReport,
-};
-pub use parent_child_event_runtime_phase::ParentChildRuntimePhase;
-pub use process_capture::{
+use process_capture::{
     collect_process_snapshot, process_observation_event, process_snapshot_events,
     ProcessObservation,
 };
-pub use screen_event_runtime::{
-    publish_screen_capture_queue_events_for_input, publish_screen_degraded_event_chain_for_input,
-    publish_screen_deletion_event_for_input, publish_screen_runtime_chain_for_input,
-    ScreenRuntimeEventPayload, ScreenRuntimeReport,
-};
-pub use screen_event_runtime_input::{
-    ScreenRuntimeCaptureInput, ScreenRuntimeDegradedInput, ScreenRuntimeDeletionInput,
-    ScreenRuntimeInput,
-};
-pub use screen_event_runtime_phase::ScreenRuntimePhase;
-pub use screen_event_runtime_state::{
-    ScreenActionState, ScreenAiAuditState, ScreenDeletionState, ScreenEvidenceScope,
-    ScreenPolicyState, ScreenRuntimeClaimBoundary,
-};
-pub use screen_evidence_queue::{
-    ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue, ScreenEvidenceQueueSweep,
-};
-pub use screen_household_mesh_runtime::{
-    publish_screen_household_mesh_chain_for_input, validate_screen_household_mesh_result,
-    ScreenHouseholdMeshEventPayload, ScreenHouseholdMeshInput, ScreenHouseholdMeshReport,
-    ScreenHouseholdMeshResultSubmission, ScreenHouseholdMeshResultValidation,
-};
-pub use screen_household_mesh_runtime_phase::ScreenHouseholdMeshPhase;
-pub use screen_household_mesh_runtime_state::{
-    ScreenMeshChildValidationState, ScreenMeshClaimState, ScreenMeshCustodyBoundary,
-    ScreenMeshLeaseState, ScreenMeshPayloadMode, ScreenMeshPolicyState,
-    ScreenMeshProviderResultState, ScreenMeshResultRejectionReason,
-};
-pub use tracking::tracking_read_model_for_store;
-pub use trusted_device_registry::TrustedDeviceRegistry;
-pub use window_capture::{collect_foreground_window_observation, ForegroundWindowObservation};
-pub use window_capture_event::{foreground_window_event, foreground_window_observation_event};
+use trusted_device_registry::TrustedDeviceRegistry;
+use window_capture::{collect_foreground_window_observation, ForegroundWindowObservation};
+use window_capture_event::{foreground_window_event, foreground_window_observation_event};
 
 pub fn crate_name() -> &'static str {
     env!("CARGO_PKG_NAME")

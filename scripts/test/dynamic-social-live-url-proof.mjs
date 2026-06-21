@@ -12,12 +12,12 @@ const outputProofPath = join(
 );
 
 const sourceFiles = [
-  'packages/browser-domain/src/browser-url-intelligence-schemas.ts',
+  'packages/schema-domain/src/browser-url-intelligence-schemas.ts',
   'packages/browser-domain/src/browser-url-intelligence.ts',
 ];
 
 const builtFiles = [
-  'packages/browser-domain/dist/browser-url-intelligence-schemas.js',
+  'packages/schema-domain/dist/browser-url-intelligence-schemas.js',
   'packages/browser-domain/dist/browser-url-intelligence.js',
 ];
 
@@ -168,7 +168,7 @@ const {
   BrowserUrlShapeClassificationResultSchema,
   BrowserUrlShapeSchemaVersion,
 } = await import(
-  pathToFileURL(join(repoRoot, 'packages/browser-domain/dist/browser-url-intelligence-schemas.js')).href
+  pathToFileURL(join(repoRoot, 'packages/schema-domain/dist/browser-url-intelligence-schemas.js')).href
 );
 
 const fetchedRoutes = await Promise.all(liveRouteCases.map(fetchLiveRoute));

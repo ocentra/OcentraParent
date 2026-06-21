@@ -26,6 +26,7 @@ const files = {
     'packages',
     'portal-domain',
     'tests',
+    'unit',
     'browser-social-provider-receipt-ingestion-readiness-status.test.ts'
   ),
   workpack: path.join(
@@ -56,10 +57,10 @@ const commands = [
       '--workspace',
       '@ocentra-parent/portal-domain',
       '--',
-      'browser-social-provider-receipt-ingestion-readiness-status.test.ts',
+      'tests/unit/browser-social-provider-receipt-ingestion-readiness-status.test.ts',
     ],
     label:
-      'cmd /c npm run test --workspace @ocentra-parent/portal-domain -- browser-social-provider-receipt-ingestion-readiness-status.test.ts',
+      'cmd /c npm run test --workspace @ocentra-parent/portal-domain -- tests/unit/browser-social-provider-receipt-ingestion-readiness-status.test.ts',
   },
 ];
 

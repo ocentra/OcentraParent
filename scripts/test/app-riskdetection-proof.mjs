@@ -19,14 +19,14 @@ async function main() {
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
       'app-riskdetection',
       'app-game-policy-target-compiler',
     ])
   );
 
-  const { AppRiskDetectionMatrix } = await import('../../packages/parent-domain/dist/app-riskdetection-data.js');
+  const { AppRiskDetectionMatrix } = await import('../../packages/app-game-domain/dist/app-riskdetection-data.js');
   const summary = summarizeMatrix(AppRiskDetectionMatrix);
   assertMatrix(AppRiskDetectionMatrix, summary);
 
@@ -38,10 +38,10 @@ async function main() {
     commands,
     counts: summary,
     evidence: {
-      tsContract: 'packages/parent-domain/src/app-riskdetection.ts',
-      tsContractRules: 'packages/parent-domain/src/app-riskdetection-rules.ts',
-      tsContractData: 'packages/parent-domain/src/app-riskdetection-data.ts',
-      tsContractTest: 'packages/parent-domain/tests/app-riskdetection.test.ts',
+      tsContract: 'packages/schema-domain/src/app-riskdetection.ts',
+      tsContractRules: 'packages/schema-domain/src/app-riskdetection-rules.ts',
+      tsContractData: 'packages/app-game-domain/src/app-riskdetection-data.ts',
+      tsContractTest: 'packages/app-game-domain/tests/unit/app-riskdetection.test.ts',
       proofHarness: 'scripts/test/app-riskdetection-proof.mjs',
       proofPack: 'output/app-plan-proof/17-riskapp-detection',
     },

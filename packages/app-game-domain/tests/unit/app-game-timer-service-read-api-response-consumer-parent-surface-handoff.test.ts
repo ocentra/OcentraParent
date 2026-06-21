@@ -9,7 +9,7 @@ import { AppGameTimerServiceReadApiResponseConsumerParentSurfaceHandoffState } f
 import { ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 
 const UpstreamResponseConsumerHandoffPath = new URL(
-  '../../../test-results/app-game-timer-service-read-api-response-consumer-handoff-proof/handoff.json',
+  '../../../../test-results/app-game-timer-service-read-api-response-consumer-handoff-proof/handoff.json',
   import.meta.url
 );
 

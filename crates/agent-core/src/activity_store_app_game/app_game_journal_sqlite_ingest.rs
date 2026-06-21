@@ -22,8 +22,8 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_NOT_RUNNING, APP_GAME_RUNTIME_RUNNING,
 };
 
-mod protocol_rows;
-mod read_model;
+pub(crate) mod protocol_rows;
+pub(crate) mod read_model;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum AppGameJournalSqliteIngestError {
@@ -46,14 +46,6 @@ pub(crate) enum AppGameJournalSqliteIngestError {
     ClassifierRequestsAction,
     Json,
 }
-
-#[cfg(test)]
-pub(crate) use protocol_rows::{
-    app_game_ai_classifier_result_journal_event, app_game_approval_action_result_journal_event,
-    app_game_approval_authority_journal_event, app_game_evidence_claim_journal_event,
-    app_game_identity_journal_event, app_game_platform_authority_matrix_journal_event,
-};
-pub(crate) use read_model::app_game_journal_sqlite_read_model;
 
 pub(crate) fn app_game_inventory_journal_event(
     device_id: &str,

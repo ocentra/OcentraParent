@@ -13,28 +13,21 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-parent-action-runtime-handoff-proof.test.ts',
+      'tests/unit/app-install-purchase-parent-action-runtime-handoff-proof.test.ts',
     ])
   );
 
   const proofModule = await loadRuntimeHandoffProofModule();
-  const packageModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-parent-action-runtime-handoff-proof');
   const parsedReadModel = proofModule.AppInstallPurchaseParentActionRuntimeHandoffProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseParentActionRuntimeHandoffProof(parsedReadModel);
-
-  assert.equal(
-    packageModule.AppInstallPurchaseParentActionRuntimeHandoffProofReadModel.schemaVersion,
-    parsedReadModel.schemaVersion
-  );
   assert.deepEqual(summary, {
     runtimeHandoffRows: 4,
     queuedRuntimeWriterRows: 3,
@@ -64,11 +57,12 @@ async function main() {
     commands,
     evidence: {
       parentActionRuntimeHandoffContract:
-        'packages/parent-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
-      sourceParentReviewActionContract: 'packages/parent-domain/src/app-install-purchase-parent-review-action-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-parent-action-runtime-handoff-proof.ts',
+      sourceParentReviewActionContract: 'packages/app-game-domain/src/app-install-purchase-parent-review-action-proof.ts',
       sourcePlatformAdapterBoundaryContract:
-        'packages/parent-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts',
-      contractTest: 'packages/parent-domain/tests/app-install-purchase-parent-action-runtime-handoff-proof.test.ts',
+        'packages/app-game-domain/src/app-install-purchase-platform-adapter-boundary-proof.ts',
+      contractTest:
+        'packages/app-game-domain/tests/unit/app-install-purchase-parent-action-runtime-handoff-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDelta: 'DOC_DELTA: docs/product-capability-checklist.md row Install/purchase approval',
@@ -111,7 +105,7 @@ async function loadRuntimeHandoffProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-parent-action-runtime-handoff-proof.js'
   );

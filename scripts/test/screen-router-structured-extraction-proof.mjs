@@ -15,17 +15,16 @@ await runPackageCommand([
   '--',
   'screen-intelligence-router.test.ts',
 ]);
+await runPackageCommand(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
 await runPackageCommand(['run', 'build', '--workspace', '@ocentra-parent/screen-domain']);
 await writeProof();
 
 console.log(`screen-router-structured-extraction-proof-ok: ${proofOutputPath}`);
 
 async function writeProof() {
-  const {
-    ScreenIntelligenceRouterSchemaVersion,
-    ScreenManagedBrowserStructuredTextLimit,
-    planScreenIntelligenceRoute,
-  } = await import('@ocentra-parent/screen-domain/screen-evidence');
+  const { planScreenIntelligenceRoute } = await import('@ocentra-parent/screen-domain/screen-intelligence-router');
+  const { ScreenIntelligenceRouterSchemaVersion, ScreenManagedBrowserStructuredTextLimit } =
+    await import('@ocentra-parent/schema-domain/screen-intelligence-router-values');
 
   const enoughStructured = structuredExtraction({
     extractionId: 'managed-browser-structured-youtube-lesson',

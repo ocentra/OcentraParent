@@ -8,8 +8,8 @@ import {
 import {
   SocialParentPolicyDecisionCandidateSchema,
   type SocialParentPolicyDecisionCandidate,
-} from './social-policy-compiler';
-import { SocialPolicyEvidenceRefsSchema } from './social-policy-compiler-values';
+} from '@ocentra-parent/schema-domain/social-policy-compiler';
+import { SocialPolicyEvidenceRefsSchema } from '@ocentra-parent/schema-domain/social-policy-compiler-values';
 
 export const SocialManagedBrowserPolicyExecutionState = {
   ManagedInterventionExecuted: 'managed-browser-intervention-executed',

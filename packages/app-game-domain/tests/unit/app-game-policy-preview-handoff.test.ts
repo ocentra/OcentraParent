@@ -7,8 +7,8 @@ import {
   buildAppGamePolicyPreviewHandoffReadModel,
   buildAppGamePolicyPreviewHandoffRow,
 } from '../../src/app-game-policy-preview-handoff';
-import { AppGamePolicyCompilerRejectionReason } from '../../src/app-game-policy-target-compiler-rules';
-import { PolicyAction, PolicyDecisionHandoffState } from '@ocentra-parent/policy-domain/policy';
+import { AppGamePolicyCompilerRejectionReason } from '@ocentra-parent/schema-domain/app-game-policy-target-compiler-rules';
+import { PolicyAction, PolicyDecisionHandoffState } from '@ocentra-parent/schema-domain/policy-contracts';
 import {
   EvidenceReference,
   PreviewOptions,

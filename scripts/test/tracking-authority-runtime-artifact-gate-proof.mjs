@@ -40,7 +40,7 @@ async function main() {
 
   const proofModule = await tsImport(
     pathToFileURL(
-      path.join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-authority-runtime-artifact-gate-proof.ts')
+      path.join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-authority-runtime-artifact-gate-proof.ts')
     ).href,
     import.meta.url
   );

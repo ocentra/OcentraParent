@@ -16,21 +16,13 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
-runNpm([
-  'run',
-  'test',
-  '--workspace',
-  '@ocentra-parent/parent-domain',
-  '--',
-  'app-game-notification-preference-status-handoff',
-  'app-game-notification-preference-preflight',
-  'v3-notification-rule-provider-retry-contract',
-]);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/notification-domain']);
+runNpm(['run', 'test', '--workspace', '@ocentra-parent/notification-domain', '--', 'v3-notification-rule-provider-retry-contract']);
 
-const preferencePreflight = await importDist('app-game-notification-preference-preflight.js');
-const preferenceStatusHandoff = await importDist('app-game-notification-preference-status-handoff.js');
-const refs = await importDist('reference-primitives.js');
+const preferencePreflight = await importSchemaDist('app-game-notification-preference-preflight.js');
+const preferenceStatusHandoff = await importSchemaDist('app-game-notification-preference-status-handoff.js');
+const refs = await importSchemaDist('family-reference-primitives.js');
 
 const sourcePreflight = preferencePreflight.AppGameNotificationPreferencePreflightReadModelSchema.parse(
   sourcePreflightReadModel(preferencePreflight, refs)
@@ -70,8 +62,10 @@ const proof = {
     adapterDispatchClaimed: readModel.adapterDispatchClaimed,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-notification-preference-status-handoff.ts',
-    test: 'packages/parent-domain/tests/app-game-notification-preference-status-handoff.test.ts',
+    source: 'packages/schema-domain/src/app-game-notification-preference-status-handoff.ts',
+    sourcePreflight: 'packages/schema-domain/src/app-game-notification-preference-preflight.ts',
+    notificationRuleRetryContract: 'packages/schema-domain/src/notification-v3-provider-retry.ts',
+    notificationRuleRetryTest: 'packages/notification-domain/tests/unit/v3-notification-rule-provider-retry-contract.test.ts',
     harness: 'scripts/test/app-game-notification-preference-status-handoff-proof.mjs',
     evidence: 'test-results/app-game-notification-preference-status-handoff-proof/proof.json',
     appGameProofPack: 'output/app-game-plan-proof/65-notification-preference-status-handoff',
@@ -89,8 +83,8 @@ await writeProofPack(appProofDir, proof, 'app WP65');
 console.log('app-game-notification-preference-status-handoff-proof-ok');
 console.log(`evidence=${join('test-results', 'app-game-notification-preference-status-handoff-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+async function importSchemaDist(moduleName) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', moduleName)).href);
 }
 
 function sourcePreflightReadModel(preferencePreflight, refs) {
@@ -243,8 +237,8 @@ async function writeProofPack(proofDir, proof, label) {
       proof.gitStatusShort.length === 0 ? 'clean' : proof.gitStatusShort,
       '```',
       '',
-      '- Scope: app/game preference-preflight rows to V3 notification preference/quiet-hours status entries.',
-      '- Source inspected: app/game notification preference preflight, V3 notification rule/provider retry contract, notification expectations, app/game feature doc, reports/notifications feature doc, and implementation checklists.',
+      '- Scope: central app/game preference-preflight rows to V3 notification preference and quiet-hours status entries.',
+      '- Source inspected: schema-domain preference preflight and preference status handoff; notification-domain V3 retry contract test coverage for downstream validation.',
       '',
     ].join('\n'),
     'utf8'
@@ -254,8 +248,10 @@ async function writeProofPack(proofDir, proof, label) {
     [
       'Contract proof:',
       '',
-      '- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS',
-      '- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-preference-status-handoff app-game-notification-preference-preflight v3-notification-rule-provider-retry-contract: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/schema-domain: PASS',
+      '- cmd /c npm run build --workspace @ocentra-parent/notification-domain: PASS',
+      '- cmd /c npm run test --workspace @ocentra-parent/notification-domain -- v3-notification-rule-provider-retry-contract: PASS',
+      '- node scripts/test/app-game-notification-preference-status-handoff-proof.mjs: PASS',
       '- Preference-preflight rows become manual-required or not-sent V3 notification status entries.',
       '- The existing V3 retry/preference coverage is referenced, but no provider adapter delivery or parent preference UI is claimed.',
       '',
@@ -264,7 +260,7 @@ async function writeProofPack(proofDir, proof, label) {
   );
   await writeFile(
     join(proofDir, '02-rust-protocol-proof.log'),
-    'Rust protocol proof not applicable: this workpack adds a TypeScript parent-domain handoff boundary and does not add a Rust-crossing shape.\n',
+    'Rust protocol proof not applicable: this workpack validates the central schema-domain preference-status handoff only.\n',
     'utf8'
   );
   await writeJson(join(proofDir, '03-runtime-evidence.json'), proof.summary);
@@ -289,10 +285,14 @@ async function writeProofPack(proofDir, proof, label) {
     ].join('\n'),
     'utf8'
   );
-  await writeFile(join(proofDir, '10-validation-commands.log'), `${commands.join('\n')}\n`, 'utf8');
+  await writeFile(
+    join(proofDir, '10-validation-commands.log'),
+    [...commands, 'node scripts/test/app-game-notification-preference-status-handoff-proof.mjs'].join('\n') + '\n',
+    'utf8'
+  );
   await writeFile(
     join(proofDir, 'README.md'),
-    `# ${label} Notification Preference Status Handoff Proof\n\nThis proof pack records app/game parent-preference preflight rows mapped into V3 notification preference and quiet-hours status entries without parent preference UI, provider delivery, receipt ingestion, credentials, runtime, child delivery, or adapter-dispatch claims.\n`,
+    `# ${label} Notification Preference Status Handoff Proof\n\nThis proof pack records central app/game parent-preference preflight rows mapped into V3 notification preference and quiet-hours status entries without parent preference UI, provider delivery, receipt ingestion, credentials, runtime, child delivery, or adapter-dispatch claims.\n`,
     'utf8'
   );
   await writeJson(join(proofDir, 'proof.json'), proof);

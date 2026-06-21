@@ -3,8 +3,8 @@ import {
   ProductionSupportStatusBackendRuntimeExecutionProofSchema,
   ProductionSupportStatusBackendRuntimeExecutionRowSchema,
   summarizeProductionSupportStatusBackendRuntimeExecutionRows,
-} from '../../src/production-support-status-backend-runtime-execution-proof';
-import { ProductionSupportStatusBackendRuntimeExecutionReadModel } from '../../src/production-support-status-backend-runtime-execution-read-model';
+} from '@ocentra-parent/schema-domain/production-support-status-backend-runtime-execution-proof';
+import { ProductionSupportStatusBackendRuntimeExecutionReadModel } from '@ocentra-parent/schema-domain/production-support-status-backend-runtime-execution-read-model';
 
 describe('production support status backend runtime execution proof', () => {
   acceptsRuntimeExecutionRows();

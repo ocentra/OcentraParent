@@ -5,6 +5,8 @@ use crate::{
     ParentEvidenceReference, PolicyAction, PolicyTarget,
 };
 
+pub type ParentActionReference = crate::schema_domain_mirrors::family::ParentActionReference;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentPlatform {
     #[serde(rename = "windows")]
@@ -395,15 +397,6 @@ impl EnforcementAuditEventKind {
             Self::Cancelled => enforcement_constants::AUDIT_CANCELLED,
         }
     }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ParentActionReference {
-    pub action_reference_id: String,
-    pub actor: ParentActorReference,
-    pub policy_version: String,
-    pub created_at: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

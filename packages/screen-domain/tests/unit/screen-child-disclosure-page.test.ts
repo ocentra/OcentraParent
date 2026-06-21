@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  screenChildDisclosureProofSnapshots,
+} from '@ocentra-parent/schema-domain/screen-child-disclosure';
+import {
   createScreenChildDisclosurePageModel,
   renderScreenChildDisclosurePage,
-  screenChildDisclosureProofSnapshots,
-} from '../../src/screen-evidence';
+} from '../../src/screen-child-disclosure-page';
 
 describe('screen child disclosure page', () => {
   it('renders child-visible states without raw screenshot or hidden-capture claims', () => {

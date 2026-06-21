@@ -4,8 +4,8 @@ import {
   ProviderSecretExecutionReadinessEntrySchema,
   ProviderSecretExecutionReadinessReadModelSchema,
   ProviderSecretExecutionRequiredDataClasses,
-} from '../../src/provider-secret-execution-readiness';
-import { ProviderSecretExecutionReadinessReadModel } from '../../src/provider-secret-execution-readiness-read-model';
+} from '@ocentra-parent/schema-domain/provider-secret-execution-readiness';
+import { ProviderSecretExecutionReadinessReadModel } from '@ocentra-parent/schema-domain/provider-secret-execution-readiness-read-model';
 
 describe('provider secret execution readiness logging contract', () => {
   it('covers execution boundary secret store rotation revocation operator manual and audit states', assertCoverage);

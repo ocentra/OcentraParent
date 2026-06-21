@@ -21,7 +21,7 @@ import {
   decodeAppControlPolicyValueForCatalog,
   decodeAppControlUpdateCommandForCatalog,
 } from '../../src/app-control-catalog';
-import { AppControlAuthoringCatalogSchema } from '../../src/app-control-catalog-schema';
+import { AppControlAuthoringCatalogSchema } from '@ocentra-parent/schema-domain/app-control-catalog-schema';
 
 interface SourceProposal {
   readonly schemaVersion: number;

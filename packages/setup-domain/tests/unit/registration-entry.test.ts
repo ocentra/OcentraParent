@@ -4,7 +4,7 @@ import {
   HouseholdMembershipState,
   HouseholdRole,
   SessionFreshnessState,
-} from '@ocentra-parent/family-domain/household-authority';
+} from '@ocentra-parent/schema-domain/family-household-authority';
 import { ParentActorRole, ParentContractSchemaVersion } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   RecoveryIdentityProofState,
@@ -12,10 +12,12 @@ import {
   RecoveryOperationSchema,
   RecoveryState,
   RecoverySupportChannel,
+} from '@ocentra-parent/schema-domain/family-restore-lifecycle';
+import {
   SetupInvitePurpose,
   SetupInviteSchema,
   SetupInviteState,
-} from '@ocentra-parent/family-domain/setup-lifecycle';
+} from '@ocentra-parent/schema-domain/family-setup-invite';
 import {
   evaluateRegistrationIdentityHandoff,
   RegistrationEntryFailureState,
@@ -28,8 +30,8 @@ import {
   RegistrationRecoveryMethod,
   RegistrationSetupState,
   registrationEntryRouteContract,
-} from '../../src/registration-entry';
-import { SetupPairingIntentIdSchema } from '../../src/pairing-intent';
+} from '@ocentra-parent/schema-domain/setup-registration-entry';
+import { SetupPairingIntentIdSchema } from '@ocentra-parent/schema-domain/setup-pairing-intent';
 import { parseUnknown } from '@ocentra-parent/schema-domain/effect';
 
 const ParentAccount = { parentAccountId: 'parent-account-1' } as const;

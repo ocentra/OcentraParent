@@ -15,12 +15,12 @@ await rm(proofDir, { recursive: true, force: true });
 await mkdir(testOutputDir, { recursive: true });
 await mkdir(proofDir, { recursive: true });
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/browser-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/browser-domain',
   '--',
   'social-alert-report-preference-status-handoff',
   'social-alert-report-preference-preflight',
@@ -74,8 +74,8 @@ const proof = {
     enforcementClaimed: readModel.enforcementClaimed,
   },
   proofPaths: {
-    source: 'packages/parent-domain/src/social-alert-report-preference-status-handoff.ts',
-    test: 'packages/parent-domain/tests/social-alert-report-preference-status-handoff.test.ts',
+    source: 'packages/browser-domain/src/social-alert-report-preference-status-handoff.ts',
+    test: 'packages/browser-domain/tests/unit/social-alert-report-preference-status-handoff.test.ts',
     harness: 'scripts/test/social-alert-report-preference-status-handoff-proof.mjs',
     evidence: 'test-results/social-alert-report-preference-status-handoff-proof/proof.json',
     readModel:
@@ -119,7 +119,7 @@ console.log(`proof=${relativePath(join(testOutputDir, 'proof.json'))}`);
 console.log(`manifest=${relativePath(join(proofDir, '01-social-alert-report-preference-status-handoff-proof.md'))}`);
 
 function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+  return import(pathToFileURL(join(repoRoot, 'packages', 'browser-domain', 'dist', name)).href);
 }
 
 function sourcePreflightReadModel(preferencePreflight, refs) {
@@ -344,7 +344,7 @@ async function writeProofPack(directory, proof) {
   await writeFile(join(directory, '10-validation-commands.log'), `${proof.commands.join('\n')}\n`, 'utf8');
   await writeFile(
     join(directory, 'ui-not-applicable.md'),
-    '# UI Not Applicable\n\nThis proof adds a parent-domain social alert/report preference-status handoff boundary. It does not render parent notification preference UI, notification history UI, child UI, provider delivery UI, or enforcement UI.\n',
+    '# UI Not Applicable\n\nThis proof uses the browser-domain social alert/report preference-status handoff boundary. It does not render parent notification preference UI, notification history UI, child UI, provider delivery UI, or enforcement UI.\n',
     'utf8'
   );
   await writeJson(join(directory, 'proof.json'), proof);

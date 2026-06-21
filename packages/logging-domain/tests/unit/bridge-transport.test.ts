@@ -3,9 +3,9 @@ import os from 'node:os';
 import path from 'node:path';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
+import { RunType, TestLogScope } from '@ocentra-parent/schema-domain/test-log/types';
 import { createBridgeServer } from '../../src/transport/bridgeServer';
 import { BridgeTransport, sendToBridge } from '../../src/transport/bridgeTransport';
-import { TestLogScope, RunType } from '../../src/test-log/types';
 import { getTestLogScopeDir, listNdjsonFiles } from '../../src/test-log/ndjsonPaths';
 
 function makeTempDir(): string {

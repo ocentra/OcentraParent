@@ -95,12 +95,22 @@ function valueAtSourceObjectPath(source, sourceObjectPath, ownerPath) {
   if (objectMatch === null) {
     throw new Error(`${ownerPath}: ${objectName} constant object is missing`);
   }
-  const propertyPattern = new RegExp(`\\b${escapeRegExp(propertyName)}\\s*:\\s*(['"\`])([^'"\`]+)\\1`, 'u');
-  const propertyMatch = propertyPattern.exec(objectMatch[1]);
-  if (propertyMatch === null) {
+  const directStringPattern = new RegExp(`\\b${escapeRegExp(propertyName)}\\s*:\\s*(['"\`])([^'"\`]+)\\1`, 'u');
+  const directStringMatch = directStringPattern.exec(objectMatch[1]);
+  if (directStringMatch !== null) {
+    return directStringMatch[2];
+  }
+  const parsedStringPattern = new RegExp(
+    `\\b${escapeRegExp(propertyName)}\\s*:\\s*[A-Za-z0-9_$.]+\\.parse\\(\\s*(['"\`])([^'"\`]+)\\1\\s*\\)`,
+    'u'
+  );
+  const parsedStringMatch = parsedStringPattern.exec(objectMatch[1]);
+  if (parsedStringMatch !== null) {
+    return parsedStringMatch[2];
+  }
+  if (directStringMatch === null) {
     throw new Error(`${ownerPath}: ${sourceObjectPath} string literal is missing`);
   }
-  return propertyMatch[2];
 }
 
 function valueAtRustConst(source, rustConst, ownerPath) {

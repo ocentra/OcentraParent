@@ -73,7 +73,10 @@ fn child_origin_violation_becomes_pending_parent_review_request() {
         .request_id
         .as_str()
         .contains(violation().violation_id.as_str()));
-    assert!(request.submission_key.as_str().contains("child"));
+    assert!(request
+        .submission_key
+        .as_str()
+        .contains(PolicyRequestOrigin::Child.as_protocol_str()));
 }
 
 #[test]
@@ -128,7 +131,10 @@ fn assistant_draft_violation_becomes_preview_only_bonus_time_request() {
             .map(|value| value.value()),
         Some(15)
     );
-    assert!(request.submission_key.as_str().contains("assistant-draft"));
+    assert!(request
+        .submission_key
+        .as_str()
+        .contains(PolicyRequestOrigin::AssistantDraft.as_protocol_str()));
 }
 
 #[test]
@@ -143,7 +149,10 @@ fn policy_control_request_bridge_rejects_wrong_event_shape() {
         wrong_event_error,
         EventingError::InvalidValue {
             field: "policy_control_request.event_type",
-            value: String::from("browser.policy.evaluation.requested"),
+            value: ChildRuntimeDomain::Browser
+                .policy_evaluation_requested_event_type()
+                .as_str()
+                .to_owned(),
         }
     );
 

@@ -43,7 +43,7 @@ async function main() {
 
   const authorityRuntimeModule = await tsImport(
     pathToFileURL(
-      join(repoRoot, 'packages', 'tracking-domain', 'src', 'tracking-authority-runtime-readiness-blocker-proof.ts')
+      join(repoRoot, 'packages', 'schema-domain', 'src', 'tracking-authority-runtime-readiness-blocker-proof.ts')
     ).href,
     import.meta.url
   );

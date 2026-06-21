@@ -1,28 +1,9 @@
+use ocentra_parent_agent_protocol::app_game::*;
 use std::fs::remove_file;
 
 use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEvidenceKind, ActivityEvidenceRef,
-    AppGameForegroundEvidenceRow, AppGameInventoryCategoryCandidate, AppGameInventoryEvidenceRow,
-    AppGameLauncherEvidenceRow, AppGameRuntimeEvidenceRow, APP_GAME_CAPABILITY_STATUS_AVAILABLE,
-    APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_APP,
-    APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER, APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED,
-    APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_FOREGROUND_NOT_CLAIMED,
-    APP_GAME_INVENTORY_CATEGORY_GAME, APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT,
-    APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD, APP_GAME_INVENTORY_STATE_INSTALLED,
-    APP_GAME_LAUNCHER_KIND_STEAM, APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY,
-    APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW, APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
-    APP_GAME_OBSERVATION_MODE_PROCESS_START, APP_GAME_PRODUCT_NATIVE_APP,
-    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_RUNNING, APP_GAME_SCHEMA_VERSION,
-    APP_GAME_TEST_CATALOG_REF, APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_EXECUTABLE_PATH_REF,
-    APP_GAME_TEST_FILE_HASH_REF, APP_GAME_TEST_FOREGROUND_EVIDENCE_ID,
-    APP_GAME_TEST_LAUNCHER_EVIDENCE_ID, APP_GAME_TEST_LAUNCHER_PROCESS_ID,
-    APP_GAME_TEST_LAUNCHER_PROCESS_IDENTITY, APP_GAME_TEST_LAUNCHER_PROCESS_NAME,
-    APP_GAME_TEST_LAUNCHER_REF, APP_GAME_TEST_PARENT_PROCESS_ID, APP_GAME_TEST_PROCESS_ID,
-    APP_GAME_TEST_PROCESS_IDENTITY, APP_GAME_TEST_PROCESS_NAME,
-    APP_GAME_TEST_PUBLISHER_SIGNATURE_REF, APP_GAME_TEST_REGISTRY_SOURCE_REF,
-    APP_GAME_TEST_RUNTIME_EVIDENCE_ID, APP_GAME_TEST_WINDOW_REF, APP_GAME_TEST_WINDOW_TITLE_REF,
-    APP_GAME_TITLE_CAPTURE_TITLE_REF,
 };
 
 use crate::{
@@ -33,8 +14,8 @@ use crate::{
 
 use super::app_game_journal_sqlite_ingest::{
     app_game_foreground_journal_event, app_game_inventory_journal_event,
-    app_game_journal_sqlite_read_model, app_game_launcher_journal_event,
-    app_game_runtime_journal_event, AppGameJournalSqliteIngestError,
+    app_game_launcher_journal_event, app_game_runtime_journal_event,
+    read_model::app_game_journal_sqlite_read_model, AppGameJournalSqliteIngestError,
 };
 
 #[test]
@@ -61,14 +42,8 @@ fn journal_replay_produces_app_game_sqlite_read_model_rows() {
     assert_eq!(model.foreground_now_returned, 1);
     assert_eq!(model.launcher_returned, 1);
     assert_eq!(model.daily_rollup_returned, 1);
-    assert_eq!(
-        model.custody_label,
-        ocentra_parent_agent_protocol::APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE
-    );
-    assert_eq!(
-        model.replay_state,
-        ocentra_parent_agent_protocol::APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED
-    );
+    assert_eq!(model.custody_label, APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE);
+    assert_eq!(model.replay_state, APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED);
 
     assert_eq!(model.inventory_rows.len(), 1);
     assert_eq!(model.running_now_rows.len(), 1);

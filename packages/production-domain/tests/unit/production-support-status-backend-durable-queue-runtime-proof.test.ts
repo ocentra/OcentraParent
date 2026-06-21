@@ -3,8 +3,8 @@ import {
   ProductionSupportStatusBackendDurableQueueRuntimeProofSchema,
   ProductionSupportStatusBackendDurableQueueRuntimeRowSchema,
   summarizeProductionSupportStatusBackendDurableQueueRuntimeRows,
-} from '../../src/production-support-status-backend-durable-queue-runtime-proof';
-import { ProductionSupportStatusBackendDurableQueueRuntimeReadModel } from '../../src/production-support-status-backend-durable-queue-runtime-read-model';
+} from '@ocentra-parent/schema-domain/production-support-status-backend-durable-queue-runtime-proof';
+import { ProductionSupportStatusBackendDurableQueueRuntimeReadModel } from '@ocentra-parent/schema-domain/production-support-status-backend-durable-queue-runtime-read-model';
 
 describe('production support status backend durable queue runtime proof', () => {
   acceptsDurableQueueRuntimeRows();

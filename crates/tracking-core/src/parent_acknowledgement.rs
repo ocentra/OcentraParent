@@ -1,6 +1,9 @@
-use ocentra_parent_agent_protocol::{
-    constants, tracking_acknowledgement_id_from_violation_id, TrackingAcknowledgementState,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::tracking::runtime_event::{
     TrackingParentAcknowledgementRecordedEvent, TrackingPolicyViolationDetectedEvent,
+};
+use ocentra_parent_agent_protocol::{
+    tracking_acknowledgement_id_from_violation_id, TrackingAcknowledgementState,
 };
 
 pub fn record_parent_acknowledgement(

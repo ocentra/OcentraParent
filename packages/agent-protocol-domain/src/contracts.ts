@@ -1,12 +1,4 @@
-import {
-  AgentLogSnapshotSchema,
-  LogFieldsSchema,
-  LogLevelSchema,
-  type AgentLogSnapshot,
-  type LogFields,
-  type LogLevel,
-} from '@ocentra-parent/logging-domain/contracts';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import * as SchemaDomainAgentCommandEventContracts from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import {
   AgentCorrelationId,
   AgentCorrelationIdSchema,
@@ -51,112 +43,9 @@ import {
   AgentLanBrowserDiscoveryScanRequestSchema,
   AgentLanBrowserRuntimeCommand,
   AgentLanBrowserRuntimeCommandSchema,
-  AgentLanBrowserRuntimeCommandNameLiteral,
   AgentLanBrowserRuntimeEvent,
   AgentLanBrowserRuntimeEventSchema,
-  AgentLanBrowserRuntimeEventNameLiteral,
-} from './lan-pairing-browser-runtime';
-import { AgentProtocolDefaults } from './defaults';
-import {
-  AgentBrowserRuntimeCapabilityStatus,
-  AgentBrowserRuntimeCapabilityStatusSchema,
-  AgentBrowserRuntimeCustodyLabel,
-  AgentBrowserRuntimeCustodyLabelSchema,
-  AgentBrowserRuntimeEventChainEntrySchema,
-  AgentBrowserRuntimeEventChainStreamSchema,
-  AgentBrowserRuntimeEventPayloadSchema,
-  AgentBrowserRuntimeEventType,
-  AgentBrowserRuntimeEventTypeSchema,
-  AgentBrowserRuntimePhase,
-  AgentBrowserRuntimePhaseSchema,
-  AgentBrowserRuntimeQueryVisibility,
-  AgentBrowserRuntimeQueryVisibilitySchema,
-  deriveAgentBrowserRuntimeActionIntentStatus,
-  deriveAgentBrowserRuntimeSocialProviderReceiptStatus,
-  parseAgentBrowserRuntimeEventChainStreamFields,
-  type AgentBrowserRuntimeActionIntentCandidate,
-  type AgentBrowserRuntimeActionIntentStatus,
-  type AgentBrowserRuntimeEventChainEntry,
-  type AgentBrowserRuntimeEventChainStream,
-  type AgentBrowserRuntimeEventChainStreamFailureReason,
-  type AgentBrowserRuntimeEventChainStreamResult,
-  type AgentBrowserRuntimeEventPayload,
-  type AgentBrowserRuntimeSocialProviderReceiptStatus,
-} from './browser-runtime-events';
-import {
-  AgentLanBrowserAddDeviceDiscoveryDeviceSchema,
-  AgentLanBrowserAddDevicePairingRequestSchema,
-  AgentLanBrowserAddDeviceReadModelSchema,
-  AgentLanBrowserAddDeviceScanSummarySchema,
-  AgentLanCanonicalHouseholdDeviceSchema,
-  AgentLanHouseholdDeviceActionKindSchema,
-  AgentLanPairingDiscoverySourceSchema,
-  AgentLanSelectedDeviceReadinessSchema,
-  AgentLanTrustedDeviceRegistryEntrySchema,
-  type AgentLanBrowserAddDeviceDiscoveryDevice,
-  type AgentLanBrowserAddDevicePairingRequest,
-  type AgentLanBrowserAddDeviceReadModel,
-  type AgentLanBrowserAddDeviceScanSummary,
-  type AgentLanCanonicalHouseholdDevice,
-  type AgentLanHouseholdDeviceActionKind,
-  type AgentLanPairingDiscoverySource,
-  type AgentLanSelectedDeviceReadiness,
-  type AgentLanTrustedDeviceRegistryEntry,
-} from './lan-pairing-browser-add-device-state';
-import {
-  AgentLanSignedDiscoveryRelayAdapterKindSchema,
-  AgentLanSignedDiscoveryRelayAdapterRowSchema,
-  AgentLanSignedDiscoveryRelayCacheCheckSchema,
-  AgentLanSignedDiscoveryRelayCacheRowSchema,
-  AgentLanSignedDiscoveryRelayCustodyLabelSchema,
-  AgentLanSignedDiscoveryRelayDecisionStateSchema,
-  AgentLanSignedDiscoveryRelayProofStateSchema,
-  AgentLanSignedDiscoveryRelayRuntimeOwnerSchema,
-  AgentLanSignedDiscoveryRelayRouteSafetyCheckSchema,
-  AgentLanSignedDiscoveryRelayRouteSafetyRowSchema,
-  AgentLanSignedDiscoveryRelaySignedProofCheckSchema,
-  AgentLanSignedDiscoveryRelaySignedProofRowSchema,
-  AgentLanSignedDiscoveryRelaySourceConfidenceSchema,
-  AgentLanSignedDiscoveryRelaySpineSchema,
-  type AgentLanSignedDiscoveryRelayAdapterKind,
-  type AgentLanSignedDiscoveryRelayAdapterRow,
-  type AgentLanSignedDiscoveryRelayCacheCheck,
-  type AgentLanSignedDiscoveryRelayCacheRow,
-  type AgentLanSignedDiscoveryRelayCustodyLabel,
-  type AgentLanSignedDiscoveryRelayDecisionState,
-  type AgentLanSignedDiscoveryRelayProofState,
-  type AgentLanSignedDiscoveryRelayRuntimeOwner,
-  type AgentLanSignedDiscoveryRelayRouteSafetyCheck,
-  type AgentLanSignedDiscoveryRelayRouteSafetyRow,
-  type AgentLanSignedDiscoveryRelaySignedProofCheck,
-  type AgentLanSignedDiscoveryRelaySignedProofRow,
-  type AgentLanSignedDiscoveryRelaySourceConfidence,
-  type AgentLanSignedDiscoveryRelaySpine,
-} from './lan-signed-discovery-relay-spine';
-import {
-  AgentLanDiscoverySourceAuthoritySchema,
-  AgentLanDiscoverySourceKindSchema,
-  AgentLanDiscoverySourceMatrixSchema,
-  AgentLanDiscoverySourceProofStateSchema,
-  AgentLanDiscoverySourceRowSchema,
-  AgentLanDiscoverySourceRuntimeOwnerSchema,
-  AgentLanDiscoverySourceRuntimePathSchema,
-  AgentLanDiscoverySourceStatusSchema,
-  AgentLanDiscoverySourceUiSurfaceSchema,
-  AgentLanPlanWorkpackIdSchema,
-  AgentLanPlanWorkpackStatusRowSchema,
-  type AgentLanDiscoverySourceAuthority,
-  type AgentLanDiscoverySourceKind,
-  type AgentLanDiscoverySourceMatrix,
-  type AgentLanDiscoverySourceProofState,
-  type AgentLanDiscoverySourceRow,
-  type AgentLanDiscoverySourceRuntimeOwner,
-  type AgentLanDiscoverySourceRuntimePath,
-  type AgentLanDiscoverySourceStatus,
-  type AgentLanDiscoverySourceUiSurface,
-  type AgentLanPlanWorkpackId,
-  type AgentLanPlanWorkpackStatusRow,
-} from './lan-discovery-source-matrix';
+} from '@ocentra-parent/schema-domain/lan-pairing-browser-runtime';
 import {
   AgentLanAiProviderRoutingStateSchema,
   AgentLanChildAgentResponseSchema,
@@ -211,7 +100,112 @@ import {
   type AgentPairingState,
   type AgentPairingTokenHash,
   type AgentRouteSecurityPolicy,
-} from './security';
+} from '@ocentra-parent/schema-domain/agent-lan';
+import {
+  AgentLanSignedDiscoveryRelayAdapterKindSchema,
+  AgentLanSignedDiscoveryRelayAdapterRowSchema,
+  AgentLanSignedDiscoveryRelayCacheCheckSchema,
+  AgentLanSignedDiscoveryRelayCacheRowSchema,
+  AgentLanSignedDiscoveryRelayCustodyLabelSchema,
+  AgentLanSignedDiscoveryRelayDecisionStateSchema,
+  AgentLanSignedDiscoveryRelayProofStateSchema,
+  AgentLanSignedDiscoveryRelayRuntimeOwnerSchema,
+  AgentLanSignedDiscoveryRelayRouteSafetyCheckSchema,
+  AgentLanSignedDiscoveryRelayRouteSafetyRowSchema,
+  AgentLanSignedDiscoveryRelaySignedProofCheckSchema,
+  AgentLanSignedDiscoveryRelaySignedProofRowSchema,
+  AgentLanSignedDiscoveryRelaySourceConfidenceSchema,
+  AgentLanSignedDiscoveryRelaySpineSchema,
+  type LanRelayAdapterKind as AgentLanSignedDiscoveryRelayAdapterKind,
+  type LanRelayAdapterRow as AgentLanSignedDiscoveryRelayAdapterRow,
+  type LanRelayCacheCheck as AgentLanSignedDiscoveryRelayCacheCheck,
+  type LanRelayCacheRow as AgentLanSignedDiscoveryRelayCacheRow,
+  type LanRelayCustodyLabel as AgentLanSignedDiscoveryRelayCustodyLabel,
+  type LanRelayDecisionState as AgentLanSignedDiscoveryRelayDecisionState,
+  type LanRelayProofState as AgentLanSignedDiscoveryRelayProofState,
+  type LanRelayRouteSafetyCheck as AgentLanSignedDiscoveryRelayRouteSafetyCheck,
+  type LanRelayRouteSafetyRow as AgentLanSignedDiscoveryRelayRouteSafetyRow,
+  type LanRelaySignedProofCheck as AgentLanSignedDiscoveryRelaySignedProofCheck,
+  type LanRelaySignedProofRow as AgentLanSignedDiscoveryRelaySignedProofRow,
+  type LanRelaySourceConfidence as AgentLanSignedDiscoveryRelaySourceConfidence,
+  type LanRelaySpine as AgentLanSignedDiscoveryRelaySpine,
+} from '@ocentra-parent/schema-domain/lan-relay-spine';
+import {
+  type LanProductionHouseholdProofRuntimeOwner as AgentLanSignedDiscoveryRelayRuntimeOwner,
+} from '@ocentra-parent/schema-domain/lan-production-household-proof';
+import {
+  AgentLanBrowserAddDeviceDiscoveryDeviceSchema,
+  AgentLanBrowserAddDevicePairingRequestSchema,
+  AgentLanBrowserAddDeviceReadModelSchema,
+  AgentLanBrowserAddDeviceScanSummarySchema,
+  AgentLanCanonicalHouseholdDeviceSchema,
+  AgentLanHouseholdDeviceActionKindSchema,
+  AgentLanPairingDiscoverySourceSchema,
+  AgentLanSelectedDeviceReadinessSchema,
+  AgentLanTrustedDeviceRegistryEntrySchema,
+  type AgentLanBrowserAddDeviceDiscoveryDevice,
+  type AgentLanBrowserAddDevicePairingRequest,
+  type AgentLanBrowserAddDeviceReadModel,
+  type AgentLanBrowserAddDeviceScanSummary,
+  type AgentLanCanonicalHouseholdDevice,
+  type AgentLanHouseholdDeviceActionKind,
+  type AgentLanPairingDiscoverySource,
+  type AgentLanSelectedDeviceReadiness,
+  type AgentLanTrustedDeviceRegistryEntry,
+} from '@ocentra-parent/schema-domain/agent-lan-add-device';
+import {
+  AgentBrowserRuntimeCapabilityStatus,
+  AgentBrowserRuntimeCapabilityStatusSchema,
+  AgentBrowserRuntimeCustodyLabel,
+  AgentBrowserRuntimeCustodyLabelSchema,
+  AgentBrowserRuntimeEventChainEntrySchema,
+  AgentBrowserRuntimeEventChainStreamSchema,
+  AgentBrowserRuntimeEventPayloadSchema,
+  AgentBrowserRuntimeEventType,
+  AgentBrowserRuntimeEventTypeSchema,
+  AgentBrowserRuntimePhase,
+  AgentBrowserRuntimePhaseSchema,
+  AgentBrowserRuntimeQueryVisibility,
+  AgentBrowserRuntimeQueryVisibilitySchema,
+  type AgentBrowserRuntimeActionIntentCandidate,
+  type AgentBrowserRuntimeEventChainEntry,
+  type AgentBrowserRuntimeEventChainStream,
+  type AgentBrowserRuntimeEventPayload,
+} from '@ocentra-parent/schema-domain/agent-browser-runtime-events';
+import { AgentProtocolDefaults } from './defaults';
+import {
+  deriveAgentBrowserRuntimeActionIntentStatus,
+  deriveAgentBrowserRuntimeSocialProviderReceiptStatus,
+  parseAgentBrowserRuntimeEventChainStreamFields,
+  type AgentBrowserRuntimeActionIntentStatus,
+  type AgentBrowserRuntimeEventChainStreamFailureReason,
+  type AgentBrowserRuntimeEventChainStreamResult,
+  type AgentBrowserRuntimeSocialProviderReceiptStatus,
+} from './browser-runtime-events';
+import {
+  AgentLanDiscoverySourceAuthoritySchema,
+  AgentLanDiscoverySourceKindSchema,
+  AgentLanDiscoverySourceMatrixSchema,
+  AgentLanDiscoverySourceProofStateSchema,
+  AgentLanDiscoverySourceRowSchema,
+  AgentLanDiscoverySourceRuntimeOwnerSchema,
+  AgentLanDiscoverySourceRuntimePathSchema,
+  AgentLanDiscoverySourceStatusSchema,
+  AgentLanDiscoverySourceUiSurfaceSchema,
+  AgentLanPlanWorkpackIdSchema,
+  AgentLanPlanWorkpackStatusRowSchema,
+  type AgentLanDiscoverySourceAuthority,
+  type AgentLanDiscoverySourceKind,
+  type AgentLanDiscoverySourceMatrix,
+  type AgentLanDiscoverySourceProofState,
+  type AgentLanDiscoverySourceRow,
+  type AgentLanDiscoverySourceRuntimeOwner,
+  type AgentLanDiscoverySourceRuntimePath,
+  type AgentLanDiscoverySourceStatus,
+  type AgentLanDiscoverySourceUiSurface,
+  type AgentLanPlanWorkpackId,
+  type AgentLanPlanWorkpackStatusRow,
+} from './lan-discovery-source-matrix';
 
 export { AgentProtocolDefaults };
 
@@ -418,417 +412,44 @@ export {
   type AgentRouteSecurityPolicy,
 };
 
-export const AgentCommandNameLiteral = {
-  HealthCheck: 'agent.health.check',
-  LogSnapshotGet: 'agent.log.snapshot.get',
-  DevEcho: 'agent.dev.echo',
-  WatchStatusGet: 'agent.watch.status.get',
-  ActivityIngestStatusGet: 'agent.activity.ingest.status.get',
-  ActivityRecentSummaryGet: 'agent.activity.recent.summary.get',
-  ActivityMemoryGraphGet: 'agent.activity.memory-graph.get',
-  ActivityReportDailyGenerate: 'agent.activity.report.daily.generate',
-  ActivityReportWeeklyGenerate: 'agent.activity.report.weekly.generate',
-  ActivityReportMonthlyGenerate: 'agent.activity.report.monthly.generate',
-  ActivityReportSave: 'agent.activity.report.save',
-  ActivityReportHistoryList: 'agent.activity.report.history.list',
-  ActivityScreenReadModelGet: 'agent.activity.screen.read-model.get',
-  ActivityAppUseReadModelGet: 'agent.activity.app-use.read-model.get',
-  ActivityBrowserReadModelGet: 'agent.activity.browser.read-model.get',
-  ActivityGamesReadModelGet: 'agent.activity.games.read-model.get',
-  ActivityAppGameBoundaryReadModelGet: 'agent.activity.app-game.boundary.read-model.get',
-  BrowserSocialDashboardReadModelGet: 'agent.browser.social-dashboard.read-model.get',
-  ActivityNetworkReadModelGet: 'agent.activity.network.read-model.get',
-  ActivityTrackingReadModelGet: 'agent.activity.tracking.read-model.get',
-  BrowserInventoryReadModelGet: 'agent.browser.inventory.read-model.get',
-  BrowserEvidenceRecentGet: 'agent.browser.evidence.recent.get',
-  BrowserManagedBridgePoll: 'agent.browser.managed.bridge.poll',
-  BrowserInterventionReadModelGet: 'agent.browser.intervention.read-model.get',
-  BrowserRuntimeEventChainStreamGet: 'agent.browser.runtime.event-chain.stream.get',
-  NetworkFlowReadModelGet: 'agent.network.flow.read-model.get',
-  NetworkRuntimeEventChainStreamGet: 'agent.network.runtime.event-chain.stream.get',
-  NetworkRemoteDeliveryStatusGet: 'agent.network.remote-delivery.status.get',
-  NetworkLiveCaptureStatusGet: 'agent.network.live-capture.status.get',
-  NetworkLinuxNftablesLabStatusGet: 'agent.network.linux-nftables-lab.status.get',
-  NetworkWindowsFirewallLabStatusGet: 'agent.network.windows-firewall-lab.status.get',
-  NetworkWindowsWfpGateStatusGet: 'agent.network.windows-wfp-gate.status.get',
-  NetworkAndroidVpnServiceGateStatusGet: 'agent.network.android-vpn-service-gate.status.get',
-  NetworkAppleNetworkExtensionGateStatusGet: 'agent.network.apple-network-extension-gate.status.get',
-  LocalAiRuntimeStatusGet: 'agent.local-ai.runtime.status.get',
-  LocalAiChatGenerate: 'agent.local-ai.chat.generate',
-  ParentAssistantAnswerGenerate: 'agent.parent-assistant.answer.generate',
-  PolicyPreviewReadModelGet: 'agent.policy.preview.read-model.get',
-  PolicyRequestAssistantPreviewConfirm: 'agent.policy.request.assistant-preview.confirm',
-  BrowserPolicyGet: 'agent.browser-policy.get',
-  BrowserPolicyPreview: 'agent.browser-policy.preview',
-  BrowserPolicyPatch: 'agent.browser-policy.patch',
-  BrowserPolicyReplace: 'agent.browser-policy.replace',
-  BrowserPolicyRollback: 'agent.browser-policy.rollback',
-  ScreenSettingsGet: 'agent.screen-settings.get',
-  ScreenSettingsReplace: 'agent.screen-settings.replace',
-  EnforcementExecute: 'agent.enforcement.execute',
-  EnforcementTimerRecover: 'agent.enforcement.timer.recover',
-  EnforcementTimerExpire: 'agent.enforcement.timer.expire',
-  EnforcementOverrideCancel: 'agent.enforcement.override.cancel',
-  EnforcementProductControlSpineGet: 'agent.enforcement.product-control-spine.get',
-  EnforcementPolicyDispatchGet: 'agent.enforcement.policy-dispatch.get',
-  EnforcementBroadAdapterProofGet: 'agent.enforcement.broad-adapter-proof.get',
-  ParentAssistantThreadList: 'agent.parent-assistant.thread.list',
-  ParentAssistantThreadCreate: 'agent.parent-assistant.thread.create',
-  ParentAssistantThreadOpen: 'agent.parent-assistant.thread.open',
-  ParentAssistantThreadArchive: 'agent.parent-assistant.thread.archive',
-  ParentAssistantMessageSend: 'agent.parent-assistant.message.send',
-  ParentAssistantRunCancel: 'agent.parent-assistant.run.cancel',
-  ParentAssistantQuickActionStart: 'agent.parent-assistant.quick-action.start',
-  ParentAssistantActionPreview: 'agent.parent-assistant.action.preview',
-  ParentAssistantActionConfirm: 'agent.parent-assistant.action.confirm',
-  ParentAssistantProviderStatusGet: 'agent.parent-assistant.provider.status.get',
-  LanPairingProofSubmit: 'agent.lan-pairing.proof.submit',
-  LanPairingRouteSelect: 'agent.lan-pairing.route.select',
-  LanPairingRouteRevoke: 'agent.lan-pairing.route.revoke',
-  LanPairingStatusGet: 'agent.lan-pairing.status.get',
-  LanPairingControllerLeaseRenew: 'agent.lan-pairing.controller-lease.renew',
-  LanPairingControllerLeaseRelease: 'agent.lan-pairing.controller-lease.release',
-  LanPairingControllerLeaseTakeover: 'agent.lan-pairing.controller-lease.takeover',
-  LanAiProviderStatusGet: 'agent.lan-ai.provider.status.get',
-  LanAiJobSubmit: 'agent.lan-ai.job.submit',
-  ActivityAppGameTimerParentSurfaceParentPreferenceSetupRequest: 'agent.activity.app-game.timer-parent-surface.parent-preference-setup.request',
-  ActivityAppGameAdapterDispatchExecute: 'agent.activity.app-game.adapter-dispatch.execute',
-  ActivityAppGameAdapterDispatchPreflightReadModelGet: 'agent.activity.app-game.adapter-dispatch-preflight.read-model.get',
-  ActivityAppGameAdapterDispatchResultReadModelGet: 'agent.activity.app-game.adapter-dispatch-result.read-model.get',
-  ActivityAppGameAdapterExecutionReadinessReadModelGet: 'agent.activity.app-game.adapter-execution-readiness.read-model.get',
-  ActivityAppGameChildRuntimeTransportReceiptReadModelGet: 'agent.activity.app-game.child-runtime-transport-receipt.read-model.get',
-  ActivityAppGameNotificationReadinessReadModelGet: 'agent.activity.app-game.notification-readiness.read-model.get',
-  ActivityAppGamePlatformProofStatusReadModelGet: 'agent.activity.app-game.platform-proof-status.read-model.get',
-  ActivityAppGamePolicyReadinessReadModelGet: 'agent.activity.app-game.policy-readiness.read-model.get',
-  ActivityAppGameTimerParentSurfaceReadModelGet: 'agent.activity.app-game.timer-parent-surface.read-model.get',
-  ActivityTrackingRetentionSettingsWrite: 'agent.activity.tracking.retention-settings.write',
-  BrowserSocialAlertReportParentSurfaceReadModelGet: 'agent.browser.social-alert-report.parent-surface.read-model.get',
-  BrowserSocialAlertReportReadModelGet: 'agent.browser.social-alert-report.read-model.get',
-  BrowserSocialAuditExplanationReadModelGet: 'agent.browser.social-audit-explanation.read-model.get',
-  BrowserSocialParentNotificationDeliveryReadModelGet: 'agent.browser.social-parent-notification-delivery.read-model.get',
-  BrowserSocialSourceCustodyMutationApply: 'agent.browser.social-source-custody.mutation.apply',
-  EnforcementSupportedAdapterRuntimeProofGet: 'agent.enforcement.supported-adapter-runtime-proof.get',
-} as const;
+export const AgentCommandNameLiteral =
+  SchemaDomainAgentCommandEventContracts.AgentCommandNameLiteral;
+export const AgentEventNameLiteral =
+  SchemaDomainAgentCommandEventContracts.AgentEventNameLiteral;
+export const AgentCommandNameSchema =
+  SchemaDomainAgentCommandEventContracts.AgentCommandNameSchema;
+export const AgentEventNameSchema =
+  SchemaDomainAgentCommandEventContracts.AgentEventNameSchema;
+export const AgentCommandEnvelopeSchema =
+  SchemaDomainAgentCommandEventContracts.AgentCommandEnvelopeSchema;
+export const AgentEventEnvelopeSchema =
+  SchemaDomainAgentCommandEventContracts.AgentEventEnvelopeSchema;
 
-export const AgentEventNameLiteral = {
-  ConnectionReady: 'agent.connection.ready',
-  CommandRejected: 'agent.command.rejected',
-  HealthReported: 'agent.health.reported',
-  LogSnapshotReported: 'agent.log.snapshot.reported',
-  DevEchoed: 'agent.dev.echoed',
-  WatchStatusReported: 'agent.watch.status.reported',
-  ActivityIngestStatusReported: 'agent.activity.ingest.status.reported',
-  ActivityRecentSummaryReported: 'agent.activity.recent.summary.reported',
-  ActivityMemoryGraphReported: 'agent.activity.memory-graph.reported',
-  ActivityReportGenerated: 'agent.activity.report.generated',
-  ActivityReportSaved: 'agent.activity.report.saved',
-  ActivityReportHistoryReported: 'agent.activity.report.history.reported',
-  ActivityScreenReadModelReported: 'agent.activity.screen.read-model.reported',
-  ActivityAppUseReadModelReported: 'agent.activity.app-use.read-model.reported',
-  ActivityBrowserReadModelReported: 'agent.activity.browser.read-model.reported',
-  ActivityGamesReadModelReported: 'agent.activity.games.read-model.reported',
-  ActivityNetworkReadModelReported: 'agent.activity.network.read-model.reported',
-  ActivityTrackingReadModelReported: 'agent.activity.tracking.read-model.reported',
-  BrowserInventoryReadModelReported: 'agent.browser.inventory.read-model.reported',
-  BrowserEvidenceRecentReported: 'agent.browser.evidence.recent.reported',
-  BrowserManagedStatusReported: 'agent.browser.managed.status.reported',
-  BrowserInterventionReadModelReported: 'agent.browser.intervention.read-model.reported',
-  NetworkFlowReadModelReported: 'agent.network.flow.read-model.reported',
-  NetworkRemoteDeliveryStatusReported: 'agent.network.remote-delivery.status.reported',
-  NetworkLiveCaptureStatusReported: 'agent.network.live-capture.status.reported',
-  NetworkLinuxNftablesLabStatusReported: 'agent.network.linux-nftables-lab.status.reported',
-  NetworkWindowsWfpGateStatusReported: 'agent.network.windows-wfp-gate.status.reported',
-  NetworkAndroidVpnServiceGateStatusReported: 'agent.network.android-vpn-service-gate.status.reported',
-  NetworkAppleNetworkExtensionGateStatusReported: 'agent.network.apple-network-extension-gate.status.reported',
-  LocalAiRuntimeStatusReported: 'agent.local-ai.runtime.status.reported',
-  LocalAiChatGenerationReported: 'agent.local-ai.chat.generation.reported',
-  ParentAssistantAnswerReported: 'agent.parent-assistant.answer.reported',
-  PolicyPreviewReadModelReported: 'agent.policy.preview.read-model.reported',
-  PolicyRequestAssistantPreviewConfirmReported:
-    'agent.policy.request.assistant-preview.confirm.reported',
-  BrowserPolicyReported: 'agent.browser-policy.reported',
-  BrowserPolicyPreviewed: 'agent.browser-policy.previewed',
-  BrowserPolicyPatchAccepted: 'agent.browser-policy.patch.accepted',
-  BrowserPolicyPatchRejected: 'agent.browser-policy.patch.rejected',
-  BrowserPolicyReplaceAccepted: 'agent.browser-policy.replace.accepted',
-  BrowserPolicyReplaceRejected: 'agent.browser-policy.replace.rejected',
-  BrowserPolicyRollbackAccepted: 'agent.browser-policy.rollback.accepted',
-  BrowserPolicyRollbackRejected: 'agent.browser-policy.rollback.rejected',
-  ScreenSettingsReported: 'agent.screen-settings.reported',
-  ScreenSettingsReplaceAccepted: 'agent.screen-settings.replace.accepted',
-  ScreenSettingsReplaceRejected: 'agent.screen-settings.replace.rejected',
-  EnforcementAuditReported: 'agent.enforcement.audit.reported',
-  EnforcementTimerReported: 'agent.enforcement.timer.reported',
-  EnforcementPolicyDispatchReported: 'agent.enforcement.policy-dispatch.reported',
-  EnforcementBroadAdapterProofReported: 'agent.enforcement.broad-adapter-proof.reported',
-  ParentAssistantThreadUpdated: 'agent.parent-assistant.thread.updated',
-  ParentAssistantMessageAccepted: 'agent.parent-assistant.message.accepted',
-  ParentAssistantRunStarted: 'agent.parent-assistant.run.started',
-  ParentAssistantMessageDelta: 'agent.parent-assistant.message.delta',
-  ParentAssistantMessageCompleted: 'agent.parent-assistant.message.completed',
-  ParentAssistantActionPreviewed: 'agent.parent-assistant.action.previewed',
-  ParentAssistantActionConfirmed: 'agent.parent-assistant.action.confirmed',
-  ParentAssistantProviderDegraded: 'agent.parent-assistant.provider.degraded',
-  ParentAssistantErrorReported: 'agent.parent-assistant.error.reported',
-  LanPairingStatusReported: 'agent.lan-pairing.status.reported',
-  LanPairingAuditReported: 'agent.lan-pairing.audit.reported',
-  LanAiJobReported: 'agent.lan-ai.job.reported',
-  ActivityAppGameTimerParentSurfaceParentPreferenceSetupRequested: 'agent.activity.app-game.timer-parent-surface.parent-preference-setup.requested',
-  ActivityAppGameAdapterDispatchExecuted: 'agent.activity.app-game.adapter-dispatch.executed',
-  ActivityAppGameAdapterDispatchPreflightReadModelReported: 'agent.activity.app-game.adapter-dispatch-preflight.read-model.reported',
-  ActivityAppGameAdapterDispatchResultReadModelReported: 'agent.activity.app-game.adapter-dispatch-result.read-model.reported',
-  ActivityAppGameAdapterExecutionReadinessReadModelReported: 'agent.activity.app-game.adapter-execution-readiness.read-model.reported',
-  ActivityAppGameBoundaryReadModelReported: 'agent.activity.app-game.boundary.read-model.reported',
-  ActivityAppGameChildRuntimeTransportReceiptReadModelReported: 'agent.activity.app-game.child-runtime-transport-receipt.read-model.reported',
-  ActivityAppGameNotificationReadinessReadModelReported: 'agent.activity.app-game.notification-readiness.read-model.reported',
-  ActivityAppGamePlatformProofStatusReadModelReported: 'agent.activity.app-game.platform-proof-status.read-model.reported',
-  ActivityAppGamePolicyReadinessReadModelReported: 'agent.activity.app-game.policy-readiness.read-model.reported',
-  ActivityAppGameTimerParentSurfaceReadModelReported: 'agent.activity.app-game.timer-parent-surface.read-model.reported',
-  ActivityTrackingRetentionSettingsWriteReported: 'agent.activity.tracking.retention-settings.write.reported',
-  BrowserRuntimeEventChainStreamReported: 'agent.browser.runtime.event-chain.stream.reported',
-  BrowserSocialAlertReportParentSurfaceReadModelReported: 'agent.browser.social-alert-report.parent-surface.read-model.reported',
-  BrowserSocialAlertReportReadModelReported: 'agent.browser.social-alert-report.read-model.reported',
-  BrowserSocialAuditExplanationReadModelReported: 'agent.browser.social-audit-explanation.read-model.reported',
-  BrowserSocialDashboardReadModelReported: 'agent.browser.social-dashboard.read-model.reported',
-  BrowserSocialParentNotificationDeliveryReadModelReported: 'agent.browser.social-parent-notification-delivery.read-model.reported',
-  BrowserSocialSourceCustodyMutationApplied: 'agent.browser.social-source-custody.mutation.applied',
-  EnforcementProductControlSpineReported: 'agent.enforcement.product-control-spine.reported',
-  EnforcementSupportedAdapterRuntimeProofReported: 'agent.enforcement.supported-adapter-runtime-proof.reported',
-  NetworkRuntimeEventChainStreamReported: 'agent.network.runtime.event-chain.stream.reported',
-  NetworkWindowsFirewallLabStatusReported: 'agent.network.windows-firewall-lab.status.reported',
-} as const;
+export type AgentCommandName = SchemaDomainAgentCommandEventContracts.AgentCommandName;
+export type AgentEventName = SchemaDomainAgentCommandEventContracts.AgentEventName;
+export type AgentCommandEnvelope =
+  SchemaDomainAgentCommandEventContracts.AgentCommandEnvelope;
+export type AgentEventEnvelope = SchemaDomainAgentCommandEventContracts.AgentEventEnvelope;
+export type AgentProtocolLogFields =
+  SchemaDomainAgentCommandEventContracts.AgentProtocolLogFields;
+export type AgentProtocolLogLevel =
+  SchemaDomainAgentCommandEventContracts.AgentProtocolLogLevel;
+export type AgentProtocolSnapshot =
+  SchemaDomainAgentCommandEventContracts.AgentProtocolSnapshot;
 
-export const AgentCommandNameSchema = withParser(
-  Schema.Literal(
-    AgentCommandNameLiteral.HealthCheck,
-    AgentCommandNameLiteral.LogSnapshotGet,
-    AgentCommandNameLiteral.DevEcho,
-    AgentCommandNameLiteral.WatchStatusGet,
-    AgentCommandNameLiteral.ActivityIngestStatusGet,
-    AgentCommandNameLiteral.ActivityRecentSummaryGet,
-    AgentCommandNameLiteral.ActivityMemoryGraphGet,
-    AgentCommandNameLiteral.ActivityReportDailyGenerate,
-    AgentCommandNameLiteral.ActivityReportWeeklyGenerate,
-    AgentCommandNameLiteral.ActivityReportMonthlyGenerate,
-    AgentCommandNameLiteral.ActivityReportSave,
-    AgentCommandNameLiteral.ActivityReportHistoryList,
-    AgentCommandNameLiteral.ActivityScreenReadModelGet,
-    AgentCommandNameLiteral.ActivityAppUseReadModelGet,
-    AgentCommandNameLiteral.ActivityBrowserReadModelGet,
-    AgentCommandNameLiteral.ActivityGamesReadModelGet,
-    AgentCommandNameLiteral.ActivityAppGameBoundaryReadModelGet,
-    AgentCommandNameLiteral.ActivityAppGamePolicyReadinessReadModelGet,
-    AgentCommandNameLiteral.ActivityAppGameNotificationReadinessReadModelGet,
-    AgentCommandNameLiteral.ActivityAppGameAdapterExecutionReadinessReadModelGet,
-    AgentCommandNameLiteral.ActivityAppGamePlatformProofStatusReadModelGet,
-    AgentCommandNameLiteral.ActivityAppGameChildRuntimeTransportReceiptReadModelGet,
-    AgentCommandNameLiteral.ActivityAppGameAdapterDispatchPreflightReadModelGet,
-    AgentCommandNameLiteral.ActivityAppGameAdapterDispatchResultReadModelGet,
-    AgentCommandNameLiteral.ActivityAppGameAdapterDispatchExecute,
-    AgentCommandNameLiteral.ActivityAppGameTimerParentSurfaceReadModelGet,
-    AgentCommandNameLiteral.ActivityAppGameTimerParentSurfaceParentPreferenceSetupRequest,
-    AgentCommandNameLiteral.BrowserSocialDashboardReadModelGet,
-    AgentCommandNameLiteral.BrowserSocialAuditExplanationReadModelGet,
-    AgentCommandNameLiteral.BrowserSocialAlertReportReadModelGet,
-    AgentCommandNameLiteral.BrowserSocialAlertReportParentSurfaceReadModelGet,
-    AgentCommandNameLiteral.BrowserSocialParentNotificationDeliveryReadModelGet,
-    AgentCommandNameLiteral.BrowserSocialSourceCustodyMutationApply,
-    AgentCommandNameLiteral.ActivityNetworkReadModelGet,
-    AgentCommandNameLiteral.ActivityTrackingReadModelGet,
-    AgentCommandNameLiteral.ActivityTrackingRetentionSettingsWrite,
-    AgentCommandNameLiteral.BrowserInventoryReadModelGet,
-    AgentCommandNameLiteral.BrowserEvidenceRecentGet,
-    AgentCommandNameLiteral.BrowserManagedBridgePoll,
-    AgentCommandNameLiteral.BrowserInterventionReadModelGet,
-    AgentCommandNameLiteral.BrowserRuntimeEventChainStreamGet,
-    AgentCommandNameLiteral.NetworkFlowReadModelGet,
-    AgentCommandNameLiteral.NetworkRuntimeEventChainStreamGet,
-    AgentCommandNameLiteral.NetworkRemoteDeliveryStatusGet,
-    AgentCommandNameLiteral.NetworkLiveCaptureStatusGet,
-    AgentCommandNameLiteral.NetworkLinuxNftablesLabStatusGet,
-    AgentCommandNameLiteral.NetworkWindowsFirewallLabStatusGet,
-    AgentCommandNameLiteral.NetworkWindowsWfpGateStatusGet,
-    AgentCommandNameLiteral.NetworkAndroidVpnServiceGateStatusGet,
-    AgentCommandNameLiteral.NetworkAppleNetworkExtensionGateStatusGet,
-    AgentCommandNameLiteral.LocalAiRuntimeStatusGet,
-    AgentCommandNameLiteral.LocalAiChatGenerate,
-    AgentCommandNameLiteral.ParentAssistantAnswerGenerate,
-    AgentCommandNameLiteral.PolicyPreviewReadModelGet,
-    AgentCommandNameLiteral.PolicyRequestAssistantPreviewConfirm,
-    AgentCommandNameLiteral.BrowserPolicyGet,
-    AgentCommandNameLiteral.BrowserPolicyPreview,
-    AgentCommandNameLiteral.BrowserPolicyPatch,
-    AgentCommandNameLiteral.BrowserPolicyReplace,
-    AgentCommandNameLiteral.BrowserPolicyRollback,
-    AgentCommandNameLiteral.ScreenSettingsGet,
-    AgentCommandNameLiteral.ScreenSettingsReplace,
-    AgentCommandNameLiteral.EnforcementExecute,
-    AgentCommandNameLiteral.EnforcementTimerRecover,
-    AgentCommandNameLiteral.EnforcementTimerExpire,
-    AgentCommandNameLiteral.EnforcementOverrideCancel,
-    AgentCommandNameLiteral.EnforcementProductControlSpineGet,
-    AgentCommandNameLiteral.EnforcementPolicyDispatchGet,
-    AgentCommandNameLiteral.EnforcementBroadAdapterProofGet,
-    AgentCommandNameLiteral.EnforcementSupportedAdapterRuntimeProofGet,
-    AgentCommandNameLiteral.ParentAssistantThreadList,
-    AgentCommandNameLiteral.ParentAssistantThreadCreate,
-    AgentCommandNameLiteral.ParentAssistantThreadOpen,
-    AgentCommandNameLiteral.ParentAssistantThreadArchive,
-    AgentCommandNameLiteral.ParentAssistantMessageSend,
-    AgentCommandNameLiteral.ParentAssistantRunCancel,
-    AgentCommandNameLiteral.ParentAssistantQuickActionStart,
-    AgentCommandNameLiteral.ParentAssistantActionPreview,
-    AgentCommandNameLiteral.ParentAssistantActionConfirm,
-    AgentCommandNameLiteral.ParentAssistantProviderStatusGet,
-    AgentCommandNameLiteral.LanPairingProofSubmit,
-    AgentCommandNameLiteral.LanPairingRouteSelect,
-    AgentCommandNameLiteral.LanPairingRouteRevoke,
-    AgentCommandNameLiteral.LanPairingStatusGet,
-    AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan,
-    AgentLanBrowserRuntimeCommandNameLiteral.AddDeviceRequest,
-    AgentCommandNameLiteral.LanPairingControllerLeaseRenew,
-    AgentCommandNameLiteral.LanPairingControllerLeaseRelease,
-    AgentCommandNameLiteral.LanPairingControllerLeaseTakeover,
-    AgentCommandNameLiteral.LanAiProviderStatusGet,
-    AgentCommandNameLiteral.LanAiJobSubmit
-  )
-);
+export const decodeAgentDeviceId =
+  SchemaDomainAgentCommandEventContracts.decodeAgentDeviceId;
+export const decodeAgentMessageId =
+  SchemaDomainAgentCommandEventContracts.decodeAgentMessageId;
+export const decodeAgentTimestamp =
+  SchemaDomainAgentCommandEventContracts.decodeAgentTimestamp;
+export const decodeAgentWebSocketUrl =
+  SchemaDomainAgentCommandEventContracts.decodeAgentWebSocketUrl;
+export const decodeSerializedAgentMessage =
+  SchemaDomainAgentCommandEventContracts.decodeSerializedAgentMessage;
 
-export const AgentEventNameSchema = withParser(
-  Schema.Literal(
-    AgentEventNameLiteral.ConnectionReady,
-    AgentEventNameLiteral.CommandRejected,
-    AgentEventNameLiteral.HealthReported,
-    AgentEventNameLiteral.LogSnapshotReported,
-    AgentEventNameLiteral.DevEchoed,
-    AgentEventNameLiteral.WatchStatusReported,
-    AgentEventNameLiteral.ActivityIngestStatusReported,
-    AgentEventNameLiteral.ActivityRecentSummaryReported,
-    AgentEventNameLiteral.ActivityMemoryGraphReported,
-    AgentEventNameLiteral.ActivityReportGenerated,
-    AgentEventNameLiteral.ActivityReportSaved,
-    AgentEventNameLiteral.ActivityReportHistoryReported,
-    AgentEventNameLiteral.ActivityScreenReadModelReported,
-    AgentEventNameLiteral.ActivityAppUseReadModelReported,
-    AgentEventNameLiteral.ActivityBrowserReadModelReported,
-    AgentEventNameLiteral.ActivityGamesReadModelReported,
-    AgentEventNameLiteral.ActivityAppGameBoundaryReadModelReported,
-    AgentEventNameLiteral.ActivityAppGamePolicyReadinessReadModelReported,
-    AgentEventNameLiteral.ActivityAppGameNotificationReadinessReadModelReported,
-    AgentEventNameLiteral.ActivityAppGameAdapterExecutionReadinessReadModelReported,
-    AgentEventNameLiteral.ActivityAppGamePlatformProofStatusReadModelReported,
-    AgentEventNameLiteral.ActivityAppGameChildRuntimeTransportReceiptReadModelReported,
-    AgentEventNameLiteral.ActivityAppGameAdapterDispatchPreflightReadModelReported,
-    AgentEventNameLiteral.ActivityAppGameAdapterDispatchResultReadModelReported,
-    AgentEventNameLiteral.ActivityAppGameAdapterDispatchExecuted,
-    AgentEventNameLiteral.ActivityAppGameTimerParentSurfaceReadModelReported,
-    AgentEventNameLiteral.ActivityAppGameTimerParentSurfaceParentPreferenceSetupRequested,
-    AgentEventNameLiteral.BrowserSocialDashboardReadModelReported,
-    AgentEventNameLiteral.BrowserSocialAuditExplanationReadModelReported,
-    AgentEventNameLiteral.BrowserSocialAlertReportReadModelReported,
-    AgentEventNameLiteral.BrowserSocialAlertReportParentSurfaceReadModelReported,
-    AgentEventNameLiteral.BrowserSocialParentNotificationDeliveryReadModelReported,
-    AgentEventNameLiteral.BrowserSocialSourceCustodyMutationApplied,
-    AgentEventNameLiteral.ActivityNetworkReadModelReported,
-    AgentEventNameLiteral.ActivityTrackingReadModelReported,
-    AgentEventNameLiteral.ActivityTrackingRetentionSettingsWriteReported,
-    AgentEventNameLiteral.BrowserInventoryReadModelReported,
-    AgentEventNameLiteral.BrowserEvidenceRecentReported,
-    AgentEventNameLiteral.BrowserManagedStatusReported,
-    AgentEventNameLiteral.BrowserInterventionReadModelReported,
-    AgentEventNameLiteral.BrowserRuntimeEventChainStreamReported,
-    AgentEventNameLiteral.NetworkFlowReadModelReported,
-    AgentEventNameLiteral.NetworkRuntimeEventChainStreamReported,
-    AgentEventNameLiteral.NetworkRemoteDeliveryStatusReported,
-    AgentEventNameLiteral.NetworkLiveCaptureStatusReported,
-    AgentEventNameLiteral.NetworkLinuxNftablesLabStatusReported,
-    AgentEventNameLiteral.NetworkWindowsFirewallLabStatusReported,
-    AgentEventNameLiteral.NetworkWindowsWfpGateStatusReported,
-    AgentEventNameLiteral.NetworkAndroidVpnServiceGateStatusReported,
-    AgentEventNameLiteral.NetworkAppleNetworkExtensionGateStatusReported,
-    AgentEventNameLiteral.LocalAiRuntimeStatusReported,
-    AgentEventNameLiteral.LocalAiChatGenerationReported,
-    AgentEventNameLiteral.ParentAssistantAnswerReported,
-    AgentEventNameLiteral.PolicyPreviewReadModelReported,
-    AgentEventNameLiteral.PolicyRequestAssistantPreviewConfirmReported,
-    AgentEventNameLiteral.BrowserPolicyReported,
-    AgentEventNameLiteral.BrowserPolicyPreviewed,
-    AgentEventNameLiteral.BrowserPolicyPatchAccepted,
-    AgentEventNameLiteral.BrowserPolicyPatchRejected,
-    AgentEventNameLiteral.BrowserPolicyReplaceAccepted,
-    AgentEventNameLiteral.BrowserPolicyReplaceRejected,
-    AgentEventNameLiteral.BrowserPolicyRollbackAccepted,
-    AgentEventNameLiteral.BrowserPolicyRollbackRejected,
-    AgentEventNameLiteral.ScreenSettingsReported,
-    AgentEventNameLiteral.ScreenSettingsReplaceAccepted,
-    AgentEventNameLiteral.ScreenSettingsReplaceRejected,
-    AgentEventNameLiteral.EnforcementAuditReported,
-    AgentEventNameLiteral.EnforcementTimerReported,
-    AgentEventNameLiteral.EnforcementProductControlSpineReported,
-    AgentEventNameLiteral.EnforcementPolicyDispatchReported,
-    AgentEventNameLiteral.EnforcementBroadAdapterProofReported,
-    AgentEventNameLiteral.EnforcementSupportedAdapterRuntimeProofReported,
-    AgentEventNameLiteral.ParentAssistantThreadUpdated,
-    AgentEventNameLiteral.ParentAssistantMessageAccepted,
-    AgentEventNameLiteral.ParentAssistantRunStarted,
-    AgentEventNameLiteral.ParentAssistantMessageDelta,
-    AgentEventNameLiteral.ParentAssistantMessageCompleted,
-    AgentEventNameLiteral.ParentAssistantActionPreviewed,
-    AgentEventNameLiteral.ParentAssistantActionConfirmed,
-    AgentEventNameLiteral.ParentAssistantProviderDegraded,
-    AgentEventNameLiteral.ParentAssistantErrorReported,
-    AgentEventNameLiteral.LanPairingStatusReported,
-    AgentLanBrowserRuntimeEventNameLiteral.BrowserDiscoveryReported,
-    AgentLanBrowserRuntimeEventNameLiteral.AddDeviceReported,
-    AgentEventNameLiteral.LanPairingAuditReported,
-    AgentEventNameLiteral.LanAiJobReported
-  )
-);
-
-export const AgentCommandEnvelopeSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
-    messageId: AgentMessageIdSchema,
-    sentAt: AgentTimestampSchema,
-    source: AgentPeerSchema,
-    target: AgentMessageTargetSchema,
-    command: AgentCommandNameSchema,
-    payload: LogFieldsSchema,
-  })
-);
-
-export const AgentEventEnvelopeSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
-    eventId: AgentEventIdSchema,
-    correlationId: AgentCorrelationIdSchema,
-    sentAt: AgentTimestampSchema,
-    source: AgentPeerSchema,
-    target: AgentPeerSchema,
-    event: AgentEventNameSchema,
-    severity: LogLevelSchema,
-    payload: LogFieldsSchema,
-    snapshot: Schema.Union(AgentLogSnapshotSchema, Schema.Null),
-  })
-);
-
-export type AgentCommandName = Infer<typeof AgentCommandNameSchema>;
-export type AgentEventName = Infer<typeof AgentEventNameSchema>;
-export type AgentCommandEnvelope = Infer<typeof AgentCommandEnvelopeSchema>;
-export type AgentEventEnvelope = Infer<typeof AgentEventEnvelopeSchema>;
-export type AgentProtocolLogFields = LogFields;
-export type AgentProtocolLogLevel = LogLevel;
-export type AgentProtocolSnapshot = AgentLogSnapshot;
-
-export const decodeAgentDeviceId = Schema.decodeUnknownSync(AgentDeviceIdSchema);
-export const decodeAgentMessageId = Schema.decodeUnknownSync(AgentMessageIdSchema);
-export const decodeAgentTimestamp = Schema.decodeUnknownSync(AgentTimestampSchema);
-export const decodeAgentWebSocketUrl = Schema.decodeUnknownSync(AgentWebSocketUrlSchema);
-export const decodeSerializedAgentMessage = Schema.decodeUnknownSync(SerializedAgentMessageSchema);
-
-export function isAgentProtocolLogText(value: unknown): value is string {
-  return typeof value === 'string';
-}
+export const isAgentProtocolLogText =
+  SchemaDomainAgentCommandEventContracts.isAgentProtocolLogText;
 
 import {
   parseAgentSocialAlertReportReadModelEvent,
@@ -896,314 +517,7 @@ export {
   type SocialSourceCustodyMutationSettings,
   type SocialSourceCustodyMutationSnapshot,
 };
-import {
-  AppGameTimerParentPreferenceSetupRequestResultSchema,
-  AppGameTimerParentPreferenceSetupRequestSchema,
-  parseAgentAppGameTimerParentPreferenceSetupRequestEvent,
-  type AgentAppGameTimerParentPreferenceSetupRequestFailureReason,
-  type AgentAppGameTimerParentPreferenceSetupRequestResult,
-  type AppGameTimerParentPreferenceSetupRequest,
-  type AppGameTimerParentPreferenceSetupRequestResult,
-} from './app-game-timer-parent-preference-setup-request';
-export {
-  AppGameTimerParentPreferenceSetupRequestResultSchema,
-  AppGameTimerParentPreferenceSetupRequestSchema,
-  parseAgentAppGameTimerParentPreferenceSetupRequestEvent,
-  type AgentAppGameTimerParentPreferenceSetupRequestFailureReason,
-  type AgentAppGameTimerParentPreferenceSetupRequestResult,
-  type AppGameTimerParentPreferenceSetupRequest,
-  type AppGameTimerParentPreferenceSetupRequestResult,
-};
-
-export const AgentCommand = {
-  HealthCheck: AgentCommandNameSchema.parse(AgentCommandNameLiteral.HealthCheck),
-  LogSnapshotGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LogSnapshotGet),
-  DevEcho: AgentCommandNameSchema.parse(AgentCommandNameLiteral.DevEcho),
-  WatchStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.WatchStatusGet),
-  ActivityIngestStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityIngestStatusGet),
-  ActivityRecentSummaryGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityRecentSummaryGet),
-  ActivityMemoryGraphGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityMemoryGraphGet),
-  ActivityReportDailyGenerate: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityReportDailyGenerate),
-  ActivityReportWeeklyGenerate: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityReportWeeklyGenerate),
-  ActivityReportMonthlyGenerate: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityReportMonthlyGenerate),
-  ActivityReportSave: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityReportSave),
-  ActivityReportHistoryList: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityReportHistoryList),
-  ActivityScreenReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityScreenReadModelGet),
-  ActivityAppUseReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityAppUseReadModelGet),
-  ActivityBrowserReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityBrowserReadModelGet),
-  ActivityGamesReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityGamesReadModelGet),
-  ActivityAppGameBoundaryReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityAppGameBoundaryReadModelGet),
-  ActivityAppGamePolicyReadinessReadModelGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.ActivityAppGamePolicyReadinessReadModelGet
-  ),
-  ActivityAppGameNotificationReadinessReadModelGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.ActivityAppGameNotificationReadinessReadModelGet
-  ),
-  ActivityAppGameAdapterExecutionReadinessReadModelGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.ActivityAppGameAdapterExecutionReadinessReadModelGet
-  ),
-  ActivityAppGamePlatformProofStatusReadModelGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.ActivityAppGamePlatformProofStatusReadModelGet
-  ),
-  ActivityAppGameChildRuntimeTransportReceiptReadModelGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.ActivityAppGameChildRuntimeTransportReceiptReadModelGet
-  ),
-  ActivityAppGameAdapterDispatchPreflightReadModelGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.ActivityAppGameAdapterDispatchPreflightReadModelGet
-  ),
-  ActivityAppGameAdapterDispatchResultReadModelGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.ActivityAppGameAdapterDispatchResultReadModelGet
-  ),
-  ActivityAppGameAdapterDispatchExecute: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.ActivityAppGameAdapterDispatchExecute
-  ),
-  ActivityAppGameTimerParentSurfaceReadModelGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.ActivityAppGameTimerParentSurfaceReadModelGet
-  ),
-  ActivityAppGameTimerParentPreferenceSetupRequest: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.ActivityAppGameTimerParentSurfaceParentPreferenceSetupRequest
-  ),
-  BrowserSocialDashboardReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserSocialDashboardReadModelGet),
-  BrowserSocialAuditExplanationReadModelGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.BrowserSocialAuditExplanationReadModelGet
-  ),
-  BrowserSocialAlertReportReadModelGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.BrowserSocialAlertReportReadModelGet
-  ),
-  BrowserSocialParentNotificationDeliveryReadModelGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.BrowserSocialParentNotificationDeliveryReadModelGet
-  ),
-  BrowserSocialAlertReportParentSurfaceReadModelGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.BrowserSocialAlertReportParentSurfaceReadModelGet
-  ),
-  BrowserSocialSourceCustodyMutationApply: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.BrowserSocialSourceCustodyMutationApply
-  ),
-  ActivityNetworkReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityNetworkReadModelGet),
-  ActivityTrackingReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ActivityTrackingReadModelGet),
-  ActivityTrackingRetentionSettingsWrite: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.ActivityTrackingRetentionSettingsWrite
-  ),
-  BrowserInventoryReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserInventoryReadModelGet),
-  BrowserEvidenceRecentGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserEvidenceRecentGet),
-  BrowserManagedBridgePoll: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserManagedBridgePoll),
-  BrowserInterventionReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserInterventionReadModelGet),
-  BrowserRuntimeEventChainStreamGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserRuntimeEventChainStreamGet),
-  NetworkFlowReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.NetworkFlowReadModelGet),
-  NetworkRuntimeEventChainStreamGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.NetworkRuntimeEventChainStreamGet),
-  NetworkRemoteDeliveryStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.NetworkRemoteDeliveryStatusGet),
-  NetworkLiveCaptureStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.NetworkLiveCaptureStatusGet),
-  NetworkLinuxNftablesLabStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.NetworkLinuxNftablesLabStatusGet),
-  NetworkWindowsFirewallLabStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.NetworkWindowsFirewallLabStatusGet),
-  NetworkWindowsWfpGateStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.NetworkWindowsWfpGateStatusGet),
-  NetworkAndroidVpnServiceGateStatusGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.NetworkAndroidVpnServiceGateStatusGet
-  ),
-  NetworkAppleNetworkExtensionGateStatusGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.NetworkAppleNetworkExtensionGateStatusGet
-  ),
-  LocalAiRuntimeStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LocalAiRuntimeStatusGet),
-  LocalAiChatGenerate: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LocalAiChatGenerate),
-  ParentAssistantAnswerGenerate: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantAnswerGenerate),
-  PolicyPreviewReadModelGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.PolicyPreviewReadModelGet),
-  PolicyRequestAssistantPreviewConfirm: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.PolicyRequestAssistantPreviewConfirm
-  ),
-  BrowserPolicyGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserPolicyGet),
-  BrowserPolicyPreview: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserPolicyPreview),
-  BrowserPolicyPatch: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserPolicyPatch),
-  BrowserPolicyReplace: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserPolicyReplace),
-  BrowserPolicyRollback: AgentCommandNameSchema.parse(AgentCommandNameLiteral.BrowserPolicyRollback),
-  ScreenSettingsGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ScreenSettingsGet),
-  ScreenSettingsReplace: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ScreenSettingsReplace),
-  EnforcementExecute: AgentCommandNameSchema.parse(AgentCommandNameLiteral.EnforcementExecute),
-  EnforcementTimerRecover: AgentCommandNameSchema.parse(AgentCommandNameLiteral.EnforcementTimerRecover),
-  EnforcementTimerExpire: AgentCommandNameSchema.parse(AgentCommandNameLiteral.EnforcementTimerExpire),
-  EnforcementOverrideCancel: AgentCommandNameSchema.parse(AgentCommandNameLiteral.EnforcementOverrideCancel),
-  EnforcementProductControlSpineGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.EnforcementProductControlSpineGet),
-  EnforcementPolicyDispatchGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.EnforcementPolicyDispatchGet),
-  EnforcementBroadAdapterProofGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.EnforcementBroadAdapterProofGet),
-  EnforcementSupportedAdapterRuntimeProofGet: AgentCommandNameSchema.parse(
-    AgentCommandNameLiteral.EnforcementSupportedAdapterRuntimeProofGet
-  ),
-  ParentAssistantThreadList: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantThreadList),
-  ParentAssistantThreadCreate: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantThreadCreate),
-  ParentAssistantThreadOpen: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantThreadOpen),
-  ParentAssistantThreadArchive: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantThreadArchive),
-  ParentAssistantMessageSend: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantMessageSend),
-  ParentAssistantRunCancel: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantRunCancel),
-  ParentAssistantQuickActionStart: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantQuickActionStart),
-  ParentAssistantActionPreview: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantActionPreview),
-  ParentAssistantActionConfirm: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantActionConfirm),
-  ParentAssistantProviderStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.ParentAssistantProviderStatusGet),
-  LanPairingProofSubmit: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LanPairingProofSubmit),
-  LanPairingRouteSelect: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LanPairingRouteSelect),
-  LanPairingRouteRevoke: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LanPairingRouteRevoke),
-  LanPairingStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LanPairingStatusGet),
-  LanPairingBrowserDiscoveryScan: AgentCommandNameSchema.parse(
-    AgentLanBrowserRuntimeCommandNameLiteral.BrowserDiscoveryScan
-  ),
-  LanPairingAddDeviceRequest: AgentCommandNameSchema.parse(AgentLanBrowserRuntimeCommandNameLiteral.AddDeviceRequest),
-  LanPairingControllerLeaseRenew: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LanPairingControllerLeaseRenew),
-  LanPairingControllerLeaseRelease: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LanPairingControllerLeaseRelease),
-  LanPairingControllerLeaseTakeover: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LanPairingControllerLeaseTakeover),
-  LanAiProviderStatusGet: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LanAiProviderStatusGet),
-  LanAiJobSubmit: AgentCommandNameSchema.parse(AgentCommandNameLiteral.LanAiJobSubmit),
-} as const;
-
-export const AgentLanPairingSupportedWebSocketCommand = {
-  ProofSubmit: AgentCommand.LanPairingProofSubmit,
-  RouteSelect: AgentCommand.LanPairingRouteSelect,
-  RouteRevoke: AgentCommand.LanPairingRouteRevoke,
-  StatusGet: AgentCommand.LanPairingStatusGet,
-  BrowserDiscoveryScan: AgentCommand.LanPairingBrowserDiscoveryScan,
-  AddDeviceRequest: AgentCommand.LanPairingAddDeviceRequest,
-  ControllerLeaseRenew: AgentCommand.LanPairingControllerLeaseRenew,
-  ControllerLeaseRelease: AgentCommand.LanPairingControllerLeaseRelease,
-  ControllerLeaseTakeover: AgentCommand.LanPairingControllerLeaseTakeover,
-  LanAiProviderStatusGet: AgentCommand.LanAiProviderStatusGet,
-  LanAiJobSubmit: AgentCommand.LanAiJobSubmit,
-} as const;
-
-export const AgentEvent = {
-  ConnectionReady: AgentEventNameSchema.parse(AgentEventNameLiteral.ConnectionReady),
-  CommandRejected: AgentEventNameSchema.parse(AgentEventNameLiteral.CommandRejected),
-  HealthReported: AgentEventNameSchema.parse(AgentEventNameLiteral.HealthReported),
-  LogSnapshotReported: AgentEventNameSchema.parse(AgentEventNameLiteral.LogSnapshotReported),
-  DevEchoed: AgentEventNameSchema.parse(AgentEventNameLiteral.DevEchoed),
-  WatchStatusReported: AgentEventNameSchema.parse(AgentEventNameLiteral.WatchStatusReported),
-  ActivityIngestStatusReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ActivityIngestStatusReported),
-  ActivityRecentSummaryReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ActivityRecentSummaryReported),
-  ActivityMemoryGraphReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ActivityMemoryGraphReported),
-  ActivityReportGenerated: AgentEventNameSchema.parse(AgentEventNameLiteral.ActivityReportGenerated),
-  ActivityReportSaved: AgentEventNameSchema.parse(AgentEventNameLiteral.ActivityReportSaved),
-  ActivityReportHistoryReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ActivityReportHistoryReported),
-  ActivityScreenReadModelReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ActivityScreenReadModelReported),
-  ActivityAppUseReadModelReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ActivityAppUseReadModelReported),
-  ActivityBrowserReadModelReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ActivityBrowserReadModelReported),
-  ActivityGamesReadModelReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ActivityGamesReadModelReported),
-  ActivityAppGameBoundaryReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.ActivityAppGameBoundaryReadModelReported
-  ),
-  ActivityAppGamePolicyReadinessReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.ActivityAppGamePolicyReadinessReadModelReported
-  ),
-  ActivityAppGameNotificationReadinessReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.ActivityAppGameNotificationReadinessReadModelReported
-  ),
-  ActivityAppGameAdapterExecutionReadinessReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.ActivityAppGameAdapterExecutionReadinessReadModelReported
-  ),
-  ActivityAppGamePlatformProofStatusReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.ActivityAppGamePlatformProofStatusReadModelReported
-  ),
-  ActivityAppGameChildRuntimeTransportReceiptReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.ActivityAppGameChildRuntimeTransportReceiptReadModelReported
-  ),
-  ActivityAppGameAdapterDispatchPreflightReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.ActivityAppGameAdapterDispatchPreflightReadModelReported
-  ),
-  ActivityAppGameAdapterDispatchResultReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.ActivityAppGameAdapterDispatchResultReadModelReported
-  ),
-  ActivityAppGameAdapterDispatchExecuted: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.ActivityAppGameAdapterDispatchExecuted
-  ),
-  ActivityAppGameTimerParentSurfaceReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.ActivityAppGameTimerParentSurfaceReadModelReported
-  ),
-  ActivityAppGameTimerParentPreferenceSetupRequested: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.ActivityAppGameTimerParentSurfaceParentPreferenceSetupRequested
-  ),
-  BrowserSocialDashboardReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.BrowserSocialDashboardReadModelReported
-  ),
-  BrowserSocialAuditExplanationReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.BrowserSocialAuditExplanationReadModelReported
-  ),
-  BrowserSocialAlertReportReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.BrowserSocialAlertReportReadModelReported
-  ),
-  BrowserSocialParentNotificationDeliveryReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.BrowserSocialParentNotificationDeliveryReadModelReported
-  ),
-  BrowserSocialAlertReportParentSurfaceReadModelReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.BrowserSocialAlertReportParentSurfaceReadModelReported
-  ),
-  BrowserSocialSourceCustodyMutationApplied: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.BrowserSocialSourceCustodyMutationApplied
-  ),
-  ActivityNetworkReadModelReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ActivityNetworkReadModelReported),
-  ActivityTrackingReadModelReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ActivityTrackingReadModelReported),
-  ActivityTrackingRetentionSettingsWriteReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.ActivityTrackingRetentionSettingsWriteReported
-  ),
-  BrowserInventoryReadModelReported: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserInventoryReadModelReported),
-  BrowserEvidenceRecentReported: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserEvidenceRecentReported),
-  BrowserManagedStatusReported: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserManagedStatusReported),
-  BrowserInterventionReadModelReported: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserInterventionReadModelReported),
-  BrowserRuntimeEventChainStreamReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.BrowserRuntimeEventChainStreamReported
-  ),
-  NetworkFlowReadModelReported: AgentEventNameSchema.parse(AgentEventNameLiteral.NetworkFlowReadModelReported),
-  NetworkRuntimeEventChainStreamReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.NetworkRuntimeEventChainStreamReported
-  ),
-  NetworkRemoteDeliveryStatusReported: AgentEventNameSchema.parse(AgentEventNameLiteral.NetworkRemoteDeliveryStatusReported),
-  NetworkLiveCaptureStatusReported: AgentEventNameSchema.parse(AgentEventNameLiteral.NetworkLiveCaptureStatusReported),
-  NetworkLinuxNftablesLabStatusReported: AgentEventNameSchema.parse(AgentEventNameLiteral.NetworkLinuxNftablesLabStatusReported),
-  NetworkWindowsFirewallLabStatusReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.NetworkWindowsFirewallLabStatusReported
-  ),
-  NetworkWindowsWfpGateStatusReported: AgentEventNameSchema.parse(AgentEventNameLiteral.NetworkWindowsWfpGateStatusReported),
-  NetworkAndroidVpnServiceGateStatusReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.NetworkAndroidVpnServiceGateStatusReported
-  ),
-  NetworkAppleNetworkExtensionGateStatusReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.NetworkAppleNetworkExtensionGateStatusReported
-  ),
-  LocalAiRuntimeStatusReported: AgentEventNameSchema.parse(AgentEventNameLiteral.LocalAiRuntimeStatusReported),
-  LocalAiChatGenerationReported: AgentEventNameSchema.parse(AgentEventNameLiteral.LocalAiChatGenerationReported),
-  ParentAssistantAnswerReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ParentAssistantAnswerReported),
-  PolicyPreviewReadModelReported: AgentEventNameSchema.parse(AgentEventNameLiteral.PolicyPreviewReadModelReported),
-  PolicyRequestAssistantPreviewConfirmReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.PolicyRequestAssistantPreviewConfirmReported
-  ),
-  BrowserPolicyReported: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserPolicyReported),
-  BrowserPolicyPreviewed: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserPolicyPreviewed),
-  BrowserPolicyPatchAccepted: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserPolicyPatchAccepted),
-  BrowserPolicyPatchRejected: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserPolicyPatchRejected),
-  BrowserPolicyReplaceAccepted: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserPolicyReplaceAccepted),
-  BrowserPolicyReplaceRejected: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserPolicyReplaceRejected),
-  BrowserPolicyRollbackAccepted: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserPolicyRollbackAccepted),
-  BrowserPolicyRollbackRejected: AgentEventNameSchema.parse(AgentEventNameLiteral.BrowserPolicyRollbackRejected),
-  ScreenSettingsReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ScreenSettingsReported),
-  ScreenSettingsReplaceAccepted: AgentEventNameSchema.parse(AgentEventNameLiteral.ScreenSettingsReplaceAccepted),
-  ScreenSettingsReplaceRejected: AgentEventNameSchema.parse(AgentEventNameLiteral.ScreenSettingsReplaceRejected),
-  EnforcementAuditReported: AgentEventNameSchema.parse(AgentEventNameLiteral.EnforcementAuditReported),
-  EnforcementTimerReported: AgentEventNameSchema.parse(AgentEventNameLiteral.EnforcementTimerReported),
-  EnforcementProductControlSpineReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.EnforcementProductControlSpineReported
-  ),
-  EnforcementPolicyDispatchReported: AgentEventNameSchema.parse(AgentEventNameLiteral.EnforcementPolicyDispatchReported),
-  EnforcementBroadAdapterProofReported: AgentEventNameSchema.parse(AgentEventNameLiteral.EnforcementBroadAdapterProofReported),
-  EnforcementSupportedAdapterRuntimeProofReported: AgentEventNameSchema.parse(
-    AgentEventNameLiteral.EnforcementSupportedAdapterRuntimeProofReported
-  ),
-  ParentAssistantThreadUpdated: AgentEventNameSchema.parse(AgentEventNameLiteral.ParentAssistantThreadUpdated),
-  ParentAssistantMessageAccepted: AgentEventNameSchema.parse(AgentEventNameLiteral.ParentAssistantMessageAccepted),
-  ParentAssistantRunStarted: AgentEventNameSchema.parse(AgentEventNameLiteral.ParentAssistantRunStarted),
-  ParentAssistantMessageDelta: AgentEventNameSchema.parse(AgentEventNameLiteral.ParentAssistantMessageDelta),
-  ParentAssistantMessageCompleted: AgentEventNameSchema.parse(AgentEventNameLiteral.ParentAssistantMessageCompleted),
-  ParentAssistantActionPreviewed: AgentEventNameSchema.parse(AgentEventNameLiteral.ParentAssistantActionPreviewed),
-  ParentAssistantActionConfirmed: AgentEventNameSchema.parse(AgentEventNameLiteral.ParentAssistantActionConfirmed),
-  ParentAssistantProviderDegraded: AgentEventNameSchema.parse(AgentEventNameLiteral.ParentAssistantProviderDegraded),
-  ParentAssistantErrorReported: AgentEventNameSchema.parse(AgentEventNameLiteral.ParentAssistantErrorReported),
-  LanPairingStatusReported: AgentEventNameSchema.parse(AgentEventNameLiteral.LanPairingStatusReported),
-  LanPairingBrowserDiscoveryReported: AgentEventNameSchema.parse(
-    AgentLanBrowserRuntimeEventNameLiteral.BrowserDiscoveryReported
-  ),
-  LanPairingAddDeviceReported: AgentEventNameSchema.parse(AgentLanBrowserRuntimeEventNameLiteral.AddDeviceReported),
-  LanPairingAuditReported: AgentEventNameSchema.parse(AgentEventNameLiteral.LanPairingAuditReported),
-  LanAiJobReported: AgentEventNameSchema.parse(AgentEventNameLiteral.LanAiJobReported),
-} as const;
+export const AgentCommand = SchemaDomainAgentCommandEventContracts.AgentCommand;
+export const AgentLanPairingSupportedWebSocketCommand =
+  SchemaDomainAgentCommandEventContracts.AgentLanPairingSupportedWebSocketCommand;
+export const AgentEvent = SchemaDomainAgentCommandEventContracts.AgentEvent;

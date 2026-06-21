@@ -5,15 +5,13 @@ import {
   ParentAssistantProviderStatusSchema,
   ParentAssistantRunCancelResultSchema,
   ParentAssistantThreadResponseSchema,
-} from '@ocentra-parent/ai-domain/parent-assistant';
-import type {
   ParentAssistantActionConfirmResult,
   ParentAssistantAnswer,
   ParentAssistantProviderStatus,
   ParentAssistantRunCancelResult,
   ParentAssistantThreadResponse,
-} from '@ocentra-parent/ai-domain/parent-assistant';
-import type { ActivityReportDocument } from '@ocentra-parent/activity-domain/activity-surface';
+} from '@ocentra-parent/schema-domain/parent-assistant';
+import type { ActivityReportDocument } from '@ocentra-parent/schema-domain/activity-surface';
 import type { Infer } from '@ocentra-parent/schema-domain/effect';
 import {
   AgentCommand,

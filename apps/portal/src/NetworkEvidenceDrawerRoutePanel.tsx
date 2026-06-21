@@ -1,14 +1,16 @@
 import type { ReactElement } from 'react';
 import {
-  PortalDetails,
   PortalDom,
   PortalText,
   PortalTextToken,
-  isPortalNetworkEvidenceDrawerRoute,
-  type PortalDetailValue,
   type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import {
+  isPortalNetworkEvidenceDrawerRoute,
+  type PortalRoute as PortalRouteValue,
+} from '@ocentra-parent/portal-domain/routes';
+import { type PortalDetailValue } from '@ocentra-parent/portal-domain/detail-values';
 import {
   networkEvidenceDrawerSummary,
   type NetworkEvidenceDrawerSummary,

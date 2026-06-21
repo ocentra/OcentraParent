@@ -6,8 +6,8 @@ import {
   BaselineBrowserControlFullCatalog,
   browserControlFullCatalogSettingCount,
   browserControlFullCatalogSettings,
-} from '../../src/browser-control-full-catalog';
-import { BrowserControlFullCatalogSchema } from '../../src/browser-control-full-catalog-schema';
+} from '@ocentra-parent/schema-domain/browser-control-full-catalog';
+import { BrowserControlFullCatalogSchema } from '@ocentra-parent/schema-domain/browser-control-full-catalog-schema';
 
 interface SourceCatalogSetting {
   readonly sectionTitle: string;

@@ -5,10 +5,6 @@
   "type": "module",
   "description": "Portal route, DOM, and development UI contracts.",
   "exports": {
-    "./app-game-adapter-execution-readiness-panel": {
-      "import": "./dist/app-game-adapter-execution-readiness-panel.js",
-      "types": "./dist/app-game-adapter-execution-readiness-panel.d.ts"
-    },
     "./app-game-adapter-dispatch-preflight-panel": {
       "import": "./dist/app-game-adapter-dispatch-preflight-panel.js",
       "types": "./dist/app-game-adapter-dispatch-preflight-panel.d.ts"
@@ -21,13 +17,45 @@
       "import": "./dist/app-game-child-runtime-transport-receipt-panel.js",
       "types": "./dist/app-game-child-runtime-transport-receipt-panel.d.ts"
     },
+    "./app-game-notification-parent-surface-panel": {
+      "import": "./dist/app-game-notification-parent-surface-panel.js",
+      "types": "./dist/app-game-notification-parent-surface-panel.d.ts"
+    },
     "./app-game-platform-proof-status-panel": {
       "import": "./dist/app-game-platform-proof-status-panel.js",
       "types": "./dist/app-game-platform-proof-status-panel.d.ts"
     },
-    "./contracts": {
-      "import": "./dist/contracts.js",
-      "types": "./dist/contracts.d.ts"
+    "./app-game-policy-readiness-panel": {
+      "import": "./dist/app-game-policy-readiness-panel.js",
+      "types": "./dist/app-game-policy-readiness-panel.d.ts"
+    },
+    "./app-game-timer-parent-surface-panel": {
+      "import": "./dist/app-game-timer-parent-surface-panel.js",
+      "types": "./dist/app-game-timer-parent-surface-panel.d.ts"
+    },
+    "./app-layout": {
+      "import": "./dist/app-layout.js",
+      "types": "./dist/app-layout.d.ts"
+    },
+    "./browser-action-intent-stream-status": {
+      "import": "./dist/browser-action-intent-stream-status.js",
+      "types": "./dist/browser-action-intent-stream-status.d.ts"
+    },
+    "./browser-child-intervention-page": {
+      "import": "./dist/browser-child-intervention-page.js",
+      "types": "./dist/browser-child-intervention-page.d.ts"
+    },
+    "./browser-parent-explanation-panel": {
+      "import": "./dist/browser-parent-explanation-panel.js",
+      "types": "./dist/browser-parent-explanation-panel.d.ts"
+    },
+    "./browser-social-provider-receipt-ingestion-readiness-status": {
+      "import": "./dist/browser-social-provider-receipt-ingestion-readiness-status.js",
+      "types": "./dist/browser-social-provider-receipt-ingestion-readiness-status.d.ts"
+    },
+    "./browser-social-provider-receipt-stream-status": {
+      "import": "./dist/browser-social-provider-receipt-stream-status.js",
+      "types": "./dist/browser-social-provider-receipt-stream-status.d.ts"
     },
     "./command-results": {
       "import": "./dist/command-results.js",
@@ -37,21 +65,129 @@
       "import": "./dist/commands.js",
       "types": "./dist/commands.d.ts"
     },
-    "./package-info": {
-      "import": "./dist/package-info.js",
-      "types": "./dist/package-info.d.ts"
+    "./contracts": {
+      "import": "./dist/contracts.js",
+      "types": "./dist/contracts.d.ts"
+    },
+    "./details": {
+      "import": "./dist/details.js",
+      "types": "./dist/details.d.ts"
+    },
+    "./detail-values": {
+      "import": "./dist/detail-values.js",
+      "types": "./dist/detail-values.d.ts"
+    },
+    "./diagnostics": {
+      "import": "./dist/diagnostics.js",
+      "types": "./dist/diagnostics.d.ts"
+    },
+    "./formatting": {
+      "import": "./dist/formatting.js",
+      "types": "./dist/formatting.d.ts"
+    },
+    "./frame-tuner": {
+      "import": "./dist/frame-tuner.js",
+      "types": "./dist/frame-tuner.d.ts"
     },
     "./live-activity-state": {
       "import": "./dist/live-activity-state.js",
       "types": "./dist/live-activity-state.d.ts"
     },
+    "./local-ai-runtime-panel": {
+      "import": "./dist/local-ai-runtime-panel.js",
+      "types": "./dist/local-ai-runtime-panel.d.ts"
+    },
     "./network-evidence-drawer": {
       "import": "./dist/network-evidence-drawer.js",
       "types": "./dist/network-evidence-drawer.d.ts"
     },
+    "./package-info": {
+      "import": "./dist/package-info.js",
+      "types": "./dist/package-info.d.ts"
+    },
+    "./parent-assistant-chat": {
+      "import": "./dist/parent-assistant-chat.js",
+      "types": "./dist/parent-assistant-chat.d.ts"
+    },
+    "./parent-portal-data": {
+      "import": "./dist/parent-portal-data.js",
+      "types": "./dist/parent-portal-data.d.ts"
+    },
+    "./parent-portal-guide-controls": {
+      "import": "./dist/parent-portal-guide-controls.js",
+      "types": "./dist/parent-portal-guide-controls.d.ts"
+    },
+    "./parent-portal-nav": {
+      "import": "./dist/parent-portal-nav.js",
+      "types": "./dist/parent-portal-nav.d.ts"
+    },
+    "./parent-portal-service-state": {
+      "import": "./dist/parent-portal-service-state.js",
+      "types": "./dist/parent-portal-service-state.d.ts"
+    },
+    "./parent-portal-shell-status": {
+      "import": "./dist/parent-portal-shell-status.js",
+      "types": "./dist/parent-portal-shell-status.d.ts"
+    },
+    "./policy-preview-panel": {
+      "import": "./dist/policy-preview-panel.js",
+      "types": "./dist/policy-preview-panel.d.ts"
+    },
+    "./policy-preview-workspace": {
+      "import": "./dist/policy-preview-workspace.js",
+      "types": "./dist/policy-preview-workspace.d.ts"
+    },
+    "./portal-background": {
+      "import": "./dist/portal-background.js",
+      "types": "./dist/portal-background.d.ts"
+    },
+    "./portal-background-svg-markup": {
+      "import": "./dist/portal-background-svg-markup.js",
+      "types": "./dist/portal-background-svg-markup.d.ts"
+    },
+    "./routes": {
+      "import": "./dist/routes.js",
+      "types": "./dist/routes.d.ts"
+    },
+    "./screen-summary-panel": {
+      "import": "./dist/screen-summary-panel.js",
+      "types": "./dist/screen-summary-panel.d.ts"
+    },
+    "./setup-first-run-panel": {
+      "import": "./dist/setup-first-run-panel.js",
+      "types": "./dist/setup-first-run-panel.d.ts"
+    },
+    "./social-alert-report-panel": {
+      "import": "./dist/social-alert-report-panel.js",
+      "types": "./dist/social-alert-report-panel.d.ts"
+    },
+    "./social-alert-report-parent-surface-panel": {
+      "import": "./dist/social-alert-report-parent-surface-panel.js",
+      "types": "./dist/social-alert-report-parent-surface-panel.d.ts"
+    },
+    "./social-audit-explanation-panel": {
+      "import": "./dist/social-audit-explanation-panel.js",
+      "types": "./dist/social-audit-explanation-panel.d.ts"
+    },
+    "./social-child-intervention-page-model": {
+      "import": "./dist/social-child-intervention-page-model.js",
+      "types": "./dist/social-child-intervention-page-model.d.ts"
+    },
+    "./social-dashboard-panel": {
+      "import": "./dist/social-dashboard-panel.js",
+      "types": "./dist/social-dashboard-panel.d.ts"
+    },
+    "./social-parent-notification-delivery-panel": {
+      "import": "./dist/social-parent-notification-delivery-panel.js",
+      "types": "./dist/social-parent-notification-delivery-panel.d.ts"
+    },
     "./tracking-child-check-in-proof": {
       "import": "./dist/tracking-child-check-in-proof.js",
       "types": "./dist/tracking-child-check-in-proof.d.ts"
+    },
+    "./tracking-evidence-drawer-hosted-ui-proof": {
+      "import": "./dist/tracking-evidence-drawer-hosted-ui-proof.js",
+      "types": "./dist/tracking-evidence-drawer-hosted-ui-proof.d.ts"
     },
     "./tracking-missing-device-hosted-ui-proof": {
       "import": "./dist/tracking-missing-device-hosted-ui-proof.js",
@@ -73,25 +209,21 @@
       "import": "./dist/tracking-report-policy-consumer-hosted-ui-proof.js",
       "types": "./dist/tracking-report-policy-consumer-hosted-ui-proof.d.ts"
     },
-    "./parent-portal-shell-status": {
-      "import": "./dist/parent-portal-shell-status.js",
-      "types": "./dist/parent-portal-shell-status.d.ts"
+    "./tracking-retention-settings-hosted-ui-proof": {
+      "import": "./dist/tracking-retention-settings-hosted-ui-proof.js",
+      "types": "./dist/tracking-retention-settings-hosted-ui-proof.d.ts"
     },
-    "./browser-action-intent-stream-status": {
-      "import": "./dist/browser-action-intent-stream-status.js",
-      "types": "./dist/browser-action-intent-stream-status.d.ts"
+    "./tracking-status-panel": {
+      "import": "./dist/tracking-status-panel.js",
+      "types": "./dist/tracking-status-panel.d.ts"
     },
-    "./policy-preview-panel": {
-      "import": "./dist/policy-preview-panel.js",
-      "types": "./dist/policy-preview-panel.d.ts"
+    "./tracking-status-proof-artifacts": {
+      "import": "./dist/tracking-status-proof-artifacts.js",
+      "types": "./dist/tracking-status-proof-artifacts.d.ts"
     },
-    "./setup-first-run-panel": {
-      "import": "./dist/setup-first-run-panel.js",
-      "types": "./dist/setup-first-run-panel.d.ts"
-    },
-    "./screen-summary-panel": {
-      "import": "./dist/screen-summary-panel.js",
-      "types": "./dist/screen-summary-panel.d.ts"
+    "./unified-chrome": {
+      "import": "./dist/unified-chrome.js",
+      "types": "./dist/unified-chrome.d.ts"
     }
   },
   "scripts": {
@@ -106,7 +238,6 @@
     "@ocentra-parent/agent-protocol-domain": "file:../agent-protocol-domain",
     "@ocentra-parent/app-game-domain": "file:../app-game-domain",
     "@ocentra-parent/browser-domain": "file:../browser-domain",
-    "@ocentra-parent/evidence-domain": "file:../evidence-domain",
     "@ocentra-parent/family-domain": "file:../family-domain",
     "@ocentra-parent/logging-domain": "file:../logging-domain",
     "@ocentra-parent/network-domain": "file:../network-domain",

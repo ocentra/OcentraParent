@@ -3,8 +3,8 @@ import {
   ProductionReleasePublicDocsStatusProofSchema,
   ProductionReleasePublicDocsStatusRowSchema,
   summarizeProductionReleasePublicDocsStatusRows,
-} from '../../src/production-release-public-docs-status';
-import { ProductionReleasePublicDocsStatusReadModel } from '../../src/production-release-public-docs-status-read-model';
+} from '@ocentra-parent/schema-domain/production-release-public-docs-status';
+import { ProductionReleasePublicDocsStatusReadModel } from '@ocentra-parent/schema-domain/production-release-public-docs-status-read-model';
 
 describe('production release public docs status', () => {
   acceptsPublicDocsStatusRows();

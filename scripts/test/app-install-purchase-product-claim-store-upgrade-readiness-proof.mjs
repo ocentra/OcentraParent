@@ -13,26 +13,19 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']));
+  await runCommand(...npmCommand(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']));
   await runCommand(
     ...npmCommand([
       'run',
       'test',
       '--workspace',
-      '@ocentra-parent/parent-domain',
+      '@ocentra-parent/app-game-domain',
       '--',
-      'tests/app-install-purchase-product-claim-store-upgrade-readiness-proof.test.ts',
+      'tests/unit/app-install-purchase-product-claim-store-upgrade-readiness-proof.test.ts',
     ])
   );
 
   const proofModule = await loadProofModule();
-  const packageProofModule =
-    await import('@ocentra-parent/app-game-domain/app-install-purchase-product-claim-store-upgrade-readiness-proof');
-  assert.equal(
-    packageProofModule.AppInstallPurchaseProductClaimStoreUpgradeReadinessProofReadModel.schemaVersion,
-    proofModule.AppInstallPurchaseProductClaimStoreUpgradeReadinessProofReadModel.schemaVersion
-  );
-
   const parsedReadModel = proofModule.AppInstallPurchaseProductClaimStoreUpgradeReadinessProofReadModel;
   const summary = proofModule.summarizeAppInstallPurchaseProductClaimStoreUpgradeReadinessProof(parsedReadModel);
 
@@ -65,18 +58,18 @@ async function main() {
     commit: await gitHead(),
     proofMode: 'app-install-purchase-product-claim-store-upgrade-readiness-proof',
     commands,
-    packageExportState: 'validated-via-public-parent-domain-subpath-export',
+    packageExportState: 'not-claimed-new-public-export-deferred',
     checklistState: 'updated-docs-product-capability-checklist-app-install-row',
     evidence: {
       storeUpgradeReadinessContract:
-        'packages/parent-domain/src/app-install-purchase-product-claim-store-upgrade-readiness-proof.ts',
-      sourceProductClaimGateContract: 'packages/parent-domain/src/app-install-purchase-product-claim-gate-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-product-claim-store-upgrade-readiness-proof.ts',
+      sourceProductClaimGateContract: 'packages/app-game-domain/src/app-install-purchase-product-claim-gate-proof.ts',
       sourcePortalTestReadinessContract:
-        'packages/parent-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-product-claim-portal-test-readiness-proof.ts',
       sourceProviderStoreContract:
-        'packages/parent-domain/src/app-install-purchase-product-claim-provider-store-proof.ts',
+        'packages/app-game-domain/src/app-install-purchase-product-claim-provider-store-proof.ts',
       contractTest:
-        'packages/parent-domain/tests/app-install-purchase-product-claim-store-upgrade-readiness-proof.test.ts',
+        'packages/app-game-domain/tests/unit/app-install-purchase-product-claim-store-upgrade-readiness-proof.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       expectationDoc: 'docs/expectations/app-install-purchase-approval.md',
       checklistDoc: 'docs/product-capability-checklist.md',
@@ -97,7 +90,7 @@ async function loadProofModule() {
   const modulePath = join(
     repoRoot,
     'packages',
-    'parent-domain',
+    'app-game-domain',
     'dist',
     'app-install-purchase-product-claim-store-upgrade-readiness-proof.js'
   );

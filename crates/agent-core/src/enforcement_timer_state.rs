@@ -321,7 +321,7 @@ fn transition_audit_event(
         evidence_references: action.evidence_references.clone(),
         actor: parent_override
             .as_ref()
-            .map(|reference| reference.actor.clone()),
+            .map(|reference| reference.actor.clone().into()),
         parent_override,
         journal_sequence: None,
         observed_at: ids.observed_at.clone(),

@@ -1,14 +1,16 @@
 use ocentra_network_evidence::{
-    dns::NetworkEvidenceGrade,
+    dns::types::NetworkEvidenceGrade,
     linux_adapter_gate::{
         plan_network_linux_adapter_gate, NetworkLinuxAdapterCapabilityState,
         NetworkLinuxAdapterGateInput, NetworkLinuxAdapterGateProof, NetworkLinuxAdapterKind,
     },
     linux_nftables_lab_execution::{
-        prove_network_linux_nftables_lab_execution, NetworkLinuxNftablesLabCommandEvidence,
-        NetworkLinuxNftablesLabCommandKind, NetworkLinuxNftablesLabExecutionInput,
-        NetworkLinuxNftablesLabExecutionProof, NetworkLinuxNftablesLabExecutionState,
-        NetworkLinuxNftablesLabUnsupportedClaims,
+        prove_network_linux_nftables_lab_execution,
+        types::{
+            NetworkLinuxNftablesLabCommandEvidence, NetworkLinuxNftablesLabCommandKind,
+            NetworkLinuxNftablesLabExecutionInput, NetworkLinuxNftablesLabExecutionProof,
+            NetworkLinuxNftablesLabExecutionState, NetworkLinuxNftablesLabUnsupportedClaims,
+        },
     },
     policy::{
         map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,

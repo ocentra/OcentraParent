@@ -17,20 +17,21 @@ for (const path of [testOutputDir, appGameProofDir, appProofDir]) {
   await mkdir(path, { recursive: true });
 }
 
-runNpm(['run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/schema-domain']);
+runNpm(['run', 'build', '--workspace', '@ocentra-parent/app-game-domain']);
 runNpm([
   'run',
   'test',
   '--workspace',
-  '@ocentra-parent/parent-domain',
+  '@ocentra-parent/app-game-domain',
   '--',
   'app-game-timer-service-read-model-handoff',
   'app-game-timer-service-handoff',
 ]);
 
-const contract = await importDist('app-game-timer-service-read-model-handoff.js');
-const serviceHandoffContract = await importDist('app-game-timer-service-handoff.js');
-const refs = await importDist('reference-primitives.js');
+const contract = await importAppGameDist('app-game-timer-service-read-model-handoff.js');
+const serviceHandoffContract = await importAppGameDist('app-game-timer-service-handoff.js');
+const refs = await importSchemaDist('reference-primitives.js');
 const sourceServiceHandoff =
   serviceHandoffContract.AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelServiceHandoffSchema.parse(
     await readJson(join(repoRoot, 'test-results', 'app-game-timer-service-handoff-proof', 'handoff.json'))
@@ -50,15 +51,17 @@ const proof = {
   stackedOn: {
     wp102Branch: 'codex/app-game-timer-service-handoff',
     reason:
-      'WP103 consumes WP102 parent-domain service handoff rows and records the future service read-model proof needed before runtime service emission, events, read APIs, protocol, portal rendering, adapters, child delivery, platform enforcement, or raw source rows are claimed.',
+      'Schema-domain owns the timer-service read-model handoff contract surface; app-game-domain consumes WP102 service handoff rows and records the future service read-model proof needed before runtime service emission, events, read APIs, protocol, portal rendering, adapters, child delivery, platform enforcement, or raw source rows are claimed.',
   },
   summary: summarize(serviceReadModelHandoff),
   nonClaims: pickNonClaims(serviceReadModelHandoff),
   proofPaths: {
-    source: 'packages/parent-domain/src/app-game-timer-service-read-model-handoff.ts',
-    rules: 'packages/parent-domain/src/app-game-timer-service-read-model-handoff-rules.ts',
-    test: 'packages/parent-domain/tests/app-game-timer-service-read-model-handoff.test.ts',
-    harness: 'scripts/test/app-game-timer-service-read-model-handoff-proof.mjs',
+    schemaSource: 'packages/schema-domain/src/app-game-timer-service-read-model-handoff.ts',
+    schemaRules: 'packages/schema-domain/src/app-game-timer-service-read-model-handoff-rules.ts',
+    consumerSource: 'packages/app-game-domain/src/app-game-timer-service-read-model-handoff.ts',
+    consumerTest: 'packages/app-game-domain/tests/unit/app-game-timer-service-read-model-handoff.test.ts',
+    harness:
+      'scripts/test/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-read-model-handoff-proof.mjs',
     evidence: 'test-results/app-game-timer-service-read-model-handoff-proof/proof.json',
     appGameProofPack: `output/app-game-plan-proof/${proofSlug}`,
     appProofPack: `output/app-plan-proof/${proofSlug}`,
@@ -75,8 +78,12 @@ await writeProofPack(appProofDir, proof, 'app WP103');
 console.log('app-game-timer-service-read-model-handoff-proof-ok');
 console.log(`evidence=${join('test-results', 'app-game-timer-service-read-model-handoff-proof', 'proof.json')}`);
 
-function importDist(name) {
-  return import(pathToFileURL(join(repoRoot, 'packages', 'parent-domain', 'dist', name)).href);
+function importAppGameDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'app-game-domain', 'dist', name)).href);
+}
+
+function importSchemaDist(name) {
+  return import(pathToFileURL(join(repoRoot, 'packages', 'schema-domain', 'dist', name)).href);
 }
 
 function serviceReadModelHandoffOptions(refs) {

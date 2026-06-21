@@ -1,11 +1,13 @@
-use ocentra_family_identity_core::family_identity::{FamilyActorRole, HouseholdMembership};
+use ocentra_family_identity_core::family_identity::{DeviceTrustState, HouseholdRole};
 use ocentra_family_identity_core::household_authority::AuditRequirementState;
 use ocentra_family_identity_core::setup_lifecycle::{
-    authorize_setup_invite, evaluate_recovery_operation, RecoveryChildEvidenceAccessState,
-    RecoveryDataCustodyHandoffState, RecoveryDecisionState, RecoveryFailureReason,
-    RecoveryIdentityProofState, RecoveryKind, RecoveryOperation, RecoveryState,
-    RecoverySupportChannel, SetupInviteDecisionState, SetupInviteFailureReason, SetupInviteInput,
-    SetupInvitePurpose, SetupInviteReplayState, SetupInviteState, SetupInviteTargetRole,
+    authorize_setup_invite, device_trust_state_for_recovery_operation,
+    device_trust_state_for_recovery_state, evaluate_recovery_operation,
+    RecoveryChildEvidenceAccessState, RecoveryDataCustodyHandoffState, RecoveryDecisionState,
+    RecoveryFailureReason, RecoveryIdentityProofState, RecoveryKind, RecoveryOperation,
+    RecoveryState, RecoverySupportChannel, SetupInviteDecisionState, SetupInviteFailureReason,
+    SetupInviteInput, SetupInvitePurpose, SetupInviteReplayState, SetupInviteState,
+    SetupInviteTargetRole, SetupRecoveryAbuseState, SetupRecoveryResponseTimingState,
 };
 
 fn parent_member_invite(
@@ -13,26 +15,30 @@ fn parent_member_invite(
     target_role: SetupInviteTargetRole,
 ) -> SetupInviteInput {
     SetupInviteInput {
-        inviter_role: FamilyActorRole::Parent,
-        household_membership: HouseholdMembership::Member,
+        inviter_role: HouseholdRole::ParentOwner,
+        same_family: true,
         purpose,
         target_role,
         invite_state: SetupInviteState::Pending,
         single_use: true,
         replay_state: SetupInviteReplayState::Fresh,
+        abuse_state: SetupRecoveryAbuseState::WithinLimit,
+        response_timing_state: SetupRecoveryResponseTimingState::Uniform,
     }
 }
 
 fn parent_member_recovery(kind: RecoveryKind) -> RecoveryOperation {
     RecoveryOperation {
-        requester_role: FamilyActorRole::Parent,
-        household_membership: HouseholdMembership::Member,
+        requester_role: HouseholdRole::ParentOwner,
+        same_family: true,
         kind,
         state: RecoveryState::Approved,
         owner_approval_required: false,
         identity_proof_state: RecoveryIdentityProofState::Verified,
         support_channel: RecoverySupportChannel::SelfServe,
         delete_export_handoff_required: false,
+        abuse_state: SetupRecoveryAbuseState::WithinLimit,
+        response_timing_state: SetupRecoveryResponseTimingState::Uniform,
     }
 }
 
@@ -166,7 +172,7 @@ fn child_device_pairing_invite_rejects_wrong_target_role() {
 #[test]
 fn non_member_household_cannot_accept_household_transfer_invite() {
     let decision = authorize_setup_invite(SetupInviteInput {
-        household_membership: HouseholdMembership::External,
+        same_family: false,
         purpose: SetupInvitePurpose::HouseholdTransfer,
         target_role: SetupInviteTargetRole::ParentOwner,
         ..parent_member_invite(
@@ -185,7 +191,7 @@ fn non_member_household_cannot_accept_household_transfer_invite() {
 #[test]
 fn guardian_cannot_issue_household_transfer_invite() {
     let decision = authorize_setup_invite(SetupInviteInput {
-        inviter_role: FamilyActorRole::Guardian,
+        inviter_role: HouseholdRole::CoParentGuardian,
         purpose: SetupInvitePurpose::HouseholdTransfer,
         target_role: SetupInviteTargetRole::ParentOwner,
         ..parent_member_invite(
@@ -308,8 +314,8 @@ fn compromised_account_and_household_transfer_recovery_keep_owner_approval_parit
 #[test]
 fn support_assisted_recovery_is_audited_and_cannot_access_child_evidence() {
     let decision = evaluate_recovery_operation(RecoveryOperation {
-        requester_role: FamilyActorRole::SupportAdmin,
-        household_membership: HouseholdMembership::External,
+        requester_role: HouseholdRole::SupportAdmin,
+        same_family: false,
         kind: RecoveryKind::CompromisedAccount,
         support_channel: RecoverySupportChannel::SupportAssisted,
         ..parent_member_recovery(RecoveryKind::CompromisedAccount)
@@ -330,7 +336,7 @@ fn support_assisted_recovery_is_audited_and_cannot_access_child_evidence() {
 #[test]
 fn observer_and_revoked_recovery_paths_are_rejected() {
     let observer = evaluate_recovery_operation(RecoveryOperation {
-        requester_role: FamilyActorRole::Observer,
+        requester_role: HouseholdRole::Observer,
         ..parent_member_recovery(RecoveryKind::ForgotLogin)
     });
 
@@ -370,4 +376,87 @@ fn household_transfer_without_identity_proof_is_rejected_and_keeps_custody_hando
         decision.failure_reason,
         Some(RecoveryFailureReason::IdentityProofRequired)
     );
+}
+
+#[test]
+fn throttled_or_variable_timing_invite_is_rejected_as_inactive() {
+    let throttled = authorize_setup_invite(SetupInviteInput {
+        abuse_state: SetupRecoveryAbuseState::Throttled,
+        ..parent_member_invite(
+            SetupInvitePurpose::ObserverInvite,
+            SetupInviteTargetRole::Observer,
+        )
+    });
+    assert_eq!(
+        throttled.failure_reason,
+        Some(SetupInviteFailureReason::InviteNotActive)
+    );
+
+    let variable_timing = authorize_setup_invite(SetupInviteInput {
+        response_timing_state: SetupRecoveryResponseTimingState::Variable,
+        ..parent_member_invite(
+            SetupInvitePurpose::ObserverInvite,
+            SetupInviteTargetRole::Observer,
+        )
+    });
+    assert_eq!(
+        variable_timing.failure_reason,
+        Some(SetupInviteFailureReason::InviteNotActive)
+    );
+}
+
+#[test]
+fn throttled_or_variable_timing_recovery_requires_identity_proof() {
+    let throttled = evaluate_recovery_operation(RecoveryOperation {
+        abuse_state: SetupRecoveryAbuseState::Throttled,
+        ..parent_member_recovery(RecoveryKind::ForgotLogin)
+    });
+    assert_eq!(
+        throttled.failure_reason,
+        Some(RecoveryFailureReason::IdentityProofRequired)
+    );
+
+    let variable_timing = evaluate_recovery_operation(RecoveryOperation {
+        response_timing_state: SetupRecoveryResponseTimingState::Variable,
+        ..parent_member_recovery(RecoveryKind::ForgotLogin)
+    });
+    assert_eq!(
+        variable_timing.failure_reason,
+        Some(RecoveryFailureReason::IdentityProofRequired)
+    );
+}
+
+#[test]
+fn recovery_device_trust_projection_matches_canonical_states() {
+    assert_eq!(
+        device_trust_state_for_recovery_state(RecoveryState::PendingIdentityProof),
+        DeviceTrustState::ResetRequired
+    );
+    assert_eq!(
+        device_trust_state_for_recovery_state(RecoveryState::OwnerApprovalRequired),
+        DeviceTrustState::ResetRequired
+    );
+    assert_eq!(
+        device_trust_state_for_recovery_state(RecoveryState::Approved),
+        DeviceTrustState::ResetRequired
+    );
+    assert_eq!(
+        device_trust_state_for_recovery_state(RecoveryState::Completed),
+        DeviceTrustState::Pending
+    );
+    assert_eq!(
+        device_trust_state_for_recovery_state(RecoveryState::Revoked),
+        DeviceTrustState::Revoked
+    );
+}
+
+#[test]
+fn completed_delete_export_recovery_keeps_device_reset_required() {
+    let trust_state = device_trust_state_for_recovery_operation(RecoveryOperation {
+        state: RecoveryState::Completed,
+        delete_export_handoff_required: true,
+        ..parent_member_recovery(RecoveryKind::ForgotLogin)
+    });
+
+    assert_eq!(trust_state, DeviceTrustState::ResetRequired);
 }

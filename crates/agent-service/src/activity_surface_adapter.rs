@@ -3,8 +3,8 @@ use ocentra_parent_agent_protocol::{ActivityReportFrequency, AgentCommandEnvelop
 use crate::{
     activity_family_sources::family_sources_from_command,
     activity_surface_read_models::{
-        app_use_read_model, browser_read_model, games_read_model, network_read_model,
-        screen_read_model,
+        app_use::app_use_read_model, browser_read_model, games::games_read_model,
+        network_read_model, screen_read_model,
     },
     activity_surface_report::report_document,
     activity_surface_report_store::{history_list, save_report_document},

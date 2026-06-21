@@ -3,7 +3,7 @@ import {
   ScreenAiStricterParentRuleInputSchema,
   ScreenAiStricterParentRuleProofSchema,
   buildScreenAiStricterParentRuleProof,
-} from '../../src/screen-ai-stricter-parent-rule-proof';
+} from '@ocentra-parent/schema-domain/screen-ai-stricter-parent-rule-proof';
 
 const GeneratedAt = '2026-06-05T19:29:00.000Z';
 const SourceDecision = {

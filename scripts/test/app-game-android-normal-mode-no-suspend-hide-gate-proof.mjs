@@ -21,25 +21,25 @@ async function main() {
     'run',
     'test',
     '--workspace',
-    '@ocentra-parent/parent-domain',
+    '@ocentra-parent/app-game-domain',
     '--',
     'app-game-broad-blocking-proof-gates.test.ts',
   ]);
 
   const broadGateData = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-data.ts'),
     'utf8'
   );
   const broadGateRules = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-game-broad-blocking-proof-gate-rules.ts'),
     'utf8'
   );
   const broadGateTest = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'tests', 'app-game-broad-blocking-proof-gates.test.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'tests', 'unit', 'app-game-broad-blocking-proof-gates.test.ts'),
     'utf8'
   );
   const catalogData = await readFile(
-    join(repoRoot, 'packages', 'parent-domain', 'src', 'app-control-guide-catalog-data.ts'),
+    join(repoRoot, 'packages', 'app-game-domain', 'src', 'app-control-guide-catalog-data.ts'),
     'utf8'
   );
 
@@ -133,13 +133,13 @@ async function main() {
     gateState: 'prevented-by-android-owner-proof-manual-required-gate',
     evidence: {
       androidGate:
-        'packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts defines android-normal-mode-hide-suspend-manual-required as Android suspend-app, manual-required, device-owner-required, blocked-before-adapter, canCallAdapter=false, and broadBlockingClaimed=false.',
+        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-data.ts defines android-normal-mode-hide-suspend-manual-required as Android suspend-app, manual-required, device-owner-required, blocked-before-adapter, canCallAdapter=false, and broadBlockingClaimed=false.',
       androidGateRules:
-        'packages/parent-domain/src/app-game-broad-blocking-proof-gate-rules.ts requires android-device-owner-proof or android-profile-owner-proof for Android hide/suspend actions and blocks non-supported gates from dispatch eligibility.',
+        'packages/app-game-domain/src/app-game-broad-blocking-proof-gate-rules.ts requires android-device-owner-proof or android-profile-owner-proof for Android hide/suspend actions and blocks non-supported gates from dispatch eligibility.',
       androidGateTests:
-        'packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts asserts Android normal mode needs Device Owner/Profile Owner proof.',
+        'packages/app-game-domain/tests/unit/app-game-broad-blocking-proof-gates.test.ts asserts Android normal mode needs Device Owner/Profile Owner proof.',
       catalogBoundary:
-        'packages/parent-domain/src/app-control-guide-catalog-data.ts keeps Android package lifecycle proof manual-required until real device artifacts exist.',
+        'packages/app-game-domain/src/app-control-guide-catalog-data.ts keeps Android package lifecycle proof manual-required until real device artifacts exist.',
     },
     productBoundaries: {
       sharedEvidenceSpine: true,

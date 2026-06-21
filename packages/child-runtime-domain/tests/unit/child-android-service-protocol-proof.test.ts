@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type ChildAndroidServiceProtocolReadModel,
   ChildAndroidServiceProtocolReadModelSchema,
-} from '../../src/child-android-service-protocol-proof';
+} from '@ocentra-parent/schema-domain/child-android-service-protocol-proof';
 
 describe('child android service protocol proof contracts', () => {
   acceptsPackageLocalServiceProof();

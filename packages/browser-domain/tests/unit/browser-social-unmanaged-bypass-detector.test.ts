@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BrowserSocialUnmanagedBypassEvidenceSchema,
   detectBrowserSocialUnmanagedBypass,
-} from '../../src/browser-social-unmanaged-bypass-detector';
+} from '@ocentra-parent/schema-domain/browser-social-unmanaged-bypass-detector';
 
 describe('browser social unmanaged bypass detector contract', () => {
   it('detects possible social bypass process evidence without exact URL claims', detectsSocialBypassProcess);

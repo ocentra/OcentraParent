@@ -106,7 +106,9 @@ fn child_domain_policy_rejects_wrong_event_type_and_missing_evidence() {
         wrong_event,
         ocentra_eventing::error::EventingError::InvalidValue {
             field: "child_domain_policy.event_type",
-            value: String::from("child-domain.policy.violation.detected"),
+            value: ChildDomainEventType::policy_violation_detected()
+                .as_str()
+                .to_owned(),
         }
     );
 

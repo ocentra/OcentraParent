@@ -7,7 +7,7 @@ const resultDirectory = join(root, 'test-results', 'social-source-custody-mutati
 
 const requiredFiles = [
   'packages/agent-protocol-domain/src/social-source-custody-mutation.ts',
-  'packages/agent-protocol-domain/tests/social-source-custody-mutation.test.ts',
+  'packages/agent-protocol-domain/tests/unit/social-source-custody-mutation.test.ts',
   'crates/agent-protocol/src/social_source_custody_mutation.rs',
   'crates/agent-service/src/activity_api/social_source_custody_mutation_payload.rs',
   'crates/agent-service/src/activity_api/social_source_custody_mutation_service_tests.rs',
@@ -34,7 +34,7 @@ async function main() {
       'enforcementClaimed: Schema.Literal(false)',
       'parseAgentSocialSourceCustodyMutationEvent',
     ]),
-    checkIncludes(files, 'packages/agent-protocol-domain/tests/social-source-custody-mutation.test.ts', [
+    checkIncludes(files, 'packages/agent-protocol-domain/tests/unit/social-source-custody-mutation.test.ts', [
       'parses a service-applied ref-only custody mutation snapshot',
       'rejects wrong event missing json invalid json and policy or enforcement overclaims',
     ]),

@@ -6,7 +6,7 @@ import { dirname, join, relative } from 'node:path';
 import {
   BrowserGameAiAnalysisInputSchema,
   BrowserGameAiAnalysisResultSchema,
-} from '../../packages/parent-domain/dist/browser-game-ai-analysis.js';
+} from '@ocentra-parent/schema-domain/browser-game-ai-analysis';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-ai-analysis-live-evidence-proof';

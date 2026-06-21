@@ -7,7 +7,7 @@ import {
   BrowserGamePlatformRouteCatalogSchema,
   BrowserGamePlatformRouteContractSchema,
   decodeBrowserGamePlatformRouteCatalog,
-} from '../../packages/parent-domain/dist/browser-game-platform-route-contracts.js';
+} from '@ocentra-parent/schema-domain/browser-game-platform-route-contracts';
 
 const repoRoot = process.cwd();
 const proofId = 'browser-game-platform-route-live-evidence-proof';

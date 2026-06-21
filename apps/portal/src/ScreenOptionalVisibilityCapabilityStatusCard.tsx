@@ -2,14 +2,10 @@ import { useMemo, type ReactElement, type ReactNode } from 'react';
 import {
   screenOptionalVisibilityCapabilityStatusProof,
   ScreenOptionalVisibilityCapabilityProofGeneratedAt,
-  type ScreenOptionalVisibilityCapabilityStatus,
-} from '@ocentra-parent/screen-domain/screen-evidence';
-import {
-  PortalDetails,
-  PortalDom,
-  PortalReadableValues,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/schema-domain/screen-optional-visibility-capability-proof';
+import type { ScreenOptionalVisibilityCapabilityStatus } from '@ocentra-parent/schema-domain/screen-optional-visibility-capability-status';
+import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails, PortalReadableValues } from '@ocentra-parent/portal-domain/details';
 
 type OptionalVisibilityStatusValue = ReactNode;
 

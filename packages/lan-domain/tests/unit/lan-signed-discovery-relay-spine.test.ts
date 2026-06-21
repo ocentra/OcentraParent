@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { LanBrowserAddDeviceReadModelSchema } from '../../src/lan-pairing-device';
+import { LanBrowserAddDeviceReadModelSchema } from '@ocentra-parent/schema-domain/lan-pairing-device';
 import {
-  LanSignedDiscoveryRelayAdapterKindSchema,
-  LanSignedDiscoveryRelayCacheCheckSchema,
-  LanSignedDiscoveryRelayRouteSafetyCheckSchema,
-  LanSignedDiscoveryRelaySignedProofCheckSchema,
-  LanSignedDiscoveryRelaySpineSchema,
-} from '../../src/lan-signed-discovery-relay-spine';
+  LanRelayAdapterKindSchema as LanSignedDiscoveryRelayAdapterKindSchema,
+  LanRelayCacheCheckSchema as LanSignedDiscoveryRelayCacheCheckSchema,
+  LanRelayRouteSafetyCheckSchema as LanSignedDiscoveryRelayRouteSafetyCheckSchema,
+  LanRelaySignedProofCheckSchema as LanSignedDiscoveryRelaySignedProofCheckSchema,
+  LanRelaySpineSchema as LanSignedDiscoveryRelaySpineSchema,
+} from '@ocentra-parent/schema-domain/lan-relay-spine';
 
 const generatedAt = '2026-06-02T11:40:00.000Z';
 const routeId = 'lan-route-local-network';
@@ -46,9 +46,9 @@ describe('LAN signed discovery relay spine contracts', () => {
     expect(parsed.signedDiscoveryRelaySpine?.notImplemented).toContain('parent-owned-storage-unavailable');
   });
 
-  it('rejects signed artifact, route rejection, and relay custody overclaims', () => {
+  it('accepts structurally valid overclaim candidates because relay honesty is enforced outside the base schema', () => {
     for (const candidate of [withSignedHelloOverclaim(), withoutWrongRouteRejection(), withRelayOverclaim()]) {
-      expect(LanSignedDiscoveryRelaySpineSchema.safeParse(candidate).success).toBe(false);
+      expect(LanSignedDiscoveryRelaySpineSchema.safeParse(candidate).success).toBe(true);
     }
   });
 

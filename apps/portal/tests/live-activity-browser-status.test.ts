@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 
 type PortalBrowserInterventionReadModel = NonNullable<
@@ -66,7 +66,7 @@ function expectBrowserInterventionReadModel(
 }
 
 function expectBrowserInterventionLatestRow(latestRow: PortalBrowserInterventionRow | undefined) {
-  expect(latestRow).toBeDefined();
+  expect(latestRow?.browserInterventionId).toBe('browser-intervention-1');
   if (latestRow === undefined) {
     return;
   }

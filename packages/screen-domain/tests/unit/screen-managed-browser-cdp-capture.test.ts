@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
-  ScreenManagedBrowserCdpMaxPixels,
   ScreenManagedBrowserCdpScreenshotArtifactSchema,
   ScreenManagedBrowserCdpScreenshotRequestSchema,
-} from '../../src/screen-managed-browser-cdp-capture';
+} from '@ocentra-parent/schema-domain/screen-managed-browser-cdp-capture';
+import { ScreenManagedBrowserCdpMaxPixels } from '@ocentra-parent/schema-domain/screen-managed-browser-cdp-capture-values';
 
 describe('screen managed browser CDP screenshot capture contracts', () => {
   it('accepts managed page, viewport, and crop screenshot requests tied to a target', acceptsCdpModes);

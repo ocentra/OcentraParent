@@ -2,39 +2,30 @@ import { describe, expect, it } from 'vitest';
 import {
   AgentEvent,
   AgentEventEnvelopeSchema,
-  AgentProtocolDefaults,
-  AgentProtocolSchemaVersion,
   type AgentEventEnvelope,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
-import { PortalRoute } from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
+import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
+import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
+import { PortalRoute } from '@ocentra-parent/portal-domain/routes';
 import { createAppGamePlatformProofStatusPanelIntent } from '@ocentra-parent/portal-domain/app-game-platform-proof-status-panel';
 import { resolveLiveActivityState } from '../src/live-activity-state';
-import { shouldRenderAppGamePlatformProofStatusRoute } from '../src/AppGamePlatformProofStatusRoutePanel';
-
-const AppGameSchemaVersion = 1;
+import {
+  normalizeAppGamePlatformProofStatusReadModel,
+  shouldRenderAppGamePlatformProofStatusRoute,
+} from '../src/AppGamePlatformProofStatusRoutePanel';
 
 const PlatformProofStatusReadModel = {
-  schemaVersion: AppGameSchemaVersion,
+  schemaVersion: 'app-game-platform-proof-status',
   readModelId: 'app-game-platform-proof-status',
   generatedAt: '2026-06-08T17:15:00.000Z',
-  sourceReadModelIds: ['v0-8-supported-adapter-runtime-proof'],
-  custodyLabel: 'app-game-platform-proof-status',
-  capabilityStatus: 'app-game-platform-proof-status-partial',
-  returned: 2,
-  hostVisibleCount: 1,
-  hostNotDetectedCount: 0,
-  localRuntimeNotApplicableCount: 1,
+  platformProofObservedCount: 2,
+  visibilityOnlyCount: 2,
   enforcementReadyCount: 0,
   openGapCount: 4,
-  adapterDispatchClaimed: false,
-  broadInstalledAppBlockingClaimed: false,
-  platformEnforcementClaimed: false,
-  providerDeliveryClaimed: false,
-  childDeviceDeliveryClaimed: false,
-  privateDiagnosticsClaimed: false,
+  productClaim: 'Platform proof rows are visibility-only.',
   rows: [
-    platformProofStatusRow('windows', 'scoped-windows-execution-proved', 'available'),
-    platformProofStatusRow('ios', 'local-runtime-not-applicable', 'not-applicable'),
+    platformProofStatusRow('windows', 'windows-policy-preflight-observed', 1, 1),
+    platformProofStatusRow('ios', 'apple-ci-artifacts-required', 0, 0),
   ],
 } as const;
 
@@ -51,17 +42,19 @@ describe('app-game platform proof status portal route panel', () => {
     expect(liveActivity.appGamePlatformProofStatusReadModel).toMatchObject({
       ok: true,
       value: {
-        returned: 2,
+        platformProofObservedCount: 2,
         enforcementReadyCount: 0,
-        platformEnforcementClaimed: false,
+        openGapCount: 4,
       },
     });
 
-    const intent = createAppGamePlatformProofStatusPanelIntent(
-      liveActivity.appGamePlatformProofStatusReadModel?.ok === true
-        ? liveActivity.appGamePlatformProofStatusReadModel.value
-        : null
-    );
+    const platformProofStatusReadModel =
+      liveActivity.appGamePlatformProofStatusReadModel !== null &&
+      liveActivity.appGamePlatformProofStatusReadModel.ok
+        ? normalizeAppGamePlatformProofStatusReadModel(liveActivity.appGamePlatformProofStatusReadModel.value)
+        : null;
+
+    const intent = createAppGamePlatformProofStatusPanelIntent(platformProofStatusReadModel);
 
     expect(intent.summaryDetails).toEqual(
       expect.arrayContaining([
@@ -82,27 +75,32 @@ describe('app-game platform proof status portal route panel', () => {
   });
 });
 
-function platformProofStatusRow(platform: string, proofState: string, hostCapabilityState: string) {
+function platformProofStatusRow(
+  platform: 'windows' | 'ios',
+  proofState: 'windows-policy-preflight-observed' | 'apple-ci-artifacts-required',
+  packageVisibilityCount: number,
+  runtimeVisibilityCount: number
+) {
   return {
-    schemaVersion: AppGameSchemaVersion,
-    rowId: `app-game-platform-proof-status-${platform}`,
     platform,
     proofState,
-    authorityState: platform === 'windows' ? 'scoped-execution-only' : 'not-locally-provable',
-    hostCapabilityState,
-    hostCapabilityEvidenceRefs: hostCapabilityState === 'available' ? ['adapter-capability-state-ref'] : [],
-    hostCapabilityProbeRefs: hostCapabilityState === 'available' ? [`${platform}-host-local-probe-ref`] : [],
-    productMeanings: ['native-app', 'native-game'],
-    proofRefs: [`${platform}-platform-proof-ref`],
-    openGaps: ['platform-enforcement-not-proved', 'child-device-delivery-not-proved'],
+    authorityState: 'visibility-only',
+    parentVisibleSummary: platform === 'windows' ? 'Local Windows proof observed' : 'Apple CI artifacts required',
+    packageVisibilityCount,
+    runtimeVisibilityCount,
+    ownerProofAttached: false,
+    mechanismProofAttached: false,
+    rollbackProofAttached: false,
+    auditProofAttached: false,
     adapterDispatchClaimed: false,
-    broadInstalledAppBlockingClaimed: false,
+    broadBlockingClaimed: false,
     platformEnforcementClaimed: false,
-    providerDeliveryClaimed: false,
     childDeliveryClaimed: false,
-    childDeviceDeliveryClaimed: false,
-    privateDiagnosticsClaimed: false,
-    lastCheckedAt: '2026-06-08T17:15:00.000Z',
+    proofRefs:
+      platform === 'windows'
+        ? ['windows-broad-blocking-authority-preflight-ref']
+        : ['apple-ci-platform-proof-preflight-ref'],
+    openGaps: ['cross-platform-child-delivery-not-proved', 'windows-applocker-enforce-not-proved'],
   };
 }
 

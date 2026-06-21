@@ -1,41 +1,13 @@
 use ocentra_eventing::error::EventingError;
-#[cfg(test)]
-use ocentra_eventing::{ids::SourceComponent, replay::ReplayMode};
 
+use super::remote_delivery_status::NetworkRuntimeRemoteDeliveryStatusError;
 #[cfg(test)]
 use super::remote_delivery_status::NetworkRuntimeRemoteDeliveryStatusReport;
-use super::{NetworkRuntimeEventPayload, NetworkRuntimeRemoteDeliveryStatusError};
+use super::NetworkRuntimeEventPayload;
 
-#[derive(Clone, Debug)]
 #[cfg(test)]
-pub struct NetworkRuntimeRemoteEventChainJournalReport {
-    pub remote_delivery_status: NetworkRuntimeRemoteDeliveryStatusReport,
-    pub event_chain_journal_ref: SourceComponent,
-    pub event_chain_replay_ref: SourceComponent,
-    pub event_chain_export_ref: SourceComponent,
-    pub event_chain_support_status_ref: SourceComponent,
-    pub stored_event_count: usize,
-    pub journal_entry_count: usize,
-    pub projection_replay_record_count: usize,
-    pub replay_cursor_next_sequence: u64,
-    pub exported_event_type_count: usize,
-    pub exportable_remote_envelope_count: usize,
-    pub unavailable_event_count: usize,
-    pub enforcement_command_event_count: usize,
-    pub adapter_action_executed_count: usize,
-    pub raw_pcap_available_count: usize,
-    pub exact_url_available_count: usize,
-    pub decrypted_payload_available_count: usize,
-    pub page_content_available_count: usize,
-    pub video_content_available_count: usize,
-    pub private_message_content_available_count: usize,
-    pub search_query_available_count: usize,
-    pub projection_replay_mode: ReplayMode,
-    pub broker_delivery_implemented: bool,
-    pub family_hub_delivery_implemented: bool,
-    pub policy_authority: bool,
-    pub side_effect_authority: bool,
-}
+pub(crate) type NetworkRuntimeRemoteEventChainJournalReport =
+    ocentra_parent_agent_protocol::network_flow::remote_delivery_reports::NetworkRuntimeRemoteEventChainJournalReport;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum NetworkRuntimeRemoteEventChainJournalError {

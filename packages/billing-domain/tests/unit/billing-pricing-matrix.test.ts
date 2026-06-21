@@ -5,10 +5,8 @@ import {
   BillingPricingSafetyCriticalFreeBoundarySchema,
   BillingPricingTierMatrixRowSchema,
   BillingPricingTrialGraceBoundarySchema,
-  listBillingPricingPlanIds,
-  summarizeBillingPricingTierStates,
-} from '../../src/billing-pricing-matrix';
-import { BillingPricingMatrixProofReadModel } from '../../src/billing-pricing-matrix-proof';
+} from '@ocentra-parent/schema-domain/billing-pricing-matrix';
+import { BillingPricingMatrixProofReadModel } from '@ocentra-parent/schema-domain/billing-pricing-matrix-proof';
 
 describe('billing pricing matrix proof', () => {
   coversBillingPricingTierMatrix();
@@ -21,13 +19,26 @@ function coversBillingPricingTierMatrix(): void {
   it('billing-pricing.tier-matrix', () => {
     const proof = BillingPricingMatrixProofSchema.parse(BillingPricingMatrixProofReadModel);
 
-    expect(summarizeBillingPricingTierStates(proof.tierMatrix)).toEqual({
+    const tierStateCounts = proof.tierMatrix.reduce(
+      (counts, row) => {
+        counts[row.plan.activeState] += 1;
+        return counts;
+      },
+      {
+        active: 0,
+        'trial-only': 0,
+        retired: 0,
+        'manual-required': 0,
+      } as Record<(typeof proof.tierMatrix)[number]['plan']['activeState'], number>
+    );
+
+    expect(tierStateCounts).toEqual({
       active: 3,
       'trial-only': 0,
       retired: 0,
       'manual-required': 0,
     });
-    expect(listBillingPricingPlanIds(proof.tierMatrix)).toEqual([
+    expect(proof.tierMatrix.map((row) => row.plan.planId)).toEqual([
       'family-safety-free',
       'family-monitor-core',
       'family-monitor-plus',
